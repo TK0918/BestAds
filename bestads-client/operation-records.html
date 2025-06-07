@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>操作记录 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    /* Tab样式 */
+    .tab-button {
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-button.active {
+      border-bottom-color: #3b82f6;
+      background-color: #eff6ff;
+      color: #1d4ed8;
+    }
+    
+    .tab-button:not(.active):hover {
+      background-color: #f1f5f9;
+      color: #475569;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* 状态标签样式 */
+    .status-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-processing {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .status-success {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-failed {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .status-completed {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    .table-hover tbody tr:hover {
+      background-color: #f8fafc;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white border-b border-gray-200 fixed w-full top-0 z-50">
+    <div class="px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo区域 -->
+        <div class="flex items-center">
+          <div class="flex-shrink-0 flex items-center">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <i class="fas fa-chart-line text-white text-sm"></i>
+            </div>
+            <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              BestAds
+            </span>
+          </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="index.html" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fas fa-home mr-2"></i>首页
+          </a>
+          <a href="account-management.html" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fas fa-users mr-2"></i>账户管理
+          </a>
+          <a href="#" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fab fa-facebook mr-2"></i>Facebook广告
+          </a>
+          <a href="#" class="sidebar-item active text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fas fa-history mr-2"></i>操作记录
+          </a>
+        </nav>
+
+        <!-- 右侧用户区域 -->
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+              <i class="fas fa-bell text-lg"></i>
+              <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+            </button>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要内容区域 -->
+  <main class="pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <!-- 页面标题区域 -->
+    <div class="py-8">
+      <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+          <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            操作记录
+          </h2>
+          <p class="mt-1 text-sm text-gray-500">
+            查看您的开户申请和充值记录，跟踪所有操作的处理状态
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+      <div class="border-b border-gray-200">
+        <nav class="flex space-x-8 px-6" aria-label="Tabs">
+          <button onclick="switchTab('account-opening')" class="tab-button active py-4 px-1 border-b-2 font-medium text-sm" id="tab-account-opening">
+            <i class="fas fa-plus-circle mr-2"></i>
+            开户记录
+          </button>
+          <button onclick="switchTab('recharge')" class="tab-button py-4 px-1 border-b-2 font-medium text-sm" id="tab-recharge">
+            <i class="fas fa-dollar-sign mr-2"></i>
+            充值记录
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 开户记录Tab内容 -->
+    <div id="content-account-opening" class="tab-content active">
+      <!-- 筛选区域 -->
+      <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">申请时间</label>
+              <input type="date" id="filterStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">至</label>
+              <input type="date" id="filterEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">申请类型</label>
+              <select id="filterAccountType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">全部类型</option>
+                <option value="personal">个人开户</option>
+                <option value="business">企业开户</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">开户页面</label>
+              <select id="filterPageType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">全部页面</option>
+                <option value="business-manager">Facebook Business Manager</option>
+                <option value="ads-manager">Facebook Ads Manager</option>
+                <option value="instagram-business">Instagram Business</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">申请状态</label>
+              <select id="filterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">全部状态</option>
+                <option value="pending">待处理</option>
+                <option value="processing">处理中</option>
+                <option value="success">成功</option>
+                <option value="failed">失败</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-4 flex space-x-3">
+            <button onclick="filterAccountData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-search"></i>
+              <span>筛选</span>
+            </button>
+            <button onclick="resetAccountFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-redo"></i>
+              <span>重置</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">开户申请记录</h3>
+          <div class="flex space-x-3">
+            <button onclick="refreshAccountData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-sync"></i>
+              <span>刷新</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 开户记录表格 -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 table-hover">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">开户URL</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户时区</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户ID</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="accountOpeningTableBody">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-15 14:30</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a href="https://business.facebook.com" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                    <i class="fab fa-facebook mr-2"></i>
+                    business.facebook.com
+                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800 text-xs">
+                    <i class="fas fa-globe mr-1"></i>UTC+8 (Asia/Shanghai)
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-processing">
+                    处理中
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">-</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-12 10:15</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a href="https://adsmanager.facebook.com" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                    <i class="fab fa-facebook mr-2"></i>
+                    adsmanager.facebook.com
+                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800 text-xs">
+                    <i class="fas fa-globe mr-1"></i>UTC+8 (Asia/Shanghai)
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-success">
+                    成功
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_123456789</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-10 15:45</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a href="https://business.facebook.com" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                    <i class="fab fa-facebook mr-2"></i>
+                    business.facebook.com
+                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800 text-xs">
+                    <i class="fas fa-globe mr-1"></i>UTC+8 (Asia/Shanghai)
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-failed">
+                    失败
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">-</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-08 11:20</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a href="https://business.instagram.com" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                    <i class="fab fa-instagram mr-2"></i>
+                    business.instagram.com
+                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800 text-xs">
+                    <i class="fas fa-globe mr-1"></i>UTC+0 (UTC)
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-pending">
+                    待处理
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">-</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-05 09:30</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a href="https://adsmanager.facebook.com" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                    <i class="fab fa-facebook mr-2"></i>
+                    adsmanager.facebook.com
+                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800 text-xs">
+                    <i class="fas fa-globe mr-1"></i>UTC+8 (Asia/Shanghai)
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-success">
+                    成功
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_987654321</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-03 16:45</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a href="https://business.facebook.com" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                    <i class="fab fa-facebook mr-2"></i>
+                    business.facebook.com
+                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-800 text-xs">
+                    <i class="fas fa-globe mr-1"></i>UTC-5 (America/New_York)
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-success">
+                    成功
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_456789123</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div class="flex-1 flex justify-between sm:hidden">
+            <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              上一页
+            </button>
+            <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              下一页
+            </button>
+          </div>
+          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-gray-700">
+                显示
+                <span class="font-medium">1</span>
+                到
+                <span class="font-medium">5</span>
+                条，共
+                <span class="font-medium">5</span>
+                条记录
+              </p>
+            </div>
+            <div>
+              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                  1
+                </button>
+                <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                  2
+                </button>
+                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 充值记录Tab内容 -->
+    <div id="content-recharge" class="tab-content">
+      <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">充值记录</h3>
+          <div class="flex space-x-3">
+            <select class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">全部状态</option>
+              <option value="pending">处理中</option>
+              <option value="completed">已完成</option>
+              <option value="failed">失败</option>
+            </select>
+            <button onclick="refreshRechargeData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-sync"></i>
+              <span>刷新</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 充值记录表格 -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 table-hover">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值金额</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值方式</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">交易流水号</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成时间</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="rechargeTableBody">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-15 11:30</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_123456789</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">$500.00</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">银行转账</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">TXN_2024011500001</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-completed">
+                    已完成
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 12:15</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-14 16:45</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_987654321</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">$1,000.00</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">信用卡</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">TXN_2024011400002</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-processing">
+                    处理中
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-13 09:20</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_456789123</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">$300.00</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">PayPal</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">TXN_2024011300003</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-completed">
+                    已完成
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 10:05</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-12 14:10</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_789123456</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">$2,000.00</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">银行转账</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">TXN_2024011200004</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-failed">
+                    失败
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-12 15:30</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-11 10:30</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_123456789</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">$800.00</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">信用卡</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">TXN_2024011100005</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full status-completed">
+                    已完成
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-11 11:45</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div class="flex-1 flex justify-between sm:hidden">
+            <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              上一页
+            </button>
+            <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              下一页
+            </button>
+          </div>
+          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-gray-700">
+                显示
+                <span class="font-medium">1</span>
+                到
+                <span class="font-medium">5</span>
+                条，共
+                <span class="font-medium">5</span>
+                条记录
+              </p>
+            </div>
+            <div>
+              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                  1
+                </button>
+                <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                  2
+                </button>
+                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Tab切换功能
+    function switchTab(tabName) {
+      // 隐藏所有Tab内容
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // 移除所有Tab按钮的active状态
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      // 显示选中的Tab内容
+      document.getElementById(`content-${tabName}`).classList.add('active');
+      
+      // 添加选中Tab按钮的active状态
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+    }
+
+    // 筛选开户数据
+    function filterAccountData() {
+      const startDate = document.getElementById('filterStartDate').value;
+      const endDate = document.getElementById('filterEndDate').value;
+      const accountType = document.getElementById('filterAccountType').value;
+      const pageType = document.getElementById('filterPageType').value;
+      const status = document.getElementById('filterStatus').value;
+      
+      console.log('筛选开户记录数据', {
+        startDate, endDate, accountType, pageType, status
+      });
+      
+      alert(`筛选条件已设置：\n开始时间：${startDate || '不限'}\n结束时间：${endDate || '不限'}\n申请类型：${getAccountTypeText(accountType)}\n开户页面：${getPageTypeText(pageType)}\n状态：${getStatusText(status)}`);
+    }
+    
+    // 重置开户筛选
+    function resetAccountFilter() {
+      document.getElementById('filterStartDate').value = '';
+      document.getElementById('filterEndDate').value = '';
+      document.getElementById('filterAccountType').value = '';
+      document.getElementById('filterPageType').value = '';
+      document.getElementById('filterStatus').value = '';
+      
+      console.log('重置开户记录筛选条件');
+      alert('筛选条件已重置');
+    }
+    
+    // 获取申请类型文本
+    function getAccountTypeText(value) {
+      const types = {
+        '': '全部类型',
+        'personal': '个人开户',
+        'business': '企业开户'
+      };
+      return types[value] || '未知';
+    }
+    
+    // 获取页面类型文本
+    function getPageTypeText(value) {
+      const types = {
+        '': '全部页面',
+        'business-manager': 'Facebook Business Manager',
+        'ads-manager': 'Facebook Ads Manager',
+        'instagram-business': 'Instagram Business'
+      };
+      return types[value] || '未知';
+    }
+    
+    // 获取状态文本
+    function getStatusText(value) {
+      const statuses = {
+        '': '全部状态',
+        'pending': '待处理',
+        'processing': '处理中',
+        'success': '成功',
+        'failed': '失败'
+      };
+      return statuses[value] || '未知';
+    }
+
+    // 刷新开户数据
+    function refreshAccountData() {
+      console.log('刷新开户记录数据');
+      alert('开户记录数据已刷新');
+    }
+
+    // 刷新充值数据
+    function refreshRechargeData() {
+      console.log('刷新充值记录数据');
+      alert('充值记录数据已刷新');
+    }
+
+    // 页面加载完成后的初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('操作记录页面已加载');
+      // 默认显示开户记录Tab
+      switchTab('account-opening');
+    });
+  </script>
+</body>
+</html> 

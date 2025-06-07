@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BestAds - 广告管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #0E151E;
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen">
+  <div class="flex w-full h-screen">
+    <!-- Left Sidebar -->
+    <div class="w-64 h-full flex flex-col fixed" style="background-color: #121829;">
+      <!-- Logo -->
+      <div class="p-6">
+        <h1 class="text-white text-2xl font-bold">BestAds</h1>
+      </div>
+      
+      <!-- Navigation -->
+      <nav class="flex-1 px-4">
+        <ul class="space-y-2">
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-home mr-3 text-gray-400"></i>
+              <span>首页</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-white bg-gray-700 rounded-md">
+              <i class="fas fa-ad mr-3 text-gray-400"></i>
+              <span>广告管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fab fa-facebook mr-3 text-gray-400"></i>
+              <span>Facebook</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-chart-bar mr-3 text-gray-400"></i>
+              <span>数据分析</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-file-alt mr-3 text-gray-400"></i>
+              <span>广告报表</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-folder mr-3 text-gray-400"></i>
+              <span>资产管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-users mr-3 text-gray-400"></i>
+              <span>账户</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-palette mr-3 text-gray-400"></i>
+              <span>创意</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-wallet mr-3 text-gray-400"></i>
+              <span>余额管理</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 flex-1 p-6">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-white mb-4">广告管理</h1>
+          <div class="flex items-center space-x-4">
+            <button onclick="showCreateModal()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-plus mr-2"></i>
+              创建广告
+            </button>
+            <button class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-upload mr-2"></i>
+              批量导入
+            </button>
+            <button class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-download mr-2"></i>
+              导出数据
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-slate-800 rounded-lg p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-ad text-white text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm">总广告数</p>
+                <p class="text-2xl font-bold text-white">1,234</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-slate-800 rounded-lg p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-play text-white text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm">运行中</p>
+                <p class="text-2xl font-bold text-white">856</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-800 rounded-lg p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-pause text-white text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm">暂停</p>
+                <p class="text-2xl font-bold text-white">278</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-800 rounded-lg p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-stop text-white text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm">已停止</p>
+                <p class="text-2xl font-bold text-white">100</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ads Table -->
+        <div class="bg-slate-800 rounded-lg overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-600">
+            <h3 class="text-lg font-semibold text-white">广告列表</h3>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-700">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">广告名称</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">平台</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">曝光量</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">点击量</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">花费</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">操作</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-600">
+                <tr class="hover:bg-slate-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-white">春季促销活动</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      运行中
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <i class="fab fa-facebook text-blue-500 mr-2"></i>
+                    Facebook
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">125,340</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">3,456</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">¥1,234.56</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-blue-400 hover:text-blue-300 mr-3">编辑</button>
+                    <button class="text-yellow-400 hover:text-yellow-300 mr-3">暂停</button>
+                    <button class="text-red-400 hover:text-red-300">停止</button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-white">新品推广</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      暂停
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <i class="fab fa-google text-red-500 mr-2"></i>
+                    Google
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">89,567</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">2,134</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">¥876.23</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-blue-400 hover:text-blue-300 mr-3">编辑</button>
+                    <button class="text-green-400 hover:text-green-300 mr-3">启动</button>
+                    <button class="text-red-400 hover:text-red-300">停止</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Ad Modal -->
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+      <div class="w-128 max-w-2xl mx-4" style="background-color: #121829; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);">
+        <div class="rounded-lg overflow-hidden">
+          <div class="flex items-center justify-between p-6 border-b border-gray-600">
+            <h3 class="text-lg font-semibold text-white">创建新广告</h3>
+            <button onclick="hideCreateModal()" class="text-gray-400 hover:text-white">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-6">
+            <!-- Ad Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">广告名称</label>
+              <input type="text" placeholder="请输入广告名称" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Platform -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">投放平台</label>
+              <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option>选择投放平台</option>
+                <option>Facebook</option>
+                <option>Google</option>
+                <option>TikTok</option>
+                <option>Instagram</option>
+              </select>
+            </div>
+
+            <!-- Budget -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">日预算</label>
+              <div class="flex">
+                <span class="inline-flex items-center px-3 py-2 bg-slate-600 border border-r-0 border-gray-600 rounded-l-md text-gray-300">¥</span>
+                <input type="number" placeholder="0.00" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-r-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+
+            <!-- Target Audience -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">目标受众</label>
+              <textarea placeholder="描述您的目标受众..." rows="3" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <!-- Campaign Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">广告类型</label>
+              <div class="grid grid-cols-2 gap-4">
+                <label class="flex items-center">
+                  <input type="radio" name="campaignType" value="awareness" class="mr-2">
+                  <span class="text-white">品牌知名度</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="radio" name="campaignType" value="conversion" class="mr-2">
+                  <span class="text-white">转化推广</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="radio" name="campaignType" value="traffic" class="mr-2">
+                  <span class="text-white">流量推广</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="radio" name="campaignType" value="engagement" class="mr-2">
+                  <span class="text-white">互动推广</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-600">
+            <button onclick="hideCreateModal()" class="px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200">
+              取消
+            </button>
+            <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200">
+              创建广告
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showCreateModal() {
+      document.getElementById('createModal').classList.remove('hidden');
+    }
+
+    function hideCreateModal() {
+      document.getElementById('createModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('createModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideCreateModal();
+      }
+    });
+  </script>
+</body>
+</html> 

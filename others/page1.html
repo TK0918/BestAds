@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BestAds - 账户管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #0E151E;
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen">
+  <div class="flex w-full h-screen">
+    <!-- Left Sidebar -->
+    <div class="w-60 bg-slate-800 h-full flex flex-col">
+      <!-- Logo -->
+      <div class="pt-6 px-8">
+        <h1 class="text-white text-2xl font-semibold">BestAds</h1>
+      </div>
+      
+      <!-- Navigation -->
+      <nav class="mt-8 flex-1">
+        <ul class="space-y-2 px-4">
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-home mr-3 text-gray-400"></i>
+              <span>首页</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-white bg-gray-700 rounded-md">
+              <i class="fas fa-users mr-3 text-gray-400"></i>
+              <span>账户管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-chart-bar mr-3 text-gray-400"></i>
+              <span>数据分析</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-ad mr-3 text-gray-400"></i>
+              <span>广告投放</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fab fa-facebook mr-3 text-gray-400"></i>
+              <span>Facebook</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-folder mr-3 text-gray-400"></i>
+              <span>创意</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-wallet mr-3 text-gray-400"></i>
+              <span>余额管理</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top Header -->
+      <header class="h-16 bg-slate-800 border-b border-gray-600 flex items-center justify-between px-6">
+        <div class="flex items-center space-x-4">
+          <h2 class="text-xl font-semibold text-white">账户管理</h2>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <!-- Search -->
+          <div class="relative">
+            <input type="text" placeholder="搜索..." class="bg-slate-700 text-white px-4 py-2 rounded-md pl-10 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+          
+          <!-- Language Selector -->
+          <select class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
+            <option>中文</option>
+            <option>English</option>
+          </select>
+          
+          <!-- User Avatar -->
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+            U
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <main class="flex-1 p-6 bg-slate-900">
+        <!-- Table Section -->
+        <div class="bg-slate-800 rounded-lg overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-600">
+            <h3 class="text-lg font-semibold text-white">用户账户</h3>
+          </div>
+          
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-700">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">用户ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">用户名</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">邮箱</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">创建时间</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">操作</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-600">
+                <tr class="hover:bg-slate-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-white">U001</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-white">张三</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-white">zhangsan@example.com</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      活跃
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">2024-01-15</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-blue-400 hover:text-blue-300 mr-3">编辑</button>
+                    <button class="text-red-400 hover:text-red-300">删除</button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-white">U002</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-white">李四</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-white">lisi@example.com</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      活跃
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">2024-01-20</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-blue-400 hover:text-blue-300 mr-3">编辑</button>
+                    <button class="text-red-400 hover:text-red-300">删除</button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-white">U003</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-white">王五</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-white">wangwu@example.com</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      待审核
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-gray-300">2024-02-01</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button class="text-blue-400 hover:text-blue-300 mr-3">编辑</button>
+                    <button class="text-red-400 hover:text-red-300">删除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="px-6 py-4 border-t border-gray-600 flex items-center justify-between">
+            <div class="text-sm text-gray-300">
+              显示 1-3 条，共 3 条记录
+            </div>
+            <div class="flex items-center space-x-2">
+              <button class="px-3 py-1 text-sm bg-slate-700 text-gray-300 rounded disabled:opacity-50" disabled>
+                上一页
+              </button>
+              <span class="px-3 py-1 text-sm bg-blue-600 text-white rounded">1</span>
+              <button class="px-3 py-1 text-sm bg-slate-700 text-gray-300 rounded disabled:opacity-50" disabled>
+                下一页
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html> 

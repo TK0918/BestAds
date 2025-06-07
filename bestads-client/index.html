@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BestAds - 海外广告管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-animate {
+      animation: countUp 1s ease-out;
+    }
+
+    @keyframes countUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-glow:hover::before {
+      left: 100%;
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white border-b border-gray-200 fixed w-full top-0 z-50">
+    <div class="px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo区域 -->
+        <div class="flex items-center">
+          <div class="flex-shrink-0 flex items-center">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <i class="fas fa-chart-line text-white text-sm"></i>
+            </div>
+            <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              BestAds
+            </span>
+          </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="#" class="sidebar-item active text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fas fa-home mr-2"></i>首页
+          </a>
+          <a href="account-management.html" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fas fa-users mr-2"></i>账户管理
+          </a>
+          <a href="#" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fab fa-facebook mr-2"></i>Facebook广告
+          </a>
+          <a href="operation-records.html" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <i class="fas fa-history mr-2"></i>操作记录
+          </a>
+        </nav>
+
+        <!-- 右侧用户区域 -->
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+              <i class="fas fa-bell text-lg"></i>
+              <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+            </button>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要内容区域 -->
+  <main class="pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <!-- 页面标题区域 -->
+    <div class="py-8">
+      <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+          <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            欢迎回到BestAds
+          </h2>
+          <p class="mt-1 text-sm text-gray-500">
+            管理您的海外广告账户，轻松开户充值
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通知区域 -->
+    <div class="mb-8">
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-info-circle text-blue-400"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-blue-700">
+              您有 <span class="font-medium">2个开户申请</span> 正在处理中，<span class="font-medium">1个充值申请</span> 已完成
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计卡片网格 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- 可用账户卡片 -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-users text-blue-600"></i>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">可用账户</p>
+              <p class="text-2xl font-bold text-gray-900 stat-animate">5</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="text-sm text-green-600">
+              <i class="fas fa-arrow-up text-xs"></i>
+              <span class="ml-1">新增 2个</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 总余额卡片 -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-dollar-sign text-green-600"></i>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">总余额</p>
+              <p class="text-2xl font-bold text-gray-900 stat-animate">$2,580</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="text-sm text-green-600">
+              <i class="fas fa-arrow-up text-xs"></i>
+              <span class="ml-1">+12.5%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 活跃广告卡片 -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-ad text-purple-600"></i>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">活跃广告</p>
+              <p class="text-2xl font-bold text-gray-900 stat-animate">12</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="text-sm text-blue-600">
+              <i class="fas fa-eye text-xs"></i>
+              <span class="ml-1">85.6% 展示率</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 待处理申请卡片 -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-clock text-orange-600"></i>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">待处理申请</p>
+              <p class="text-2xl font-bold text-gray-900 stat-animate">2</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="text-sm text-orange-600">
+              <i class="fas fa-hourglass-half text-xs"></i>
+              <span class="ml-1">处理中</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 快速操作区域 -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-8">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">快速操作</h3>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button onclick="openModal('account')" class="btn-glow relative bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2">
+            <i class="fas fa-plus"></i>
+            <span>申请开户</span>
+          </button>
+          <button onclick="openModal('recharge')" class="relative bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2">
+            <i class="fas fa-credit-card"></i>
+            <span>账户充值</span>
+          </button>
+          <a href="ads-management.html" class="relative bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2">
+            <i class="fas fa-chart-bar"></i>
+            <span>广告管理</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 功能模块卡片 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- 账户管理模块 -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
+        <div class="p-6">
+          <div class="flex items-center mb-4">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-chart-line text-blue-600"></i>
+            </div>
+            <h3 class="ml-3 text-lg font-medium text-gray-900">账户管理</h3>
+          </div>
+          <p class="text-gray-500 text-sm mb-6">
+            查看和管理您的广告账户，发起开户和充值申请
+          </p>
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="text-center">
+              <div class="text-xl font-bold text-gray-900">5</div>
+              <div class="text-xs text-gray-500">可用账户</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xl font-bold text-green-600">$2,580</div>
+              <div class="text-xs text-gray-500">总余额</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xl font-bold text-orange-600">2</div>
+              <div class="text-xs text-gray-500">待处理</div>
+            </div>
+          </div>
+          <a href="account-management.html" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center">
+            查看详情
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Facebook广告模块 -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
+        <div class="p-6">
+          <div class="flex items-center mb-4">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <i class="fab fa-facebook text-blue-600"></i>
+            </div>
+            <h3 class="ml-3 text-lg font-medium text-gray-900">Facebook广告</h3>
+          </div>
+          <p class="text-gray-500 text-sm mb-6">
+            管理您的Facebook广告系列、广告组和广告素材
+          </p>
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="text-center">
+              <div class="text-xl font-bold text-gray-900">12</div>
+              <div class="text-xs text-gray-500">活跃广告</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xl font-bold text-green-600">85.6%</div>
+              <div class="text-xs text-gray-500">展示率</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xl font-bold text-blue-600">$1.25</div>
+              <div class="text-xs text-gray-500">平均CPC</div>
+            </div>
+          </div>
+          <a href="ads-management.html" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center">
+            广告管理
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 操作记录模块 -->
+      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
+        <div class="p-6">
+          <div class="flex items-center mb-4">
+            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-history text-purple-600"></i>
+            </div>
+            <h3 class="ml-3 text-lg font-medium text-gray-900">操作记录</h3>
+          </div>
+          <p class="text-gray-500 text-sm mb-6">
+            查看您的开户和充值申请记录及处理状态
+          </p>
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="text-center">
+              <div class="text-xl font-bold text-gray-900">3</div>
+              <div class="text-xs text-gray-500">开户记录</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xl font-bold text-green-600">8</div>
+              <div class="text-xs text-gray-500">充值记录</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xl font-bold text-orange-600">1</div>
+              <div class="text-xs text-gray-500">处理中</div>
+            </div>
+          </div>
+          <a href="operation-records.html" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center">
+            查看记录
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 最近活动 -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">最近活动</h3>
+          <a href="#" class="text-sm text-blue-600 hover:text-blue-700">查看全部</a>
+        </div>
+      </div>
+      <div class="divide-y divide-gray-200">
+        <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-check text-green-600 text-sm"></i>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900">账户充值成功</p>
+              <p class="text-sm text-gray-500">FB001234567 充值 $500 已完成</p>
+            </div>
+            <div class="flex-shrink-0 text-sm text-gray-500">
+              2分钟前
+            </div>
+          </div>
+        </div>
+        <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-plus text-blue-600 text-sm"></i>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900">新的开户申请</p>
+              <p class="text-sm text-gray-500">ABC公司提交了Facebook开户申请</p>
+            </div>
+            <div class="flex-shrink-0 text-sm text-gray-500">
+              15分钟前
+            </div>
+          </div>
+        </div>
+        <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-chart-line text-purple-600 text-sm"></i>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900">广告数据更新</p>
+              <p class="text-sm text-gray-500">今日广告展示数据已同步</p>
+            </div>
+            <div class="flex-shrink-0 text-sm text-gray-500">
+              1小时前
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-gray-200 mt-12">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <p class="text-center text-sm text-gray-500">
+        © 2024 BestAds. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // 导航切换
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        if (this.getAttribute('href') === '#') {
+          e.preventDefault();
+        }
+        document.querySelectorAll('.sidebar-item').forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // 模态框函数
+    function openModal(type) {
+      if (type === 'account') {
+        // 使用现代化的通知样式
+        showNotification('开户申请功能即将开放', 'info');
+      } else if (type === 'recharge') {
+        showNotification('充值申请功能即将开放', 'info');
+      }
+    }
+
+    // 现代化通知函数
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-20 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto transform transition-all duration-300 translate-x-full`;
+      
+      const typeColors = {
+        'info': 'border-blue-400 text-blue-700',
+        'success': 'border-green-400 text-green-700',
+        'warning': 'border-yellow-400 text-yellow-700',
+        'error': 'border-red-400 text-red-700'
+      };
+      
+      notification.innerHTML = `
+        <div class="rounded-lg shadow-lg border-l-4 ${typeColors[type]} p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium">${message}</p>
+            </div>
+            <div class="ml-auto pl-3">
+              <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // 显示动画
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+      }, 100);
+      
+      // 自动隐藏
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // 页面加载动画
+    document.addEventListener('DOMContentLoaded', function() {
+      // 统计数字动画
+      const stats = document.querySelectorAll('.stat-animate');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      });
+      
+      stats.forEach(stat => {
+        stat.style.opacity = '0';
+        stat.style.transform = 'translateY(20px)';
+        observer.observe(stat);
+      });
+    });
+  </script>
+</body>
+</html> 
