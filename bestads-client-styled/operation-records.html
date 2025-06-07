@@ -152,13 +152,24 @@
         </div>
       </header>
 
-      <!-- Content Area -->
-      <main class="flex-1 p-6 bg-slate-900 overflow-y-auto">
-        <!-- Page Title -->
-        <div class="mb-8">
-          <h2 class="text-2xl font-bold text-white mb-2">操作记录</h2>
-          <p class="text-gray-400">查看您的开户申请和充值记录，跟踪所有操作的处理状态</p>
-        </div>
+              <!-- Content Area -->
+        <main class="flex-1 p-6 bg-slate-900 overflow-y-auto">
+          <!-- Page Title -->
+          <div class="mb-8">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-2xl font-bold text-white mb-2">操作记录</h2>
+                <p class="text-gray-400">查看您的开户申请和充值记录，跟踪所有操作的处理状态</p>
+              </div>
+              <!-- 申请开户按钮 -->
+              <div>
+                <button onclick="openModal('account')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                  <i class="fas fa-plus"></i>
+                  <span>申请开户</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
         <!-- Tab Navigation -->
         <div class="bg-slate-800 rounded-lg mb-6">
@@ -184,7 +195,7 @@
               <h3 class="text-lg font-medium text-white">筛选条件</h3>
             </div>
             <div class="p-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">申请时间</label>
                   <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -192,14 +203,6 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">至</label>
                   <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-2">申请类型</label>
-                  <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">全部类型</option>
-                    <option value="personal">个人开户</option>
-                    <option value="business">企业开户</option>
-                  </select>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">申请状态</label>
@@ -239,55 +242,86 @@
                 <thead class="bg-slate-700">
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">申请ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">申请类型</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户信息</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户数量</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户时区</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">申请时间</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">备注</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">操作</th>
                   </tr>
                 </thead>
                 <tbody class="bg-slate-800 divide-y divide-gray-600">
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ001</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-white">Facebook开户</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div class="text-sm font-medium text-white">Facebook广告账户</div>
+                        <div class="text-sm text-gray-400">投放跨境电商产品</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">2个</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC+8</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 10:30</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
                         已完成
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">开户成功</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button class="text-blue-400 hover:text-blue-300">查看详情</button>
-                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">开户成功，账户已激活</td>
                   </tr>
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ002</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-white">Google开户</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div class="text-sm font-medium text-white">Google广告账户</div>
+                        <div class="text-sm text-gray-400">搜索广告投放</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">1个</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC-5</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-14 14:20</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-800 text-blue-200">
                         处理中
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">审核中</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button class="text-blue-400 hover:text-blue-300">查看详情</button>
-                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">等待平台审核</td>
                   </tr>
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ003</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-white">Facebook开户</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div class="text-sm font-medium text-white">Facebook广告账户</div>
+                        <div class="text-sm text-gray-400">移动应用推广</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">3个</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC+0</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-13 09:15</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-800 text-yellow-200">
                         待处理
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">等待处理</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button class="text-blue-400 hover:text-blue-300">查看详情</button>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">等待资料审核</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">REQ004</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div class="text-sm font-medium text-white">Facebook广告账户</div>
+                        <div class="text-sm text-gray-400">本地服务推广</div>
+                      </div>
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">1个</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC+8</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-12 16:45</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
+                        已完成
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">开户完成，等待充值</td>
                   </tr>
                 </tbody>
               </table>
@@ -348,6 +382,90 @@
           </div>
         </div>
       </main>
+    </div>
+  </div>
+
+  <!-- 开户申请模态框 -->
+  <div id="accountModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
+        <div class="px-6 py-4 border-b border-gray-600">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-white">申请开户</h3>
+            <button onclick="closeModal('accountModal')" class="text-gray-400 hover:text-white transition-colors duration-200">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" id="accountOpeningForm">
+          <div class="space-y-4">
+            <!-- 账户数量 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">账户数量 *</label>
+              <input type="number" id="accountCount" min="1" max="5" value="1" required class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <p class="mt-1 text-sm text-gray-400">最多可申请5个账户</p>
+            </div>
+            
+            <!-- 投放URL列表 -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-300">投放URL *</label>
+                <button type="button" onclick="addUrlField()" class="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                  <i class="fas fa-plus mr-1"></i>添加URL
+                </button>
+              </div>
+              <div id="urlContainer">
+                <div class="url-item flex items-center space-x-2 mb-2">
+                  <input type="url" name="urls[]" placeholder="请输入要投放的网站URL" required class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <button type="button" onclick="removeUrlField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="mt-1 text-sm text-gray-400">最少1个，最多20个URL</p>
+            </div>
+            
+            <!-- Facebook Page列表 -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-300">Facebook Page页面</label>
+                <button type="button" onclick="addPageField()" class="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                  <i class="fas fa-plus mr-1"></i>添加Page
+                </button>
+              </div>
+              <div id="pageContainer">
+                <div class="page-item flex items-center space-x-2 mb-2">
+                  <input type="url" name="pages[]" placeholder="请输入Facebook Page链接（可选）" class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="mt-1 text-sm text-gray-400">部分客户开户需要提供Facebook Page，最多20个</p>
+            </div>
+            
+            <!-- 账户时区 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">账户时区 *</label>
+              <select required class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">请选择时区</option>
+                <option value="UTC+8">UTC+8 (北京时间)</option>
+                <option value="UTC+0">UTC+0 (格林威治时间)</option>
+                <option value="UTC-5">UTC-5 (美国东部时间)</option>
+                <option value="UTC-8">UTC-8 (美国西部时间)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('accountModal')" class="px-4 py-2 text-sm font-medium text-gray-300 bg-slate-700 border border-gray-600 rounded-md hover:bg-slate-600 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
+              提交申请
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -436,6 +554,144 @@
         setTimeout(() => notification.remove(), 300);
       }, 3000);
     }
+
+    // 模态框操作
+    function openModal(type) {
+      if (type === 'account') {
+        document.getElementById('accountModal').classList.remove('hidden');
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // 点击模态框外部关闭
+    document.addEventListener('click', function(event) {
+      if (event.target.classList.contains('modal-backdrop')) {
+        event.target.classList.add('hidden');
+      }
+    });
+
+    // URL字段管理
+    function addUrlField() {
+      const container = document.getElementById('urlContainer');
+      const urlItems = container.querySelectorAll('.url-item');
+      
+      if (urlItems.length >= 20) {
+        showNotification('最多只能添加20个URL', 'warning');
+        return;
+      }
+      
+      const newItem = document.createElement('div');
+      newItem.className = 'url-item flex items-center space-x-2 mb-2';
+      newItem.innerHTML = `
+        <input type="url" name="urls[]" placeholder="请输入要投放的网站URL" required class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button type="button" onclick="removeUrlField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      container.appendChild(newItem);
+      updateUrlDeleteButtons();
+    }
+
+    function removeUrlField(button) {
+      const container = document.getElementById('urlContainer');
+      const urlItems = container.querySelectorAll('.url-item');
+      
+      if (urlItems.length <= 1) {
+        showNotification('至少需要保留一个URL', 'warning');
+        return;
+      }
+      
+      button.closest('.url-item').remove();
+      updateUrlDeleteButtons();
+    }
+
+    function updateUrlDeleteButtons() {
+      const container = document.getElementById('urlContainer');
+      const urlItems = container.querySelectorAll('.url-item');
+      const deleteButtons = container.querySelectorAll('.url-item button');
+      
+      deleteButtons.forEach((btn, index) => {
+        btn.style.display = urlItems.length > 1 ? 'block' : 'none';
+      });
+    }
+
+    // Page字段管理
+    function addPageField() {
+      const container = document.getElementById('pageContainer');
+      const pageItems = container.querySelectorAll('.page-item');
+      
+      if (pageItems.length >= 20) {
+        showNotification('最多只能添加20个Facebook Page', 'warning');
+        return;
+      }
+      
+      const newItem = document.createElement('div');
+      newItem.className = 'page-item flex items-center space-x-2 mb-2';
+      newItem.innerHTML = `
+        <input type="url" name="pages[]" placeholder="请输入Facebook Page链接（可选）" class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      container.appendChild(newItem);
+      updatePageDeleteButtons();
+    }
+
+    function removePageField(button) {
+      button.closest('.page-item').remove();
+      updatePageDeleteButtons();
+    }
+
+    function updatePageDeleteButtons() {
+      const container = document.getElementById('pageContainer');
+      const pageItems = container.querySelectorAll('.page-item');
+      const deleteButtons = container.querySelectorAll('.page-item button');
+      
+      deleteButtons.forEach((btn, index) => {
+        btn.style.display = pageItems.length > 1 ? 'block' : 'none';
+      });
+    }
+
+    // 开户申请表单提交处理
+    document.getElementById('accountOpeningForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const accountCount = document.getElementById('accountCount').value;
+      const urls = Array.from(document.querySelectorAll('input[name="urls[]"]')).map(input => input.value).filter(url => url);
+      const pages = Array.from(document.querySelectorAll('input[name="pages[]"]')).map(input => input.value).filter(url => url);
+      
+      // 验证URL数量
+      if (urls.length < 1 || urls.length > 20) {
+        showNotification('请输入1-20个投放URL', 'error');
+        return;
+      }
+      
+      // 验证Page数量
+      if (pages.length > 20) {
+        showNotification('Facebook Page不能超过20个', 'error');
+        return;
+      }
+      
+      console.log('开户申请数据:', {
+        accountCount: parseInt(accountCount),
+        urls: urls,
+        pages: pages
+      });
+      
+      showNotification(`开户申请已提交！申请账户数量：${accountCount}个，投放URL：${urls.length}个`, 'success');
+      closeModal('accountModal');
+    });
+
+    // 初始化删除按钮状态
+    document.addEventListener('DOMContentLoaded', function() {
+      updateUrlDeleteButtons();
+      updatePageDeleteButtons();
+    });
   </script>
 </body>
 </html> 

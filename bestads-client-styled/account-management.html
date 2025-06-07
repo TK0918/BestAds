@@ -10,11 +10,12 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: #0E151E;
     }
 
     .table-hover tbody tr:hover {
-      background-color: #f9fafb;
+      background-color: #374151;
     }
 
     .modal-backdrop {
@@ -77,395 +78,471 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <!-- 顶部导航栏 -->
-  <header class="bg-white border-b border-gray-200 fixed w-full top-0 z-40">
-    <div class="px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <!-- Logo区域 -->
-        <div class="flex items-center">
-          <div class="flex-shrink-0 flex items-center">
-            <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <i class="fas fa-chart-line text-white text-sm"></i>
-            </div>
-            <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              BestAds
-            </span>
+<body class="bg-gray-900 min-h-screen text-white">
+  <!-- 左侧边栏 -->
+  <div class="fixed inset-y-0 left-0 z-50 w-60 bg-slate-800 shadow-lg">
+    <div class="flex h-full flex-col">
+      <!-- Logo -->
+      <div class="pt-6 px-8">
+        <h1 class="text-white text-2xl font-semibold">BestAds</h1>
+      </div>
+
+      <!-- 导航菜单 -->
+      <nav class="mt-8 flex-1">
+        <ul class="space-y-2 px-4">
+          <li>
+            <a href="index.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-home mr-3 text-gray-400"></i>
+              <span>首页</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-white bg-gray-700 rounded-md">
+              <i class="fas fa-users mr-3 text-gray-400"></i>
+              <span>账户管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fab fa-facebook mr-3 text-gray-400"></i>
+              <span>Facebook广告</span>
+            </a>
+          </li>
+          <li>
+            <a href="operation-records.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-history mr-3 text-gray-400"></i>
+              <span>操作记录</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-chart-bar mr-3 text-gray-400"></i>
+              <span>数据分析</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-ad mr-3 text-gray-400"></i>
+              <span>广告投放</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-folder mr-3 text-gray-400"></i>
+              <span>创意</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-wallet mr-3 text-gray-400"></i>
+              <span>余额管理</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- 用户信息 -->
+      <div class="p-4 border-t border-gray-600">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-medium">A</span>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-white">管理员</p>
+            <p class="text-xs text-gray-400">admin@bestads.com</p>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- 导航菜单 -->
-        <nav class="hidden md:flex space-x-8">
-          <a href="index.html" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-            <i class="fas fa-home mr-2"></i>首页
-          </a>
-          <a href="#" class="sidebar-item active text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-            <i class="fas fa-users mr-2"></i>账户管理
-          </a>
-          <a href="#" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-            <i class="fab fa-facebook mr-2"></i>Facebook广告
-          </a>
-          <a href="operation-records.html" class="sidebar-item text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-            <i class="fas fa-history mr-2"></i>操作记录
-          </a>
-        </nav>
-
-        <!-- 右侧用户区域 -->
+  <!-- 主内容区域 -->
+  <div class="pl-60">
+    <!-- 顶部标题栏 -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">账户管理</h1>
+          <p class="mt-1 text-sm text-gray-400">管理您的广告账户，发起开户和充值申请</p>
+        </div>
+        <!-- 右侧操作区域 -->
         <div class="flex items-center space-x-4">
           <div class="relative">
-            <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+            <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
               <i class="fas fa-bell text-lg"></i>
               <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
             </button>
           </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <span class="text-white text-sm font-medium">A</span>
-            </div>
-            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
-          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- 主要内容区域 -->
-  <main class="pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-    <!-- 页面标题区域 -->
-    <div class="py-8">
-      <div class="md:flex md:items-center md:justify-between">
-        <div class="flex-1 min-w-0">
-          <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-            账户管理
-          </h2>
-          <p class="mt-1 text-sm text-gray-500">
-            管理您的广告账户，发起开户和充值申请
-          </p>
-        </div>
-        <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-          <button onclick="openModal('account')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-            <i class="fas fa-plus"></i>
-            <span>申请开户</span>
-          </button>
-          <button onclick="openModal('recharge')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-            <i class="fas fa-credit-card"></i>
-            <span>单个充值</span>
-          </button>
-          <button onclick="openModal('batchRecharge')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-            <i class="fas fa-layer-group"></i>
-            <span>批量充值</span>
-          </button>
-        </div>
+    <!-- 主要内容区域 -->
+    <main class="p-6">
+      <!-- 操作按钮区域 -->
+      <div class="mb-6 flex flex-wrap gap-3">
+        <button onclick="openModal('account')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+          <i class="fas fa-plus"></i>
+          <span>申请开户</span>
+        </button>
+        <button onclick="openModal('recharge')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+          <i class="fas fa-credit-card"></i>
+          <span>单个充值</span>
+        </button>
+        <button onclick="openModal('batchRecharge')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+          <i class="fas fa-layer-group"></i>
+          <span>批量充值</span>
+        </button>
       </div>
-    </div>
 
-    <!-- 统计卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
-        <div class="p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-users text-blue-600"></i>
+      <!-- 统计卡片 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
+          <div class="p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-users text-white"></i>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-400">可用账户</p>
+                <p class="text-2xl font-bold text-white">5</p>
               </div>
             </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">可用账户</p>
-              <p class="text-2xl font-bold text-gray-900">5</p>
-            </div>
           </div>
         </div>
-      </div>
 
-      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
-        <div class="p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-dollar-sign text-green-600"></i>
+        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
+          <div class="p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-dollar-sign text-white"></i>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-400">总余额</p>
+                <p class="text-2xl font-bold text-green-400">$2,580</p>
               </div>
             </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">总余额</p>
-              <p class="text-2xl font-bold text-green-600">$2,580</p>
-            </div>
           </div>
         </div>
-      </div>
 
-      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
-        <div class="p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-clock text-orange-600"></i>
+        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
+          <div class="p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-clock text-white"></i>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-400">待处理申请</p>
+                <p class="text-2xl font-bold text-orange-400">2</p>
               </div>
             </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">待处理申请</p>
-              <p class="text-2xl font-bold text-orange-600">2</p>
-            </div>
           </div>
         </div>
-      </div>
 
-      <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
-        <div class="p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i class="fab fa-facebook text-blue-600"></i>
+        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
+          <div class="p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <i class="fab fa-facebook text-white"></i>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-400">主要平台</p>
+                <p class="text-2xl font-bold text-white">Facebook</p>
               </div>
             </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">主要平台</p>
-              <p class="text-2xl font-bold text-gray-900">Facebook</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 筛选区域 -->
+      <div class="bg-slate-800 shadow-lg rounded-lg border border-gray-600 mb-6">
+        <div class="px-6 py-4 border-b border-gray-600">
+          <h3 class="text-lg font-medium text-white">筛选条件</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">搜索账户</label>
+              <input type="text" placeholder="输入账户ID或名称" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">平台类型</label>
+              <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">全部平台</option>
+                <option value="facebook">Facebook</option>
+                <option value="google">Google</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">账户状态</label>
+              <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">全部状态</option>
+                <option value="active">活跃</option>
+                <option value="inactive">停用</option>
+                <option value="pending">待审核</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                <i class="fas fa-search mr-2"></i>搜索
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 筛选区域 -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
-      </div>
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">搜索账户</label>
-            <input type="text" placeholder="输入账户ID或名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">平台类型</label>
-            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">全部平台</option>
-              <option value="facebook">Facebook</option>
-              <option value="google">Google</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">账户状态</label>
-            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">全部状态</option>
-              <option value="active">活跃</option>
-              <option value="inactive">停用</option>
-              <option value="pending">待审核</option>
-            </select>
-          </div>
-          <div class="flex items-end">
-            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
-              <i class="fas fa-search mr-2"></i>搜索
-            </button>
-          </div>
+      <!-- 账户列表表格 -->
+      <div class="bg-slate-800 shadow-lg rounded-lg border border-gray-600 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-600">
+          <h3 class="text-lg font-medium text-white">账户列表</h3>
         </div>
-      </div>
-    </div>
-
-    <!-- 账户列表表格 -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">账户列表</h3>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 table-hover">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户信息</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属平台</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户状态</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">币种</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">余额</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">时区</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div>
-                  <div class="text-sm font-medium text-gray-900">FB001234567</div>
-                  <div class="text-sm text-gray-500">测试广告账户01</div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <i class="fab fa-facebook text-blue-600 mr-2"></i>
-                  <span class="text-sm text-gray-900">Facebook</span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                  活跃
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">USD</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">1,200.50</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-gray-500">UTC+8</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                2024-01-15
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                <button onclick="openModal('recharge', 'FB001234567')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors duration-200">
-                  充值
-                </button>
-                <button class="text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors duration-200">
-                  详情
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div>
-                  <div class="text-sm font-medium text-gray-900">FB001234568</div>
-                  <div class="text-sm text-gray-500">测试广告账户02</div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <i class="fab fa-facebook text-blue-600 mr-2"></i>
-                  <span class="text-sm text-gray-900">Facebook</span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                  活跃
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">USD</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">850.75</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-gray-500">UTC+8</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                2024-01-20
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                <button onclick="openModal('recharge', 'FB001234568')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors duration-200">
-                  充值
-                </button>
-                <button class="text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors duration-200">
-                  详情
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div>
-                  <div class="text-sm font-medium text-gray-900">FB001234569</div>
-                  <div class="text-sm text-gray-500">测试广告账户03</div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <i class="fab fa-facebook text-blue-600 mr-2"></i>
-                  <span class="text-sm text-gray-900">Facebook</span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                  待审核
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">USD</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">0.00</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-gray-500">UTC+0</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                2024-02-01
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                <button disabled class="text-gray-400 bg-gray-100 px-3 py-1 rounded cursor-not-allowed">
-                  充值
-                </button>
-                <button class="text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors duration-200">
-                  详情
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div>
-                  <div class="text-sm font-medium text-gray-900">GG001234570</div>
-                  <div class="text-sm text-gray-500">Google广告账户01</div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <i class="fab fa-google text-red-600 mr-2"></i>
-                  <span class="text-sm text-gray-900">Google</span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                  活跃
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">USD</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">530.25</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-gray-500">UTC-5</span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                2024-01-25
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                <button onclick="openModal('recharge', 'GG001234570')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors duration-200">
-                  充值
-                </button>
-                <button class="text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded transition-colors duration-200">
-                  详情
-                </button>
-              </td>
-            </tr>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-600 table-hover">
+            <thead class="bg-slate-700">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户信息</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">所属平台</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">币种</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">余额</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">时区</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">创建时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">操作</th>
+              </tr>
+            </thead>
+            <tbody class="bg-slate-800 divide-y divide-gray-600">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div class="text-sm font-medium text-white">FB001234567</div>
+                    <div class="text-sm text-gray-400">测试广告账户01</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <i class="fab fa-facebook text-blue-400 mr-2"></i>
+                    <span class="text-sm text-white">Facebook</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-300">
+                    活跃
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">USD</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">1,200.50</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm text-gray-400">UTC+8</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                  2024-01-15
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                  <button onclick="openModal('recharge', 'FB001234567')" class="text-blue-400 hover:text-blue-300 bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded transition-colors duration-200">
+                    充值
+                  </button>
+                  <button class="text-gray-400 hover:text-gray-300 bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition-colors duration-200">
+                    详情
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div class="text-sm font-medium text-white">FB001234568</div>
+                    <div class="text-sm text-gray-400">测试广告账户02</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <i class="fab fa-facebook text-blue-400 mr-2"></i>
+                    <span class="text-sm text-white">Facebook</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-300">
+                    活跃
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">USD</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">850.75</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm text-gray-400">UTC+8</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                  2024-01-20
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                  <button onclick="openModal('recharge', 'FB001234568')" class="text-blue-400 hover:text-blue-300 bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded transition-colors duration-200">
+                    充值
+                  </button>
+                  <button class="text-gray-400 hover:text-gray-300 bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition-colors duration-200">
+                    详情
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div class="text-sm font-medium text-white">FB001234569</div>
+                    <div class="text-sm text-gray-400">测试广告账户03</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <i class="fab fa-facebook text-blue-400 mr-2"></i>
+                    <span class="text-sm text-white">Facebook</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-800 text-yellow-300">
+                    待审核
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">USD</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">0.00</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm text-gray-400">UTC+0</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                  2024-02-01
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                  <button disabled class="text-gray-500 bg-gray-700 px-3 py-1 rounded cursor-not-allowed">
+                    充值
+                  </button>
+                  <button class="text-gray-400 hover:text-gray-300 bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition-colors duration-200">
+                    详情
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div class="text-sm font-medium text-white">GG001234570</div>
+                    <div class="text-sm text-gray-400">Google广告账户01</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <i class="fab fa-google text-red-400 mr-2"></i>
+                    <span class="text-sm text-white">Google</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-300">
+                    活跃
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">USD</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm font-medium text-white">530.25</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm text-gray-400">UTC-5</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                  2024-01-25
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                  <button onclick="openModal('recharge', 'GG001234570')" class="text-blue-400 hover:text-blue-300 bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded transition-colors duration-200">
+                    充值
+                  </button>
+                  <button class="text-gray-400 hover:text-gray-300 bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition-colors duration-200">
+                    详情
+                  </button>
+                </td>
+              </tr>
           </tbody>
                          </table>
                </div>
              </div>
   </main>
 
-  <!-- 开户申请模态框 -->
-  <div id="accountModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">申请开户</h3>
-            <button onclick="closeModal('accountModal')" class="text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-        <form class="px-6 py-4">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">投放URL *</label>
-              <input type="url" placeholder="请输入要投放的网站URL" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+    <!-- 开户申请模态框 -->
+    <div id="accountModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
+          <div class="px-6 py-4 border-b border-gray-600">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-medium text-white">申请开户</h3>
+              <button onclick="closeModal('accountModal')" class="text-gray-400 hover:text-white transition-colors duration-200">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
+          </div>
+                  <form class="px-6 py-4" id="accountOpeningForm">
+          <div class="space-y-4">
+            <!-- 账户数量 -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">账户时区 *</label>
-              <select required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <label class="block text-sm font-medium text-gray-300 mb-2">账户数量 *</label>
+              <input type="number" id="accountCount" min="1" max="5" value="1" required class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <p class="mt-1 text-sm text-gray-400">最多可申请5个账户</p>
+            </div>
+            
+            <!-- 投放URL列表 -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-300">投放URL *</label>
+                <button type="button" onclick="addUrlField()" class="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                  <i class="fas fa-plus mr-1"></i>添加URL
+                </button>
+              </div>
+              <div id="urlContainer">
+                <div class="url-item flex items-center space-x-2 mb-2">
+                  <input type="url" name="urls[]" placeholder="请输入要投放的网站URL" required class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <button type="button" onclick="removeUrlField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="mt-1 text-sm text-gray-400">最少1个，最多20个URL</p>
+            </div>
+            
+            <!-- Facebook Page列表 -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-300">Facebook Page页面</label>
+                <button type="button" onclick="addPageField()" class="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                  <i class="fas fa-plus mr-1"></i>添加Page
+                </button>
+              </div>
+              <div id="pageContainer">
+                <div class="page-item flex items-center space-x-2 mb-2">
+                  <input type="url" name="pages[]" placeholder="请输入Facebook Page链接（可选）" class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="mt-1 text-sm text-gray-400">部分客户开户需要提供Facebook Page，最多20个</p>
+            </div>
+            
+            <!-- 账户时区 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">账户时区 *</label>
+              <select required class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">请选择时区</option>
                 <option value="UTC+8">UTC+8 (北京时间)</option>
                 <option value="UTC+0">UTC+0 (格林威治时间)</option>
@@ -473,33 +550,24 @@
                 <option value="UTC-8">UTC-8 (美国西部时间)</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Facebook Page页面</label>
-              <input type="text" placeholder="如需要，请输入Facebook Page链接" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <p class="mt-1 text-sm text-gray-500">部分客户开户需要提供Facebook Page</p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
-              <textarea placeholder="请输入备注信息（可选）" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
-            </div>
           </div>
-          <div class="flex justify-end space-x-3 mt-6">
-            <button type="button" onclick="closeModal('accountModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
-              取消
-            </button>
-            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
-              提交申请
-            </button>
-          </div>
-        </form>
+            <div class="flex justify-end space-x-3 mt-6">
+              <button type="button" onclick="closeModal('accountModal')" class="px-4 py-2 text-sm font-medium text-gray-300 bg-slate-700 border border-gray-600 rounded-md hover:bg-slate-600 transition-colors duration-200">
+                取消
+              </button>
+              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
+                提交申请
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 充值申请模态框 -->
-  <div id="rechargeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+    <!-- 充值申请模态框 -->
+    <div id="rechargeModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">账户充值</h3>
@@ -1005,13 +1073,13 @@
     // 现代化通知函数
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
-      notification.className = `fixed top-20 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto transform transition-all duration-300 translate-x-full`;
+      notification.className = `fixed top-20 right-4 z-50 max-w-sm w-full bg-slate-800 shadow-lg rounded-lg pointer-events-auto transform transition-all duration-300 translate-x-full`;
       
       const typeColors = {
-        'info': 'border-blue-400 text-blue-700',
-        'success': 'border-green-400 text-green-700',
-        'warning': 'border-yellow-400 text-yellow-700',
-        'error': 'border-red-400 text-red-700'
+        'info': 'border-blue-400 text-blue-300',
+        'success': 'border-green-400 text-green-300',
+        'warning': 'border-yellow-400 text-yellow-300',
+        'error': 'border-red-400 text-red-300'
       };
       
       notification.innerHTML = `
@@ -1021,10 +1089,10 @@
               <i class="fas fa-check-circle"></i>
             </div>
             <div class="ml-3">
-              <p class="text-sm font-medium">${message}</p>
+              <p class="text-sm font-medium text-white">${message}</p>
             </div>
             <div class="ml-auto pl-3">
-              <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+              <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-white">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -1043,6 +1111,126 @@
         setTimeout(() => notification.remove(), 300);
       }, 3000);
     }
+
+    // URL字段管理
+    function addUrlField() {
+      const container = document.getElementById('urlContainer');
+      const urlItems = container.querySelectorAll('.url-item');
+      
+      if (urlItems.length >= 20) {
+        showNotification('最多只能添加20个URL', 'warning');
+        return;
+      }
+      
+      const newItem = document.createElement('div');
+      newItem.className = 'url-item flex items-center space-x-2 mb-2';
+      newItem.innerHTML = `
+        <input type="url" name="urls[]" placeholder="请输入要投放的网站URL" required class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button type="button" onclick="removeUrlField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      container.appendChild(newItem);
+      updateUrlDeleteButtons();
+    }
+
+    function removeUrlField(button) {
+      const container = document.getElementById('urlContainer');
+      const urlItems = container.querySelectorAll('.url-item');
+      
+      if (urlItems.length <= 1) {
+        showNotification('至少需要保留一个URL', 'warning');
+        return;
+      }
+      
+      button.closest('.url-item').remove();
+      updateUrlDeleteButtons();
+    }
+
+    function updateUrlDeleteButtons() {
+      const container = document.getElementById('urlContainer');
+      const urlItems = container.querySelectorAll('.url-item');
+      const deleteButtons = container.querySelectorAll('.url-item button');
+      
+      deleteButtons.forEach((btn, index) => {
+        btn.style.display = urlItems.length > 1 ? 'block' : 'none';
+      });
+    }
+
+    // Page字段管理
+    function addPageField() {
+      const container = document.getElementById('pageContainer');
+      const pageItems = container.querySelectorAll('.page-item');
+      
+      if (pageItems.length >= 20) {
+        showNotification('最多只能添加20个Facebook Page', 'warning');
+        return;
+      }
+      
+      const newItem = document.createElement('div');
+      newItem.className = 'page-item flex items-center space-x-2 mb-2';
+      newItem.innerHTML = `
+        <input type="url" name="pages[]" placeholder="请输入Facebook Page链接（可选）" class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      container.appendChild(newItem);
+      updatePageDeleteButtons();
+    }
+
+    function removePageField(button) {
+      button.closest('.page-item').remove();
+      updatePageDeleteButtons();
+    }
+
+    function updatePageDeleteButtons() {
+      const container = document.getElementById('pageContainer');
+      const pageItems = container.querySelectorAll('.page-item');
+      const deleteButtons = container.querySelectorAll('.page-item button');
+      
+      deleteButtons.forEach((btn, index) => {
+        btn.style.display = pageItems.length > 1 ? 'block' : 'none';
+      });
+    }
+
+    // 开户申请表单提交处理
+    document.getElementById('accountOpeningForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const accountCount = document.getElementById('accountCount').value;
+      const urls = Array.from(document.querySelectorAll('input[name="urls[]"]')).map(input => input.value).filter(url => url);
+      const pages = Array.from(document.querySelectorAll('input[name="pages[]"]')).map(input => input.value).filter(url => url);
+      
+      // 验证URL数量
+      if (urls.length < 1 || urls.length > 20) {
+        showNotification('请输入1-20个投放URL', 'error');
+        return;
+      }
+      
+      // 验证Page数量
+      if (pages.length > 20) {
+        showNotification('Facebook Page不能超过20个', 'error');
+        return;
+      }
+      
+      console.log('开户申请数据:', {
+        accountCount: parseInt(accountCount),
+        urls: urls,
+        pages: pages
+      });
+      
+      showNotification(`开户申请已提交！申请账户数量：${accountCount}个，投放URL：${urls.length}个`, 'success');
+      closeModal('accountModal');
+    });
+
+    // 初始化删除按钮状态
+    document.addEventListener('DOMContentLoaded', function() {
+      updateUrlDeleteButtons();
+      updatePageDeleteButtons();
+    });
 
     // 分页相关变量
     let currentPage = 1;
