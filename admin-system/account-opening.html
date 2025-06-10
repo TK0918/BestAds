@@ -352,7 +352,7 @@
                 <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
               </div>
               <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
                     <input type="text" id="filterCustomerId" placeholder="请输入客户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -360,6 +360,16 @@
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
                     <input type="text" id="filterCustomerName" placeholder="请输入客户名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                    <select id="filterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部状态</option>
+                      <option value="待处理">待处理</option>
+                      <option value="开户中">开户中</option>
+                      <option value="成功">成功</option>
+                      <option value="失败">失败</option>
+                    </select>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">申请时间开始</label>
@@ -409,25 +419,27 @@
                   <thead class="bg-gray-50">
                     <tr>
                       <!-- 正常列 -->
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">申请ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">客户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">客户名称</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 160px;">申请时间</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 100px;">开户状态</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">开户URL</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 150px;">开户时区</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">开户Page</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 100px;">状态</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">URL</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 150px;">时区和数量</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">Facebook Page</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 150px;">处理时间</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">开户代理</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 150px;">开户时间</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 150px;">广告账户</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 150px;">下户时间</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">账户信息</th>
                       
                       <!-- 固定右侧列 -->
-                      <th class="fixed-right thead-fixed-right px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">操作</th>
+                      <th class="fixed-right thead-fixed-right px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 150px;">操作</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="dataTableBody">
                     <tr>
                       <!-- 正常列 -->
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">REQ001</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C001</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">科技有限公司</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 10:30</td>
@@ -436,11 +448,33 @@
                           待处理
                         </span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                        <a href="https://business.facebook.com" target="_blank">business.facebook.com</a>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">business.facebook.com</span>
+                            <button onclick="copyToClipboard('https://business.facebook.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">techcompany.com</span>
+                            <button onclick="copyToClipboard('https://techcompany.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">TechCompany</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai: 2个</td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">TechCompany</span>
+                            <button onclick="copyToClipboard('TechCompany')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
@@ -449,14 +483,18 @@
                       <!-- 固定右侧列 -->
                       <td class="fixed-right px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
-                          <button onclick="processApplication('C001')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md text-sm transition-colors duration-200">
+                          <button onclick="processApplication('REQ001')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md text-sm transition-colors duration-200">
                             处理
+                          </button>
+                          <button onclick="openCancelModal('REQ001')" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-sm transition-colors duration-200">
+                            取消开户
                           </button>
                         </div>
                       </td>
                     </tr>
                     <tr>
                       <!-- 正常列 -->
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">REQ002</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C002</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">创新科技公司</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14 14:20</td>
@@ -465,44 +503,31 @@
                           开户中
                         </span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                        <a href="https://business.facebook.com" target="_blank">business.facebook.com</a>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">business.facebook.com</span>
+                            <button onclick="copyToClipboard('https://business.facebook.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">InnoTech</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai: 1个</td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">InnoTech</span>
+                            <button onclick="copyToClipboard('InnoTech')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14 15:00</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理商A</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                      
-                      <!-- 固定右侧列 -->
-                      <td class="fixed-right px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex space-x-2">
-                          <button onclick="updateStatus('C002')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md text-sm transition-colors duration-200" id="updateBtn-C002">
-                            更新状态
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <!-- 正常列 -->
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C003</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划公司</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 09:15</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          开户成功
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                        <a href="https://business.facebook.com" target="_blank">business.facebook.com</a>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MarketPlan</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 10:00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理商B</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 16:30</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_123456789</td>
                       
                       <!-- 固定右侧列 -->
                       <td class="fixed-right px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -511,19 +536,105 @@
                     </tr>
                     <tr>
                       <!-- 正常列 -->
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">REQ003</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C003</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划公司</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 09:15</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          成功
+                        </span>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">business.facebook.com</span>
+                            <button onclick="copyToClipboard('https://business.facebook.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">marketplan.com</span>
+                            <button onclick="copyToClipboard('https://marketplan.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai: 2个</td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">MarketPlan</span>
+                            <button onclick="copyToClipboard('MarketPlan')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 10:00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理商B</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 16:30</td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500 font-mono">AD_ACT_123456789 - 营销账户01</span>
+                            <button onclick="copyToClipboard('AD_ACT_123456789')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500 font-mono">AD_ACT_987654321 - 营销账户02</span>
+                            <button onclick="copyToClipboard('AD_ACT_987654321')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      <!-- 固定右侧列 -->
+                      <td class="fixed-right px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <span class="text-gray-400 text-sm">-</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <!-- 正常列 -->
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">REQ004</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C004</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">电商运营公司</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-12 16:45</td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          开户失败
+                          失败
                         </span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                        <a href="https://business.facebook.com" target="_blank">business.facebook.com</a>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">business.facebook.com</span>
+                            <button onclick="copyToClipboard('https://business.facebook.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">ecomops.com</span>
+                            <button onclick="copyToClipboard('https://ecomops.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">EcomOps</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Asia/Shanghai: 1个</td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">EcomOps</span>
+                            <button onclick="copyToClipboard('EcomOps')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-12 17:00</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理商C</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
@@ -536,23 +647,79 @@
                     </tr>
                     <tr>
                       <!-- 正常列 -->
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">REQ005</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C005</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">游戏开发公司</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-11 11:20</td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          开户成功
+                          成功
                         </span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                        <a href="https://business.facebook.com" target="_blank">business.facebook.com</a>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">business.facebook.com</span>
+                            <button onclick="copyToClipboard('https://business.facebook.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">gamedev.com</span>
+                            <button onclick="copyToClipboard('https://gamedev.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-blue-600">mygame.com</span>
+                            <button onclick="copyToClipboard('https://mygame.com')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">America/New_York</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">GameDev</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">America/New_York: 3个</td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">GameDev</span>
+                            <button onclick="copyToClipboard('GameDev')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">MyGamePage</span>
+                            <button onclick="copyToClipboard('MyGamePage')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-11 12:00</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理商A</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-11 18:45</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_987654321</td>
+                      <td class="px-6 py-4">
+                        <div class="space-y-1">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500 font-mono">AD_ACT_987654321 - 游戏推广账户01</span>
+                            <button onclick="copyToClipboard('AD_ACT_987654321')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500 font-mono">AD_ACT_555666777 - 游戏推广账户02</span>
+                            <button onclick="copyToClipboard('AD_ACT_555666777')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500 font-mono">AD_ACT_888999000 - 游戏推广账户03</span>
+                            <button onclick="copyToClipboard('AD_ACT_888999000')" class="text-gray-400 hover:text-gray-600" title="复制">
+                              <i class="fas fa-copy text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       
                       <!-- 固定右侧列 -->
                       <td class="fixed-right px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -584,24 +751,7 @@
         <div class="px-6 py-4">
           <form id="newApplicationForm">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">开户URL *</label>
-                <input type="url" required value="https://business.facebook.com" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">开户时区 *</label>
-                <select required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="Asia/Shanghai">Asia/Shanghai</option>
-                  <option value="America/New_York">America/New_York</option>
-                  <option value="Europe/London">Europe/London</option>
-                  <option value="Asia/Tokyo">Asia/Tokyo</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">开户Page</label>
-                <input type="text" placeholder="请输入Facebook页面名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              </div>
-              <div>
+              <div class="col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-2">选择代理商 *</label>
                 <select id="newAgentSelect" required onchange="showOELink()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   <option value="">请选择代理商</option>
@@ -642,6 +792,45 @@
     </div>
   </div>
 
+  <!-- 取消开户模态框 -->
+  <div id="cancelModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">取消开户申请</h3>
+            <button onclick="closeModal('cancelModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <form id="cancelForm">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">申请ID</label>
+              <input type="text" id="cancelRequestId" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none">
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">取消原因 *</label>
+              <textarea id="cancelReason" required placeholder="请输入取消开户的原因（必填，限200个字符）" maxlength="200" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+              <div class="mt-1 text-sm text-gray-500">
+                <span id="charCount">0</span>/200 字符
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <button onclick="closeModal('cancelModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+            取消
+          </button>
+          <button onclick="submitCancel()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 transition-colors duration-200">
+            确认取消开户
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 处理申请模态框 -->
   <div id="processModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
@@ -656,7 +845,23 @@
         </div>
         <div class="px-6 py-4">
           <form id="processForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 处理方式选择 -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-3">处理方式 *</label>
+              <div class="flex space-x-6">
+                <label class="flex items-center">
+                  <input type="radio" name="processMethod" value="newAccount" checked onchange="toggleProcessMethod()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  <span class="ml-2 text-sm text-gray-700">开新账户</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="radio" name="processMethod" value="existingAccount" onchange="toggleProcessMethod()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                  <span class="ml-2 text-sm text-gray-700">现有账户</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 客户信息 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
                 <input type="text" id="processCustomerId" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none">
@@ -665,41 +870,118 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
                 <input type="text" id="processCustomerName" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none">
               </div>
-              <div class="col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">选择一级代理 *</label>
-                <select id="processAgentSelect" required onchange="showProcessOELink()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="">请选择一级代理</option>
-                  <option value="代理商A">代理商A</option>
-                  <option value="代理商B">代理商B</option>
-                  <option value="代理商C">代理商C</option>
-                </select>
-              </div>
-              <div id="processOeLinkDiv" class="hidden col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">OE链接</label>
-                <div class="flex space-x-2">
-                  <input type="url" id="processOeLink" readonly value="https://oe.facebook.com/openaccount" class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none">
-                  <button type="button" onclick="openProcessOELink()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
-                    <i class="fas fa-external-link-alt mr-2"></i>点击OE链接
-                  </button>
+            </div>
+
+            <!-- 开新账户内容 -->
+            <div id="newAccountContent">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">选择一级代理 *</label>
+                  <select id="processAgentSelect" required onchange="showProcessOELink()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">请选择一级代理</option>
+                    <option value="代理商A">代理商A</option>
+                    <option value="代理商B">代理商B</option>
+                    <option value="代理商C">代理商C</option>
+                  </select>
+                </div>
+                <div id="processOeLinkDiv" class="hidden col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">OE链接</label>
+                  <div class="flex space-x-2">
+                    <input type="url" id="processOeLink" readonly value="https://oe.facebook.com/openaccount" class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none">
+                    <button type="button" onclick="openProcessOELink()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-external-link-alt mr-2"></i>点击OE链接
+                    </button>
+                  </div>
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Request ID *</label>
+                  <input type="text" id="processRequestId" required placeholder="请输入Request ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
               </div>
-              <div class="col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Request ID *</label>
-                <input type="text" id="processRequestId" required placeholder="请输入Request ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <!-- 现有账户内容 -->
+            <div id="existingAccountContent" class="hidden">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">选择广告账户 *</label>
+                  <div class="border border-gray-300 rounded-md">
+                    <!-- 搜索框 -->
+                    <div class="p-3 border-b border-gray-200">
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <i class="fas fa-search text-gray-400 text-sm"></i>
+                        </div>
+                        <input type="text" id="accountSearch" placeholder="搜索广告账户..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" oninput="filterAccounts()">
+                      </div>
+                    </div>
+                    
+                    <!-- 账户列表 -->
+                    <div class="max-h-60 overflow-y-auto">
+                      <div id="accountList" class="divide-y divide-gray-200">
+                        <label class="flex items-center px-3 py-3 hover:bg-gray-50 cursor-pointer account-item" data-search="AD_ACT_123456789 营销推广账户01">
+                          <input type="checkbox" name="selectedAccounts" value="AD_ACT_123456789" onchange="updateAccountSelection()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                          <div class="ml-3 flex-1">
+                            <div class="text-sm font-medium text-gray-900">AD_ACT_123456789</div>
+                            <div class="text-sm text-gray-500">营销推广账户01</div>
+                          </div>
+                        </label>
+                        <label class="flex items-center px-3 py-3 hover:bg-gray-50 cursor-pointer account-item" data-search="AD_ACT_987654321 营销推广账户02">
+                          <input type="checkbox" name="selectedAccounts" value="AD_ACT_987654321" onchange="updateAccountSelection()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                          <div class="ml-3 flex-1">
+                            <div class="text-sm font-medium text-gray-900">AD_ACT_987654321</div>
+                            <div class="text-sm text-gray-500">营销推广账户02</div>
+                          </div>
+                        </label>
+                        <label class="flex items-center px-3 py-3 hover:bg-gray-50 cursor-pointer account-item" data-search="AD_ACT_555666777 游戏推广账户01">
+                          <input type="checkbox" name="selectedAccounts" value="AD_ACT_555666777" onchange="updateAccountSelection()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                          <div class="ml-3 flex-1">
+                            <div class="text-sm font-medium text-gray-900">AD_ACT_555666777</div>
+                            <div class="text-sm text-gray-500">游戏推广账户01</div>
+                          </div>
+                        </label>
+                        <label class="flex items-center px-3 py-3 hover:bg-gray-50 cursor-pointer account-item" data-search="AD_ACT_888999000 游戏推广账户02">
+                          <input type="checkbox" name="selectedAccounts" value="AD_ACT_888999000" onchange="updateAccountSelection()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                          <div class="ml-3 flex-1">
+                            <div class="text-sm font-medium text-gray-900">AD_ACT_888999000</div>
+                            <div class="text-sm text-gray-500">游戏推广账户02</div>
+                          </div>
+                        </label>
+                        <label class="flex items-center px-3 py-3 hover:bg-gray-50 cursor-pointer account-item" data-search="AD_ACT_111222333 电商推广账户01">
+                          <input type="checkbox" name="selectedAccounts" value="AD_ACT_111222333" onchange="updateAccountSelection()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                          <div class="ml-3 flex-1">
+                            <div class="text-sm font-medium text-gray-900">AD_ACT_111222333</div>
+                            <div class="text-sm text-gray-500">电商推广账户01</div>
+                          </div>
+                        </label>
+                        <label class="flex items-center px-3 py-3 hover:bg-gray-50 cursor-pointer account-item" data-search="AD_ACT_444555666 跨境电商账户01">
+                          <input type="checkbox" name="selectedAccounts" value="AD_ACT_444555666" onchange="updateAccountSelection()" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                          <div class="ml-3 flex-1">
+                            <div class="text-sm font-medium text-gray-900">AD_ACT_444555666</div>
+                            <div class="text-sm text-gray-500">跨境电商账户01</div>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-2 flex items-center justify-between text-sm text-gray-500">
+                    <span>已选择 <span id="selectedCount" class="font-medium text-blue-600">0</span> 个账户</span>
+                    <span>最多可选择5个账户</span>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <!-- 处理备注 -->
             <div class="mt-6">
               <label class="block text-sm font-medium text-gray-700 mb-2">处理备注</label>
-              <textarea rows="3" placeholder="请输入处理备注" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+              <textarea id="processRemark" rows="3" placeholder="请输入处理备注" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
             </div>
           </form>
         </div>
         <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
           <button onclick="closeModal('processModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
             取消
-          </button>
-          <button onclick="cancelAccountOpening()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 transition-colors duration-200">
-            取消开户
           </button>
           <button onclick="submitProcess()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
             确认处理
@@ -735,26 +1017,97 @@
     // 模态框控制
     function openModal(modalId) {
       const modal = document.getElementById(modalId);
-      modal.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        // 阻止body滚动
+        document.body.style.overflow = 'hidden';
+      }
     }
 
     function closeModal(modalId) {
       const modal = document.getElementById(modalId);
-      modal.classList.add('hidden');
-      // 重置表单
-      if (modalId === 'newApplicationModal') {
-        document.getElementById('newApplicationForm').reset();
-        document.getElementById('oeLinkDiv').classList.add('hidden');
-      } else if (modalId === 'processModal') {
-        document.getElementById('processForm').reset();
-        document.getElementById('processOeLinkDiv').classList.add('hidden');
+      if (modal) {
+        modal.classList.add('hidden');
+        // 恢复body滚动
+        document.body.style.overflow = 'auto';
+        
+        // 重置表单
+        if (modalId === 'newApplicationModal') {
+          const form = document.getElementById('newApplicationForm');
+          if (form) {
+            form.reset();
+          }
+          const oeLinkDiv = document.getElementById('oeLinkDiv');
+          if (oeLinkDiv) {
+            oeLinkDiv.classList.add('hidden');
+          }
+        } else if (modalId === 'processModal') {
+          const form = document.getElementById('processForm');
+          if (form) {
+            form.reset();
+          }
+          const processOeLinkDiv = document.getElementById('processOeLinkDiv');
+          if (processOeLinkDiv) {
+            processOeLinkDiv.classList.add('hidden');
+          }
+          // 重置处理方式为开新账户
+          const newAccountRadio = document.querySelector('input[name="processMethod"][value="newAccount"]');
+          if (newAccountRadio) {
+            newAccountRadio.checked = true;
+          }
+          const newAccountContent = document.getElementById('newAccountContent');
+          const existingAccountContent = document.getElementById('existingAccountContent');
+          if (newAccountContent) {
+            newAccountContent.classList.remove('hidden');
+          }
+          if (existingAccountContent) {
+            existingAccountContent.classList.add('hidden');
+          }
+          // 清空现有账户选择
+          clearExistingAccountSelections();
+          // 重置备注
+          const processRemark = document.getElementById('processRemark');
+          if (processRemark) {
+            processRemark.value = '';
+          }
+        } else if (modalId === 'cancelModal') {
+          const form = document.getElementById('cancelForm');
+          if (form) {
+            form.reset();
+          }
+          const charCount = document.getElementById('charCount');
+          if (charCount) {
+            charCount.textContent = '0';
+          }
+        }
       }
     }
 
     // 点击模态框外部关闭
     document.addEventListener('click', function(event) {
       if (event.target.classList.contains('modal-backdrop')) {
-        event.target.classList.add('hidden');
+        // 找到对应的模态框ID
+        const modalElement = event.target;
+        const modalId = modalElement.id;
+        if (modalId) {
+          closeModal(modalId);
+        }
+      }
+    });
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        // 查找当前打开的模态框
+        const openModals = document.querySelectorAll('.modal-backdrop:not(.hidden)');
+        if (openModals.length > 0) {
+          // 关闭最后一个打开的模态框
+          const lastModal = openModals[openModals.length - 1];
+          const modalId = lastModal.id;
+          if (modalId) {
+            closeModal(modalId);
+          }
+        }
       }
     });
 
@@ -788,6 +1141,85 @@
       }
     }
 
+    // 切换处理方式
+    function toggleProcessMethod() {
+      const newAccountRadio = document.querySelector('input[name="processMethod"][value="newAccount"]');
+      const existingAccountRadio = document.querySelector('input[name="processMethod"][value="existingAccount"]');
+      const newAccountContent = document.getElementById('newAccountContent');
+      const existingAccountContent = document.getElementById('existingAccountContent');
+      
+      if (newAccountRadio.checked) {
+        newAccountContent.classList.remove('hidden');
+        existingAccountContent.classList.add('hidden');
+        // 清空现有账户的选择
+        clearExistingAccountSelections();
+      } else if (existingAccountRadio.checked) {
+        newAccountContent.classList.add('hidden');
+        existingAccountContent.classList.remove('hidden');
+        // 清空开新账户的必填项
+        clearNewAccountFields();
+      }
+    }
+
+    // 清空现有账户选择
+    function clearExistingAccountSelections() {
+      const checkboxes = document.querySelectorAll('input[name="selectedAccounts"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      updateAccountSelection();
+      const accountSearch = document.getElementById('accountSearch');
+      if (accountSearch) {
+        accountSearch.value = '';
+        filterAccounts();
+      }
+    }
+
+    // 清空开新账户字段
+    function clearNewAccountFields() {
+      document.getElementById('processAgentSelect').value = '';
+      document.getElementById('processRequestId').value = '';
+      document.getElementById('processOeLinkDiv').classList.add('hidden');
+    }
+
+    // 搜索过滤广告账户
+    function filterAccounts() {
+      const searchTerm = document.getElementById('accountSearch').value.toLowerCase();
+      const accountItems = document.querySelectorAll('.account-item');
+      
+      accountItems.forEach(item => {
+        const searchData = item.getAttribute('data-search').toLowerCase();
+        if (searchData.includes(searchTerm)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // 更新账户选择统计
+    function updateAccountSelection() {
+      const selectedCheckboxes = document.querySelectorAll('input[name="selectedAccounts"]:checked');
+      const selectedCount = selectedCheckboxes.length;
+      
+      document.getElementById('selectedCount').textContent = selectedCount;
+      
+      // 限制最多选择5个
+      if (selectedCount >= 5) {
+        const uncheckedBoxes = document.querySelectorAll('input[name="selectedAccounts"]:not(:checked)');
+        uncheckedBoxes.forEach(checkbox => {
+          checkbox.disabled = true;
+          checkbox.parentElement.style.opacity = '0.5';
+        });
+      } else {
+        const allCheckboxes = document.querySelectorAll('input[name="selectedAccounts"]');
+        allCheckboxes.forEach(checkbox => {
+          checkbox.disabled = false;
+          checkbox.parentElement.style.opacity = '1';
+        });
+      }
+    }
+
     // 打开处理申请的OE链接
     function openProcessOELink() {
       const oeLink = document.getElementById('processOeLink').value;
@@ -798,10 +1230,11 @@
     function filterData() {
       const customerId = document.getElementById('filterCustomerId').value;
       const customerName = document.getElementById('filterCustomerName').value;
+      const status = document.getElementById('filterStatus').value;
       const applyDateStart = document.getElementById('filterApplyDateStart').value;
       const applyDateEnd = document.getElementById('filterApplyDateEnd').value;
       
-      console.log('筛选条件：', { customerId, customerName, applyDateStart, applyDateEnd });
+      console.log('筛选条件：', { customerId, customerName, status, applyDateStart, applyDateEnd });
       // 这里应该调用后端API进行筛选
       alert('筛选功能已触发，请查看控制台');
     }
@@ -809,6 +1242,7 @@
     function resetFilter() {
       document.getElementById('filterCustomerId').value = '';
       document.getElementById('filterCustomerName').value = '';
+      document.getElementById('filterStatus').value = '';
       document.getElementById('filterApplyDateStart').value = '';
       document.getElementById('filterApplyDateEnd').value = '';
       // 重新加载数据
@@ -849,21 +1283,57 @@
     }
 
     function submitProcess() {
-      const form = document.getElementById('processForm');
-      const requestId = document.getElementById('processRequestId').value;
-      const agent = document.getElementById('processAgentSelect').value;
+      const processMethod = document.querySelector('input[name="processMethod"]:checked').value;
+      const customerId = document.getElementById('processCustomerId').value;
+      const customerName = document.getElementById('processCustomerName').value;
+      const remark = document.getElementById('processRemark').value;
       
-      if (!agent) {
-        alert('请选择一级代理');
-        return;
+      if (processMethod === 'newAccount') {
+        // 开新账户验证
+        const agent = document.getElementById('processAgentSelect').value;
+        const requestId = document.getElementById('processRequestId').value;
+        
+        if (!agent) {
+          alert('请选择一级代理');
+          return;
+        }
+        
+        if (!requestId) {
+          alert('请输入Request ID');
+          return;
+        }
+        
+        console.log('开新账户处理：', {
+          customerId,
+          customerName,
+          agent,
+          requestId,
+          remark
+        });
+        
+        alert(`开新账户处理完成！\n客户：${customerName}\nRequest ID：${requestId}\n代理商：${agent}`);
+        
+      } else if (processMethod === 'existingAccount') {
+        // 现有账户验证
+        const selectedAccounts = document.querySelectorAll('input[name="selectedAccounts"]:checked');
+        
+        if (selectedAccounts.length === 0) {
+          alert('请至少选择一个广告账户');
+          return;
+        }
+        
+        const accountIds = Array.from(selectedAccounts).map(cb => cb.value);
+        
+        console.log('现有账户处理：', {
+          customerId,
+          customerName,
+          selectedAccounts: accountIds,
+          remark
+        });
+        
+        alert(`现有账户处理完成！\n客户：${customerName}\n已选择账户：${accountIds.length}个\n账户ID：${accountIds.join(', ')}`);
       }
       
-      if (!requestId) {
-        alert('请输入Request ID');
-        return;
-      }
-      
-      alert('申请处理完成！Request ID: ' + requestId);
       closeModal('processModal');
       refreshData();
     }
@@ -943,6 +1413,68 @@
       // 这里应该重新加载表格数据
       location.reload();
     }
+
+    // 复制到剪贴板功能
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(function() {
+        // 简单的提示效果
+        const tooltip = document.createElement('div');
+        tooltip.textContent = '已复制';
+        tooltip.className = 'fixed top-4 right-4 bg-green-600 text-white px-3 py-2 rounded-md text-sm z-50';
+        document.body.appendChild(tooltip);
+        
+        setTimeout(() => {
+          document.body.removeChild(tooltip);
+        }, 2000);
+      }).catch(function() {
+        alert('复制失败，请手动复制');
+      });
+    }
+
+    // 打开取消开户模态框
+    function openCancelModal(requestId) {
+      document.getElementById('cancelRequestId').value = requestId;
+      document.getElementById('cancelReason').value = '';
+      document.getElementById('charCount').textContent = '0';
+      openModal('cancelModal');
+    }
+
+    // 取消开户申请
+    function submitCancel() {
+      const requestId = document.getElementById('cancelRequestId').value;
+      const reason = document.getElementById('cancelReason').value.trim();
+      
+      if (!reason) {
+        alert('请输入取消原因');
+        return;
+      }
+      
+      if (reason.length > 200) {
+        alert('取消原因不能超过200个字符');
+        return;
+      }
+      
+      if (confirm(`确定要取消开户申请 ${requestId} 吗？`)) {
+        console.log('取消开户：', { requestId, reason });
+        alert(`开户申请 ${requestId} 已取消`);
+        closeModal('cancelModal');
+        refreshData();
+      }
+    }
+
+    // 字符计数功能
+    document.addEventListener('DOMContentLoaded', function() {
+      const cancelReason = document.getElementById('cancelReason');
+      const charCount = document.getElementById('charCount');
+      
+      if (cancelReason && charCount) {
+        cancelReason.addEventListener('input', function() {
+          charCount.textContent = this.value.length;
+        });
+      }
+    });
+
+
 
     // 页面加载完成后的初始化
     document.addEventListener('DOMContentLoaded', function() {

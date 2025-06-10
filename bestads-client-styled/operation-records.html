@@ -208,10 +208,10 @@
                   <label class="block text-sm font-medium text-gray-300 mb-2">申请状态</label>
                   <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">全部状态</option>
-                    <option value="pending">待处理</option>
-                    <option value="processing">处理中</option>
-                    <option value="success">成功</option>
-                    <option value="failed">失败</option>
+                    <option value="待处理">待处理</option>
+                    <option value="处理中">处理中</option>
+                    <option value="成功">成功</option>
+                    <option value="失败">失败</option>
                   </select>
                 </div>
               </div>
@@ -243,85 +243,147 @@
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">申请ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户信息</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户数量</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户时区</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">BM ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">BM名称</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">时区和数量</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">申请时间</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">备注</th>
                   </tr>
                 </thead>
                 <tbody class="bg-slate-800 divide-y divide-gray-600">
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ001</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div class="text-sm font-medium text-white">Facebook广告账户</div>
-                        <div class="text-sm text-gray-400">投放跨境电商产品</div>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm font-medium text-white">FB001234567 - 跨境电商账户01</div>
+                        <div class="text-sm font-medium text-white">FB001234568 - 跨境电商账户02</div>
                       </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-white">2个</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC+8</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">BM123456789</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">跨境电商BM</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm text-gray-400">UTC+8: 2个</div>
+                      </div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 10:30</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
-                        已完成
+                        成功
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">开户成功，账户已激活</td>
                   </tr>
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ002</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div class="text-sm font-medium text-white">Google广告账户</div>
-                        <div class="text-sm text-gray-400">搜索广告投放</div>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm font-medium text-white">GG001234570 - Google搜索账户01</div>
                       </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-white">1个</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC-5</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">-</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">-</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm text-gray-400">UTC-5: 1个</div>
+                      </div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-14 14:20</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-800 text-blue-200">
                         处理中
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">等待平台审核</td>
                   </tr>
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ003</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div class="text-sm font-medium text-white">Facebook广告账户</div>
-                        <div class="text-sm text-gray-400">移动应用推广</div>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm font-medium text-white">FB001234569 - 移动应用账户01</div>
+                        <div class="text-sm font-medium text-white">FB001234571 - 移动应用账户02</div>
+                        <div class="text-sm font-medium text-white">FB001234572 - 移动应用账户03</div>
                       </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-white">3个</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC+0</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">BM987654321</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">移动应用BM</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm text-gray-400">UTC+0: 2个</div>
+                        <div class="text-sm text-gray-400">UTC+8: 1个</div>
+                      </div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-13 09:15</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-800 text-yellow-200">
                         待处理
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">等待资料审核</td>
                   </tr>
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ004</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div class="text-sm font-medium text-white">Facebook广告账户</div>
-                        <div class="text-sm text-gray-400">本地服务推广</div>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm font-medium text-white">FB001234573 - 本地服务账户01</div>
                       </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-white">1个</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">UTC+8</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">BM555666777</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">本地服务BM</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm text-gray-400">UTC+8: 1个</div>
+                      </div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-12 16:45</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
-                        已完成
+                        成功
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">开户完成，等待充值</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">REQ005</td>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm font-medium text-white">FB001234574 - 游戏推广账户01</div>
+                        <div class="text-sm font-medium text-white">FB001234575 - 游戏推广账户02</div>
+                        <div class="text-sm font-medium text-white">FB001234576 - 游戏推广账户03</div>
+                        <div class="text-sm font-medium text-white">FB001234577 - 游戏推广账户04</div>
+                        <div class="text-sm font-medium text-white">FB001234578 - 游戏推广账户05</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">BM111222333</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-sm text-gray-400">游戏推广BM</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm text-gray-400">UTC+8: 3个</div>
+                        <div class="text-sm text-gray-400">UTC-5: 2个</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-11 15:20</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-800 text-red-200">
+                        失败
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -355,7 +417,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 16:45</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
-                        已完成
+                        成功
                       </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">

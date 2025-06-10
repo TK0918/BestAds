@@ -211,7 +211,7 @@
                     账户分配
                   </h2>
                   <p class="mt-1 text-sm text-gray-500">
-                    管理客户与广告账户的绑定关系，分配一级代理同步的广告账户给客户
+                    管理客户与广告账户的关系，分配广告账户给客户
                   </p>
                 </div>
               </div>
@@ -257,15 +257,15 @@
             <!-- 操作栏和表格 -->
             <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
               <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">绑定关系列表</h3>
+                <h3 class="text-lg font-medium text-gray-900">已分配列表</h3>
                 <div class="flex space-x-3">
                   <button id="batchUnbindBtn" onclick="batchUnbind()" disabled class="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-unlink"></i>
-                    <span>解绑</span>
+                    <span>解除</span>
                   </button>
                   <button onclick="openModal('bindModal')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-link"></i>
-                    <span>绑定</span>
+                    <span>分配</span>
                   </button>
                   <button onclick="refreshData()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-sync"></i>
@@ -286,7 +286,7 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">客户名称</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 180px;">广告账户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">广告账户名称</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 160px;">绑定时间</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 160px;">分配时间</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">操作人</th>
                     </tr>
                   </thead>
@@ -334,13 +334,13 @@
     </div>
   </div>
 
-  <!-- 绑定账户模态框 -->
+  <!-- 分配账户模态框 -->
   <div id="bindModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
       <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn">
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">绑定广告账户</h3>
+            <h3 class="text-lg font-medium text-gray-900">分配广告账户</h3>
             <button onclick="closeModal('bindModal')" class="text-gray-400 hover:text-gray-600">
               <i class="fas fa-times"></i>
             </button>
@@ -422,7 +422,7 @@
                     <div>
                       <div class="font-medium">已分配账户1</div>
                       <div class="text-sm text-gray-500">AD_ACT_444444444</div>
-                      <div class="text-xs text-red-600">已被客户C005绑定</div>
+                      <div class="text-xs text-red-600">已被客户C005占用</div>
                     </div>
                   </div>
                 </div>
@@ -435,27 +435,27 @@
             取消
           </button>
           <button onclick="confirmBind()" class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 transition-colors duration-200">
-            确认绑定
+            确认
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 解绑确认模态框 -->
+  <!-- 解除确认模态框 -->
   <div id="unbindModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">确认解绑</h3>
+            <h3 class="text-lg font-medium text-gray-900">确认</h3>
             <button onclick="closeModal('unbindModal')" class="text-gray-400 hover:text-gray-600">
               <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
         <div class="px-6 py-4">
-          <p class="text-sm text-gray-500 mb-4">确定要解绑选中的客户和广告账户吗？解绑后，客户将无法在客户端看到该广告账户的信息。</p>
+          <p class="text-sm text-gray-500 mb-4">确定要解除选中的客户和广告账户吗？解除后，客户将无法在客户端看到该广告账户的信息。</p>
           <div id="unbindInfo" class="bg-gray-50 p-3 rounded text-sm"></div>
         </div>
         <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
@@ -463,7 +463,7 @@
             取消
           </button>
           <button onclick="confirmUnbind()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 transition-colors duration-200">
-            确认解绑
+            确认
           </button>
         </div>
       </div>
@@ -532,7 +532,7 @@
       updateBatchUnbindButton();
     }
 
-    // 更新批量解绑按钮状态
+    // 更新批量解除按钮状态
     function updateBatchUnbindButton() {
       const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
       const batchUnbindBtn = document.getElementById('batchUnbindBtn');
@@ -592,30 +592,30 @@
 
 
 
-    // 批量解绑
+    // 批量解除
     function batchUnbind() {
       const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
       if (checkedBoxes.length === 0) {
-        alert('请选择要解绑的记录');
+        alert('请选择要解除的记录');
         return;
       }
       
       unbindData = { count: checkedBoxes.length };
       document.getElementById('unbindInfo').innerHTML = `
         <div><strong>选中记录数:</strong> ${checkedBoxes.length}</div>
-        <div class="text-red-600 mt-2">将解绑所有选中的客户和广告账户关系</div>
+        <div class="text-red-600 mt-2">将解除所有选中的客户和广告账户关系</div>
       `;
       openModal('unbindModal');
     }
 
-    // 确认解绑
+    // 确认解除
     function confirmUnbind() {
-      alert(`已解绑 ${unbindData.count} 条记录`);
+      alert(`已解除 ${unbindData.count} 条记录`);
       closeModal('unbindModal');
       refreshData();
     }
 
-    // 确认绑定
+    // 确认分配
     function confirmBind() {
       if (!selectedCustomer) {
         alert('请选择客户');
@@ -629,7 +629,7 @@
       }
       
       const accountIds = Array.from(selectedAccounts).map(cb => cb.value);
-      alert(`已将 ${accountIds.length} 个广告账户绑定到客户 ${selectedCustomer.name}(${selectedCustomer.id})`);
+      alert(`已将 ${accountIds.length} 个广告账户分配到客户 ${selectedCustomer.name}(${selectedCustomer.id})`);
       closeModal('bindModal');
       refreshData();
     }
