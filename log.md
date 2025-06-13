@@ -2872,3 +2872,16 @@ function updateStatistics() {
   1. 增加筛选项：广告账户ID、广告账户名称、提交时间（起止）。
   2. 列表内容增加"账户名称""完成时间"字段，去掉操作列。
 - 优化后，充值记录支持更细致筛选，表格信息更完整，提升了用户体验和数据可读性。
+
+## 2024-06-09 新增充值管理页面及菜单
+
+- 新建`admin-system/recharge-management.html`，页面风格、结构、侧边栏、顶部栏、筛选区、表格区全部与`customer-management.html`一致。
+- 筛选项：客户ID、客户邮箱、广告账户ID、广告账户名称、一代、提交时间。
+- 列表字段：客户ID、客户邮箱、提交时间、广告账户ID、广告账户名称、一代、充值金额、状态、完成时间、备注。
+- 在admin-system所有主页面（index.html、customer-management.html、account-management.html、account-opening.html、account-allocation.html）左侧菜单FB业务管理分组中增加"充值管理"菜单项，所有页面可跳转。
+- 方便后续统一管理和查询客户充值需求及状态。
+
+## 2024-06-09 充值管理页面筛选项补充
+
+- 在`admin-system/recharge-management.html`筛选区增加"状态"筛选项，选项为：全部、充值中、完成、失败。
+- 方便按充值状态快速筛选和管理客户充值需求。
