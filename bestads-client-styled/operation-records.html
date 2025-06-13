@@ -131,8 +131,8 @@
         
         <div class="flex items-center space-x-4">
           <!-- Notification -->
-          <div class="relative">
-            <button class="p-2 text-gray-400 hover:text-white relative">
+          <div class="relative group">
+            <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
               <i class="fas fa-bell text-lg"></i>
               <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
             </button>
@@ -145,10 +145,39 @@
           </select>
           
           <!-- User Avatar -->
-          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-            A
+          <div class="relative group flex items-center">
+            <button onclick="window.location.href='wallet.html'" class="flex items-center px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-yellow-300 font-bold text-base transition-colors duration-200" style="min-width:120px;">
+              <i class="fas fa-wallet mr-2"></i>
+              <span id="balanceAmount">$2,580.00</span>
+            </button>
+            <!-- 悬浮详细信息 -->
+            <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
+              <div class="mb-2 flex items-center justify-between">
+                <span>可用余额</span><span class="font-bold text-yellow-300">$2,580.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>真实金额</span><span>$2,800.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>冻结金额</span><span>$100.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>在途金额</span><span>$120.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>信用额度</span><span>$1,000.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>已用额度</span><span>$200.00</span>
+              </div>
+            </div>
           </div>
-          <span class="hidden md:block text-sm font-medium text-gray-300">管理员</span>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
         </div>
       </header>
 
@@ -393,6 +422,42 @@
 
         <!-- Recharge Records Tab -->
         <div id="content-recharge" class="tab-content">
+          <!-- 新增筛选区 -->
+          <div class="bg-slate-800 rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-600">
+              <h3 class="text-lg font-medium text-white">筛选条件</h3>
+            </div>
+            <div class="p-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">广告账户ID</label>
+                  <input type="text" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入广告账户ID">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">广告账户名称</label>
+                  <input type="text" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入广告账户名称">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">提交时间（起）</label>
+                  <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">提交时间（止）</label>
+                  <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+              </div>
+              <div class="mt-4 flex space-x-3">
+                <button onclick="filterData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+                  <i class="fas fa-search"></i>
+                  <span>筛选</span>
+                </button>
+                <button onclick="resetFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+                  <i class="fas fa-redo"></i>
+                  <span>重置</span>
+                </button>
+              </div>
+            </div>
+          </div>
           <div class="bg-slate-800 rounded-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-600">
               <h3 class="text-lg font-medium text-white">充值记录</h3>
@@ -403,39 +468,38 @@
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">充值ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户名称</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">充值金额</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">充值时间</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">提交时间</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">完成时间</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">操作</th>
                   </tr>
                 </thead>
                 <tbody class="bg-slate-800 divide-y divide-gray-600">
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">RCG001</td>
                     <td class="px-6 py-4 whitespace-nowrap text-white">FB001234567</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">跨境电商账户01</td>
                     <td class="px-6 py-4 whitespace-nowrap text-white">$500.00</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 16:45</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 17:00</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
                         成功
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button class="text-blue-400 hover:text-blue-300">查看详情</button>
-                    </td>
                   </tr>
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">RCG002</td>
                     <td class="px-6 py-4 whitespace-nowrap text-white">FB001234568</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">移动应用账户02</td>
                     <td class="px-6 py-4 whitespace-nowrap text-white">$300.00</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-14 11:30</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400">-</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-800 text-blue-200">
                         处理中
                       </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button class="text-blue-400 hover:text-blue-300">查看详情</button>
                     </td>
                   </tr>
                 </tbody>

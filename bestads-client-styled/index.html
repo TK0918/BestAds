@@ -106,8 +106,8 @@
         
         <div class="flex items-center space-x-4">
           <!-- Notification -->
-          <div class="relative">
-            <button class="p-2 text-gray-400 hover:text-white relative">
+          <div class="relative group">
+            <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
               <i class="fas fa-bell text-lg"></i>
               <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
             </button>
@@ -120,10 +120,39 @@
           </select>
           
           <!-- User Avatar -->
-          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-            A
+          <div class="relative group flex items-center">
+            <button onclick="window.location.href='wallet.html'" class="flex items-center px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-yellow-300 font-bold text-base transition-colors duration-200" style="min-width:120px;">
+              <i class="fas fa-wallet mr-2"></i>
+              <span id="balanceAmount">$2,580.00</span>
+            </button>
+            <!-- 悬浮详细信息 -->
+            <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
+              <div class="mb-2 flex items-center justify-between">
+                <span>可用余额</span><span class="font-bold text-yellow-300">$2,580.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>真实金额</span><span>$2,800.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>冻结金额</span><span>$100.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>在途金额</span><span>$120.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>信用额度</span><span>$1,000.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>已用额度</span><span>$200.00</span>
+              </div>
+            </div>
           </div>
-          <span class="hidden md:block text-sm font-medium text-gray-300">管理员</span>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
         </div>
       </header>
 

@@ -2854,3 +2854,21 @@ function updateStatistics() {
 - 更可靠的模态框交互
 - 多种直观的关闭方式
 - 完整的状态重置机制
+
+## 2024-06-09 新增客户流水菜单及页面
+- 在admin-system所有主页面左侧菜单增加"客户流水"一级菜单，包含"交易明细"、"在线充值"、"线下转账"3个子菜单，分别跳转到customer-transactions/transaction-detail.html、online-recharge.html、offline-transfer.html。
+- 为后续开发，准备在admin-system目录下新建customer-transactions文件夹及3个页面文件。
+
+## 2024-06-09 客户流水页面风格统一
+
+- 将`admin-system/customer-transactions/online-recharge.html`和`admin-system/customer-transactions/offline-transfer.html`页面整体结构、配色、侧边栏、顶部栏、筛选区、表格区全部调整为与`transaction-detail.html`一致的白色风格。
+- 复用主后台页面的分组、图标、hover/active效果、完整菜单、面包屑导航、布局和样式，仅保留各自的筛选项和表格字段。
+- 统一后，客户流水的3个页面（交易明细、在线充值、线下转账）风格、结构、交互体验完全一致，提升了整体UI一致性和用户体验。
+- 详见上述2个页面的全部代码变更。
+
+## 2024-06-09 客户端操作记录-充值记录Tab优化
+
+- 在 bestads-client-styled/operation-records.html 的充值记录Tab中：
+  1. 增加筛选项：广告账户ID、广告账户名称、提交时间（起止）。
+  2. 列表内容增加"账户名称""完成时间"字段，去掉操作列。
+- 优化后，充值记录支持更细致筛选，表格信息更完整，提升了用户体验和数据可读性。

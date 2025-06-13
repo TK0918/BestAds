@@ -166,11 +166,45 @@
         </div>
         <!-- 右侧操作区域 -->
         <div class="flex items-center space-x-4">
-          <div class="relative">
+          <div class="relative group">
             <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
               <i class="fas fa-bell text-lg"></i>
               <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
             </button>
+          </div>
+          <!-- 新增余额信息 -->
+          <div class="relative group flex items-center">
+            <button onclick="window.location.href='wallet.html'" class="flex items-center px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-yellow-300 font-bold text-base transition-colors duration-200" style="min-width:120px;">
+              <i class="fas fa-wallet mr-2"></i>
+              <span id="balanceAmount">$2,580.00</span>
+            </button>
+            <!-- 悬浮详细信息 -->
+            <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
+              <div class="mb-2 flex items-center justify-between">
+                <span>可用余额</span><span class="font-bold text-yellow-300">$2,580.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>真实金额</span><span>$2,800.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>冻结金额</span><span>$100.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>在途金额</span><span>$120.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>信用额度</span><span>$1,000.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>已用额度</span><span>$200.00</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
           </div>
         </div>
       </div>
@@ -184,13 +218,9 @@
           <i class="fas fa-plus"></i>
           <span>申请开户</span>
         </button>
-        <button onclick="openModal('recharge')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-          <i class="fas fa-credit-card"></i>
-          <span>单个充值</span>
-        </button>
         <button onclick="openModal('batchRecharge')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
           <i class="fas fa-layer-group"></i>
-          <span>批量充值</span>
+          <span>账户充值</span>
         </button>
       </div>
 
@@ -568,66 +598,13 @@
       </div>
     </div>
 
-    <!-- 充值申请模态框 -->
-    <div id="rechargeModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
-      <div class="flex items-center justify-center min-h-screen px-4">
-        <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">账户充值</h3>
-            <button onclick="closeModal('rechargeModal')" class="text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-        <form class="px-6 py-4">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">选择广告账户 *</label>
-              <select required id="rechargeAccountSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">请选择要充值的账户</option>
-                <option value="FB001234567">FB001234567 - 测试广告账户01</option>
-                <option value="FB001234568">FB001234568 - 测试广告账户02</option>
-                <option value="GG001234570">GG001234570 - Google广告账户01</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">充值金额 *</label>
-              <input type="number" placeholder="请输入充值金额" min="10" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <p class="mt-1 text-sm text-gray-500">最低充值金额：$10</p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">币种</label>
-              <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="USD">USD (美元)</option>
-                <option value="EUR">EUR (欧元)</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
-              <textarea placeholder="请输入备注信息（可选）" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
-            </div>
-          </div>
-          <div class="flex justify-end space-x-3 mt-6">
-            <button type="button" onclick="closeModal('rechargeModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
-              取消
-            </button>
-            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
-              提交申请
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- 批量充值申请模态框 -->
   <div id="batchRechargeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
       <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn max-h-[90vh] overflow-y-auto">
         <div class="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">批量充值申请</h3>
+            <h3 class="text-lg font-medium text-gray-900">账户充值</h3>
             <button onclick="closeModal('batchRechargeModal')" class="text-gray-400 hover:text-gray-600">
               <i class="fas fa-times"></i>
             </button>
@@ -639,14 +616,6 @@
             <div>
               <div class="flex items-center justify-between mb-4">
                 <label class="block text-sm font-medium text-gray-700">选择充值账户</label>
-                <div class="flex space-x-2">
-                  <button type="button" onclick="selectAllAccounts()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    <i class="fas fa-check-square mr-1"></i>全选
-                  </button>
-                  <button type="button" onclick="deselectAllAccounts()" class="text-gray-600 hover:text-gray-800 text-sm font-medium">
-                    <i class="fas fa-square mr-1"></i>取消全选
-                  </button>
-                </div>
               </div>
               
               <!-- 搜索框 -->
@@ -657,7 +626,7 @@
                       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400"></i>
                       </div>
-                      <input type="text" id="accountSearch" placeholder="搜索账户ID、账户名称或平台..." 
+                      <input type="text" id="accountSearch" placeholder="支持对账户ID和名称进行搜索" 
                              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                              oninput="filterAccounts(this.value)">
                       <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -667,30 +636,18 @@
                       </div>
                     </div>
                   </div>
-                  <div class="flex items-center gap-3">
-                    <div class="text-sm text-gray-600">
-                      每页显示
-                      <select id="pageSize" onchange="changePageSize(this.value)" class="mx-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="5">5</option>
-                        <option value="5" selected>5</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                      </select>
-                      条
-                    </div>
-                  </div>
                 </div>
-                
-                <!-- 统计信息栏 -->
-                <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
-                  <div class="flex items-center gap-4">
-                    <span id="searchResultInfo">显示 1-5 条，共 10 条账户</span>
-                    <span id="selectedInfo" class="text-blue-600 font-medium">已选中 0 个账户</span>
+                <!-- 新增：全选/取消全选和已选中账户数 -->
+                <div class="flex flex-wrap items-center justify-between gap-2 mt-3 text-sm text-gray-600">
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="selectAllAccounts()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <i class="fas fa-check-square mr-1"></i>全选
+                    </button>
+                    <button type="button" onclick="deselectAllAccounts()" class="text-gray-600 hover:text-gray-800 text-sm font-medium">
+                      <i class="fas fa-square mr-1"></i>取消全选
+                    </button>
                   </div>
-                  <div class="text-xs text-gray-500">
-                    支持按账户ID、账户名称或平台类型搜索
-                  </div>
+                  <span id="selectedInfo" class="text-blue-600 font-medium">已选中 0 个账户</span>
                 </div>
               </div>
               
@@ -948,17 +905,27 @@
                   <div class="text-sm text-gray-700">
                     显示第 <span id="pageStart">1</span> - <span id="pageEnd">5</span> 条，共 <span id="totalRecords">10</span> 条记录
                   </div>
+                  <!-- 新增：每页显示条数设置 -->
+                  <div class="text-sm text-gray-600 ml-4">
+                    每页显示
+                    <select id="pageSize" onchange="changePageSize(this.value)" class="mx-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="5">5</option>
+                      <option value="5" selected>5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                    条
+                  </div>
                   <div class="flex items-center gap-2">
                     <button id="prevPageBtn" onclick="changePage('prev')" 
                             class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed" 
                             disabled>
                       <i class="fas fa-chevron-left mr-1"></i>上一页
                     </button>
-                    
                     <div class="flex items-center gap-1" id="pageNumbers">
                       <!-- 页码按钮将动态生成 -->
                     </div>
-                    
                     <button id="nextPageBtn" onclick="changePage('next')" 
                             class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed" 
                             disabled>
@@ -994,18 +961,13 @@
                 <label class="block text-xs text-gray-500 mb-1">快速金额设置</label>
                 <div class="flex space-x-2">
                   <button type="button" onclick="setAmountForSelected(100)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">100</button>
+                  <button type="button" onclick="setAmountForSelected(200)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">200</button>
                   <button type="button" onclick="setAmountForSelected(500)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">500</button>
                   <button type="button" onclick="setAmountForSelected(1000)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">1000</button>
                   <input type="number" id="customAmount" placeholder="自定义" class="w-20 px-2 py-1 text-xs border border-gray-300 rounded">
                   <button type="button" onclick="setAmountForSelected(document.getElementById('customAmount').value)" class="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors">应用</button>
                 </div>
               </div>
-            </div>
-
-            <!-- 备注说明 -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
-              <textarea placeholder="请输入批量充值的备注信息（可选）" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
             </div>
           </div>
           
@@ -1014,7 +976,7 @@
               取消
             </button>
             <button type="submit" id="batchSubmitBtn" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 transition-colors duration-200" disabled>
-              提交批量充值申请
+              充值
             </button>
           </div>
         </form>
