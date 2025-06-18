@@ -46,7 +46,7 @@
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
-
+    
     .card-hover {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -64,8 +64,8 @@
       <!-- Logo -->
       <div class="pt-6 px-8">
         <h1 class="text-white text-2xl font-semibold">BestAds</h1>
-      </div>
-      
+        </div>
+
       <!-- Navigation -->
       <nav class="mt-8 flex-1">
         <ul class="space-y-2 px-4">
@@ -118,7 +118,7 @@
             </a>
           </li>
         </ul>
-      </nav>
+        </nav>
     </div>
 
     <!-- Main Content -->
@@ -177,9 +177,9 @@
               <span class="text-white text-sm font-medium">A</span>
             </div>
             <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
-          </div>
-        </div>
-      </header>
+      </div>
+    </div>
+  </header>
 
               <!-- Content Area -->
         <main class="flex-1 p-6 bg-slate-900 overflow-y-auto">
@@ -196,28 +196,28 @@
                   <i class="fas fa-plus"></i>
                   <span>申请开户</span>
                 </button>
-              </div>
-            </div>
-          </div>
+        </div>
+      </div>
+    </div>
 
         <!-- Tab Navigation -->
         <div class="bg-slate-800 rounded-lg mb-6">
           <div class="border-b border-gray-600">
-            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+        <nav class="flex space-x-8 px-6" aria-label="Tabs">
               <button onclick="switchTab('account-opening')" class="tab-button active py-4 px-1 border-b-2 font-medium text-sm text-white" id="tab-account-opening">
-                <i class="fas fa-plus-circle mr-2"></i>
-                开户记录
-              </button>
+            <i class="fas fa-plus-circle mr-2"></i>
+            开户记录
+          </button>
               <button onclick="switchTab('recharge')" class="tab-button py-4 px-1 border-b-2 font-medium text-sm text-gray-300" id="tab-recharge">
-                <i class="fas fa-dollar-sign mr-2"></i>
-                充值记录
-              </button>
-            </nav>
-          </div>
-        </div>
+            <i class="fas fa-dollar-sign mr-2"></i>
+            充值记录
+          </button>
+        </nav>
+      </div>
+    </div>
 
         <!-- Account Opening Records Tab -->
-        <div id="content-account-opening" class="tab-content active">
+    <div id="content-account-opening" class="tab-content active">
           <!-- Filter Section -->
           <div class="bg-slate-800 rounded-lg mb-6">
             <div class="px-6 py-4 border-b border-gray-600">
@@ -225,48 +225,48 @@
             </div>
             <div class="p-6">
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
+            <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">申请时间</label>
                   <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
+            </div>
+            <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">至</label>
                   <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
+            </div>
+            <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">申请状态</label>
                   <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">全部状态</option>
+                <option value="">全部状态</option>
                     <option value="待处理">待处理</option>
                     <option value="处理中">处理中</option>
                     <option value="成功">成功</option>
                     <option value="失败">失败</option>
-                  </select>
-                </div>
-              </div>
-              <div class="mt-4 flex space-x-3">
-                <button onclick="filterData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
-                  <i class="fas fa-search"></i>
-                  <span>筛选</span>
-                </button>
-                <button onclick="resetFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
-                  <i class="fas fa-redo"></i>
-                  <span>重置</span>
-                </button>
-              </div>
+              </select>
             </div>
           </div>
+          <div class="mt-4 flex space-x-3">
+                <button onclick="filterData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-search"></i>
+              <span>筛选</span>
+            </button>
+                <button onclick="resetFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-redo"></i>
+              <span>重置</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
           <!-- Records Table -->
           <div class="bg-slate-800 rounded-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-600 flex justify-between items-center">
               <h3 class="text-lg font-medium text-white">开户申请记录</h3>
               <button onclick="refreshData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-                <i class="fas fa-sync"></i>
-                <span>刷新</span>
-              </button>
-            </div>
-            <div class="overflow-x-auto">
+              <i class="fas fa-sync"></i>
+              <span>刷新</span>
+            </button>
+          </div>
+        <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-600 table-hover">
                 <thead class="bg-slate-700">
                   <tr>
@@ -277,8 +277,8 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">时区和数量</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">申请时间</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
-                  </tr>
-                </thead>
+              </tr>
+            </thead>
                 <tbody class="bg-slate-800 divide-y divide-gray-600">
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ001</td>
@@ -287,36 +287,36 @@
                         <div class="text-sm font-medium text-white">FB001234567 - 跨境电商账户01</div>
                         <div class="text-sm font-medium text-white">FB001234568 - 跨境电商账户02</div>
                       </div>
-                    </td>
+                </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">BM123456789</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">跨境电商BM</span>
-                    </td>
+                </td>
                     <td class="px-6 py-4">
                       <div class="space-y-1">
                         <div class="text-sm text-gray-400">UTC+8: 2个</div>
                       </div>
-                    </td>
+                </td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 10:30</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
-                        成功
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
+                    成功
+                  </span>
+                </td>
+              </tr>
+              <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ002</td>
                     <td class="px-6 py-4">
                       <div class="space-y-1">
                         <div class="text-sm font-medium text-white">GG001234570 - Google搜索账户01</div>
                       </div>
-                    </td>
+                </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">-</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">-</span>
                     </td>
                     <td class="px-6 py-4">
@@ -328,10 +328,10 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-800 text-blue-200">
                         处理中
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
+                  </span>
+                </td>
+              </tr>
+              <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ003</td>
                     <td class="px-6 py-4">
                       <div class="space-y-1">
@@ -339,11 +339,11 @@
                         <div class="text-sm font-medium text-white">FB001234571 - 移动应用账户02</div>
                         <div class="text-sm font-medium text-white">FB001234572 - 移动应用账户03</div>
                       </div>
-                    </td>
+                </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">BM987654321</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">移动应用BM</span>
                     </td>
                     <td class="px-6 py-4">
@@ -355,21 +355,21 @@
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-13 09:15</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-800 text-yellow-200">
-                        待处理
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
+                    待处理
+                  </span>
+                </td>
+              </tr>
+              <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ004</td>
                     <td class="px-6 py-4">
                       <div class="space-y-1">
                         <div class="text-sm font-medium text-white">FB001234573 - 本地服务账户01</div>
                       </div>
-                    </td>
+                </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">BM555666777</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">本地服务BM</span>
                     </td>
                     <td class="px-6 py-4">
@@ -380,11 +380,11 @@
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-12 16:45</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
-                        成功
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
+                    成功
+                  </span>
+                </td>
+              </tr>
+              <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">REQ005</td>
                     <td class="px-6 py-4">
                       <div class="space-y-1">
@@ -394,11 +394,11 @@
                         <div class="text-sm font-medium text-white">FB001234577 - 游戏推广账户04</div>
                         <div class="text-sm font-medium text-white">FB001234578 - 游戏推广账户05</div>
                       </div>
-                    </td>
+                </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">BM111222333</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="text-sm text-gray-400">游戏推广BM</span>
                     </td>
                     <td class="px-6 py-4">
@@ -411,12 +411,12 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-800 text-red-200">
                         失败
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
           </div>
         </div>
 
@@ -440,8 +440,8 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">提交时间（起）</label>
                   <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
+            </div>
+            <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">提交时间（止）</label>
                   <input type="date" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
@@ -461,8 +461,8 @@
           <div class="bg-slate-800 rounded-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-600">
               <h3 class="text-lg font-medium text-white">充值记录</h3>
-            </div>
-            <div class="overflow-x-auto">
+        </div>
+        <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-600 table-hover">
                 <thead class="bg-slate-700">
                   <tr>
@@ -473,8 +473,8 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">提交时间</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">完成时间</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
-                  </tr>
-                </thead>
+              </tr>
+            </thead>
                 <tbody class="bg-slate-800 divide-y divide-gray-600">
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">RCG001</td>
@@ -483,33 +483,33 @@
                     <td class="px-6 py-4 whitespace-nowrap text-white">$500.00</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 16:45</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-15 17:00</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-200">
                         成功
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
+                  </span>
+                </td>
+              </tr>
+              <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-white">RCG002</td>
                     <td class="px-6 py-4 whitespace-nowrap text-white">FB001234568</td>
                     <td class="px-6 py-4 whitespace-nowrap text-white">移动应用账户02</td>
                     <td class="px-6 py-4 whitespace-nowrap text-white">$300.00</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">2024-02-14 11:30</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-400">-</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap">
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-800 text-blue-200">
-                        处理中
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    处理中
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
             </div>
           </div>
         </div>
       </main>
     </div>
-  </div>
+        </div>
 
   <!-- 开户申请模态框 -->
   <div id="accountModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
@@ -545,7 +545,7 @@
                   <input type="url" name="urls[]" placeholder="请输入要投放的网站URL" required class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   <button type="button" onclick="removeUrlField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
                     <i class="fas fa-times"></i>
-                  </button>
+                </button>
                 </div>
               </div>
               <p class="mt-1 text-sm text-gray-400">最少1个，最多20个URL</p>
@@ -564,7 +564,7 @@
                   <input type="url" name="pages[]" placeholder="请输入Facebook Page链接（可选）" class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
                     <i class="fas fa-times"></i>
-                  </button>
+                </button>
                 </div>
               </div>
               <p class="mt-1 text-sm text-gray-400">部分客户开户需要提供Facebook Page，最多20个</p>
@@ -589,7 +589,7 @@
             <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
               提交申请
             </button>
-          </div>
+        </div>
         </form>
       </div>
     </div>

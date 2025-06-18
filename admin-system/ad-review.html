@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广告审核 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .mobile-menu-open {
+      transform: translateX(0);
+    }
+
+    .mobile-menu-closed {
+      transform: translateX(-100%);
+    }
+
+    .status-pending { background: #fef3c7; color: #d97706; }
+    .status-auto-approved { background: #dcfce7; color: #166534; }
+    .status-auto-rejected { background: #fef2f2; color: #dc2626; }
+    .status-auto-uncertain { background: #e0e7ff; color: #4338ca; }
+    .status-manual-approved { background: #d1fae5; color: #065f46; }
+    .status-manual-rejected { background: #fee2e2; color: #991b1b; }
+
+    .review-card {
+      transition: all 0.3s ease;
+      border: 1px solid #e5e7eb;
+    }
+
+    .review-card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .media-preview {
+      max-width: 200px;
+      max-height: 150px;
+      object-fit: cover;
+    }
+
+    .score-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+    }
+
+    .risk-tag {
+      transition: all 0.2s ease;
+    }
+
+    .risk-tag:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .fb-info-section {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 1px solid #bfdbfe;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            BestAds Admin
+          </span>
+        </div>
+      </div>
+
+      <!-- 侧边栏菜单 -->
+      <nav class="mt-8">
+        <!-- 主要功能 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">主要功能</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>
+                仪表盘
+              </a>
+            </li>
+            <li>
+              <a href="customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>
+                客户管理
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- FB业务管理 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">FB业务管理</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>
+                账户管理
+              </a>
+            </li>
+            <li>
+              <a href="account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>
+                开户管理
+              </a>
+            </li>
+            <li>
+              <a href="account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>
+                账户分配
+              </a>
+            </li>
+            <li>
+              <a href="recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>
+                充值管理
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 广告治理 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">广告治理</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="#" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-500"></i>
+                广告审核
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 系统设置 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">系统设置</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>
+                系统配置
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>
+                用户管理
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 客户流水 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">客户流水</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-list w-5 h-5 mr-3 text-gray-400"></i>
+                交易明细
+              </a>
+            </li>
+            <li>
+              <a href="customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>
+                在线充值
+              </a>
+            </li>
+            <li>
+              <a href="customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-money-bill w-5 h-5 mr-3 text-gray-400"></i>
+                线下转账
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- 遮罩层 (移动端) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <!-- 主要内容区域 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <!-- 左侧 -->
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">广告治理</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">广告审核</span>
+              </nav>
+            </div>
+          </div>
+          
+          <!-- 右侧 -->
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 页面标题和操作 -->
+            <div class="mb-8 flex justify-between items-start">
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900">广告审核管理</h1>
+                <p class="mt-1 text-sm text-gray-500">监控和审核客户广告内容，确保符合平台规则</p>
+              </div>
+              <div class="flex space-x-3">
+                <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  <i class="fas fa-download mr-2"></i>
+                  导出数据
+                </button>
+                <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                  <i class="fas fa-sync-alt mr-2"></i>
+                  刷新数据
+                </button>
+              </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+              <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
+                <div class="p-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-eye text-yellow-600 text-lg"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-xs font-medium text-gray-500">待审核</p>
+                      <p class="text-xl font-bold text-gray-900">34</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
+                <div class="p-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-robot text-green-600 text-lg"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-xs font-medium text-gray-500">机审通过</p>
+                      <p class="text-xl font-bold text-gray-900">856</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
+                <div class="p-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-ban text-red-600 text-lg"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-xs font-medium text-gray-500">机审不通过</p>
+                      <p class="text-xl font-bold text-gray-900">123</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
+                <div class="p-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-question-circle text-blue-600 text-lg"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-xs font-medium text-gray-500">机审待定</p>
+                      <p class="text-xl font-bold text-gray-900">67</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
+                <div class="p-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-user-check text-emerald-600 text-lg"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-xs font-medium text-gray-500">人审通过</p>
+                      <p class="text-xl font-bold text-gray-900">1,234</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
+                <div class="p-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-user-times text-rose-600 text-lg"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-xs font-medium text-gray-500">人审不通过</p>
+                      <p class="text-xl font-bold text-gray-900">89</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border mb-8">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">广告类型</label>
+                  <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">全部类型</option>
+                    <option value="text">文本广告</option>
+                    <option value="image">图片广告</option>
+                    <option value="video">视频广告</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">审核状态</label>
+                  <select id="statusFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterByStatus()">
+                    <option value="">全部状态</option>
+                    <option value="pending">待审核</option>
+                    <option value="auto-approved">机审通过</option>
+                    <option value="auto-rejected">机审不通过</option>
+                    <option value="auto-uncertain">机审待定</option>
+                    <option value="manual-approved">人审通过</option>
+                    <option value="manual-rejected">人审不通过</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
+                  <input type="text" placeholder="搜索客户..." class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">广告账户ID</label>
+                  <input type="text" placeholder="Adaccount ID..." class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Campaign ID</label>
+                  <input type="text" placeholder="Campaign ID..." class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-end">
+                  <button class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>搜索
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 广告审核列表 -->
+            <div id="reviewList" class="space-y-6">
+              <!-- 待审核广告示例1 -->
+              <div class="bg-white rounded-lg shadow-sm border review-card" data-status="pending">
+                <div class="p-6">
+                  <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-font text-blue-600"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900">文本广告 #AD001</h3>
+                        <p class="text-sm text-gray-500">客户：张三科技 • 提交时间：2024-12-30 10:30</p>
+                      </div>
+                    </div>
+                    <span class="status-pending px-3 py-1 rounded-full text-xs font-medium">待审核</span>
+                  </div>
+
+                  <!-- FB广告层级信息 -->
+                  <div class="fb-info-section p-4 rounded-lg mb-6">
+                    <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                      <i class="fab fa-facebook text-blue-600 mr-2"></i>
+                      Facebook广告层级信息
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span class="text-gray-600">广告账户ID:</span>
+                        <p class="font-mono text-gray-900">act_123456789</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Campaign ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567890</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Adset ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567891</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Ad ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567892</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 广告内容 -->
+                    <div class="lg:col-span-2">
+                      <h4 class="font-medium text-gray-900 mb-2">广告内容</h4>
+                      <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-800 mb-2 font-medium">标题：革命性智能手机，重新定义未来科技</p>
+                        <p class="text-gray-600 text-sm">描述：体验前所未有的创新功能，超长续航，顶级拍照，现在购买享受限时优惠！立即行动，改变你的生活方式。</p>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">科技</span>
+                          <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">手机</span>
+                          <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">创新</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 审核信息 -->
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">审核评估</h4>
+                      <div class="space-y-3">
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">内容合规性</span>
+                            <span class="font-medium">85分</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-green-500" style="width: 85%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">真实性评分</span>
+                            <span class="font-medium">78分</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-yellow-500" style="width: 78%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">违规风险</span>
+                            <span class="font-medium">低</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-green-500" style="width: 20%"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- 审核标签 -->
+                      <div class="mt-4">
+                        <p class="text-sm text-gray-600 mb-2">检测到的风险标签：</p>
+                        <div class="flex flex-wrap gap-2">
+                          <span class="risk-tag bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium border border-yellow-200">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>夸大宣传
+                          </span>
+                          <span class="risk-tag bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium border border-orange-200">
+                            <i class="fas fa-bullhorn mr-1"></i>营销导向
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div class="mt-4">
+                        <p class="text-sm text-gray-600 mb-2">审核建议：</p>
+                        <p class="text-xs text-gray-500 bg-yellow-50 p-2 rounded">建议调整部分夸大性描述，增强内容真实性表达。</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 flex justify-between items-center">
+                    <div class="flex space-x-2">
+                      <button class="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700">
+                        <i class="fas fa-check mr-1"></i>通过
+                      </button>
+                      <button class="bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700">
+                        <i class="fas fa-times mr-1"></i>拒绝
+                      </button>
+                      <button class="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700">
+                        <i class="fas fa-edit mr-1"></i>要求修改
+                      </button>
+                    </div>
+                    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <i class="fas fa-eye mr-1"></i>查看详情
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 图片广告示例 -->
+              <div class="bg-white rounded-lg shadow-sm border review-card">
+                <div class="p-6">
+                  <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-image text-green-600"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900">图片广告 #AD002</h3>
+                        <p class="text-sm text-gray-500">客户：美食天堂 • 提交时间：2024-01-15 11:45</p>
+                      </div>
+                    </div>
+                    <span class="status-approved px-3 py-1 rounded-full text-xs font-medium">已通过</span>
+                  </div>
+
+                  <!-- FB广告层级信息 -->
+                  <div class="fb-info-section p-4 rounded-lg mb-6">
+                    <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                      <i class="fab fa-facebook text-blue-600 mr-2"></i>
+                      Facebook广告层级信息
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span class="text-gray-600">广告账户ID:</span>
+                        <p class="font-mono text-gray-900">act_987654321</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Campaign ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567893</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Adset ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567894</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Ad ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567895</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 广告内容 -->
+                    <div class="lg:col-span-2">
+                      <h4 class="font-medium text-gray-900 mb-2">广告内容</h4>
+                      <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex space-x-4">
+                          <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=200&h=150&fit=crop" alt="美食广告" class="media-preview rounded-lg">
+                          <div class="flex-1">
+                            <p class="text-gray-800 mb-2 font-medium">正宗川菜，地道美味</p>
+                            <p class="text-gray-600 text-sm">精选优质食材，传统工艺制作，让您品尝最地道的川菜风味。现在预订享受8折优惠！</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                              <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">美食</span>
+                              <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">川菜</span>
+                              <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">餐饮</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 审核信息 -->
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">审核评估</h4>
+                      <div class="space-y-3">
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">内容合规性</span>
+                            <span class="font-medium">92分</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-green-500" style="width: 92%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">图片质量</span>
+                            <span class="font-medium">89分</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-green-500" style="width: 89%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">违规风险</span>
+                            <span class="font-medium">极低</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-green-500" style="width: 10%"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- 审核标签 -->
+                      <div class="mt-4">
+                        <p class="text-sm text-gray-600 mb-2">检测到的风险标签：</p>
+                        <div class="flex flex-wrap gap-2">
+                          <span class="risk-tag bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium border border-green-200">
+                            <i class="fas fa-check-circle mr-1"></i>内容正常
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div class="mt-4">
+                        <p class="text-sm text-gray-600 mb-2">审核建议：</p>
+                        <p class="text-xs text-gray-500 bg-green-50 p-2 rounded">内容符合规范，图片清晰，可以通过审核。</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 flex justify-between items-center">
+                    <div class="text-sm text-gray-500">
+                      <i class="fas fa-user mr-1"></i>审核人：李管理员 • 
+                      <i class="fas fa-clock ml-2 mr-1"></i>审核时间：2024-01-15 14:20
+                    </div>
+                    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <i class="fas fa-eye mr-1"></i>查看详情
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 视频广告示例 -->
+              <div class="bg-white rounded-lg shadow-sm border review-card">
+                <div class="p-6">
+                  <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-video text-red-600"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900">视频广告 #AD003</h3>
+                        <p class="text-sm text-gray-500">客户：运动品牌 • 提交时间：2024-01-15 09:15</p>
+                      </div>
+                    </div>
+                    <span class="status-rejected px-3 py-1 rounded-full text-xs font-medium">已拒绝</span>
+                  </div>
+
+                  <!-- FB广告层级信息 -->
+                  <div class="fb-info-section p-4 rounded-lg mb-6">
+                    <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                      <i class="fab fa-facebook text-blue-600 mr-2"></i>
+                      Facebook广告层级信息
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span class="text-gray-600">广告账户ID:</span>
+                        <p class="font-mono text-gray-900">act_456789123</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Campaign ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567896</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Adset ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567897</p>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Ad ID:</span>
+                        <p class="font-mono text-gray-900">23847861234567898</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 广告内容 -->
+                    <div class="lg:col-span-2">
+                      <h4 class="font-medium text-gray-900 mb-2">广告内容</h4>
+                      <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex space-x-4">
+                          <div class="relative media-preview bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-play-circle text-gray-400 text-4xl"></i>
+                            <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">0:30</span>
+                          </div>
+                          <div class="flex-1">
+                            <p class="text-gray-800 mb-2 font-medium">突破极限，成就不凡</p>
+                            <p class="text-gray-600 text-sm">专业运动装备，助您挑战每一个不可能。独家技术，卓越品质，现在购买立享5折优惠！</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                              <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">运动</span>
+                              <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">装备</span>
+                              <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">健身</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 审核信息 -->
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">审核评估</h4>
+                      <div class="space-y-3">
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">内容合规性</span>
+                            <span class="font-medium">45分</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-red-500" style="width: 45%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">视频质量</span>
+                            <span class="font-medium">78分</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-yellow-500" style="width: 78%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">违规风险</span>
+                            <span class="font-medium">高</span>
+                          </div>
+                          <div class="score-bar">
+                            <div class="score-fill bg-red-500" style="width: 85%"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- 审核标签 -->
+                      <div class="mt-4">
+                        <p class="text-sm text-gray-600 mb-2">检测到的违规标签：</p>
+                        <div class="flex flex-wrap gap-2">
+                          <span class="risk-tag bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                            <i class="fas fa-ban mr-1"></i>虚假宣传
+                          </span>
+                          <span class="risk-tag bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium border border-orange-200">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>夸大效果
+                          </span>
+                          <span class="risk-tag bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium border border-purple-200">
+                            <i class="fas fa-heart mr-1"></i>健康声明
+                          </span>
+                          <span class="risk-tag bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium border border-yellow-200">
+                            <i class="fas fa-dollar-sign mr-1"></i>误导定价
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div class="mt-4">
+                        <p class="text-sm text-gray-600 mb-2">拒绝原因：</p>
+                        <p class="text-xs text-gray-500 bg-red-50 p-2 rounded">视频中包含夸大不实宣传内容，存在误导消费者的风险，需要重新制作。</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 flex justify-between items-center">
+                    <div class="flex space-x-2">
+                      <button class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">
+                        <i class="fas fa-envelope mr-1"></i>通知客户
+                      </button>
+                      <button class="bg-gray-600 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-700">
+                        <i class="fas fa-redo mr-1"></i>重新审核
+                      </button>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      <i class="fas fa-user mr-1"></i>审核人：王管理员 • 
+                      <i class="fas fa-clock ml-2 mr-1"></i>审核时间：2024-01-15 12:30
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="mt-8 flex items-center justify-between">
+              <div class="text-sm text-gray-700">
+                显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">127</span> 条记录
+              </div>
+              <div class="flex space-x-2">
+                <button class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50">上一页</button>
+                <button class="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">1</button>
+                <button class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">2</button>
+                <button class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">3</button>
+                <button class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">下一页</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 详情模态框 -->
+  <div id="detailModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">广告详情审核</h2>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          <!-- 模态框内容将通过 JavaScript 动态填充 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 人工审核模态框 -->
+  <div id="manualReviewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">人工审核</h2>
+            <button onclick="closeManualReviewModal()" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          <div class="mb-6">
+            <p class="text-gray-600 mb-4">请选择人工审核结果：</p>
+            <div class="space-y-3">
+              <label class="flex items-center">
+                <input type="radio" name="manualResult" value="approved" class="mr-3">
+                <span class="text-green-600"><i class="fas fa-check-circle mr-2"></i>通过</span>
+              </label>
+              <label class="flex items-center">
+                <input type="radio" name="manualResult" value="rejected" class="mr-3">
+                <span class="text-red-600"><i class="fas fa-times-circle mr-2"></i>不通过</span>
+              </label>
+            </div>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">审核备注</label>
+            <textarea id="manualReviewNote" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入审核备注..."></textarea>
+          </div>
+          <div class="flex space-x-3">
+            <button onclick="closeManualReviewModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
+              取消
+            </button>
+            <button onclick="submitManualReview()" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              确认提交
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 当前正在审核的广告ID
+    let currentReviewAdId = null;
+
+    // 广告数据
+    const adData = [
+      {
+        id: 'AD001',
+        title: '文本广告 #AD001',
+        customer: '张三科技',
+        submitTime: '2024-12-30 10:30',
+        status: 'pending',
+        type: 'text',
+        content: {
+          title: '革命性智能手机，重新定义未来科技',
+          description: '体验前所未有的创新功能，超长续航，顶级拍照，现在购买享受限时优惠！立即行动，改变你的生活方式。',
+          tags: ['科技', '手机', '创新']
+        },
+        fbInfo: {
+          adAccount: 'act_123456789',
+          campaignId: '23847861234567890',
+          adsetId: '23847861234567891',
+          adId: '23847861234567892'
+        },
+        scores: { compliance: 85, quality: 78, risk: 20 },
+        riskTags: ['夸大宣传', '营销导向'],
+        suggestion: '建议调整部分夸大性描述，增强内容真实性表达。'
+      },
+      {
+        id: 'AD002',
+        title: '文本广告 #AD002',
+        customer: '李四电商',
+        submitTime: '2024-12-30 09:15',
+        status: 'pending',
+        type: 'text',
+        content: {
+          title: '限时特价，错过不再有',
+          description: '全场商品5折起，数量有限，先到先得！立即抢购，享受史无前例的优惠！',
+          tags: ['电商', '促销', '特价']
+        },
+        fbInfo: {
+          adAccount: 'act_234567890',
+          campaignId: '23847861234567899',
+          adsetId: '23847861234567900',
+          adId: '23847861234567901'
+        },
+        scores: { compliance: 70, quality: 85, risk: 40 },
+        riskTags: ['夸大宣传', '紧迫营销'],
+        suggestion: '建议适当调整促销力度表述，避免过度夸大。'
+      },
+      {
+        id: 'AD003',
+        title: '图片广告 #AD003',
+        customer: '美食天堂',
+        submitTime: '2024-12-30 11:45',
+        status: 'auto-approved',
+        type: 'image',
+        content: {
+          title: '正宗川菜，地道美味',
+          description: '精选优质食材，传统工艺制作，让您品尝最地道的川菜风味。现在预订享受8折优惠！',
+          tags: ['美食', '川菜', '餐饮'],
+          image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=200&h=150&fit=crop'
+        },
+        fbInfo: {
+          adAccount: 'act_987654321',
+          campaignId: '23847861234567893',
+          adsetId: '23847861234567894',
+          adId: '23847861234567895'
+        },
+        scores: { compliance: 92, quality: 89, risk: 10 },
+        riskTags: ['内容正常'],
+        suggestion: '内容符合规范，图片清晰，可以通过审核。',
+        reviewer: '机器审核',
+        reviewTime: '2024-12-30 14:20'
+      },
+      {
+        id: 'AD004',
+        title: '图片广告 #AD004',
+        customer: '健康生活馆',
+        submitTime: '2024-12-30 08:30',
+        status: 'auto-approved',
+        type: 'image',
+        content: {
+          title: '天然有机蔬果，健康生活首选',
+          description: '新鲜采摘，无农药残留，为您和家人提供最安全的营养保障。',
+          tags: ['健康', '有机', '蔬果'],
+          image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200&h=150&fit=crop'
+        },
+        fbInfo: {
+          adAccount: 'act_345678901',
+          campaignId: '23847861234567902',
+          adsetId: '23847861234567903',
+          adId: '23847861234567904'
+        },
+        scores: { compliance: 95, quality: 92, risk: 5 },
+        riskTags: ['内容正常'],
+        suggestion: '内容真实可信，图片质量优秀，符合平台规范。',
+        reviewer: '机器审核',
+        reviewTime: '2024-12-30 13:15'
+      },
+      {
+        id: 'AD005',
+        title: '视频广告 #AD005',
+        customer: '运动品牌',
+        submitTime: '2024-12-30 09:15',
+        status: 'auto-rejected',
+        type: 'video',
+        content: {
+          title: '突破极限，成就不凡',
+          description: '专业运动装备，助您挑战每一个不可能。独家技术，卓越品质，现在购买立享5折优惠！',
+          tags: ['运动', '装备', '健身']
+        },
+        fbInfo: {
+          adAccount: 'act_456789123',
+          campaignId: '23847861234567896',
+          adsetId: '23847861234567897',
+          adId: '23847861234567898'
+        },
+        scores: { compliance: 45, quality: 78, risk: 85 },
+        riskTags: ['虚假宣传', '夸大效果', '健康声明', '误导定价'],
+        suggestion: '视频中包含夸大不实宣传内容，存在误导消费者的风险，需要重新制作。',
+        reviewer: '机器审核',
+        reviewTime: '2024-12-30 12:30'
+      },
+      {
+        id: 'AD006',
+        title: '视频广告 #AD006',
+        customer: '保健品公司',
+        submitTime: '2024-12-30 07:45',
+        status: 'auto-rejected',
+        type: 'video',
+        content: {
+          title: '神奇保健品，包治百病',
+          description: '经过特殊工艺提取，能够有效治疗各种疾病，无副作用，立竿见影！',
+          tags: ['保健品', '治疗', '健康']
+        },
+        fbInfo: {
+          adAccount: 'act_567890234',
+          campaignId: '23847861234567905',
+          adsetId: '23847861234567906',
+          adId: '23847861234567907'
+        },
+        scores: { compliance: 25, quality: 60, risk: 95 },
+        riskTags: ['虚假宣传', '医疗声明', '夸大效果', '违规保健品'],
+        suggestion: '严重违反广告法规，涉及虚假医疗声明，必须拒绝。',
+        reviewer: '机器审核',
+        reviewTime: '2024-12-30 11:00'
+      },
+      {
+        id: 'AD007',
+        title: '文本广告 #AD007',
+        customer: '教育培训',
+        submitTime: '2024-12-30 06:20',
+        status: 'auto-uncertain',
+        type: 'text',
+        content: {
+          title: '在线教育课程，提升职场竞争力',
+          description: '名师授课，系统学习，帮助您快速掌握专业技能，轻松获得高薪工作。',
+          tags: ['教育', '培训', '职场']
+        },
+        fbInfo: {
+          adAccount: 'act_678901345',
+          campaignId: '23847861234567908',
+          adsetId: '23847861234567909',
+          adId: '23847861234567910'
+        },
+        scores: { compliance: 75, quality: 82, risk: 30 },
+        riskTags: ['就业承诺', '收益暗示'],
+        suggestion: '内容涉及就业承诺，需要人工审核确认是否合规。',
+        reviewer: '机器审核',
+        reviewTime: '2024-12-30 10:45'
+      },
+      {
+        id: 'AD008',
+        title: '图片广告 #AD008',
+        customer: '金融服务',
+        submitTime: '2024-12-30 05:30',
+        status: 'auto-uncertain',
+        type: 'image',
+        content: {
+          title: '投资理财，稳定收益',
+          description: '专业团队管理，年化收益率高达15%，低风险高回报，值得信赖的理财选择。',
+          tags: ['金融', '投资', '理财'],
+          image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=200&h=150&fit=crop'
+        },
+        fbInfo: {
+          adAccount: 'act_789012456',
+          campaignId: '23847861234567911',
+          adsetId: '23847861234567912',
+          adId: '23847861234567913'
+        },
+        scores: { compliance: 65, quality: 88, risk: 55 },
+        riskTags: ['收益承诺', '金融风险'],
+        suggestion: '涉及具体收益承诺，需要核实相关资质和合规性。',
+        reviewer: '机器审核',
+        reviewTime: '2024-12-30 09:30'
+      },
+      {
+        id: 'AD009',
+        title: '视频广告 #AD009',
+        customer: '旅游公司',
+        submitTime: '2024-12-29 16:20',
+        status: 'manual-approved',
+        type: 'video',
+        content: {
+          title: '梦幻海岛游，体验paradise',
+          description: '精心安排的海岛之旅，享受阳光沙滩，品尝当地美食，留下美好回忆。',
+          tags: ['旅游', '海岛', '度假']
+        },
+        fbInfo: {
+          adAccount: 'act_890123567',
+          campaignId: '23847861234567914',
+          adsetId: '23847861234567915',
+          adId: '23847861234567916'
+        },
+        scores: { compliance: 88, quality: 85, risk: 15 },
+        riskTags: ['内容正常'],
+        suggestion: '内容真实可信，符合旅游广告规范，可以通过。',
+        reviewer: '王管理员',
+        reviewTime: '2024-12-29 18:45',
+        manualNote: '经核实，旅游产品真实存在，价格合理，通过审核。'
+      },
+      {
+        id: 'AD010',
+        title: '文本广告 #AD010',
+        customer: '美容机构',
+        submitTime: '2024-12-29 15:10',
+        status: 'manual-approved',
+        type: 'text',
+        content: {
+          title: '专业美容护理，焕发肌肤活力',
+          description: '采用先进设备和专业技术，为您提供个性化美容方案，让肌肤重现年轻光彩。',
+          tags: ['美容', '护理', '肌肤']
+        },
+        fbInfo: {
+          adAccount: 'act_901234678',
+          campaignId: '23847861234567917',
+          adsetId: '23847861234567918',
+          adId: '23847861234567919'
+        },
+        scores: { compliance: 90, quality: 87, risk: 20 },
+        riskTags: ['内容正常'],
+        suggestion: '美容服务描述适当，无夸大宣传，符合行业规范。',
+        reviewer: '李管理员',
+        reviewTime: '2024-12-29 17:30',
+        manualNote: '已核实美容机构资质，服务描述真实，通过审核。'
+      },
+      {
+        id: 'AD011',
+        title: '图片广告 #AD011',
+        customer: '减肥产品',
+        submitTime: '2024-12-29 14:30',
+        status: 'manual-rejected',
+        type: 'image',
+        content: {
+          title: '7天瘦20斤，不反弹！',
+          description: '独家配方，无需节食运动，轻松实现快速减肥，效果显著，安全无副作用！',
+          tags: ['减肥', '瘦身', '产品'],
+          image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=150&fit=crop'
+        },
+        fbInfo: {
+          adAccount: 'act_012345789',
+          campaignId: '23847861234567920',
+          adsetId: '23847861234567921',
+          adId: '23847861234567922'
+        },
+        scores: { compliance: 30, quality: 75, risk: 90 },
+        riskTags: ['虚假宣传', '夸大效果', '健康风险', '医疗声明'],
+        suggestion: '严重夸大减肥效果，涉及虚假医疗声明，存在健康风险。',
+        reviewer: '张管理员',
+        reviewTime: '2024-12-29 16:15',
+        manualNote: '经专家评估，减肥效果描述严重不实，可能误导消费者，拒绝通过。'
+      },
+      {
+        id: 'AD012',
+        title: '视频广告 #AD012',
+        customer: '加密货币',
+        submitTime: '2024-12-29 13:45',
+        status: 'manual-rejected',
+        type: 'video',
+        content: {
+          title: '投资数字货币，月入百万不是梦',
+          description: '把握时机，投资新兴数字货币，短期内实现财富自由，成功案例遍布全球！',
+          tags: ['投资', '数字货币', '理财']
+        },
+        fbInfo: {
+          adAccount: 'act_123456790',
+          campaignId: '23847861234567923',
+          adsetId: '23847861234567924',
+          adId: '23847861234567925'
+        },
+        scores: { compliance: 20, quality: 70, risk: 95 },
+        riskTags: ['虚假宣传', '金融欺诈', '收益承诺', '违规投资'],
+        suggestion: '涉嫌金融欺诈，严重违反投资广告规范，必须拒绝。',
+        reviewer: '陈管理员',
+        reviewTime: '2024-12-29 15:20',
+        manualNote: '加密货币投资风险极高，收益承诺不实，涉嫌诈骗，坚决拒绝。'
+      }
+    ];
+
+    // 渲染广告列表
+    function renderAdList(filterStatus = '') {
+      const reviewList = document.getElementById('reviewList');
+      const filteredAds = filterStatus ? adData.filter(ad => ad.status === filterStatus) : adData;
+      
+      reviewList.innerHTML = filteredAds.map(ad => `
+        <div class="bg-white rounded-lg shadow-sm border review-card" data-status="${ad.status}">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 ${getIconBgColor(ad.type)} rounded-lg flex items-center justify-center">
+                  <i class="${getIconClass(ad.type)} ${getIconColor(ad.type)}"></i>
+                </div>
+                <div>
+                  <h3 class="font-medium text-gray-900">${ad.title}</h3>
+                  <p class="text-sm text-gray-500">客户：${ad.customer} • 提交时间：${ad.submitTime}</p>
+                </div>
+              </div>
+              <span class="status-${ad.status.replace('-', '-')} px-3 py-1 rounded-full text-xs font-medium">${getStatusText(ad.status)}</span>
+            </div>
+
+            <!-- FB广告层级信息 -->
+            <div class="fb-info-section p-4 rounded-lg mb-6">
+              <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                <i class="fab fa-facebook text-blue-600 mr-2"></i>
+                Facebook广告层级信息
+              </h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span class="text-gray-600">广告账户ID:</span>
+                  <p class="font-mono text-gray-900">${ad.fbInfo.adAccount}</p>
+                </div>
+                <div>
+                  <span class="text-gray-600">Campaign ID:</span>
+                  <p class="font-mono text-gray-900">${ad.fbInfo.campaignId}</p>
+                </div>
+                <div>
+                  <span class="text-gray-600">Adset ID:</span>
+                  <p class="font-mono text-gray-900">${ad.fbInfo.adsetId}</p>
+                </div>
+                <div>
+                  <span class="text-gray-600">Ad ID:</span>
+                  <p class="font-mono text-gray-900">${ad.fbInfo.adId}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- 广告内容 -->
+              <div class="lg:col-span-2">
+                <h4 class="font-medium text-gray-900 mb-2">广告内容</h4>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  ${renderAdContent(ad)}
+                </div>
+              </div>
+
+              <!-- 审核信息 -->
+              <div>
+                <h4 class="font-medium text-gray-900 mb-2">审核评估</h4>
+                ${renderScoreSection(ad)}
+                ${renderRiskTags(ad)}
+                <div class="mt-4">
+                  <p class="text-sm text-gray-600 mb-2">${getRecommendationLabel(ad.status)}：</p>
+                  <p class="text-xs text-gray-500 ${getRecommendationBg(ad.status)} p-2 rounded">${ad.suggestion}</p>
+                </div>
+              </div>
+            </div>
+
+            ${renderActionButtons(ad)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 辅助函数
+    function getIconClass(type) {
+      const icons = { text: 'fas fa-font', image: 'fas fa-image', video: 'fas fa-video' };
+      return icons[type] || 'fas fa-file';
+    }
+
+    function getIconBgColor(type) {
+      const colors = { text: 'bg-blue-100', image: 'bg-green-100', video: 'bg-red-100' };
+      return colors[type] || 'bg-gray-100';
+    }
+
+    function getIconColor(type) {
+      const colors = { text: 'text-blue-600', image: 'text-green-600', video: 'text-red-600' };
+      return colors[type] || 'text-gray-600';
+    }
+
+    function getStatusText(status) {
+      const texts = {
+        'pending': '待审核',
+        'auto-approved': '机审通过',
+        'auto-rejected': '机审不通过', 
+        'auto-uncertain': '机审待定',
+        'manual-approved': '人审通过',
+        'manual-rejected': '人审不通过'
+      };
+      return texts[status] || status;
+    }
+
+    function renderAdContent(ad) {
+      let content = `<p class="text-gray-800 mb-2 font-medium">${ad.content.title}</p>
+                     <p class="text-gray-600 text-sm">${ad.content.description}</p>`;
+      
+      if (ad.content.image) {
+        content = `<div class="flex space-x-4">
+                     <img src="${ad.content.image}" alt="广告图片" class="media-preview rounded-lg">
+                     <div class="flex-1">${content}</div>
+                   </div>`;
+      }
+      
+      if (ad.type === 'video' && !ad.content.image) {
+        content = `<div class="flex space-x-4">
+                     <div class="relative media-preview bg-gray-200 rounded-lg flex items-center justify-center">
+                       <i class="fas fa-play-circle text-gray-400 text-4xl"></i>
+                       <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">0:30</span>
+                     </div>
+                     <div class="flex-1">${content}</div>
+                   </div>`;
+      }
+      
+      content += `<div class="mt-3 flex flex-wrap gap-2">
+                    ${ad.content.tags.map(tag => `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${tag}</span>`).join('')}
+                  </div>`;
+      
+      return content;
+    }
+
+    function renderScoreSection(ad) {
+      return `<div class="space-y-3">
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-600">内容合规性</span>
+                    <span class="font-medium">${ad.scores.compliance}分</span>
+                  </div>
+                  <div class="score-bar">
+                    <div class="score-fill ${getScoreColor(ad.scores.compliance)}" style="width: ${ad.scores.compliance}%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-600">${ad.type === 'text' ? '真实性评分' : (ad.type === 'image' ? '图片质量' : '视频质量')}</span>
+                    <span class="font-medium">${ad.scores.quality}分</span>
+                  </div>
+                  <div class="score-bar">
+                    <div class="score-fill ${getScoreColor(ad.scores.quality)}" style="width: ${ad.scores.quality}%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-600">违规风险</span>
+                    <span class="font-medium">${getRiskLevel(ad.scores.risk)}</span>
+                  </div>
+                  <div class="score-bar">
+                    <div class="score-fill ${getRiskColor(ad.scores.risk)}" style="width: ${ad.scores.risk}%"></div>
+                  </div>
+                </div>
+              </div>`;
+    }
+
+    function renderRiskTags(ad) {
+      return `<div class="mt-4">
+                <p class="text-sm text-gray-600 mb-2">检测到的${ad.riskTags.includes('内容正常') ? '风险' : '违规'}标签：</p>
+                <div class="flex flex-wrap gap-2">
+                  ${ad.riskTags.map(tag => `<span class="risk-tag ${getTagStyle(tag)} px-2 py-1 rounded-full text-xs font-medium border">
+                    <i class="${getTagIcon(tag)} mr-1"></i>${tag}
+                  </span>`).join('')}
+                </div>
+              </div>`;
+    }
+
+    function renderActionButtons(ad) {
+      let buttons = '';
+      let reviewInfo = '';
+      
+      if (ad.reviewer && ad.reviewTime) {
+        reviewInfo = `<div class="text-sm text-gray-500">
+                        <i class="fas fa-user mr-1"></i>审核人：${ad.reviewer} • 
+                        <i class="fas fa-clock ml-2 mr-1"></i>审核时间：${ad.reviewTime}
+                        ${ad.manualNote ? `<br><i class="fas fa-comment ml-0 mr-1"></i>备注：${ad.manualNote}` : ''}
+                      </div>`;
+      }
+      
+      if (ad.status === 'pending') {
+        buttons = `<div class="flex space-x-2">
+                     <button class="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700">
+                       <i class="fas fa-check mr-1"></i>通过
+                     </button>
+                     <button class="bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700">
+                       <i class="fas fa-times mr-1"></i>拒绝
+                     </button>
+                     <button class="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700">
+                       <i class="fas fa-edit mr-1"></i>要求修改
+                     </button>
+                   </div>`;
+      } else {
+        buttons = `<div class="flex space-x-2">
+                     <button onclick="openManualReview('${ad.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">
+                       <i class="fas fa-user-edit mr-1"></i>人工审核
+                     </button>
+                   </div>`;
+      }
+      
+      return `<div class="mt-6 flex justify-between items-center">
+                ${buttons}
+                <div class="text-right">
+                  ${reviewInfo}
+                  <button class="text-blue-600 hover:text-blue-800 text-sm font-medium block mt-1">
+                    <i class="fas fa-eye mr-1"></i>查看详情
+                  </button>
+                </div>
+              </div>`;
+    }
+
+    function getScoreColor(score) {
+      if (score >= 80) return 'bg-green-500';
+      if (score >= 60) return 'bg-yellow-500';
+      return 'bg-red-500';
+    }
+
+    function getRiskLevel(risk) {
+      if (risk <= 20) return '极低';
+      if (risk <= 40) return '低';
+      if (risk <= 60) return '中等';
+      if (risk <= 80) return '高';
+      return '极高';
+    }
+
+    function getRiskColor(risk) {
+      if (risk <= 20) return 'bg-green-500';
+      if (risk <= 40) return 'bg-yellow-500';
+      if (risk <= 60) return 'bg-orange-500';
+      return 'bg-red-500';
+    }
+
+    function getTagStyle(tag) {
+      if (tag === '内容正常') return 'bg-green-100 text-green-800 border-green-200';
+      if (['夸大宣传', '营销导向', '紧迫营销', '就业承诺', '收益暗示'].includes(tag)) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      if (['夸大效果', '收益承诺', '金融风险'].includes(tag)) return 'bg-orange-100 text-orange-800 border-orange-200';
+      if (['健康声明', '医疗声明'].includes(tag)) return 'bg-purple-100 text-purple-800 border-purple-200';
+      return 'bg-red-100 text-red-800 border-red-200';
+    }
+
+    function getTagIcon(tag) {
+      if (tag === '内容正常') return 'fas fa-check-circle';
+      if (['夸大宣传', '夸大效果'].includes(tag)) return 'fas fa-exclamation-triangle';
+      if (['营销导向', '紧迫营销'].includes(tag)) return 'fas fa-bullhorn';
+      if (['健康声明', '医疗声明'].includes(tag)) return 'fas fa-heart';
+      if (tag === '误导定价') return 'fas fa-dollar-sign';
+      if (['收益承诺', '收益暗示'].includes(tag)) return 'fas fa-chart-line';
+      if (tag === '金融风险') return 'fas fa-coins';
+      return 'fas fa-ban';
+    }
+
+    function getRecommendationLabel(status) {
+      if (status.includes('rejected')) return '拒绝原因';
+      if (status.includes('approved')) return '审核建议';
+      return '审核建议';
+    }
+
+    function getRecommendationBg(status) {
+      if (status.includes('rejected')) return 'bg-red-50';
+      if (status.includes('approved')) return 'bg-green-50';
+      if (status === 'auto-uncertain') return 'bg-blue-50';
+      return 'bg-yellow-50';
+    }
+
+    // 筛选功能
+    function filterByStatus() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      renderAdList(statusFilter);
+    }
+
+    // 人工审核相关函数
+    function openManualReview(adId) {
+      currentReviewAdId = adId;
+      document.getElementById('manualReviewModal').classList.remove('hidden');
+      // 重置表单
+      document.querySelectorAll('input[name="manualResult"]').forEach(radio => radio.checked = false);
+      document.getElementById('manualReviewNote').value = '';
+    }
+
+    function closeManualReviewModal() {
+      document.getElementById('manualReviewModal').classList.add('hidden');
+      currentReviewAdId = null;
+    }
+
+    function submitManualReview() {
+      const selectedResult = document.querySelector('input[name="manualResult"]:checked');
+      const note = document.getElementById('manualReviewNote').value.trim();
+      
+      if (!selectedResult) {
+        alert('请选择审核结果');
+        return;
+      }
+      
+      if (!note) {
+        alert('请输入审核备注');
+        return;
+      }
+      
+      // 更新广告状态
+      const ad = adData.find(a => a.id === currentReviewAdId);
+      if (ad) {
+        ad.status = selectedResult.value === 'approved' ? 'manual-approved' : 'manual-rejected';
+        ad.reviewer = '当前管理员';
+        ad.reviewTime = new Date().toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        ad.manualNote = note;
+        
+        // 重新渲染列表
+        renderAdList(document.getElementById('statusFilter').value);
+        
+        alert(`人工审核完成，结果：${selectedResult.value === 'approved' ? '通过' : '不通过'}`);
+      }
+      
+      closeManualReviewModal();
+    }
+
+    // 侧边栏切换函数
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    // 关闭侧边栏
+    document.getElementById('sidebar-overlay').addEventListener('click', function() {
+      toggleSidebar();
+    });
+
+    // 模态框函数
+    function openModal() {
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      renderAdList();
+    });
+  </script>
+</body>
+</html> 
