@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广告审核通知 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #0E151E;
+      color: #FFFFFF;
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: #475569;
+    }
+
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover:hover {
+      transform: translateY(-2px);
+      background-color: #475569;
+    }
+
+    .notification-unread {
+      border-left: 4px solid #ef4444;
+      background-color: #1e293b;
+    }
+
+    .notification-read {
+      border-left: 4px solid #6b7280;
+      background-color: #0f172a;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    /* 抽屉动画效果 */
+    .drawer-overlay {
+      transition: opacity 0.3s ease-out;
+    }
+    
+    .drawer-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .drawer-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .drawer-panel {
+      transform: translateX(100%);
+      transition: transform 0.3s ease-out;
+    }
+    
+    .drawer-panel.show {
+      transform: translateX(0);
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen">
+  <div class="flex w-full h-screen">
+    <!-- Left Sidebar -->
+    <div class="w-60 bg-slate-800 h-full flex flex-col">
+      <!-- Logo -->
+      <div class="pt-6 px-8">
+        <h1 class="text-white text-2xl font-semibold">BestAds</h1>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="mt-8 flex-1">
+        <ul class="space-y-2 px-4">
+          <li>
+            <a href="index.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-home mr-3 text-gray-400"></i>
+              <span>首页</span>
+            </a>
+          </li>
+          <li>
+            <a href="account-management.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-users mr-3 text-gray-400"></i>
+              <span>账户管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fab fa-facebook mr-3 text-gray-400"></i>
+              <span>Facebook广告</span>
+            </a>
+          </li>
+          <li>
+            <a href="operation-records.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-history mr-3 text-gray-400"></i>
+              <span>操作记录</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-chart-bar mr-3 text-gray-400"></i>
+              <span>数据分析</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-ad mr-3 text-gray-400"></i>
+              <span>广告投放</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-folder mr-3 text-gray-400"></i>
+              <span>创意</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-white bg-gray-700 rounded-md">
+              <i class="fas fa-bell mr-3 text-gray-400"></i>
+              <span>审核通知</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
+              <i class="fas fa-wallet mr-3 text-gray-400"></i>
+              <span>余额管理</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top Header -->
+      <header class="h-16 bg-slate-800 border-b border-gray-600 flex items-center justify-between px-6">
+        <div class="flex items-center space-x-4">
+          <h2 class="text-xl font-semibold text-white">广告审核通知</h2>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <!-- Notification -->
+          <div class="relative group">
+            <button onclick="openInboxDrawer()" class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
+              <i class="fas fa-bell text-lg"></i>
+              <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">5</span>
+            </button>
+          </div>
+
+          <!-- Language Selector -->
+          <select class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
+            <option>中文</option>
+            <option>English</option>
+          </select>
+
+          <!-- User Avatar -->
+          <div class="relative group flex items-center">
+            <button onclick="window.location.href='wallet.html'" class="flex items-center px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-yellow-300 font-bold text-base transition-colors duration-200" style="min-width:120px;">
+              <i class="fas fa-wallet mr-2"></i>
+              <span id="balanceAmount">$2,580.00</span>
+            </button>
+            <!-- 悬浮详细信息 -->
+            <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
+              <div class="mb-2 flex items-center justify-between">
+                <span>可用余额</span><span class="font-bold text-yellow-300">$2,580.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>真实金额</span><span>$2,800.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>冻结金额</span><span>$100.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>在途金额</span><span>$120.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>信用额度</span><span>$1,000.00</span>
+              </div>
+              <div class="mb-1 flex items-center justify-between">
+                <span>已用额度</span><span>$200.00</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <main class="flex-1 p-6 bg-slate-900 overflow-y-auto">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2">广告审核通知</h2>
+              <p class="text-gray-400">查看您的广告审核结果和详细说明，了解不通过的具体原因</p>
+            </div>
+            <!-- 统计信息 -->
+            <div class="flex space-x-4">
+              <div class="bg-slate-700 border border-gray-600 rounded-lg px-4 py-2">
+                <div class="text-center">
+                  <div class="text-gray-400 text-sm font-medium">总通知</div>
+                  <div class="text-white text-xl font-bold" id="totalCount">5</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="bg-slate-800 rounded-lg mb-6">
+          <div class="px-6 py-4 border-b border-gray-600">
+            <h3 class="text-lg font-medium text-white">筛选条件</h3>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">创建时间</label>
+                <input type="date" id="creationTimeFrom" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">至</label>
+                <input type="date" id="creationTimeTo" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">审核时间</label>
+                <input type="date" id="reviewTimeFrom" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">至</label>
+                <input type="date" id="reviewTimeTo" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+            </div>
+            <div class="mt-4 flex space-x-3">
+              <button onclick="filterNotifications()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+                <i class="fas fa-search"></i>
+                <span>筛选</span>
+              </button>
+              <button onclick="resetFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+                <i class="fas fa-redo"></i>
+                <span>重置</span>
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Table -->
+        <div class="bg-slate-800 rounded-lg overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-600 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-white">审核通知列表</h3>
+            <button onclick="refreshData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-sync"></i>
+              <span>刷新</span>
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-600 table-hover">
+              <thead class="bg-slate-700">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Creation Time</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Review Time</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Adaccount ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Adaccount Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Campaign ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Campaign Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Adset ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Adset Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Ad ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Ad Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Reason</th>
+                </tr>
+              </thead>
+              <tbody id="notificationTableBody" class="bg-slate-800 divide-y divide-gray-600">
+                <!-- 动态内容将通过JavaScript生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6 flex items-center justify-between">
+          <div class="text-sm text-gray-400">
+            显示 <span class="font-medium text-white" id="showingFrom">1</span> 到 <span class="font-medium text-white" id="showingTo">5</span> 条，
+            共 <span class="font-medium text-white" id="totalRecords">5</span> 条记录
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="previousPage()" class="px-3 py-2 bg-slate-700 border border-gray-600 text-gray-300 rounded-md hover:bg-slate-600 hover:text-white transition-colors duration-200 disabled:opacity-50">
+              上一页
+            </button>
+            <button class="px-3 py-2 bg-blue-600 text-white rounded-md">1</button>
+            <button onclick="nextPage()" class="px-3 py-2 bg-slate-700 border border-gray-600 text-gray-300 rounded-md hover:bg-slate-600 hover:text-white transition-colors duration-200 disabled:opacity-50">
+              下一页
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 站内信历史通知抽屉 -->
+  <div id="inboxDrawer" class="drawer-overlay hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50">
+    <div class="drawer-panel fixed right-0 top-0 h-full w-96 bg-slate-800 shadow-2xl overflow-y-auto">
+      <div class="px-6 py-4 border-b border-gray-600 flex justify-between items-center sticky top-0 bg-slate-800 z-10">
+        <h3 class="text-lg font-medium text-white">站内信通知</h3>
+        <button onclick="closeInboxDrawer()" class="text-gray-400 hover:text-white transition-colors duration-200">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div id="inboxContent">
+          <!-- 站内信内容将通过JavaScript动态填充 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 详情查看模态框 -->
+  <div id="detailModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-slate-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+      <div class="px-6 py-4 border-b border-gray-600 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-white">广告审核详情</h3>
+        <button onclick="closeDetailModal()" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div id="detailContent">
+          <!-- 详细内容将通过JavaScript动态填充 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 模拟通知数据
+    const notificationData = [
+      {
+        id: 'N001',
+        isRead: false,
+        creationTime: '2024-12-30 10:30:00',
+        reviewTime: '2024-12-30 14:20:00',
+        adAccountId: 'act_123456789',
+        adAccountName: '张三科技广告账户',
+        campaignId: '23847861234567890',
+        campaignName: '智能手机推广活动',
+        adsetId: '23847861234567891',
+        adsetName: '智能手机目标受众',
+        adId: '23847861234567892',
+        adName: '革命性智能手机广告',
+        reason: '广告文案涉及夸大宣传，建议调整"重新定义未来科技"等表述，使用更客观的产品描述。同时视频演示中的功能展示需要更加真实。',
+        reviewerMessage: '您的广告因包含夸大性宣传内容被拒绝，请根据建议进行修改后重新提交。如有疑问，请联系客服。'
+      },
+      {
+        id: 'N002',
+        isRead: false,
+        creationTime: '2024-12-30 09:15:00',
+        reviewTime: '2024-12-30 11:00:00',
+        adAccountId: 'act_567890234',
+        adAccountName: '保健品公司账户',
+        campaignId: '23847861234567905',
+        campaignName: '保健品推广',
+        adsetId: '23847861234567906',
+        adsetName: '保健品受众',
+        adId: '23847861234567907',
+        adName: '神奇保健品广告',
+        reason: '严重违反广告法规，涉及虚假医疗声明。广告中"包治百病"、"无副作用"、"立竿见影"等表述属于虚假宣传，必须删除所有医疗功效声明。',
+        reviewerMessage: '您的保健品广告严重违反平台规定，涉及虚假医疗声明，已被永久拒绝。请重新制作符合法规的广告内容。'
+      },
+      {
+        id: 'N003',
+        isRead: false,
+        creationTime: '2024-12-29 14:30:00',
+        reviewTime: '2024-12-29 16:15:00',
+        adAccountId: 'act_123456789',
+        adAccountName: '减肥产品公司',
+        campaignId: '23847861234567923',
+        campaignName: '减肥产品推广',
+        adsetId: '23847861234567924',
+        adsetName: '减肥产品受众',
+        adId: '23847861234567925',
+        adName: '快速减肥产品',
+        reason: '减肥效果描述严重不实，"7天瘦20斤"等承诺属于虚假宣传，可能误导消费者并造成健康风险。图片中的对比效果图涉嫌PS造假。',
+        reviewerMessage: '您的减肥产品广告因夸大效果和虚假宣传被拒绝，请提供真实有效的产品信息，删除所有不实承诺。'
+      },
+      {
+        id: 'N004',
+        isRead: true,
+        creationTime: '2024-12-29 13:45:00',
+        reviewTime: '2024-12-29 15:20:00',
+        adAccountId: 'act_234567890',
+        adAccountName: '加密货币投资',
+        campaignId: '23847861234567926',
+        campaignName: '数字货币投资',
+        adsetId: '23847861234567927',
+        adsetName: '投资者受众',
+        adId: '23847861234567928',
+        adName: '数字货币投资机会',
+        reason: '涉嫌金融欺诈，"月入百万"等收益承诺严重违反投资广告规范。加密货币投资风险极高，平台不允许此类高风险投资产品的推广。',
+        reviewerMessage: '您的数字货币投资广告因涉嫌金融欺诈被永久拒绝，此类产品不符合平台投放政策。请选择合规的投资产品进行推广。'
+      },
+      {
+        id: 'N005',
+        isRead: true,
+        creationTime: '2024-12-28 11:20:00',
+        reviewTime: '2024-12-28 15:30:00',
+        adAccountId: 'act_345678901',
+        adAccountName: '医疗器械公司',
+        campaignId: '23847861234567930',
+        campaignName: '医疗设备推广',
+        adsetId: '23847861234567931',
+        adsetName: '医疗设备受众',
+        adId: '23847861234567932',
+        adName: '家用医疗设备',
+        reason: '医疗器械广告缺少必要的资质证明，产品功效描述需要提供相关认证文件。建议补充FDA认证或CE认证等资质证明。',
+        reviewerMessage: '您的医疗器械广告需要补充相关资质证明文件，请提供FDA或CE认证后重新提交审核。'
+      }
+    ];
+
+    let currentPage = 1;
+    let filteredData = [...notificationData];
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      renderNotifications();
+      updateCounts();
+    });
+
+    // 渲染通知列表
+    function renderNotifications() {
+      const tbody = document.getElementById('notificationTableBody');
+      tbody.innerHTML = '';
+
+      filteredData.forEach(notification => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-700 transition-colors duration-200';
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-gray-300">${notification.creationTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-gray-300">${notification.reviewTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="font-mono text-sm text-blue-400">${notification.adAccountId}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="text-sm text-white font-medium">${notification.adAccountName}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="font-mono text-sm text-green-400">${notification.campaignId}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="text-sm text-white">${notification.campaignName}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="font-mono text-sm text-yellow-400">${notification.adsetId}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="text-sm text-white">${notification.adsetName}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="font-mono text-sm text-purple-400">${notification.adId}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="text-sm text-white">${notification.adName}</div>
+          </td>
+          <td class="px-6 py-4">
+            <div class="text-sm text-gray-300 max-w-xs truncate cursor-help" 
+                 title="${notification.reason}"
+                 onmouseover="showReasonTooltip(event, '${notification.reason.replace(/'/g, '&apos;')}')"
+                 onmouseout="hideReasonTooltip()">
+              ${notification.reason}
+            </div>
+          </td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+    }
+
+    // 更新统计数据
+    function updateCounts() {
+      const totalCount = filteredData.length;
+      
+      document.getElementById('totalCount').textContent = totalCount;
+      document.getElementById('totalRecords').textContent = totalCount;
+      document.getElementById('showingFrom').textContent = totalCount > 0 ? '1' : '0';
+      document.getElementById('showingTo').textContent = totalCount;
+    }
+
+    // 筛选通知
+    function filterNotifications() {
+      const creationFrom = document.getElementById('creationTimeFrom').value;
+      const creationTo = document.getElementById('creationTimeTo').value;
+      const reviewFrom = document.getElementById('reviewTimeFrom').value;
+      const reviewTo = document.getElementById('reviewTimeTo').value;
+
+      filteredData = notificationData.filter(notification => {
+        let match = true;
+
+        if (creationFrom) {
+          const creationDate = new Date(notification.creationTime).toISOString().split('T')[0];
+          if (creationDate < creationFrom) match = false;
+        }
+
+        if (creationTo) {
+          const creationDate = new Date(notification.creationTime).toISOString().split('T')[0];
+          if (creationDate > creationTo) match = false;
+        }
+
+        if (reviewFrom) {
+          const reviewDate = new Date(notification.reviewTime).toISOString().split('T')[0];
+          if (reviewDate < reviewFrom) match = false;
+        }
+
+        if (reviewTo) {
+          const reviewDate = new Date(notification.reviewTime).toISOString().split('T')[0];
+          if (reviewDate > reviewTo) match = false;
+        }
+
+        return match;
+      });
+
+      renderNotifications();
+      updateCounts();
+    }
+
+    // 重置筛选
+    function resetFilter() {
+      document.getElementById('creationTimeFrom').value = '';
+      document.getElementById('creationTimeTo').value = '';
+      document.getElementById('reviewTimeFrom').value = '';
+      document.getElementById('reviewTimeTo').value = '';
+      
+      filteredData = [...notificationData];
+      renderNotifications();
+      updateCounts();
+    }
+
+    // 打开站内信抽屉
+    function openInboxDrawer() {
+      const inboxContent = document.getElementById('inboxContent');
+      inboxContent.innerHTML = `
+        <div class="space-y-4">
+          <div class="mb-6">
+            <h4 class="text-white font-medium mb-2">站内信历史通知</h4>
+            <p class="text-gray-400 text-sm">显示所有广告审核不通过的通知记录</p>
+          </div>
+          ${notificationData.map(notification => `
+            <div class="bg-slate-700 rounded-lg p-3 border border-gray-600">
+              <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center space-x-2">
+                  <i class="fas fa-exclamation-triangle text-red-400 text-sm"></i>
+                  <span class="text-white font-medium text-sm">审核不通过</span>
+                </div>
+                <span class="text-gray-400 text-xs">${notification.reviewTime}</span>
+              </div>
+              
+              <div class="space-y-2 mb-3 text-xs">
+                <div><span class="text-gray-400">Account:</span> <span class="text-blue-400 font-mono">${notification.adAccountId}</span></div>
+                <div><span class="text-gray-400">Campaign:</span> <span class="text-green-400 font-mono">${notification.campaignId}</span></div>
+                <div><span class="text-gray-400">Adset:</span> <span class="text-yellow-400 font-mono">${notification.adsetId}</span></div>
+                <div><span class="text-gray-400">Ad:</span> <span class="text-purple-400 font-mono">${notification.adId}</span></div>
+              </div>
+              
+              <div class="bg-yellow-900 bg-opacity-30 rounded-lg p-3 border border-yellow-600">
+                <h5 class="text-yellow-400 font-medium mb-2 flex items-center text-sm">
+                  <i class="fas fa-envelope mr-2"></i>
+                  通知内容
+                </h5>
+                <p class="text-yellow-200 text-xs leading-relaxed">${notification.reviewerMessage}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      const drawer = document.getElementById('inboxDrawer');
+      const panel = drawer.querySelector('.drawer-panel');
+      
+      // 显示抽屉
+      drawer.classList.remove('hidden');
+      
+      // 使用小延迟确保DOM更新后再添加show类
+      setTimeout(() => {
+        drawer.classList.add('show');
+        panel.classList.add('show');
+      }, 10);
+    }
+
+    // 关闭站内信抽屉
+    function closeInboxDrawer() {
+      const drawer = document.getElementById('inboxDrawer');
+      const panel = drawer.querySelector('.drawer-panel');
+      
+      // 移除show类，触发动画
+      drawer.classList.remove('show');
+      panel.classList.remove('show');
+      
+      // 动画完成后隐藏元素
+      setTimeout(() => {
+        drawer.classList.add('hidden');
+      }, 300);
+    }
+
+    // 显示完整的Reason工具提示
+    let tooltipElement = null;
+    
+    function showReasonTooltip(event, reason) {
+      // 移除已存在的工具提示
+      hideReasonTooltip();
+      
+      // 创建工具提示元素
+      tooltipElement = document.createElement('div');
+      tooltipElement.className = 'fixed bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-3 text-sm text-white z-50 max-w-md';
+      tooltipElement.innerHTML = reason;
+      
+      document.body.appendChild(tooltipElement);
+      
+      // 定位工具提示
+      const rect = tooltipElement.getBoundingClientRect();
+      const x = Math.min(event.pageX + 10, window.innerWidth - rect.width - 10);
+      const y = Math.max(event.pageY - rect.height - 10, 10);
+      
+      tooltipElement.style.left = x + 'px';
+      tooltipElement.style.top = y + 'px';
+    }
+    
+    function hideReasonTooltip() {
+      if (tooltipElement) {
+        document.body.removeChild(tooltipElement);
+        tooltipElement = null;
+      }
+    }
+
+    // 关闭详情模态框
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // 刷新数据
+    function refreshData() {
+      // 模拟刷新效果
+      renderNotifications();
+      updateCounts();
+      
+      // 显示刷新提示
+      const button = event.target.closest('button');
+      const originalText = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>刷新中...';
+      
+      setTimeout(() => {
+        button.innerHTML = originalText;
+      }, 1000);
+    }
+
+    // 分页功能（预留）
+    function previousPage() {
+      // 分页逻辑
+    }
+
+    function nextPage() {
+      // 分页逻辑
+    }
+
+    // 点击模态框外部关闭
+    document.getElementById('detailModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeDetailModal();
+      }
+    });
+
+    document.getElementById('inboxDrawer').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeInboxDrawer();
+      }
+    });
+  </script>
+</body>
+</html>
