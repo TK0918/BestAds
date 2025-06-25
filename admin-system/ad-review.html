@@ -289,21 +289,7 @@
             </div>
 
             <!-- 统计卡片 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-              <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
-                <div class="p-4">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-eye text-yellow-600 text-lg"></i>
-                    </div>
-                    <div class="ml-3">
-                      <p class="text-xs font-medium text-gray-500">待审核</p>
-                      <p class="text-xl font-bold text-gray-900">34</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
               <div class="bg-white overflow-hidden shadow-sm rounded-lg border">
                 <div class="p-4">
                   <div class="flex items-center">
@@ -390,7 +376,6 @@
                   <label class="block text-sm font-medium text-gray-700 mb-2">审核状态</label>
                   <select id="statusFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterByStatus()">
                     <option value="">全部状态</option>
-                    <option value="pending">待审核</option>
                     <option value="auto-approved">机审通过</option>
                     <option value="auto-rejected">机审不通过</option>
                     <option value="auto-uncertain">机审待定</option>
@@ -420,8 +405,8 @@
 
             <!-- 广告审核列表 -->
             <div id="reviewList" class="space-y-6">
-              <!-- 待审核广告示例1 - 文本+多图搭配 -->
-              <div class="bg-white rounded-lg shadow-sm border review-card" data-status="pending">
+              <!-- 机审待定广告示例1 - 文本+多图搭配 -->
+              <div class="bg-white rounded-lg shadow-sm border review-card" data-status="auto-uncertain">
                 <div class="p-6">
                   <div class="flex justify-between items-start mb-4">
                     <div class="flex items-center space-x-3">
@@ -433,7 +418,7 @@
                         <p class="text-sm text-gray-500">广告主：张三科技 • 提交时间：2024-12-30 10:30 • 素材类型：文本+多图</p>
                       </div>
                     </div>
-                    <span class="status-pending px-3 py-1 rounded-full text-xs font-medium">待审核</span>
+                    <span class="status-auto-uncertain px-3 py-1 rounded-full text-xs font-medium">机审待定</span>
                   </div>
 
                   <!-- FB广告层级信息 -->
@@ -509,7 +494,7 @@
                       <div class="space-y-3">
                         <div>
                           <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">内容合规性</span>
+                            <span class="text-gray-600">文案评分</span>
                             <span class="font-medium">85分</span>
                           </div>
                           <div class="score-bar">
@@ -527,7 +512,7 @@
                         </div>
                         <div>
                           <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">违规风险</span>
+                            <span class="text-gray-600">综合风险评估</span>
                             <span class="font-medium">低</span>
                           </div>
                           <div class="score-bar">
@@ -547,10 +532,10 @@
                           </p>
                           <div class="flex flex-wrap gap-2">
                             <span class="risk-tag bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium border border-yellow-200">
-                              <i class="fas fa-exclamation-triangle mr-1"></i>夸大宣传
+                              <i class="fas fa-exclamation-triangle mr-1"></i>紧迫营销
                             </span>
-                            <span class="risk-tag bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium border border-orange-200">
-                              <i class="fas fa-bullhorn mr-1"></i>营销导向
+                            <span class="risk-tag bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium border border-blue-200">
+                              <i class="fas fa-gem mr-1"></i>稀缺性暗示
                             </span>
                           </div>
                         </div>
@@ -570,21 +555,15 @@
                       
                       <div class="mt-4">
                         <p class="text-sm text-gray-600 mb-2">审核建议：</p>
-                        <p class="text-xs text-gray-500 bg-yellow-50 p-2 rounded">建议调整部分夸大性描述，增强内容真实性表达。</p>
+                        <p class="text-xs text-gray-500 bg-blue-50 p-2 rounded">涉及限量促销暗示，需要人工审核确认是否合规。</p>
                       </div>
                     </div>
                   </div>
 
                   <div class="mt-6 flex justify-between items-center">
                     <div class="flex space-x-2">
-                      <button class="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700">
-                        <i class="fas fa-check mr-1"></i>通过
-                      </button>
-                      <button class="bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700">
-                        <i class="fas fa-times mr-1"></i>拒绝
-                      </button>
-                      <button class="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700">
-                        <i class="fas fa-edit mr-1"></i>要求修改
+                      <button onclick="openManualReview('AD001')" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">
+                        <i class="fas fa-user-edit mr-1"></i>人工审核
                       </button>
                     </div>
                     <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
@@ -679,7 +658,7 @@
                       <div class="space-y-3">
                         <div>
                           <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">内容合规性</span>
+                            <span class="text-gray-600">文案评分</span>
                             <span class="font-medium">92分</span>
                           </div>
                           <div class="score-bar">
@@ -697,7 +676,7 @@
                         </div>
                         <div>
                           <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">违规风险</span>
+                            <span class="text-gray-600">综合风险评估</span>
                             <span class="font-medium">极低</span>
                           </div>
                           <div class="score-bar">
@@ -839,7 +818,7 @@
                       <div class="space-y-3">
                         <div>
                           <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">内容合规性</span>
+                            <span class="text-gray-600">文案评分</span>
                             <span class="font-medium">45分</span>
                           </div>
                           <div class="score-bar">
@@ -848,7 +827,7 @@
                         </div>
                         <div>
                           <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">视频质量</span>
+                            <span class="text-gray-600">视频评分</span>
                             <span class="font-medium">78分</span>
                           </div>
                           <div class="score-bar">
@@ -857,7 +836,7 @@
                         </div>
                         <div>
                           <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">违规风险</span>
+                            <span class="text-gray-600">综合风险评估</span>
                             <span class="font-medium">高</span>
                           </div>
                           <div class="score-bar">
@@ -951,15 +930,174 @@
   <!-- 详情模态框 -->
   <div id="detailModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+      <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-screen overflow-y-auto">
         <div class="p-6">
+          <!-- 模态框头部 -->
           <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-900">广告详情审核</h2>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+            <div>
+              <h2 id="detailModalTitle" class="text-xl font-bold text-gray-900">广告详情审核</h2>
+              <p id="detailModalSubtitle" class="text-sm text-gray-500 mt-1">查看完整的广告信息和审核记录</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2">
               <i class="fas fa-times text-xl"></i>
             </button>
           </div>
-          <!-- 模态框内容将通过 JavaScript 动态填充 -->
+
+          <!-- 标签页导航 -->
+          <div class="border-b border-gray-200 mb-6">
+            <nav class="flex space-x-8">
+              <button onclick="switchDetailTab('content')" id="contentTab" class="py-2 px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm whitespace-nowrap">
+                <i class="fas fa-file-alt mr-2"></i>广告内容
+              </button>
+              <button onclick="switchDetailTab('review')" id="reviewTab" class="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap">
+                <i class="fas fa-clipboard-check mr-2"></i>审核记录
+              </button>
+              <button onclick="switchDetailTab('system')" id="systemTab" class="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap">
+                <i class="fas fa-cog mr-2"></i>系统记录
+              </button>
+            </nav>
+          </div>
+
+          <!-- 标签页内容 -->
+          <div id="detailContent">
+            <!-- 广告内容标签页 -->
+            <div id="contentPanel" class="tab-panel">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 左侧：基础信息和Facebook信息 -->
+                <div class="space-y-6">
+                  <!-- 基础信息 -->
+                  <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-info-circle text-blue-600 mr-2"></i>基础信息
+                    </h3>
+                    <div id="basicInfo" class="space-y-3">
+                      <!-- 动态填充 -->
+                    </div>
+                  </div>
+
+                  <!-- Facebook广告层级信息 -->
+                  <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <i class="fab fa-facebook text-blue-600 mr-2"></i>Facebook广告层级
+                    </h3>
+                    <div id="fbLevelInfo" class="space-y-3">
+                      <!-- 动态填充 -->
+                    </div>
+                  </div>
+
+                  <!-- 机审评分详情 -->
+                  <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-chart-bar text-green-600 mr-2"></i>机审评分详情
+                    </h3>
+                    <div id="scoreDetails" class="space-y-4">
+                      <!-- 动态填充 -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 右侧：广告内容展示 -->
+                <div class="space-y-6">
+                  <!-- 广告文本内容 -->
+                  <div class="bg-white border-2 border-gray-200 p-6 rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-font text-purple-600 mr-2"></i>文本内容
+                    </h3>
+                    <div id="textContent">
+                      <!-- 动态填充 -->
+                    </div>
+                  </div>
+
+                  <!-- 广告媒体内容 -->
+                  <div class="bg-white border-2 border-gray-200 p-6 rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <i id="mediaIcon" class="fas fa-images text-green-600 mr-2"></i>
+                      <span id="mediaTitle">媒体内容</span>
+                    </h3>
+                    <div id="mediaContent">
+                      <!-- 动态填充 -->
+                    </div>
+                  </div>
+
+                  <!-- 风险标签详情 -->
+                  <div class="bg-yellow-50 border-2 border-yellow-200 p-6 rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>风险检测结果
+                    </h3>
+                    <div id="riskTagsDetails">
+                      <!-- 动态填充 -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 审核记录标签页 -->
+            <div id="reviewPanel" class="tab-panel hidden">
+              <div class="space-y-6">
+                <!-- 审核时间线 -->
+                <div class="bg-white border rounded-lg p-6">
+                  <h3 class="text-lg font-medium text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-history text-blue-600 mr-2"></i>审核时间线
+                  </h3>
+                  <div id="reviewTimeline" class="space-y-4">
+                    <!-- 动态填充 -->
+                  </div>
+                </div>
+
+                <!-- 详细审核记录 -->
+                <div class="bg-gray-50 border rounded-lg p-6">
+                  <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-clipboard-list text-green-600 mr-2"></i>详细审核记录
+                  </h3>
+                  <div id="detailedReviewRecords">
+                    <!-- 动态填充 -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 系统记录标签页 -->
+            <div id="systemPanel" class="tab-panel hidden">
+              <div class="space-y-6">
+                <!-- 系统操作记录 -->
+                <div class="bg-white border rounded-lg p-6">
+                  <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-server text-gray-600 mr-2"></i>系统操作记录
+                  </h3>
+                  <div id="systemOperations">
+                    <!-- 动态填充 -->
+                  </div>
+                </div>
+
+                <!-- 客户通知记录 -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-bell text-blue-600 mr-2"></i>客户通知记录
+                  </h3>
+                  <div id="customerNotifications">
+                    <!-- 动态填充 -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模态框底部操作 -->
+          <div class="mt-8 pt-6 border-t border-gray-200 flex justify-between items-center">
+            <div class="text-sm text-gray-500">
+              <i class="fas fa-clock mr-1"></i>
+              最后更新：<span id="lastUpdateTime">--</span>
+            </div>
+            <div class="flex space-x-3">
+              <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                关闭
+              </button>
+              <button onclick="openManualReviewFromDetail()" id="detailManualReviewBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors hidden">
+                <i class="fas fa-user-edit mr-2"></i>人工审核
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1064,18 +1202,18 @@
         title: '文本+多图广告 #AD001',
         customer: '张三科技',
         submitTime: '2024-12-30 10:30',
-        status: 'pending',
+        status: 'auto-uncertain',
         type: 'text+images',
         content: {
           text: {
-            title: '革命性智能手机，重新定义未来科技',
-            description: '体验前所未有的创新功能，超长续航，顶级拍照，现在购买享受限时优惠！立即行动，改变你的生活方式。',
-            tags: ['科技', '手机', '创新']
+            title: '时尚潮流，引领风尚',
+            description: '最新款设计师作品，限量发售，错过再等一年！现在下单享受早鸟优惠。',
+            tags: ['时尚', '潮流', '设计']
           },
           images: [
-            { url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=150&fit=crop', label: '主图' },
-            { url: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=200&h=150&fit=crop', label: '功能' },
-            { url: 'https://images.unsplash.com/photo-1567581935884-3349723552ca?w=200&h=150&fit=crop', label: '细节' }
+            { url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200&h=150&fit=crop', label: '主图' },
+            { url: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=200&h=150&fit=crop', label: '细节' },
+            { url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=150&fit=crop', label: '搭配' }
           ]
         },
         fbInfo: {
@@ -1084,12 +1222,14 @@
           adsetId: '23847861234567891',
           adId: '23847861234567892'
         },
-        scores: { compliance: 85, quality: 78, risk: 20 },
+        scores: { compliance: 75, quality: 82, risk: 30 },
         riskTags: {
-          text: ['夸大宣传', '营销导向'],
+          text: ['紧迫营销', '稀缺性暗示'],
           images: ['内容正常']
         },
-        suggestion: '建议调整部分夸大性描述，增强内容真实性表达。'
+        suggestion: '涉及限量促销暗示，需要人工审核确认是否合规。',
+        reviewer: '机器审核',
+        reviewTime: '2024-12-30 10:45'
       },
       {
         id: 'AD002',
@@ -1581,7 +1721,6 @@
 
     function getStatusText(status) {
       const texts = {
-        'pending': '待审核',
         'auto-approved': '机审通过',
         'auto-rejected': '机审不通过', 
         'auto-uncertain': '机审待定',
@@ -1661,7 +1800,7 @@
       return `<div class="space-y-3">
                 <div>
                   <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-600">内容合规性</span>
+                    <span class="text-gray-600">文案评分</span>
                     <span class="font-medium">${ad.scores.compliance}分</span>
                   </div>
                   <div class="score-bar">
@@ -1670,7 +1809,7 @@
                 </div>
                 <div>
                   <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-600">${ad.type === 'text' ? '真实性评分' : (ad.type === 'image' ? '图片质量' : '视频质量')}</span>
+                    <span class="text-gray-600">${ad.type === 'text' ? '真实性评分' : (ad.type === 'image' ? '图片质量' : '视频评分')}</span>
                     <span class="font-medium">${ad.scores.quality}分</span>
                   </div>
                   <div class="score-bar">
@@ -1679,7 +1818,7 @@
                 </div>
                 <div>
                   <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-600">违规风险</span>
+                    <span class="text-gray-600">综合风险评估</span>
                     <span class="font-medium">${getRiskLevel(ad.scores.risk)}</span>
                   </div>
                   <div class="score-bar">
@@ -1766,20 +1905,7 @@
       // 判断是否已进行人工审核
       const hasManualReview = ad.status.includes('manual-');
       
-      if (ad.status === 'pending') {
-        // 待审核状态：显示基础审核按钮
-        buttons = `<div class="flex space-x-2">
-                     <button class="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700">
-                       <i class="fas fa-check mr-1"></i>通过
-                     </button>
-                     <button class="bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700">
-                       <i class="fas fa-times mr-1"></i>拒绝
-                     </button>
-                     <button class="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700">
-                       <i class="fas fa-edit mr-1"></i>要求修改
-                     </button>
-                   </div>`;
-      } else if (!hasManualReview) {
+      if (!hasManualReview) {
         // 机审完成但未人工审核：显示人工审核按钮
         buttons = `<div class="flex space-x-2">
                      <button onclick="openManualReview('${ad.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">
@@ -1797,7 +1923,7 @@
                 ${buttons}
                 <div class="text-right">
                   ${reviewInfo}
-                  <button class="text-blue-600 hover:text-blue-800 text-sm font-medium block mt-1">
+                  <button onclick="openAdDetail('${ad.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium block mt-1">
                     <i class="fas fa-eye mr-1"></i>查看详情
                   </button>
                 </div>
@@ -2029,6 +2155,573 @@
       toggleSidebar();
     });
 
+    // 详情模态框相关函数
+    let currentDetailAdId = null;
+    let currentDetailTab = 'content';
+
+    function openAdDetail(adId) {
+      currentDetailAdId = adId;
+      currentDetailTab = 'content';
+      
+      const ad = adData.find(a => a.id === adId);
+      if (!ad) {
+        alert('未找到广告数据');
+        return;
+      }
+
+      // 填充模态框内容
+      populateDetailModal(ad);
+      
+      // 显示模态框
+      document.getElementById('detailModal').classList.remove('hidden');
+      
+      // 切换到内容标签页
+      switchDetailTab('content');
+    }
+
+    function populateDetailModal(ad) {
+      // 更新标题
+      document.getElementById('detailModalTitle').textContent = ad.title;
+      document.getElementById('detailModalSubtitle').textContent = `广告主：${ad.customer} • ${ad.type === 'text+images' ? '文本+多图' : '文本+视频'}广告`;
+      
+      // 填充基础信息
+      populateBasicInfo(ad);
+      
+      // 填充Facebook层级信息
+      populateFbLevelInfo(ad);
+      
+      // 填充评分详情
+      populateScoreDetails(ad);
+      
+      // 填充文本内容
+      populateTextContent(ad);
+      
+      // 填充媒体内容
+      populateMediaContent(ad);
+      
+      // 填充风险标签详情
+      populateRiskTagsDetails(ad);
+      
+      // 填充审核记录
+      populateReviewRecords(ad);
+      
+      // 填充系统记录
+      populateSystemRecords(ad);
+      
+      // 更新最后更新时间
+      document.getElementById('lastUpdateTime').textContent = ad.reviewTime || ad.submitTime;
+      
+      // 显示/隐藏人工审核按钮
+      const hasManualReview = ad.status.includes('manual-');
+      const manualReviewBtn = document.getElementById('detailManualReviewBtn');
+      if (hasManualReview) {
+        manualReviewBtn.classList.add('hidden');
+      } else {
+        manualReviewBtn.classList.remove('hidden');
+      }
+    }
+
+    function populateBasicInfo(ad) {
+      const basicInfo = document.getElementById('basicInfo');
+      basicInfo.innerHTML = `
+        <div class="flex justify-between">
+          <span class="text-gray-600">广告ID:</span>
+          <span class="font-mono font-medium">${ad.id}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">广告主:</span>
+          <span class="font-medium">${ad.customer}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">提交时间:</span>
+          <span class="font-medium">${ad.submitTime}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">当前状态:</span>
+          <span class="status-${ad.status.replace('-', '-')} px-2 py-1 rounded-full text-xs font-medium">${getStatusText(ad.status)}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">素材类型:</span>
+          <span class="font-medium">${ad.type === 'text+images' ? '文本+多图' : '文本+视频'}</span>
+        </div>
+        ${ad.reviewer ? `
+        <div class="flex justify-between">
+          <span class="text-gray-600">审核人:</span>
+          <span class="font-medium">${ad.reviewer}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">审核时间:</span>
+          <span class="font-medium">${ad.reviewTime}</span>
+        </div>
+        ` : ''}
+      `;
+    }
+
+    function populateFbLevelInfo(ad) {
+      const fbLevelInfo = document.getElementById('fbLevelInfo');
+      fbLevelInfo.innerHTML = `
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <span class="text-gray-600 text-sm">广告账户ID:</span>
+            <p class="font-mono font-medium text-blue-700">${ad.fbInfo.adAccount}</p>
+          </div>
+          <div>
+            <span class="text-gray-600 text-sm">Campaign ID:</span>
+            <p class="font-mono font-medium text-green-700">${ad.fbInfo.campaignId}</p>
+          </div>
+          <div>
+            <span class="text-gray-600 text-sm">Adset ID:</span>
+            <p class="font-mono font-medium text-purple-700">${ad.fbInfo.adsetId}</p>
+          </div>
+          <div>
+            <span class="text-gray-600 text-sm">Ad ID:</span>
+            <p class="font-mono font-medium text-orange-700">${ad.fbInfo.adId}</p>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-blue-200">
+          <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            <i class="fab fa-facebook mr-2"></i>在Facebook广告管理器中查看
+          </button>
+        </div>
+      `;
+    }
+
+    function populateScoreDetails(ad) {
+      const scoreDetails = document.getElementById('scoreDetails');
+      scoreDetails.innerHTML = `
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">文案合规评分</span>
+              <span class="font-medium">${ad.scores.compliance}分</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="${getScoreColor(ad.scores.compliance)} h-3 rounded-full transition-all duration-500" style="width: ${ad.scores.compliance}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">${getScoreDescription(ad.scores.compliance, 'compliance')}</p>
+          </div>
+          
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">${ad.type === 'text+images' ? '图片质量' : '视频质量'}评分</span>
+              <span class="font-medium">${ad.scores.quality}分</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="${getScoreColor(ad.scores.quality)} h-3 rounded-full transition-all duration-500" style="width: ${ad.scores.quality}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">${getScoreDescription(ad.scores.quality, 'quality')}</p>
+          </div>
+          
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">综合风险评估</span>
+              <span class="font-medium">${getRiskLevel(ad.scores.risk)} (${ad.scores.risk}%)</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="${getRiskColor(ad.scores.risk)} h-3 rounded-full transition-all duration-500" style="width: ${ad.scores.risk}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">${getRiskDescription(ad.scores.risk)}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function populateTextContent(ad) {
+      const textContent = document.getElementById('textContent');
+      textContent.innerHTML = `
+        <div class="space-y-4">
+          <div>
+            <h4 class="font-medium text-gray-800 mb-2">广告标题</h4>
+            <div class="bg-gray-50 p-3 rounded-lg">
+              <p class="text-gray-900 font-medium">${ad.content.text.title}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="font-medium text-gray-800 mb-2">广告描述</h4>
+            <div class="bg-gray-50 p-3 rounded-lg">
+              <p class="text-gray-800 leading-relaxed">${ad.content.text.description}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="font-medium text-gray-800 mb-2">标签</h4>
+            <div class="flex flex-wrap gap-2">
+              ${ad.content.text.tags.map(tag => `
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${tag}</span>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function populateMediaContent(ad) {
+      const mediaContent = document.getElementById('mediaContent');
+      const mediaIcon = document.getElementById('mediaIcon');
+      const mediaTitle = document.getElementById('mediaTitle');
+      
+      if (ad.type === 'text+images') {
+        mediaIcon.className = 'fas fa-images text-green-600 mr-2';
+        mediaTitle.textContent = '图片内容';
+        
+        mediaContent.innerHTML = `
+          <div class="grid grid-cols-1 gap-4">
+            ${ad.content.images.map((img, index) => `
+              <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <img src="${img.url}" alt="${img.label}" class="w-full h-64 object-cover">
+                <div class="p-3 bg-gray-50">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700">图片 ${index + 1}</span>
+                    <span class="text-xs bg-gray-200 px-2 py-1 rounded">${img.label}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (ad.type === 'text+video') {
+        mediaIcon.className = 'fas fa-video text-green-600 mr-2';
+        mediaTitle.textContent = '视频内容';
+        
+        mediaContent.innerHTML = `
+          <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <div class="relative">
+              <img src="${ad.content.video.url}" alt="视频封面" class="w-full h-64 object-cover">
+              <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                <button class="bg-white bg-opacity-90 rounded-full p-4 hover:bg-opacity-100 transition-all">
+                  <i class="fas fa-play text-3xl text-gray-800"></i>
+                </button>
+              </div>
+              <span class="absolute bottom-3 right-3 bg-black bg-opacity-70 text-white text-sm px-2 py-1 rounded">${ad.content.video.duration}</span>
+            </div>
+            <div class="p-4 bg-gray-50">
+              <p class="text-sm text-gray-700">${ad.content.video.description}</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function populateRiskTagsDetails(ad) {
+      const riskTagsDetails = document.getElementById('riskTagsDetails');
+      let content = '';
+      
+      // 文本风险标签
+      if (ad.riskTags.text) {
+        content += `
+          <div class="mb-4">
+            <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-font text-gray-600 mr-2"></i>文本内容检测结果
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${ad.riskTags.text.map(tag => `
+                <span class="risk-tag ${getTagStyle(tag)} px-3 py-2 rounded-lg text-sm font-medium border">
+                  <i class="${getTagIcon(tag)} mr-1"></i>${tag}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      // 图片风险标签
+      if (ad.riskTags.images) {
+        content += `
+          <div class="mb-4">
+            <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-images text-gray-600 mr-2"></i>图片内容检测结果
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${ad.riskTags.images.map(tag => `
+                <span class="risk-tag ${getTagStyle(tag)} px-3 py-2 rounded-lg text-sm font-medium border">
+                  <i class="${getTagIcon(tag)} mr-1"></i>${tag}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      // 视频风险标签
+      if (ad.riskTags.video) {
+        content += `
+          <div class="mb-4">
+            <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-video text-gray-600 mr-2"></i>视频内容检测结果
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${ad.riskTags.video.map(tag => `
+                <span class="risk-tag ${getTagStyle(tag)} px-3 py-2 rounded-lg text-sm font-medium border">
+                  <i class="${getTagIcon(tag)} mr-1"></i>${tag}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      // AI建议
+      content += `
+        <div class="mt-6 pt-4 border-t border-yellow-200">
+          <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+            <i class="fas fa-robot text-blue-600 mr-2"></i>AI审核建议
+          </h4>
+          <div class="bg-white p-4 rounded-lg border border-gray-200">
+            <p class="text-gray-700">${ad.suggestion}</p>
+          </div>
+        </div>
+      `;
+      
+      riskTagsDetails.innerHTML = content;
+    }
+
+    function populateReviewRecords(ad) {
+      // 生成审核时间线
+      const timeline = generateReviewTimeline(ad);
+      document.getElementById('reviewTimeline').innerHTML = timeline;
+      
+      // 生成详细审核记录
+      const detailedRecords = generateDetailedReviewRecords(ad);
+      document.getElementById('detailedReviewRecords').innerHTML = detailedRecords;
+    }
+
+    function populateSystemRecords(ad) {
+      // 生成系统操作记录
+      const systemOps = generateSystemOperations(ad);
+      document.getElementById('systemOperations').innerHTML = systemOps;
+      
+      // 生成客户通知记录
+      const notifications = generateCustomerNotifications(ad);
+      document.getElementById('customerNotifications').innerHTML = notifications;
+    }
+
+    // 辅助函数
+    function getScoreDescription(score, type) {
+      if (type === 'compliance') {
+        if (score >= 90) return '内容完全符合平台规范，可直接通过';
+        if (score >= 80) return '内容基本符合规范，建议少量调整';
+        if (score >= 60) return '内容存在一定问题，需要修改部分表述';
+        return '内容违规风险较高，建议重新制作';
+      } else if (type === 'quality') {
+        if (score >= 90) return '素材质量优秀，用户体验佳';
+        if (score >= 80) return '素材质量良好，符合投放标准';
+        if (score >= 60) return '素材质量一般，建议优化';
+        return '素材质量较差，建议重新制作';
+      }
+      return '';
+    }
+
+    function getRiskDescription(risk) {
+      if (risk <= 20) return '风险极低，可安全投放';
+      if (risk <= 40) return '风险较低，建议关注';
+      if (risk <= 60) return '风险中等，需要仔细审核';
+      if (risk <= 80) return '风险较高，建议谨慎处理';
+      return '风险极高，强烈建议拒绝';
+    }
+
+    function generateReviewTimeline(ad) {
+      const events = [];
+      
+      // 提交事件
+      events.push({
+        time: ad.submitTime,
+        type: 'submit',
+        title: '广告提交',
+        description: '广告主提交广告素材',
+        icon: 'fas fa-upload',
+        color: 'blue'
+      });
+      
+      // 机审事件
+      if (ad.reviewer === '机器审核' && ad.reviewTime) {
+        events.push({
+          time: ad.reviewTime,
+          type: 'auto-review',
+          title: '机器审核完成',
+          description: `审核结果：${getStatusText(ad.status)}`,
+          icon: 'fas fa-robot',
+          color: ad.status.includes('approved') ? 'green' : ad.status.includes('rejected') ? 'red' : 'yellow'
+        });
+      }
+      
+      // 人工审核事件
+      if (ad.status.includes('manual-')) {
+        events.push({
+          time: ad.reviewTime,
+          type: 'manual-review',
+          title: '人工审核完成',
+          description: `审核人：${ad.reviewer} • 结果：${getStatusText(ad.status)}`,
+          icon: 'fas fa-user-check',
+          color: ad.status.includes('approved') ? 'green' : 'red'
+        });
+      }
+      
+      return events.map((event, index) => `
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 bg-${event.color}-100 rounded-full flex items-center justify-center">
+              <i class="${event.icon} text-${event.color}-600"></i>
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-medium text-gray-900">${event.title}</h4>
+              <span class="text-sm text-gray-500">${event.time}</span>
+            </div>
+            <p class="text-sm text-gray-600 mt-1">${event.description}</p>
+          </div>
+        </div>
+        ${index < events.length - 1 ? '<div class="ml-5 w-px h-8 bg-gray-200"></div>' : ''}
+      `).join('');
+    }
+
+    function generateDetailedReviewRecords(ad) {
+      let records = '';
+      
+      // 机审记录
+      if (ad.reviewer === '机器审核') {
+        records += `
+          <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-medium text-gray-900 flex items-center">
+                <i class="fas fa-robot text-blue-600 mr-2"></i>机器审核记录
+              </h4>
+              <span class="text-sm text-gray-500">${ad.reviewTime}</span>
+            </div>
+            <div class="space-y-2 text-sm">
+              <p><strong>审核结果:</strong> ${getStatusText(ad.status)}</p>
+              <p><strong>评分详情:</strong> 文案${ad.scores.compliance}分，质量${ad.scores.quality}分，风险${ad.scores.risk}%</p>
+              <p><strong>检测标签:</strong> ${Object.values(ad.riskTags).flat().join('、')}</p>
+              <p><strong>AI建议:</strong> ${ad.suggestion}</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      // 人工审核记录
+      if (ad.status.includes('manual-')) {
+        records += `
+          <div class="bg-white border border-gray-200 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-medium text-gray-900 flex items-center">
+                <i class="fas fa-user-check text-green-600 mr-2"></i>人工审核记录
+              </h4>
+              <span class="text-sm text-gray-500">${ad.reviewTime}</span>
+            </div>
+            <div class="space-y-2 text-sm">
+              <p><strong>审核人:</strong> ${ad.reviewer}</p>
+              <p><strong>审核结果:</strong> ${getStatusText(ad.status)}</p>
+              ${ad.manualNote ? `<p><strong>审核备注:</strong> ${ad.manualNote}</p>` : ''}
+              ${ad.rejectionReason ? `<p><strong>不通过理由:</strong> ${ad.rejectionReason}</p>` : ''}
+              ${ad.forceClose ? `<p class="text-red-600"><strong>特殊操作:</strong> 已强制关闭广告</p>` : ''}
+              ${ad.customerNotified ? `<p class="text-blue-600"><strong>通知状态:</strong> 已向客户发送通知</p>` : ''}
+            </div>
+          </div>
+        `;
+      }
+      
+      return records || '<p class="text-gray-500 text-center py-8">暂无详细审核记录</p>';
+    }
+
+    function generateSystemOperations(ad) {
+      const operations = [
+        {
+          time: ad.submitTime,
+          operation: '系统接收',
+          description: '广告素材成功上传到系统',
+          status: 'success'
+        },
+        {
+          time: ad.submitTime,
+          operation: '数据验证',
+          description: '验证广告素材格式和完整性',
+          status: 'success'
+        },
+        {
+          time: ad.reviewTime || ad.submitTime,
+          operation: 'AI分析',
+          description: '机器学习模型完成内容分析',
+          status: 'success'
+        }
+      ];
+      
+      if (ad.forceClose) {
+        operations.push({
+          time: ad.reviewTime,
+          operation: '强制关闭',
+          description: '管理员执行强制关闭操作',
+          status: 'warning'
+        });
+      }
+      
+      return operations.map(op => `
+        <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+          <div class="flex items-center space-x-3">
+            <div class="w-2 h-2 rounded-full ${op.status === 'success' ? 'bg-green-500' : 'bg-yellow-500'}"></div>
+            <div>
+              <p class="text-sm font-medium text-gray-900">${op.operation}</p>
+              <p class="text-xs text-gray-500">${op.description}</p>
+            </div>
+          </div>
+          <span class="text-xs text-gray-400">${op.time}</span>
+        </div>
+      `).join('');
+    }
+
+    function generateCustomerNotifications(ad) {
+      if (!ad.customerNotified) {
+        return '<p class="text-gray-500 text-center py-8">暂无客户通知记录</p>';
+      }
+      
+      return `
+        <div class="bg-white border border-blue-200 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-medium text-gray-900 flex items-center">
+              <i class="fas fa-envelope text-blue-600 mr-2"></i>审核不通过通知
+            </h4>
+            <span class="text-sm text-gray-500">${ad.reviewTime}</span>
+          </div>
+          <div class="space-y-2 text-sm">
+            <p><strong>通知类型:</strong> 站内信</p>
+            <p><strong>发送状态:</strong> <span class="text-green-600">已发送</span></p>
+            <p><strong>通知内容:</strong></p>
+            <div class="bg-gray-50 p-3 rounded border-l-4 border-blue-500 mt-2">
+              <p class="text-gray-700">${ad.notificationMessage || '您的广告审核不通过，请根据审核意见进行修改后重新提交。'}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function switchDetailTab(tabName) {
+      currentDetailTab = tabName;
+      
+      // 更新标签页样式
+      const tabs = ['content', 'review', 'system'];
+      tabs.forEach(tab => {
+        const tabBtn = document.getElementById(tab + 'Tab');
+        const panel = document.getElementById(tab + 'Panel');
+        
+        if (tab === tabName) {
+          tabBtn.classList.remove('border-transparent', 'text-gray-500');
+          tabBtn.classList.add('border-blue-500', 'text-blue-600');
+          panel.classList.remove('hidden');
+        } else {
+          tabBtn.classList.remove('border-blue-500', 'text-blue-600');
+          tabBtn.classList.add('border-transparent', 'text-gray-500');
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    function openManualReviewFromDetail() {
+      if (currentDetailAdId) {
+        closeModal();
+        openManualReview(currentDetailAdId);
+      }
+    }
+
     // 模态框函数
     function openModal() {
       document.getElementById('detailModal').classList.remove('hidden');
@@ -2036,6 +2729,7 @@
 
     function closeModal() {
       document.getElementById('detailModal').classList.add('hidden');
+      currentDetailAdId = null;
     }
 
     // 页面加载完成后初始化
