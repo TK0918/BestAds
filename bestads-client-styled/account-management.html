@@ -76,6 +76,10 @@
     .sidebar-item:hover::before {
       transform: scaleY(1);
     }
+
+    .amount-input {
+      color: #000000 !important;
+    }
   </style>
 </head>
 <body class="bg-gray-900 min-h-screen text-white">
@@ -176,27 +180,18 @@
           <div class="relative group flex items-center">
             <button onclick="window.location.href='wallet.html'" class="flex items-center px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-yellow-300 font-bold text-base transition-colors duration-200" style="min-width:120px;">
               <i class="fas fa-wallet mr-2"></i>
-              <span id="balanceAmount">$2,580.00</span>
+              <span id="balanceAmount">$2,900.00</span>
             </button>
             <!-- 悬浮详细信息 -->
             <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
               <div class="mb-2 flex items-center justify-between">
-                <span>可用余额</span><span class="font-bold text-yellow-300">$2,580.00</span>
+                <span>可用余额</span><span class="font-bold text-yellow-300">$2,900.00</span>
               </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>真实金额</span><span>$2,800.00</span>
               </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>冻结金额</span><span>$100.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>在途金额</span><span>$120.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>信用额度</span><span>$1,000.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>已用额度</span><span>$200.00</span>
               </div>
             </div>
           </div>
@@ -212,84 +207,6 @@
 
     <!-- 主要内容区域 -->
     <main class="p-6">
-      <!-- 操作按钮区域 -->
-      <div class="mb-6 flex flex-wrap gap-3">
-        <button onclick="openModal('account')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-          <i class="fas fa-plus"></i>
-          <span>申请开户</span>
-        </button>
-        <button onclick="openModal('batchRecharge')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-          <i class="fas fa-layer-group"></i>
-          <span>账户充值</span>
-        </button>
-      </div>
-
-      <!-- 统计卡片 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <i class="fas fa-users text-white"></i>
-                </div>
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">可用账户</p>
-                <p class="text-2xl font-bold text-white">5</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-                  <i class="fas fa-dollar-sign text-white"></i>
-                </div>
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">总余额</p>
-                <p class="text-2xl font-bold text-green-400">$2,580</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                  <i class="fas fa-clock text-white"></i>
-                </div>
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">待处理申请</p>
-                <p class="text-2xl font-bold text-orange-400">2</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-gray-600 hover:shadow-xl transition-shadow duration-200">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <i class="fab fa-facebook text-white"></i>
-                </div>
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">主要平台</p>
-                <p class="text-2xl font-bold text-white">Facebook</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- 筛选区域 -->
       <div class="bg-slate-800 shadow-lg rounded-lg border border-gray-600 mb-6">
@@ -297,30 +214,42 @@
           <h3 class="text-lg font-medium text-white">筛选条件</h3>
         </div>
         <div class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">搜索账户</label>
-              <input type="text" placeholder="输入账户ID或名称" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">平台类型</label>
-              <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">全部平台</option>
-                <option value="facebook">Facebook</option>
-                <option value="google">Google</option>
-              </select>
+              <label class="block text-sm font-medium text-gray-300 mb-2">广告账户</label>
+              <input type="text" id="accountSearch" placeholder="支持名称和ID模糊查询" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2">账户状态</label>
-              <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">全部状态</option>
-                <option value="active">活跃</option>
-                <option value="inactive">停用</option>
-                <option value="pending">待审核</option>
-              </select>
+              <div class="relative">
+                <button type="button" id="statusDropdownBtn" onclick="toggleStatusDropdown()" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex items-center justify-between">
+                  <span id="statusDropdownText">全部状态</span>
+                  <i class="fas fa-chevron-down text-sm"></i>
+                </button>
+                <div id="statusDropdown" class="absolute z-10 mt-1 w-full bg-slate-700 border border-gray-600 rounded-md shadow-lg hidden">
+                  <div class="p-2 space-y-2">
+                    <label class="flex items-center">
+                      <input type="checkbox" value="active" onchange="updateStatusFilter()" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                      <span class="text-sm text-white">活跃</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" value="inactive" onchange="updateStatusFilter()" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                      <span class="text-sm text-white">停用</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" value="pending" onchange="updateStatusFilter()" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                      <span class="text-sm text-white">待审核</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" value="disabled" onchange="updateStatusFilter()" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                      <span class="text-sm text-white">已禁用</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="flex items-end">
-              <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+              <button onclick="performSearch()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                 <i class="fas fa-search mr-2"></i>搜索
               </button>
             </div>
@@ -330,36 +259,64 @@
 
       <!-- 账户列表表格 -->
       <div class="bg-slate-800 shadow-lg rounded-lg border border-gray-600 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-600">
+        <div class="px-6 py-4 border-b border-gray-600 flex items-center justify-between">
           <h3 class="text-lg font-medium text-white">账户列表</h3>
+          <!-- 操作按钮区域 -->
+          <div class="flex flex-wrap gap-3">
+            <button onclick="openModal('account')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-plus"></i>
+              <span>申请开户</span>
+            </button>
+            <button onclick="openModal('batchRecharge')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+              <i class="fas fa-layer-group"></i>
+              <span>账户充值</span>
+            </button>
+          </div>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-600 table-hover">
             <thead class="bg-slate-700">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户名称</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">所属平台</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">账户状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">广告账户名称</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">广告账户ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-slate-600 select-none transition-colors duration-200" onclick="sortTable('status')">
+                  <div class="flex items-center justify-between">
+                    <span>账户状态</span>
+                    <div class="flex flex-col ml-2">
+                      <i id="status-asc" class="fas fa-chevron-up text-xs text-gray-500"></i>
+                      <i id="status-desc" class="fas fa-chevron-down text-xs text-gray-500"></i>
+                    </div>
+                  </div>
+                </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">币种</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">余额</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-slate-600 select-none transition-colors duration-200" onclick="sortTable('balance')">
+                  <div class="flex items-center justify-between">
+                    <span>余额</span>
+                    <div class="flex flex-col ml-2">
+                      <i id="balance-asc" class="fas fa-chevron-up text-xs text-gray-500"></i>
+                      <i id="balance-desc" class="fas fa-chevron-down text-xs text-gray-500"></i>
+                    </div>
+                  </div>
+                </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">时区</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">创建时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-slate-600 select-none transition-colors duration-200" onclick="sortTable('createTime')">
+                  <div class="flex items-center justify-between">
+                    <span>创建时间</span>
+                    <div class="flex flex-col ml-2">
+                      <i id="createTime-asc" class="fas fa-chevron-up text-xs text-gray-500"></i>
+                      <i id="createTime-desc" class="fas fa-chevron-down text-xs text-blue-400"></i>
+                    </div>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody class="bg-slate-800 divide-y divide-gray-600">
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-sm font-medium text-white">FB001234567</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
                   <span class="text-sm text-gray-400">测试广告账户01</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <i class="fab fa-facebook text-blue-400 mr-2"></i>
-                    <span class="text-sm text-white">Facebook</span>
-                  </div>
+                  <span class="text-sm font-medium text-white">FB001234567</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-300">
@@ -381,16 +338,10 @@
               </tr>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-sm font-medium text-white">FB001234568</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
                   <span class="text-sm text-gray-400">测试广告账户02</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <i class="fab fa-facebook text-blue-400 mr-2"></i>
-                    <span class="text-sm text-white">Facebook</span>
-                  </div>
+                  <span class="text-sm font-medium text-white">FB001234568</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-300">
@@ -407,21 +358,15 @@
                   <span class="text-sm text-gray-400">UTC+8</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                  2024-01-20
+                  2024-02-10
                 </td>
               </tr>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-sm font-medium text-white">FB001234569</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
                   <span class="text-sm text-gray-400">测试广告账户03</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <i class="fab fa-facebook text-blue-400 mr-2"></i>
-                    <span class="text-sm text-white">Facebook</span>
-                  </div>
+                  <span class="text-sm font-medium text-white">FB001234569</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-800 text-yellow-300">
@@ -432,27 +377,21 @@
                   <span class="text-sm font-medium text-white">USD</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-sm font-medium text-white">0.00</span>
+                  <span class="text-sm font-medium text-white">2,150.00</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="text-sm text-gray-400">UTC+0</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                  2024-02-01
+                  2024-02-15
                 </td>
               </tr>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-sm font-medium text-white">GG001234570</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
                   <span class="text-sm text-gray-400">Google广告账户01</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <i class="fab fa-google text-red-400 mr-2"></i>
-                    <span class="text-sm text-white">Google</span>
-                  </div>
+                  <span class="text-sm font-medium text-white">GG001234570</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-800 text-green-300">
@@ -469,7 +408,7 @@
                   <span class="text-sm text-gray-400">UTC-5</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                  2024-01-25
+                  2024-01-08
                 </td>
               </tr>
           </tbody>
@@ -1424,7 +1363,8 @@
       selectedCheckboxes.forEach(checkbox => {
         const row = checkbox.closest('.account-row');
         const accountId = row.getAttribute('data-account');
-        const accountName = row.querySelector('.text-sm.font-medium').textContent;
+        const accountIdDisplay = row.querySelector('.text-sm.font-medium').textContent;
+        const accountName = row.querySelector('.text-sm.text-gray-500').textContent;
         const amountInput = row.querySelector('.amount-input');
         const currencySpan = row.querySelector('td:nth-child(3) span');
         
@@ -1437,7 +1377,7 @@
           
           summaryHTML += `
             <div class="flex justify-between items-center text-sm">
-              <span class="text-gray-700">${accountName} (${accountId})</span>
+              <span class="text-gray-700">${accountName} (${accountIdDisplay})</span>
               <span class="font-medium text-gray-900">${currency} ${amount.toFixed(2)}</span>
             </div>
           `;
@@ -1668,6 +1608,176 @@
         selectedInfo.className = 'text-gray-500 font-medium';
       }
     }
+
+    // 多状态下拉选择功能
+    let selectedStatuses = [];
+
+    function toggleStatusDropdown() {
+      const dropdown = document.getElementById('statusDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+
+    function updateStatusFilter() {
+      const checkboxes = document.querySelectorAll('#statusDropdown input[type="checkbox"]');
+      selectedStatuses = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+      
+      // 更新下拉按钮文本
+      const dropdownText = document.getElementById('statusDropdownText');
+      if (selectedStatuses.length === 0) {
+        dropdownText.textContent = '全部状态';
+      } else if (selectedStatuses.length === 1) {
+        const statusNames = {
+          'active': '活跃',
+          'inactive': '停用', 
+          'pending': '待审核',
+          'disabled': '已禁用'
+        };
+        dropdownText.textContent = statusNames[selectedStatuses[0]];
+      } else {
+        dropdownText.textContent = `已选择 ${selectedStatuses.length} 个状态`;
+      }
+    }
+
+    function performSearch() {
+      const searchTerm = document.getElementById('accountSearch').value.trim().toLowerCase();
+      
+      // 获取所有表格行
+      const rows = document.querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const accountName = row.querySelector('td:first-child span').textContent.toLowerCase();
+        const accountId = row.querySelector('td:nth-child(2) span').textContent.toLowerCase();
+        const statusElement = row.querySelector('td:nth-child(3) span');
+        const accountStatus = statusElement.textContent.trim();
+        
+        // 检查搜索条件
+        const matchesSearch = !searchTerm || 
+          accountName.includes(searchTerm) || 
+          accountId.includes(searchTerm);
+        
+        // 检查状态过滤条件
+        let matchesStatus = true;
+        if (selectedStatuses.length > 0) {
+          const statusMap = {
+            '活跃': 'active',
+            '停用': 'inactive',
+            '待审核': 'pending',
+            '已禁用': 'disabled'
+          };
+          const rowStatus = statusMap[accountStatus];
+          matchesStatus = selectedStatuses.includes(rowStatus);
+        }
+        
+        // 显示或隐藏行
+        if (matchesSearch && matchesStatus) {
+          row.style.display = 'table-row';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      showNotification('筛选完成', 'success');
+    }
+
+    // 点击外部关闭下拉菜单
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('statusDropdown');
+      const dropdownBtn = document.getElementById('statusDropdownBtn');
+      
+      if (!dropdown.contains(event.target) && !dropdownBtn.contains(event.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    // 排序功能
+    let currentSort = {
+      column: 'createTime',
+      direction: 'desc'
+    };
+
+    function sortTable(column) {
+      // 切换排序方向
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.column = column;
+        currentSort.direction = 'desc'; // 非当前列默认为倒序
+      }
+
+      // 更新排序图标
+      updateSortIcons();
+
+      // 获取表格体
+      const tbody = document.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      // 排序行
+      rows.sort((a, b) => {
+        let aValue, bValue;
+
+        switch (column) {
+          case 'status':
+            aValue = a.querySelector('td:nth-child(3) span').textContent.trim();
+            bValue = b.querySelector('td:nth-child(3) span').textContent.trim();
+            
+            // 状态排序优先级：活跃 > 待审核 > 停用 > 已禁用
+            const statusOrder = { '活跃': 1, '待审核': 2, '停用': 3, '已禁用': 4 };
+            aValue = statusOrder[aValue] || 5;
+            bValue = statusOrder[bValue] || 5;
+            break;
+
+          case 'balance':
+            aValue = parseFloat(a.querySelector('td:nth-child(5) span').textContent.replace(/,/g, ''));
+            bValue = parseFloat(b.querySelector('td:nth-child(5) span').textContent.replace(/,/g, ''));
+            break;
+
+          case 'createTime':
+            aValue = new Date(a.querySelector('td:nth-child(7)').textContent.trim());
+            bValue = new Date(b.querySelector('td:nth-child(7)').textContent.trim());
+            break;
+        }
+
+        if (currentSort.direction === 'asc') {
+          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+        } else {
+          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+        }
+      });
+
+      // 重新插入排序后的行
+      rows.forEach(row => tbody.appendChild(row));
+    }
+
+    function updateSortIcons() {
+      // 重置所有图标
+      ['status', 'balance', 'createTime'].forEach(col => {
+        document.getElementById(`${col}-asc`).className = 'fas fa-chevron-up text-xs text-gray-500';
+        document.getElementById(`${col}-desc`).className = 'fas fa-chevron-down text-xs text-gray-500';
+      });
+
+      // 激活当前排序的图标
+      const activeIcon = document.getElementById(`${currentSort.column}-${currentSort.direction}`);
+      if (activeIcon) {
+        activeIcon.className = `fas fa-chevron-${currentSort.direction === 'asc' ? 'up' : 'down'} text-xs text-blue-400`;
+      }
+    }
+
+    function getColumnName(column) {
+      const names = {
+        'status': '账户状态',
+        'balance': '余额',
+        'createTime': '创建时间'
+      };
+      return names[column] || column;
+    }
+
+    // 页面加载时初始化排序
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始按创建时间倒序排列
+      updateSortIcons();
+    });
   </script>
 </body>
 </html> 
