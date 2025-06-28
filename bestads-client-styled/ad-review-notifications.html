@@ -7,33 +7,36 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=PingFang+SC:wght@400;500;600;700&display=swap');
+    
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #0E151E;
+      font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #1A1F2B;
       color: #FFFFFF;
+      font-size: 14px;
     }
 
     .table-hover tbody tr:hover {
-      background-color: #475569;
+      background-color: #242A3A;
     }
 
     .card-hover {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease-in-out;
     }
 
     .card-hover:hover {
       transform: translateY(-2px);
-      background-color: #475569;
+      background-color: #242A3A;
     }
 
     .notification-unread {
       border-left: 4px solid #ef4444;
-      background-color: #1e293b;
+      background-color: #2A2F3D;
     }
 
     .notification-read {
       border-left: 4px solid #6b7280;
-      background-color: #0f172a;
+      background-color: #1A1F2B;
     }
 
     @keyframes fadeIn {
@@ -68,86 +71,113 @@
     .drawer-panel.show {
       transform: translateX(0);
     }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #00FFB0;
+      transform: scaleY(0);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .btn-primary {
+      background: #00FFB0;
+      color: #000000;
+      border-radius: 4px;
+      padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-primary:hover {
+      background: #00E0A0;
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #2A2F3D;
+      color: #FFFFFF;
+      border-radius: 4px;
+      padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-secondary:hover {
+      background: #3A3F4D;
+      transform: scale(0.98);
+    }
   </style>
 </head>
 <body class="m-0 p-0 h-screen">
-  <div class="flex w-full h-screen">
-    <!-- Left Sidebar -->
-    <div class="w-60 bg-slate-800 h-full flex flex-col">
+  <!-- 左侧边栏 -->
+  <div class="fixed inset-y-0 left-0 z-50 bg-slate-800 shadow-lg" style="width: 220px; background-color: #0F121A;">
+    <div class="flex h-full flex-col">
       <!-- Logo -->
       <div class="pt-6 px-8">
         <h1 class="text-white text-2xl font-semibold">BestAds</h1>
       </div>
 
-      <!-- Navigation -->
+      <!-- 导航菜单 -->
       <nav class="mt-8 flex-1">
         <ul class="space-y-2 px-4">
           <li>
-            <a href="index.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-home mr-3 text-gray-400"></i>
+            <a href="index.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-home mr-3" style="color: #B0B5C0;"></i>
               <span>首页</span>
             </a>
           </li>
           <li>
-            <a href="account-management.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-users mr-3 text-gray-400"></i>
+            <a href="account-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-users mr-3" style="color: #B0B5C0;"></i>
               <span>账户管理</span>
             </a>
           </li>
           <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fab fa-facebook mr-3 text-gray-400"></i>
-              <span>Facebook广告</span>
-            </a>
-          </li>
-          <li>
-            <a href="operation-records.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-history mr-3 text-gray-400"></i>
+            <a href="operation-records.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-history mr-3" style="color: #B0B5C0;"></i>
               <span>操作记录</span>
             </a>
           </li>
           <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-chart-bar mr-3 text-gray-400"></i>
-              <span>数据分析</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-ad mr-3 text-gray-400"></i>
-              <span>广告投放</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-folder mr-3 text-gray-400"></i>
-              <span>创意</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center px-4 py-3 text-white bg-gray-700 rounded-md">
-              <i class="fas fa-bell mr-3 text-gray-400"></i>
+            <a href="ad-review-notifications.html" class="sidebar-item active flex items-center px-4 py-3 text-white rounded-md" style="background-color: #2A2F3D; color: #00FFB0;">
+              <i class="fas fa-bell mr-3" style="color: #00FFB0;"></i>
               <span>被拒广告</span>
             </a>
           </li>
           <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-wallet mr-3 text-gray-400"></i>
+            <a href="wallet.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-wallet mr-3" style="color: #B0B5C0;"></i>
               <span>余额管理</span>
             </a>
           </li>
         </ul>
       </nav>
     </div>
+  </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
-      <!-- Top Header -->
-      <header class="h-16 bg-slate-800 border-b border-gray-600 flex items-center justify-between px-6">
-        <div class="flex items-center space-x-4">
-          <h2 class="text-xl font-semibold text-white">被拒广告</h2>
+  <!-- 主内容区域 -->
+  <div style="margin-left: 220px; background-color: #1A1F2B;">
+    <!-- 顶部标题栏 -->
+    <header style="padding: 24px;">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">被拒广告</h1>
+          <p class="mt-1 text-sm text-gray-400">查看您的广告审核结果和详细说明，了解不通过的具体原因</p>
         </div>
-
+        <!-- 右侧操作区域 -->
         <div class="flex items-center space-x-4">
           <!-- Notification -->
           <div class="relative group">
@@ -165,29 +195,20 @@
 
           <!-- User Avatar -->
           <div class="relative group flex items-center">
-            <button onclick="window.location.href='wallet.html'" class="flex items-center px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-yellow-300 font-bold text-base transition-colors duration-200" style="min-width:120px;">
+            <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
               <i class="fas fa-wallet mr-2"></i>
-              <span id="balanceAmount">$2,580.00</span>
+              <span id="balanceAmount">$2,900.00</span>
             </button>
             <!-- 悬浮详细信息 -->
-            <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
+            <div class="absolute right-0 top-10 z-50 hidden group-hover:block rounded-lg shadow-lg p-4 min-w-[220px] text-sm" style="background-color: #0F121A; border: 1px solid #2E333F; color: #B0B5C0;">
               <div class="mb-2 flex items-center justify-between">
-                <span>可用余额</span><span class="font-bold text-yellow-300">$2,580.00</span>
+                <span>可用余额</span><span class="font-bold" style="color: #00FFB0;">$2,900.00</span>
               </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>真实金额</span><span>$2,800.00</span>
               </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>冻结金额</span><span>$100.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>在途金额</span><span>$120.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>信用额度</span><span>$1,000.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>已用额度</span><span>$200.00</span>
               </div>
             </div>
           </div>
@@ -198,72 +219,64 @@
             <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <!-- Content Area -->
-      <main class="flex-1 p-6 bg-slate-900 overflow-y-auto">
-        <!-- Page Title -->
-        <div class="mb-8">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-2xl font-bold text-white mb-2">被拒广告</h2>
-              <p class="text-gray-400">查看您的广告审核结果和详细说明，了解不通过的具体原因</p>
-            </div>
-            <!-- 统计信息 -->
-            <div class="flex space-x-4">
-              <div class="bg-slate-700 border border-gray-600 rounded-lg px-4 py-2">
-                <div class="text-center">
-                  <div class="text-gray-400 text-sm font-medium">总通知</div>
-                  <div class="text-white text-xl font-bold" id="totalCount">5</div>
-                </div>
-              </div>
-            </div>
+    <!-- 主要内容区域 -->
+    <main style="padding: 24px;">
+      <!-- 统计信息 -->
+      <div class="mb-8 flex justify-end">
+        <div class="px-4 py-2" style="background-color: #1A1F2B; border: 1px solid #2E333F; border-radius: 6px;">
+          <div class="text-center">
+            <div class="text-sm font-medium" style="color: #B0B5C0;">总通知</div>
+            <div class="text-white text-xl font-bold" id="totalCount">5</div>
           </div>
         </div>
+      </div>
+      
 
         <!-- Filter Section -->
-        <div class="bg-slate-800 rounded-lg mb-6">
-          <div class="px-6 py-4 border-b border-gray-600">
+        <div class="mb-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="px-6 py-4" style="border-bottom: 1px solid #2E333F;">
             <h3 class="text-lg font-medium text-white">筛选条件</h3>
           </div>
           <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">创建时间</label>
-                <input type="date" id="creationTimeFrom" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">创建时间</label>
+                <input type="date" id="creationTimeFrom" class="input-field w-full">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">至</label>
-                <input type="date" id="creationTimeTo" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">至</label>
+                <input type="date" id="creationTimeTo" class="input-field w-full">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">审核时间</label>
-                <input type="date" id="reviewTimeFrom" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">审核时间</label>
+                <input type="date" id="reviewTimeFrom" class="input-field w-full">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">至</label>
-                <input type="date" id="reviewTimeTo" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">至</label>
+                <input type="date" id="reviewTimeTo" class="input-field w-full">
               </div>
             </div>
             <div class="mt-4 flex space-x-3">
-              <button onclick="filterNotifications()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+              <button onclick="filterNotifications()" class="btn-primary px-4 py-2 font-medium flex items-center space-x-2">
                 <i class="fas fa-search"></i>
                 <span>筛选</span>
               </button>
-              <button onclick="resetFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
+              <button onclick="resetFilter()" class="btn-secondary px-4 py-2 font-medium flex items-center space-x-2">
                 <i class="fas fa-redo"></i>
                 <span>重置</span>
               </button>
-
             </div>
           </div>
         </div>
 
         <!-- Notifications Table -->
-        <div class="bg-slate-800 rounded-lg overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-600 flex justify-between items-center">
+        <div class="overflow-hidden" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="px-6 py-4 flex justify-between items-center" style="border-bottom: 1px solid #2E333F;">
             <h3 class="text-lg font-medium text-white">被拒广告</h3>
-            <button onclick="refreshData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+            <button onclick="refreshData()" class="btn-primary px-4 py-2 text-sm font-medium flex items-center space-x-2">
               <i class="fas fa-sync"></i>
               <span>刷新</span>
             </button>
@@ -310,7 +323,6 @@
         </div>
       </main>
     </div>
-  </div>
 
   <!-- 站内信历史通知抽屉 -->
   <div id="inboxDrawer" class="drawer-overlay hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50">

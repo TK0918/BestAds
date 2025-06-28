@@ -1,0 +1,48 @@
+<!-- 头部组件 -->
+<header class="flex items-center justify-between px-6" style="height: 56px; background-color: #1A1F2B; border-bottom: 1px solid #2E333F;">
+  <div class="flex items-center space-x-4">
+    <h2 class="text-xl font-semibold text-white" id="page-title">页面标题</h2>
+  </div>
+
+  <div class="flex items-center space-x-4">
+    <!-- Notification -->
+    <div class="relative group">
+      <button onclick="openInboxDrawer()" class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
+        <i class="fas fa-bell text-lg"></i>
+        <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">5</span>
+      </button>
+    </div>
+
+    <!-- Language Selector -->
+    <select class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
+      <option>中文</option>
+      <option>English</option>
+    </select>
+
+    <!-- User Avatar -->
+    <div class="relative group flex items-center">
+      <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
+        <i class="fas fa-wallet mr-2"></i>
+        <span id="balanceAmount">$2,900.00</span>
+      </button>
+      <!-- 悬浮详细信息 -->
+      <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
+        <div class="mb-2 flex items-center justify-between">
+          <span>可用余额</span><span class="font-bold text-yellow-300" id="balanceDetail">$2,900.00</span>
+        </div>
+        <div class="mb-1 flex items-center justify-between">
+          <span>真实金额</span><span id="realAmount">$3,100.00</span>
+        </div>
+        <div class="mb-1 flex items-center justify-between">
+          <span>冻结金额</span><span id="frozenAmount">$100.00</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+        <span class="text-white text-sm font-medium">A</span>
+      </div>
+      <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
+    </div>
+  </div>
+</header> 

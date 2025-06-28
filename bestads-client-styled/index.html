@@ -7,10 +7,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=PingFang+SC:wght@400;500;600;700&display=swap');
+    
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #0E151E;
+      font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #1A1F2B;
       color: #FFFFFF;
+      font-size: 14px;
     }
 
     .stat-animate {
@@ -23,19 +26,67 @@
     }
 
     .card-hover {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease-in-out;
     }
 
     .card-hover:hover {
       transform: translateY(-2px);
-      background-color: #475569;
+      background-color: #242A3A;
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #00FFB0;
+      transform: scaleY(0);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .btn-primary {
+      background: #00FFB0;
+      color: #000000;
+      border-radius: 4px;
+      padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-primary:hover {
+      background: #00E0A0;
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #2A2F3D;
+      color: #FFFFFF;
+      border-radius: 4px;
+      padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-secondary:hover {
+      background: #3A3F4D;
+      transform: scale(0.98);
     }
   </style>
 </head>
 <body class="m-0 p-0 h-screen">
-  <div class="flex w-full h-screen">
-    <!-- Left Sidebar -->
-    <div class="w-60 bg-slate-800 h-full flex flex-col">
+  <!-- 左侧边栏 -->
+  <div class="fixed inset-y-0 left-0 z-50 bg-slate-800 shadow-lg" style="width: 220px; background-color: #0F121A;">
+    <div class="flex h-full flex-col">
       <!-- Logo -->
       <div class="pt-6 px-8">
         <h1 class="text-white text-2xl font-semibold">BestAds</h1>
@@ -45,61 +96,44 @@
       <nav class="mt-8 flex-1">
         <ul class="space-y-2 px-4">
           <li>
-            <a href="#" class="flex items-center px-4 py-3 text-white bg-gray-700 rounded-md">
-              <i class="fas fa-home mr-3 text-gray-400"></i>
+            <a href="index.html" class="sidebar-item active flex items-center px-4 py-3 text-white rounded-md" style="background-color: #2A2F3D; color: #00FFB0;">
+              <i class="fas fa-home mr-3" style="color: #00FFB0;"></i>
               <span>首页</span>
             </a>
           </li>
           <li>
-            <a href="account-management.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-users mr-3 text-gray-400"></i>
+            <a href="account-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-users mr-3" style="color: #B0B5C0;"></i>
               <span>账户管理</span>
             </a>
           </li>
           <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fab fa-facebook mr-3 text-gray-400"></i>
-              <span>Facebook广告</span>
-            </a>
-          </li>
-          <li>
-            <a href="operation-records.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-history mr-3 text-gray-400"></i>
+            <a href="operation-records.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-history mr-3" style="color: #B0B5C0;"></i>
               <span>操作记录</span>
             </a>
           </li>
           <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-chart-bar mr-3 text-gray-400"></i>
-              <span>数据分析</span>
+            <a href="ad-review-notifications.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-bell mr-3" style="color: #B0B5C0;"></i>
+              <span>被拒广告</span>
             </a>
           </li>
           <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-ad mr-3 text-gray-400"></i>
-              <span>广告投放</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-folder mr-3 text-gray-400"></i>
-              <span>创意</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200">
-              <i class="fas fa-wallet mr-3 text-gray-400"></i>
+            <a href="wallet.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-wallet mr-3" style="color: #B0B5C0;"></i>
               <span>余额管理</span>
             </a>
           </li>
         </ul>
       </nav>
     </div>
+  </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
+  <!-- 主内容区域 -->
+  <div style="margin-left: 220px; background-color: #1A1F2B;">
       <!-- Top Header -->
-      <header class="h-16 bg-slate-800 border-b border-gray-600 flex items-center justify-between px-6">
+      <header class="flex items-center justify-between px-6" style="height: 56px; background-color: #1A1F2B; border-bottom: 1px solid #2E333F;">
         <div class="flex items-center space-x-4">
           <h2 class="text-xl font-semibold text-white">海外广告管理平台</h2>
         </div>
@@ -121,29 +155,20 @@
           
           <!-- User Avatar -->
           <div class="relative group flex items-center">
-            <button onclick="window.location.href='wallet.html'" class="flex items-center px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-yellow-300 font-bold text-base transition-colors duration-200" style="min-width:120px;">
+            <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
               <i class="fas fa-wallet mr-2"></i>
-              <span id="balanceAmount">$2,580.00</span>
+              <span id="balanceAmount">$2,900.00</span>
             </button>
             <!-- 悬浮详细信息 -->
-            <div class="absolute right-0 top-10 z-50 hidden group-hover:block bg-slate-800 border border-gray-600 rounded-lg shadow-lg p-4 min-w-[220px] text-sm text-gray-200">
+            <div class="absolute right-0 top-10 z-50 hidden group-hover:block rounded-lg shadow-lg p-4 min-w-[220px] text-sm" style="background-color: #0F121A; border: 1px solid #2E333F; color: #B0B5C0;">
               <div class="mb-2 flex items-center justify-between">
-                <span>可用余额</span><span class="font-bold text-yellow-300">$2,580.00</span>
+                <span>可用余额</span><span class="font-bold" style="color: #00FFB0;">$2,900.00</span>
               </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>真实金额</span><span>$2,800.00</span>
               </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>冻结金额</span><span>$100.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>在途金额</span><span>$120.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>信用额度</span><span>$1,000.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>已用额度</span><span>$200.00</span>
               </div>
             </div>
           </div>
@@ -157,7 +182,7 @@
       </header>
 
       <!-- Content Area -->
-      <main class="flex-1 p-6 bg-slate-900 overflow-y-auto">
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
         <!-- Page Title -->
         <div class="mb-8">
           <h2 class="text-2xl font-bold text-white mb-2">欢迎回到BestAds</h2>
@@ -183,148 +208,148 @@
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <!-- Available Accounts -->
-          <div class="bg-slate-800 rounded-lg p-6 card-hover">
+          <div class="card-hover p-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                   <i class="fas fa-users text-white"></i>
                 </div>
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">可用账户</p>
-                <p class="text-2xl font-bold text-white stat-animate">5</p>
+                              <div class="ml-4">
+                  <p class="text-sm font-medium" style="color: #B0B5C0;">可用账户</p>
+                  <p class="text-2xl font-bold text-white stat-animate">5</p>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="text-sm text-green-400">
+                  <i class="fas fa-arrow-up text-xs"></i>
+                  <span class="ml-1">新增 2个</span>
+                </div>
               </div>
             </div>
-            <div class="mt-4">
-              <div class="text-sm text-green-400">
-                <i class="fas fa-arrow-up text-xs"></i>
-                <span class="ml-1">新增 2个</span>
-              </div>
-            </div>
-          </div>
 
-          <!-- Total Balance -->
-          <div class="bg-slate-800 rounded-lg p-6 card-hover">
+            <!-- Total Balance -->
+            <div class="card-hover p-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
                   <i class="fas fa-dollar-sign text-white"></i>
                 </div>
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">总余额</p>
-                <p class="text-2xl font-bold text-white stat-animate">$2,580</p>
+                              <div class="ml-4">
+                  <p class="text-sm font-medium" style="color: #B0B5C0;">总余额</p>
+                  <p class="text-2xl font-bold text-white stat-animate">$2,580</p>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="text-sm text-green-400">
+                  <i class="fas fa-arrow-up text-xs"></i>
+                  <span class="ml-1">+12.5%</span>
+                </div>
               </div>
             </div>
-            <div class="mt-4">
-              <div class="text-sm text-green-400">
-                <i class="fas fa-arrow-up text-xs"></i>
-                <span class="ml-1">+12.5%</span>
-              </div>
-            </div>
-          </div>
 
-          <!-- Active Ads -->
-          <div class="bg-slate-800 rounded-lg p-6 card-hover">
+            <!-- Active Ads -->
+            <div class="card-hover p-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
                   <i class="fas fa-ad text-white"></i>
                 </div>
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">活跃广告</p>
-                <p class="text-2xl font-bold text-white stat-animate">12</p>
+                              <div class="ml-4">
+                  <p class="text-sm font-medium" style="color: #B0B5C0;">活跃广告</p>
+                  <p class="text-2xl font-bold text-white stat-animate">12</p>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="text-sm text-blue-400">
+                  <i class="fas fa-eye text-xs"></i>
+                  <span class="ml-1">85.6% 展示率</span>
+                </div>
               </div>
             </div>
-            <div class="mt-4">
-              <div class="text-sm text-blue-400">
-                <i class="fas fa-eye text-xs"></i>
-                <span class="ml-1">85.6% 展示率</span>
-              </div>
-            </div>
-          </div>
 
-          <!-- Pending Applications -->
-          <div class="bg-slate-800 rounded-lg p-6 card-hover">
+            <!-- Pending Applications -->
+            <div class="card-hover p-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
                   <i class="fas fa-clock text-white"></i>
                 </div>
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-400">待处理申请</p>
-                <p class="text-2xl font-bold text-white stat-animate">2</p>
+                              <div class="ml-4">
+                  <p class="text-sm font-medium" style="color: #B0B5C0;">待处理申请</p>
+                  <p class="text-2xl font-bold text-white stat-animate">2</p>
+                </div>
               </div>
-            </div>
-            <div class="mt-4">
-              <div class="text-sm text-orange-400">
-                <i class="fas fa-hourglass-half text-xs"></i>
-                <span class="ml-1">处理中</span>
+              <div class="mt-4">
+                <div class="text-sm text-orange-400">
+                  <i class="fas fa-hourglass-half text-xs"></i>
+                  <span class="ml-1">处理中</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Quick Actions -->
-        <div class="bg-slate-800 rounded-lg mb-8">
-          <div class="px-6 py-4 border-b border-gray-600">
-            <h3 class="text-lg font-semibold text-white">快速操作</h3>
-          </div>
-          <div class="p-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <button onclick="openModal('account')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
-                <i class="fas fa-plus"></i>
-                <span>申请开户</span>
-              </button>
-              <button onclick="openModal('recharge')" class="bg-slate-700 hover:bg-slate-600 text-white border border-gray-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
-                <i class="fas fa-credit-card"></i>
-                <span>账户充值</span>
-              </button>
-              <a href="ads-management.html" class="bg-slate-700 hover:bg-slate-600 text-white border border-gray-600 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
-                <i class="fas fa-chart-bar"></i>
-                <span>广告管理</span>
-              </a>
+          <!-- Quick Actions -->
+          <div class="mb-8" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="px-6 py-4" style="border-bottom: 1px solid #2E333F;">
+              <h3 class="text-lg font-semibold text-white">快速操作</h3>
+            </div>
+            <div class="p-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button onclick="openModal('account')" class="btn-primary px-6 py-3 font-medium flex items-center justify-center space-x-2">
+                  <i class="fas fa-plus"></i>
+                  <span>申请开户</span>
+                </button>
+                <button onclick="openModal('recharge')" class="btn-secondary px-6 py-3 font-medium flex items-center justify-center space-x-2">
+                  <i class="fas fa-credit-card"></i>
+                  <span>账户充值</span>
+                </button>
+                <a href="ads-management.html" class="btn-secondary px-6 py-3 font-medium flex items-center justify-center space-x-2">
+                  <i class="fas fa-chart-bar"></i>
+                  <span>广告管理</span>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
         <!-- Feature Modules -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <!-- Account Management Module -->
-          <div class="bg-slate-800 rounded-lg p-6 card-hover">
+          <div class="card-hover p-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
             <div class="flex items-center mb-4">
               <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <i class="fas fa-chart-line text-white"></i>
               </div>
               <h3 class="ml-3 text-lg font-medium text-white">账户管理</h3>
             </div>
-            <p class="text-gray-400 text-sm mb-6">
+            <p class="text-sm mb-6" style="color: #B0B5C0;">
               查看和管理您的广告账户，发起开户和充值申请
             </p>
             <div class="grid grid-cols-3 gap-4 mb-6">
               <div class="text-center">
                 <div class="text-xl font-bold text-white">5</div>
-                <div class="text-xs text-gray-400">可用账户</div>
+                <div class="text-xs" style="color: #B0B5C0;">可用账户</div>
               </div>
               <div class="text-center">
                 <div class="text-xl font-bold text-green-400">$2,580</div>
-                <div class="text-xs text-gray-400">总余额</div>
+                <div class="text-xs" style="color: #B0B5C0;">总余额</div>
               </div>
               <div class="text-center">
                 <div class="text-xl font-bold text-orange-400">2</div>
-                <div class="text-xs text-gray-400">待处理</div>
+                <div class="text-xs" style="color: #B0B5C0;">待处理</div>
               </div>
             </div>
-            <a href="account-management.html" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center">
+            <a href="account-management.html" class="btn-primary w-full py-2 px-4 text-sm font-medium flex items-center justify-center">
               查看详情
               <i class="fas fa-arrow-right ml-2"></i>
             </a>
           </div>
 
           <!-- Facebook Ads Module -->
-          <div class="bg-slate-800 rounded-lg p-6 card-hover">
+          <div class="card-hover p-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
             <div class="flex items-center mb-4">
               <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <i class="fab fa-facebook text-white"></i>
@@ -445,9 +470,8 @@
             </div>
           </div>
         </div>
-      </main>
-    </div>
-  </div>
+              </main>
+      </div>
 
   <!-- Modal Placeholder for Quick Actions -->
   <script>

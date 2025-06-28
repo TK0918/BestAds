@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面标题 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/common.css">
+</head>
+<body class="m-0 p-0 h-screen">
+  <div class="flex w-full h-screen">
+    <!-- Left Sidebar -->
+    <div id="sidebar-container">
+      <!-- 侧边栏将通过JavaScript动态加载 -->
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top Header -->
+      <div id="header-container">
+        <!-- 头部将通过JavaScript动态加载 -->
+      </div>
+
+      <!-- Content Area -->
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2" id="page-title">页面标题</h2>
+              <p class="page-description" style="color: #B0B5C0;">页面描述将自动设置</p>
+            </div>
+            <!-- 页面特定的操作按钮可以放在这里 -->
+            <div>
+              <!-- 示例按钮 -->
+              <!-- <button class="btn-primary px-4 py-2 text-sm font-medium flex items-center space-x-2">
+                <i class="fas fa-plus"></i>
+                <span>新增</span>
+              </button> -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 页面主要内容区域 -->
+        <div class="mb-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="px-6 py-4" style="border-bottom: 1px solid #2E333F;">
+            <h3 class="text-lg font-medium text-white">内容区域标题</h3>
+          </div>
+          <div class="p-6">
+            <!-- 在这里添加页面具体内容 -->
+            <p class="text-white">这是页面内容区域，请根据需要添加具体内容。</p>
+          </div>
+        </div>
+
+        <!-- 更多内容区域可以继续添加 -->
+      </main>
+    </div>
+  </div>
+
+  <!-- 页面特定的模态框或其他组件可以放在这里 -->
+
+  <!-- 引入公共JavaScript -->
+  <script src="./js/common.js"></script>
+  
+  <!-- 页面特定的JavaScript -->
+  <script>
+    // 页面特定的JavaScript代码
+    document.addEventListener('DOMContentLoaded', function() {
+      // 页面初始化完成后的额外操作
+      console.log('页面加载完成');
+      
+      // 如果需要自定义页面标题，可以使用：
+      // CommonUtils.setPageTitle('custom-page-name');
+      
+      // 如果需要更新余额，可以使用：
+      // CommonUtils.updateBalance({ available: '$3,000.00' });
+    });
+  </script>
+</body>
+</html> 
