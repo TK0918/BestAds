@@ -523,7 +523,7 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2">支付平台 *</label>
-              <select required class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select id="transferPlatform" required class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">请选择支付平台</option>
                 <option>Wise</option>
                 <option>Stripe</option>
@@ -533,15 +533,18 @@
                 <option>Worldfirst</option>
                 <option>Others</option>
               </select>
+              <div id="transferPlatformError" class="text-red-400 text-sm mt-1 hidden">请选择支付平台</div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">平台的支付ID</label>
-              <input type="text" placeholder="可选，支付平台返回的ID" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <label class="block text-sm font-medium text-gray-300 mb-2">平台的支付ID *</label>
+              <input type="text" id="transferPaymentId" placeholder="请输入支付平台返回的ID" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <div id="transferPaymentIdError" class="text-red-400 text-sm mt-1 hidden">请输入支付平台的支付ID</div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">上传附件</label>
-              <input type="file" multiple accept="image/*,.pdf,.doc,.docx" class="w-full text-gray-300 bg-slate-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <label class="block text-sm font-medium text-gray-300 mb-2">上传附件 *</label>
+              <input type="file" id="transferAttachment" multiple accept="image/*,.pdf,.doc,.docx" class="w-full text-gray-300 bg-slate-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <div class="text-xs text-gray-400 mt-1">最多可上传10个文件，支持jpg/png/pdf格式</div>
+              <div id="transferAttachmentError" class="text-red-400 text-sm mt-1 hidden">请上传转账凭证</div>
             </div>
           </div>
           <div class="flex justify-end space-x-3 mt-6">
@@ -662,6 +665,44 @@
     // 处理线下转账表单提交
     function handleOfflineTransfer(event) {
       event.preventDefault();
+      
+      const platform = document.getElementById('transferPlatform').value;
+      const paymentId = document.getElementById('transferPaymentId').value.trim();
+      const attachment = document.getElementById('transferAttachment').files;
+      
+      const platformError = document.getElementById('transferPlatformError');
+      const paymentIdError = document.getElementById('transferPaymentIdError');
+      const attachmentError = document.getElementById('transferAttachmentError');
+      
+      // 重置错误提示
+      platformError.classList.add('hidden');
+      paymentIdError.classList.add('hidden');
+      attachmentError.classList.add('hidden');
+      
+      let hasError = false;
+      
+      // 验证支付平台
+      if (!platform) {
+        platformError.classList.remove('hidden');
+        hasError = true;
+      }
+      
+      // 验证支付ID
+      if (!paymentId) {
+        paymentIdError.classList.remove('hidden');
+        hasError = true;
+      }
+      
+      // 验证附件
+      if (!attachment || attachment.length === 0) {
+        attachmentError.classList.remove('hidden');
+        hasError = true;
+      }
+      
+      // 如果有错误，停止提交
+      if (hasError) {
+        return false;
+      }
       
       // 关闭线下转账弹窗
       closeModal('offlineTransferModal');
