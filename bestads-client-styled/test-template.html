@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模板管理测试</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .input-field {
+      background-color: #374151;
+      border: 1px solid #4B5563;
+      color: #F9FAFB;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      width: 100%;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #00FFB0;
+      box-shadow: 0 0 0 3px rgba(0, 255, 176, 0.1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #00FFB0 0%, #00D4AA 100%);
+      color: #000;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 255, 176, 0.3);
+    }
+    .btn-secondary {
+      background-color: #374151;
+      color: #F9FAFB;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 1px solid #4B5563;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background-color: #4B5563;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen" style="background-color: #1A1F2B;">
+  <div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold text-white mb-8">模板管理功能测试</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- 模板列表 -->
+      <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+        <h2 class="text-xl font-semibold text-white mb-4">模板列表</h2>
+        <div id="templateList" class="space-y-4">
+          <!-- 模板数据将在这里显示 -->
+        </div>
+      </div>
+      
+      <!-- 模板编辑表单 -->
+      <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+        <h2 class="text-xl font-semibold text-white mb-4">模板编辑</h2>
+        <form id="templateForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">模板名称 *</label>
+            <input type="text" name="templateName" class="input-field" placeholder="请输入模板名称" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">媒体平台 *</label>
+            <select name="platform" class="input-field" required>
+              <option value="">请选择媒体平台</option>
+              <option value="Facebook">Facebook</option>
+            </select>
+          </div>
+          <div class="flex space-x-4">
+            <button type="submit" class="btn-primary">保存模板</button>
+            <button type="button" onclick="resetForm()" class="btn-secondary">重置</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 模板数据
+    let templateData = [
+      {
+        id: 'template1',
+        name: '电商产品推广模板',
+        platform: 'Facebook',
+        objective: '转化量',
+        creator: '张三',
+        createTime: '2024-01-15 10:30:00',
+        modifier: '李四',
+        modifyTime: '2024-01-20 14:20:00'
+      },
+      {
+        id: 'template2',
+        name: '品牌推广模板',
+        platform: 'Facebook',
+        objective: '覆盖人数',
+        creator: '王五',
+        createTime: '2024-01-10 09:15:00',
+        modifier: '王五',
+        modifyTime: '2024-01-10 09:15:00'
+      }
+    ];
+
+    let currentEditingTemplate = null;
+    let templateHasChanges = false;
+
+    // 渲染模板列表
+    function renderTemplateList() {
+      const container = document.getElementById('templateList');
+      container.innerHTML = templateData.map(template => `
+        <div class="bg-slate-700 rounded-lg p-4 border border-slate-600">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-semibold text-white">${template.name}</h3>
+            <div class="flex space-x-2">
+              <button onclick="editTemplate('${template.id}')" class="btn-secondary px-3 py-1 text-sm">
+                <i class="fas fa-edit mr-1"></i>编辑
+              </button>
+              <button onclick="deleteTemplate('${template.id}')" class="btn-secondary px-3 py-1 text-sm" style="color: #EF4444;">
+                <i class="fas fa-trash mr-1"></i>删除
+              </button>
+            </div>
+          </div>
+          <div class="text-sm text-gray-400 space-y-1">
+            <div>平台：${template.platform}</div>
+            <div>目标：${template.objective}</div>
+            <div>创建人：${template.creator}</div>
+            <div>创建时间：${template.createTime}</div>
+            <div>修改人：${template.modifier}</div>
+            <div>修改时间：${template.modifyTime}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 编辑模板
+    function editTemplate(templateId) {
+      const template = templateData.find(t => t.id === templateId);
+      if (template) {
+        currentEditingTemplate = template;
+        templateHasChanges = false;
+        
+        const form = document.getElementById('templateForm');
+        form.querySelector('input[name="templateName"]').value = template.name;
+        form.querySelector('select[name="platform"]').value = template.platform;
+        
+        alert(`正在编辑模板：${template.name}`);
+      }
+    }
+
+    // 删除模板
+    function deleteTemplate(templateId) {
+      const template = templateData.find(t => t.id === templateId);
+      if (template) {
+        if (confirm(`确定要删除模板"${template.name}"吗？此操作不可恢复。`)) {
+          templateData = templateData.filter(t => t.id !== templateId);
+          renderTemplateList();
+          alert('模板删除成功！');
+        }
+      }
+    }
+
+    // 重置表单
+    function resetForm() {
+      const form = document.getElementById('templateForm');
+      form.reset();
+      currentEditingTemplate = null;
+      templateHasChanges = false;
+      alert('表单已重置');
+    }
+
+    // 表单提交处理
+    document.getElementById('templateForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const templateName = formData.get('templateName');
+      const platform = formData.get('platform');
+      
+      if (!templateName || !templateName.trim()) {
+        alert('请输入模板名称');
+        return;
+      }
+      
+      if (!platform) {
+        alert('请选择媒体平台');
+        return;
+      }
+
+      if (currentEditingTemplate) {
+        // 编辑现有模板
+        const index = templateData.findIndex(t => t.id === currentEditingTemplate.id);
+        if (index !== -1) {
+          templateData[index] = {
+            ...templateData[index],
+            name: templateName,
+            platform: platform,
+            modifier: '当前用户',
+            modifyTime: new Date().toLocaleString('zh-CN')
+          };
+        }
+        alert('模板更新成功！');
+      } else {
+        // 创建新模板
+        const newTemplate = {
+          id: 'template' + Date.now(),
+          name: templateName,
+          platform: platform,
+          objective: '转化量',
+          creator: '当前用户',
+          createTime: new Date().toLocaleString('zh-CN'),
+          modifier: '当前用户',
+          modifyTime: new Date().toLocaleString('zh-CN')
+        };
+        templateData.unshift(newTemplate);
+        alert('模板创建成功！');
+      }
+      
+      renderTemplateList();
+      this.reset();
+      currentEditingTemplate = null;
+      templateHasChanges = false;
+    });
+
+    // 监听表单变化
+    document.getElementById('templateForm').addEventListener('input', function() {
+      templateHasChanges = true;
+    });
+
+    document.getElementById('templateForm').addEventListener('change', function() {
+      templateHasChanges = true;
+    });
+
+    // 页面加载时渲染模板列表
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTemplateList();
+    });
+  </script>
+</body>
+</html> 

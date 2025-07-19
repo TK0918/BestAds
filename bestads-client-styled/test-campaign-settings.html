@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campaign层设置测试</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .input-field {
+      background-color: #374151;
+      border: 1px solid #4B5563;
+      color: #F9FAFB;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      width: 100%;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #00FFB0;
+      box-shadow: 0 0 0 3px rgba(0, 255, 176, 0.1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #00FFB0 0%, #00D4AA 100%);
+      color: #000;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 255, 176, 0.3);
+    }
+    .btn-secondary {
+      background-color: #374151;
+      color: #F9FAFB;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 1px solid #4B5563;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background-color: #4B5563;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen" style="background-color: #1A1F2B;">
+  <div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold text-white mb-8">Campaign层设置测试</h1>
+    
+    <div class="max-w-4xl mx-auto">
+      <!-- Campaign层设置 -->
+      <div class="bg-slate-800 rounded-lg p-6 border border-slate-700 mb-6">
+        <h2 class="text-xl font-semibold text-white mb-4">Campaign层设置</h2>
+        
+        <!-- Campaign名规则 -->
+        <div class="mb-6">
+          <div class="flex items-center mb-2">
+            <input type="checkbox" id="campaignNameCheckbox" class="mr-2">
+            <label class="text-sm font-medium text-gray-300">Campaign名规则</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input type="text" id="campaignNameRule" class="input-field flex-1" placeholder="如：新产品推广" oninput="updateCampaignNamePreview()">
+            <div class="flex items-center space-x-2">
+              <select id="campaignNameTag" class="input-field" style="width: 120px;" onchange="updateCampaignNamePreview()">
+                <option value="">无标签</option>
+                <option value="date">创建日期</option>
+                <option value="random">随机标识</option>
+              </select>
+              <select id="campaignNameSeparator" class="input-field" style="width: 80px;" onchange="updateCampaignNamePreview()">
+                <option value="_">_</option>
+                <option value="-">-</option>
+                <option value="#">#</option>
+                <option value=".">.</option>
+              </select>
+            </div>
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            预览：<span id="campaignNamePreview" class="text-green-400">新产品推广</span>
+          </div>
+        </div>
+        
+        <!-- 推广目标 -->
+        <div class="mb-6">
+          <div class="flex items-center mb-2">
+            <input type="checkbox" id="campaignObjectiveCheckbox" class="mr-2">
+            <label class="text-sm font-medium text-gray-300">推广目标</label>
+          </div>
+          <select class="input-field w-full">
+            <option value="CONVERSIONS">转化量</option>
+            <option value="REACH">覆盖人数</option>
+            <option value="TRAFFIC">网站流量</option>
+            <option value="AWARENESS">品牌认知</option>
+            <option value="LEAD_GENERATION">潜在客户</option>
+          </select>
+        </div>
+        
+        <!-- 预算类型 -->
+        <div class="mb-6">
+          <div class="flex items-center mb-2">
+            <input type="checkbox" id="campaignBudgetCheckbox" class="mr-2">
+            <label class="text-sm font-medium text-gray-300">预算类型</label>
+          </div>
+          <div class="flex items-center space-x-6">
+            <label class="flex items-center">
+              <input type="radio" name="budgetType" value="campaign" class="mr-2" onchange="toggleBudgetType()">推广系列预算
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="budgetType" value="adset" class="mr-2" checked onchange="toggleBudgetType()">广告组预算
+            </label>
+          </div>
+        </div>
+        
+        <!-- Campaign预算设置 -->
+        <div id="campaignBudgetSettings" class="hidden">
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-2 text-gray-300">预算类型</label>
+            <div class="flex items-center space-x-6">
+              <label class="flex items-center">
+                <input type="radio" name="campaignBudgetType" value="daily" checked class="mr-2" onchange="toggleCampaignBudgetType()">日预算
+              </label>
+              <label class="flex items-center">
+                <input type="radio" name="campaignBudgetType" value="lifetime" class="mr-2" onchange="toggleCampaignBudgetType()">总预算
+              </label>
+            </div>
+          </div>
+          <div id="campaignDailyBudget" class="mb-4">
+            <label class="block text-sm font-medium mb-2 text-gray-300">日预算金额</label>
+            <div class="flex items-center space-x-2">
+              <input type="number" id="campaignDailyBudgetAmount" class="input-field flex-1" placeholder="请输入日预算金额" min="0" step="0.01">
+              <span class="text-gray-400">USD</span>
+            </div>
+          </div>
+          <div id="campaignLifetimeBudget" class="mb-4 hidden">
+            <label class="block text-sm font-medium mb-2 text-gray-300">总预算金额</label>
+            <div class="flex items-center space-x-2">
+              <input type="number" id="campaignLifetimeBudgetAmount" class="input-field flex-1" placeholder="请输入总预算金额" min="0" step="0.01">
+              <span class="text-gray-400">USD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 测试结果 -->
+      <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+        <h2 class="text-xl font-semibold text-white mb-4">测试结果</h2>
+        <div id="testResults" class="text-sm text-gray-300 space-y-2">
+          <div>Campaign名称：<span id="resultName" class="text-green-400">-</span></div>
+          <div>预算类型：<span id="resultBudgetType" class="text-green-400">-</span></div>
+          <div>预算金额：<span id="resultBudgetAmount" class="text-green-400">-</span></div>
+        </div>
+        <button onclick="updateTestResults()" class="btn-primary mt-4">更新测试结果</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 预算类型切换
+    function toggleBudgetType() {
+      const budgetType = document.querySelector('input[name="budgetType"]:checked').value;
+      const campaignBudget = document.getElementById('campaignBudgetSettings');
+      
+      if (budgetType === 'campaign') {
+        if (campaignBudget) campaignBudget.classList.remove('hidden');
+      } else {
+        if (campaignBudget) campaignBudget.classList.add('hidden');
+      }
+    }
+
+    // Campaign预算类型切换
+    function toggleCampaignBudgetType() {
+      const budgetType = document.querySelector('input[name="campaignBudgetType"]:checked').value;
+      const dailyBudget = document.getElementById('campaignDailyBudget');
+      const lifetimeBudget = document.getElementById('campaignLifetimeBudget');
+      
+      if (budgetType === 'daily') {
+        if (dailyBudget) dailyBudget.classList.remove('hidden');
+        if (lifetimeBudget) lifetimeBudget.classList.add('hidden');
+      } else {
+        if (dailyBudget) dailyBudget.classList.add('hidden');
+        if (lifetimeBudget) lifetimeBudget.classList.remove('hidden');
+      }
+    }
+
+    // 更新Campaign名称预览
+    function updateCampaignNamePreview() {
+      const baseName = document.getElementById('campaignNameRule').value || '新产品推广';
+      const tag = document.getElementById('campaignNameTag').value;
+      const separator = document.getElementById('campaignNameSeparator').value;
+      const preview = document.getElementById('campaignNamePreview');
+      
+      let previewText = baseName;
+      
+      if (tag) {
+        let tagValue = '';
+        switch(tag) {
+          case 'date':
+            tagValue = new Date().toLocaleDateString('zh-CN').replace(/\//g, '');
+            break;
+          case 'random':
+            tagValue = Math.random().toString(36).substring(2, 8).toUpperCase();
+            break;
+        }
+        if (tagValue) {
+          previewText += separator + tagValue;
+        }
+      }
+      
+      if (preview) {
+        preview.textContent = previewText;
+      }
+    }
+
+
+
+    // 更新测试结果
+    function updateTestResults() {
+      const nameResult = document.getElementById('resultName');
+      const budgetTypeResult = document.getElementById('resultBudgetType');
+      const budgetAmountResult = document.getElementById('resultBudgetAmount');
+      
+      // Campaign名称
+      const baseName = document.getElementById('campaignNameRule').value || '新产品推广';
+      const tag = document.getElementById('campaignNameTag').value;
+      const separator = document.getElementById('campaignNameSeparator').value;
+      
+      let campaignName = baseName;
+      if (tag) {
+        let tagValue = '';
+        switch(tag) {
+          case 'date':
+            tagValue = new Date().toLocaleDateString('zh-CN').replace(/\//g, '');
+            break;
+          case 'random':
+            tagValue = Math.random().toString(36).substring(2, 8).toUpperCase();
+            break;
+        }
+        if (tagValue) {
+          campaignName += separator + tagValue;
+        }
+      }
+      
+      // 预算类型
+      const budgetType = document.querySelector('input[name="budgetType"]:checked').value;
+      const budgetTypeText = budgetType === 'campaign' ? '推广系列预算' : '广告组预算';
+      
+      // 预算金额
+      let budgetAmount = '-';
+      if (budgetType === 'campaign') {
+        const campaignBudgetType = document.querySelector('input[name="campaignBudgetType"]:checked').value;
+        if (campaignBudgetType === 'daily') {
+          const dailyAmount = document.getElementById('campaignDailyBudgetAmount').value;
+          budgetAmount = dailyAmount ? `$${dailyAmount}/天` : '-';
+        } else {
+          const lifetimeAmount = document.getElementById('campaignLifetimeBudgetAmount').value;
+          budgetAmount = lifetimeAmount ? `$${lifetimeAmount}` : '-';
+        }
+      }
+      
+      // 更新显示
+      if (nameResult) nameResult.textContent = campaignName;
+      if (budgetTypeResult) budgetTypeResult.textContent = budgetTypeText;
+      if (budgetAmountResult) budgetAmountResult.textContent = budgetAmount;
+    }
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      updateCampaignNamePreview();
+      updateTestResults();
+    });
+  </script>
+</body>
+</html> 

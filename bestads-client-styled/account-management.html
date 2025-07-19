@@ -155,16 +155,16 @@
       <!-- Logo -->
       <div class="pt-6 px-8">
         <h1 class="text-white text-2xl font-semibold">BestAds</h1>
-      </div>
+        </div>
 
-      <!-- 导航菜单 -->
+        <!-- 导航菜单 -->
       <nav class="mt-8 flex-1">
         <ul class="space-y-2 px-4">
           <li>
             <a href="index.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
               <i class="fas fa-home mr-3" style="color: #B0B5C0;"></i>
               <span>首页</span>
-            </a>
+          </a>
           </li>
           <li>
             <a href="account-management.html" class="sidebar-item active flex items-center px-4 py-3 text-white rounded-md" style="background-color: #2A2F3D; color: #00FFB0;">
@@ -182,6 +182,12 @@
             <a href="ad-review-notifications.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
               <i class="fas fa-bell mr-3" style="color: #B0B5C0;"></i>
               <span>被拒广告</span>
+          </a>
+          </li>
+          <li>
+            <a href="ad-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-ad mr-3" style="color: #B0B5C0;"></i>
+              <span>广告管理</span>
             </a>
           </li>
           <li>
@@ -191,14 +197,14 @@
             </a>
           </li>
         </ul>
-      </nav>
+        </nav>
 
       <!-- 用户信息 -->
       <div class="p-4 border-t border-gray-600">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-            <span class="text-white text-sm font-medium">A</span>
-          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
           <div>
             <p class="text-sm font-medium text-white">管理员</p>
             <p class="text-xs text-gray-400">admin@bestads.com</p>
@@ -222,27 +228,27 @@
             <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
               <i class="fas fa-bell text-lg"></i>
               <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
-            </button>
+          </button>
           </div>
           <!-- 新增余额信息 -->
           <div class="relative group flex items-center">
             <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
               <i class="fas fa-wallet mr-2"></i>
               <span id="balanceAmount">$2,900.00</span>
-            </button>
+          </button>
             <!-- 悬浮详细信息 -->
             <div class="absolute right-0 top-10 z-50 hidden group-hover:block rounded-lg shadow-lg p-4 min-w-[220px] text-sm" style="background-color: #0F121A; border: 1px solid #2E333F; color: #B0B5C0;">
               <div class="mb-2 flex items-center justify-between">
                 <span>可用余额</span><span class="font-bold" style="color: #00FFB0;">$2,900.00</span>
-              </div>
+        </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>真实金额</span><span>$2,800.00</span>
-              </div>
+      </div>
               <div class="mb-1 flex items-center justify-between">
                 <span>冻结金额</span><span>$100.00</span>
+    </div>
               </div>
             </div>
-          </div>
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
               <span class="text-white text-sm font-medium">A</span>
@@ -256,18 +262,18 @@
     <!-- 主要内容区域 -->
     <main style="padding: 24px;">
 
-      <!-- 筛选区域 -->
+    <!-- 筛选区域 -->
       <div class="shadow-lg mb-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
         <div class="px-6 py-4 border-b border-gray-600">
           <h3 class="text-lg font-medium text-white">筛选条件</h3>
-        </div>
-        <div class="p-6">
+      </div>
+      <div class="p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
+          <div>
               <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告账户</label>
               <input type="text" id="accountSearch" placeholder="支持名称和ID模糊查询" class="input-field w-full">
-            </div>
-            <div>
+          </div>
+          <div>
               <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">账户状态</label>
               <div class="relative">
                 <button type="button" id="statusDropdownBtn" onclick="toggleStatusDropdown()" class="input-field w-full flex items-center justify-between">
@@ -292,20 +298,20 @@
                       <input type="checkbox" value="disabled" onchange="updateStatusFilter()" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                       <span class="text-sm text-white">已禁用</span>
                     </label>
-                  </div>
+          </div>
                 </div>
               </div>
-            </div>
-            <div class="flex items-end">
+          </div>
+          <div class="flex items-end">
               <button onclick="performSearch()" class="btn-primary w-full font-medium">
-                <i class="fas fa-search mr-2"></i>搜索
-              </button>
-            </div>
+              <i class="fas fa-search mr-2"></i>搜索
+            </button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- 账户列表表格 -->
+    <!-- 账户列表表格 -->
       <div class="shadow-lg overflow-hidden" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
         <div class="flex items-center justify-between" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">
           <h3 class="text-lg font-medium text-white">账户列表</h3>
@@ -320,11 +326,11 @@
               <span>批量充值</span>
             </button>
           </div>
-        </div>
-        <div class="overflow-x-auto">
+      </div>
+      <div class="overflow-x-auto">
           <table class="min-w-full table-hover" style="border-collapse: separate; border-spacing: 0;">
             <thead style="background-color: #1A1F2B;">
-              <tr>
+            <tr>
                 <th class="text-left text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;">广告账户名称</th>
                 <th class="text-left text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;">广告账户ID</th>
                 <th class="text-left text-xs font-medium uppercase tracking-wider cursor-pointer select-none transition-all duration-200" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;" onclick="sortTable('status')" onmouseover="this.style.backgroundColor='#242A3A'" onmouseout="this.style.backgroundColor='transparent'">
@@ -356,127 +362,127 @@
                     </div>
                   </div>
                 </th>
-              </tr>
-            </thead>
+            </tr>
+          </thead>
             <tbody style="background-color: #1A1F2B;">
               <tr style="border-bottom: 1px solid #2E333F;">
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">测试广告账户01</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">FB001234567</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="status-active inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                    活跃
-                  </span>
-                </td>
+                  活跃
+                </span>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">USD</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">1,200.50</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">UTC+8</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap text-sm" style="padding: 12px 16px; color: #B0B5C0;">
-                  2024-01-15
-                </td>
-              </tr>
+                2024-01-15
+              </td>
+            </tr>
               <tr style="border-bottom: 1px solid #2E333F;">
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">测试广告账户02</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">FB001234568</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="status-active inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                    活跃
-                  </span>
-                </td>
+                  活跃
+                </span>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">USD</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">850.75</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">UTC+8</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap text-sm" style="padding: 12px 16px; color: #B0B5C0;">
                   2024-02-10
-                </td>
-              </tr>
+              </td>
+            </tr>
               <tr style="border-bottom: 1px solid #2E333F;">
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">测试广告账户03</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">FB001234569</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="status-pending inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                    待审核
-                  </span>
-                </td>
+                  待审核
+                </span>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">USD</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">2,150.00</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">UTC+0</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap text-sm" style="padding: 12px 16px; color: #B0B5C0;">
                   2024-02-15
-                </td>
-              </tr>
+              </td>
+            </tr>
               <tr style="border-bottom: 1px solid #2E333F;">
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">Google广告账户01</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">GG001234570</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="status-active inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                    活跃
-                  </span>
-                </td>
+                  活跃
+                </span>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">USD</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm font-medium text-white">530.25</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap" style="padding: 12px 16px;">
                   <span class="text-sm" style="color: #B0B5C0;">UTC-5</span>
-                </td>
+              </td>
                 <td class="whitespace-nowrap text-sm" style="padding: 12px 16px; color: #B0B5C0;">
                   2024-01-08
-                </td>
-              </tr>
+              </td>
+            </tr>
           </tbody>
                          </table>
                </div>
              </div>
   </main>
 
-    <!-- 开户申请模态框 -->
+  <!-- 开户申请模态框 -->
     <div id="accountModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
-      <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="flex items-center justify-center min-h-screen px-4">
         <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
           <div class="px-6 py-4 border-b border-gray-600">
-            <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between">
               <h3 class="text-lg font-medium text-white">申请开户</h3>
               <button onclick="closeModal('accountModal')" class="text-gray-400 hover:text-white transition-colors duration-200">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
+              <i class="fas fa-times"></i>
+            </button>
           </div>
+        </div>
                   <form class="px-6 py-4" id="accountOpeningForm">
           <div class="space-y-4">
             <!-- 投放URL列表 -->
@@ -486,7 +492,7 @@
                 <button type="button" onclick="addUrlField()" class="text-blue-400 hover:text-blue-300 text-sm flex items-center">
                   <i class="fas fa-plus mr-1"></i>添加
                 </button>
-              </div>
+            </div>
               <div id="urlContainer">
                 <div class="url-item flex items-center space-x-2 mb-2">
                   <input type="url" name="urls[]" placeholder="请输入要投放的网站URL" required class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -519,12 +525,12 @@
                     <tr class="account-config-row">
                       <td class="px-4 py-3">
                         <select name="timezones[]" required class="w-full px-3 py-2 bg-slate-600 border border-gray-500 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                          <option value="">请选择时区</option>
-                          <option value="UTC+8">UTC+8 (北京时间)</option>
-                          <option value="UTC+0">UTC+0 (格林威治时间)</option>
-                          <option value="UTC-5">UTC-5 (美国东部时间)</option>
-                          <option value="UTC-8">UTC-8 (美国西部时间)</option>
-                        </select>
+                <option value="">请选择时区</option>
+                <option value="UTC+8">UTC+8 (北京时间)</option>
+                <option value="UTC+0">UTC+0 (格林威治时间)</option>
+                <option value="UTC-5">UTC-5 (美国东部时间)</option>
+                <option value="UTC-8">UTC-8 (美国西部时间)</option>
+              </select>
                       </td>
                       <td class="px-4 py-3">
                         <input type="number" name="quantities[]" min="1" max="5" value="1" required class="w-full px-3 py-2 bg-slate-600 border border-gray-500 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -537,21 +543,21 @@
                     </tr>
                   </tbody>
                 </table>
-              </div>
+            </div>
               <p class="mt-1 text-sm text-gray-400">单次申请总数量不可超过5个</p>
             </div>
             
             <!-- BM信息 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+            <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">BM ID</label>
                 <input type="text" name="bmId" placeholder="请输入BM ID" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              </div>
-              <div>
+            </div>
+            <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">BM名称</label>
                 <input type="text" name="bmName" placeholder="请输入BM名称" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              </div>
             </div>
+          </div>
             
             <!-- Facebook Page列表 -->
             <div>
@@ -559,31 +565,31 @@
                 <label class="block text-sm font-medium text-gray-300">Facebook Page</label>
                 <button type="button" onclick="addPageField()" class="text-blue-400 hover:text-blue-300 text-sm flex items-center">
                   <i class="fas fa-plus mr-1"></i>添加
-                </button>
-              </div>
+            </button>
+          </div>
               <div id="pageContainer">
                 <div class="page-item flex items-center space-x-2 mb-2">
                   <input type="url" name="pages[]" placeholder="请输入Facebook Page链接（可选）" class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
               <p class="mt-1 text-sm text-gray-400">部分客户开户需要提供Facebook Page，最多20个</p>
             </div>
           </div>
-            <div class="flex justify-end space-x-3 mt-6">
+          <div class="flex justify-end space-x-3 mt-6">
               <button type="button" onclick="closeModal('accountModal')" class="px-4 py-2 text-sm font-medium text-gray-300 bg-slate-700 border border-gray-600 rounded-md hover:bg-slate-600 transition-colors duration-200">
-                取消
-              </button>
-              <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
-                提交申请
-              </button>
-            </div>
-          </form>
-        </div>
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
+              提交申请
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
   <!-- 批量充值申请模态框 -->
   <div id="batchRechargeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
@@ -623,7 +629,7 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                    </div>
                 <!-- 新增：全选/取消全选和已选中账户数 -->
                 <div class="flex flex-wrap items-center justify-between gap-2 mt-3 text-sm text-gray-600">
                   <div class="flex items-center gap-2">
@@ -634,7 +640,7 @@
                       <i class="fas fa-square mr-1"></i>取消全选
                     </button>
                   </div>
-                  <span id="selectedInfo" class="text-blue-600 font-medium">已选中 0 个账户</span>
+                    <span id="selectedInfo" class="text-blue-600 font-medium">已选中 0 个账户</span>
                 </div>
               </div>
               

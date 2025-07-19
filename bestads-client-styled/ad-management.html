@@ -1,0 +1,3497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广告管理 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    /* 步骤指示器样式 */
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #2A2F3D;
+      color: #B0B5C0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .step-indicator.active .step-number {
+      background-color: #00FFB0;
+      color: #000;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #B0B5C0;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .step-indicator.active .step-label {
+      color: #00FFB0;
+    }
+
+    .step-line {
+      width: 60px;
+      height: 2px;
+      background-color: #2A2F3D;
+      margin: 0 20px;
+      align-self: flex-start;
+      margin-top: 20px;
+    }
+
+    /* 模版卡片悬停效果 */
+    .template-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 255, 176, 0.1);
+    }
+
+    .template-card {
+      transition: all 0.3s ease;
+    }
+
+    /* 禁用按钮样式 */
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button:disabled:hover {
+      transform: none;
+      background-color: inherit;
+    }
+
+    /* 页面状态显示/隐藏 */
+    .page-view {
+      display: none;
+      min-height: calc(100vh - 56px); /* 只在这里设置一次 */
+      width: 100%;
+    }
+
+    .page-view.active {
+      display: block;
+    }
+
+    /* 确保主内容区域有正确的高度 */
+    .main-content {
+      /* min-height: 100vh; */
+      position: relative;
+    }
+
+    /* 优化：移除.page-view main的min-height设置，只保留width:100% */
+    .page-view main {
+      width: 100%;
+    }
+
+    /* 树结构图标按钮样式 */
+    .action-icon-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: rgba(55, 65, 81, 0.5);
+      border: 1px solid rgba(107, 114, 128, 0.3);
+      color: #9CA3AF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .action-icon-btn:hover {
+      background: rgba(75, 85, 99, 0.8);
+      border-color: rgba(107, 114, 128, 0.6);
+      color: #D1D5DB;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen">
+  <!-- 左侧边栏 -->
+  <div class="fixed inset-y-0 left-0 z-50 bg-slate-800 shadow-lg" style="width: 220px; background-color: #0F121A;">
+    <div class="flex h-full flex-col">
+      <!-- Logo -->
+      <div class="pt-6 px-8">
+        <h1 class="text-white text-2xl font-semibold">BestAds</h1>
+      </div>
+      
+      <!-- Navigation -->
+      <nav class="mt-8 flex-1">
+        <ul class="space-y-2 px-4">
+          <li>
+            <a href="index.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-home mr-3" style="color: #B0B5C0;"></i>
+              <span>首页</span>
+            </a>
+          </li>
+          <li>
+            <a href="account-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-users mr-3" style="color: #B0B5C0;"></i>
+              <span>账户管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="operation-records.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-history mr-3" style="color: #B0B5C0;"></i>
+              <span>操作记录</span>
+            </a>
+          </li>
+          <li>
+            <a href="ad-review-notifications.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-bell mr-3" style="color: #B0B5C0;"></i>
+              <span>被拒广告</span>
+            </a>
+          </li>
+          <li>
+            <a href="ad-management.html" class="sidebar-item active flex items-center px-4 py-3 text-white rounded-md" style="background-color: #2A2F3D; color: #00FFB0;">
+              <i class="fas fa-ad mr-3" style="color: #00FFB0;"></i>
+              <span>广告管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="wallet.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-wallet mr-3" style="color: #B0B5C0;"></i>
+              <span>余额管理</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- 主内容区域 -->
+  <div class="main-content" style="margin-left: 220px; background-color: #1A1F2B;">
+    <!-- Top Header -->
+    <header class="flex items-center justify-between px-6" style="height: 56px; background-color: #1A1F2B; border-bottom: 1px solid #2E333F;">
+      <div class="flex items-center space-x-4">
+        <h2 class="text-xl font-semibold text-white" id="pageTitle">广告管理</h2>
+        <!-- 面包屑导航 -->
+        <div class="flex items-center space-x-2 text-sm" id="breadcrumb" style="display: none;">
+          <span class="text-gray-400">/</span>
+          <button onclick="backToAdManagement()" class="text-blue-400 hover:text-blue-300">广告管理</button>
+          <span class="text-gray-400">/</span>
+          <span class="text-white" id="currentPageName">创建广告</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <!-- 批量创建广告按钮 -->
+        <button onclick="showPage('bulkCreate')" class="btn-primary px-6 py-3 text-base font-medium flex items-center space-x-2">
+          <i class="fas fa-layer-group"></i>
+          <span>批量创建广告</span>
+        </button>
+        <!-- Notification -->
+        <div class="relative group">
+          <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
+            <i class="fas fa-bell text-lg"></i>
+            <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+          </button>
+        </div>
+        
+        <!-- Language Selector -->
+        <select id="languageSelector" onchange="changeLanguage(this.value)" class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+        </select>
+        
+        <!-- User Avatar -->
+        <div class="relative group flex items-center">
+          <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
+            <i class="fas fa-wallet mr-2"></i>
+            <span id="balanceAmount">$2,900.00</span>
+          </button>
+          <!-- 悬浮详细信息 -->
+          <div class="absolute right-0 top-10 z-50 hidden group-hover:block rounded-lg shadow-lg p-4 min-w-[220px] text-sm" style="background-color: #0F121A; border: 1px solid #2E333F; color: #B0B5C0;">
+            <div class="mb-2 flex items-center justify-between">
+              <span>可用余额</span><span class="font-bold" style="color: #00FFB0;">$2,900.00</span>
+            </div>
+            <div class="mb-1 flex items-center justify-between">
+              <span>真实金额</span><span>$2,800.00</span>
+            </div>
+            <div class="mb-1 flex items-center justify-between">
+              <span>冻结金额</span><span>$100.00</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-medium">A</span>
+          </div>
+          <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 广告管理主页面 -->
+    <div id="adManagementPage" class="page-view active">
+      <!-- Content Area -->
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 id="mainPageTitle" class="text-2xl font-bold text-white mb-2">广告管理</h2>
+              <p id="mainPageDesc" class="text-gray-400">管理您的广告账户、推广系列、广告组和广告创意</p>
+            </div>
+            <div class="flex space-x-4">
+              <button onclick="openCreateAdModal()" class="btn-primary px-6 py-3 text-base font-medium flex items-center space-x-2">
+                <i class="fas fa-plus"></i>
+                <span id="createAdBtn">创建广告</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="shadow-lg" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="flex" style="border-bottom: 1px solid #2E333F;">
+            <button class="tab-active flex-1 py-3 text-center text-base font-medium" onclick="showTab('accounts')" id="tab-accounts">广告账户</button>
+            <button class="tab-inactive flex-1 py-3 text-center text-base font-medium" onclick="showTab('campaigns')" id="tab-campaigns">推广系列</button>
+            <button class="tab-inactive flex-1 py-3 text-center text-base font-medium" onclick="showTab('adsets')" id="tab-adsets">广告组</button>
+            <button class="tab-inactive flex-1 py-3 text-center text-base font-medium" onclick="showTab('ads')" id="tab-ads">广告</button>
+            <button class="tab-inactive flex-1 py-3 text-center text-base font-medium" onclick="showTab('templates')" id="tab-templates">模版管理</button>
+          </div>
+          <div class="p-6" id="tabContent">
+            <!-- Tab内容将在这里动态加载 -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 创建广告选择页面 -->
+    <div id="createSelectionPage" class="page-view">
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B; min-height: calc(100vh - 56px);">
+        <!-- 返回按钮 -->
+        <div class="mb-6">
+          <button onclick="backToAdManagement()" class="flex items-center text-gray-400 hover:text-white transition-colors duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>返回广告管理</span>
+          </button>
+        </div>
+
+        <!-- Page Title -->
+        <div class="mb-8">
+          <h2 id="createAdTitle" class="text-2xl font-bold text-white mb-2">创建广告</h2>
+          <p id="createAdDesc" class="text-gray-400">选择创建方式开始您的广告投放</p>
+        </div>
+
+        <!-- 创建方式选择 -->
+        <div class="max-w-4xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div onclick="startCreateAd('quick')" class="p-8 rounded-lg border-2 border-dashed cursor-pointer hover:border-green-400 transition-colors duration-200" style="border-color: #2E333F; background-color: #242A3A;">
+              <div class="text-center">
+                <i class="fas fa-bolt text-6xl mb-6" style="color: #00FFB0;"></i>
+                <h3 id="quickCreateTitle" class="text-2xl font-bold text-white mb-4">快速创建</h3>
+                <p id="quickCreateDesc" class="text-gray-400 mb-6">使用预设模版快速创建广告，节省时间提高效率</p>
+                <div class="text-sm text-gray-500">
+                  <div class="flex items-center justify-center space-x-4 mb-2">
+                    <span>✓ 模版选择</span>
+                    <span>✓ 配置账户</span>
+                    <span>✓ 快速发布</span>
+                  </div>
+                  <p>预计用时：5-10分钟</p>
+                </div>
+              </div>
+            </div>
+
+            <div onclick="startCreateAd('basic')" class="p-8 rounded-lg border-2 border-dashed cursor-pointer hover:border-blue-400 transition-colors duration-200" style="border-color: #2E333F; background-color: #242A3A;">
+              <div class="text-center">
+                <i class="fas fa-cog text-6xl mb-6" style="color: #4A90E2;"></i>
+                <h3 id="basicCreateTitle" class="text-2xl font-bold text-white mb-4">基础创建</h3>
+                <p id="basicCreateDesc" class="text-gray-400 mb-6">手动配置所有广告参数，实现精准投放控制</p>
+                <div class="text-sm text-gray-500">
+                  <div class="flex items-center justify-center space-x-4 mb-2">
+                    <span>✓ 详细配置</span>
+                    <span>✓ 精准控制</span>
+                    <span>✓ 高级设置</span>
+                  </div>
+                  <p>预计用时：15-30分钟</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 创建广告流程页面 -->
+    <div id="createFlowPage" class="page-view">
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B; min-height: calc(100vh - 56px);">
+        <!-- 返回按钮 -->
+        <div class="mb-6">
+          <button onclick="backToCreateSelection()" class="flex items-center text-gray-400 hover:text-white transition-colors duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>返回创建选择</span>
+          </button>
+        </div>
+
+        <!-- 步骤指示器 -->
+        <div class="mb-8">
+          <div class="flex items-center justify-center">
+            <div class="flex items-center space-x-4">
+              <div class="step-indicator active" id="step1">
+                <span class="step-number">1</span>
+                <span class="step-label">选择模版</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-indicator" id="step2">
+                <span class="step-number">2</span>
+                <span class="step-label">配置账户</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-indicator" id="step3">
+                <span class="step-number">3</span>
+                <span class="step-label">设置参数</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-indicator" id="step4">
+                <span class="step-number">4</span>
+                <span class="step-label">预览发布</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 步骤内容 -->
+        <div id="flowContent" class="max-w-6xl mx-auto">
+          <!-- 步骤内容将在这里动态加载 -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 模版管理模态框 -->
+  <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-slate-800 rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold text-white" id="templateModalTitle">创建模版</h3>
+        <button onclick="closeModal('templateModal')" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div id="templateContent">
+        <!-- 模版内容将在这里动态加载 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量创建广告页面（新） -->
+  <div id="bulkCreatePage" class="page-view" style="display:none;">
+    <main class="flex-1 flex justify-center items-start" style="padding: 0; background-color: #1A1F2B;">
+      <div class="w-full max-w-[1600px] px-2 md:px-8">
+        <div class="flex items-center mb-4 md:mb-6">
+          <button onclick="showPage('adManagement')" class="flex items-center text-gray-400 hover:text-white transition-colors duration-200 mr-4">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>返回广告管理</span>
+          </button>
+          <h2 class="text-2xl font-bold text-white">批量创建广告</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
+          <!-- 左侧：广告结构树 -->
+          <div class="col-span-1">
+            <h4 class="text-lg font-semibold text-white mb-2 md:mb-4">广告结构</h4>
+            <div id="adStructureTree" class="bg-[#242A3A] rounded-lg p-3 md:p-4 min-h-[300px] max-h-[600px] overflow-y-auto border border-[#2E333F]">
+              <!-- 树结构内容 -->
+            </div>
+            <div class="mt-2 md:mt-4 text-sm text-gray-400" id="adStats">广告统计：0个Campaign，0个Adset，0个Ad</div>
+            <div class="mt-2 md:mt-4"><button onclick="addNode()" class="btn-primary px-4 md:px-6 py-2">新增Campaign</button></div>
+          </div>
+          <!-- 右侧：表单区块 -->
+          <div class="col-span-2 space-y-4 md:space-y-8">
+            <!-- 资产选择区（表格形式） -->
+            <div class="bg-[#242A3A] rounded-lg p-4 md:p-6 border border-[#2E333F]">
+              <h4 class="text-lg font-semibold text-white mb-2 md:mb-4">选择资产</h4>
+              <table class="w-full text-white mb-2 md:mb-4">
+                <thead>
+                  <tr>
+                    <th class="py-2">广告账户 <span class="text-red-400">*</span></th>
+                    <th class="py-2">Page <span class="text-red-400">*</span></th>
+                    <th class="py-2">Pixel <span class="text-red-400">*</span></th>
+                    <th class="py-2">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="assetTableBody">
+                  <!-- 动态资产行 -->
+                </tbody>
+              </table>
+              <button onclick="addAssetRow()" class="btn-secondary px-3 md:px-4 py-2">添加资产</button>
+            </div>
+            <!-- 模板选择区 -->
+            <div class="bg-[#242A3A] rounded-lg p-4 md:p-6 border border-[#2E333F]">
+              <h4 class="text-lg font-semibold text-white mb-2 md:mb-4">选择模板</h4>
+              <select id="bulkTemplateSelect" class="input-field w-full">
+                <!-- 静态模板数据 -->
+              </select>
+              <div id="templateParamsPanel" class="mt-2 md:mt-4">
+                <!-- 模板参数折叠区 -->
+              </div>
+            </div>
+            <!-- 参数填写区 -->
+            <div class="bg-[#242A3A] rounded-lg p-4 md:p-6 border border-[#2E333F]">
+              <h4 class="text-lg font-semibold text-white mb-2 md:mb-4">广告参数填写</h4>
+              <div id="bulkParamForm">
+                <!-- 动态参数表单区块（分层级） -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end mt-4 md:mt-8 space-x-2 md:space-x-4">
+          <button onclick="showPage('adManagement')" class="btn-secondary px-6 md:px-8 py-3">取消</button>
+          <button onclick="submitBulkCreate()" class="btn-primary px-6 md:px-8 py-3">批量发布</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 新增模版编辑页面结构 -->
+  <div id="templateEditPage" class="page-view" style="display:none;">
+    <main class="flex justify-center items-start" style="background-color: #1A1F2B;">
+      <div class="w-full max-w-[900px] px-4 md:px-8 py-8">
+        <div class="flex items-center justify-between mb-8">
+          <button onclick="backToTemplateListWithCheck()" class="flex items-center text-gray-400 hover:text-white transition-colors duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>返回模版管理</span>
+          </button>
+          <button onclick="saveTemplate()" class="btn-primary px-6 py-3">保存模版</button>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-6" id="templateEditTitle">创建模版</h2>
+        <form id="templateEditForm" class="space-y-8">
+          <!-- 模版名称 -->
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">模版名称 *</label>
+            <input type="text" name="templateName" class="input-field w-full" placeholder="请输入模版名称" required>
+          </div>
+          <!-- 媒体平台 -->
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">媒体平台 *</label>
+            <select name="platform" class="input-field w-full" required>
+              <option value="">请选择媒体平台</option>
+              <option value="Facebook">Facebook</option>
+            </select>
+          </div>
+          <!-- Campaign层设置 -->
+          <div class="bg-[#242A3A] rounded-lg p-6 border border-[#2E333F] mb-4">
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleCollapse('campaignSettings')">
+              <h3 class="text-lg font-semibold text-white">Campaign层设置</h3>
+              <i class="fas fa-chevron-down" id="icon-campaignSettings"></i>
+            </div>
+            <div id="campaignSettings" class="mt-4">
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="campaignNameCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">Campaign名规则</label>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <input type="text" id="campaignNameRule" class="input-field flex-1" placeholder="如：新产品推广" oninput="updateCampaignNamePreview()">
+                  <div class="flex items-center space-x-2">
+                    <select id="campaignNameTag" class="input-field" style="width: 120px;" onchange="updateCampaignNamePreview()">
+                      <option value="">无标签</option>
+                      <option value="date">创建日期</option>
+                      <option value="random">随机标识</option>
+                    </select>
+                    <select id="campaignNameSeparator" class="input-field" style="width: 80px;" onchange="updateCampaignNamePreview()">
+                      <option value="_">_</option>
+                      <option value="-">-</option>
+                      <option value="#">#</option>
+                      <option value=".">.</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-400 mt-1">
+                  预览：<span id="campaignNamePreview" class="text-green-400">新产品推广</span>
+                </div>
+              </div>
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="campaignObjectiveCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">推广目标</label>
+                </div>
+                <select class="input-field w-full">
+                  <option value="CONVERSIONS">转化量</option>
+                  <option value="REACH">覆盖人数</option>
+                  <option value="TRAFFIC">网站流量</option>
+                  <option value="AWARENESS">品牌认知</option>
+                  <option value="LEAD_GENERATION">潜在客户</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="campaignBudgetCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">预算类型</label>
+                </div>
+                <div class="flex items-center space-x-6">
+                  <label class="flex items-center">
+                    <input type="radio" name="budgetType" value="campaign" class="mr-2" onchange="toggleBudgetType()">推广系列预算
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" name="budgetType" value="adset" class="mr-2" checked onchange="toggleBudgetType()">广告组预算
+                  </label>
+                </div>
+              </div>
+              <div id="campaignBudgetSettings" class="hidden">
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">预算类型</label>
+                  <div class="flex items-center space-x-6">
+                    <label class="flex items-center">
+                      <input type="radio" name="campaignBudgetType" value="daily" checked class="mr-2" onchange="toggleCampaignBudgetType()">日预算
+                    </label>
+                    <label class="flex items-center">
+                      <input type="radio" name="campaignBudgetType" value="lifetime" class="mr-2" onchange="toggleCampaignBudgetType()">总预算
+                    </label>
+                  </div>
+                </div>
+                <div id="campaignDailyBudget" class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">日预算金额</label>
+                  <div class="flex items-center space-x-2">
+                    <input type="number" id="campaignDailyBudgetAmount" class="input-field flex-1" placeholder="请输入日预算金额" min="0" step="0.01">
+                    <span class="text-gray-400">USD</span>
+                  </div>
+                </div>
+                <div id="campaignLifetimeBudget" class="mb-4 hidden">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">总预算金额</label>
+                  <div class="flex items-center space-x-2">
+                    <input type="number" id="campaignLifetimeBudgetAmount" class="input-field flex-1" placeholder="请输入总预算金额" min="0" step="0.01">
+                    <span class="text-gray-400">USD</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Adset层设置 -->
+          <div class="bg-[#242A3A] rounded-lg p-6 border border-[#2E333F] mb-4">
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleCollapse('adsetSettings')">
+              <h3 class="text-lg font-semibold text-white">Adset层设置</h3>
+              <i class="fas fa-chevron-down" id="icon-adsetSettings"></i>
+            </div>
+            <div id="adsetSettings" class="mt-4">
+              <!-- 广告组名称 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="adsetNameCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">广告组名称</label>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <input type="text" id="adsetNameRule" class="input-field flex-1" placeholder="如：受众" oninput="updateAdsetNamePreview()">
+                  <div class="flex items-center space-x-2">
+                    <select id="adsetNameTag" class="input-field" style="width: 120px;" onchange="updateAdsetNamePreview()">
+                      <option value="">无标签</option>
+                      <option value="date">创建日期</option>
+                      <option value="random">随机标识</option>
+                    </select>
+                    <select id="adsetNameSeparator" class="input-field" style="width: 80px;" onchange="updateAdsetNamePreview()">
+                      <option value="_">_</option>
+                      <option value="-">-</option>
+                      <option value="#">#</option>
+                      <option value=".">.</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-400 mt-1">
+                  预览：<span id="adsetNamePreview" class="text-green-400">受众</span>
+                </div>
+              </div>
+
+              <!-- 转化发生位置 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="conversionLocationCheckbox" class="mr-2" disabled>
+                  <label class="text-sm font-medium text-gray-400">转化发生位置</label>
+                </div>
+                <select class="input-field w-full">
+                  <option value="WEBSITE" selected>网站</option>
+                </select>
+              </div>
+
+              <!-- 成效目标 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="objectiveCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">成效目标</label>
+                </div>
+                <select class="input-field w-full" id="adsetObjective" onchange="updateObjectiveSettings()">
+                  <option value="MAX_CONVERSIONS">转化量最大化</option>
+                  <option value="MAX_VALUE">转化价值最大化</option>
+                  <option value="MAX_LANDING_PAGE_VIEWS">落地页浏览量最大化</option>
+                  <option value="MAX_LINK_CLICKS">链接点击最大化</option>
+                  <option value="MAX_UNIQUE_DAILY_REACH">单日独立覆盖人数最大化</option>
+                  <option value="MAX_IMPRESSIONS">展示次数最大化</option>
+                </select>
+              </div>
+
+              <!-- 单次成效费用目标 -->
+              <div class="mb-4" id="conversionCostSection" style="display: none;">
+                <label class="block text-sm font-medium mb-2 text-gray-300">单次成效费用目标</label>
+                <div class="flex items-center space-x-2">
+                  <input type="number" id="conversionCostInput" class="input-field flex-1" placeholder="请输入成本金额" min="0" step="0.01">
+                  <span class="text-gray-400">USD</span>
+                </div>
+              </div>
+
+              <!-- 广告花费汇报目标 -->
+              <div class="mb-4" id="spendTargetSection" style="display: none;">
+                <label class="block text-sm font-medium mb-2 text-gray-300">广告花费汇报目标</label>
+                <div class="flex items-center space-x-2">
+                  <input type="number" id="spendTargetInput" class="input-field flex-1" placeholder="请输入数值" min="0" step="0.01">
+                  <span class="text-gray-400">USD</span>
+                </div>
+              </div>
+
+              <!-- 归因设置 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="attributionCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">归因设置</label>
+                </div>
+                <div class="flex items-center space-x-6">
+                  <label class="flex items-center">
+                    <input type="radio" name="attributionType" value="standard" checked class="mr-2" onchange="toggleAttributionOptions()">标准归因
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" name="attributionType" value="incremental" class="mr-2" onchange="toggleAttributionOptions()">增量归因
+                  </label>
+                </div>
+              </div>
+
+              <!-- 标准归因选项 -->
+              <div id="standardAttributionOptions">
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">点击天数</label>
+                  <select class="input-field w-full">
+                    <option value="1">1天</option>
+                    <option value="7" selected>7天</option>
+                  </select>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">浏览天数</label>
+                  <select class="input-field w-full">
+                    <option value="0">无</option>
+                    <option value="1" selected>1天</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 预算 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="budgetCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">预算</label>
+                </div>
+                <div class="flex items-center space-x-6 mb-4">
+                  <label class="flex items-center">
+                    <input type="radio" name="adsetBudgetType" value="daily" checked class="mr-2" onchange="toggleAdsetBudgetType()">日预算
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" name="adsetBudgetType" value="lifetime" class="mr-2" onchange="toggleAdsetBudgetType()">总预算
+                  </label>
+                </div>
+                <div id="adsetDailyBudget">
+                  <div class="flex items-center space-x-2">
+                    <input type="number" id="adsetDailyBudgetAmount" class="input-field flex-1" placeholder="请输入日预算金额" min="0" step="0.01">
+                    <span class="text-gray-400">USD</span>
+                  </div>
+                </div>
+                <div id="adsetLifetimeBudget" style="display: none;">
+                  <div class="flex items-center space-x-2">
+                    <input type="number" id="adsetLifetimeBudgetAmount" class="input-field flex-1" placeholder="请输入总预算金额" min="0" step="0.01">
+                    <span class="text-gray-400">USD</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 排期 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="scheduleCheckbox" class="mr-2" checked disabled>
+                  <label class="text-sm font-medium text-gray-400">排期</label>
+                </div>
+                <div class="text-gray-400">排期</div>
+              </div>
+
+              <!-- 受众 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="audienceCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">受众</label>
+                </div>
+                <div class="space-y-4">
+                  <!-- 预存受众 -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-300">预存受众</label>
+                    <select class="input-field w-full">
+                      <option value="">请选择预存受众</option>
+                      <option value="audience1">受众1</option>
+                      <option value="audience2">受众2</option>
+                    </select>
+                  </div>
+                  <!-- 地区 -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-300">地区</label>
+                    <input type="text" class="input-field w-full" placeholder="请输入地区">
+                  </div>
+                  <!-- 年龄段 -->
+                  <div class="flex items-center space-x-2">
+                    <div class="flex-1">
+                      <label class="block text-sm font-medium mb-2 text-gray-300">最小年龄</label>
+                      <input type="number" class="input-field w-full" placeholder="18" min="13" max="65">
+                    </div>
+                    <div class="flex-1">
+                      <label class="block text-sm font-medium mb-2 text-gray-300">最大年龄</label>
+                      <input type="number" class="input-field w-full" placeholder="35" min="13" max="65">
+                    </div>
+                  </div>
+                  <!-- 性别 -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-300">性别</label>
+                    <select class="input-field w-full">
+                      <option value="all">不限</option>
+                      <option value="male">男性</option>
+                      <option value="female">女性</option>
+                    </select>
+                  </div>
+                  <!-- 兴趣 -->
+                  <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-300">兴趣</label>
+                    <input type="text" class="input-field w-full" placeholder="请输入兴趣关键词">
+                  </div>
+                </div>
+              </div>
+
+              <!-- 版位 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="placementCheckbox" class="mr-2">
+                  <label class="text-sm font-medium text-gray-300">版位</label>
+                </div>
+                <div class="space-y-2">
+                  <label class="flex items-center">
+                    <input type="checkbox" id="facebookPlacement" class="mr-2" checked>Facebook
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="instagramPlacement" class="mr-2" checked>Instagram
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="audienceNetworkPlacement" class="mr-2" checked>Audience Network
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="messengerPlacement" class="mr-2" checked>Messenger
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" id="threadsPlacement" class="mr-2" checked>Threads
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Ad层设置 -->
+          <div class="bg-[#242A3A] rounded-lg p-6 border border-[#2E333F] mb-4">
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleCollapse('adSettings')">
+              <h3 class="text-lg font-semibold text-white">Ad层设置</h3>
+              <i class="fas fa-chevron-down" id="icon-adSettings"></i>
+            </div>
+            <div id="adSettings" class="mt-4">
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-2 text-gray-300">Ad名规则</label>
+                <input type="text" class="input-field w-full" placeholder="如：创意_{{序号}}">
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // 全局变量
+    let currentTab = 'accounts';
+    let currentCreateMode = 'quick';
+    let currentStep = 1;
+    let selectedTemplate = null;
+    let adConfigData = {};
+    let currentPage = 'adManagement'; // 'adManagement', 'createSelection', 'createFlow'
+    let currentLanguage = localStorage.getItem('language') || 'zh';
+
+    // 国际化文本配置
+    const i18n = {
+      zh: {
+        // 页面标题和导航
+        'page.title': '广告管理',
+        'nav.accounts': '广告账户',
+        'nav.campaigns': '推广系列', 
+        'nav.adsets': '广告组',
+        'nav.ads': '广告',
+        'nav.templates': '模版管理',
+        
+        // 按钮和操作
+        'btn.create': '创建广告',
+        'btn.createTemplate': '创建模版',
+        'btn.quickCreate': '快速创建',
+        'btn.basicCreate': '基础创建',
+        'btn.next': '下一步',
+        'btn.prev': '上一步',
+        'btn.search': '查询',
+        'btn.edit': '编辑',
+        'btn.copy': '复制',
+        'btn.delete': '删除',
+        'btn.use': '使用模版',
+        'btn.saveDraft': '保存草稿',
+        'btn.publish': '发布广告',
+        'btn.cancel': '取消',
+        'btn.confirm': '确定',
+        'btn.addAccount': '添加账户',
+        
+        // 表格列标题
+        'table.accountName': '账户名称',
+        'table.platform': '平台',
+        'table.status': '状态',
+        'table.impressions': '展示量',
+        'table.clicks': '点击量',
+        'table.spend': '消耗',
+        'table.conversions': '转化数',
+        'table.conversionRate': '转化率',
+        'table.actions': '操作',
+        
+        // 页面描述
+        'desc.adManagement': '管理您的广告账户、推广系列、广告组和广告创意',
+        'desc.createAd': '选择创建方式开始您的广告投放',
+        'desc.quickCreate': '使用预设模版快速创建广告，节省时间提高效率',
+        'desc.basicCreate': '手动配置所有广告参数，实现精准投放控制',
+        
+        // 其他文本
+        'step.selectTemplate': '选择模版',
+        'step.configAccount': '配置账户',
+        'step.setParams': '设置参数',
+        'step.preview': '预览发布',
+        'all.accounts': '全部账户',
+        'time.range': '时间范围',
+        'template.management': '广告模版管理',
+        'template.desc': '创建和管理广告模版，提高广告创建效率',
+        'campaign.name': '推广系列名称',
+        'adgroup.name': '广告组名称',
+        'ad.name': '广告名称',
+        'status.active': '活跃',
+        'status.paused': '暂停',
+        'return.adManagement': '返回广告管理',
+        'return.createSelection': '返回创建选择'
+      },
+      en: {
+        // 页面标题和导航
+        'page.title': 'Ad Management',
+        'nav.accounts': 'Ad Accounts',
+        'nav.campaigns': 'Campaigns',
+        'nav.adsets': 'Ad Sets', 
+        'nav.ads': 'Ads',
+        'nav.templates': 'Templates',
+        
+        // 按钮和操作
+        'btn.create': 'Create Ad',
+        'btn.createTemplate': 'Create Template',
+        'btn.quickCreate': 'Quick Create',
+        'btn.basicCreate': 'Basic Create',
+        'btn.next': 'Next',
+        'btn.prev': 'Previous',
+        'btn.search': 'Search',
+        'btn.edit': 'Edit',
+        'btn.copy': 'Copy',
+        'btn.delete': 'Delete',
+        'btn.use': 'Use Template',
+        'btn.saveDraft': 'Save Draft',
+        'btn.publish': 'Publish Ad',
+        'btn.cancel': 'Cancel',
+        'btn.confirm': 'Confirm',
+        'btn.addAccount': 'Add Account',
+        
+        // 表格列标题
+        'table.accountName': 'Account Name',
+        'table.platform': 'Platform',
+        'table.status': 'Status',
+        'table.impressions': 'Impressions',
+        'table.clicks': 'Clicks',
+        'table.spend': 'Spend',
+        'table.conversions': 'Conversions',
+        'table.conversionRate': 'Conversion Rate',
+        'table.actions': 'Actions',
+        
+        // 页面描述
+        'desc.adManagement': 'Manage your ad accounts, campaigns, ad sets and creative assets',
+        'desc.createAd': 'Choose a creation method to start your advertising',
+        'desc.quickCreate': 'Use preset templates to create ads quickly and efficiently',
+        'desc.basicCreate': 'Manually configure all ad parameters for precise targeting control',
+        
+        // 其他文本
+        'step.selectTemplate': 'Select Template',
+        'step.configAccount': 'Configure Account',
+        'step.setParams': 'Set Parameters',
+        'step.preview': 'Preview & Publish',
+        'all.accounts': 'All Accounts',
+        'time.range': 'Time Range',
+        'template.management': 'Ad Template Management',
+        'template.desc': 'Create and manage ad templates to improve creation efficiency',
+        'campaign.name': 'Campaign Name',
+        'adgroup.name': 'Ad Set Name',
+        'ad.name': 'Ad Name',
+        'status.active': 'Active',
+        'status.paused': 'Paused',
+        'return.adManagement': 'Back to Ad Management',
+        'return.createSelection': 'Back to Create Selection'
+      }
+    };
+
+    // 获取国际化文本
+    function t(key) {
+      return i18n[currentLanguage][key] || key;
+    }
+
+    // 切换语言
+    function changeLanguage(language) {
+      currentLanguage = language;
+      localStorage.setItem('language', language);
+      updatePageLanguage();
+    }
+
+    // 更新页面语言
+    function updatePageLanguage() {
+      // 更新页面标题
+      const pageTitle = document.getElementById('pageTitle');
+      if (pageTitle) {
+        pageTitle.textContent = t('page.title');
+      }
+      
+      // 更新主页面内容
+      const mainPageTitle = document.getElementById('mainPageTitle');
+      if (mainPageTitle) {
+        mainPageTitle.textContent = t('page.title');
+      }
+      
+      const mainPageDesc = document.getElementById('mainPageDesc');
+      if (mainPageDesc) {
+        mainPageDesc.textContent = t('desc.adManagement');
+      }
+      
+      const createAdBtn = document.getElementById('createAdBtn');
+      if (createAdBtn) {
+        createAdBtn.textContent = t('btn.create');
+      }
+      
+      // 更新Tab按钮
+      const tabButtons = {
+        'tab-accounts': 'nav.accounts',
+        'tab-campaigns': 'nav.campaigns',
+        'tab-adsets': 'nav.adsets',
+        'tab-ads': 'nav.ads',
+        'tab-templates': 'nav.templates'
+      };
+      
+      Object.entries(tabButtons).forEach(([id, key]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = t(key);
+        }
+      });
+      
+      // 更新创建选择页面内容
+      const createAdTitle = document.getElementById('createAdTitle');
+      if (createAdTitle) {
+        createAdTitle.textContent = t('btn.create');
+      }
+      
+      const createAdDesc = document.getElementById('createAdDesc');
+      if (createAdDesc) {
+        createAdDesc.textContent = t('desc.createAd');
+      }
+      
+      const quickCreateTitle = document.getElementById('quickCreateTitle');
+      if (quickCreateTitle) {
+        quickCreateTitle.textContent = t('btn.quickCreate');
+      }
+      
+      const quickCreateDesc = document.getElementById('quickCreateDesc');
+      if (quickCreateDesc) {
+        quickCreateDesc.textContent = t('desc.quickCreate');
+      }
+      
+      const basicCreateTitle = document.getElementById('basicCreateTitle');
+      if (basicCreateTitle) {
+        basicCreateTitle.textContent = t('btn.basicCreate');
+      }
+      
+      const basicCreateDesc = document.getElementById('basicCreateDesc');
+      if (basicCreateDesc) {
+        basicCreateDesc.textContent = t('desc.basicCreate');
+      }
+      
+      // 重新加载当前Tab内容
+      loadTabContent(currentTab);
+      
+      // 如果在创建流程中，重新加载步骤内容
+      if (currentPage === 'createFlow') {
+        loadStepContent();
+      }
+    }
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('页面初始化...');
+      
+      // 设置语言选择器当前值
+      const languageSelector = document.getElementById('languageSelector');
+      if (languageSelector) {
+        languageSelector.value = currentLanguage;
+      }
+      
+      // 初始化语言
+      updatePageLanguage();
+      
+      showTab('accounts');
+    });
+
+    // 页面导航函数
+    function showPage(pageName) {
+      // 隐藏所有页面
+      document.querySelectorAll('.page-view').forEach(page => {
+        page.classList.remove('active');
+        page.style.display = 'none';
+      });
+      // 只显示目标页面
+      let target = null;
+      if (pageName === 'bulkCreate') {
+        target = document.getElementById('bulkCreatePage');
+      } else if (pageName === 'adManagement') {
+        target = document.getElementById('adManagementPage');
+      } else if (pageName === 'createSelection') {
+        target = document.getElementById('createSelectionPage');
+      } else if (pageName === 'createFlow') {
+        target = document.getElementById('createFlowPage');
+      } else if (pageName === 'templateEdit') {
+        target = document.getElementById('templateEditPage');
+      } else {
+        target = document.getElementById(pageName + 'Page');
+      }
+      if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
+      }
+      // 页面初始化逻辑
+      if (pageName === 'bulkCreate') {
+        renderAssetTable();
+        renderBulkTemplateOptions();
+        renderAdStructureTree();
+        renderBulkParamForm();
+      }
+      if (pageName === 'adManagement') {
+        // 可加主页面刷新逻辑
+      }
+    }
+
+    // 更新页面头部
+    function updatePageHeader(pageName) {
+      const pageTitle = document.getElementById('pageTitle');
+      const breadcrumb = document.getElementById('breadcrumb');
+      const currentPageName = document.getElementById('currentPageName');
+      
+      switch(pageName) {
+        case 'adManagement':
+          if (pageTitle) pageTitle.textContent = '广告管理';
+          if (breadcrumb) breadcrumb.style.display = 'none';
+          break;
+        case 'createSelection':
+          if (pageTitle) pageTitle.textContent = '创建广告';
+          if (breadcrumb) breadcrumb.style.display = 'flex';
+          if (currentPageName) currentPageName.textContent = '创建广告';
+          break;
+        case 'createFlow':
+          if (pageTitle) pageTitle.textContent = '创建广告';
+          if (breadcrumb) breadcrumb.style.display = 'flex';
+          if (currentPageName) currentPageName.textContent = currentCreateMode === 'quick' ? '快速创建' : '基础创建';
+          break;
+      }
+    }
+
+    // 返回广告管理主页
+    function backToAdManagement() {
+      showPage('adManagement');
+      // 重置创建流程状态
+      currentStep = 1;
+      selectedTemplate = null;
+      adConfigData = {};
+    }
+
+    // 返回创建选择页面
+    function backToCreateSelection() {
+      showPage('createSelection');
+      // 重置流程状态
+      currentStep = 1;
+      selectedTemplate = null;
+    }
+
+    // 打开创建广告选择页面
+    function openCreateAdModal() {
+      console.log('点击创建广告按钮');
+      console.log('当前页面:', currentPage);
+      console.log('准备切换到createSelection页面');
+      showPage('createSelection');
+    }
+
+    // 开始创建广告
+    function startCreateAd(mode) {
+      console.log('开始创建广告，模式:', mode);
+      currentCreateMode = mode;
+      currentStep = 1;
+      showPage('createFlow');
+      updateStepIndicator();
+      loadStepContent();
+    }
+
+    // Tab切换功能
+    function showTab(tabName) {
+      currentTab = tabName;
+      
+      // 更新Tab按钮状态
+      document.querySelectorAll('.tab-active, .tab-inactive').forEach(btn => {
+        btn.className = btn.className.replace('tab-active', 'tab-inactive');
+      });
+      document.getElementById('tab-' + tabName).className = 
+        document.getElementById('tab-' + tabName).className.replace('tab-inactive', 'tab-active');
+      
+      // 加载Tab内容
+      loadTabContent(tabName);
+    }
+
+    // 加载Tab内容
+    function loadTabContent(tabName) {
+      const content = document.getElementById('tabContent');
+      
+      switch(tabName) {
+        case 'accounts':
+          content.innerHTML = getAccountsTabContent();
+          break;
+        case 'campaigns':
+          content.innerHTML = getCampaignsTabContent();
+          break;
+        case 'adsets':
+          content.innerHTML = getAdsetsTabContent();
+          break;
+        case 'ads':
+          content.innerHTML = getAdsTabContent();
+          break;
+        case 'templates':
+          content.innerHTML = getTemplatesTabContent();
+          break;
+      }
+    }
+
+    // 模态框控制
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // 步骤指示器更新
+    function updateStepIndicator() {
+      for (let i = 1; i <= 4; i++) {
+        const step = document.getElementById('step' + i);
+        if (i <= currentStep) {
+          step.classList.add('active');
+        } else {
+          step.classList.remove('active');
+        }
+      }
+    }
+
+    // 加载步骤内容
+    function loadStepContent() {
+      const content = document.getElementById('flowContent');
+      
+      switch(currentStep) {
+        case 1:
+          content.innerHTML = getTemplateSelectionContent();
+          break;
+        case 2:
+          content.innerHTML = getAccountConfigContent();
+          break;
+        case 3:
+          content.innerHTML = getParameterSettingContent();
+          break;
+        case 4:
+          content.innerHTML = getPreviewPublishContent();
+          break;
+      }
+    }
+
+    // 下一步
+    function nextStep() {
+      if (currentStep < 4) {
+        currentStep++;
+        updateStepIndicator();
+        loadStepContent();
+      }
+    }
+
+    // 上一步
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateStepIndicator();
+        loadStepContent();
+      }
+    }
+
+    // 获取广告账户Tab内容
+    function getAccountsTabContent() {
+      return `
+        <!-- 筛选区域 -->
+        <div class="mb-6 p-4 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">${t('table.accountName')}</label>
+              <select class="input-field w-full">
+                <option value="">${t('all.accounts')}</option>
+                <option value="account1">Facebook${currentLanguage === 'en' ? ' Account 1' : '账户1'}</option>
+                <option value="account2">Facebook${currentLanguage === 'en' ? ' Account 2' : '账户2'}</option>
+                <option value="account3">Google${currentLanguage === 'en' ? ' Account 1' : '账户1'}</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">${t('time.range')}</label>
+              <div class="flex space-x-2">
+                <input type="date" class="input-field flex-1" value="2024-01-01">
+                <span class="text-gray-400 flex items-center">${currentLanguage === 'en' ? 'to' : '至'}</span>
+                <input type="date" class="input-field flex-1" value="2024-01-31">
+              </div>
+            </div>
+            <div>
+              <button class="btn-primary px-6 py-2">
+                <i class="fas fa-search mr-2"></i>${t('btn.search')}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr style="background-color: #242A3A; border-bottom: 1px solid #2E333F;">
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.accountName')}</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.platform')}</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.impressions')}</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.clicks')}</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.spend')}</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.conversions')}</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.conversionRate')}</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPC</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPA</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPM</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">ROAS</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">${t('table.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">Facebook账户1</td>
+                <td class="py-3 px-4 text-white">Facebook</td>
+                <td class="py-3 px-4 text-white">125,430</td>
+                <td class="py-3 px-4 text-white">3,240</td>
+                <td class="py-3 px-4 text-white">$1,250.00</td>
+                <td class="py-3 px-4 text-white">85</td>
+                <td class="py-3 px-4 text-white">2.62%</td>
+                <td class="py-3 px-4 text-white">$0.39</td>
+                <td class="py-3 px-4 text-white">$14.71</td>
+                <td class="py-3 px-4 text-white">$9.96</td>
+                <td class="py-3 px-4 text-white">3.2</td>
+                <td class="py-3 px-4">
+                  <button onclick="openCreateAdModal()" class="btn-secondary px-3 py-1 text-sm">${t('btn.create')}</button>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">Google${currentLanguage === 'en' ? ' Account 1' : '账户1'}</td>
+                <td class="py-3 px-4 text-white">Google</td>
+                <td class="py-3 px-4 text-white">89,250</td>
+                <td class="py-3 px-4 text-white">2,180</td>
+                <td class="py-3 px-4 text-white">$890.00</td>
+                <td class="py-3 px-4 text-white">62</td>
+                <td class="py-3 px-4 text-white">2.84%</td>
+                <td class="py-3 px-4 text-white">$0.41</td>
+                <td class="py-3 px-4 text-white">$14.35</td>
+                <td class="py-3 px-4 text-white">$9.97</td>
+                <td class="py-3 px-4 text-white">3.8</td>
+                <td class="py-3 px-4">
+                  <button onclick="openCreateAdModal()" class="btn-secondary px-3 py-1 text-sm">${t('btn.create')}</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // 获取推广系列Tab内容
+    function getCampaignsTabContent() {
+      return `
+        <!-- 筛选区域 -->
+        <div class="mb-6 p-4 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告账户</label>
+              <select class="input-field w-full">
+                <option value="">全部账户</option>
+                <option value="account1">Facebook账户1</option>
+                <option value="account2">Facebook账户2</option>
+                <option value="account3">Google账户1</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">时间范围</label>
+              <div class="flex space-x-2">
+                <input type="date" class="input-field flex-1" value="2024-01-01">
+                <span class="text-gray-400 flex items-center">至</span>
+                <input type="date" class="input-field flex-1" value="2024-01-31">
+              </div>
+            </div>
+            <div>
+              <button class="btn-primary px-6 py-2">
+                <i class="fas fa-search mr-2"></i>查询
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr style="background-color: #242A3A; border-bottom: 1px solid #2E333F;">
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">推广系列名称</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">账户</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">状态</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">展示量</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">点击量</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">消耗</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">转化数</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">转化率</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPC</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPA</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPM</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">ROAS</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">春季促销活动</td>
+                <td class="py-3 px-4 text-white">Facebook账户1</td>
+                <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs" style="background-color: #00FFB0; color: #000;">活跃</span></td>
+                <td class="py-3 px-4 text-white">85,430</td>
+                <td class="py-3 px-4 text-white">2,240</td>
+                <td class="py-3 px-4 text-white">$850.00</td>
+                <td class="py-3 px-4 text-white">55</td>
+                <td class="py-3 px-4 text-white">2.45%</td>
+                <td class="py-3 px-4 text-white">$0.38</td>
+                <td class="py-3 px-4 text-white">$15.45</td>
+                <td class="py-3 px-4 text-white">$9.95</td>
+                <td class="py-3 px-4 text-white">3.1</td>
+                <td class="py-3 px-4">
+                  <button onclick="openCreateAdModal()" class="btn-secondary px-3 py-1 text-sm">创建广告</button>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">夏季清仓</td>
+                <td class="py-3 px-4 text-white">Google账户1</td>
+                <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs" style="background-color: #FFA500; color: #000;">暂停</span></td>
+                <td class="py-3 px-4 text-white">45,250</td>
+                <td class="py-3 px-4 text-white">1,180</td>
+                <td class="py-3 px-4 text-white">$490.00</td>
+                <td class="py-3 px-4 text-white">32</td>
+                <td class="py-3 px-4 text-white">2.71%</td>
+                <td class="py-3 px-4 text-white">$0.42</td>
+                <td class="py-3 px-4 text-white">$15.31</td>
+                <td class="py-3 px-4 text-white">$10.83</td>
+                <td class="py-3 px-4 text-white">3.6</td>
+                <td class="py-3 px-4">
+                  <button onclick="openCreateAdModal()" class="btn-secondary px-3 py-1 text-sm">创建广告</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // 获取广告组Tab内容
+    function getAdsetsTabContent() {
+      return `
+        <!-- 筛选区域 -->
+        <div class="mb-6 p-4 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告账户</label>
+              <select class="input-field w-full">
+                <option value="">全部账户</option>
+                <option value="account1">Facebook账户1</option>
+                <option value="account2">Facebook账户2</option>
+                <option value="account3">Google账户1</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">时间范围</label>
+              <div class="flex space-x-2">
+                <input type="date" class="input-field flex-1" value="2024-01-01">
+                <span class="text-gray-400 flex items-center">至</span>
+                <input type="date" class="input-field flex-1" value="2024-01-31">
+              </div>
+            </div>
+            <div>
+              <button class="btn-primary px-6 py-2">
+                <i class="fas fa-search mr-2"></i>查询
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr style="background-color: #242A3A; border-bottom: 1px solid #2E333F;">
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">广告组名称</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">推广系列</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">状态</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">展示量</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">点击量</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">消耗</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">转化数</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">转化率</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPC</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPA</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPM</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">ROAS</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">18-35岁女性</td>
+                <td class="py-3 px-4 text-white">春季促销活动</td>
+                <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs" style="background-color: #00FFB0; color: #000;">活跃</span></td>
+                <td class="py-3 px-4 text-white">42,150</td>
+                <td class="py-3 px-4 text-white">1,120</td>
+                <td class="py-3 px-4 text-white">$420.00</td>
+                <td class="py-3 px-4 text-white">28</td>
+                <td class="py-3 px-4 text-white">2.50%</td>
+                <td class="py-3 px-4 text-white">$0.38</td>
+                <td class="py-3 px-4 text-white">$15.00</td>
+                <td class="py-3 px-4 text-white">$9.96</td>
+                <td class="py-3 px-4 text-white">3.2</td>
+                <td class="py-3 px-4">
+                  <button onclick="openCreateAdModal()" class="btn-secondary px-3 py-1 text-sm">创建广告</button>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">25-45岁男性</td>
+                <td class="py-3 px-4 text-white">春季促销活动</td>
+                <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs" style="background-color: #00FFB0; color: #000;">活跃</span></td>
+                <td class="py-3 px-4 text-white">38,280</td>
+                <td class="py-3 px-4 text-white">980</td>
+                <td class="py-3 px-4 text-white">$380.00</td>
+                <td class="py-3 px-4 text-white">24</td>
+                <td class="py-3 px-4 text-white">2.45%</td>
+                <td class="py-3 px-4 text-white">$0.39</td>
+                <td class="py-3 px-4 text-white">$15.83</td>
+                <td class="py-3 px-4 text-white">$9.93</td>
+                <td class="py-3 px-4 text-white">3.1</td>
+                <td class="py-3 px-4">
+                  <button onclick="openCreateAdModal()" class="btn-secondary px-3 py-1 text-sm">创建广告</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // 获取广告Tab内容
+    function getAdsTabContent() {
+      return `
+        <!-- 筛选区域 -->
+        <div class="mb-6 p-4 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告账户</label>
+              <select class="input-field w-full">
+                <option value="">全部账户</option>
+                <option value="account1">Facebook账户1</option>
+                <option value="account2">Facebook账户2</option>
+                <option value="account3">Google账户1</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">时间范围</label>
+              <div class="flex space-x-2">
+                <input type="date" class="input-field flex-1" value="2024-01-01">
+                <span class="text-gray-400 flex items-center">至</span>
+                <input type="date" class="input-field flex-1" value="2024-01-31">
+              </div>
+            </div>
+            <div>
+              <button class="btn-primary px-6 py-2">
+                <i class="fas fa-search mr-2"></i>查询
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr style="background-color: #242A3A; border-bottom: 1px solid #2E333F;">
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">广告名称</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">广告组</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">状态</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">展示量</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">点击量</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">消耗</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">转化数</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">转化率</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPC</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPA</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">CPM</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">ROAS</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">春季新品-图片广告</td>
+                <td class="py-3 px-4 text-white">18-35岁女性</td>
+                <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs" style="background-color: #00FFB0; color: #000;">活跃</span></td>
+                <td class="py-3 px-4 text-white">25,150</td>
+                <td class="py-3 px-4 text-white">680</td>
+                <td class="py-3 px-4 text-white">$250.00</td>
+                <td class="py-3 px-4 text-white">18</td>
+                <td class="py-3 px-4 text-white">2.65%</td>
+                <td class="py-3 px-4 text-white">$0.37</td>
+                <td class="py-3 px-4 text-white">$13.89</td>
+                <td class="py-3 px-4 text-white">$9.94</td>
+                <td class="py-3 px-4 text-white">3.4</td>
+                <td class="py-3 px-4">
+                  <div class="flex space-x-2">
+                    <button class="btn-secondary px-2 py-1 text-xs">编辑</button>
+                    <button class="btn-secondary px-2 py-1 text-xs">复制</button>
+                  </div>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid #2E333F;">
+                <td class="py-3 px-4 text-white">春季新品-视频广告</td>
+                <td class="py-3 px-4 text-white">18-35岁女性</td>
+                <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs" style="background-color: #FFA500; color: #000;">暂停</span></td>
+                <td class="py-3 px-4 text-white">17,000</td>
+                <td class="py-3 px-4 text-white">440</td>
+                <td class="py-3 px-4 text-white">$170.00</td>
+                <td class="py-3 px-4 text-white">10</td>
+                <td class="py-3 px-4 text-white">2.27%</td>
+                <td class="py-3 px-4 text-white">$0.39</td>
+                <td class="py-3 px-4 text-white">$17.00</td>
+                <td class="py-3 px-4 text-white">$10.00</td>
+                <td class="py-3 px-4 text-white">2.8</td>
+                <td class="py-3 px-4">
+                  <div class="flex space-x-2">
+                    <button class="btn-secondary px-2 py-1 text-xs">编辑</button>
+                    <button class="btn-secondary px-2 py-1 text-xs">复制</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // 获取模版管理Tab内容
+    function getTemplatesTabContent() {
+      return `
+        <!-- 模版管理头部 -->
+        <div class="mb-6 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-white mb-2">广告模版管理</h3>
+            <p class="text-gray-400">创建和管理广告模版，提高广告创建效率</p>
+          </div>
+          <button onclick="createNewTemplate()" class="btn-primary px-6 py-3 text-base font-medium flex items-center space-x-2">
+            <i class="fas fa-plus"></i>
+            <span>创建模版</span>
+          </button>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="mb-6 p-4 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">模版名称</label>
+              <input type="text" id="templateNameFilter" class="input-field w-full" placeholder="请输入模版名称进行模糊搜索" oninput="filterTemplates()">
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">媒体平台</label>
+              <select id="platformFilter" class="input-field w-full" onchange="filterTemplates()">
+                <option value="">全部平台</option>
+                <option value="Facebook">Facebook</option>
+              </select>
+            </div>
+            <div>
+              <button onclick="resetFilters()" class="btn-secondary px-6 py-2">
+                <i class="fas fa-refresh mr-2"></i>重置
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 模版表格 -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr style="background-color: #242A3A; border-bottom: 1px solid #2E333F;">
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">模版名称</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">媒体平台</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">推广目标</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">创建人</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">创建时间</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">修改人</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">修改时间</th>
+                <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="templateTableBody">
+              <!-- 模版数据行 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="mt-6 flex items-center justify-between">
+          <div class="text-sm text-gray-400">
+            共 <span id="totalTemplates">0</span> 条记录
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="changePage(-1)" class="btn-secondary px-3 py-1 text-sm" id="prevPageBtn" disabled>上一页</button>
+            <span class="text-sm text-gray-400">
+              第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页
+            </span>
+            <button onclick="changePage(1)" class="btn-secondary px-3 py-1 text-sm" id="nextPageBtn" disabled>下一页</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 模版数据
+    let templateData = [
+      {
+        id: 'template1',
+        name: '电商产品推广模版',
+        platform: 'Facebook',
+        objective: '转化量',
+        creator: '张三',
+        createTime: '2024-01-15 10:30:00',
+        modifier: '李四',
+        modifyTime: '2024-01-20 14:20:00'
+      },
+      {
+        id: 'template2',
+        name: '品牌推广模版',
+        platform: 'Facebook',
+        objective: '覆盖人数',
+        creator: '王五',
+        createTime: '2024-01-10 09:15:00',
+        modifier: '王五',
+        modifyTime: '2024-01-10 09:15:00'
+      },
+      {
+        id: 'template3',
+        name: '应用推广模版',
+        platform: 'Facebook',
+        objective: '应用安装',
+        creator: '赵六',
+        createTime: '2024-01-05 16:45:00',
+        modifier: '赵六',
+        modifyTime: '2024-01-05 16:45:00'
+      }
+    ];
+
+    let filteredTemplateData = [...templateData];
+    let currentPageNum = 1;
+    const pageSize = 10;
+
+    // 渲染模版表格
+    function renderTemplateTable() {
+      const tableBody = document.getElementById('templateTableBody');
+      if (!tableBody) return;
+
+      const startIndex = (currentPageNum - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const pageData = filteredTemplateData.slice(startIndex, endIndex);
+
+      tableBody.innerHTML = pageData.map(template => `
+        <tr style="border-bottom: 1px solid #2E333F;">
+          <td class="py-3 px-4 text-white">${template.name}</td>
+          <td class="py-3 px-4 text-white">${template.platform}</td>
+          <td class="py-3 px-4 text-white">${template.objective}</td>
+          <td class="py-3 px-4 text-white">${template.creator}</td>
+          <td class="py-3 px-4 text-white">${template.createTime}</td>
+          <td class="py-3 px-4 text-white">${template.modifier}</td>
+          <td class="py-3 px-4 text-white">${template.modifyTime}</td>
+          <td class="py-3 px-4">
+            <div class="flex space-x-2">
+              <button onclick="editTemplate('${template.id}')" class="btn-secondary px-3 py-1 text-sm">
+                <i class="fas fa-edit mr-1"></i>编辑
+              </button>
+              <button onclick="deleteTemplate('${template.id}')" class="btn-secondary px-3 py-1 text-sm" style="color: #EF4444;">
+                <i class="fas fa-trash mr-1"></i>删除
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      updatePagination();
+    }
+
+    // 更新分页信息
+    function updatePagination() {
+      const totalTemplates = document.getElementById('totalTemplates');
+      const currentPage = document.getElementById('currentPage');
+      const totalPages = document.getElementById('totalPages');
+      const prevPageBtn = document.getElementById('prevPageBtn');
+      const nextPageBtn = document.getElementById('nextPageBtn');
+
+      if (totalTemplates) totalTemplates.textContent = filteredTemplateData.length;
+      if (currentPage) currentPage.textContent = currentPageNum;
+      if (totalPages) totalPages.textContent = Math.ceil(filteredTemplateData.length / pageSize);
+      if (prevPageBtn) prevPageBtn.disabled = currentPageNum <= 1;
+      if (nextPageBtn) nextPageBtn.disabled = currentPageNum >= Math.ceil(filteredTemplateData.length / pageSize);
+    }
+
+    // 筛选模版
+    function filterTemplates() {
+      const nameFilter = document.getElementById('templateNameFilter').value.toLowerCase();
+      const platformFilter = document.getElementById('platformFilter').value;
+
+      filteredTemplateData = templateData.filter(template => {
+        const nameMatch = template.name.toLowerCase().includes(nameFilter);
+        const platformMatch = !platformFilter || template.platform === platformFilter;
+        return nameMatch && platformMatch;
+      });
+
+      currentPageNum = 1;
+      renderTemplateTable();
+    }
+
+    // 重置筛选
+    function resetFilters() {
+      document.getElementById('templateNameFilter').value = '';
+      document.getElementById('platformFilter').value = '';
+      filteredTemplateData = [...templateData];
+      currentPageNum = 1;
+      renderTemplateTable();
+    }
+
+    // 切换页面
+    function changePage(direction) {
+      const newPage = currentPageNum + direction;
+      const maxPage = Math.ceil(filteredTemplateData.length / pageSize);
+      
+      if (newPage >= 1 && newPage <= maxPage) {
+        currentPageNum = newPage;
+        renderTemplateTable();
+      }
+    }
+
+    // 编辑模版
+    function editTemplate(templateId) {
+      const template = templateData.find(t => t.id === templateId);
+      if (template) {
+        // 保存当前编辑状态
+        window.currentEditingTemplate = template;
+        showPage('templateEdit');
+        loadTemplateForEdit(template);
+        
+        // 更新页面标题
+        const titleElement = document.getElementById('templateEditTitle');
+        if (titleElement) {
+          titleElement.textContent = '编辑模版';
+        }
+      }
+    }
+
+    // 删除模版
+    function deleteTemplate(templateId) {
+      const template = templateData.find(t => t.id === templateId);
+      if (template) {
+        if (confirm(`确定要删除模版"${template.name}"吗？此操作不可恢复。`)) {
+          templateData = templateData.filter(t => t.id !== templateId);
+          filteredTemplateData = filteredTemplateData.filter(t => t.id !== templateId);
+          renderTemplateTable();
+          alert('模版删除成功！');
+        }
+      }
+    }
+
+    // 返回模版列表
+    function backToTemplateList() {
+      showPage('adManagement');
+      showTab('templates');
+      renderTemplateTable();
+    }
+
+    // 返回模版列表（带内容检查）
+    function backToTemplateListWithCheck() {
+      if (window.templateHasChanges) {
+        if (confirm('检测到未保存的更改，是否保存当前内容？')) {
+          saveTemplate();
+        } else {
+          backToTemplateList();
+        }
+      } else {
+        backToTemplateList();
+      }
+    }
+
+    // 保存模版
+    function saveTemplate() {
+      const form = document.getElementById('templateEditForm');
+      if (form) {
+        const formData = new FormData(form);
+        const templateName = formData.get('templateName');
+        const platform = formData.get('platform');
+        
+        if (!templateName || !templateName.trim()) {
+          alert('请输入模版名称');
+          return;
+        }
+        
+        if (!platform) {
+          alert('请选择媒体平台');
+          return;
+        }
+
+        // 保存逻辑
+        if (window.currentEditingTemplate) {
+          // 编辑现有模版
+          const index = templateData.findIndex(t => t.id === window.currentEditingTemplate.id);
+          if (index !== -1) {
+            templateData[index] = {
+              ...templateData[index],
+              name: templateName,
+              platform: platform,
+              modifier: '当前用户',
+              modifyTime: new Date().toLocaleString('zh-CN')
+            };
+          }
+        } else {
+          // 创建新模版
+          const newTemplate = {
+            id: 'template' + Date.now(),
+            name: templateName,
+            platform: platform,
+            objective: '转化量', // 默认值
+            creator: '当前用户',
+            createTime: new Date().toLocaleString('zh-CN'),
+            modifier: '当前用户',
+            modifyTime: new Date().toLocaleString('zh-CN')
+          };
+          templateData.unshift(newTemplate);
+        }
+        
+        alert('模版保存成功！');
+        backToTemplateList();
+      }
+    }
+
+    // 加载模版用于编辑
+    function loadTemplateForEdit(template) {
+      const form = document.getElementById('templateEditForm');
+      if (form) {
+        // 填充表单数据
+        const nameInput = form.querySelector('input[name="templateName"]');
+        if (nameInput) nameInput.value = template.name;
+        
+        const platformSelect = form.querySelector('select[name="platform"]');
+        if (platformSelect) platformSelect.value = template.platform;
+        
+        // 初始化Campaign名称预览
+        updateCampaignNamePreview();
+        
+        // 初始化Adset名称预览
+        updateAdsetNamePreview();
+        
+        // 重置更改标记
+        window.templateHasChanges = false;
+        
+        // 添加表单变化监听
+        form.addEventListener('input', function() {
+          window.templateHasChanges = true;
+        });
+        
+        form.addEventListener('change', function() {
+          window.templateHasChanges = true;
+        });
+      }
+    }
+
+    // 切换折叠面板
+    function toggleCollapse(id) {
+      const content = document.getElementById(id);
+      const icon = document.getElementById('icon-' + id);
+      
+      if (content && icon) {
+        if (content.style.display === 'none') {
+          content.style.display = 'block';
+          icon.className = 'fas fa-chevron-up';
+        } else {
+          content.style.display = 'none';
+          icon.className = 'fas fa-chevron-down';
+        }
+      }
+    }
+
+    // 更新成本提示
+    function updateCostHint() {
+      const objective = document.getElementById('adsetObjective').value;
+      const costInput = document.getElementById('costInput');
+      const costHint = document.getElementById('costHint');
+      
+      let hint = '';
+      switch(objective) {
+        case 'MAX_CONVERSIONS':
+          hint = '请输入每次转化的目标费用';
+          break;
+        case 'MAX_VALUE':
+          hint = '请输入每次转化的目标价值';
+          break;
+        case 'MAX_LANDING_PAGE_VIEWS':
+          hint = '请输入每次落地页浏览的目标费用';
+          break;
+        case 'MAX_LINK_CLICKS':
+          hint = '请输入每次点击的目标费用';
+          break;
+        case 'MAX_UNIQUE_DAILY_REACH':
+          hint = '请输入每次覆盖的目标费用';
+          break;
+        case 'MAX_IMPRESSIONS':
+          hint = '请输入每次展示的目标费用';
+          break;
+      }
+      
+      if (costHint) costHint.textContent = hint;
+    }
+
+    // 切换归因选项
+    function toggleAttributionOptions() {
+      const attributionType = document.querySelector('input[name="attributionType"]:checked').value;
+      const standardOptions = document.getElementById('standardAttributionOptions');
+      
+      if (standardOptions) {
+        if (attributionType === 'standard') {
+          standardOptions.style.display = 'block';
+        } else {
+          standardOptions.style.display = 'none';
+        }
+      }
+    }
+
+    // 预算类型切换
+    function toggleBudgetType() {
+      const budgetType = document.querySelector('input[name="budgetType"]:checked').value;
+      const campaignBudget = document.getElementById('campaignBudgetSettings');
+      const adsetBudget = document.getElementById('adsetBudgetSettings');
+      
+      if (budgetType === 'campaign') {
+        if (campaignBudget) campaignBudget.style.display = 'block';
+        if (adsetBudget) adsetBudget.style.display = 'none';
+      } else {
+        if (campaignBudget) campaignBudget.style.display = 'none';
+        if (adsetBudget) adsetBudget.style.display = 'block';
+      }
+    }
+
+    // Campaign预算类型切换
+    function toggleCampaignBudgetType() {
+      const budgetType = document.querySelector('input[name="campaignBudgetType"]:checked').value;
+      const dailyBudget = document.getElementById('campaignDailyBudget');
+      const lifetimeBudget = document.getElementById('campaignLifetimeBudget');
+      
+      if (budgetType === 'daily') {
+        if (dailyBudget) dailyBudget.classList.remove('hidden');
+        if (lifetimeBudget) lifetimeBudget.classList.add('hidden');
+      } else {
+        if (dailyBudget) dailyBudget.classList.add('hidden');
+        if (lifetimeBudget) lifetimeBudget.classList.remove('hidden');
+      }
+    }
+
+    // 更新Campaign名称预览
+    function updateCampaignNamePreview() {
+      const baseName = document.getElementById('campaignNameRule').value || '新产品推广';
+      const tag = document.getElementById('campaignNameTag').value;
+      const separator = document.getElementById('campaignNameSeparator').value;
+      const preview = document.getElementById('campaignNamePreview');
+      
+      let previewText = baseName;
+      
+      if (tag) {
+        let tagValue = '';
+        switch(tag) {
+          case 'date':
+            tagValue = new Date().toLocaleDateString('zh-CN').replace(/\//g, '');
+            break;
+          case 'random':
+            tagValue = Math.random().toString(36).substring(2, 8).toUpperCase();
+            break;
+        }
+        if (tagValue) {
+          previewText += separator + tagValue;
+        }
+      }
+      
+      if (preview) {
+        preview.textContent = previewText;
+      }
+    }
+
+    // 更新Adset名称预览
+    function updateAdsetNamePreview() {
+      const baseName = document.getElementById('adsetNameRule').value || '受众';
+      const tag = document.getElementById('adsetNameTag').value;
+      const separator = document.getElementById('adsetNameSeparator').value;
+      const preview = document.getElementById('adsetNamePreview');
+      
+      let previewText = baseName;
+      
+      if (tag) {
+        let tagValue = '';
+        switch(tag) {
+          case 'date':
+            tagValue = new Date().toLocaleDateString('zh-CN').replace(/\//g, '');
+            break;
+          case 'random':
+            tagValue = Math.random().toString(36).substring(2, 8).toUpperCase();
+            break;
+        }
+        if (tagValue) {
+          previewText += separator + tagValue;
+        }
+      }
+      
+      if (preview) {
+        preview.textContent = previewText;
+      }
+    }
+
+    // 更新成效目标设置
+    function updateObjectiveSettings() {
+      const objective = document.getElementById('adsetObjective').value;
+      const conversionCostSection = document.getElementById('conversionCostSection');
+      const spendTargetSection = document.getElementById('spendTargetSection');
+      
+      // 隐藏所有相关设置
+      if (conversionCostSection) conversionCostSection.style.display = 'none';
+      if (spendTargetSection) spendTargetSection.style.display = 'none';
+      
+      // 根据选择显示相应设置
+      if (objective === 'MAX_CONVERSIONS') {
+        if (conversionCostSection) conversionCostSection.style.display = 'block';
+      } else if (objective === 'MAX_VALUE') {
+        if (spendTargetSection) spendTargetSection.style.display = 'block';
+      }
+    }
+
+    // Adset预算类型切换
+    function toggleAdsetBudgetType() {
+      const budgetType = document.querySelector('input[name="adsetBudgetType"]:checked').value;
+      const dailyBudget = document.getElementById('adsetDailyBudget');
+      const lifetimeBudget = document.getElementById('adsetLifetimeBudget');
+      
+      if (budgetType === 'daily') {
+        if (dailyBudget) dailyBudget.style.display = 'block';
+        if (lifetimeBudget) lifetimeBudget.style.display = 'none';
+      } else {
+        if (dailyBudget) dailyBudget.style.display = 'none';
+        if (lifetimeBudget) lifetimeBudget.style.display = 'block';
+      }
+    }
+
+
+
+    // 在页面加载时初始化模版表格
+    document.addEventListener('DOMContentLoaded', function() {
+      // 其他初始化代码...
+      
+      // 如果当前在模版管理页面，渲染表格
+      if (currentTab === 'templates') {
+        setTimeout(() => {
+          renderTemplateTable();
+        }, 100);
+      }
+    });
+
+    // 获取模版选择步骤内容
+    function getTemplateSelectionContent() {
+      if (currentCreateMode === 'basic') {
+        return `
+          <div class="text-center py-8">
+            <h3 class="text-lg font-semibold text-white mb-4">基础创建模式</h3>
+            <p class="text-gray-400 mb-6">您选择了基础创建模式，将手动配置所有广告参数</p>
+            <button onclick="nextStep()" class="btn-primary px-8 py-3">开始配置</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-6">选择广告模版</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 模版选项1 -->
+            <div class="template-card p-6 rounded-lg border cursor-pointer" style="background-color: #242A3A; border-color: #2E333F;" onclick="selectTemplateForCreation('template1')">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-white">电商产品推广模版</h4>
+                <i class="fas fa-check-circle text-green-500 hidden" id="check-template1"></i>
+              </div>
+              <div class="space-y-2 text-sm text-gray-400">
+                <div>目标：转化量</div>
+                <div>预算：$50-100/天</div>
+                <div>受众：18-35岁</div>
+                <div>版位：Facebook + Instagram</div>
+              </div>
+            </div>
+
+            <!-- 模版选项2 -->
+            <div class="template-card p-6 rounded-lg border cursor-pointer" style="background-color: #242A3A; border-color: #2E333F;" onclick="selectTemplateForCreation('template2')">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-white">品牌推广模版</h4>
+                <i class="fas fa-check-circle text-green-500 hidden" id="check-template2"></i>
+              </div>
+              <div class="space-y-2 text-sm text-gray-400">
+                <div>目标：覆盖人数</div>
+                <div>预算：$100-200/天</div>
+                <div>受众：25-45岁</div>
+                <div>版位：全版位</div>
+              </div>
+            </div>
+
+            <!-- 模版选项3 -->
+            <div class="template-card p-6 rounded-lg border cursor-pointer" style="background-color: #242A3A; border-color: #2E333F;" onclick="selectTemplateForCreation('template3')">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-white">应用推广模版</h4>
+                <i class="fas fa-check-circle text-green-500 hidden" id="check-template3"></i>
+              </div>
+              <div class="space-y-2 text-sm text-gray-400">
+                <div>目标：应用安装</div>
+                <div>预算：$30-80/天</div>
+                <div>受众：18-40岁</div>
+                <div>版位：移动端</div>
+              </div>
+            </div>
+
+            <!-- 创建新模版选项 -->
+            <div class="template-card p-6 rounded-lg border cursor-pointer border-dashed" style="border-color: #00FFB0;" onclick="createNewTemplate()">
+              <div class="text-center">
+                <i class="fas fa-plus text-4xl mb-4" style="color: #00FFB0;"></i>
+                <h4 class="text-lg font-semibold text-white mb-2">创建新模版</h4>
+                <p class="text-gray-400">没有合适的模版？创建一个新的</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end mt-8">
+            <button id="nextStepButton" onclick="nextStep()" class="btn-primary px-8 py-3 opacity-50 cursor-not-allowed" disabled>
+              下一步：配置账户
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 获取账户配置步骤内容
+    function getAccountConfigContent() {
+      return `
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-6">配置广告账户</h3>
+          <div class="space-y-6">
+            <!-- 账户配置表格 -->
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr style="background-color: #242A3A; border-bottom: 1px solid #2E333F;">
+                    <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">广告账户</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">公共主页</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">像素</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">转化事件</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium" style="color: #B0B5C0;">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="accountConfigTable">
+                  <!-- 初始行 -->
+                  <tr style="border-bottom: 1px solid #2E333F;">
+                    <td class="py-3 px-4">
+                      <select class="input-field w-full">
+                        <option value="">选择广告账户</option>
+                        <option value="account1">Facebook账户1</option>
+                        <option value="account2">Facebook账户2</option>
+                        <option value="account3">Google账户1</option>
+                      </select>
+                    </td>
+                    <td class="py-3 px-4">
+                      <select class="input-field w-full">
+                        <option value="">选择公共主页</option>
+                        <option value="page1">品牌主页1</option>
+                        <option value="page2">品牌主页2</option>
+                      </select>
+                    </td>
+                    <td class="py-3 px-4">
+                      <select class="input-field w-full">
+                        <option value="">选择像素</option>
+                        <option value="pixel1">像素1</option>
+                        <option value="pixel2">像素2</option>
+                      </select>
+                    </td>
+                    <td class="py-3 px-4">
+                      <select class="input-field w-full">
+                        <option value="">选择转化事件</option>
+                        <option value="purchase">购买</option>
+                        <option value="add_to_cart">添加到购物车</option>
+                        <option value="lead">潜在客户</option>
+                      </select>
+                    </td>
+                    <td class="py-3 px-4">
+                      <button onclick="removeAccountRow(this)" class="text-red-400 hover:text-red-300">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 添加账户按钮 -->
+            <div class="flex justify-start">
+              <button onclick="addAccountRow()" class="btn-secondary px-4 py-2 flex items-center space-x-2">
+                <i class="fas fa-plus"></i>
+                <span>添加账户</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-8">
+            <button onclick="prevStep()" class="btn-secondary px-8 py-3">上一步</button>
+            <button onclick="nextStep()" class="btn-primary px-8 py-3">下一步：设置参数</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 获取参数设置步骤内容
+    function getParameterSettingContent() {
+      return `
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-6">设置广告参数</h3>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 左侧：基础设置 -->
+            <div class="space-y-6">
+              <div class="p-6 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+                <h4 class="text-lg font-semibold text-white mb-4">基础设置</h4>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告系列名称</label>
+                    <input type="text" class="input-field w-full" placeholder="输入广告系列名称">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告组名称</label>
+                    <input type="text" class="input-field w-full" placeholder="输入广告组名称">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告名称</label>
+                    <input type="text" class="input-field w-full" placeholder="输入广告名称">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">每日预算</label>
+                    <input type="number" class="input-field w-full" placeholder="输入每日预算" value="50">
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-6 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+                <h4 class="text-lg font-semibold text-white mb-4">受众设置</h4>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">年龄范围</label>
+                    <div class="flex space-x-4">
+                      <input type="number" class="input-field flex-1" placeholder="最小年龄" value="18">
+                      <span class="text-gray-400 flex items-center">-</span>
+                      <input type="number" class="input-field flex-1" placeholder="最大年龄" value="35">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">性别</label>
+                    <select class="input-field w-full">
+                      <option value="all">全部</option>
+                      <option value="male">男性</option>
+                      <option value="female">女性</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">地理位置</label>
+                    <input type="text" class="input-field w-full" placeholder="输入目标地区" value="美国">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：广告创意 -->
+            <div class="space-y-6">
+              <div class="p-6 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+                <h4 class="text-lg font-semibold text-white mb-4">广告创意</h4>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告标题</label>
+                    <input type="text" class="input-field w-full" placeholder="输入广告标题">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告描述</label>
+                    <textarea class="input-field w-full h-24" placeholder="输入广告描述"></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告图片</label>
+                    <div class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                      <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-4"></i>
+                      <p class="text-gray-400">点击上传图片或拖拽图片到此处</p>
+                      <input type="file" class="hidden" accept="image/*">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">落地页链接</label>
+                    <input type="url" class="input-field w-full" placeholder="输入落地页链接">
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-6 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+                <h4 class="text-lg font-semibold text-white mb-4">高级设置</h4>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">投放时间</label>
+                    <select class="input-field w-full">
+                      <option value="all_time">全天投放</option>
+                      <option value="custom">自定义时间</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">出价策略</label>
+                    <select class="input-field w-full">
+                      <option value="auto">自动出价</option>
+                      <option value="manual">手动出价</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-8">
+            <button onclick="prevStep()" class="btn-secondary px-8 py-3">上一步</button>
+            <button onclick="nextStep()" class="btn-primary px-8 py-3">下一步：预览发布</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 获取预览发布步骤内容
+    function getPreviewPublishContent() {
+      return `
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-6">预览与发布</h3>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 左侧：广告预览 -->
+            <div class="space-y-6">
+              <div class="p-6 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+                <h4 class="text-lg font-semibold text-white mb-4">广告预览</h4>
+                <div class="bg-white rounded-lg p-4 text-black">
+                  <div class="flex items-center space-x-2 mb-3">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full"></div>
+                    <div>
+                      <div class="font-semibold">品牌主页1</div>
+                      <div class="text-xs text-gray-500">赞助内容</div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <p class="text-sm">这是您的广告标题和描述内容预览...</p>
+                  </div>
+                  <div class="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded text-sm">了解更多</button>
+                    <div class="text-xs text-gray-500">
+                      <i class="fas fa-thumbs-up mr-1"></i>
+                      <i class="fas fa-comment mr-1"></i>
+                      <i class="fas fa-share"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：配置摘要 -->
+            <div class="space-y-6">
+              <div class="p-6 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+                <h4 class="text-lg font-semibold text-white mb-4">配置摘要</h4>
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">广告账户：</span>
+                    <span class="text-white">Facebook账户1</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">每日预算：</span>
+                    <span class="text-white">$50.00</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">目标受众：</span>
+                    <span class="text-white">18-35岁，全部性别</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">投放地区：</span>
+                    <span class="text-white">美国</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">投放时间：</span>
+                    <span class="text-white">全天投放</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">出价策略：</span>
+                    <span class="text-white">自动出价</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-6 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+                <h4 class="text-lg font-semibold text-white mb-4">预估效果</h4>
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">预估覆盖人数：</span>
+                    <span class="text-white">50,000 - 80,000</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">预估点击量：</span>
+                    <span class="text-white">1,200 - 2,000</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">预估CPC：</span>
+                    <span class="text-white">$0.35 - $0.45</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span style="color: #B0B5C0;">预估CPM：</span>
+                    <span class="text-white">$8.50 - $12.50</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-8">
+            <button onclick="prevStep()" class="btn-secondary px-8 py-3">上一步</button>
+            <div class="space-x-4">
+              <button onclick="saveDraft()" class="btn-secondary px-8 py-3">保存草稿</button>
+              <button onclick="publishAd()" class="btn-primary px-8 py-3">发布广告</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 选择模版用于创建广告
+    function selectTemplateForCreation(templateId) {
+      console.log('选择模版:', templateId);
+      
+      // 清除之前的选择
+      document.querySelectorAll('.template-card').forEach(card => {
+        card.style.borderColor = '#2E333F';
+      });
+      document.querySelectorAll('[id^="check-template"]').forEach(check => {
+        check.classList.add('hidden');
+      });
+
+      // 选择当前模版
+      event.target.closest('.template-card').style.borderColor = '#00FFB0';
+      document.getElementById('check-' + templateId).classList.remove('hidden');
+      selectedTemplate = templateId;
+      
+      // 启用下一步按钮
+      const nextButton = document.getElementById('nextStepButton');
+      if (nextButton) {
+        nextButton.disabled = false;
+        nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        console.log('下一步按钮已启用');
+      }
+    }
+
+    // 创建新模版
+    function createNewTemplate() {
+      window.currentEditingTemplate = null; // 清空编辑状态
+      window.templateHasChanges = false;
+      showPage('templateEdit');
+      
+      // 清空表单
+      const form = document.getElementById('templateEditForm');
+      if (form) {
+        form.reset();
+        // 重置更改标记
+        window.templateHasChanges = false;
+      }
+      
+      // 更新页面标题
+      const titleElement = document.getElementById('templateEditTitle');
+      if (titleElement) {
+        titleElement.textContent = '创建模版';
+      }
+      
+      // 初始化Campaign名称预览
+      setTimeout(() => {
+        updateCampaignNamePreview();
+        updateAdsetNamePreview();
+      }, 100);
+    }
+
+    // 选择模版（从模版管理页面）
+    function selectTemplate(templateId) {
+      selectedTemplate = templateId;
+      openCreateAdModal();
+    }
+
+    // 打开模版管理模态框
+    function openTemplateModal(mode, templateId = null) {
+      document.getElementById('templateModalTitle').textContent = mode === 'create' ? '创建模版' : '编辑模版';
+      document.getElementById('templateContent').innerHTML = getTemplateFormContent(mode, templateId);
+      openModal('templateModal');
+    }
+
+    // 获取模版表单内容
+    function getTemplateFormContent(mode, templateId) {
+      return `
+        <form class="space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 左侧：基础信息 -->
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">模版名称 *</label>
+                <input type="text" class="input-field w-full" placeholder="输入模版名称" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">模版描述</label>
+                <textarea class="input-field w-full h-24" placeholder="输入模版描述"></textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告目标</label>
+                <select class="input-field w-full">
+                  <option value="conversions">转化量</option>
+                  <option value="reach">覆盖人数</option>
+                  <option value="traffic">网站流量</option>
+                  <option value="engagement">互动率</option>
+                  <option value="app_installs">应用安装</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">预算范围</label>
+                <div class="flex space-x-4">
+                  <input type="number" class="input-field flex-1" placeholder="最小预算">
+                  <span class="text-gray-400 flex items-center">-</span>
+                  <input type="number" class="input-field flex-1" placeholder="最大预算">
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：受众设置 -->
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">年龄范围</label>
+                <div class="flex space-x-4">
+                  <input type="number" class="input-field flex-1" placeholder="最小年龄" value="18">
+                  <span class="text-gray-400 flex items-center">-</span>
+                  <input type="number" class="input-field flex-1" placeholder="最大年龄" value="65">
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">性别</label>
+                <select class="input-field w-full">
+                  <option value="all">全部</option>
+                  <option value="male">男性</option>
+                  <option value="female">女性</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">地理位置</label>
+                <input type="text" class="input-field w-full" placeholder="输入目标地区">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">版位</label>
+                <div class="space-y-2">
+                  <label class="flex items-center">
+                    <input type="checkbox" class="mr-2" checked>
+                    <span class="text-white">Facebook动态</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" class="mr-2" checked>
+                    <span class="text-white">Instagram动态</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" class="mr-2">
+                    <span class="text-white">Stories</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" class="mr-2">
+                    <span class="text-white">Reels</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-4">
+            <button type="button" onclick="closeModal('templateModal')" class="btn-secondary px-6 py-3">取消</button>
+            <button type="submit" class="btn-primary px-6 py-3">${mode === 'create' ? '创建模版' : '保存修改'}</button>
+          </div>
+        </form>
+      `;
+    }
+
+    // 添加账户配置行
+    function addAccountRow() {
+      const tableBody = document.getElementById('accountConfigTable');
+      const newRow = tableBody.querySelector('tr').cloneNode(true);
+      // 清空选择
+      newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+      tableBody.appendChild(newRow);
+    }
+
+    // 删除账户配置行
+    function removeAccountRow(button) {
+      const row = button.closest('tr');
+      const tableBody = document.getElementById('accountConfigTable');
+      if (tableBody.children.length > 1) {
+        row.remove();
+      }
+    }
+
+    // 保存草稿
+    function saveDraft() {
+      alert('草稿已保存');
+    }
+
+    // 发布广告
+    function publishAd() {
+      alert('广告发布成功！');
+      backToAdManagement();
+      // 刷新当前Tab数据
+      loadTabContent(currentTab);
+    }
+
+    // 删除模版
+    function deleteTemplate(templateId) {
+      if (confirm('确定要删除这个模版吗？')) {
+        alert('模版已删除');
+        loadTabContent('templates');
+      }
+    }
+
+    // Tab切换功能
+    function showTab(tabName) {
+      currentTab = tabName;
+      
+      // 更新Tab按钮状态
+      document.querySelectorAll('.tab-active, .tab-inactive').forEach(btn => {
+        btn.className = btn.className.replace('tab-active', 'tab-inactive');
+      });
+      const tabButton = document.getElementById('tab-' + tabName);
+      if (tabButton) {
+        tabButton.className = tabButton.className.replace('tab-inactive', 'tab-active');
+      }
+      
+      // 加载Tab内容
+      loadTabContent(tabName);
+    }
+
+    // 加载Tab内容
+    function loadTabContent(tabName) {
+      const content = document.getElementById('tabContent');
+      if (!content) return;
+      
+      switch(tabName) {
+        case 'accounts':
+          content.innerHTML = getAccountsTabContent();
+          break;
+        case 'campaigns':
+          content.innerHTML = getCampaignsTabContent();
+          break;
+        case 'adsets':
+          content.innerHTML = getAdsetsTabContent();
+          break;
+        case 'ads':
+          content.innerHTML = getAdsTabContent();
+          break;
+        case 'templates':
+          content.innerHTML = getTemplatesTabContent();
+          // 渲染模板表格
+          setTimeout(() => {
+            renderTemplateTable();
+          }, 100);
+          break;
+      }
+    }
+
+    // 模态框控制
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    // 步骤指示器更新
+    function updateStepIndicator() {
+      for (let i = 1; i <= 4; i++) {
+        const step = document.getElementById('step' + i);
+        if (step) {
+          if (i <= currentStep) {
+            step.classList.add('active');
+          } else {
+            step.classList.remove('active');
+          }
+        }
+      }
+    }
+
+    // 加载步骤内容
+    function loadStepContent() {
+      const content = document.getElementById('flowContent');
+      if (!content) return;
+      
+      switch(currentStep) {
+        case 1:
+          content.innerHTML = getTemplateSelectionContent();
+          // 重置模版选择状态
+          selectedTemplate = null;
+          break;
+        case 2:
+          content.innerHTML = getAccountConfigContent();
+          break;
+        case 3:
+          content.innerHTML = getParameterSettingContent();
+          break;
+        case 4:
+          content.innerHTML = getPreviewPublishContent();
+          break;
+      }
+    }
+
+    // 下一步
+    function nextStep() {
+      if (currentStep < 4) {
+        currentStep++;
+        updateStepIndicator();
+        loadStepContent();
+      }
+    }
+
+    // 上一步
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateStepIndicator();
+        loadStepContent();
+      }
+    }
+
+    // 静态数据示例
+    const staticAccounts = [
+      { id: 'act_1', name: 'FB账户1' },
+      { id: 'act_2', name: 'FB账户2' },
+      { id: 'act_3', name: 'FB账户3' },
+      { id: 'act_4', name: 'FB账户4' },
+      { id: 'act_5', name: 'FB账户5' },
+    ];
+    const staticPages = [
+      { id: 'page_1', name: '品牌主页1' },
+      { id: 'page_2', name: '品牌主页2' },
+      { id: 'page_3', name: '品牌主页3' },
+    ];
+    const staticPixels = [
+      { id: 'pixel_1', name: '像素1' },
+      { id: 'pixel_2', name: '像素2' },
+    ];
+    const staticTemplates = [
+      { id: 'tpl_1', name: '电商转化模板' },
+      { id: 'tpl_2', name: '品牌推广模板' },
+    ];
+
+    // 广告结构树数据
+    let adTreeData = [];
+    let selectedNode = null;
+    let nodeIdCounter = 1;
+
+    // 节点类型字段定义（常用Facebook字段，后续可扩展）
+    const fbFields = {
+      campaign: [
+        { key: 'name', label: 'Campaign名称', type: 'text' },
+        { key: 'objective', label: '推广目标', type: 'select', options: ['CONVERSIONS','TRAFFIC','AWARENESS','LEAD_GENERATION'] },
+        { key: 'status', label: '状态', type: 'select', options: ['PAUSED','ACTIVE'] },
+        { key: 'daily_budget', label: '每日预算($)', type: 'number' }
+      ],
+      adset: [
+        { key: 'name', label: 'Adset名称', type: 'text' },
+        { key: 'status', label: '状态', type: 'select', options: ['PAUSED','ACTIVE'] },
+        { key: 'start_time', label: '开始时间', type: 'date' },
+        { key: 'end_time', label: '结束时间', type: 'date' },
+        { key: 'daily_budget', label: '每日预算($)', type: 'number' },
+        { key: 'bid_amount', label: '出价($)', type: 'number' },
+        { key: 'optimization_goal', label: '优化目标', type: 'select', options: ['REACH','CLICKS','CONVERSIONS'] },
+        { key: 'targeting', label: '受众(描述)', type: 'text' },
+        { key: 'placement', label: '版位', type: 'select', options: ['FEED','STORY','INSTREAM','SEARCH'] }
+      ],
+      ad: [
+        { key: 'name', label: 'Ad名称', type: 'text' },
+        { key: 'title', label: '标题', type: 'text' },
+        { key: 'body', label: '正文', type: 'textarea' },
+        { key: 'creative', label: '素材', type: 'text' },
+        { key: 'cta', label: '行动按钮', type: 'select', options: ['LEARN_MORE','SHOP_NOW','SIGN_UP','DOWNLOAD','CONTACT_US'] },
+        { key: 'landing_page', label: '落地页', type: 'url' },
+        { key: 'status', label: '状态', type: 'select', options: ['PAUSED','ACTIVE'] }
+      ]
+    };
+
+    // 批量创建弹窗控制
+    function openBulkCreateModal() {
+      document.getElementById('bulkCreateModal').classList.remove('hidden');
+      renderBulkAssetOptions();
+      renderBulkTemplateOptions();
+      renderAdStructureTree();
+      renderBulkParamForm();
+    }
+    function closeBulkCreateModal() {
+      document.getElementById('bulkCreateModal').classList.add('hidden');
+      selectedNode = null;
+    }
+    // 渲染资产下拉
+    function renderBulkAssetOptions() {
+      const accSel = document.getElementById('bulkAccountSelect');
+      const pageSel = document.getElementById('bulkPageSelect');
+      const pixelSel = document.getElementById('bulkPixelSelect');
+      accSel.innerHTML = staticAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+      pageSel.innerHTML = staticPages.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      pixelSel.innerHTML = staticPixels.map(px => `<option value="${px.id}">${px.name}</option>`).join('');
+    }
+    // 渲染模板下拉
+    function renderBulkTemplateOptions() {
+      const tplSel = document.getElementById('bulkTemplateSelect');
+      tplSel.innerHTML = `<option value="">请选择模板</option>` + staticTemplates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      // 添加模板选择事件监听
+      tplSel.onchange = function() {
+        handleTemplateChange(this.value);
+      };
+    }
+
+    // 广告结构树递归渲染
+    function renderAdStructureTree() {
+      const treeDiv = document.getElementById('adStructureTree');
+      if (!adTreeData.length) {
+        treeDiv.innerHTML = '<div class="text-gray-500 text-sm">请点击下方按钮新增Campaign</div>';
+      } else {
+        treeDiv.innerHTML = renderTreeNodes(adTreeData, 0);
+      }
+      updateAdStats();
+    }
+    function renderTreeNodes(nodes, level) {
+      return `<ul class="pl-${level * 4}">` + nodes.map(node => {
+        const isSelected = selectedNode && selectedNode.id === node.id;
+        let html = `<li class="mb-2">
+          <div class="flex items-center space-x-2 ${isSelected ? 'bg-green-900/30 rounded p-2' : 'p-2 hover:bg-gray-700/30 rounded'}">`;
+        
+        // 根据节点类型决定是否可点击
+        if (node.type === 'ad') {
+          // Ad层不支持点击，只做展示
+          html += `<span class="font-bold text-gray-400">🎯 ${node.params.name || node.id}</span>`;
+        } else {
+          // Campaign和Adset支持点击
+          html += `<span class="cursor-pointer font-bold text-white hover:text-green-400" onclick="selectTreeNode('${node.id}')">${node.type === 'campaign' ? '📦' : '🗂️'} ${node.params.name || node.id}</span>`;
+        }
+        
+        // 根据节点类型添加相应的操作按钮
+        if (node.type === 'campaign') {
+          html += `
+            <div class="flex items-center space-x-1">
+              <button onclick="addNode('${node.id}')" class="action-icon-btn" title="新增Adset">
+                <i class="fas fa-plus text-xs"></i>
+              </button>
+              <button onclick="copyNode('${node.id}')" class="action-icon-btn" title="复制Campaign">
+                <i class="fas fa-copy text-xs"></i>
+              </button>
+              <button onclick="deleteNode('${node.id}')" class="action-icon-btn text-red-400 hover:text-red-200" title="删除Campaign">
+                <i class="fas fa-trash text-xs"></i>
+              </button>
+            </div>`;
+        } else if (node.type === 'adset') {
+          html += `
+            <div class="flex items-center space-x-1">
+              <button onclick="addNode('${node.id}')" class="action-icon-btn" title="新增Ad">
+                <i class="fas fa-plus text-xs"></i>
+              </button>
+              <button onclick="copyNode('${node.id}')" class="action-icon-btn" title="复制Adset">
+                <i class="fas fa-copy text-xs"></i>
+              </button>
+              <button onclick="deleteNode('${node.id}')" class="action-icon-btn text-red-400 hover:text-red-200" title="删除Adset">
+                <i class="fas fa-trash text-xs"></i>
+              </button>
+            </div>`;
+        }
+        // Ad层显示数量统计
+        else if (node.type === 'ad') {
+          const parentAdset = findParentNode(adTreeData, node.id);
+          if (parentAdset && parentAdset.ads) {
+            html += `<span class="text-sm text-gray-400">(Adset下有${parentAdset.ads.length}个Ad)</span>`;
+          }
+        }
+        
+        html += `</div>`;
+        
+        if (node.adsets && node.adsets.length) {
+          html += renderTreeNodes(node.adsets, level + 1);
+        }
+        if (node.ads && node.ads.length) {
+          html += renderTreeNodes(node.ads, level + 1);
+        }
+        html += '</li>';
+        return html;
+      }).join('') + '</ul>';
+    }
+    function updateAdStats() {
+      let campaignCount = adTreeData.length;
+      let adsetCount = 0, adCount = 0;
+      adTreeData.forEach(c => {
+        adsetCount += (c.adsets || []).length;
+        (c.adsets || []).forEach(a => {
+          adCount += (a.ads || []).length;
+        });
+      });
+      document.getElementById('adStats').textContent = `广告统计：${campaignCount}个Campaign，${adsetCount}个Adset，${adCount}个Ad`;
+    }
+    // 选中树节点
+    function selectTreeNode(id) {
+      selectedNode = findNodeById(adTreeData, id);
+      renderAdStructureTree();
+      renderBulkParamForm();
+    }
+    function findNodeById(nodes, id) {
+      for (const node of nodes) {
+        if (node.id === id) return node;
+        if (node.adsets) {
+          const found = findNodeById(node.adsets, id);
+          if (found) return found;
+        }
+        if (node.ads) {
+          const found = findNodeById(node.ads, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+    // 新增节点
+    function addNode(parentId) {
+      if (!parentId) {
+        // 新增Campaign
+        adTreeData.push({
+          id: 'campaign_' + nodeIdCounter++,
+          type: 'campaign',
+          params: { name: '', objective: '', status: 'PAUSED', daily_budget: '' },
+          adsets: []
+        });
+      } else {
+        const parent = findNodeById(adTreeData, parentId);
+        if (parent.type === 'campaign') {
+          parent.adsets = parent.adsets || [];
+          parent.adsets.push({
+            id: 'adset_' + nodeIdCounter++,
+            type: 'adset',
+            params: { name: '', status: 'PAUSED', start_time: '', end_time: '', daily_budget: '', bid_amount: '', optimization_goal: '', targeting: '', placement: '' },
+            ads: []
+          });
+        } else if (parent.type === 'adset') {
+          parent.ads = parent.ads || [];
+          parent.ads.push({
+            id: 'ad_' + nodeIdCounter++,
+            type: 'ad',
+            params: { 
+              name: '', 
+              title: '', 
+              body: '', 
+              creative: '', 
+              cta: 'LEARN_MORE', 
+              landing_page: '', 
+              status: 'PAUSED' 
+            }
+          });
+        }
+      }
+      renderAdStructureTree();
+    }
+    // 复制节点
+    function copyNode(nodeId) {
+      const node = findNodeById(adTreeData, nodeId);
+      if (!node) return;
+      const copy = deepCopyNode(node);
+      copy.id = node.type + '_' + nodeIdCounter++;
+      if (node.type === 'campaign') {
+        adTreeData.push(copy);
+      } else {
+        const parent = findParentNode(adTreeData, nodeId);
+        if (parent) {
+          if (node.type === 'adset') {
+            parent.adsets.push(copy);
+          } else if (node.type === 'ad') {
+            parent.ads.push(copy);
+          }
+        }
+      }
+      renderAdStructureTree();
+    }
+    function deepCopyNode(node) {
+      return JSON.parse(JSON.stringify(node));
+    }
+    function findParentNode(nodes, childId) {
+      for (const node of nodes) {
+        if (node.adsets && node.adsets.some(a => a.id === childId)) return node;
+        if (node.ads && node.ads.some(a => a.id === childId)) return node;
+        if (node.adsets) {
+          const found = findParentNode(node.adsets, childId);
+          if (found) return found;
+        }
+        if (node.ads) {
+          const found = findParentNode(node.ads, childId);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+    // 删除节点
+    function deleteNode(nodeId) {
+      function del(nodes, id) {
+        for (let i = 0; i < nodes.length; i++) {
+          if (nodes[i].id === id) {
+            nodes.splice(i, 1);
+            return true;
+          }
+          if (nodes[i].adsets && del(nodes[i].adsets, id)) return true;
+          if (nodes[i].ads && del(nodes[i].ads, id)) return true;
+        }
+        return false;
+      }
+      del(adTreeData, nodeId);
+      if (selectedNode && selectedNode.id === nodeId) selectedNode = null;
+      renderAdStructureTree();
+      renderBulkParamForm();
+    }
+    // 参数表单渲染
+    function renderBulkParamForm() {
+      const formDiv = document.getElementById('bulkParamForm');
+      
+      if (!selectedNode) {
+        formDiv.innerHTML = '<div class="text-gray-400 text-sm">请点击左侧广告结构树节点进行编辑</div>';
+        return;
+      }
+
+      let html = '';
+      
+      if (selectedNode.type === 'campaign') {
+        // Campaign层参数
+        html += `<div class="mb-6">
+          <h5 class="text-lg font-semibold text-white mb-4">Campaign 参数设置</h5>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+        
+        fbFields.campaign.forEach(f => {
+          html += renderFieldHtml(f, selectedNode);
+        });
+        
+        html += `</div></div>`;
+        
+      } else if (selectedNode.type === 'adset') {
+        // 显示父Campaign + 当前Adset参数
+        const parentCampaign = findParentNode(adTreeData, selectedNode.id);
+        
+        if (parentCampaign) {
+          html += `<div class="mb-6">
+            <h5 class="text-lg font-semibold text-white mb-4">Campaign 参数 (${parentCampaign.params.name || parentCampaign.id})</h5>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+          
+          fbFields.campaign.forEach(f => {
+            html += renderFieldHtml(f, parentCampaign, true); // readonly=true
+          });
+          
+          html += `</div></div>`;
+        }
+        
+        html += `<div class="mb-6">
+          <h5 class="text-lg font-semibold text-white mb-4">Adset 参数设置</h5>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+        
+        fbFields.adset.forEach(f => {
+          html += renderFieldHtml(f, selectedNode);
+        });
+        
+        html += `</div></div>`;
+        
+        // 显示Ad表格
+        if (selectedNode.ads && selectedNode.ads.length > 0) {
+          html += renderAdTable(selectedNode);
+        }
+      }
+      
+      formDiv.innerHTML = `<form oninput="onParamInput(event, '${selectedNode.id}')">${html}</form>`;
+    }
+
+    // 渲染单个字段的HTML
+    function renderFieldHtml(field, node, readonly = false) {
+      const value = node.params[field.key] || '';
+      const readonlyAttr = readonly ? 'readonly disabled' : '';
+      const grayClass = readonly ? 'bg-gray-600 text-gray-400' : '';
+      
+      if (field.type === 'select') {
+        return `<div class="mb-4">
+          <label class="block text-gray-300 mb-1">${field.label}</label>
+          <select name="${field.key}" class="input-field w-full ${grayClass}" ${readonlyAttr}>
+            ${field.options.map(opt => `<option value="${opt}" ${value===opt?'selected':''}>${opt}</option>`).join('')}
+          </select>
+        </div>`;
+      } else if (field.type === 'textarea') {
+        return `<div class="mb-4">
+          <label class="block text-gray-300 mb-1">${field.label}</label>
+          <textarea name="${field.key}" class="input-field w-full h-20 ${grayClass}" ${readonlyAttr}>${value}</textarea>
+        </div>`;
+      } else {
+        return `<div class="mb-4">
+          <label class="block text-gray-300 mb-1">${field.label}</label>
+          <input name="${field.key}" type="${field.type}" class="input-field w-full ${grayClass}" value="${value}" ${readonlyAttr}>
+        </div>`;
+      }
+    }
+
+    // 渲染Ad表格
+    function renderAdTable(adsetNode) {
+      let html = `<div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h5 class="text-lg font-semibold text-white">Ad 创意表格</h5>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="selectCreativeMaterial()" class="btn-secondary px-4 py-2">选择素材</button>
+            <button type="button" onclick="addAdToAdset('${adsetNode.id}')" class="btn-primary px-4 py-2">新增Ad</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-white border border-gray-600">
+            <thead class="bg-gray-700">
+              <tr>
+                <th class="px-3 py-2 border-r border-gray-600">Ad名称</th>
+                <th class="px-3 py-2 border-r border-gray-600">标题</th>
+                <th class="px-3 py-2 border-r border-gray-600">正文</th>
+                <th class="px-3 py-2 border-r border-gray-600">素材</th>
+                <th class="px-3 py-2 border-r border-gray-600">行动按钮</th>
+                <th class="px-3 py-2 border-r border-gray-600">落地页</th>
+                <th class="px-3 py-2">操作</th>
+              </tr>
+            </thead>
+            <tbody>`;
+      
+      adsetNode.ads.forEach((ad, idx) => {
+        html += `<tr class="border-b border-gray-600">
+          <td class="px-3 py-2 border-r border-gray-600">
+            <input type="text" value="${ad.params.name || ''}" 
+                   onchange="updateAdParam('${ad.id}', 'name', this.value)" 
+                   class="input-field w-full text-sm">
+          </td>
+          <td class="px-3 py-2 border-r border-gray-600">
+            <input type="text" value="${ad.params.title || ''}" 
+                   onchange="updateAdParam('${ad.id}', 'title', this.value)" 
+                   class="input-field w-full text-sm">
+          </td>
+          <td class="px-3 py-2 border-r border-gray-600">
+            <textarea onchange="updateAdParam('${ad.id}', 'body', this.value)" 
+                      class="input-field w-full text-sm h-16">${ad.params.body || ''}</textarea>
+          </td>
+          <td class="px-3 py-2 border-r border-gray-600">
+            <input type="text" value="${ad.params.creative || ''}" 
+                   onchange="updateAdParam('${ad.id}', 'creative', this.value)" 
+                   class="input-field w-full text-sm" placeholder="点击选择素材">
+          </td>
+          <td class="px-3 py-2 border-r border-gray-600">
+            <select onchange="updateAdParam('${ad.id}', 'cta', this.value)" 
+                    class="input-field w-full text-sm">
+              ${fbFields.ad.find(f => f.key === 'cta').options.map(opt => 
+                `<option value="${opt}" ${ad.params.cta===opt?'selected':''}>${opt}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td class="px-3 py-2 border-r border-gray-600">
+            <input type="url" value="${ad.params.landing_page || ''}" 
+                   onchange="updateAdParam('${ad.id}', 'landing_page', this.value)" 
+                   class="input-field w-full text-sm">
+          </td>
+          <td class="px-3 py-2">
+            <button type="button" onclick="deleteAdFromTable('${ad.id}')" 
+                    class="text-red-400 hover:text-red-200 text-sm">删除</button>
+          </td>
+        </tr>`;
+      });
+      
+      html += `</tbody></table></div></div>`;
+      return html;
+    }
+    function onParamInput(e, nodeId) {
+      const node = findNodeById(adTreeData, nodeId);
+      if (!node) return;
+      const form = e.target.form;
+      fbFields[node.type].forEach(f => {
+        node.params[f.key] = form.elements[f.key].value;
+      });
+      // 实时更新树节点显示
+      renderAdStructureTree();
+    }
+
+    // Ad表格相关函数
+    function updateAdParam(adId, key, value) {
+      const ad = findNodeById(adTreeData, adId);
+      if (ad) {
+        ad.params[key] = value;
+        // 更新树显示
+        renderAdStructureTree();
+      }
+    }
+
+    function addAdToAdset(adsetId) {
+      addNode(adsetId);
+      // 重新渲染参数表单以显示新的Ad
+      renderBulkParamForm();
+    }
+
+    function deleteAdFromTable(adId) {
+      if (confirm('确定要删除这个Ad吗？')) {
+        deleteNode(adId);
+        // 重新渲染参数表单
+        renderBulkParamForm();
+      }
+    }
+
+    function selectCreativeMaterial() {
+      // 素材选择功能（占位）
+      alert('素材选择功能开发中...');
+    }
+    // 批量发布（占位）
+    function submitBulkCreate() {
+      alert('批量广告发布功能开发中...');
+    }
+    // 初始化树为空时可新增Campaign
+    // 注释掉重复的新增Campaign按钮，已在HTML中定义
+
+    // 资产表格数据
+    let assetRows = [ { account: '', page: '', pixel: '' } ];
+
+    // 页面切换函数
+    function showPage(pageName) {
+      // 隐藏所有页面
+      document.querySelectorAll('.page-view').forEach(page => {
+        page.classList.remove('active');
+        page.style.display = 'none';
+      });
+      // 只显示目标页面
+      let target = null;
+      if (pageName === 'bulkCreate') {
+        target = document.getElementById('bulkCreatePage');
+      } else if (pageName === 'adManagement') {
+        target = document.getElementById('adManagementPage');
+      } else if (pageName === 'createSelection') {
+        target = document.getElementById('createSelectionPage');
+      } else if (pageName === 'createFlow') {
+        target = document.getElementById('createFlowPage');
+      } else if (pageName === 'templateEdit') {
+        target = document.getElementById('templateEditPage');
+      } else {
+        target = document.getElementById(pageName + 'Page');
+      }
+      if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
+      }
+      // 页面初始化逻辑
+      if (pageName === 'bulkCreate') {
+        renderAssetTable();
+        renderBulkTemplateOptions();
+        renderAdStructureTree();
+        renderBulkParamForm();
+      }
+      if (pageName === 'adManagement') {
+        // 可加主页面刷新逻辑
+      }
+    }
+    // 资产表格渲染
+    function renderAssetTable() {
+      const tbody = document.getElementById('assetTableBody');
+      tbody.innerHTML = assetRows.map((row, idx) => `
+        <tr>
+          <td><select class="input-field w-full ${!row.account ? 'border-red-400' : ''}" onchange="onAssetChange(${idx},'account',this.value)" required>
+            <option value="">请选择广告账户</option>
+            ${staticAccounts.map(a => `<option value="${a.id}" ${row.account===a.id?'selected':''}>${a.name}</option>`).join('')}
+          </select></td>
+          <td><select class="input-field w-full ${!row.page ? 'border-red-400' : ''}" onchange="onAssetChange(${idx},'page',this.value)" required>
+            <option value="">请选择Page</option>
+            ${staticPages.map(p => `<option value="${p.id}" ${row.page===p.id?'selected':''}>${p.name}</option>`).join('')}
+          </select></td>
+          <td><select class="input-field w-full ${!row.pixel ? 'border-red-400' : ''}" onchange="onAssetChange(${idx},'pixel',this.value)" required>
+            <option value="">请选择Pixel</option>
+            ${staticPixels.map(px => `<option value="${px.id}" ${row.pixel===px.id?'selected':''}>${px.name}</option>`).join('')}
+          </select></td>
+          <td><button onclick="removeAssetRow(${idx})" class="text-red-400 hover:text-red-200">删除</button></td>
+        </tr>
+      `).join('');
+    }
+    function addAssetRow() {
+      assetRows.push({ account: '', page: '', pixel: '' });
+      renderAssetTable();
+    }
+    function removeAssetRow(idx) {
+      if (assetRows.length > 1) {
+        assetRows.splice(idx, 1);
+        renderAssetTable();
+      }
+    }
+    function onAssetChange(idx, key, value) {
+      assetRows[idx][key] = value;
+      // 重新渲染表格以更新验证状态
+      renderAssetTable();
+    }
+
+    // 模板选择变更处理
+    let currentSelectedTemplate = '';
+    let hasUnsavedChanges = false;
+
+    function handleTemplateChange(newTemplateId) {
+      const tplSel = document.getElementById('bulkTemplateSelect');
+      
+      // 如果是第一次选择模板或清空选择
+      if (!currentSelectedTemplate || !newTemplateId) {
+        currentSelectedTemplate = newTemplateId;
+        applyTemplate(newTemplateId);
+        return;
+      }
+      
+      // 如果已有选择的模板且要切换到其他模板，显示确认弹窗
+      if (currentSelectedTemplate !== newTemplateId && hasUnsavedChanges) {
+        if (confirm('切换模版，全部广告参数将会修改，是否切换？')) {
+          currentSelectedTemplate = newTemplateId;
+          applyTemplate(newTemplateId);
+        } else {
+          // 用户取消，恢复原选择
+          tplSel.value = currentSelectedTemplate;
+        }
+      } else {
+        currentSelectedTemplate = newTemplateId;
+        applyTemplate(newTemplateId);
+      }
+    }
+
+    function applyTemplate(templateId) {
+      if (!templateId) {
+        // 清空模板时的处理
+        hasUnsavedChanges = false;
+        return;
+      }
+      
+      // 应用模板参数到广告结构
+      // 这里可以根据模板ID加载对应的参数配置
+      console.log('应用模板:', templateId);
+      hasUnsavedChanges = true;
+      
+      // 示例：重置广告结构树（实际应用时可根据模板内容重新构建）
+      // adTreeData = [];
+      // renderAdStructureTree();
+    }
+
+    // 新增JS辅助函数：backToTemplateList、saveTemplate、toggleCollapse、updateCostHint、toggleAttributionOptions
+    function backToTemplateList() {
+      showPage('adManagement');
+      showTab('templates');
+    }
+    function saveTemplate() {
+      alert('模版已保存！');
+      backToTemplateList();
+    }
+    function toggleCollapse(id) {
+      const panel = document.getElementById(id);
+      const icon = document.getElementById('icon-' + id);
+      if (panel.style.display === 'none') {
+        panel.style.display = '';
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+      } else {
+        panel.style.display = 'none';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+      }
+    }
+    function updateCostHint() {
+      const sel = document.getElementById('adsetObjective');
+      const hint = document.getElementById('costHint');
+      if (!sel || !hint) return;
+      switch(sel.value) {
+        case 'MAX_CONVERSIONS':
+          hint.textContent = '填写每次转化的目标费用'; break;
+        case 'MAX_VALUE':
+          hint.textContent = '填写每次转化价值的目标费用'; break;
+        case 'MAX_LANDING_PAGE_VIEWS':
+          hint.textContent = '填写每次落地页浏览的目标费用'; break;
+        case 'MAX_LINK_CLICKS':
+          hint.textContent = '填写每次点击的目标费用'; break;
+        case 'MAX_UNIQUE_DAILY_REACH':
+          hint.textContent = '填写每次独立覆盖的目标费用'; break;
+        case 'MAX_IMPRESSIONS':
+          hint.textContent = '填写每千次展示的目标费用'; break;
+        default:
+          hint.textContent = '根据成效目标不同，填写不同费用';
+      }
+    }
+    function toggleAttributionOptions() {
+      const type = document.querySelector('input[name="attributionType"]:checked').value;
+      const std = document.getElementById('standardAttributionOptions');
+      if (type === 'standard') {
+        std.style.display = '';
+      } else {
+        std.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html> 
