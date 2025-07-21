@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>广告账户消耗报表 - BestAds运营管理系统</title>
+  <title>广告消耗情况 - BestAds运营管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -14,6 +15,16 @@
     .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
     .mobile-menu-open { transform: translateX(0); }
     .mobile-menu-closed { transform: translateX(-100%); }
+    .card-metric { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .card-metric .title { color: #6B7280; font-size: 1rem; font-weight: 500; }
+    .card-metric .value { font-size: 2rem; font-weight: 700; color: #1F2937; }
+    .card-metric .trend { font-size: 0.95rem; }
+    .trend-up { color: #16A34A; }
+    .trend-down { color: #EF4444; }
+    .echarts-box { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .echarts-title { font-size: 1.1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .echarts-toggle { background: #F3F4F6; border-radius: 0.375rem; padding: 0.25rem 0.75rem; font-size: 0.95rem; cursor: pointer; margin-left: 1rem; }
+    .echarts-toggle.active { background: #2563EB; color: white; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -75,9 +86,9 @@
         <div class="px-4 mb-6">
           <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">报表</h3>
           <ul class="space-y-1">
-            <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户充值报表</a></li>
+            <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
             <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
-            <li><a href="account-consume-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告账户消耗报表</a></li>
+            <li><a href="account-consume-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
             <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
           </ul>
         </div>
@@ -97,7 +108,7 @@
               <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
                 <span class="text-gray-500">主页</span>
                 <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
-                <span class="text-gray-900 font-medium">广告账户消耗报表</span>
+                <span class="text-gray-900 font-medium">广告消耗情况</span>
               </nav>
             </div>
           </div>
@@ -121,56 +132,100 @@
       <main class="flex-1 overflow-y-auto bg-gray-50">
         <div class="py-6">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-6">
-              <h1 class="text-2xl font-bold text-gray-900">广告账户消耗报表</h1>
-              <button class="btn-primary bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"><i class="fas fa-download mr-2"></i>导出报表</button>
+            <!-- 卡片区 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
+              <!-- 昨日消耗卡片 -->
+              <div class="card-metric">
+                <div class="title mb-2">昨日消耗</div>
+                <div class="flex flex-col space-y-1">
+                  <div class="flex items-center text-base">
+                    <span class="text-gray-500 mr-2">账户数：</span>
+                    <span class="font-bold text-lg text-gray-900" id="card-yesterday-accounts">0</span>
+                    <span class="ml-2 text-xs" id="card-yesterday-accounts-trend"></span>
+                  </div>
+                  <div class="flex items-center text-base">
+                    <span class="text-gray-500 mr-2">消耗金额：</span>
+                    <span class="font-bold text-lg text-gray-900" id="card-yesterday-amount">$0.00</span>
+                    <span class="ml-2 text-xs" id="card-yesterday-amount-trend"></span>
+                  </div>
+                </div>
+              </div>
+              <!-- 7天消耗卡片 -->
+              <div class="card-metric">
+                <div class="title mb-2">7天消耗</div>
+                <div class="flex flex-col space-y-1">
+                  <div class="flex items-center text-base">
+                    <span class="text-gray-500 mr-2">账户数：</span>
+                    <span class="font-bold text-lg text-gray-900" id="card-7d-accounts">0</span>
+                    <span class="ml-2 text-xs" id="card-7d-accounts-trend"></span>
+                  </div>
+                  <div class="flex items-center text-base">
+                    <span class="text-gray-500 mr-2">消耗金额：</span>
+                    <span class="font-bold text-lg text-gray-900" id="card-7d-amount">$0.00</span>
+                    <span class="ml-2 text-xs" id="card-7d-amount-trend"></span>
+                  </div>
+                </div>
+              </div>
+              <!-- 30天消耗卡片 -->
+              <div class="card-metric">
+                <div class="title mb-2">30天消耗</div>
+                <div class="flex flex-col space-y-1">
+                  <div class="flex items-center text-base">
+                    <span class="text-gray-500 mr-2">账户数：</span>
+                    <span class="font-bold text-lg text-gray-900" id="card-30d-accounts">0</span>
+                    <span class="ml-2 text-xs" id="card-30d-accounts-trend"></span>
+                  </div>
+                  <div class="flex items-center text-base">
+                    <span class="text-gray-500 mr-2">消耗金额：</span>
+                    <span class="font-bold text-lg text-gray-900" id="card-30d-amount">$0.00</span>
+                    <span class="ml-2 text-xs" id="card-30d-amount-trend"></span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <!-- 筛选区 -->
-            <div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <!-- 日期筛选区 -->
+            <div class="flex flex-wrap gap-4 items-end mb-8">
               <div>
-                <label class="block text-sm mb-1">客户名称</label>
-                <input type="text" class="input-field border border-gray-300 rounded px-2 py-1" placeholder="请输入客户名称">
+                <label class="block text-sm mb-1">日期范围</label>
+                <input type="date" id="dateStart" class="input-field border border-gray-300 rounded px-2 py-1">
+                -
+                <input type="date" id="dateEnd" class="input-field border border-gray-300 rounded px-2 py-1">
               </div>
-              <div>
-                <label class="block text-sm mb-1">广告账户</label>
-                <input type="text" class="input-field border border-gray-300 rounded px-2 py-1" placeholder="请输入广告账户">
-              </div>
-              <div>
-                <label class="block text-sm mb-1">时间范围</label>
-                <input type="date" class="input-field border border-gray-300 rounded px-2 py-1"> - <input type="date" class="input-field border border-gray-300 rounded px-2 py-1">
-              </div>
-              <button class="btn-primary bg-blue-600 text-white h-10 px-6 rounded hover:bg-blue-700">查询</button>
+              <button class="btn-primary bg-blue-600 text-white h-10 px-6 rounded hover:bg-blue-700" onclick="refreshCharts()"><i class="fas fa-search mr-2"></i>查询</button>
             </div>
-            <!-- 数据表格 -->
-            <div class="bg-white rounded-lg shadow p-4">
-              <table class="w-full text-left">
-                <thead>
-                  <tr class="border-b">
-                    <th class="py-2 px-3">客户名称</th>
-                    <th class="py-2 px-3">广告账户</th>
-                    <th class="py-2 px-3">消耗次数</th>
-                    <th class="py-2 px-3">消耗总金额</th>
-                    <th class="py-2 px-3">最后消耗时间</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="py-2 px-3">张三</td>
-                    <td class="py-2 px-3">FB123456</td>
-                    <td class="py-2 px-3">12</td>
-                    <td class="py-2 px-3">¥18,000.00</td>
-                    <td class="py-2 px-3">2024-06-09 12:00</td>
-                  </tr>
-                  <tr>
-                    <td class="py-2 px-3">李四</td>
-                    <td class="py-2 px-3">FB654321</td>
-                    <td class="py-2 px-3">5</td>
-                    <td class="py-2 px-3">¥6,200.00</td>
-                    <td class="py-2 px-3">2024-06-08 18:30</td>
-                  </tr>
-                  <!-- 更多数据... -->
-                </tbody>
-              </table>
+            <!-- 图表区 -->
+            <div class="space-y-8">
+              <!-- 1. 消耗趋势图 -->
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>消耗趋势图</span>
+                </div>
+                <div id="spendTrendChart" style="height: 340px;"></div>
+              </div>
+              <!-- 2. 客户消耗Top5排行榜 -->
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>客户消耗Top 5排行榜</span>
+                  <div>
+                    <span class="echarts-toggle active" id="clientTopToggleYesterday" onclick="setClientTopRange('yesterday')">昨天</span>
+                    <span class="echarts-toggle" id="clientTopToggle7d" onclick="setClientTopRange('7d')">7天</span>
+                    <span class="echarts-toggle" id="clientTopToggle30d" onclick="setClientTopRange('30d')">30天</span>
+                  </div>
+                </div>
+                <div id="clientTopChart" style="height: 320px;"></div>
+              </div>
+              <!-- 3. 广告账户消耗Top5排行榜 -->
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>广告账户消耗Top 5排行榜</span>
+                  <div>
+                    <span class="echarts-toggle active" id="accountTopToggleYesterday" onclick="setAccountTopRange('yesterday')">昨天</span>
+                    <span class="echarts-toggle" id="accountTopToggle7d" onclick="setAccountTopRange('7d')">7天</span>
+                    <span class="echarts-toggle" id="accountTopToggle30d" onclick="setAccountTopRange('30d')">30天</span>
+                  </div>
+                </div>
+                <div id="accountTopChart" style="height: 320px;"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -178,43 +233,209 @@
     </div>
   </div>
   <script>
-    // 侧边栏切换
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
-      if (sidebar.classList.contains('mobile-menu-closed')) {
-        sidebar.classList.remove('mobile-menu-closed');
-        sidebar.classList.add('mobile-menu-open');
-        overlay.classList.remove('hidden');
-        overlay.classList.remove('opacity-0');
-        overlay.classList.add('opacity-50');
+    // ========== 假数据池 ==========
+    const adPlatforms = ['Facebook', 'Google', 'TikTok'];
+    const clientNames = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十'];
+    const accountNames = ['FB123456', 'FB654321', 'GG987654', 'TK111222', 'TK333444', 'FB222333', 'GG555666', 'TK777888'];
+    // 生成日期数组
+    function getDateArray(start, end) {
+      const arr = [];
+      let dt = new Date(start);
+      const endDt = new Date(end);
+      while (dt <= endDt) {
+        arr.push(dt.toISOString().slice(0, 10));
+        dt.setDate(dt.getDate() + 1);
+      }
+      return arr;
+    }
+    // 生成消耗趋势数据
+    function genSpendTrendData(platforms, days, minAmount, maxAmount) {
+      const data = {};
+      platforms.forEach(p => {
+        data[p] = days.map(date => ({
+          date,
+          amount: +(Math.random() * (maxAmount - minAmount) + minAmount).toFixed(2)
+        }));
+      });
+      return data;
+    }
+    // 生成Top榜数据
+    function genTopData(names, minAmount, maxAmount) {
+      return names.map(name => ({
+        name,
+        amount: +(Math.random() * (maxAmount - minAmount) + minAmount).toFixed(2)
+      }));
+    }
+    // ========== 卡片区数据和环比计算 ==========
+    function calcCardData(trendData, prevTrendData) {
+      // trendData/prevTrendData: {平台: [{date, amount}]}，只统计总和
+      let accounts = 0, amount = 0, prevAccounts = 0, prevAmount = 0;
+      Object.values(trendData).forEach(arr => {
+        accounts += arr.length;
+        arr.forEach(d => { amount += d.amount; });
+      });
+      Object.values(prevTrendData).forEach(arr => {
+        prevAccounts += arr.length;
+        arr.forEach(d => { prevAmount += d.amount; });
+      });
+      return {
+        accounts,
+        amount,
+        accountsTrend: prevAccounts === 0 ? null : ((accounts - prevAccounts) / prevAccounts * 100).toFixed(1),
+        amountTrend: prevAmount === 0 ? null : ((amount - prevAmount) / prevAmount * 100).toFixed(1)
+      };
+    }
+    // ========== 图表渲染 ==========
+    let clientTopRange = 'yesterday';
+    let accountTopRange = 'yesterday';
+    function refreshCharts() {
+      const start = document.getElementById('dateStart').value;
+      const end = document.getElementById('dateEnd').value;
+      const days = getDateArray(start, end);
+      // 消耗趋势
+      const spendTrend = genSpendTrendData(adPlatforms, days, 100, 1000);
+      renderSpendTrendChart('spendTrendChart', days, adPlatforms, spendTrend);
+      // Top榜
+      renderClientTopChart();
+      renderAccountTopChart();
+    }
+    // 消耗趋势折线图
+    function renderSpendTrendChart(domId, days, platforms, trendData) {
+      const chart = echarts.init(document.getElementById(domId));
+      const series = platforms.map(p => ({
+        name: p,
+        type: 'line',
+        data: trendData[p].map(d => d.amount)
+      }));
+      chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: platforms },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: days },
+        yAxis: { type: 'value', name: '消耗金额(USD)' },
+        series
+      });
+    }
+    // 客户Top5
+    function renderClientTopChart() {
+      let data;
+      if (clientTopRange === 'yesterday') {
+        data = genTopData(clientNames.slice(0,5), 500, 5000);
+      } else if (clientTopRange === '7d') {
+        data = genTopData(clientNames.slice(0,5), 2000, 20000);
       } else {
-        sidebar.classList.remove('mobile-menu-open');
-        sidebar.classList.add('mobile-menu-closed');
-        overlay.classList.add('opacity-0');
-        overlay.classList.remove('opacity-50');
-        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+        data = genTopData(clientNames.slice(0,5), 8000, 80000);
+      }
+      const chart = echarts.init(document.getElementById('clientTopChart'));
+      chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', name: '消耗金额(USD)' },
+        yAxis: { type: 'category', data: data.map(d => d.name), inverse: true },
+        series: [{
+          name: '消耗金额',
+          type: 'bar',
+          data: data.map(d => d.amount),
+          label: { show: true, position: 'right' }
+        }]
+      });
+    }
+    // 账户Top5
+    function renderAccountTopChart() {
+      let data;
+      if (accountTopRange === 'yesterday') {
+        data = genTopData(accountNames.slice(0,5), 500, 5000);
+      } else if (accountTopRange === '7d') {
+        data = genTopData(accountNames.slice(0,5), 2000, 20000);
+      } else {
+        data = genTopData(accountNames.slice(0,5), 8000, 80000);
+      }
+      const chart = echarts.init(document.getElementById('accountTopChart'));
+      chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', name: '消耗金额(USD)' },
+        yAxis: { type: 'category', data: data.map(d => d.name), inverse: true },
+        series: [{
+          name: '消耗金额',
+          type: 'bar',
+          data: data.map(d => d.amount),
+          label: { show: true, position: 'right' }
+        }]
+      });
+    }
+    // Top切换
+    function setClientTopRange(range) {
+      clientTopRange = range;
+      document.getElementById('clientTopToggleYesterday').classList.toggle('active', range === 'yesterday');
+      document.getElementById('clientTopToggle7d').classList.toggle('active', range === '7d');
+      document.getElementById('clientTopToggle30d').classList.toggle('active', range === '30d');
+      renderClientTopChart();
+    }
+    function setAccountTopRange(range) {
+      accountTopRange = range;
+      document.getElementById('accountTopToggleYesterday').classList.toggle('active', range === 'yesterday');
+      document.getElementById('accountTopToggle7d').classList.toggle('active', range === '7d');
+      document.getElementById('accountTopToggle30d').classList.toggle('active', range === '30d');
+      renderAccountTopChart();
+    }
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 卡片区数据（昨日、7天、30天）
+      const yesterday = getNDaysAgo(1);
+      const days7 = getDateArray(getNDaysAgo(7), getNDaysAgo(1));
+      const days30 = getDateArray(getNDaysAgo(30), getNDaysAgo(1));
+      const prevYesterday = getNDaysAgo(2);
+      const prev7Start = getNDaysAgo(14); const prev7End = getNDaysAgo(8);
+      const prev30Start = getNDaysAgo(60); const prev30End = getNDaysAgo(31);
+      // 用假数据生成账户数和金额（非零）
+      // 昨日
+      const spendTrendYesterday = genSpendTrendData(adPlatforms, [yesterday], 100, 1000);
+      const spendTrendPrevYesterday = genSpendTrendData(adPlatforms, [prevYesterday], 100, 1000);
+      // 7天
+      const spendTrend7 = genSpendTrendData(adPlatforms, days7, 200, 2000);
+      const spendTrendPrev7 = genSpendTrendData(adPlatforms, getDateArray(prev7Start, prev7End), 200, 2000);
+      // 30天
+      const spendTrend30 = genSpendTrendData(adPlatforms, days30, 500, 5000);
+      const spendTrendPrev30 = genSpendTrendData(adPlatforms, getDateArray(prev30Start, prev30End), 500, 5000);
+      const cardYesterday = calcCardData(spendTrendYesterday, spendTrendPrevYesterday);
+      const card7 = calcCardData(spendTrend7, spendTrendPrev7);
+      const card30 = calcCardData(spendTrend30, spendTrendPrev30);
+      document.getElementById('card-yesterday-accounts').textContent = cardYesterday.accounts;
+      document.getElementById('card-yesterday-amount').textContent = '$' + cardYesterday.amount.toLocaleString(undefined, {minimumFractionDigits:2});
+      setTrend('card-yesterday-accounts-trend', cardYesterday.accountsTrend);
+      setTrend('card-yesterday-amount-trend', cardYesterday.amountTrend);
+      document.getElementById('card-7d-accounts').textContent = card7.accounts;
+      document.getElementById('card-7d-amount').textContent = '$' + card7.amount.toLocaleString(undefined, {minimumFractionDigits:2});
+      setTrend('card-7d-accounts-trend', card7.accountsTrend);
+      setTrend('card-7d-amount-trend', card7.amountTrend);
+      document.getElementById('card-30d-accounts').textContent = card30.accounts;
+      document.getElementById('card-30d-amount').textContent = '$' + card30.amount.toLocaleString(undefined, {minimumFractionDigits:2});
+      setTrend('card-30d-accounts-trend', card30.accountsTrend);
+      setTrend('card-30d-amount-trend', card30.amountTrend);
+      // 默认日期范围为最近7天（不含当天）
+      const defaultEnd = getNDaysAgo(1);
+      const defaultStart = getNDaysAgo(7);
+      document.getElementById('dateStart').value = defaultStart;
+      document.getElementById('dateEnd').value = defaultEnd;
+      refreshCharts();
+    });
+    // 工具函数：获取N天前的日期字符串
+    function getNDaysAgo(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return d.toISOString().slice(0,10);
+    }
+    function setTrend(id, trend) {
+      const el = document.getElementById(id);
+      if (trend === null) {
+        el.innerHTML = '<span class="text-gray-400">--</span>';
+      } else if (+trend >= 0) {
+        el.innerHTML = `<span class="trend-up"><i class="fas fa-arrow-up"></i> +${trend}%</span>`;
+      } else {
+        el.innerHTML = `<span class="trend-down"><i class="fas fa-arrow-down"></i> ${trend}%</span>`;
       }
     }
-    document.getElementById('sidebar-overlay').addEventListener('click', function() { toggleSidebar(); });
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-      item.addEventListener('click', function(e) {
-        if (this.getAttribute('href') === '#') { e.preventDefault(); }
-        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active', 'text-gray-900', 'bg-gray-100'));
-        this.classList.add('active', 'text-gray-900', 'bg-gray-100');
-      });
-    });
-    window.addEventListener('resize', function() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
-      if (window.innerWidth >= 1024) {
-        sidebar.classList.remove('mobile-menu-closed');
-        sidebar.classList.add('mobile-menu-open');
-        overlay.classList.add('hidden');
-        overlay.classList.add('opacity-0');
-        overlay.classList.remove('opacity-50');
-      }
-    });
   </script>
 </body>
 </html> 
