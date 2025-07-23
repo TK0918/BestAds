@@ -102,10 +102,11 @@
               <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
             </div>
             <ul id="reportMenu" class="space-y-1 mb-2">
-              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
               <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
               <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
-              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item active text-gray-900 bg-gray-100 flex items-center px-4 py-2 text-sm font-medium rounded-lg"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
             </ul>
           </div>
         </nav>
@@ -153,87 +154,85 @@
               <h1 class="text-2xl font-bold text-gray-900">负向广告报表</h1>
               <button class="btn-primary bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"><i class="fas fa-download mr-2"></i>导出报表</button>
             </div>
-            <!-- 筛选区 -->
-            <div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
-              <div>
-                <label class="block text-sm mb-1">广告账户</label>
-                <input type="text" class="input-field border border-gray-300 rounded px-2 py-1" placeholder="请输入广告账户">
+            <!-- 卡片区 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div class="card-metric bg-white rounded-lg shadow p-4">
+                <div class="title text-gray-500 mb-1">当日机审广告数</div>
+                <div class="flex items-end gap-2 mb-1">
+                  <span class="text-2xl font-bold text-blue-600" id="auto-total">0</span>
+                  <span class="text-sm text-gray-400">需审核</span>
+                  <span class="text-2xl font-bold text-green-600 ml-4" id="auto-done">0</span>
+                  <span class="text-sm text-gray-400">已审核</span>
+                </div>
+                <div class="text-xs text-gray-400">占比 <span id="auto-rate">0%</span></div>
               </div>
-              <div>
-                <label class="block text-sm mb-1">广告名称</label>
-                <input type="text" class="input-field border border-gray-300 rounded px-2 py-1" placeholder="请输入广告名称">
+              <div class="card-metric bg-white rounded-lg shadow p-4">
+                <div class="title text-gray-500 mb-1">当日机审通过率</div>
+                <div class="flex items-end gap-2 mb-1">
+                  <span class="text-2xl font-bold text-blue-600" id="auto-pass">0</span>
+                  <span class="text-sm text-gray-400">通过</span>
+                  <span class="text-2xl font-bold text-red-500 ml-4" id="auto-fail">0</span>
+                  <span class="text-sm text-gray-400">不通过</span>
+                </div>
+                <div class="text-xs text-gray-400">通过率 <span id="auto-pass-rate">0%</span></div>
               </div>
-              <div>
-                <label class="block text-sm mb-1">违规类型</label>
-                <select class="input-field border border-gray-300 rounded px-2 py-1">
-                  <option value="">全部</option>
-                  <option value="content">内容违规</option>
-                  <option value="account">账户违规</option>
-                  <option value="other">其他</option>
-                </select>
+              <div class="card-metric bg-white rounded-lg shadow p-4">
+                <div class="title text-gray-500 mb-1">当日人审广告数</div>
+                <div class="flex items-end gap-2 mb-1">
+                  <span class="text-2xl font-bold text-purple-600" id="manual-total">0</span>
+                  <span class="text-sm text-gray-400">需人审</span>
+                  <span class="text-2xl font-bold text-green-600 ml-4" id="manual-done">0</span>
+                  <span class="text-sm text-gray-400">已人审</span>
+                </div>
+                <div class="text-xs text-gray-400">占比 <span id="manual-rate">0%</span></div>
               </div>
-              <div>
-                <label class="block text-sm mb-1">处理状态</label>
-                <select class="input-field border border-gray-300 rounded px-2 py-1">
-                  <option value="">全部</option>
-                  <option value="processed">已处理</option>
-                  <option value="pending">待处理</option>
-                </select>
+              <div class="card-metric bg-white rounded-lg shadow p-4">
+                <div class="title text-gray-500 mb-1">当日人审通过率</div>
+                <div class="flex items-end gap-2 mb-1">
+                  <span class="text-2xl font-bold text-purple-600" id="manual-pass">0</span>
+                  <span class="text-sm text-gray-400">通过</span>
+                  <span class="text-2xl font-bold text-red-500 ml-4" id="manual-fail">0</span>
+                  <span class="text-sm text-gray-400">不通过</span>
+                </div>
+                <div class="text-xs text-gray-400">通过率 <span id="manual-pass-rate">0%</span></div>
               </div>
-              <div>
-                <label class="block text-sm mb-1">时间范围</label>
-                <input type="date" class="input-field border border-gray-300 rounded px-2 py-1"> - <input type="date" class="input-field border border-gray-300 rounded px-2 py-1">
-              </div>
-              <button class="btn-primary bg-blue-600 text-white h-10 px-6 rounded hover:bg-blue-700">查询</button>
             </div>
-            <!-- 数据表格 -->
-            <div class="bg-white rounded-lg shadow p-4">
-              <table class="w-full text-left">
-                <thead>
-                  <tr class="border-b">
-                    <th class="py-2 px-3">广告账户</th>
-                    <th class="py-2 px-3">广告名称</th>
-                    <th class="py-2 px-3">违规类型</th>
-                    <th class="py-2 px-3">违规时间</th>
-                    <th class="py-2 px-3">处理状态</th>
-                    <th class="py-2 px-3">备注</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="py-2 px-3">Account_FB_001</td>
-                    <td class="py-2 px-3">夏季促销广告</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">内容违规</span></td>
-                    <td class="py-2 px-3">2024-06-01 10:23</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">已处理</span></td>
-                    <td class="py-2 px-3">已下架整改</td>
-                  </tr>
-                  <tr>
-                    <td class="py-2 px-3">Account_FB_002</td>
-                    <td class="py-2 px-3">品牌宣传广告</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded-full">账户违规</span></td>
-                    <td class="py-2 px-3">2024-06-02 14:10</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">待处理</span></td>
-                    <td class="py-2 px-3">待人工复核</td>
-                  </tr>
-                  <tr>
-                    <td class="py-2 px-3">Account_FB_003</td>
-                    <td class="py-2 px-3">新品推广广告</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">其他</span></td>
-                    <td class="py-2 px-3">2024-06-03 09:45</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">已处理</span></td>
-                    <td class="py-2 px-3">警告处理</td>
-                  </tr>
-                  <tr>
-                    <td class="py-2 px-3">Account_FB_004</td>
-                    <td class="py-2 px-3">双11促销广告</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">内容违规</span></td>
-                    <td class="py-2 px-3">2024-06-04 16:30</td>
-                    <td class="py-2 px-3"><span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">待处理</span></td>
-                    <td class="py-2 px-3">系统自动检测</td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- 图表区 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-semibold text-gray-700">Top 10高风险客户</span>
+                  <div>
+                    <button class="echarts-toggle active" id="client-toggle-count" onclick="switchClientChart('count')">违规广告数</button>
+                    <button class="echarts-toggle" id="client-toggle-amount" onclick="switchClientChart('amount')">违规广告消耗</button>
+                  </div>
+                </div>
+                <div id="clientRiskChart" style="height:320px;"></div>
+              </div>
+              <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-semibold text-gray-700">Top 10高风险账户</span>
+                  <div>
+                    <button class="echarts-toggle active" id="account-toggle-count" onclick="switchAccountChart('count')">违规广告数</button>
+                    <button class="echarts-toggle" id="account-toggle-amount" onclick="switchAccountChart('amount')">违规广告消耗</button>
+                  </div>
+                </div>
+                <div id="accountRiskChart" style="height:320px;"></div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-white rounded-lg shadow p-4">
+                <div class="font-semibold text-gray-700 mb-2">违规消耗占比</div>
+                <div id="violationPieChart" style="height:320px;"></div>
+              </div>
+              <div class="bg-white rounded-lg shadow p-4">
+                <div class="font-semibold text-gray-700 mb-2">机审效率&准确率</div>
+                <div id="autoAuditChart" style="height:320px;"></div>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+              <div class="font-semibold text-gray-700 mb-2">人工审核效率&准确率</div>
+              <div id="manualAuditChart" style="height:320px;"></div>
             </div>
           </div>
         </div>
@@ -301,5 +300,203 @@
       }
     }
   </script>
+  <!-- 在body底部引入ECharts和JS逻辑 -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <script>
+// -------------------- 假数据生成 --------------------
+function genAuditCardData() {
+  // 机审
+  const autoTotal = 120 + Math.floor(Math.random()*20);
+  const autoDone = 100 + Math.floor(Math.random()*20);
+  const autoRate = autoDone/autoTotal*100;
+  const autoPass = 90 + Math.floor(Math.random()*10);
+  const autoFail = autoDone - autoPass;
+  const autoPassRate = autoPass/autoDone*100;
+  // 人审
+  const manualTotal = 40 + Math.floor(Math.random()*10);
+  const manualDone = 35 + Math.floor(Math.random()*5);
+  const manualRate = manualDone/manualTotal*100;
+  const manualPass = 30 + Math.floor(Math.random()*5);
+  const manualFail = manualDone - manualPass;
+  const manualPassRate = manualPass/manualDone*100;
+  return {
+    autoTotal, autoDone, autoRate,
+    autoPass, autoFail, autoPassRate,
+    manualTotal, manualDone, manualRate,
+    manualPass, manualFail, manualPassRate
+  };
+}
+function genTop10Data(type='count') {
+  // type: 'count' or 'amount'
+  const names = Array.from({length:10}, (_,i)=>`客户${i+1}`);
+  const accounts = Array.from({length:10}, (_,i)=>`账户${i+1}`);
+  let clientData, accountData;
+  if(type==='count') {
+    clientData = names.map((n,i)=>({name:n, value:Math.round(30-Math.random()*i*2+10)})).sort((a,b)=>b.value-a.value);
+    accountData = accounts.map((n,i)=>({name:n, value:Math.round(20-Math.random()*i*1.5+5)})).sort((a,b)=>b.value-a.value);
+  } else {
+    clientData = names.map((n,i)=>({name:n, value:Math.round(20000-Math.random()*i*2000+5000)})).sort((a,b)=>b.value-a.value);
+    accountData = accounts.map((n,i)=>({name:n, value:Math.round(10000-Math.random()*i*1000+2000)})).sort((a,b)=>b.value-a.value);
+  }
+  return {clientData, accountData};
+}
+function genViolationPieData() {
+  const violation = Math.round(8000+Math.random()*2000);
+  const total = violation + Math.round(40000+Math.random()*5000);
+  return [
+    {value: violation, name: '违规消耗'},
+    {value: total-violation, name: '正常消耗'}
+  ];
+}
+function genAutoAuditChartData() {
+  const days = Array.from({length:14}, (_,i)=>{
+    const d = new Date(); d.setDate(d.getDate()-13+i);
+    return d.toISOString().slice(5,10);
+  });
+  const count = days.map(()=>Math.round(100+Math.random()*30));
+  const time = days.map(()=>+(2+Math.random()*1.5).toFixed(2));
+  const acc = days.map(()=>+(90+Math.random()*8).toFixed(2));
+  return {days, count, time, acc};
+}
+function genManualAuditChartData() {
+  const days = Array.from({length:14}, (_,i)=>{
+    const d = new Date(); d.setDate(d.getDate()-13+i);
+    return d.toISOString().slice(5,10);
+  });
+  const count = days.map(()=>Math.round(30+Math.random()*10));
+  const time = days.map(()=>+(10+Math.random()*3).toFixed(2));
+  const acc = days.map(()=>+(85+Math.random()*10).toFixed(2));
+  return {days, count, time, acc};
+}
+// -------------------- 渲染逻辑 --------------------
+function renderAuditCards() {
+  const d = genAuditCardData();
+  document.getElementById('auto-total').textContent = d.autoTotal;
+  document.getElementById('auto-done').textContent = d.autoDone;
+  document.getElementById('auto-rate').textContent = d.autoRate.toFixed(1)+'%';
+  document.getElementById('auto-pass').textContent = d.autoPass;
+  document.getElementById('auto-fail').textContent = d.autoFail;
+  document.getElementById('auto-pass-rate').textContent = d.autoPassRate.toFixed(1)+'%';
+  document.getElementById('manual-total').textContent = d.manualTotal;
+  document.getElementById('manual-done').textContent = d.manualDone;
+  document.getElementById('manual-rate').textContent = d.manualRate.toFixed(1)+'%';
+  document.getElementById('manual-pass').textContent = d.manualPass;
+  document.getElementById('manual-fail').textContent = d.manualFail;
+  document.getElementById('manual-pass-rate').textContent = d.manualPassRate.toFixed(1)+'%';
+}
+let clientChartType = 'count', accountChartType = 'count';
+function renderClientRiskChart(type='count') {
+  const {clientData} = genTop10Data(type);
+  const chart = echarts.init(document.getElementById('clientRiskChart'));
+  chart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: 0, right: 20, bottom: 0, top: 10, containLabel: true },
+    xAxis: { type: 'value', name: type==='count'?'违规广告数':'违规广告消耗(元)' },
+    yAxis: { type: 'category', data: clientData.map(d=>d.name), inverse: true },
+    series: [{
+      name: type==='count'?'违规广告数':'违规广告消耗',
+      type: 'bar',
+      data: clientData.map(d=>d.value),
+      label: { show: true, position: 'right' },
+      itemStyle: { color: type==='count'?'#f59e42':'#ef4444' }
+    }]
+  });
+}
+function renderAccountRiskChart(type='count') {
+  const {accountData} = genTop10Data(type);
+  const chart = echarts.init(document.getElementById('accountRiskChart'));
+  chart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: 0, right: 20, bottom: 0, top: 10, containLabel: true },
+    xAxis: { type: 'value', name: type==='count'?'违规广告数':'违规广告消耗(元)' },
+    yAxis: { type: 'category', data: accountData.map(d=>d.name), inverse: true },
+    series: [{
+      name: type==='count'?'违规广告数':'违规广告消耗',
+      type: 'bar',
+      data: accountData.map(d=>d.value),
+      label: { show: true, position: 'right' },
+      itemStyle: { color: type==='count'?'#60a5fa':'#ef4444' }
+    }]
+  });
+}
+function renderViolationPieChart() {
+  const data = genViolationPieData();
+  const chart = echarts.init(document.getElementById('violationPieChart'));
+  chart.setOption({
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    legend: { bottom: 0 },
+    series: [{
+      name: '消耗占比',
+      type: 'pie',
+      radius: ['50%', '70%'],
+      avoidLabelOverlap: false,
+      label: { show: true, position: 'outside' },
+      data
+    }]
+  });
+}
+function renderAutoAuditChart() {
+  const {days, count, time, acc} = genAutoAuditChartData();
+  const chart = echarts.init(document.getElementById('autoAuditChart'));
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['机审广告数','平均用时(秒)','准确率(%)'] },
+    grid: { left: 40, right: 20, bottom: 30, top: 30, containLabel: true },
+    xAxis: { type: 'category', data: days },
+    yAxis: [
+      { type: 'value', name: '广告数', min: 0 },
+      { type: 'value', name: '用时(秒)', min: 0, max: 20, position: 'right' },
+      { type: 'value', name: '准确率(%)', min: 0, max: 100, position: 'right', offset: 60 }
+    ],
+    series: [
+      { name: '机审广告数', type: 'line', data: count, yAxisIndex: 0, smooth: true, lineStyle: { color: '#2563eb' } },
+      { name: '平均用时(秒)', type: 'bar', data: time, yAxisIndex: 1, barWidth: 12, itemStyle: { color: '#f59e42' } },
+      { name: '准确率(%)', type: 'line', data: acc, yAxisIndex: 2, smooth: true, lineStyle: { color: '#16a34a' } }
+    ]
+  });
+}
+function renderManualAuditChart() {
+  const {days, count, time, acc} = genManualAuditChartData();
+  const chart = echarts.init(document.getElementById('manualAuditChart'));
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['人审广告数','平均用时(秒)','准确率(%)'] },
+    grid: { left: 40, right: 20, bottom: 30, top: 30, containLabel: true },
+    xAxis: { type: 'category', data: days },
+    yAxis: [
+      { type: 'value', name: '广告数', min: 0 },
+      { type: 'value', name: '用时(秒)', min: 0, max: 20, position: 'right' },
+      { type: 'value', name: '准确率(%)', min: 0, max: 100, position: 'right', offset: 60 }
+    ],
+    series: [
+      { name: '人审广告数', type: 'line', data: count, yAxisIndex: 0, smooth: true, lineStyle: { color: '#a855f7' } },
+      { name: '平均用时(秒)', type: 'bar', data: time, yAxisIndex: 1, barWidth: 12, itemStyle: { color: '#f59e42' } },
+      { name: '准确率(%)', type: 'line', data: acc, yAxisIndex: 2, smooth: true, lineStyle: { color: '#16a34a' } }
+    ]
+  });
+}
+// 切换按钮逻辑
+function switchClientChart(type) {
+  clientChartType = type;
+  document.getElementById('client-toggle-count').classList.toggle('active', type==='count');
+  document.getElementById('client-toggle-amount').classList.toggle('active', type==='amount');
+  renderClientRiskChart(type);
+}
+function switchAccountChart(type) {
+  accountChartType = type;
+  document.getElementById('account-toggle-count').classList.toggle('active', type==='count');
+  document.getElementById('account-toggle-amount').classList.toggle('active', type==='amount');
+  renderAccountRiskChart(type);
+}
+// -------------------- 初始化 --------------------
+document.addEventListener('DOMContentLoaded', function() {
+  renderAuditCards();
+  renderClientRiskChart('count');
+  renderAccountRiskChart('count');
+  renderViolationPieChart();
+  renderAutoAuditChart();
+  renderManualAuditChart();
+});
+</script>
 </body>
 </html> 
