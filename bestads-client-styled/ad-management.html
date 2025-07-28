@@ -3248,6 +3248,7 @@
                 <th class="px-3 py-2 border-r border-gray-600">素材</th>
                 <th class="px-3 py-2 border-r border-gray-600">行动按钮</th>
                 <th class="px-3 py-2 border-r border-gray-600">落地页</th>
+                <th class="px-3 py-2 border-r border-gray-600">网址参数</th>
                 <th class="px-3 py-2">操作</th>
               </tr>
             </thead>
@@ -3256,40 +3257,95 @@
       adsetNode.ads.forEach((ad, idx) => {
         html += `<tr class="border-b border-gray-600">
           <td class="px-3 py-2 border-r border-gray-600">
-            <input type="text" value="${ad.params.name || ''}" 
-                   onchange="updateAdParam('${ad.id}', 'name', this.value)" 
-                   class="input-field w-full text-sm">
+            <div class="flex items-center space-x-1">
+              <input type="text" value="${ad.params.name || 'AD'}" 
+                     onchange="updateAdParam('${ad.id}', 'name', this.value)" 
+                     class="input-field w-full text-sm">
+              <button type="button" onclick="copyFieldToAll('${ad.id}', 'name', this.previousElementSibling.value)" 
+                      class="text-blue-400 hover:text-blue-200 text-xs" title="复制到所有行">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </td>
           <td class="px-3 py-2 border-r border-gray-600">
-            <input type="text" value="${ad.params.title || ''}" 
-                   onchange="updateAdParam('${ad.id}', 'title', this.value)" 
-                   class="input-field w-full text-sm">
+            <div class="flex items-center space-x-1">
+              <input type="text" value="${ad.params.title || ''}" 
+                     onchange="updateAdParam('${ad.id}', 'title', this.value)" 
+                     class="input-field w-full text-sm">
+              <button type="button" onclick="copyFieldToAll('${ad.id}', 'title', this.previousElementSibling.value)" 
+                      class="text-blue-400 hover:text-blue-200 text-xs" title="复制到所有行">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </td>
           <td class="px-3 py-2 border-r border-gray-600">
-            <textarea onchange="updateAdParam('${ad.id}', 'body', this.value)" 
-                      class="input-field w-full text-sm h-16">${ad.params.body || ''}</textarea>
+            <div class="flex items-start space-x-1">
+              <textarea onchange="updateAdParam('${ad.id}', 'body', this.value)" 
+                        class="input-field w-full text-sm h-16">${ad.params.body || ''}</textarea>
+              <button type="button" onclick="copyFieldToAll('${ad.id}', 'body', this.previousElementSibling.value)" 
+                      class="text-blue-400 hover:text-blue-200 text-xs mt-1" title="复制到所有行">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </td>
           <td class="px-3 py-2 border-r border-gray-600">
-            <input type="text" value="${ad.params.creative || ''}" 
-                   onchange="updateAdParam('${ad.id}', 'creative', this.value)" 
-                   class="input-field w-full text-sm" placeholder="点击选择素材">
+            <div class="flex items-center space-x-1">
+              <input type="text" value="${ad.params.creative || ''}" 
+                     onchange="updateAdParam('${ad.id}', 'creative', this.value)" 
+                     class="input-field w-full text-sm" placeholder="点击选择素材">
+              <button type="button" onclick="copyFieldToAll('${ad.id}', 'creative', this.previousElementSibling.value)" 
+                      class="text-blue-400 hover:text-blue-200 text-xs" title="复制到所有行">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </td>
           <td class="px-3 py-2 border-r border-gray-600">
-            <select onchange="updateAdParam('${ad.id}', 'cta', this.value)" 
-                    class="input-field w-full text-sm">
-              ${fbFields.ad.find(f => f.key === 'cta').options.map(opt => 
-                `<option value="${opt}" ${ad.params.cta===opt?'selected':''}>${opt}</option>`
-              ).join('')}
-            </select>
+            <div class="flex items-center space-x-1">
+              <select onchange="updateAdParam('${ad.id}', 'cta', this.value)" 
+                      class="input-field w-full text-sm">
+                ${fbFields.ad.find(f => f.key === 'cta').options.map(opt => 
+                  `<option value="${opt}" ${ad.params.cta===opt?'selected':''}>${opt}</option>`
+                ).join('')}
+              </select>
+              <button type="button" onclick="copyFieldToAll('${ad.id}', 'cta', this.previousElementSibling.value)" 
+                      class="text-blue-400 hover:text-blue-200 text-xs" title="复制到所有行">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </td>
           <td class="px-3 py-2 border-r border-gray-600">
-            <input type="url" value="${ad.params.landing_page || ''}" 
-                   onchange="updateAdParam('${ad.id}', 'landing_page', this.value)" 
-                   class="input-field w-full text-sm">
+            <div class="flex items-center space-x-1">
+              <input type="url" value="${ad.params.landing_page || ''}" 
+                     onchange="updateAdParam('${ad.id}', 'landing_page', this.value)" 
+                     class="input-field w-full text-sm">
+              <button type="button" onclick="copyFieldToAll('${ad.id}', 'landing_page', this.previousElementSibling.value)" 
+                      class="text-blue-400 hover:text-blue-200 text-xs" title="复制到所有行">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </td>
+          <td class="px-3 py-2 border-r border-gray-600">
+            <div class="flex items-center space-x-1">
+              <input type="text" value="${ad.params.url_params || ''}" 
+                     onchange="updateAdParam('${ad.id}', 'url_params', this.value)" 
+                     class="input-field w-full text-sm" placeholder="非必填">
+              <button type="button" onclick="copyFieldToAll('${ad.id}', 'url_params', this.previousElementSibling.value)" 
+                      class="text-blue-400 hover:text-blue-200 text-xs" title="复制到所有行">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </td>
           <td class="px-3 py-2">
-            <button type="button" onclick="deleteAdFromTable('${ad.id}')" 
-                    class="text-red-400 hover:text-red-200 text-sm">删除</button>
+            <div class="flex items-center space-x-2">
+              <button type="button" onclick="copyAd('${ad.id}')" 
+                      class="text-blue-400 hover:text-blue-200 text-sm" title="复制">
+                <i class="fas fa-copy"></i>
+              </button>
+              <button type="button" onclick="deleteAdFromTable('${ad.id}')" 
+                      class="text-red-400 hover:text-red-200 text-sm" title="删除">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
           </td>
         </tr>`;
       });
@@ -3319,8 +3375,31 @@
     }
 
     function addAdToAdset(adsetId) {
-      addNode(adsetId);
-      // 重新渲染参数表单以显示新的Ad
+      const adset = findNodeById(adTreeData, adsetId);
+      if (!adset) return;
+      
+      // 创建新的Ad，默认名称为AD
+      const newAd = {
+        id: 'ad_' + nodeIdCounter++,
+        type: 'ad',
+        params: { 
+          name: 'AD',
+          title: '', 
+          body: '', 
+          creative: '', 
+          cta: 'LEARN_MORE', 
+          landing_page: '', 
+          url_params: '',
+          status: 'PAUSED' 
+        }
+      };
+      
+      // 添加到Adset
+      adset.ads = adset.ads || [];
+      adset.ads.push(newAd);
+      
+      // 重新渲染
+      renderAdStructureTree();
       renderBulkParamForm();
     }
 
@@ -3556,6 +3635,59 @@
           }
         }
       }
+    }
+
+    // 复制字段到所有行
+    function copyFieldToAll(sourceAdId, fieldName, value) {
+      const sourceAd = findNodeById(adTreeData, sourceAdId);
+      if (!sourceAd) return;
+      
+      // 找到包含该Ad的Adset
+      const parentAdset = findParentNode(adTreeData, sourceAdId);
+      if (!parentAdset || !parentAdset.ads) return;
+      
+      // 更新所有Ad的对应字段
+      parentAdset.ads.forEach(ad => {
+        if (ad.id !== sourceAdId) {
+          ad.params[fieldName] = value;
+        }
+      });
+      
+      // 重新渲染表格
+      renderAdStructureTree();
+      renderBulkParamForm();
+    }
+
+    // 复制Ad
+    function copyAd(sourceAdId) {
+      const sourceAd = findNodeById(adTreeData, sourceAdId);
+      if (!sourceAd) return;
+      
+      const parentAdset = findParentNode(adTreeData, sourceAdId);
+      if (!parentAdset) return;
+      
+      // 创建新的Ad
+      const newAd = {
+        id: 'ad_' + nodeIdCounter++,
+        type: 'ad',
+        params: { 
+          name: sourceAd.params.name + '_copy',
+          title: sourceAd.params.title,
+          body: sourceAd.params.body,
+          creative: sourceAd.params.creative,
+          cta: sourceAd.params.cta,
+          landing_page: sourceAd.params.landing_page,
+          url_params: sourceAd.params.url_params,
+          status: 'PAUSED' 
+        }
+      };
+      
+      // 添加到Adset
+      parentAdset.ads.push(newAd);
+      
+      // 重新渲染
+      renderAdStructureTree();
+      renderBulkParamForm();
     }
   </script>
 </body>
