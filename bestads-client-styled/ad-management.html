@@ -423,7 +423,6 @@
                     <th class="py-2">广告账户 <span class="text-red-400">*</span></th>
                     <th class="py-2">Page <span class="text-red-400">*</span></th>
                     <th class="py-2">Pixel <span class="text-red-400">*</span></th>
-                    <th class="py-2">事件 <span class="text-red-400">*</span></th>
                     <th class="py-2">操作</th>
                   </tr>
                 </thead>
@@ -445,7 +444,12 @@
             </div>
             <!-- 参数填写区 -->
             <div class="bg-[#242A3A] rounded-lg p-4 md:p-6 border border-[#2E333F]">
-              <h4 class="text-lg font-semibold text-white mb-2 md:mb-4">广告参数填写</h4>
+              <div class="flex items-center justify-between mb-2 md:mb-4">
+                <h4 class="text-lg font-semibold text-white">广告参数填写</h4>
+                <button onclick="toggleAllParams()" class="btn-secondary px-3 py-1 text-sm">
+                  <i class="fas fa-expand-alt mr-1"></i>展开全部
+                </button>
+              </div>
               <div id="bulkParamForm">
                 <!-- 动态参数表单区块（分层级） -->
               </div>
@@ -555,7 +559,7 @@
                     <label class="flex items-center">
                       <input type="radio" name="campaignBudgetType" value="lifetime" class="mr-2" onchange="toggleCampaignBudgetType()">总预算
                     </label>
-                  </div>
+                </div>
                 </div>
                 <div id="campaignDailyBudget" class="mb-4">
                   <label class="block text-sm font-medium mb-2 text-gray-300">日预算金额</label>
@@ -586,7 +590,7 @@
                 <div class="flex items-center mb-2">
                   <input type="checkbox" id="adsetNameCheckbox" class="mr-2">
                   <label class="text-sm font-medium text-gray-300">广告组名称</label>
-                </div>
+              </div>
                 <div class="flex items-center space-x-2">
                   <input type="text" id="adsetNameRule" class="input-field flex-1" placeholder="如：受众" oninput="updateAdsetNamePreview()">
                   <div class="flex items-center space-x-2">
@@ -635,13 +639,27 @@
                 </select>
               </div>
 
+              <!-- 转化事件 -->
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <input type="checkbox" id="conversionEventCheckbox" class="mr-2" checked disabled>
+                  <label class="text-sm font-medium text-gray-400">转化事件</label>
+                </div>
+                <select class="input-field w-full" id="conversionEventSelect">
+                  <option value="add_to_cart">加入购物车</option>
+                  <option value="initiate_checkout">发起结账</option>
+                  <option value="add_payment_info">添加支付信息</option>
+                  <option value="purchase">购物</option>
+                </select>
+              </div>
+
               <!-- 单次成效费用目标 -->
               <div class="mb-4" id="conversionCostSection" style="display: none;">
                 <label class="block text-sm font-medium mb-2 text-gray-300">单次成效费用目标</label>
                 <div class="flex items-center space-x-2">
                   <input type="number" id="conversionCostInput" class="input-field flex-1" placeholder="请输入成本金额" min="0" step="0.01">
                   <span class="text-gray-400">USD</span>
-                </div>
+              </div>
               </div>
 
               <!-- 广告花费汇报目标 -->
@@ -688,7 +706,7 @@
               </div>
 
               <!-- 预算 -->
-              <div class="mb-4">
+                <div class="mb-4">
                 <div class="flex items-center mb-2">
                   <input type="checkbox" id="budgetCheckbox" class="mr-2">
                   <label class="text-sm font-medium text-gray-300">预算</label>
@@ -716,7 +734,7 @@
               </div>
 
               <!-- 排期 -->
-              <div class="mb-4">
+                <div class="mb-4">
                 <div class="flex items-center mb-2">
                   <input type="checkbox" id="scheduleCheckbox" class="mr-2" checked disabled>
                   <label class="text-sm font-medium text-gray-400">排期</label>
@@ -729,7 +747,7 @@
                 <div class="flex items-center mb-2">
                   <input type="checkbox" id="audienceCheckbox" class="mr-2">
                   <label class="text-sm font-medium text-gray-300">受众</label>
-                </div>
+              </div>
                 <div class="space-y-4">
                   <!-- 预存受众 -->
                   <div>
@@ -1647,7 +1665,7 @@
             <div class="flex-1 min-w-[200px]">
               <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">模版名称</label>
               <input type="text" id="templateNameFilter" class="input-field w-full" placeholder="请输入模版名称进行模糊搜索" oninput="filterTemplates()">
-            </div>
+              </div>
             <div class="flex-1 min-w-[200px]">
               <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">媒体平台</label>
               <select id="platformFilter" class="input-field w-full" onchange="filterTemplates()">
@@ -1660,8 +1678,8 @@
                 <i class="fas fa-refresh mr-2"></i>重置
               </button>
             </div>
+            </div>
           </div>
-        </div>
 
         <!-- 模版表格 -->
         <div class="overflow-x-auto">
@@ -1682,21 +1700,21 @@
               <!-- 模版数据行 -->
             </tbody>
           </table>
-        </div>
+              </div>
 
         <!-- 分页 -->
         <div class="mt-6 flex items-center justify-between">
           <div class="text-sm text-gray-400">
             共 <span id="totalTemplates">0</span> 条记录
-          </div>
+            </div>
           <div class="flex items-center space-x-2">
             <button onclick="changePage(-1)" class="btn-secondary px-3 py-1 text-sm" id="prevPageBtn" disabled>上一页</button>
             <span class="text-sm text-gray-400">
               第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页
             </span>
             <button onclick="changePage(1)" class="btn-secondary px-3 py-1 text-sm" id="nextPageBtn" disabled>下一页</button>
-          </div>
-        </div>
+            </div>
+            </div>
       `;
     }
 
@@ -1757,14 +1775,14 @@
           <td class="py-3 px-4 text-white">${template.modifier}</td>
           <td class="py-3 px-4 text-white">${template.modifyTime}</td>
           <td class="py-3 px-4">
-            <div class="flex space-x-2">
+              <div class="flex space-x-2">
               <button onclick="editTemplate('${template.id}')" class="btn-secondary px-3 py-1 text-sm">
                 <i class="fas fa-edit mr-1"></i>编辑
-              </button>
+                </button>
               <button onclick="deleteTemplate('${template.id}')" class="btn-secondary px-3 py-1 text-sm" style="color: #EF4444;">
                 <i class="fas fa-trash mr-1"></i>删除
-              </button>
-            </div>
+                </button>
+              </div>
           </td>
         </tr>
       `).join('');
@@ -3326,7 +3344,7 @@
     // 注释掉重复的新增Campaign按钮，已在HTML中定义
 
     // 资产表格数据
-    let assetRows = [ { account: '', page: '', pixel: '', event: '' } ];
+    let assetRows = [ { account: '', page: '', pixel: '' } ];
 
     // 页面切换函数
     function showPage(pageName) {
@@ -3384,16 +3402,12 @@
             <option value="">选择Pixel</option>
             ${staticPixels.map(px => `<option value="${px.id}" ${row.pixel===px.id?'selected':''}>${px.name}</option>`).join('')}
           </select></td>
-          <td><select onchange="onAssetChange(${idx}, 'event', this.value)" class="input-field w-full" ${!row.pixel ? 'disabled' : ''}>
-            <option value="">选择事件</option>
-            ${row.pixel ? getEventsByPixel(row.pixel).map(event => `<option value="${event.id}" ${row.event===event.id?'selected':''}>${event.name}</option>`).join('') : ''}
-          </select></td>
           <td><button onclick="removeAssetRow(${idx})" class="text-red-400 hover:text-red-200">删除</button></td>
         </tr>
       `).join('');
     }
     function addAssetRow() {
-      assetRows.push({ account: '', page: '', pixel: '', event: '' });
+      assetRows.push({ account: '', page: '', pixel: '' });
       renderAssetTable();
     }
     function removeAssetRow(idx) {
@@ -3404,12 +3418,6 @@
     }
     function onAssetChange(idx, key, value) {
       assetRows[idx][key] = value;
-      
-      // 当Pixel改变时，清空事件选择
-      if (key === 'pixel') {
-        assetRows[idx].event = '';
-      }
-      
       // 重新渲染表格以更新验证状态
       renderAssetTable();
     }
@@ -3513,29 +3521,41 @@
       }
     }
 
-    // 根据Pixel获取事件列表
-    function getEventsByPixel(pixelId) {
-      const eventsMap = {
-        'pixel1': [
-          { id: 'purchase1', name: '购买' },
-          { id: 'add_to_cart1', name: '添加到购物车' },
-          { id: 'lead1', name: '潜在客户' },
-          { id: 'view_content1', name: '查看内容' }
-        ],
-        'pixel2': [
-          { id: 'purchase2', name: '购买' },
-          { id: 'add_to_cart2', name: '添加到购物车' },
-          { id: 'lead2', name: '潜在客户' },
-          { id: 'complete_registration2', name: '完成注册' }
-        ],
-        'pixel3': [
-          { id: 'purchase3', name: '购买' },
-          { id: 'add_to_cart3', name: '添加到购物车' },
-          { id: 'lead3', name: '潜在客户' },
-          { id: 'download3', name: '下载' }
-        ]
-      };
-      return eventsMap[pixelId] || [];
+    // 展开全部参数功能
+    function toggleAllParams() {
+      const paramForm = document.getElementById('bulkParamForm');
+      if (!paramForm) return;
+      
+      // 查找所有折叠的面板并展开
+      const collapsiblePanels = paramForm.querySelectorAll('[id^="campaignSettings"], [id^="adsetSettings"], [id^="adSettings"]');
+      collapsiblePanels.forEach(panel => {
+        if (panel.style.display === 'none') {
+          panel.style.display = 'block';
+          const icon = document.getElementById('icon-' + panel.id);
+          if (icon) {
+            icon.className = 'fas fa-chevron-up';
+          }
+        }
+      });
+      
+      // 更新按钮文本
+      const toggleBtn = event.target.closest('button');
+      if (toggleBtn) {
+        const icon = toggleBtn.querySelector('i');
+        const text = toggleBtn.querySelector('span') || toggleBtn.lastChild;
+        
+        if (icon && icon.className.includes('fa-expand-alt')) {
+          icon.className = 'fas fa-compress-alt mr-1';
+          if (text && text.textContent) {
+            text.textContent = '收起全部';
+          }
+        } else {
+          icon.className = 'fas fa-expand-alt mr-1';
+          if (text && text.textContent) {
+            text.textContent = '展开全部';
+          }
+        }
+      }
     }
   </script>
 </body>
