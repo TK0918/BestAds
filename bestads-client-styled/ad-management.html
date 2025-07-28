@@ -423,6 +423,7 @@
                     <th class="py-2">广告账户 <span class="text-red-400">*</span></th>
                     <th class="py-2">Page <span class="text-red-400">*</span></th>
                     <th class="py-2">Pixel <span class="text-red-400">*</span></th>
+                    <th class="py-2">事件 <span class="text-red-400">*</span></th>
                     <th class="py-2">操作</th>
                   </tr>
                 </thead>
@@ -3025,6 +3026,13 @@
     }
     // 新增节点
     function addNode(parentId) {
+      // 检查是否已选择模版
+      const templateSelect = document.getElementById('bulkTemplateSelect');
+      if (!templateSelect || !templateSelect.value) {
+        alert('请先选择模版');
+        return;
+      }
+      
       if (!parentId) {
         // 新增Campaign
         adTreeData.push({
@@ -3318,7 +3326,7 @@
     // 注释掉重复的新增Campaign按钮，已在HTML中定义
 
     // 资产表格数据
-    let assetRows = [ { account: '', page: '', pixel: '' } ];
+    let assetRows = [ { account: '', page: '', pixel: '', event: '' } ];
 
     // 页面切换函数
     function showPage(pageName) {
@@ -3360,26 +3368,32 @@
     // 资产表格渲染
     function renderAssetTable() {
       const tbody = document.getElementById('assetTableBody');
+      if (!tbody) return;
+      
       tbody.innerHTML = assetRows.map((row, idx) => `
         <tr>
-          <td><select class="input-field w-full ${!row.account ? 'border-red-400' : ''}" onchange="onAssetChange(${idx},'account',this.value)" required>
-            <option value="">请选择广告账户</option>
-            ${staticAccounts.map(a => `<option value="${a.id}" ${row.account===a.id?'selected':''}>${a.name}</option>`).join('')}
+          <td><select onchange="onAssetChange(${idx}, 'account', this.value)" class="input-field w-full">
+            <option value="">选择广告账户</option>
+            ${staticAccounts.map(acc => `<option value="${acc.id}" ${row.account===acc.id?'selected':''}>${acc.name}</option>`).join('')}
           </select></td>
-          <td><select class="input-field w-full ${!row.page ? 'border-red-400' : ''}" onchange="onAssetChange(${idx},'page',this.value)" required>
-            <option value="">请选择Page</option>
-            ${staticPages.map(p => `<option value="${p.id}" ${row.page===p.id?'selected':''}>${p.name}</option>`).join('')}
+          <td><select onchange="onAssetChange(${idx}, 'page', this.value)" class="input-field w-full">
+            <option value="">选择Page</option>
+            ${staticPages.map(page => `<option value="${page.id}" ${row.page===page.id?'selected':''}>${page.name}</option>`).join('')}
           </select></td>
-          <td><select class="input-field w-full ${!row.pixel ? 'border-red-400' : ''}" onchange="onAssetChange(${idx},'pixel',this.value)" required>
-            <option value="">请选择Pixel</option>
+          <td><select onchange="onAssetChange(${idx}, 'pixel', this.value)" class="input-field w-full">
+            <option value="">选择Pixel</option>
             ${staticPixels.map(px => `<option value="${px.id}" ${row.pixel===px.id?'selected':''}>${px.name}</option>`).join('')}
+          </select></td>
+          <td><select onchange="onAssetChange(${idx}, 'event', this.value)" class="input-field w-full" ${!row.pixel ? 'disabled' : ''}>
+            <option value="">选择事件</option>
+            ${row.pixel ? getEventsByPixel(row.pixel).map(event => `<option value="${event.id}" ${row.event===event.id?'selected':''}>${event.name}</option>`).join('') : ''}
           </select></td>
           <td><button onclick="removeAssetRow(${idx})" class="text-red-400 hover:text-red-200">删除</button></td>
         </tr>
       `).join('');
     }
     function addAssetRow() {
-      assetRows.push({ account: '', page: '', pixel: '' });
+      assetRows.push({ account: '', page: '', pixel: '', event: '' });
       renderAssetTable();
     }
     function removeAssetRow(idx) {
@@ -3390,6 +3404,12 @@
     }
     function onAssetChange(idx, key, value) {
       assetRows[idx][key] = value;
+      
+      // 当Pixel改变时，清空事件选择
+      if (key === 'pixel') {
+        assetRows[idx].event = '';
+      }
+      
       // 重新渲染表格以更新验证状态
       renderAssetTable();
     }
@@ -3491,6 +3511,31 @@
       } else {
         std.style.display = 'none';
       }
+    }
+
+    // 根据Pixel获取事件列表
+    function getEventsByPixel(pixelId) {
+      const eventsMap = {
+        'pixel1': [
+          { id: 'purchase1', name: '购买' },
+          { id: 'add_to_cart1', name: '添加到购物车' },
+          { id: 'lead1', name: '潜在客户' },
+          { id: 'view_content1', name: '查看内容' }
+        ],
+        'pixel2': [
+          { id: 'purchase2', name: '购买' },
+          { id: 'add_to_cart2', name: '添加到购物车' },
+          { id: 'lead2', name: '潜在客户' },
+          { id: 'complete_registration2', name: '完成注册' }
+        ],
+        'pixel3': [
+          { id: 'purchase3', name: '购买' },
+          { id: 'add_to_cart3', name: '添加到购物车' },
+          { id: 'lead3', name: '潜在客户' },
+          { id: 'download3', name: '下载' }
+        ]
+      };
+      return eventsMap[pixelId] || [];
     }
   </script>
 </body>
