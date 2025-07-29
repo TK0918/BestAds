@@ -3020,7 +3020,10 @@
           adCount += (a.ads || []).length;
         });
       });
-      document.getElementById('adStats').textContent = `广告统计：${campaignCount}个Campaign，${adsetCount}个Adset，${adCount}个Ad`;
+      document.getElementById('adStats').innerHTML = `
+        <div class="text-sm text-gray-400">广告统计：${campaignCount}个Campaign，${adsetCount}个Adset，${adCount}个Ad</div>
+        <div class="text-xs text-gray-500 mt-1">建议：一个Campaign最多50个Adset，一个Adset最多20个Ad</div>
+      `;
     }
     // 选中树节点
     function selectTreeNode(id) {
@@ -3062,6 +3065,11 @@
       } else {
         const parent = findNodeById(adTreeData, parentId);
         if (parent.type === 'campaign') {
+          // 检查Campaign中的Adset数量限制
+          if (parent.adsets && parent.adsets.length >= 200) {
+            alert('一个Campaign最多创建200个Adset，无法继续添加');
+            return;
+          }
           parent.adsets = parent.adsets || [];
           parent.adsets.push({
             id: 'adset_' + nodeIdCounter++,
@@ -3070,6 +3078,11 @@
             ads: []
           });
         } else if (parent.type === 'adset') {
+          // 检查Adset中的Ad数量限制
+          if (parent.ads && parent.ads.length >= 50) {
+            alert('一个Adset最多创建50个Ad，无法继续添加');
+            return;
+          }
           parent.ads = parent.ads || [];
           parent.ads.push({
             id: 'ad_' + nodeIdCounter++,
@@ -3100,8 +3113,18 @@
         const parent = findParentNode(adTreeData, nodeId);
         if (parent) {
           if (node.type === 'adset') {
+            // 检查Campaign中的Adset数量限制
+            if (parent.adsets && parent.adsets.length >= 200) {
+              alert('一个Campaign最多创建200个Adset，无法继续复制');
+              return;
+            }
             parent.adsets.push(copy);
           } else if (node.type === 'ad') {
+            // 检查Adset中的Ad数量限制
+            if (parent.ads && parent.ads.length >= 50) {
+              alert('一个Adset最多创建50个Ad，无法继续复制');
+              return;
+            }
             parent.ads.push(copy);
           }
         }
@@ -3377,6 +3400,12 @@
     function addAdToAdset(adsetId) {
       const adset = findNodeById(adTreeData, adsetId);
       if (!adset) return;
+      
+      // 检查Adset中的Ad数量限制
+      if (adset.ads && adset.ads.length >= 50) {
+        alert('一个Adset最多创建50个Ad，无法继续添加');
+        return;
+      }
       
       // 创建新的Ad，默认名称为AD
       const newAd = {
@@ -3665,6 +3694,12 @@
       
       const parentAdset = findParentNode(adTreeData, sourceAdId);
       if (!parentAdset) return;
+      
+      // 检查Adset中的Ad数量限制
+      if (parentAdset.ads && parentAdset.ads.length >= 50) {
+        alert('一个Adset最多创建50个Ad，无法继续复制');
+        return;
+      }
       
       // 创建新的Ad
       const newAd = {
