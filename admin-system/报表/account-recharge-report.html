@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广告账户充值报表 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .card-metric { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .card-metric .title { color: #6B7280; font-size: 1rem; font-weight: 500; }
+    .card-metric .value { font-size: 2rem; font-weight: 700; color: #1F2937; }
+    .card-metric .trend { font-size: 0.95rem; }
+    .trend-up { color: #16A34A; }
+    .trend-down { color: #EF4444; }
+    .echarts-box { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .echarts-title { font-size: 1.1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .echarts-toggle { background: #F3F4F6; border-radius: 0.375rem; padding: 0.25rem 0.75rem; font-size: 0.95rem; cursor: pointer; margin-left: 1rem; }
+    .echarts-toggle.active { background: #2563EB; color: white; }
+    .sidebar-collapsed { width: 64px !important; }
+    .sidebar-collapsed .sidebar-item span, .sidebar-collapsed h3 { display: none !important; }
+    .sidebar-collapsed .sidebar-item i { margin-right: 0 !important; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部下方 -->
+      <div class="flex items-center justify-between h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+        <button id="sidebarCollapseBtn" class="lg:block hidden p-2 ml-2 text-gray-400 hover:text-blue-600 focus:outline-none" onclick="toggleSidebarCollapse()">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+      <!-- 侧边栏菜单区，支持滚动和树状折叠 -->
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../主要功能/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../主要功能/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+            </ul>
+          </div>
+          <!-- FB业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../FB业务管理/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../FB业务管理/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../FB业务管理/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../FB业务管理/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>充值管理</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../广告治理/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+    <!-- 主要内容区域 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">广告账户充值报表</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 卡片区 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div class="card-metric">
+                <div class="title">最近7天充值次数</div>
+                <div class="value" id="card-7d-count">0</div>
+                <div class="trend" id="card-7d-count-trend"></div>
+              </div>
+              <div class="card-metric">
+                <div class="title">最近7天充值金额</div>
+                <div class="value" id="card-7d-amount">$0.00</div>
+                <div class="trend" id="card-7d-amount-trend"></div>
+              </div>
+              <div class="card-metric">
+                <div class="title">最近30天充值次数</div>
+                <div class="value" id="card-30d-count">0</div>
+                <div class="trend" id="card-30d-count-trend"></div>
+              </div>
+              <div class="card-metric">
+                <div class="title">最近30天充值金额</div>
+                <div class="value" id="card-30d-amount">$0.00</div>
+                <div class="trend" id="card-30d-amount-trend"></div>
+              </div>
+            </div>
+            <!-- 日期范围筛选区（图表区上方） -->
+            <div class="flex flex-wrap gap-4 items-end mb-8">
+              <div>
+                <label class="block text-sm mb-1">日期范围</label>
+                <input type="date" id="dateStart" class="input-field border border-gray-300 rounded px-2 py-1">
+                -
+                <input type="date" id="dateEnd" class="input-field border border-gray-300 rounded px-2 py-1">
+              </div>
+              <button class="btn-primary bg-blue-600 text-white h-10 px-6 rounded hover:bg-blue-700" onclick="refreshCharts()"><i class="fas fa-search mr-2"></i>查询</button>
+            </div>
+            <!-- 图表区 -->
+            <div class="space-y-8">
+              <!-- 1. 广告平台充值趋势图 -->
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>广告平台充值趋势图</span>
+                  <div>
+                    <span class="echarts-toggle active" id="platformTrendToggleAmount" onclick="setPlatformTrendYAxis('amount')">金额</span>
+                    <span class="echarts-toggle" id="platformTrendToggleCount" onclick="setPlatformTrendYAxis('count')">次数</span>
+                  </div>
+                </div>
+                <div id="platformTrendChart" style="height: 340px;"></div>
+              </div>
+              <!-- 2. 一级代理充值趋势图 -->
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>一级代理充值趋势图</span>
+                  <div>
+                    <span class="echarts-toggle active" id="agentTrendToggleAmount" onclick="setAgentTrendYAxis('amount')">金额</span>
+                    <span class="echarts-toggle" id="agentTrendToggleCount" onclick="setAgentTrendYAxis('count')">次数</span>
+                  </div>
+                </div>
+                <div id="agentTrendChart" style="height: 340px;"></div>
+              </div>
+              <!-- 3. 充值7天Top5客户排行榜 -->
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>广告账户充值7天Top 5客户排行榜</span>
+                  <div>
+                    <span class="echarts-toggle active" id="top7ToggleAmount" onclick="setTop7YAxis('amount')">金额</span>
+                    <span class="echarts-toggle" id="top7ToggleCount" onclick="setTop7YAxis('count')">次数</span>
+                  </div>
+                </div>
+                <div id="top7Chart" style="height: 320px;"></div>
+              </div>
+              <!-- 4. 充值30天Top5客户排行榜 -->
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>广告账户充值30天Top 5客户排行榜</span>
+                  <div>
+                    <span class="echarts-toggle active" id="top30ToggleAmount" onclick="setTop30YAxis('amount')">金额</span>
+                    <span class="echarts-toggle" id="top30ToggleCount" onclick="setTop30YAxis('count')">次数</span>
+                  </div>
+                </div>
+                <div id="top30Chart" style="height: 320px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script>
+    // 侧边栏切换
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+      }
+    }
+    document.getElementById('sidebar-overlay').addEventListener('click', function() { toggleSidebar(); });
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        if (this.getAttribute('href') === '#') { e.preventDefault(); }
+        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active', 'text-gray-900', 'bg-gray-100'));
+        this.classList.add('active', 'text-gray-900', 'bg-gray-100');
+      });
+    });
+    window.addEventListener('resize', function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+    });
+
+    // ================== 静态假数据 ===================
+    // 平台、代理、客户名池
+    const adPlatforms = ['Facebook', 'Google', 'TikTok'];
+    const agents = ['代理A', '代理B', '代理C'];
+    const clientNames = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十'];
+    // 生成日期数组
+    function getDateArray(start, end) {
+      const arr = [];
+      let dt = new Date(start);
+      const endDt = new Date(end);
+      while (dt <= endDt) {
+        arr.push(dt.toISOString().slice(0, 10));
+        dt.setDate(dt.getDate() + 1);
+      }
+      return arr;
+    }
+    // 生成静态趋势数据
+    function genTrendData(groups, days, minAmount, maxAmount, minCount, maxCount) {
+      const data = {};
+      groups.forEach(g => {
+        data[g] = days.map(date => ({
+          date,
+          amount: +(Math.random() * (maxAmount - minAmount) + minAmount).toFixed(2),
+          count: Math.floor(Math.random() * (maxCount - minCount + 1) + minCount)
+        }));
+      });
+      return data;
+    }
+    // 生成静态Top榜数据
+    function genTopData(clients, minAmount, maxAmount, minCount, maxCount) {
+      return clients.map(name => ({
+        name,
+        amount: +(Math.random() * (maxAmount - minAmount) + minAmount).toFixed(2),
+        count: Math.floor(Math.random() * (maxCount - minCount + 1) + minCount)
+      }));
+    }
+    // ========== 卡片区数据和环比计算 ==========
+    function calcCardData(trendData, prevTrendData) {
+      let amount = 0, count = 0, prevAmount = 0, prevCount = 0;
+      Object.values(trendData).forEach(arr => {
+        arr.forEach(d => { amount += d.amount; count += d.count; });
+      });
+      Object.values(prevTrendData).forEach(arr => {
+        arr.forEach(d => { prevAmount += d.amount; prevCount += d.count; });
+      });
+      return {
+        amount,
+        count,
+        amountTrend: prevAmount === 0 ? null : ((amount - prevAmount) / prevAmount * 100).toFixed(1),
+        countTrend: prevCount === 0 ? null : ((count - prevCount) / prevCount * 100).toFixed(1)
+      };
+    }
+    // ========== 图表渲染 ==========
+    let platformTrendYAxis = 'amount';
+    let agentTrendYAxis = 'amount';
+    let top7YAxis = 'amount';
+    let top30YAxis = 'amount';
+    // 只刷新图表区
+    function refreshCharts() {
+      const start = document.getElementById('dateStart').value;
+      const end = document.getElementById('dateEnd').value;
+      const days = getDateArray(start, end);
+      // 广告平台充值趋势
+      const platformTrend = genTrendData(adPlatforms, days, 100, 1000, 2, 20);
+      renderTrendChart('platformTrendChart', days, adPlatforms, platformTrend, platformTrendYAxis, '广告平台充值');
+      // 一级代理充值趋势
+      const agentTrend = genTrendData(agents, days, 200, 2000, 1, 10);
+      renderTrendChart('agentTrendChart', days, agents, agentTrend, agentTrendYAxis, '一级代理充值');
+      // Top榜数据
+      const top7 = genTopData(clientNames.slice(0,5), 500, 5000, 2, 20);
+      const top30 = genTopData(clientNames.slice(0,5), 2000, 20000, 10, 80);
+      renderTopChart('top7Chart', top7, top7YAxis, '充值7天Top5客户');
+      renderTopChart('top30Chart', top30, top30YAxis, '充值30天Top5客户');
+    }
+    // 堆叠柱状图
+    function renderTrendChart(domId, days, groups, trendData, yType, title) {
+      const chart = echarts.init(document.getElementById(domId));
+      const series = groups.map(g => ({
+        name: g,
+        type: 'bar',
+        stack: 'total',
+        emphasis: { focus: 'series' },
+        data: trendData[g].map(d => yType === 'amount' ? d.amount : d.count)
+      }));
+      chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: groups },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: days },
+        yAxis: { type: 'value', name: yType === 'amount' ? '金额(USD)' : '次数' },
+        series
+      });
+    }
+    // Top榜条形图
+    function renderTopChart(domId, data, yType, title) {
+      const chart = echarts.init(document.getElementById(domId));
+      chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', name: yType === 'amount' ? '金额(USD)' : '次数' },
+        yAxis: { type: 'category', data: data.map(d => d.name), inverse: true },
+        series: [{
+          name: yType === 'amount' ? '金额' : '次数',
+          type: 'bar',
+          data: data.map(d => yType === 'amount' ? d.amount : d.count),
+          label: { show: true, position: 'right' }
+        }]
+      });
+    }
+    // Y轴切换
+    function setPlatformTrendYAxis(type) {
+      platformTrendYAxis = type;
+      document.getElementById('platformTrendToggleAmount').classList.toggle('active', type === 'amount');
+      document.getElementById('platformTrendToggleCount').classList.toggle('active', type === 'count');
+      refreshCharts();
+    }
+    function setAgentTrendYAxis(type) {
+      agentTrendYAxis = type;
+      document.getElementById('agentTrendToggleAmount').classList.toggle('active', type === 'amount');
+      document.getElementById('agentTrendToggleCount').classList.toggle('active', type === 'count');
+      refreshCharts();
+    }
+    function setTop7YAxis(type) {
+      top7YAxis = type;
+      document.getElementById('top7ToggleAmount').classList.toggle('active', type === 'amount');
+      document.getElementById('top7ToggleCount').classList.toggle('active', type === 'count');
+      refreshCharts();
+    }
+    function setTop30YAxis(type) {
+      top30YAxis = type;
+      document.getElementById('top30ToggleAmount').classList.toggle('active', type === 'amount');
+      document.getElementById('top30ToggleCount').classList.toggle('active', type === 'count');
+      refreshCharts();
+    }
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 卡片区数据（7天、30天）
+      const days7 = getDateArray(getNDaysAgo(7), getNDaysAgo(1));
+      const days30 = getDateArray(getNDaysAgo(30), getNDaysAgo(1));
+      const prev7Start = getNDaysAgo(14); const prev7End = getNDaysAgo(8);
+      const prev30Start = getNDaysAgo(60); const prev30End = getNDaysAgo(31);
+      const prev7Days = getDateArray(prev7Start, prev7End);
+      const prev30Days = getDateArray(prev30Start, prev30End);
+      const platformTrend7 = genTrendData(adPlatforms, days7, 100, 1000, 2, 20);
+      const platformTrendPrev7 = genTrendData(adPlatforms, prev7Days, 100, 1000, 2, 20);
+      const platformTrend30 = genTrendData(adPlatforms, days30, 100, 1000, 2, 20);
+      const platformTrendPrev30 = genTrendData(adPlatforms, prev30Days, 100, 1000, 2, 20);
+      const card7 = calcCardData(platformTrend7, platformTrendPrev7);
+      const card30 = calcCardData(platformTrend30, platformTrendPrev30);
+      document.getElementById('card-7d-count').textContent = card7.count;
+      document.getElementById('card-7d-amount').textContent = '$' + card7.amount.toLocaleString(undefined, {minimumFractionDigits:2});
+      document.getElementById('card-30d-count').textContent = card30.count;
+      document.getElementById('card-30d-amount').textContent = '$' + card30.amount.toLocaleString(undefined, {minimumFractionDigits:2});
+      setTrend('card-7d-count-trend', card7.countTrend);
+      setTrend('card-7d-amount-trend', card7.amountTrend);
+      setTrend('card-30d-count-trend', card30.countTrend);
+      setTrend('card-30d-amount-trend', card30.amountTrend);
+      // 默认日期范围为最近7天（不含当天）
+      const today = new Date();
+      const defaultEnd = getNDaysAgo(1);
+      const defaultStart = getNDaysAgo(7);
+      document.getElementById('dateStart').value = defaultStart;
+      document.getElementById('dateEnd').value = defaultEnd;
+      refreshCharts();
+    });
+    // 工具函数：获取N天前的日期字符串
+    function getNDaysAgo(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return d.toISOString().slice(0,10);
+    }
+    function setTrend(id, trend) {
+      const el = document.getElementById(id);
+      if (trend === null) {
+        el.innerHTML = '<span class="text-gray-400">--</span>';
+      } else if (+trend >= 0) {
+        el.innerHTML = `<span class="trend-up"><i class="fas fa-arrow-up"></i> +${trend}%</span>`;
+      } else {
+        el.innerHTML = `<span class="trend-down"><i class="fas fa-arrow-down"></i> ${trend}%</span>`;
+      }
+    }
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+  </script>
+</body>
+</html> 

@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户管理 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .mobile-menu-open {
+      transform: translateX(0);
+    }
+
+    .mobile-menu-closed {
+      transform: translateX(-100%);
+    }
+
+    .wallet-display {
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            BestAds Admin
+          </span>
+        </div>
+      </div>
+
+      <!-- 侧边栏菜单 -->
+      <nav class="mt-8">
+        <!-- 主要功能 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">主要功能</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>
+                仪表盘
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-users w-5 h-5 mr-3 text-gray-500"></i>
+                客户管理
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- FB业务管理 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">FB业务管理</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>
+                账户管理
+              </a>
+            </li>
+            <li>
+              <a href="account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>
+                开户管理
+              </a>
+            </li>
+            <li>
+              <a href="account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>
+                账户分配
+              </a>
+            </li>
+            <li>
+              <a href="recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>
+                充值管理
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 广告治理 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">广告治理</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>
+                广告审核
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 系统设置 -->
+        <div class="px-4">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">系统设置</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>
+                系统配置
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>
+                用户管理
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 客户流水 -->
+        <div class="px-4 mb-6">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">客户流水</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-list w-5 h-5 mr-3 text-gray-400"></i>
+                交易明细
+              </a>
+            </li>
+            <li>
+              <a href="customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>
+                在线充值
+              </a>
+            </li>
+            <li>
+              <a href="customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-money-bill w-5 h-5 mr-3 text-gray-400"></i>
+                线下转账
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- 遮罩层 (移动端) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <!-- 主要内容区域 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <!-- 左侧 -->
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">客户管理</span>
+              </nav>
+            </div>
+          </div>
+          
+          <!-- 右侧 -->
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 页面标题区域 -->
+            <div class="mb-8">
+              <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    客户管理
+                  </h2>
+                  <p class="mt-1 text-sm text-gray-500">
+                    管理客户信息和团队，设置客户状态
+                  </p>
+                </div>
+                <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                  <button onclick="openModal('add')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>添加客户</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 筛选区域 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+              <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
+              </div>
+              <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
+                    <input type="text" placeholder="输入客户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+                    <input type="text" placeholder="输入邮箱地址" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户状态</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部状态</option>
+                      <option value="enabled">启用</option>
+                      <option value="disabled">停用</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">团队ID</label>
+                    <input type="text" placeholder="输入团队ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">团队名称</label>
+                    <input type="text" placeholder="输入团队名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">团队状态</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部状态</option>
+                      <option value="enabled">启用</option>
+                      <option value="disabled">停用</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                  <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-search mr-2"></i>搜索
+                  </button>
+                  <button onclick="openCustomizeFields()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-cog mr-2"></i>自定义字段
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 客户列表表格 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">客户列表</h3>
+                <div class="text-sm text-gray-500">
+                  共 <span class="font-medium text-gray-900">1,247</span> 位客户
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 table-hover">
+                  <thead class="bg-gray-50" id="tableHead">
+                    <!-- 动态表头将在这里生成 -->
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
+                    <!-- 动态表格内容将在这里生成 -->
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- 分页 -->
+              <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                <div class="flex items-center space-x-4">
+                  <div class="flex items-center space-x-2">
+                    <label class="text-sm text-gray-700">每页显示:</label>
+                    <select id="pageSize" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                  <div class="hidden sm:block">
+                    <p class="text-sm text-gray-700">
+                      显示 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 共 <span class="font-medium">1,247</span> 条结果
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                      1
+                    </button>
+                    <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                      2
+                    </button>
+                    <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                      3
+                    </button>
+                    <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 添加客户模态框 -->
+  <div id="addModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">添加客户</h3>
+            <button onclick="closeModal('addModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitAddCustomer(event)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户名称 *</label>
+              <input type="text" name="customerName" placeholder="请输入客户名称" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">邮箱地址 *</label>
+              <input type="email" name="email" placeholder="请输入邮箱地址" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">登录密码 *</label>
+              <input type="password" name="password" placeholder="请输入登录密码" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">沟通渠道 *</label>
+              <select name="communicationChannel" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">请选择沟通渠道</option>
+                <option value="email">邮箱</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="telegram">Telegram</option>
+                <option value="wechat">微信</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">联系方式 *</label>
+              <input type="text" name="contactInfo" placeholder="请输入联系方式" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户来源 *</label>
+              <select name="customerSource" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">请选择客户来源</option>
+                <option value="organic">自然注册</option>
+                <option value="referral">推荐注册</option>
+                <option value="marketing">营销获客</option>
+                <option value="partner">合作伙伴</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">介绍人</label>
+              <input type="text" name="referrer" placeholder="请输入介绍人信息（选填）" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户网站</label>
+              <input type="url" name="website" placeholder="请输入客户网站（选填）" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">商业类型 *</label>
+              <select name="businessType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">请选择商业类型</option>
+                <option value="ecommerce">电商</option>
+                <option value="saas">SaaS软件</option>
+                <option value="gaming">游戏</option>
+                <option value="finance">金融</option>
+                <option value="education">教育</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">合作状态 *</label>
+              <select name="cooperationStatus" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">请选择合作状态</option>
+                <option value="trial">试用期</option>
+                <option value="active">活跃合作</option>
+                <option value="inactive">暂停合作</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-blue-50 p-3 rounded-lg mt-4">
+            <p class="text-sm text-blue-700">
+              <i class="fas fa-info-circle mr-2"></i>
+              系统将自动创建团队：<span class="font-medium">[客户名称]的团队</span>，团队状态默认为启用
+            </p>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
+              添加客户
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑客户模态框 -->
+  <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">编辑客户信息</h3>
+            <button onclick="closeModal('editModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitEditCustomer(event)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
+              <input type="text" name="customerId" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">邮箱地址</label>
+              <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户状态</label>
+              <select name="customerStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="enabled">启用</option>
+                <option value="disabled">停用</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">沟通渠道</label>
+              <select name="communicationChannel" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="email">邮箱</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="telegram">Telegram</option>
+                <option value="wechat">微信</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">联系方式</label>
+              <input type="text" name="contactInfo" placeholder="请输入联系方式" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户来源</label>
+              <select name="customerSource" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="organic">自然注册</option>
+                <option value="referral">推荐注册</option>
+                <option value="marketing">营销获客</option>
+                <option value="partner">合作伙伴</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">介绍人</label>
+              <input type="text" name="referrer" placeholder="请输入介绍人信息" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户网站</label>
+              <input type="url" name="website" placeholder="请输入客户网站" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">团队名称</label>
+              <input type="text" name="teamName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">商业类型</label>
+              <select name="businessType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="ecommerce">电商</option>
+                <option value="saas">SaaS软件</option>
+                <option value="gaming">游戏</option>
+                <option value="finance">金融</option>
+                <option value="education">教育</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">合作状态</label>
+              <select name="cooperationStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="active">活跃合作</option>
+                <option value="inactive">暂停合作</option>
+                <option value="trial">试用期</option>
+                <option value="terminated">终止合作</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">团队状态</label>
+              <select name="teamStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="enabled">启用</option>
+                <option value="disabled">停用</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
+              保存修改
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 调整额度模态框 -->
+  <div id="quotaModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">调整额度</h3>
+            <button onclick="closeModal('quotaModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitQuotaAdjustment(event)">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
+              <input type="text" name="customerId" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">调整类型 *</label>
+              <select name="adjustmentType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">请选择调整类型</option>
+                <option value="increase">增加</option>
+                <option value="decrease">减少</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">调整额度 *</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2 text-gray-500">$</span>
+                <input type="number" name="adjustmentAmount" step="0.01" min="0.01" placeholder="0.00" required class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">调整原因 *</label>
+              <textarea name="adjustmentReason" required placeholder="请输入调整原因" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-lg">
+              <p class="text-sm text-yellow-700">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                此操作将发起额度调整申请，需要上级审核
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('quotaModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 transition-colors duration-200">
+              提交申请
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 字段自定义模态框 -->
+  <div id="customizeFieldsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">自定义列表字段</h3>
+            <button onclick="closeModal('customizeFieldsModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 可用字段 -->
+            <div>
+              <h4 class="text-sm font-medium text-gray-900 mb-3">可用字段</h4>
+              <div class="border border-gray-200 rounded-lg p-4 h-80 overflow-y-auto">
+                <ul id="availableFields" class="space-y-2">
+                  <!-- 动态生成可用字段 -->
+                </ul>
+              </div>
+            </div>
+            
+            <!-- 已选字段 -->
+            <div>
+              <h4 class="text-sm font-medium text-gray-900 mb-3">已选字段（可拖拽排序）</h4>
+              <div class="border border-gray-200 rounded-lg p-4 h-80 overflow-y-auto">
+                <ul id="selectedFields" class="space-y-2">
+                  <!-- 动态生成已选字段 -->
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-6">
+            <div class="flex space-x-2">
+              <button onclick="resetToDefault()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+                重置为默认
+              </button>
+            </div>
+            <div class="flex space-x-3">
+              <button onclick="closeModal('customizeFieldsModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+                取消
+              </button>
+              <button onclick="applyFieldSettings()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
+                应用设置
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let allFields = [
+      { key: 'customerId', label: '客户ID', width: '100px' },
+      { key: 'email', label: '邮箱', width: '200px' },
+      { key: 'customerStatus', label: '客户状态', width: '100px' },
+      { key: 'communicationChannel', label: '沟通渠道', width: '120px' },
+      { key: 'contactInfo', label: '联系方式', width: '150px' },
+      { key: 'customerSource', label: '客户来源', width: '120px' },
+      { key: 'referrer', label: '介绍人', width: '100px' },
+      { key: 'website', label: '客户网站', width: '150px' },
+      { key: 'teamId', label: '团队ID', width: '100px' },
+      { key: 'teamName', label: '团队名称', width: '200px' },
+      { key: 'businessType', label: '商业类型', width: '120px' },
+      { key: 'cooperationStatus', label: '合作状态', width: '120px' },
+      { key: 'teamStatus', label: '团队状态', width: '100px' },
+      { key: 'walletDetails', label: '钱包明细', width: '180px' },
+      { key: 'registerTime', label: '注册时间', width: '150px' },
+      { key: 'lastLoginTime', label: '最近登录', width: '150px' },
+      { key: 'actions', label: '操作', width: '200px' }
+    ];
+
+    // 默认显示的字段
+    let defaultFields = ['customerId', 'email', 'customerStatus', 'walletDetails', 'registerTime', 'lastLoginTime', 'actions'];
+    
+    // 当前显示的字段
+    let currentFields = [...defaultFields];
+
+    // 模拟客户数据
+    let customerData = [
+      {
+        customerId: 'C001',
+        email: 'contact@abctech.com',
+        customerStatus: 'enabled',
+        communicationChannel: 'email',
+        contactInfo: 'contact@abctech.com',
+        customerSource: 'organic',
+        referrer: '',
+        website: 'https://abctech.com',
+        teamId: 'T001',
+        teamName: 'ABC科技有限公司的团队',
+        businessType: 'ecommerce',
+        cooperationStatus: 'active',
+        teamStatus: 'enabled',
+        walletDetails: { real: '$8,200.50', pending: '$1,500.00', available: '$6,900.50' },
+        registerTime: '2024-01-15 14:30',
+        lastLoginTime: '2024-03-01 09:15'
+      },
+      {
+        customerId: 'C002',
+        email: 'admin@xyzdigital.com',
+        customerStatus: 'enabled',
+        communicationChannel: 'whatsapp',
+        contactInfo: '+86 138 0000 0000',
+        customerSource: 'referral',
+        referrer: '张经理',
+        website: 'https://xyzdigital.com',
+        teamId: 'T002',
+        teamName: 'XYZ数字营销的团队',
+        businessType: 'saas',
+        cooperationStatus: 'active',
+        teamStatus: 'enabled',
+        walletDetails: { real: '$5,300.25', pending: '$800.00', available: '$4,700.25' },
+        registerTime: '2024-01-20 16:45',
+        lastLoginTime: '2024-02-28 18:22'
+      },
+      {
+        customerId: 'C003',
+        email: 'info@innovativeads.com',
+        customerStatus: 'disabled',
+        communicationChannel: 'email',
+        contactInfo: 'info@innovativeads.com',
+        customerSource: 'marketing',
+        referrer: '',
+        website: '',
+        teamId: 'T003',
+        teamName: '创新广告公司的团队',
+        businessType: 'other',
+        cooperationStatus: 'trial',
+        teamStatus: 'disabled',
+        walletDetails: { real: '$0.00', pending: '$0.00', available: '$0.00' },
+        registerTime: '2024-02-01 10:30',
+        lastLoginTime: '从未登录'
+      }
+    ];
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTable();
+    });
+
+    // 渲染表格
+    function renderTable() {
+      renderTableHeader();
+      renderTableBody();
+    }
+
+    // 渲染表头
+    function renderTableHeader() {
+      const tableHead = document.getElementById('tableHead');
+      const headerRow = document.createElement('tr');
+      
+      currentFields.forEach(fieldKey => {
+        const field = allFields.find(f => f.key === fieldKey);
+        if (field) {
+          const th = document.createElement('th');
+          th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+          th.style.width = field.width;
+          th.textContent = field.label;
+          headerRow.appendChild(th);
+        }
+      });
+      
+      tableHead.innerHTML = '';
+      tableHead.appendChild(headerRow);
+    }
+
+    // 渲染表格内容
+    function renderTableBody() {
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+      
+      customerData.forEach(customer => {
+        const row = document.createElement('tr');
+        
+        currentFields.forEach(fieldKey => {
+          const td = document.createElement('td');
+          td.className = 'px-6 py-4 whitespace-nowrap';
+          
+          switch(fieldKey) {
+            case 'customerId':
+              td.innerHTML = `<div class="text-sm font-medium text-gray-900">${customer.customerId}</div>`;
+              break;
+            case 'email':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.email}</div>`;
+              break;
+            case 'customerStatus':
+              const statusClass = customer.customerStatus === 'enabled' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+              const statusText = customer.customerStatus === 'enabled' ? '启用' : '停用';
+              td.innerHTML = `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>`;
+              break;
+            case 'communicationChannel':
+              const channelMap = { email: '邮箱', whatsapp: 'WhatsApp', telegram: 'Telegram', wechat: '微信' };
+              td.innerHTML = `<div class="text-sm text-gray-900">${channelMap[customer.communicationChannel] || customer.communicationChannel}</div>`;
+              break;
+            case 'contactInfo':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.contactInfo}</div>`;
+              break;
+            case 'customerSource':
+              const sourceMap = { organic: '自然注册', referral: '推荐注册', marketing: '营销获客', partner: '合作伙伴' };
+              td.innerHTML = `<div class="text-sm text-gray-900">${sourceMap[customer.customerSource] || customer.customerSource}</div>`;
+              break;
+            case 'referrer':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.referrer || '-'}</div>`;
+              break;
+            case 'website':
+              td.innerHTML = customer.website ? 
+                `<a href="${customer.website}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800">${customer.website}</a>` :
+                `<div class="text-sm text-gray-500">-</div>`;
+              break;
+            case 'teamId':
+              td.innerHTML = `<div class="text-sm font-medium text-gray-900">${customer.teamId}</div>`;
+              break;
+            case 'teamName':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.teamName}</div>`;
+              break;
+            case 'businessType':
+              const typeMap = { ecommerce: '电商', saas: 'SaaS软件', gaming: '游戏', finance: '金融', education: '教育', other: '其他' };
+              td.innerHTML = `<div class="text-sm text-gray-900">${typeMap[customer.businessType] || customer.businessType}</div>`;
+              break;
+            case 'cooperationStatus':
+              const coopMap = { active: '活跃合作', inactive: '暂停合作', trial: '试用期', terminated: '终止合作' };
+              td.innerHTML = `<div class="text-sm text-gray-900">${coopMap[customer.cooperationStatus] || customer.cooperationStatus}</div>`;
+              break;
+            case 'teamStatus':
+              const teamStatusClass = customer.teamStatus === 'enabled' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+              const teamStatusText = customer.teamStatus === 'enabled' ? '启用' : '停用';
+              td.innerHTML = `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${teamStatusClass}">${teamStatusText}</span>`;
+              break;
+            case 'walletDetails':
+              td.innerHTML = `
+                <div class="wallet-display text-gray-900">
+                  <div>真实: ${customer.walletDetails.real}</div>
+                  <div>在途: ${customer.walletDetails.pending}</div>
+                  <div>可用: ${customer.walletDetails.available}</div>
+                </div>
+              `;
+              break;
+            case 'registerTime':
+              td.innerHTML = `<div class="text-sm text-gray-500">${customer.registerTime}</div>`;
+              break;
+            case 'lastLoginTime':
+              td.innerHTML = `<div class="text-sm text-gray-500">${customer.lastLoginTime}</div>`;
+              break;
+            case 'actions':
+              td.innerHTML = `
+                <div class="text-sm font-medium space-x-2">
+                  <button onclick="editCustomer('${customer.customerId}')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors duration-200">
+                    编辑
+                  </button>
+                  <button onclick="resetPassword('${customer.customerId}')" class="text-orange-600 hover:text-orange-900 bg-orange-50 hover:bg-orange-100 px-2 py-1 rounded text-xs transition-colors duration-200">
+                    重置密码
+                  </button>
+                  <button onclick="adjustQuota('${customer.customerId}')" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-2 py-1 rounded text-xs transition-colors duration-200">
+                    调整额度
+                  </button>
+                </div>
+              `;
+              break;
+          }
+          
+          row.appendChild(td);
+        });
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    // 打开字段自定义
+    function openCustomizeFields() {
+      renderFieldCustomization();
+      document.getElementById('customizeFieldsModal').classList.remove('hidden');
+    }
+
+    // 渲染字段自定义界面
+    function renderFieldCustomization() {
+      const availableFields = document.getElementById('availableFields');
+      const selectedFields = document.getElementById('selectedFields');
+      
+      // 清空现有内容
+      availableFields.innerHTML = '';
+      selectedFields.innerHTML = '';
+      
+      // 渲染可用字段（未选中的）
+      allFields.forEach(field => {
+        if (!currentFields.includes(field.key)) {
+          const li = createFieldItem(field, false);
+          availableFields.appendChild(li);
+        }
+      });
+      
+      // 渲染已选字段（按当前顺序）
+      currentFields.forEach(fieldKey => {
+        const field = allFields.find(f => f.key === fieldKey);
+        if (field) {
+          const li = createFieldItem(field, true);
+          selectedFields.appendChild(li);
+        }
+      });
+      
+      // 启用拖拽排序
+      enableSortable();
+    }
+
+    // 创建字段项
+    function createFieldItem(field, isSelected) {
+      const li = document.createElement('li');
+      li.className = `flex items-center justify-between p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 ${isSelected ? 'selected-field' : 'available-field'}`;
+      li.dataset.fieldKey = field.key;
+      
+      li.innerHTML = `
+        <div class="flex items-center">
+          ${isSelected ? '<i class="fas fa-grip-vertical text-gray-400 mr-2"></i>' : ''}
+          <span class="text-sm text-gray-900">${field.label}</span>
+        </div>
+        <button onclick="toggleField('${field.key}', ${isSelected})" class="text-sm ${isSelected ? 'text-red-600 hover:text-red-800' : 'text-blue-600 hover:text-blue-800'}">
+          ${isSelected ? '移除' : '添加'}
+        </button>
+      `;
+      
+      return li;
+    }
+
+    // 切换字段选择状态
+    function toggleField(fieldKey, isSelected) {
+      if (isSelected) {
+        // 移除字段
+        currentFields = currentFields.filter(key => key !== fieldKey);
+      } else {
+        // 添加字段
+        currentFields.push(fieldKey);
+      }
+      
+      renderFieldCustomization();
+    }
+
+    // 启用拖拽排序
+    function enableSortable() {
+      const selectedFieldsList = document.getElementById('selectedFields');
+      let draggedElement = null;
+      
+      selectedFieldsList.addEventListener('dragstart', function(e) {
+        draggedElement = e.target.closest('li');
+        e.target.style.opacity = '0.5';
+      });
+      
+      selectedFieldsList.addEventListener('dragend', function(e) {
+        e.target.style.opacity = '';
+        draggedElement = null;
+      });
+      
+      selectedFieldsList.addEventListener('dragover', function(e) {
+        e.preventDefault();
+      });
+      
+      selectedFieldsList.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const targetElement = e.target.closest('li');
+        
+        if (draggedElement && targetElement && draggedElement !== targetElement) {
+          const draggedIndex = Array.from(selectedFieldsList.children).indexOf(draggedElement);
+          const targetIndex = Array.from(selectedFieldsList.children).indexOf(targetElement);
+          
+          // 更新currentFields顺序
+          const draggedFieldKey = currentFields[draggedIndex];
+          currentFields.splice(draggedIndex, 1);
+          currentFields.splice(targetIndex, 0, draggedFieldKey);
+          
+          // 重新渲染
+          renderFieldCustomization();
+        }
+      });
+      
+      // 为每个字段项添加draggable属性
+      selectedFieldsList.querySelectorAll('li').forEach(li => {
+        li.draggable = true;
+      });
+    }
+
+    // 重置为默认字段
+    function resetToDefault() {
+      currentFields = [...defaultFields];
+      renderFieldCustomization();
+    }
+
+    // 应用字段设置
+    function applyFieldSettings() {
+      renderTable();
+      closeModal('customizeFieldsModal');
+      showNotification('字段设置已应用！', 'success');
+    }
+
+    // 侧边栏切换
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    // 点击遮罩层关闭侧边栏
+    document.getElementById('sidebar-overlay').addEventListener('click', function() {
+      toggleSidebar();
+    });
+
+    // 菜单项切换
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        if (this.getAttribute('href') === '#') {
+          e.preventDefault();
+        }
+        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // 模态框操作
+    function openModal(type) {
+      if (type === 'add') {
+        document.getElementById('addModal').classList.remove('hidden');
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // 点击模态框外部关闭
+    document.addEventListener('click', function(event) {
+      if (event.target.classList.contains('modal-backdrop')) {
+        event.target.classList.add('hidden');
+      }
+    });
+
+    // 编辑客户
+    function editCustomer(customerId) {
+      const customer = customerData.find(c => c.customerId === customerId);
+      if (customer) {
+        const form = document.querySelector('#editModal form');
+        form.customerId.value = customer.customerId;
+        form.email.value = customer.email;
+        form.customerStatus.value = customer.customerStatus;
+        form.communicationChannel.value = customer.communicationChannel;
+        form.contactInfo.value = customer.contactInfo;
+        form.customerSource.value = customer.customerSource;
+        form.referrer.value = customer.referrer;
+        form.website.value = customer.website;
+        form.teamName.value = customer.teamName;
+        form.businessType.value = customer.businessType;
+        form.cooperationStatus.value = customer.cooperationStatus;
+        form.teamStatus.value = customer.teamStatus;
+        
+        document.getElementById('editModal').classList.remove('hidden');
+      }
+    }
+
+    // 重置密码
+    function resetPassword(customerId) {
+      if (confirm(`确定要重置客户 ${customerId} 的登录密码吗？\n重置后的密码为：ad123456`)) {
+        showNotification(`客户 ${customerId} 的密码已重置为：ad123456`, 'success');
+      }
+    }
+
+    // 调整额度
+    function adjustQuota(customerId) {
+      document.querySelector('#quotaModal form').customerId.value = customerId;
+      document.getElementById('quotaModal').classList.remove('hidden');
+    }
+
+    // 提交添加客户
+    function submitAddCustomer(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const customerName = formData.get('customerName');
+      
+      // 生成客户ID和团队ID
+      const customerId = 'C' + String(Math.floor(Math.random() * 9000) + 1000);
+      const teamId = 'T' + String(Math.floor(Math.random() * 9000) + 1000);
+      
+      // 创建新客户数据
+      const newCustomer = {
+        customerId: customerId,
+        email: formData.get('email'),
+        customerStatus: 'enabled',
+        communicationChannel: formData.get('communicationChannel'),
+        contactInfo: formData.get('contactInfo'),
+        customerSource: formData.get('customerSource'),
+        referrer: formData.get('referrer') || '',
+        website: formData.get('website') || '',
+        teamId: teamId,
+        teamName: customerName + '的团队',
+        businessType: formData.get('businessType'),
+        cooperationStatus: formData.get('cooperationStatus'),
+        teamStatus: 'enabled',
+        walletDetails: { real: '$0.00', pending: '$0.00', available: '$0.00' },
+        registerTime: new Date().toLocaleString('zh-CN'),
+        lastLoginTime: '从未登录'
+      };
+      
+      // 添加到数据中
+      customerData.unshift(newCustomer);
+      
+      // 重新渲染表格
+      renderTable();
+      
+      showNotification(`客户添加成功！\n客户ID: ${customerId}\n团队名称: ${customerName}的团队`, 'success');
+      closeModal('addModal');
+      event.target.reset();
+    }
+
+    // 提交编辑客户
+    function submitEditCustomer(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const customerId = formData.get('customerId');
+      
+      // 更新客户数据
+      const customerIndex = customerData.findIndex(c => c.customerId === customerId);
+      if (customerIndex !== -1) {
+        const customer = customerData[customerIndex];
+        customer.email = formData.get('email');
+        customer.customerStatus = formData.get('customerStatus');
+        customer.communicationChannel = formData.get('communicationChannel');
+        customer.contactInfo = formData.get('contactInfo');
+        customer.customerSource = formData.get('customerSource');
+        customer.referrer = formData.get('referrer');
+        customer.website = formData.get('website');
+        customer.teamName = formData.get('teamName');
+        customer.businessType = formData.get('businessType');
+        customer.cooperationStatus = formData.get('cooperationStatus');
+        customer.teamStatus = formData.get('teamStatus');
+        
+        // 重新渲染表格
+        renderTable();
+      }
+      
+      showNotification(`客户 ${customerId} 信息修改成功！`, 'success');
+      closeModal('editModal');
+    }
+
+    // 提交额度调整
+    function submitQuotaAdjustment(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const customerId = formData.get('customerId');
+      const adjustmentType = formData.get('adjustmentType');
+      const adjustmentAmount = formData.get('adjustmentAmount');
+      
+      showNotification(`额度调整申请已提交！\n客户: ${customerId}\n类型: ${adjustmentType === 'increase' ? '增加' : '减少'}\n金额: $${adjustmentAmount}`, 'success');
+      closeModal('quotaModal');
+      event.target.reset();
+    }
+
+    // 每页显示数量变更
+    document.getElementById('pageSize').addEventListener('change', function() {
+      const pageSize = this.value;
+      showNotification(`每页显示条数已调整为: ${pageSize}`, 'info');
+    });
+
+    // 响应式处理
+    window.addEventListener('resize', function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+    });
+
+    // 通知函数
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-20 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto transform transition-all duration-300 translate-x-full`;
+      
+      const typeColors = {
+        'info': 'border-blue-400 text-blue-700',
+        'success': 'border-green-400 text-green-700',
+        'warning': 'border-yellow-400 text-yellow-700',
+        'error': 'border-red-400 text-red-700'
+      };
+      
+      const typeIcons = {
+        'info': 'fas fa-info-circle',
+        'success': 'fas fa-check-circle',
+        'warning': 'fas fa-exclamation-triangle',
+        'error': 'fas fa-times-circle'
+      };
+      
+      notification.innerHTML = `
+        <div class="rounded-lg shadow-lg border-l-4 ${typeColors[type]} p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="${typeIcons[type]}"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium whitespace-pre-line">${message}</p>
+            </div>
+            <div class="ml-auto pl-3">
+              <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+      }, 100);
+      
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+      }, 5000);
+    }
+  </script>
+</body>
+</html> 
