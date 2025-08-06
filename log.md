@@ -5898,3 +5898,55 @@ function exportData(type) {
 - ✅ `admin-system/main-functions/customer-management.html` - 客户管理正确选中
 
 ---
+
+## 2024-12-19 - 更新充值管理页面菜单结构
+
+### 🎯 问题描述
+`admin-system/fb-business/recharge-management.html` 页面的菜单结构与 `index.html` 不一致，缺少完整的菜单目录和折叠功能，且部分链接路径不正确。
+
+### ✅ 修复内容
+
+#### 1. 菜单结构统一化
+- **添加完整的菜单目录：** 包括主要功能、FB业务管理、广告治理、系统设置、客户流水、报表
+- **实现菜单折叠功能：** 添加可点击的折叠箭头和切换逻辑
+- **统一菜单样式：** 与index.html保持一致的视觉效果
+
+#### 2. 链接路径修复
+**修复的链接路径：**
+- 仪表盘：`../main-functions/index.html`
+- 客户管理：`../main-functions/customer-management.html`
+- 广告审核：`../ad-governance/ad-review.html`
+- 交易明细：`../customer-transactions/transaction-detail.html`
+- 在线充值：`../customer-transactions/online-recharge.html`
+- 线下转账：`../customer-transactions/offline-transfer.html`
+- 客户打款情况：`../reports/customer-recharge-report.html`
+- 广告账户充值报表：`../reports/account-recharge-report.html`
+- 广告消耗情况：`../reports/account-consume-report.html`
+- 负向广告报表：`../reports/negative-ad-report.html`
+- 运营日报：`../reports/report1.html`
+
+#### 3. 移动端响应式支持
+- **添加移动端菜单按钮：** 在顶部栏添加汉堡菜单按钮
+- **实现遮罩层：** 移动端点击遮罩层可关闭侧边栏
+- **响应式处理：** 窗口大小变化时自动调整侧边栏状态
+- **添加CSS样式：** 移动端菜单的显示/隐藏动画
+
+#### 4. 功能增强
+- **菜单项交互：** 添加菜单项点击高亮功能
+- **JavaScript功能：** 完整的侧边栏切换和菜单折叠逻辑
+- **用户体验：** 流畅的动画效果和直观的交互反馈
+
+### 🎉 修复结果
+1. **菜单结构完整：** 现在包含所有必要的菜单目录和子项
+2. **链接功能正常：** 所有菜单项都能正确跳转到对应页面
+3. **移动端友好：** 支持移动设备访问，响应式设计完善
+4. **交互体验提升：** 菜单折叠、高亮等功能正常工作
+5. **视觉一致性：** 与index.html保持完全一致的界面风格
+
+### 📋 技术细节
+- **新增功能：** 菜单折叠、移动端支持、响应式处理
+- **修复问题：** 链接路径、菜单结构、样式统一
+- **代码优化：** 添加完整的JavaScript交互逻辑
+- **兼容性：** 支持桌面端和移动端访问
+
+---
