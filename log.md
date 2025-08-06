@@ -5851,3 +5851,50 @@ function exportData(type) {
 4. **考虑system-settings：** 该文件夹目前为空，可根据需要添加系统设置相关功能
 
 ---
+
+## 2024-12-19 - 修复仪表盘页面菜单选中状态
+
+### 🎯 问题描述
+在仪表盘页面（`admin-system/main-functions/index.html`）中，菜单选中状态出现错误：
+- "广告账户充值报表"菜单项被错误地设置为选中状态（灰色背景）
+- "仪表盘"菜单项应该是当前页面的选中状态，但显示为未选中
+
+### ✅ 修复内容
+
+#### 1. 修复仪表盘菜单项
+**修改前：**
+```html
+<li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+```
+
+**修改后：**
+```html
+<li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100">
+```
+
+#### 2. 修复广告账户充值报表菜单项
+**修改前：**
+```html
+<li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100">
+```
+
+**修改后：**
+```html
+<li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+```
+
+### 🎉 修复结果
+1. **正确的选中状态：** 仪表盘菜单项现在正确显示为选中状态（灰色背景）
+2. **清除错误选中：** 广告账户充值报表菜单项不再错误地显示为选中
+3. **用户体验改善：** 用户现在可以清楚地看到当前所在的页面位置
+
+### 📋 验证状态
+通过检查其他页面确认菜单选中状态都正确：
+- ✅ `admin-system/reports/account-recharge-report.html` - 广告账户充值报表正确选中
+- ✅ `admin-system/reports/customer-recharge-report.html` - 客户打款情况正确选中
+- ✅ `admin-system/reports/account-consume-report.html` - 广告消耗情况正确选中
+- ✅ `admin-system/reports/negative-ad-report.html` - 负向广告报表正确选中
+- ✅ `admin-system/reports/report1.html` - 运营日报正确选中
+- ✅ `admin-system/main-functions/customer-management.html` - 客户管理正确选中
+
+---
