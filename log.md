@@ -29,8 +29,14 @@ BestAds是一个海外媒体广告管理系统，包含客户端系统和内部�
    - 清理移动端遮罩层和相关CSS样式
    - 简化JavaScript代码，移除移动端响应式处理
 
+4. **运营日报页面菜单完善**：
+   - 补充完整的6个功能模块菜单结构
+   - 移除菜单折叠交互功能
+   - 保持与其他页面一致的简洁风格
+
 **📄 涉及页面**
 - `admin-system/reports/account-consume-report.html` - 广告消耗情况报表页面
+- `admin-system/reports/report1.html` - 运营日报页面
 
 ---
 
