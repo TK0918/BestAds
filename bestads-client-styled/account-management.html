@@ -343,7 +343,7 @@
             </button>
             <button onclick="openModal('batchWithdraw')" class="btn-secondary text-sm font-medium flex items-center space-x-2">
               <i class="fas fa-minus-circle"></i>
-              <span>批量扣款</span>
+              <span>批量减款</span>
             </button>
           </div>
       </div>
@@ -997,13 +997,13 @@
     </div>
   </div>
 
-  <!-- 批量扣款申请模态框 -->
+  <!-- 批量减款申请模态框 -->
   <div id="batchWithdrawModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
       <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn max-h-[90vh] overflow-y-auto">
         <div class="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">批量扣款</h3>
+            <h3 class="text-lg font-medium text-gray-900">批量减款</h3>
             <button onclick="closeModal('batchWithdrawModal')" class="text-gray-400 hover:text-gray-600">
               <i class="fas fa-times"></i>
             </button>
@@ -1014,7 +1014,7 @@
             <!-- 账户选择区域 -->
             <div>
               <div class="flex items-center justify-between mb-4">
-                <label class="block text-sm font-medium text-gray-700">选择扣款账户</label>
+                <label class="block text-sm font-medium text-gray-700">选择减款账户</label>
               </div>
               
               <!-- 搜索框 -->
@@ -1050,7 +1050,7 @@
                 </div>
               </div>
               
-              <!-- 可扣款账户列表 -->
+              <!-- 可减款账户列表 -->
               <div class="border border-gray-200 rounded-lg overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-50">
@@ -1059,7 +1059,7 @@
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户信息</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">币种</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前余额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">扣款金额</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">减款金额</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="batchWithdrawAccountList">
@@ -1335,9 +1335,9 @@
               </div>
             </div>
 
-            <!-- 扣款摘要 -->
+            <!-- 减款摘要 -->
             <div class="bg-gray-50 rounded-lg p-4" id="batchWithdrawSummary" style="display: none;">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">扣款摘要</h4>
+              <h4 class="text-sm font-medium text-gray-900 mb-3">减款摘要</h4>
               <div class="space-y-2" id="withdrawSummaryList">
                 <!-- 动态生成摘要内容 -->
               </div>
@@ -1353,26 +1353,26 @@
               </div>
             </div>
 
-            <!-- 扣款提示信息 -->
+            <!-- 减款提示信息 -->
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div class="flex items-start">
                 <div class="flex-shrink-0">
                   <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
                 </div>
                 <div class="ml-3">
-                  <h4 class="text-sm font-medium text-blue-800 mb-2">扣款须知</h4>
+                  <h4 class="text-sm font-medium text-blue-800 mb-2">减款须知</h4>
                   <div class="space-y-2 text-sm text-blue-700">
                     <div class="flex items-start">
                       <span class="text-blue-500 mr-2">•</span>
-                      <span>扣款实际结果以Facebook反馈为准。</span>
+                      <span>减款实际结果以Facebook反馈为准。</span>
                     </div>
                     <div class="flex items-start">
                       <span class="text-blue-500 mr-2">•</span>
-                      <span>建议暂停广告投放24小时后再提交扣款申请。</span>
+                      <span>建议暂停广告投放24小时后再提交减款申请。</span>
                     </div>
                     <div class="flex items-start">
                       <span class="text-blue-500 mr-2">•</span>
-                      <span>扣款处理一般需要几分钟操作，请耐心等候。</span>
+                      <span>减款处理一般需要几分钟操作，请耐心等候。</span>
                     </div>
                   </div>
                 </div>
@@ -1437,7 +1437,7 @@
         resetBatchRechargeForm();
       } else if (type === 'batchWithdraw') {
         document.getElementById('batchWithdrawModal').classList.remove('hidden');
-        // 初始化扣款分页和数据
+        // 初始化减款分页和数据
         initializeWithdrawPagination();
         resetBatchWithdrawForm();
       }
@@ -2311,7 +2311,7 @@
         'list_title': '账户列表',
         'apply_account_button': '申请开户',
         'batch_recharge_button': '批量充值',
-        'batch_withdraw_button': '批量扣款',
+        'batch_withdraw_button': '批量减款',
         'column_account_name': '广告账户名称',
         'column_account_id': '广告账户ID',
         'column_status': '账户状态',
@@ -2373,9 +2373,9 @@
         'apply_button': '应用',
         'recharge_button': '充值',
         
-        // 批量扣款弹窗
-        'withdraw_modal_title': '批量扣款',
-        'select_withdraw_account_label': '选择扣款账户',
+        // 批量减款弹窗
+        'withdraw_modal_title': '批量减款',
+        'select_withdraw_account_label': '选择减款账户',
         'withdraw_search_placeholder': '支持对账户ID和名称进行搜索',
         'withdraw_select_all_button': '全选',
         'withdraw_deselect_all_button': '取消全选',
@@ -2384,33 +2384,33 @@
         'withdraw_column_account_info': '账户信息',
         'withdraw_column_currency': '币种',
         'withdraw_column_current_balance': '当前余额',
-        'withdraw_column_withdraw_amount': '扣款金额',
+        'withdraw_column_withdraw_amount': '减款金额',
         'withdraw_amount_placeholder': '输入金额',
         'withdraw_page_info': '显示第 {start} - {end} 条，共 {total} 条记录',
         'withdraw_page_size_label': '每页显示',
         'withdraw_prev_page_button': '上一页',
         'withdraw_next_page_button': '下一页',
         
-        // 扣款摘要
-        'withdraw_summary_title': '扣款摘要',
+        // 减款摘要
+        'withdraw_summary_title': '减款摘要',
         'withdraw_total_amount': '总计金额：',
         'withdraw_selected_count': '选中账户数：',
         'withdraw_batch_settings_label': '批量设置',
         'withdraw_quick_amount_label': '快速金额设置',
         'withdraw_custom_amount_placeholder': '自定义',
         'withdraw_apply_button': '应用',
-        'withdraw_button': '扣款',
+        'withdraw_button': '减款',
         
-        // 扣款提示信息
-        'withdraw_notice_title': '扣款须知',
-        'withdraw_notice_facebook': '扣款实际结果以Facebook反馈为准。',
-        'withdraw_notice_pause': '建议暂停广告投放24小时后再提交扣款申请。',
-        'withdraw_notice_time': '扣款处理一般需要几分钟操作，请耐心等候。',
+        // 减款提示信息
+        'withdraw_notice_title': '减款须知',
+        'withdraw_notice_facebook': '减款实际结果以Facebook反馈为准。',
+        'withdraw_notice_pause': '建议暂停广告投放24小时后再提交减款申请。',
+        'withdraw_notice_time': '减款处理一般需要几分钟操作，请耐心等候。',
         
         // 通知消息
         'notification_success': '申请已提交，我们将尽快处理！',
         'notification_recharge_success': '批量充值申请已提交！共{count}个账户，总金额${amount}',
-        'notification_withdraw_success': '批量扣款申请已提交！共{count}个账户，总金额${amount}',
+        'notification_withdraw_success': '批量减款申请已提交！共{count}个账户，总金额${amount}',
         'notification_url_limit': '最多只能添加20个URL',
         'notification_url_min': '至少需要保留一个URL',
         'notification_page_limit': '最多只能添加20个Facebook Page',
@@ -2422,8 +2422,8 @@
         'notification_total_quantity': '单次申请数量不可超过5个',
         'notification_page_limit_error': 'Facebook Page不能超过20个',
         'notification_amount_required': '请至少选择一个账户并设置有效的充值金额',
-        'notification_withdraw_amount_required': '请至少选择一个账户并设置有效的扣款金额',
-        'notification_balance_exceeded': '扣款金额不能超过账户当前余额',
+        'notification_withdraw_amount_required': '请至少选择一个账户并设置有效的减款金额',
+        'notification_balance_exceeded': '减款金额不能超过账户当前余额',
         
         // 表单验证错误
         'error_url_required': '请输入要投放的网站URL',
@@ -2433,7 +2433,7 @@
         'error_amount_min': '金额不能少于10',
         'error_amount_format': '请输入有效的金额格式',
         'error_account_required': '请选择至少一个账户',
-        'error_amount_exceeded': '扣款金额不能超过当前余额',
+        'error_amount_exceeded': '减款金额不能超过当前余额',
         
         // 状态文本
         'status_all': '全部状态',
@@ -2547,7 +2547,7 @@
         'apply_button': 'Apply',
         'recharge_button': 'Recharge',
         
-        // 批量扣款弹窗
+        // 批量减款弹窗
         'withdraw_modal_title': 'Batch Withdraw',
         'select_withdraw_account_label': 'Select Withdraw Account',
         'withdraw_search_placeholder': 'Support search by account ID and name',
@@ -2565,7 +2565,7 @@
         'withdraw_prev_page_button': 'Previous',
         'withdraw_next_page_button': 'Next',
         
-        // 扣款摘要
+        // 减款摘要
         'withdraw_summary_title': 'Withdraw Summary',
         'withdraw_total_amount': 'Total Amount:',
         'withdraw_selected_count': 'Selected Accounts:',
@@ -2575,7 +2575,7 @@
         'withdraw_apply_button': 'Apply',
         'withdraw_button': 'Withdraw',
         
-        // 扣款提示信息
+        // 减款提示信息
         'withdraw_notice_title': 'Withdraw Notice',
         'withdraw_notice_facebook': 'The actual withdraw result is subject to Facebook\'s feedback.',
         'withdraw_notice_pause': 'It is recommended to pause ad delivery for 24 hours before submitting withdraw request.',
@@ -2759,7 +2759,7 @@
       const rechargeModalTitle = document.querySelector('#batchRechargeModal h3');
       if (rechargeModalTitle) rechargeModalTitle.textContent = getText('recharge_modal_title');
       
-      // 批量扣款弹窗
+      // 批量减款弹窗
       const withdrawModalTitle = document.querySelector('#batchWithdrawModal h3');
       if (withdrawModalTitle) withdrawModalTitle.textContent = getText('withdraw_modal_title');
     }
@@ -2774,13 +2774,13 @@
       }
     });
 
-    // 批量扣款相关变量
+    // 批量减款相关变量
     let withdrawCurrentPage = 1;
     let withdrawPageSize = 5;
     let allWithdrawAccountRows = [];
     let filteredWithdrawRows = [];
 
-    // 批量扣款功能
+    // 批量减款功能
     function resetBatchWithdrawForm() {
       // 重置所有复选框
       document.querySelectorAll('.withdraw-account-checkbox').forEach(checkbox => {
@@ -2817,7 +2817,7 @@
       updateWithdrawStatistics();
     }
 
-    // 初始化扣款分页数据
+    // 初始化减款分页数据
     function initializeWithdrawPagination() {
       allWithdrawAccountRows = Array.from(document.querySelectorAll('#batchWithdrawAccountList .withdraw-account-row'));
       filteredWithdrawRows = [...allWithdrawAccountRows];
@@ -2917,10 +2917,10 @@
         const currentBalance = parseFloat(currentBalanceSpan.textContent.replace(/,/g, ''));
         
         if (amount && amount >= 10) {
-          // 验证扣款金额不能超过当前余额
+          // 验证减款金额不能超过当前余额
           if (amount > currentBalance) {
             amountInput.style.borderColor = '#ef4444';
-            amountInput.title = '扣款金额不能超过当前余额';
+            amountInput.title = '减款金额不能超过当前余额';
             return;
           } else {
             amountInput.style.borderColor = '';
@@ -2950,7 +2950,7 @@
       submitBtn.disabled = validSelections === 0;
     }
 
-    // 批量扣款表单提交
+    // 批量减款表单提交
     document.getElementById('batchWithdrawForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
@@ -2984,21 +2984,21 @@
       });
       
       if (hasInvalidAmount) {
-        showNotification('扣款金额不能超过账户当前余额', 'error');
+        showNotification('减款金额不能超过账户当前余额', 'error');
         return;
       }
       
       if (selectedData.length === 0) {
-        showNotification('请至少选择一个账户并设置有效的扣款金额', 'warning');
+        showNotification('请至少选择一个账户并设置有效的减款金额', 'warning');
         return;
       }
       
-      console.log('批量扣款数据:', selectedData);
-      showNotification(`批量扣款申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
+      console.log('批量减款数据:', selectedData);
+      showNotification(`批量减款申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
       closeModal('batchWithdrawModal');
     });
 
-    // 扣款分页功能
+    // 减款分页功能
     function updateWithdrawPagination() {
       const totalRows = filteredWithdrawRows.length;
       const totalPages = Math.ceil(totalRows / withdrawPageSize);
@@ -3111,7 +3111,7 @@
       updateWithdrawStatistics();
     }
 
-    // 扣款搜索和统计功能
+    // 减款搜索和统计功能
     function filterWithdrawAccounts(searchTerm) {
       const clearBtn = document.getElementById('clearWithdrawSearchBtn');
       
