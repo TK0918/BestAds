@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>账户充值 - BestAds Admin</title>
+  <title>账户减款 - BestAds Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -59,8 +59,8 @@
               <li><a href="account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
               <li><a href="account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
               <li><a href="account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
-              <li><a href="recharge-management.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-500"></i>账户充值</a></li>
-              <li><a href="deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="deduction-management.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-500"></i>账户减款</a></li>
             </ul>
           </div>
           <!-- 广告治理 -->
@@ -142,16 +142,14 @@
             <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
               <i class="fas fa-bars text-lg"></i>
             </button>
-            
             <div class="ml-4 lg:ml-0">
               <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
                 <span class="text-gray-500">主页</span>
                 <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
-                <span class="text-gray-900 font-medium">账户充值</span>
+                <span class="text-gray-900 font-medium">账户减款</span>
               </nav>
             </div>
           </div>
-          
           <!-- 右侧 -->
           <div class="flex items-center space-x-4">
             <div class="relative">
@@ -160,7 +158,6 @@
                 <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
               </button>
             </div>
-            
             <div class="flex items-center space-x-3">
               <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                 <span class="text-white text-sm font-medium">A</span>
@@ -177,8 +174,8 @@
             <div class="mb-8">
               <div class="md:flex md:items-center md:justify-between">
                 <div class="flex-1 min-w-0">
-                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">账户充值</h2>
-                  <p class="mt-1 text-sm text-gray-500">记录客户提交的充值需求，并从一代处更新充值状态</p>
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">账户减款</h2>
+                  <p class="mt-1 text-sm text-gray-500">记录客户提交的减款需求，并从一代处更新减款状态</p>
                 </div>
               </div>
             </div>
@@ -194,8 +191,8 @@
                     <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">充值ID</label>
-                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="充值ID">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">减款ID</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="减款ID">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">广告账户ID</label>
@@ -225,7 +222,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
                     <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                       <option value="">全部</option>
-                      <option value="充值中">充值中</option>
+                      <option value="减款中">减款中</option>
                       <option value="完成">完成</option>
                       <option value="失败">失败</option>
                     </select>
@@ -241,10 +238,10 @@
             <!-- 列表表格 -->
             <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
               <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">充值需求列表</h3>
+                <h3 class="text-lg font-medium text-gray-900">减款需求列表</h3>
                 <div class="flex items-center space-x-3">
-                  <button id="openRechargeModal" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
-                    <i class="fas fa-plus mr-2"></i>充值
+                  <button id="openDeductionModal" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-minus mr-2"></i>减款
                   </button>
                   <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                     <i class="fas fa-download mr-2"></i>导出
@@ -253,10 +250,10 @@
                 </div>
               </div>
               <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 table-hover" id="rechargeTable">
+                <table class="min-w-full divide-y divide-gray-200 table-hover" id="deductionTable">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值ID</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">减款ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户邮箱</th>
@@ -267,7 +264,7 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">一代</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值金额</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">减款金额</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('completeTime')">
                         完成时间
@@ -276,9 +273,9 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200" id="rechargeTableBody">
+                  <tbody class="bg-white divide-y divide-gray-200" id="deductionTableBody">
                     <tr>
-                      <td class="px-6 py-4 whitespace-nowrap">RC001</td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC001</td>
                       <td class="px-6 py-4 whitespace-nowrap">C1001</td>
                       <td class="px-6 py-4 whitespace-nowrap">张三</td>
                       <td class="px-6 py-4 whitespace-nowrap">zhangsan@bestads.com</td>
@@ -292,7 +289,7 @@
                       <td class="px-6 py-4 whitespace-nowrap">到账无误</td>
                     </tr>
                     <tr>
-                      <td class="px-6 py-4 whitespace-nowrap">RC002</td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC002</td>
                       <td class="px-6 py-4 whitespace-nowrap">C1002</td>
                       <td class="px-6 py-4 whitespace-nowrap">李四</td>
                       <td class="px-6 py-4 whitespace-nowrap">lisi@bestads.com</td>
@@ -301,7 +298,7 @@
                       <td class="px-6 py-4 whitespace-nowrap">移动应用账户02</td>
                       <td class="px-6 py-4 whitespace-nowrap">李一代</td>
                       <td class="px-6 py-4 whitespace-nowrap">500.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-yellow-600">充值中</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-yellow-600">减款中</td>
                       <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
                       <td class="px-6 py-4 whitespace-nowrap">等待一代确认</td>
                     </tr>
@@ -315,12 +312,12 @@
     </div>
   </div>
 
-  <!-- 充值弹窗 -->
-  <div id="rechargeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <!-- 减款弹窗 -->
+  <div id="deductionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
-      <button id="closeRechargeModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-      <h3 class="text-xl font-bold mb-4">发起充值</h3>
-      <form id="rechargeForm">
+      <button id="closeDeductionModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4">发起减款</h3>
+      <form id="deductionForm">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">选择客户</label>
           <select id="customerSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -334,12 +331,12 @@
           <div id="accountList" class="max-h-32 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50"></div>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">充值金额设置</label>
-          <div id="rechargeAmounts" class="space-y-2"></div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">减款金额设置</label>
+          <div id="deductionAmounts" class="space-y-2"></div>
           <div id="totalAmount" class="mt-2 text-sm text-gray-500"></div>
         </div>
         <div class="flex justify-end">
-          <button type="button" id="submitRecharge" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">提交</button>
+          <button type="button" id="submitDeduction" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium">提交</button>
         </div>
       </form>
     </div>
@@ -352,9 +349,8 @@
     };
 
     function sortTable(column) {
-      const table = document.getElementById('rechargeTableBody');
+      const table = document.getElementById('deductionTableBody');
       const rows = Array.from(table.rows);
-      
       // 确定排序方向
       if (currentSort.column === column) {
         currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
@@ -362,7 +358,6 @@
         currentSort.direction = 'asc';
       }
       currentSort.column = column;
-      
       // 获取列索引
       let columnIndex;
       if (column === 'submitTime') {
@@ -370,24 +365,19 @@
       } else if (column === 'completeTime') {
         columnIndex = 10;
       }
-      
       // 排序
       rows.sort((a, b) => {
         const aValue = a.cells[columnIndex].getAttribute('data-sort') || '';
         const bValue = b.cells[columnIndex].getAttribute('data-sort') || '';
-        
         // 处理空值，空值总是排在最后
         if (aValue === '' && bValue === '') return 0;
         if (aValue === '') return 1;
         if (bValue === '') return -1;
-        
         const result = aValue.localeCompare(bValue);
         return currentSort.direction === 'asc' ? result : -result;
       });
-      
       // 重新插入排序后的行
       rows.forEach(row => table.appendChild(row));
-      
       // 更新排序图标
       updateSortIcons();
     }
@@ -396,11 +386,9 @@
       // 重置所有图标
       document.getElementById('submitTimeIcon').className = 'fas fa-sort sort-icon ml-1';
       document.getElementById('completeTimeIcon').className = 'fas fa-sort sort-icon ml-1';
-      
       // 设置当前排序列的图标
       const iconId = currentSort.column + 'Icon';
       const icon = document.getElementById(iconId);
-      
       if (currentSort.direction === 'asc') {
         icon.className = 'fas fa-sort-up sort-icon active ml-1';
       } else {
@@ -425,9 +413,9 @@
     ];
 
     // 打开弹窗
-    const openBtn = document.getElementById('openRechargeModal');
-    const modal = document.getElementById('rechargeModal');
-    const closeBtn = document.getElementById('closeRechargeModal');
+    const openBtn = document.getElementById('openDeductionModal');
+    const modal = document.getElementById('deductionModal');
+    const closeBtn = document.getElementById('closeDeductionModal');
     openBtn.addEventListener('click', () => { modal.classList.remove('hidden'); });
     closeBtn.addEventListener('click', () => { modal.classList.add('hidden'); });
 
@@ -449,7 +437,7 @@
     // 广告账户搜索与多选
     const accountSearch = document.getElementById('accountSearch');
     const accountList = document.getElementById('accountList');
-    const rechargeAmounts = document.getElementById('rechargeAmounts');
+    const deductionAmounts = document.getElementById('deductionAmounts');
     const totalAmount = document.getElementById('totalAmount');
     let currentAccounts = [];
     let selectedCustomer = null;
@@ -464,16 +452,16 @@
         checkbox.type = 'checkbox';
         checkbox.value = acc.id;
         checkbox.className = 'mr-2';
-        checkbox.addEventListener('change', updateRechargeAmounts);
+        checkbox.addEventListener('change', updateDeductionAmounts);
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(`${acc.name}（${acc.id}）- 当前余额：¥${acc.balance}`));
         accountList.appendChild(label);
       });
     }
 
-    function updateRechargeAmounts() {
+    function updateDeductionAmounts() {
       const checked = Array.from(accountList.querySelectorAll('input[type=checkbox]:checked'));
-      rechargeAmounts.innerHTML = '';
+      deductionAmounts.innerHTML = '';
       
       checked.forEach(checkbox => {
         const account = currentAccounts.find(acc => acc.id === checkbox.value);
@@ -486,34 +474,53 @@
             <div class="text-sm font-medium">${account.name}</div>
             <div class="text-xs text-gray-500">当前余额：¥${account.balance}</div>
           </div>
-          <input type="number" min="1" placeholder="充值金额" 
-                 class="w-24 px-2 py-1 text-sm border border-gray-300 rounded recharge-input"
-                 data-account-id="${account.id}">
+          <input type="number" min="1" max="${account.balance}" placeholder="减款金额" 
+                 class="w-24 px-2 py-1 text-sm border border-gray-300 rounded deduction-input"
+                 data-account-id="${account.id}" data-max-balance="${account.balance}">
         `;
-        rechargeAmounts.appendChild(div);
+        deductionAmounts.appendChild(div);
       });
       
       updateTotalAmount();
     }
 
     function updateTotalAmount() {
-      const inputs = rechargeAmounts.querySelectorAll('.recharge-input');
+      const inputs = deductionAmounts.querySelectorAll('.deduction-input');
       let total = 0;
+      let hasError = false;
+      
       inputs.forEach(input => {
         const amount = parseFloat(input.value) || 0;
+        const maxBalance = parseFloat(input.dataset.maxBalance);
         total += amount;
+        
+        // 实时校验减款金额不能大于账户余额
+        if (amount > maxBalance) {
+          input.classList.add('border-red-500');
+          hasError = true;
+        } else {
+          input.classList.remove('border-red-500');
+        }
       });
       
       if (selectedCustomer) {
         const balance = selectedCustomer.balance;
-        totalAmount.innerHTML = `总充值金额：¥${total} / 可用余额：¥${balance}`;
-        totalAmount.className = total > balance ? 'mt-2 text-sm text-red-500' : 'mt-2 text-sm text-gray-500';
+        totalAmount.innerHTML = `总减款金额：¥${total} / 可用余额：¥${balance}`;
+        totalAmount.className = total > balance || hasError ? 'mt-2 text-sm text-red-500' : 'mt-2 text-sm text-gray-500';
       }
     }
 
-    // 监听充值金额输入变化
-    rechargeAmounts.addEventListener('input', function(e) {
-      if (e.target.classList.contains('recharge-input')) {
+    // 监听减款金额输入变化
+    deductionAmounts.addEventListener('input', function(e) {
+      if (e.target.classList.contains('deduction-input')) {
+        const amount = parseFloat(e.target.value) || 0;
+        const maxBalance = parseFloat(e.target.dataset.maxBalance);
+        
+        // 实时限制输入金额不能超过账户余额
+        if (amount > maxBalance) {
+          e.target.value = maxBalance;
+        }
+        
         updateTotalAmount();
       }
     });
@@ -528,8 +535,8 @@
       renderAccountList(filtered);
     });
 
-    // 提交充值
-    const submitBtn = document.getElementById('submitRecharge');
+    // 提交减款
+    const submitBtn = document.getElementById('submitDeduction');
     submitBtn.addEventListener('click', function() {
       const customerId = customerSelect.value;
       const customer = customers.find(c => c.id === customerId);
@@ -538,31 +545,39 @@
       const checked = Array.from(accountList.querySelectorAll('input[type=checkbox]:checked'));
       if (checked.length === 0) return alert('请选择广告账户');
       
-      const inputs = rechargeAmounts.querySelectorAll('.recharge-input');
+      const inputs = deductionAmounts.querySelectorAll('.deduction-input');
       let totalAmount = 0;
-      const rechargeDetails = [];
+      const deductionDetails = [];
+      let hasError = false;
       
       inputs.forEach(input => {
         const amount = parseFloat(input.value) || 0;
+        const maxBalance = parseFloat(input.dataset.maxBalance);
+        
         if (amount > 0) {
+          if (amount > maxBalance) {
+            hasError = true;
+            return;
+          }
           totalAmount += amount;
-          rechargeDetails.push({
+          deductionDetails.push({
             accountId: input.dataset.accountId,
             amount: amount
           });
         }
       });
       
-      if (totalAmount === 0) return alert('请输入充值金额');
-      if (totalAmount > customer.balance) return alert(`可用余额不足！总充值金额：¥${totalAmount}，可用余额：¥${customer.balance}`);
+      if (hasError) return alert('减款金额不能大于广告账户当前余额');
+      if (totalAmount === 0) return alert('请输入减款金额');
+      if (totalAmount > customer.balance) return alert(`可用余额不足！总减款金额：¥${totalAmount}，可用余额：¥${customer.balance}`);
       
       // 模拟提交
-      alert(`为客户${customer.name}的${rechargeDetails.length}个广告账户充值，总金额：¥${totalAmount}`);
+      alert(`为客户${customer.name}的${deductionDetails.length}个广告账户减款，总金额：¥${totalAmount}`);
       modal.classList.add('hidden');
-      document.getElementById('rechargeForm').reset();
+      document.getElementById('deductionForm').reset();
       customerBalance.textContent = '';
       accountList.innerHTML = '';
-      rechargeAmounts.innerHTML = '';
+      deductionAmounts.innerHTML = '';
       totalAmount.textContent = '';
     });
 
@@ -576,7 +591,6 @@
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
-      
       if (sidebar.classList.contains('mobile-menu-closed')) {
         sidebar.classList.remove('mobile-menu-closed');
         sidebar.classList.add('mobile-menu-open');
@@ -614,7 +628,6 @@
     window.addEventListener('resize', function() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
-      
       if (window.innerWidth >= 1024) {
         sidebar.classList.remove('mobile-menu-closed');
         sidebar.classList.add('mobile-menu-open');

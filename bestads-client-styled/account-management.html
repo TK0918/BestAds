@@ -224,6 +224,22 @@
         </div>
         <!-- 右侧操作区域 -->
         <div class="flex items-center space-x-4">
+            <!-- 语言切换按钮 -->
+            <div class="relative group">
+              <button id="languageToggle" onclick="toggleLanguage()" class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
+                <i class="fas fa-globe text-lg"></i>
+              </button>
+              <div id="languageDropdown" class="absolute right-0 mt-2 w-32 bg-slate-800 rounded-md shadow-lg hidden z-50" style="border: 1px solid #2E333F;">
+                <div class="py-1">
+                  <button onclick="changeLanguage('zh-CN')" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-slate-700" data-lang="zh-CN">
+                    <i class="fas fa-check mr-2" id="zh-check" style="display: none;"></i>中文
+                  </button>
+                  <button onclick="changeLanguage('en-US')" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-slate-700" data-lang="en-US">
+                    <i class="fas fa-check mr-2" id="en-check" style="display: none;"></i>English
+                  </button>
+                </div>
+              </div>
+            </div>
           <div class="relative group">
             <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
               <i class="fas fa-bell text-lg"></i>
@@ -324,6 +340,10 @@
             <button onclick="openModal('batchRecharge')" class="btn-secondary text-sm font-medium flex items-center space-x-2">
               <i class="fas fa-layer-group"></i>
               <span>批量充值</span>
+            </button>
+            <button onclick="openModal('batchWithdraw')" class="btn-secondary text-sm font-medium flex items-center space-x-2">
+              <i class="fas fa-minus-circle"></i>
+              <span>批量扣款</span>
             </button>
           </div>
       </div>
@@ -969,7 +989,419 @@
               取消
             </button>
             <button type="submit" id="batchSubmitBtn" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 transition-colors duration-200" disabled>
-              充值
+              提交
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量扣款申请模态框 -->
+  <div id="batchWithdrawModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">批量扣款</h3>
+            <button onclick="closeModal('batchWithdrawModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" id="batchWithdrawForm">
+          <div class="space-y-6">
+            <!-- 账户选择区域 -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <label class="block text-sm font-medium text-gray-700">选择扣款账户</label>
+              </div>
+              
+              <!-- 搜索框 -->
+              <div class="mb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                      </div>
+                      <input type="text" id="withdrawAccountSearch" placeholder="支持对账户ID和名称进行搜索" 
+                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                             oninput="filterWithdrawAccounts(this.value)">
+                      <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button type="button" onclick="clearWithdrawSearch()" class="text-gray-400 hover:text-gray-600" id="clearWithdrawSearchBtn" style="display: none;">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- 全选/取消全选和已选中账户数 -->
+                <div class="flex flex-wrap items-center justify-between gap-2 mt-3 text-sm text-gray-600">
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="selectAllWithdrawAccounts()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <i class="fas fa-check-square mr-1"></i>全选
+                    </button>
+                    <button type="button" onclick="deselectAllWithdrawAccounts()" class="text-gray-600 hover:text-gray-800 text-sm font-medium">
+                      <i class="fas fa-square mr-1"></i>取消全选
+                    </button>
+                  </div>
+                  <span id="withdrawSelectedInfo" class="text-blue-600 font-medium">已选中 0 个账户</span>
+                </div>
+              </div>
+              
+              <!-- 可扣款账户列表 -->
+              <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">选择</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户信息</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">币种</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前余额</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">扣款金额</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200" id="batchWithdrawAccountList">
+                    <tr class="withdraw-account-row" data-account="FB001234567">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234567</div>
+                          <div class="text-sm text-gray-500">测试广告账户01</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">1,200.50</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="FB001234568">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234568</div>
+                          <div class="text-sm text-gray-500">测试广告账户02</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">850.75</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="GG001234570">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">GG001234570</div>
+                          <div class="text-sm text-gray-500">Google广告账户01</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">530.25</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="FB001234571">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234571</div>
+                          <div class="text-sm text-gray-500">Facebook跨境电商账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">2,150.80</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="FB001234572">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234572</div>
+                          <div class="text-sm text-gray-500">Facebook游戏推广账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">675.30</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="GG001234573">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">GG001234573</div>
+                          <div class="text-sm text-gray-500">Google搜索广告账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">1,320.45</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="FB001234574">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234574</div>
+                          <div class="text-sm text-gray-500">Facebook本地服务账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">890.60</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="FB001234575">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234575</div>
+                          <div class="text-sm text-gray-500">Facebook品牌推广账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">EUR</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">435.90</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="GG001234576">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">GG001234576</div>
+                          <div class="text-sm text-gray-500">Google视频广告账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">755.35</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="FB001234577">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234577</div>
+                          <div class="text-sm text-gray-500">Facebook应用推广账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">1,580.20</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                    <tr class="withdraw-account-row" data-account="GG001234578">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="withdraw-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleWithdrawAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">GG001234578</div>
+                          <div class="text-sm text-gray-500">Google购物广告账户</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">990.85</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="number" class="withdraw-amount-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                               placeholder="输入金额" min="10" step="0.01" disabled>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- 分页控件 -->
+              <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 sm:px-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div class="text-sm text-gray-700">
+                    显示第 <span id="withdrawPageStart">1</span> - <span id="withdrawPageEnd">5</span> 条，共 <span id="withdrawTotalRecords">10</span> 条记录
+                  </div>
+                  <!-- 每页显示条数设置 -->
+                  <div class="text-sm text-gray-600 ml-4">
+                    每页显示
+                    <select id="withdrawPageSize" onchange="changeWithdrawPageSize(this.value)" class="mx-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="5">5</option>
+                      <option value="5" selected>5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                    条
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button id="withdrawPrevPageBtn" onclick="changeWithdrawPage('prev')" 
+                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+                            disabled>
+                      <i class="fas fa-chevron-left mr-1"></i>上一页
+                    </button>
+                    <div class="flex items-center gap-1" id="withdrawPageNumbers">
+                      <!-- 页码按钮将动态生成 -->
+                    </div>
+                    <button id="withdrawNextPageBtn" onclick="changeWithdrawPage('next')" 
+                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+                            disabled>
+                      下一页<i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 扣款摘要 -->
+            <div class="bg-gray-50 rounded-lg p-4" id="batchWithdrawSummary" style="display: none;">
+              <h4 class="text-sm font-medium text-gray-900 mb-3">扣款摘要</h4>
+              <div class="space-y-2" id="withdrawSummaryList">
+                <!-- 动态生成摘要内容 -->
+              </div>
+              <div class="border-t border-gray-200 pt-3 mt-3">
+                <div class="flex justify-between text-sm font-medium text-gray-900">
+                  <span>总计金额：</span>
+                  <span id="withdrawTotalAmount">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500 mt-1">
+                  <span>选中账户数：</span>
+                  <span id="withdrawSelectedCount">0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 扣款提示信息 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
+                </div>
+                <div class="ml-3">
+                  <h4 class="text-sm font-medium text-blue-800 mb-2">扣款须知</h4>
+                  <div class="space-y-2 text-sm text-blue-700">
+                    <div class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>扣款实际结果以Facebook反馈为准。</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>建议暂停广告投放24小时后再提交扣款申请。</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="text-blue-500 mr-2">•</span>
+                      <span>扣款处理一般需要几分钟操作，请耐心等候。</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 通用设置 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">批量设置</label>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">快速金额设置</label>
+                <div class="flex space-x-2">
+                  <button type="button" onclick="setWithdrawAmountForSelected(100)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">100</button>
+                  <button type="button" onclick="setWithdrawAmountForSelected(200)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">200</button>
+                  <button type="button" onclick="setWithdrawAmountForSelected(500)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">500</button>
+                  <button type="button" onclick="setWithdrawAmountForSelected(1000)" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors">1000</button>
+                  <input type="number" id="withdrawCustomAmount" placeholder="自定义" class="w-20 px-2 py-1 text-xs border border-gray-300 rounded">
+                  <button type="button" onclick="setWithdrawAmountForSelected(document.getElementById('withdrawCustomAmount').value)" class="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors">应用</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+            <button type="button" onclick="closeModal('batchWithdrawModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" id="batchWithdrawSubmitBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 transition-colors duration-200" disabled>
+              提交
             </button>
           </div>
         </form>
@@ -1003,6 +1435,11 @@
         // 初始化分页和数据
         initializePagination();
         resetBatchRechargeForm();
+      } else if (type === 'batchWithdraw') {
+        document.getElementById('batchWithdrawModal').classList.remove('hidden');
+        // 初始化扣款分页和数据
+        initializeWithdrawPagination();
+        resetBatchWithdrawForm();
       }
     }
 
@@ -1085,7 +1522,7 @@
       newItem.className = 'url-item flex items-center space-x-2 mb-2';
       newItem.innerHTML = `
         <input type="url" name="urls[]" placeholder="请输入要投放的网站URL" required class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        <button type="button" onclick="removeUrlField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded">
+        <button type="button" onclick="removeUrlField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
           <i class="fas fa-times"></i>
         </button>
       `;
@@ -1131,7 +1568,7 @@
       newItem.className = 'page-item flex items-center space-x-2 mb-2';
       newItem.innerHTML = `
         <input type="url" name="pages[]" placeholder="请输入Facebook Page链接（可选）" class="flex-1 px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded">
+        <button type="button" onclick="removePageField(this)" class="text-red-400 hover:text-red-300 px-2 py-2 rounded" style="display: none;">
           <i class="fas fa-times"></i>
         </button>
       `;
@@ -1181,7 +1618,7 @@
           <input type="number" name="quantities[]" min="1" max="5" value="1" required class="w-full px-3 py-2 bg-slate-600 border border-gray-500 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </td>
         <td class="px-4 py-3">
-          <button type="button" onclick="removeAccountConfig(this)" class="text-red-400 hover:text-red-300 px-2 py-1 rounded">
+          <button type="button" onclick="removeAccountConfig(this)" class="text-red-400 hover:text-red-300 px-2 py-1 rounded" style="display: none;">
             <i class="fas fa-times"></i>
           </button>
         </td>
@@ -1831,7 +2268,903 @@
     document.addEventListener('DOMContentLoaded', function() {
       // 初始按创建时间倒序排列
       updateSortIcons();
+      
+      // 初始化语言设置
+      initializeLanguage();
     });
+
+    // 多语言功能
+    let currentLanguage = 'zh-CN';
+    const translations = {
+      'zh-CN': {
+        // 页面标题和导航
+        'page_title': '账户管理 - BestAds',
+        'nav_home': '首页',
+        'nav_account_management': '账户管理',
+        'nav_operation_records': '操作记录',
+        'nav_ad_review_notifications': '被拒广告',
+        'nav_ad_management': '广告管理',
+        'nav_wallet': '余额管理',
+        
+        // 页面主标题和描述
+        'main_title': '账户管理',
+        'main_description': '管理您的广告账户，发起开户和充值申请',
+        'available_balance': '可用余额',
+        'real_amount': '真实金额',
+        'frozen_amount': '冻结金额',
+        'user_role': '管理员',
+        'user_email': 'admin@bestads.com',
+        
+        // 筛选区域
+        'filter_title': '筛选条件',
+        'filter_account': '广告账户',
+        'filter_account_placeholder': '支持名称和ID模糊查询',
+        'filter_status': '账户状态',
+        'filter_status_all': '全部状态',
+        'filter_status_active': '活跃',
+        'filter_status_inactive': '停用',
+        'filter_status_pending': '待审核',
+        'filter_status_disabled': '已禁用',
+        'search_button': '搜索',
+        
+        // 账户列表
+        'list_title': '账户列表',
+        'apply_account_button': '申请开户',
+        'batch_recharge_button': '批量充值',
+        'batch_withdraw_button': '批量扣款',
+        'column_account_name': '广告账户名称',
+        'column_account_id': '广告账户ID',
+        'column_status': '账户状态',
+        'column_currency': '币种',
+        'column_balance': '余额',
+        'column_timezone': '时区',
+        'column_create_time': '创建时间',
+        
+        // 申请开户弹窗
+        'account_modal_title': '申请开户',
+        'url_label': 'URL *',
+        'url_placeholder': '请输入要投放的网站URL',
+        'url_add_button': '添加',
+        'url_remove_button': '删除',
+        'url_limit_tip': '最少1个，最多20个URL',
+        'timezone_quantity_label': '时区和数量 *',
+        'timezone_quantity_add_button': '添加',
+        'timezone_quantity_remove_button': '删除',
+        'timezone_placeholder': '请选择时区',
+        'quantity_placeholder': '数量',
+        'timezone_quantity_limit_tip': '单次申请总数量不可超过5个',
+        'bm_id_label': 'BM ID',
+        'bm_id_placeholder': '请输入BM ID',
+        'bm_name_label': 'BM名称',
+        'bm_name_placeholder': '请输入BM名称',
+        'facebook_page_label': 'Facebook Page',
+        'facebook_page_placeholder': '请输入Facebook Page链接（可选）',
+        'facebook_page_add_button': '添加',
+        'facebook_page_remove_button': '删除',
+        'facebook_page_limit_tip': '部分客户开户需要提供Facebook Page，最多20个',
+        'cancel_button': '取消',
+        'submit_button': '提交申请',
+        
+        // 批量充值弹窗
+        'recharge_modal_title': '批量充值',
+        'select_account_label': '选择充值账户',
+        'search_placeholder': '支持对账户ID和名称进行搜索',
+        'select_all_button': '全选',
+        'deselect_all_button': '取消全选',
+        'selected_info': '已选中 {count} 个账户',
+        'column_select': '选择',
+        'column_account_info': '账户信息',
+        'column_currency': '币种',
+        'column_current_balance': '当前余额',
+        'column_recharge_amount': '充值金额',
+        'amount_placeholder': '输入金额',
+        'page_info': '显示第 {start} - {end} 条，共 {total} 条记录',
+        'page_size_label': '每页显示',
+        'prev_page_button': '上一页',
+        'next_page_button': '下一页',
+        
+        // 充值摘要
+        'summary_title': '充值摘要',
+        'total_amount': '总计金额：',
+        'selected_count': '选中账户数：',
+        'batch_settings_label': '批量设置',
+        'quick_amount_label': '快速金额设置',
+        'custom_amount_placeholder': '自定义',
+        'apply_button': '应用',
+        'recharge_button': '充值',
+        
+        // 批量扣款弹窗
+        'withdraw_modal_title': '批量扣款',
+        'select_withdraw_account_label': '选择扣款账户',
+        'withdraw_search_placeholder': '支持对账户ID和名称进行搜索',
+        'withdraw_select_all_button': '全选',
+        'withdraw_deselect_all_button': '取消全选',
+        'withdraw_selected_info': '已选中 {count} 个账户',
+        'withdraw_column_select': '选择',
+        'withdraw_column_account_info': '账户信息',
+        'withdraw_column_currency': '币种',
+        'withdraw_column_current_balance': '当前余额',
+        'withdraw_column_withdraw_amount': '扣款金额',
+        'withdraw_amount_placeholder': '输入金额',
+        'withdraw_page_info': '显示第 {start} - {end} 条，共 {total} 条记录',
+        'withdraw_page_size_label': '每页显示',
+        'withdraw_prev_page_button': '上一页',
+        'withdraw_next_page_button': '下一页',
+        
+        // 扣款摘要
+        'withdraw_summary_title': '扣款摘要',
+        'withdraw_total_amount': '总计金额：',
+        'withdraw_selected_count': '选中账户数：',
+        'withdraw_batch_settings_label': '批量设置',
+        'withdraw_quick_amount_label': '快速金额设置',
+        'withdraw_custom_amount_placeholder': '自定义',
+        'withdraw_apply_button': '应用',
+        'withdraw_button': '扣款',
+        
+        // 扣款提示信息
+        'withdraw_notice_title': '扣款须知',
+        'withdraw_notice_facebook': '扣款实际结果以Facebook反馈为准。',
+        'withdraw_notice_pause': '建议暂停广告投放24小时后再提交扣款申请。',
+        'withdraw_notice_time': '扣款处理一般需要几分钟操作，请耐心等候。',
+        
+        // 通知消息
+        'notification_success': '申请已提交，我们将尽快处理！',
+        'notification_recharge_success': '批量充值申请已提交！共{count}个账户，总金额${amount}',
+        'notification_withdraw_success': '批量扣款申请已提交！共{count}个账户，总金额${amount}',
+        'notification_url_limit': '最多只能添加20个URL',
+        'notification_url_min': '至少需要保留一个URL',
+        'notification_page_limit': '最多只能添加20个Facebook Page',
+        'notification_config_limit': '最多只能添加10个配置',
+        'notification_config_min': '至少需要保留一个配置',
+        'notification_url_required': '请输入1-20个投放URL',
+        'notification_timezone_required': '请为所有配置选择时区',
+        'notification_quantity_range': '每个配置的数量必须在1-5之间',
+        'notification_total_quantity': '单次申请数量不可超过5个',
+        'notification_page_limit_error': 'Facebook Page不能超过20个',
+        'notification_amount_required': '请至少选择一个账户并设置有效的充值金额',
+        'notification_withdraw_amount_required': '请至少选择一个账户并设置有效的扣款金额',
+        'notification_balance_exceeded': '扣款金额不能超过账户当前余额',
+        
+        // 表单验证错误
+        'error_url_required': '请输入要投放的网站URL',
+        'error_timezone_required': '请选择时区',
+        'error_quantity_required': '请输入数量',
+        'error_quantity_range': '数量必须在1-5之间',
+        'error_amount_min': '金额不能少于10',
+        'error_amount_format': '请输入有效的金额格式',
+        'error_account_required': '请选择至少一个账户',
+        'error_amount_exceeded': '扣款金额不能超过当前余额',
+        
+        // 状态文本
+        'status_all': '全部状态',
+        'status_active': '活跃',
+        'status_inactive': '停用',
+        'status_pending': '待审核',
+        'status_disabled': '已禁用',
+        'status_selected_count': '已选择 {count} 个状态',
+        
+        // 排序功能
+        'sort_status': '账户状态',
+        'sort_balance': '余额',
+        'sort_create_time': '创建时间',
+        'sort_asc': '升序',
+        'sort_desc': '降序'
+      },
+      'en-US': {
+        // 页面标题和导航
+        'page_title': 'Account Management - BestAds',
+        'nav_home': 'Home',
+        'nav_account_management': 'Account Management',
+        'nav_operation_records': 'Operation Records',
+        'nav_ad_review_notifications': 'Rejected Ads',
+        'nav_ad_management': 'Ad Management',
+        'nav_wallet': 'Wallet',
+        
+        // 页面主标题和描述
+        'main_title': 'Account Management',
+        'main_description': 'Manage your ad accounts, submit account opening and recharge requests',
+        'available_balance': 'Available Balance',
+        'real_amount': 'Real Amount',
+        'frozen_amount': 'Frozen Amount',
+        'user_role': 'Administrator',
+        'user_email': 'admin@bestads.com',
+        
+        // 筛选区域
+        'filter_title': 'Filter Conditions',
+        'filter_account': 'Ad Account',
+        'filter_account_placeholder': 'Support fuzzy search by name and ID',
+        'filter_status': 'Account Status',
+        'filter_status_all': 'All Status',
+        'filter_status_active': 'Active',
+        'filter_status_inactive': 'Inactive',
+        'filter_status_pending': 'Pending',
+        'filter_status_disabled': 'Disabled',
+        'search_button': 'Search',
+        
+        // 账户列表
+        'list_title': 'Account List',
+        'apply_account_button': 'Apply for Account',
+        'batch_recharge_button': 'Batch Recharge',
+        'batch_withdraw_button': 'Batch Withdraw',
+        'column_account_name': 'Ad Account Name',
+        'column_account_id': 'Ad Account ID',
+        'column_status': 'Account Status',
+        'column_currency': 'Currency',
+        'column_balance': 'Balance',
+        'column_timezone': 'Timezone',
+        'column_create_time': 'Create Time',
+        
+        // 申请开户弹窗
+        'account_modal_title': 'Apply for Account',
+        'url_label': 'URL *',
+        'url_placeholder': 'Enter the website URL for advertising',
+        'url_add_button': 'Add',
+        'url_remove_button': 'Remove',
+        'url_limit_tip': 'Minimum 1, maximum 20 URLs',
+        'timezone_quantity_label': 'Timezone and Quantity *',
+        'timezone_quantity_add_button': 'Add',
+        'timezone_quantity_remove_button': 'Remove',
+        'timezone_placeholder': 'Please select timezone',
+        'quantity_placeholder': 'Quantity',
+        'timezone_quantity_limit_tip': 'Total quantity per application cannot exceed 5',
+        'bm_id_label': 'BM ID',
+        'bm_id_placeholder': 'Enter BM ID',
+        'bm_name_label': 'BM Name',
+        'bm_name_placeholder': 'Enter BM Name',
+        'facebook_page_label': 'Facebook Page',
+        'facebook_page_placeholder': 'Enter Facebook Page link (optional)',
+        'facebook_page_add_button': 'Add',
+        'facebook_page_remove_button': 'Remove',
+        'facebook_page_limit_tip': 'Some customers need to provide Facebook Page for account opening, maximum 20',
+        'cancel_button': 'Cancel',
+        'submit_button': 'Submit Application',
+        
+        // 批量充值弹窗
+        'recharge_modal_title': 'Batch Recharge',
+        'select_account_label': 'Select Recharge Account',
+        'search_placeholder': 'Support search by account ID and name',
+        'select_all_button': 'Select All',
+        'deselect_all_button': 'Deselect All',
+        'selected_info': '{count} accounts selected',
+        'column_select': 'Select',
+        'column_account_info': 'Account Info',
+        'column_currency': 'Currency',
+        'column_current_balance': 'Current Balance',
+        'column_recharge_amount': 'Recharge Amount',
+        'amount_placeholder': 'Enter amount',
+        'page_info': 'Showing {start}-{end} of {total} records',
+        'page_size_label': 'Show per page',
+        'prev_page_button': 'Previous',
+        'next_page_button': 'Next',
+        
+        // 充值摘要
+        'summary_title': 'Recharge Summary',
+        'total_amount': 'Total Amount:',
+        'selected_count': 'Selected Accounts:',
+        'batch_settings_label': 'Batch Settings',
+        'quick_amount_label': 'Quick Amount Settings',
+        'custom_amount_placeholder': 'Custom',
+        'apply_button': 'Apply',
+        'recharge_button': 'Recharge',
+        
+        // 批量扣款弹窗
+        'withdraw_modal_title': 'Batch Withdraw',
+        'select_withdraw_account_label': 'Select Withdraw Account',
+        'withdraw_search_placeholder': 'Support search by account ID and name',
+        'withdraw_select_all_button': 'Select All',
+        'withdraw_deselect_all_button': 'Deselect All',
+        'withdraw_selected_info': '{count} accounts selected',
+        'withdraw_column_select': 'Select',
+        'withdraw_column_account_info': 'Account Info',
+        'withdraw_column_currency': 'Currency',
+        'withdraw_column_current_balance': 'Current Balance',
+        'withdraw_column_withdraw_amount': 'Withdraw Amount',
+        'withdraw_amount_placeholder': 'Enter amount',
+        'withdraw_page_info': 'Showing {start}-{end} of {total} records',
+        'withdraw_page_size_label': 'Show per page',
+        'withdraw_prev_page_button': 'Previous',
+        'withdraw_next_page_button': 'Next',
+        
+        // 扣款摘要
+        'withdraw_summary_title': 'Withdraw Summary',
+        'withdraw_total_amount': 'Total Amount:',
+        'withdraw_selected_count': 'Selected Accounts:',
+        'withdraw_batch_settings_label': 'Batch Settings',
+        'withdraw_quick_amount_label': 'Quick Amount Settings',
+        'withdraw_custom_amount_placeholder': 'Custom',
+        'withdraw_apply_button': 'Apply',
+        'withdraw_button': 'Withdraw',
+        
+        // 扣款提示信息
+        'withdraw_notice_title': 'Withdraw Notice',
+        'withdraw_notice_facebook': 'The actual withdraw result is subject to Facebook\'s feedback.',
+        'withdraw_notice_pause': 'It is recommended to pause ad delivery for 24 hours before submitting withdraw request.',
+        'withdraw_notice_time': 'Withdraw processing usually takes a few minutes, please be patient.',
+        
+        // 通知消息
+        'notification_success': 'Application submitted, we will process it as soon as possible!',
+        'notification_recharge_success': 'Batch recharge application submitted! {count} accounts, total amount ${amount}',
+        'notification_withdraw_success': 'Batch withdraw application submitted! {count} accounts, total amount ${amount}',
+        'notification_url_limit': 'Maximum 20 URLs allowed',
+        'notification_url_min': 'At least one URL must be retained',
+        'notification_page_limit': 'Maximum 20 Facebook Pages allowed',
+        'notification_config_limit': 'Maximum 10 configurations allowed',
+        'notification_config_min': 'At least one configuration must be retained',
+        'notification_url_required': 'Please enter 1-20 advertising URLs',
+        'notification_timezone_required': 'Please select timezone for all configurations',
+        'notification_quantity_range': 'Quantity for each configuration must be between 1-5',
+        'notification_total_quantity': 'Total quantity per application cannot exceed 5',
+        'notification_page_limit_error': 'Facebook Pages cannot exceed 20',
+        'notification_amount_required': 'Please select at least one account and set valid recharge amount',
+        'notification_withdraw_amount_required': 'Please select at least one account and set valid withdraw amount',
+        'notification_balance_exceeded': 'Withdraw amount cannot exceed current account balance',
+        
+        // 表单验证错误
+        'error_url_required': 'Please enter the website URL for advertising',
+        'error_timezone_required': 'Please select timezone',
+        'error_quantity_required': 'Please enter quantity',
+        'error_quantity_range': 'Quantity must be between 1-5',
+        'error_amount_min': 'Amount cannot be less than 10',
+        'error_amount_format': 'Please enter valid amount format',
+        'error_account_required': 'Please select at least one account',
+        'error_amount_exceeded': 'Withdraw amount cannot exceed current balance',
+        
+        // 状态文本
+        'status_all': 'All Status',
+        'status_active': 'Active',
+        'status_inactive': 'Inactive',
+        'status_pending': 'Pending',
+        'status_disabled': 'Disabled',
+        'status_selected_count': '{count} statuses selected',
+        
+        // 排序功能
+        'sort_status': 'Account Status',
+        'sort_balance': 'Balance',
+        'sort_create_time': 'Create Time',
+        'sort_asc': 'Ascending',
+        'sort_desc': 'Descending'
+      }
+    };
+
+    // 初始化语言设置
+    function initializeLanguage() {
+      const savedLanguage = localStorage.getItem('language') || 'zh-CN';
+      currentLanguage = savedLanguage;
+      updateLanguageUI();
+      applyLanguage();
+    }
+
+    // 切换语言下拉菜单
+    function toggleLanguage() {
+      const dropdown = document.getElementById('languageDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+
+    // 更改语言
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('language', lang);
+      updateLanguageUI();
+      applyLanguage();
+      document.getElementById('languageDropdown').classList.add('hidden');
+    }
+
+    // 更新语言UI
+    function updateLanguageUI() {
+      const zhCheck = document.getElementById('zh-check');
+      const enCheck = document.getElementById('en-check');
+      
+      if (currentLanguage === 'zh-CN') {
+        zhCheck.style.display = 'inline';
+        enCheck.style.display = 'none';
+      } else {
+        zhCheck.style.display = 'none';
+        enCheck.style.display = 'inline';
+      }
+    }
+
+    // 应用语言
+    function applyLanguage() {
+      // 更新页面标题
+      document.title = getText('page_title');
+      
+      // 更新导航菜单
+      updateNavigationText();
+      
+      // 更新主标题和描述
+      updateMainContent();
+      
+      // 更新筛选区域
+      updateFilterSection();
+      
+      // 更新账户列表
+      updateAccountList();
+      
+      // 更新弹窗内容
+      updateModalContent();
+    }
+
+    // 获取翻译文本
+    function getText(key, params = {}) {
+      let text = translations[currentLanguage][key] || key;
+      
+      // 替换参数
+      Object.keys(params).forEach(param => {
+        text = text.replace(`{${param}}`, params[param]);
+      });
+      
+      return text;
+    }
+
+    // 更新导航菜单文本
+    function updateNavigationText() {
+      const navItems = document.querySelectorAll('.sidebar-item span');
+      navItems.forEach(item => {
+        const key = item.getAttribute('data-i18n');
+        if (key) {
+          item.textContent = getText(key);
+        }
+      });
+    }
+
+    // 更新主内容
+    function updateMainContent() {
+      const title = document.querySelector('h1');
+      if (title) title.textContent = getText('main_title');
+      
+      const description = document.querySelector('p');
+      if (description) description.textContent = getText('main_description');
+    }
+
+    // 更新筛选区域
+    function updateFilterSection() {
+      const filterTitle = document.querySelector('.px-6.py-4 h3');
+      if (filterTitle) filterTitle.textContent = getText('filter_title');
+      
+      const accountLabel = document.querySelector('label[for="accountSearch"]');
+      if (accountLabel) accountLabel.textContent = getText('filter_account');
+      
+      const accountInput = document.getElementById('accountSearch');
+      if (accountInput) accountInput.placeholder = getText('filter_account_placeholder');
+      
+      const statusLabel = document.querySelector('label[for="statusDropdownBtn"]');
+      if (statusLabel) statusLabel.textContent = getText('filter_status');
+      
+      const searchButton = document.querySelector('.btn-primary');
+      if (searchButton) searchButton.innerHTML = `<i class="fas fa-search mr-2"></i>${getText('search_button')}`;
+    }
+
+    // 更新账户列表
+    function updateAccountList() {
+      const listTitle = document.querySelector('.flex.items-center.justify-between h3');
+      if (listTitle) listTitle.textContent = getText('list_title');
+      
+      const applyButton = document.querySelector('button[onclick="openModal(\'account\')"]');
+      if (applyButton) applyButton.innerHTML = `<i class="fas fa-plus"></i><span>${getText('apply_account_button')}</span>`;
+      
+      const rechargeButton = document.querySelector('button[onclick="openModal(\'batchRecharge\')"]');
+      if (rechargeButton) rechargeButton.innerHTML = `<i class="fas fa-layer-group"></i><span>${getText('batch_recharge_button')}</span>`;
+      
+      const withdrawButton = document.querySelector('button[onclick="openModal(\'batchWithdraw\')"]');
+      if (withdrawButton) withdrawButton.innerHTML = `<i class="fas fa-minus-circle"></i><span>${getText('batch_withdraw_button')}</span>`;
+    }
+
+    // 更新弹窗内容
+    function updateModalContent() {
+      // 申请开户弹窗
+      const accountModalTitle = document.querySelector('#accountModal h3');
+      if (accountModalTitle) accountModalTitle.textContent = getText('account_modal_title');
+      
+      // 批量充值弹窗
+      const rechargeModalTitle = document.querySelector('#batchRechargeModal h3');
+      if (rechargeModalTitle) rechargeModalTitle.textContent = getText('recharge_modal_title');
+      
+      // 批量扣款弹窗
+      const withdrawModalTitle = document.querySelector('#batchWithdrawModal h3');
+      if (withdrawModalTitle) withdrawModalTitle.textContent = getText('withdraw_modal_title');
+    }
+
+    // 点击外部关闭语言下拉菜单
+    document.addEventListener('click', function(event) {
+      const languageToggle = document.getElementById('languageToggle');
+      const languageDropdown = document.getElementById('languageDropdown');
+      
+      if (!languageToggle.contains(event.target) && !languageDropdown.contains(event.target)) {
+        languageDropdown.classList.add('hidden');
+      }
+    });
+
+    // 批量扣款相关变量
+    let withdrawCurrentPage = 1;
+    let withdrawPageSize = 5;
+    let allWithdrawAccountRows = [];
+    let filteredWithdrawRows = [];
+
+    // 批量扣款功能
+    function resetBatchWithdrawForm() {
+      // 重置所有复选框
+      document.querySelectorAll('.withdraw-account-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      
+      // 禁用所有输入框
+      document.querySelectorAll('.withdraw-amount-input').forEach(input => {
+        input.disabled = true;
+        input.value = '';
+      });
+      
+      // 隐藏摘要
+      document.getElementById('batchWithdrawSummary').style.display = 'none';
+      
+      // 禁用提交按钮
+      document.getElementById('batchWithdrawSubmitBtn').disabled = true;
+      
+      // 重置批量设置
+      document.getElementById('withdrawCustomAmount').value = '';
+      
+      // 重置搜索和分页
+      document.getElementById('withdrawAccountSearch').value = '';
+      document.getElementById('clearWithdrawSearchBtn').style.display = 'none';
+      withdrawCurrentPage = 1;
+      withdrawPageSize = parseInt(document.getElementById('withdrawPageSize').value);
+      
+      // 初始化账户数据
+      allWithdrawAccountRows = Array.from(document.querySelectorAll('#batchWithdrawAccountList .withdraw-account-row'));
+      filteredWithdrawRows = [...allWithdrawAccountRows];
+      
+      // 更新显示
+      updateWithdrawPagination();
+      updateWithdrawStatistics();
+    }
+
+    // 初始化扣款分页数据
+    function initializeWithdrawPagination() {
+      allWithdrawAccountRows = Array.from(document.querySelectorAll('#batchWithdrawAccountList .withdraw-account-row'));
+      filteredWithdrawRows = [...allWithdrawAccountRows];
+      withdrawCurrentPage = 1;
+      withdrawPageSize = parseInt(document.getElementById('withdrawPageSize').value);
+      updateWithdrawPagination();
+      updateWithdrawStatistics();
+    }
+
+    function selectAllWithdrawAccounts() {
+      // 只选择当前筛选和分页中可见的账户
+      filteredWithdrawRows.forEach(row => {
+        if (row.style.display !== 'none') {
+          const checkbox = row.querySelector('.withdraw-account-checkbox');
+          if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            toggleWithdrawAccountRow(checkbox);
+          }
+        }
+      });
+    }
+
+    function deselectAllWithdrawAccounts() {
+      // 取消选择所有已选中的账户（包括不可见的）
+      document.querySelectorAll('.withdraw-account-checkbox:checked').forEach(checkbox => {
+        checkbox.checked = false;
+        toggleWithdrawAccountRow(checkbox);
+      });
+    }
+
+    function toggleWithdrawAccountRow(checkbox) {
+      const row = checkbox.closest('.withdraw-account-row');
+      const amountInput = row.querySelector('.withdraw-amount-input');
+      
+      if (checkbox.checked) {
+        // 启用输入框
+        amountInput.disabled = false;
+        row.classList.add('bg-blue-50');
+        
+        // 添加事件监听器
+        amountInput.addEventListener('input', updateWithdrawSummary);
+      } else {
+        // 禁用输入框并清空值
+        amountInput.disabled = true;
+        amountInput.value = '';
+        row.classList.remove('bg-blue-50');
+        
+        // 移除事件监听器
+        amountInput.removeEventListener('input', updateWithdrawSummary);
+      }
+      
+      updateWithdrawSummary();
+      updateWithdrawStatistics(); // 更新统计信息
+    }
+
+    function setWithdrawAmountForSelected(amount) {
+      if (!amount || amount <= 0) return;
+      
+      document.querySelectorAll('.withdraw-account-checkbox:checked').forEach(checkbox => {
+        const row = checkbox.closest('.withdraw-account-row');
+        const amountInput = row.querySelector('.withdraw-amount-input');
+        amountInput.value = amount;
+      });
+      
+      updateWithdrawSummary();
+    }
+
+    function updateWithdrawSummary() {
+      const selectedCheckboxes = document.querySelectorAll('.withdraw-account-checkbox:checked');
+      const summaryDiv = document.getElementById('batchWithdrawSummary');
+      const summaryList = document.getElementById('withdrawSummaryList');
+      const totalAmountSpan = document.getElementById('withdrawTotalAmount');
+      const selectedCountSpan = document.getElementById('withdrawSelectedCount');
+      const submitBtn = document.getElementById('batchWithdrawSubmitBtn');
+      
+      if (selectedCheckboxes.length === 0) {
+        summaryDiv.style.display = 'none';
+        submitBtn.disabled = true;
+        return;
+      }
+      
+      let totalAmount = 0;
+      let validSelections = 0;
+      let summaryHTML = '';
+      
+      selectedCheckboxes.forEach(checkbox => {
+        const row = checkbox.closest('.withdraw-account-row');
+        const accountId = row.getAttribute('data-account');
+        const accountIdDisplay = row.querySelector('.text-sm.font-medium').textContent;
+        const accountName = row.querySelector('.text-sm.text-gray-500').textContent;
+        const amountInput = row.querySelector('.withdraw-amount-input');
+        const currencySpan = row.querySelector('td:nth-child(3) span');
+        const currentBalanceSpan = row.querySelector('td:nth-child(4) span');
+        
+        const amount = parseFloat(amountInput.value);
+        const currency = currencySpan.textContent;
+        const currentBalance = parseFloat(currentBalanceSpan.textContent.replace(/,/g, ''));
+        
+        if (amount && amount >= 10) {
+          // 验证扣款金额不能超过当前余额
+          if (amount > currentBalance) {
+            amountInput.style.borderColor = '#ef4444';
+            amountInput.title = '扣款金额不能超过当前余额';
+            return;
+          } else {
+            amountInput.style.borderColor = '';
+            amountInput.title = '';
+          }
+          
+          totalAmount += amount;
+          validSelections++;
+          
+          summaryHTML += `
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-gray-700">${accountName} (${accountIdDisplay})</span>
+              <span class="font-medium text-gray-900">${currency} ${amount.toFixed(2)}</span>
+            </div>
+          `;
+        }
+      });
+      
+      summaryList.innerHTML = summaryHTML;
+      totalAmountSpan.textContent = `$${totalAmount.toFixed(2)}`;
+      selectedCountSpan.textContent = selectedCheckboxes.length;
+      
+      // 显示摘要
+      summaryDiv.style.display = 'block';
+      
+      // 启用/禁用提交按钮
+      submitBtn.disabled = validSelections === 0;
+    }
+
+    // 批量扣款表单提交
+    document.getElementById('batchWithdrawForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const selectedData = [];
+      let hasInvalidAmount = false;
+      
+      document.querySelectorAll('.withdraw-account-checkbox:checked').forEach(checkbox => {
+        const row = checkbox.closest('.withdraw-account-row');
+        const accountId = row.getAttribute('data-account');
+        const amountInput = row.querySelector('.withdraw-amount-input');
+        const currencySpan = row.querySelector('td:nth-child(3) span');
+        const currentBalanceSpan = row.querySelector('td:nth-child(4) span');
+        
+        const amount = parseFloat(amountInput.value);
+        const currency = currencySpan.textContent;
+        const currentBalance = parseFloat(currentBalanceSpan.textContent.replace(/,/g, ''));
+        
+        if (amount && amount >= 10) {
+          if (amount > currentBalance) {
+            hasInvalidAmount = true;
+            return;
+          }
+          
+          selectedData.push({
+            accountId,
+            amount,
+            currency,
+            currentBalance
+          });
+        }
+      });
+      
+      if (hasInvalidAmount) {
+        showNotification('扣款金额不能超过账户当前余额', 'error');
+        return;
+      }
+      
+      if (selectedData.length === 0) {
+        showNotification('请至少选择一个账户并设置有效的扣款金额', 'warning');
+        return;
+      }
+      
+      console.log('批量扣款数据:', selectedData);
+      showNotification(`批量扣款申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
+      closeModal('batchWithdrawModal');
+    });
+
+    // 扣款分页功能
+    function updateWithdrawPagination() {
+      const totalRows = filteredWithdrawRows.length;
+      const totalPages = Math.ceil(totalRows / withdrawPageSize);
+      const startIndex = (withdrawCurrentPage - 1) * withdrawPageSize;
+      const endIndex = Math.min(startIndex + withdrawPageSize, totalRows);
+      
+      // 隐藏所有行
+      allWithdrawAccountRows.forEach(row => {
+        row.style.display = 'none';
+      });
+      
+      // 显示当前页的行
+      for (let i = startIndex; i < endIndex; i++) {
+        if (filteredWithdrawRows[i]) {
+          filteredWithdrawRows[i].style.display = 'table-row';
+        }
+      }
+      
+      // 更新分页信息
+      document.getElementById('withdrawPageStart').textContent = totalRows > 0 ? startIndex + 1 : 0;
+      document.getElementById('withdrawPageEnd').textContent = endIndex;
+      document.getElementById('withdrawTotalRecords').textContent = totalRows;
+      
+      // 更新分页按钮状态
+      document.getElementById('withdrawPrevPageBtn').disabled = withdrawCurrentPage <= 1;
+      document.getElementById('withdrawNextPageBtn').disabled = withdrawCurrentPage >= totalPages;
+      
+      // 生成页码按钮
+      generateWithdrawPageNumbers(totalPages);
+    }
+
+    function generateWithdrawPageNumbers(totalPages) {
+      const pageNumbersDiv = document.getElementById('withdrawPageNumbers');
+      pageNumbersDiv.innerHTML = '';
+      
+      if (totalPages <= 1) return;
+      
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, withdrawCurrentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+      
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+      
+      // 第一页
+      if (startPage > 1) {
+        pageNumbersDiv.appendChild(createWithdrawPageButton(1));
+        if (startPage > 2) {
+          pageNumbersDiv.appendChild(createWithdrawEllipsis());
+        }
+      }
+      
+      // 页码按钮
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbersDiv.appendChild(createWithdrawPageButton(i));
+      }
+      
+      // 最后一页
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pageNumbersDiv.appendChild(createWithdrawEllipsis());
+        }
+        pageNumbersDiv.appendChild(createWithdrawPageButton(totalPages));
+      }
+    }
+
+    function createWithdrawPageButton(pageNum) {
+      const button = document.createElement('button');
+      button.className = `px-3 py-2 text-sm font-medium border rounded-md transition-colors ${
+        pageNum === withdrawCurrentPage 
+          ? 'bg-blue-600 text-white border-blue-600' 
+          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+      }`;
+      button.textContent = pageNum;
+      button.onclick = () => goToWithdrawPage(pageNum);
+      return button;
+    }
+
+    function createWithdrawEllipsis() {
+      const span = document.createElement('span');
+      span.className = 'px-3 py-2 text-sm text-gray-500';
+      span.textContent = '...';
+      return span;
+    }
+
+    function goToWithdrawPage(pageNum) {
+      withdrawCurrentPage = pageNum;
+      updateWithdrawPagination();
+      updateWithdrawStatistics();
+    }
+
+    function changeWithdrawPage(direction) {
+      if (direction === 'prev' && withdrawCurrentPage > 1) {
+        withdrawCurrentPage--;
+      } else if (direction === 'next') {
+        const totalPages = Math.ceil(filteredWithdrawRows.length / withdrawPageSize);
+        if (withdrawCurrentPage < totalPages) {
+          withdrawCurrentPage++;
+        }
+      }
+      updateWithdrawPagination();
+      updateWithdrawStatistics();
+    }
+
+    function changeWithdrawPageSize(newSize) {
+      withdrawPageSize = parseInt(newSize);
+      withdrawCurrentPage = 1; // 重置到第一页
+      updateWithdrawPagination();
+      updateWithdrawStatistics();
+    }
+
+    // 扣款搜索和统计功能
+    function filterWithdrawAccounts(searchTerm) {
+      const clearBtn = document.getElementById('clearWithdrawSearchBtn');
+      
+      // 显示/隐藏清空按钮
+      clearBtn.style.display = searchTerm.length > 0 ? 'block' : 'none';
+      
+      if (!searchTerm) {
+        filteredWithdrawRows = [...allWithdrawAccountRows];
+      } else {
+        const searchLower = searchTerm.toLowerCase();
+        filteredWithdrawRows = allWithdrawAccountRows.filter(row => {
+          const accountId = row.querySelector('.text-sm.font-medium').textContent.toLowerCase();
+          const accountName = row.querySelector('.text-sm.text-gray-500').textContent.toLowerCase();
+          const platform = row.querySelector('td:nth-child(3) span').textContent.toLowerCase();
+          
+          return accountId.includes(searchLower) || 
+                 accountName.includes(searchLower) || 
+                 platform.includes(searchLower);
+        });
+      }
+      
+      // 重置到第一页
+      withdrawCurrentPage = 1;
+      
+      // 更新显示
+      updateWithdrawPagination();
+      updateWithdrawStatistics();
+      updateWithdrawSummary();
+    }
+
+    function clearWithdrawSearch() {
+      document.getElementById('withdrawAccountSearch').value = '';
+      filterWithdrawAccounts('');
+    }
+
+    function updateWithdrawStatistics() {
+      const totalCount = filteredWithdrawRows.length;
+      const selectedCount = filteredWithdrawRows.filter(row => {
+        const checkbox = row.querySelector('.withdraw-account-checkbox');
+        return checkbox && checkbox.checked;
+      }).length;
+      
+      // 更新选中信息
+      const selectedInfo = document.getElementById('withdrawSelectedInfo');
+      selectedInfo.textContent = `已选中 ${selectedCount} 个账户`;
+      
+      // 更新选中信息颜色
+      if (selectedCount > 0) {
+        selectedInfo.className = 'text-blue-600 font-medium';
+      } else {
+        selectedInfo.className = 'text-gray-500 font-medium';
+      }
+    }
   </script>
 </body>
 </html> 
