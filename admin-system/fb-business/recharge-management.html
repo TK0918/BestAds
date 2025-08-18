@@ -223,9 +223,10 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
-                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border透明">
                       <option value="">全部</option>
                       <option value="充值中">充值中</option>
+                      <option value="待人工处理">待人工处理</option>
                       <option value="完成">完成</option>
                       <option value="失败">失败</option>
                     </select>
@@ -246,16 +247,20 @@
                   <button id="openRechargeModal" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                     <i class="fas fa-plus mr-2"></i>充值
                   </button>
+                  <button id="manualProcessBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 opacity-50 cursor-not-allowed" disabled>
+                    <i class="fas fa-tools mr-2"></i>人工处理
+                  </button>
                   <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                     <i class="fas fa-download mr-2"></i>导出
                   </button>
-                  <div class="text-sm text-gray-500">共 <span class="font-medium text-gray-900">2</span> 条</div>
+                  <div class="text-sm text-gray-500">共 <span class="font-medium text-gray-900">10</span> 条</div>
                 </div>
               </div>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 table-hover" id="rechargeTable">
                   <thead class="bg-gray-50">
                     <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">选择</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
@@ -278,6 +283,7 @@
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="rechargeTableBody">
                     <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
                       <td class="px-6 py-4 whitespace-nowrap">RC001</td>
                       <td class="px-6 py-4 whitespace-nowrap">C1001</td>
                       <td class="px-6 py-4 whitespace-nowrap">张三</td>
@@ -292,6 +298,7 @@
                       <td class="px-6 py-4 whitespace-nowrap">到账无误</td>
                     </tr>
                     <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
                       <td class="px-6 py-4 whitespace-nowrap">RC002</td>
                       <td class="px-6 py-4 whitespace-nowrap">C1002</td>
                       <td class="px-6 py-4 whitespace-nowrap">李四</td>
@@ -304,6 +311,126 @@
                       <td class="px-6 py-4 whitespace-nowrap text-yellow-600">充值中</td>
                       <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
                       <td class="px-6 py-4 whitespace-nowrap">等待一代确认</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC003</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1003</td>
+                      <td class="px-6 py-4 whitespace-nowrap">王五</td>
+                      <td class="px-6 py-4 whitespace-nowrap">wangwu@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-07 12:10">2024-06-07 12:10</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB009876543</td>
+                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户03</td>
+                      <td class="px-6 py-4 whitespace-nowrap">赵一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">800.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC004</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1004</td>
+                      <td class="px-6 py-4 whitespace-nowrap">赵六</td>
+                      <td class="px-6 py-4 whitespace-nowrap">zhaoliu@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-07 09:45">2024-06-07 09:45</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB001111222</td>
+                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户04</td>
+                      <td class="px-6 py-4 whitespace-nowrap">钱一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">1,200.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC005</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1005</td>
+                      <td class="px-6 py-4 whitespace-nowrap">钱七</td>
+                      <td class="px-6 py-4 whitespace-nowrap">qianqi@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 15:20">2024-06-06 15:20</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB003333444</td>
+                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户05</td>
+                      <td class="px-6 py-4 whitespace-nowrap">孙一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">300.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC006</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1006</td>
+                      <td class="px-6 py-4 whitespace-nowrap">孙八</td>
+                      <td class="px-6 py-4 whitespace-nowrap">sunba@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 08:00">2024-06-06 08:00</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB005555666</td>
+                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户06</td>
+                      <td class="px-6 py-4 whitespace-nowrap">周一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">900.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-red-600">失败</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 09:10">2024-06-06 09:10</td>
+                      <td class="px-6 py-4 whitespace-nowrap">余额不足</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC007</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1007</td>
+                      <td class="px-6 py-4 whitespace-nowrap">周九</td>
+                      <td class="px-6 py-4 whitespace-nowrap">zhoujiu@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-05 18:40">2024-06-05 18:40</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB007777888</td>
+                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户07</td>
+                      <td class="px-6 py-4 whitespace-nowrap">吴一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">2,500.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-05 19:00">2024-06-05 19:00</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC008</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1008</td>
+                      <td class="px-6 py-4 whitespace-nowrap">吴十</td>
+                      <td class="px-6 py-4 whitespace-nowrap">wushi@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-04 14:15">2024-06-04 14:15</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB009999000</td>
+                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户08</td>
+                      <td class="px-6 py-4 whitespace-nowrap">郑一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">700.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-yellow-600">充值中</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC009</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1009</td>
+                      <td class="px-6 py-4 whitespace-nowrap">郑十一</td>
+                      <td class="px-6 py-4 whitespace-nowrap">zheng11@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-03 10:05">2024-06-03 10:05</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB001212121</td>
+                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户09</td>
+                      <td class="px-6 py-4 whitespace-nowrap">王二代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">1,800.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-red-600">失败</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-03 10:45">2024-06-03 10:45</td>
+                      <td class="px-6 py-4 whitespace-nowrap">风控拒绝</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">RC010</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1010</td>
+                      <td class="px-6 py-4 whitespace-nowrap">钱十二</td>
+                      <td class="px-6 py-4 whitespace-nowrap">qian12@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-02 16:55">2024-06-02 16:55</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB004545454</td>
+                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户10</td>
+                      <td class="px-6 py-4 whitespace-nowrap">李二代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">950.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-02 17:25">2024-06-02 17:25</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
                     </tr>
                   </tbody>
                 </table>
@@ -340,6 +467,35 @@
         </div>
         <div class="flex justify-end">
           <button type="button" id="submitRecharge" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">提交</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 人工处理弹窗 -->
+  <div id="manualProcessModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button id="closeManualProcessModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4">人工处理</h3>
+      <div class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+        请确认已经在代理的系统中完成充值处理再使用此功能。
+      </div>
+      <form id="manualProcessForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">充值结果（必选）</label>
+          <select id="manualResult" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">请选择</option>
+            <option value="成功">成功</option>
+            <option value="失败">失败</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">备注（选填）</label>
+          <textarea id="manualRemark" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="填写备注（可选）"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancelManualProcess" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+          <button type="submit" id="confirmManualProcess" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">确定</button>
         </div>
       </form>
     </div>
@@ -408,9 +564,11 @@
       }
     }
 
-    // 页面加载时默认按提交时间倒序排序
+    // 页面加载时默认按提交时间倒序排序，并绑定人工处理相关逻辑
     document.addEventListener('DOMContentLoaded', function() {
       updateSortIcons();
+      bindManualProcessEnable();
+      setupManualProcessModal();
     });
 
     // 模拟客户和广告账户数据
@@ -623,6 +781,52 @@
         overlay.classList.remove('opacity-50');
       }
     });
+    // 根据复选框选择，切换人工处理按钮可用状态
+    function bindManualProcessEnable() {
+      const btn = document.getElementById('manualProcessBtn');
+      const update = () => {
+        const anyChecked = Array.from(document.querySelectorAll('#rechargeTableBody .row-select'))
+          .some(cb => cb.checked);
+        if (anyChecked) {
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+          btn.removeAttribute('disabled');
+        } else {
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+          btn.setAttribute('disabled', 'true');
+        }
+      };
+      document.querySelectorAll('#rechargeTableBody .row-select').forEach(cb => {
+        cb.addEventListener('change', update);
+      });
+      update();
+    }
+
+    // 打开/关闭人工处理弹窗、提交处理
+    function setupManualProcessModal() {
+      const openBtn = document.getElementById('manualProcessBtn');
+      const modal = document.getElementById('manualProcessModal');
+      const closeBtn = document.getElementById('closeManualProcessModal');
+      const cancelBtn = document.getElementById('cancelManualProcess');
+      const form = document.getElementById('manualProcessForm');
+      openBtn.addEventListener('click', () => {
+        if (openBtn.hasAttribute('disabled')) return;
+        modal.classList.remove('hidden');
+      });
+      const closeModal = () => modal.classList.add('hidden');
+      closeBtn.addEventListener('click', closeModal);
+      cancelBtn.addEventListener('click', closeModal);
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const result = document.getElementById('manualResult').value;
+        if (!result) {
+          alert('请选择充值结果');
+          return;
+        }
+        // 简单刷新：关闭弹窗并刷新页面
+        closeModal();
+        location.reload();
+      });
+    }
   </script>
 </body>
 </html> 
