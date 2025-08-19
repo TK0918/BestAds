@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>账户钱包（H5） - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=PingFang+SC:wght@400;500;600;700&display=swap');
+    body { font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif; background: #FFFFFF; color: #111827; }
+    .status-pill { font-size: 12px; border-radius: 9999px; padding: 2px 8px; }
+    .status-active { background: #16A34A; }
+    .status-pending { background: #F59E0B; }
+    .status-inactive { background: #6B7280; }
+    .status-disabled { background: #EF4444; }
+    .sheet { position: fixed; left: 0; right: 0; bottom: -100%; background: #FFFFFF; border-top-left-radius: 16px; border-top-right-radius: 16px; box-shadow: 0 -4px 24px rgba(0,0,0,0.12); transition: transform .25s ease, bottom .25s ease; z-index: 50; border-top: 1px solid #E5E7EB; }
+    .sheet.show { bottom: 0; }
+    .sheet-handle { width: 44px; height: 4px; border-radius: 9999px; background: #E5E7EB; margin: 10px auto; }
+    .tab-active { color: #00FFB0; }
+    .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; height: 58px; background: #FFFFFF; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-around; align-items: center; z-index: 40; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; }
+    .btn-primary { background: #00FFB0; color: #000; border-radius: 8px; }
+    .btn-secondary { background: #F3F4F6; color: #111827; border-radius: 8px; }
+    .input { background: #FFFFFF; border: 1px solid #E5E7EB; color: #111827; border-radius: 10px; }
+  </style>
+</head>
+<body class="min-h-screen pb-[70px]">
+  <header class="sticky top-0 z-40" style="background:#FFFFFF; border-bottom: 1px solid #E5E7EB;">
+    <div class="px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-wallet text-lg" style="color:#00BF85"></i>
+        <div>
+          <h1 class="text-base font-semibold">账户钱包</h1>
+          <p class="text-xs text-gray-500">移动端快速充值 / 减款 / 查看记录</p>
+        </div>
+      </div>
+      <button class="btn-secondary px-3 py-1.5 text-xs font-semibold" onclick="refreshData()">刷新</button>
+    </div>
+  </header>
+
+  <main class="px-4 pt-3 space-y-4">
+    <!-- 页面：登录 -->
+    <section id="page-login" class="page active">
+      <div class="min-h-[70vh] flex items-center justify-center">
+        <div class="card w-full max-w-sm p-5">
+          <div class="mb-4">
+            <h2 class="text-xl font-bold">登录 BestAds</h2>
+            <p class="text-xs text-gray-500 mt-1">请输入账号和密码进行登录</p>
+          </div>
+          <form onsubmit="handleLogin(event)" class="space-y-3">
+            <div>
+              <label class="text-sm text-gray-700 mb-1 block">账号</label>
+              <input id="loginUsername" type="text" placeholder="请输入账号" class="input w-full px-3 py-3">
+            </div>
+            <div>
+              <label class="text-sm text-gray-700 mb-1 block">密码</label>
+              <input id="loginPassword" type="password" placeholder="请输入密码" class="input w-full px-3 py-3">
+            </div>
+            <div id="loginError" class="text-sm text-red-500 hidden">账号或密码错误，请重试</div>
+            <button type="submit" class="btn-primary w-full py-3 font-semibold">登录</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页面：钱包 -->
+    <section id="page-wallet" class="page">
+      <div class="card p-4">
+        <div class="grid grid-cols-3 gap-3 items-start">
+          <div class="col-span-3">
+            <div class="text-xs text-gray-500 mb-1">可用余额</div>
+            <div id="walletAvailable" class="text-3xl font-extrabold" style="color:#00BF85;">$0.00</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500">真实金额</div>
+            <div id="walletReal" class="text-lg font-semibold text-gray-900">$0.00</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500">冻结金额</div>
+            <div id="walletFrozen" class="text-lg font-semibold text-gray-900">$0.00</div>
+          </div>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          <button class="btn-primary py-3 text-sm font-semibold" onclick="openModal('onlineRechargeModal')"><i class="fas fa-credit-card mr-2"></i>在线充值</button>
+          <button class="btn-secondary py-3 text-sm" onclick="openModal('offlineTransferModal')"><i class="fas fa-university mr-2"></i>线下转账</button>
+        </div>
+        <div class="mt-3 text-right">
+          <button class="text-sm text-gray-600 underline" onclick="logout()">登出</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页面：账户列表 -->
+    <section id="page-accounts" class="page active">
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1">
+          <i class="fas fa-search text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input id="searchInput" type="text" placeholder="搜索账户ID/名称" class="input w-full pl-9 pr-3 py-2.5 text-sm" oninput="renderAccounts()">
+        </div>
+        <button class="btn-secondary px-3 py-2 text-sm" onclick="clearSearch()">清空</button>
+      </div>
+
+      <div id="accountList" class="space-y-3 mt-2"></div>
+    </section>
+
+    <!-- 页面：记录 -->
+    <section id="page-records" class="page">
+      <div class="card p-3">
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <button id="recordTabRecharge" class="btn-secondary py-2 tab-active" onclick="switchRecordTab('recharge')">充值记录</button>
+          <button id="recordTabWithdraw" class="btn-secondary py-2" onclick="switchRecordTab('withdraw')">减款记录</button>
+        </div>
+      </div>
+      <div id="recordList" class="space-y-3 mt-3"></div>
+    </section>
+  </main>
+
+  <!-- 底部导航 -->
+  <nav id="bottomNav" class="bottom-nav">
+    <button class="flex flex-col items-center text-xs" onclick="showPage('accounts')">
+      <i class="fas fa-list text-base mb-1"></i>
+      <span>账户</span>
+    </button>
+    <button class="flex flex-col items-center text-xs" onclick="showPage('records')">
+      <i class="fas fa-clock-rotate-left text-base mb-1"></i>
+      <span>记录</span>
+    </button>
+    <button class="flex flex-col items-center text-xs" onclick="showPage('wallet')">
+      <i class="fas fa-wallet text-base mb-1"></i>
+      <span>钱包</span>
+    </button>
+  </nav>
+
+  <!-- 金额输入底部弹层 -->
+  <div id="amountSheet" class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="px-4 pb-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 id="sheetTitle" class="text-base font-semibold">账户操作</h3>
+        <button class="text-gray-400" onclick="closeSheet()"><i class="fas fa-times text-lg"></i></button>
+      </div>
+      <div class="card p-3 space-y-3">
+        <div class="text-sm text-gray-400">
+          <div>账户：<span id="sheetAccountName" class="text-white"></span></div>
+          <div>ID：<span id="sheetAccountId" class="text-white"></span></div>
+          <div>币种：<span id="sheetCurrency" class="text-white"></span></div>
+          <div>当前余额：<span id="sheetBalance" class="text-white"></span></div>
+        </div>
+        <div>
+          <label class="text-sm text-gray-300 mb-2 block">金额（最少 10）</label>
+          <input id="amountInput" type="number" min="10" step="0.01" class="input w-full px-3 py-3" placeholder="输入金额">
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+          <button class="btn-secondary py-2" onclick="quickAmount(100)">100</button>
+          <button class="btn-secondary py-2" onclick="quickAmount(200)">200</button>
+          <button class="btn-secondary py-2" onclick="quickAmount(500)">500</button>
+          <button class="btn-secondary py-2" onclick="quickAmount(1000)">1000</button>
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button id="confirmBtn" class="btn-primary flex-1 py-3 font-semibold" onclick="confirmOperation()">确认</button>
+          <button class="btn-secondary flex-1 py-3" onclick="closeSheet()">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 线下转账成功提示弹窗 -->
+  <div id="offlineSuccessModal" class="fixed inset-0 bg-black bg-opacity-30 hidden z-50">
+    <div class="flex items-end min-h-screen">
+      <div class="w-full sheet show" style="bottom:0;">
+        <div class="sheet-handle"></div>
+        <div class="px-4 pb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-semibold">提交成功</h3>
+            <button class="text-gray-500" onclick="closeModal('offlineSuccessModal')"><i class="fas fa-times text-lg"></i></button>
+          </div>
+          <div class="card p-3 space-y-3">
+            <div class="flex items-start gap-3 text-sm">
+              <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
+              <div class="text-gray-700">线下转账资料已提交，请耐心等待审核。</div>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" class="btn-primary flex-1 py-3 font-semibold" onclick="closeModal('offlineSuccessModal')">知道了</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 数据源（示例）
+    const wallet = { available: 2900.00, real: 3000.00, frozen: 100.00 };
+    const accounts = [
+      { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active' },
+      { id: 'FB001234568', name: '测试广告账户02', currency: 'USD', balance: 850.75, timezone: 'UTC+8', status: 'active' },
+      { id: 'FB001234569', name: '测试广告账户03', currency: 'USD', balance: 2150.00, timezone: 'UTC+0', status: 'pending' },
+      { id: 'GG001234570', name: 'Google广告账户01', currency: 'USD', balance: 530.25, timezone: 'UTC-5', status: 'active' },
+      { id: 'FB001234571', name: 'Facebook跨境电商账户', currency: 'USD', balance: 2150.80, timezone: 'UTC+8', status: 'active' },
+      { id: 'FB001234572', name: 'Facebook游戏推广账户', currency: 'USD', balance: 675.30, timezone: 'UTC+8', status: 'active' },
+      { id: 'GG001234573', name: 'Google搜索广告账户', currency: 'USD', balance: 1320.45, timezone: 'UTC-5', status: 'active' },
+      { id: 'FB001234575', name: 'Facebook品牌推广账户', currency: 'EUR', balance: 435.90, timezone: 'UTC+1', status: 'inactive' }
+    ];
+
+    // 记录（示例 + 本地存储）
+    const STORAGE_KEYS = { recharge: 'h5_recharge_records', withdraw: 'h5_withdraw_records' };
+    let rechargeRecords = loadRecords(STORAGE_KEYS.recharge, [
+      { id: 'RCG003', time: '2024-02-16 14:20', accountId: 'FB001234569', accountName: '游戏推广账户01', amount: 800.00, currency: 'USD', status: '成功', completeTime: '2024-02-16 14:35' },
+      { id: 'RCG001', time: '2024-02-15 16:45', accountId: 'FB001234567', accountName: '跨境电商账户01', amount: 500.00, currency: 'USD', status: '成功', completeTime: '2024-02-15 17:00' },
+      { id: 'RCG002', time: '2024-02-14 11:30', accountId: 'FB001234568', accountName: '移动应用账户02', amount: 300.00, currency: 'USD', status: '处理中', completeTime: '' }
+    ]);
+    let withdrawRecords = loadRecords(STORAGE_KEYS.withdraw, [
+      { id: 'WDW001', time: '2024-02-16 15:30', accountId: 'FB001234569', accountName: '游戏推广账户01', amount: 300.00, currency: 'USD', status: '成功', completeTime: '2024-02-16 15:45' },
+      { id: 'WDW002', time: '2024-02-15 14:20', accountId: 'FB001234567', accountName: '跨境电商账户01', amount: 200.00, currency: 'USD', status: '处理中', completeTime: '' }
+    ]);
+
+    function loadRecords(key, fallback) {
+      try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+    }
+    function saveRecords(key, list) { try { localStorage.setItem(key, JSON.stringify(list)); } catch {} }
+
+    // 页面切换
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page-${page}`).classList.add('active');
+      if (page === 'wallet') updateWalletUI();
+      if (page === 'accounts') renderAccounts();
+      if (page === 'records') renderRecords();
+    }
+
+    // 钱包UI
+    function updateWalletUI() {
+      const av = document.getElementById('walletAvailable');
+      const rl = document.getElementById('walletReal');
+      const fr = document.getElementById('walletFrozen');
+      if (av) av.textContent = `$${formatAmount(wallet.available)}`;
+      if (rl) rl.textContent = `$${formatAmount(wallet.real)}`;
+      if (fr) fr.textContent = `$${formatAmount(wallet.frozen)}`;
+    }
+
+    // 列表渲染
+    function renderAccounts() {
+      const wrap = document.getElementById('accountList');
+      const kw = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      const statusName = s => ({active:'活跃', pending:'待审核', inactive:'停用', disabled:'已禁用'}[s] || s);
+      const statusClass = s => ({active:'status-active', pending:'status-pending', inactive:'status-inactive', disabled:'status-disabled'}[s] || 'status-inactive');
+      const list = !kw ? accounts : accounts.filter(a => a.id.toLowerCase().includes(kw) || a.name.toLowerCase().includes(kw));
+      wrap.innerHTML = list.map(a => `
+        <div class="card p-3">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm text-gray-400">${a.id}</div>
+              <div class="text-base font-semibold mt-0.5">${a.name}</div>
+              <div class="mt-1 text-xs text-gray-400">时区 ${a.timezone}</div>
+              <div class="mt-1 flex items-center gap-2 text-sm">
+                <span class="text-gray-600 font-medium">${a.currency}</span>
+                <span class="text-gray-900 font-semibold">${formatAmount(a.balance)}</span>
+                <span class="status-pill ${statusClass(a.status)}">${statusName(a.status)}</span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 min-w-[92px]">
+              <button class="btn-primary px-3 py-2 text-sm font-semibold" onclick="openSheet('recharge','${a.id}')">充值</button>
+              <button class="btn-secondary px-3 py-2 text-sm" onclick="openSheet('withdraw','${a.id}')">减款</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function clearSearch() { const i = document.getElementById('searchInput'); i.value=''; renderAccounts(); }
+
+    // 记录渲染
+    let currentRecordTab = 'recharge';
+    function switchRecordTab(type) {
+      currentRecordTab = type;
+      document.getElementById('recordTabRecharge').classList.toggle('tab-active', type==='recharge');
+      document.getElementById('recordTabWithdraw').classList.toggle('tab-active', type==='withdraw');
+      renderRecords();
+    }
+
+    function renderRecords() {
+      const list = currentRecordTab === 'recharge' ? rechargeRecords : withdrawRecords;
+      const wrap = document.getElementById('recordList');
+      if (!list.length) { wrap.innerHTML = `<div class="text-center text-gray-500 text-sm">暂无${currentRecordTab==='recharge'?'充值':'减款'}记录</div>`; return; }
+      wrap.innerHTML = list.map(r => `
+        <div class="card p-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm text-gray-400">${r.id} · ${r.time}</div>
+              <div class="text-base font-semibold mt-1">${r.accountName} <span class="text-gray-400 font-normal">(${r.accountId})</span></div>
+              <div class="text-sm mt-1">
+                <span class="text-gray-300 mr-2">${r.currency}</span>
+                <span class="font-semibold">${formatAmount(r.amount)}</span>
+              </div>
+              <div class="text-xs text-gray-400 mt-1">完成时间：${r.completeTime || '-'}</div>
+            </div>
+            <div class="text-xs"><span class="status-pill ${statusPillByText(r.status)}">${r.status}</span></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function statusPillByText(text) {
+      return text==='成功' ? 'status-active' : text==='处理中' ? 'status-pending' : text==='失败' ? 'status-disabled' : 'status-inactive';
+    }
+
+    // 底部弹层交互
+    let pendingAction = { type: 'recharge', accountId: '' };
+    function openSheet(type, accountId) {
+      pendingAction = { type, accountId };
+      const acc = accounts.find(a => a.id === accountId);
+      if (!acc) return;
+      document.getElementById('sheetTitle').textContent = (type==='recharge' ? '充值' : '减款') + ' · 金额设置';
+      document.getElementById('sheetAccountName').textContent = acc.name;
+      document.getElementById('sheetAccountId').textContent = acc.id;
+      document.getElementById('sheetCurrency').textContent = acc.currency;
+      document.getElementById('sheetBalance').textContent = formatAmount(acc.balance);
+      document.getElementById('amountInput').value = '';
+      document.getElementById('amountSheet').classList.add('show');
+    }
+    function closeSheet() { document.getElementById('amountSheet').classList.remove('show'); }
+    function quickAmount(v) { const i = document.getElementById('amountInput'); i.value = v; }
+
+    function confirmOperation() {
+      const amount = parseFloat(document.getElementById('amountInput').value);
+      if (!amount || amount < 10) { return notify('金额不能少于 10', 'warning'); }
+      const acc = accounts.find(a => a.id === pendingAction.accountId);
+      if (!acc) return;
+      if (pendingAction.type === 'withdraw' && amount > acc.balance) { return notify('减款金额不能超过账户当前余额', 'error'); }
+
+      // 更新余额（本地演示）+ 钱包联动
+      if (pendingAction.type === 'recharge') {
+        acc.balance = round2(acc.balance + amount);
+        wallet.available = Math.max(0, round2(wallet.available - amount));
+        wallet.frozen = round2(wallet.frozen + amount);
+      }
+      if (pendingAction.type === 'withdraw') {
+        acc.balance = round2(acc.balance - amount);
+        wallet.available = round2(wallet.available + amount);
+      }
+
+      // 写入记录
+      const now = formatNow();
+      if (pendingAction.type === 'recharge') {
+        const rec = { id: makeId('RCG'), time: now, accountId: acc.id, accountName: acc.name, amount, currency: acc.currency, status: '处理中', completeTime: '' };
+        rechargeRecords.unshift(rec);
+        saveRecords(STORAGE_KEYS.recharge, rechargeRecords);
+        notify(`充值提交成功：${acc.currency} ${formatAmount(amount)}`, 'success');
+      } else {
+        const rec = { id: makeId('WDW'), time: now, accountId: acc.id, accountName: acc.name, amount, currency: acc.currency, status: '处理中', completeTime: '' };
+        withdrawRecords.unshift(rec);
+        saveRecords(STORAGE_KEYS.withdraw, withdrawRecords);
+        notify(`减款提交成功：${acc.currency} ${formatAmount(amount)}`, 'success');
+      }
+
+      renderAccounts();
+      updateWalletUI();
+      if (document.getElementById('page-records').classList.contains('active')) renderRecords();
+      closeSheet();
+    }
+
+    // 工具函数
+    function formatAmount(n) { try { return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); } catch { return n; } }
+    function round2(n) { return Math.round(n * 100) / 100; }
+    function formatNow() { const d = new Date(); const p = v => String(v).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+    function makeId(prefix) { return `${prefix}${Math.random().toString(36).slice(2,6).toUpperCase()}${Date.now().toString().slice(-3)}`; }
+
+    function refreshData() { notify('已刷新', 'info'); updateWalletUI(); renderAccounts(); if (document.getElementById('page-records').classList.contains('active')) renderRecords(); }
+
+    // 通知
+    function notify(message, type = 'info') {
+      const typeColors = { info: 'border-blue-500', success: 'border-green-500', warning: 'border-yellow-500', error: 'border-red-500' };
+      const div = document.createElement('div');
+      div.className = `fixed top-16 right-3 left-3 z-50 bg-white rounded-lg shadow-lg border-l-4 ${typeColors[type]} transform transition-all duration-300 -translate-y-6 opacity-0`;
+      div.innerHTML = `<div class=\"p-3 text-sm flex items-start gap-2\"><i class=\"fas fa-circle-info mt-0.5 text-gray-700\"></i><div class=\"flex-1 text-gray-900\">${message}</div><button class=\"text-gray-500\" onclick=\"this.closest('div').remove()\"><i class=\"fas fa-times\"></i></button></div>`;
+      document.body.appendChild(div);
+      setTimeout(() => { div.classList.remove('-translate-y-6','opacity-0'); }, 30);
+      setTimeout(() => { div.classList.add('-translate-y-6','opacity-0'); setTimeout(() => div.remove(), 300); }, 2500);
+    }
+
+    // 登录状态管理
+    function isLoggedIn() { return localStorage.getItem('h5_logged_in') === '1'; }
+    function requireAuth(defaultPage = 'accounts') {
+      if (!isLoggedIn()) {
+        // 隐藏底部导航并显示登录
+        const nav = document.getElementById('bottomNav');
+        if (nav) nav.style.display = 'none';
+        showPage('login');
+      } else {
+        const nav = document.getElementById('bottomNav');
+        if (nav) nav.style.display = 'flex';
+        updateWalletUI();
+        renderAccounts();
+        showPage(defaultPage);
+      }
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const u = (document.getElementById('loginUsername').value || '').trim();
+      const p = (document.getElementById('loginPassword').value || '').trim();
+      const err = document.getElementById('loginError');
+      if (err) err.classList.add('hidden');
+      if (u === 'admin' && p === '123456') {
+        localStorage.setItem('h5_logged_in', '1');
+        requireAuth('accounts');
+        notify('登录成功', 'success');
+      } else {
+        if (err) err.classList.remove('hidden');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('h5_logged_in');
+      // 清空输入
+      const u = document.getElementById('loginUsername');
+      const p = document.getElementById('loginPassword');
+      if (u) u.value = '';
+      if (p) p.value = '';
+      requireAuth('login');
+      notify('已退出登录', 'info');
+    }
+
+    // 初始化：优先校验登录，未登录展示登录页
+    document.addEventListener('DOMContentLoaded', () => { requireAuth('accounts'); });
+
+    // 简易模态
+    function openModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+    function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+
+    // 在线充值处理
+    function handleRecharge(event) {
+      event.preventDefault();
+      const amount = parseFloat(document.getElementById('rechargeAmount').value);
+      const platform = document.getElementById('paymentPlatform').value;
+      if (!amount || amount <= 0) { notify('请输入大于0的金额，支持两位小数', 'warning'); return; }
+      if (!platform) { notify('请选择支付平台', 'warning'); return; }
+      closeModal('onlineRechargeModal');
+      // 跳转支付平台（新标签）
+      if (platform === 'Stripe') {
+        window.open('https://stripe.com/zh-sg', '_blank');
+      } else if (platform === 'PayPal') {
+        window.open('https://www.paypal.cn/', '_blank');
+      }
+      // 显示支付提示
+      openModal('paymentTipModal');
+    }
+
+    function setRechargeQuick(v) { const el = document.getElementById('rechargeAmount'); if (el) el.value = v; }
+
+    // 线下转账处理
+    function handleOfflineTransfer(event) {
+      event.preventDefault();
+      const platformEl = document.getElementById('transferPlatform');
+      const paymentIdEl = document.getElementById('transferPaymentId');
+      const filesEl = document.getElementById('transferAttachment');
+      const platform = platformEl.value;
+      const paymentId = (paymentIdEl.value || '').trim();
+      const files = filesEl.files;
+
+      const platformErr = document.getElementById('transferPlatformError');
+      const paymentIdErr = document.getElementById('transferPaymentIdError');
+      const attachErr = document.getElementById('transferAttachmentError');
+      if (platformErr) platformErr.classList.add('hidden');
+      if (paymentIdErr) paymentIdErr.classList.add('hidden');
+      if (attachErr) attachErr.classList.add('hidden');
+
+      let hasError = false;
+      if (!platform) { if (platformErr) platformErr.classList.remove('hidden'); hasError = true; }
+      if (!paymentId) { if (paymentIdErr) paymentIdErr.classList.remove('hidden'); hasError = true; }
+      if (!files || files.length === 0) { if (attachErr) attachErr.classList.remove('hidden'); hasError = true; }
+      if (files && files.length > 10) { if (attachErr) attachErr.classList.remove('hidden'); hasError = true; }
+      // 简单类型校验
+      const allowed = ['image/', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (files && files.length) {
+        for (let i = 0; i < files.length; i++) {
+          const f = files[i];
+          const ok = allowed.some(prefix => f.type.startsWith(prefix));
+          if (!ok) { if (attachErr) attachErr.classList.remove('hidden'); hasError = true; break; }
+        }
+      }
+      if (hasError) return;
+
+      closeModal('offlineTransferModal');
+      openModal('offlineSuccessModal');
+    }
+  </script>
+  
+  <!-- 在线充值提示弹窗（简化Web支付提示一致性） -->
+  <div id="paymentTipModal" class="fixed inset-0 bg-black bg-opacity-30 hidden z-50">
+    <div class="flex items-end min-h-screen">
+      <div class="w-full sheet show" style="bottom:0;">
+        <div class="sheet-handle"></div>
+        <div class="px-4 pb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-semibold">支付提示</h3>
+            <button class="text-gray-500" onclick="closeModal('paymentTipModal')"><i class="fas fa-times text-lg"></i></button>
+          </div>
+          <div class="card p-3 space-y-3">
+            <div class="flex items-start gap-3 text-sm">
+              <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+              <div class="text-gray-700">请在新标签页完成支付后，返回此页刷新余额。</div>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" class="btn-primary flex-1 py-3 font-semibold" onclick="closeModal('paymentTipModal')">知道了</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 在线充值弹层（增强字段，与Web保持一致语义） -->
+  <div id="onlineRechargeModal" class="fixed inset-0 bg-black bg-opacity-30 hidden z-50">
+    <div class="flex items-end min-h-screen">
+      <div class="w-full sheet show" style="bottom:0;">
+        <div class="sheet-handle"></div>
+        <div class="px-4 pb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-semibold">在线充值</h3>
+            <button class="text-gray-500" onclick="closeModal('onlineRechargeModal')"><i class="fas fa-times text-lg"></i></button>
+          </div>
+          <form onsubmit="handleRecharge(event)" class="card p-3 space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-sm text-gray-700 mb-1 block">充值金额 *</label>
+                <input type="number" id="rechargeAmount" min="0.01" step="0.01" placeholder="请输入充值金额" class="input w-full px-3 py-3">
+                <div class="text-xs text-gray-500 mt-1">支持两位小数，例如 100 或 100.50</div>
+              </div>
+              <div>
+                <label class="text-sm text-gray-700 mb-1 block">支付平台 *</label>
+                <select id="paymentPlatform" class="input w-full px-3 py-3">
+                  <option value="">请选择支付平台</option>
+                  <option value="Stripe">Stripe</option>
+                  <option value="PayPal">PayPal</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-sm text-gray-700 mb-1 block">支付币种 *</label>
+                <select id="paymentCurrency" class="input w-full px-3 py-3">
+                  <option value="USD" selected>USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="CNY">CNY</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-sm text-gray-700 mb-1 block">入账币种 *</label>
+                <select id="creditCurrency" class="input w-full px-3 py-3">
+                  <option value="USD" selected>USD</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm text-gray-700 mb-1 block">备注（可选）</label>
+              <input type="text" id="rechargeNote" maxlength="100" placeholder="填写备注信息，最多100字" class="input w-full px-3 py-3">
+            </div>
+            <div>
+              <label class="text-sm text-gray-700 mb-2 block">快捷金额</label>
+              <div class="grid grid-cols-4 gap-2">
+                <button type="button" class="btn-secondary py-2" onclick="setRechargeQuick(100)">100</button>
+                <button type="button" class="btn-secondary py-2" onclick="setRechargeQuick(200)">200</button>
+                <button type="button" class="btn-secondary py-2" onclick="setRechargeQuick(500)">500</button>
+                <button type="button" class="btn-secondary py-2" onclick="setRechargeQuick(1000)">1000</button>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500">到账金额与时间以平台实际反馈为准。</div>
+            <div class="flex gap-2">
+              <button type="submit" class="btn-primary flex-1 py-3 font-semibold">去支付</button>
+              <button type="button" class="btn-secondary flex-1 py-3" onclick="closeModal('onlineRechargeModal')">取消</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
