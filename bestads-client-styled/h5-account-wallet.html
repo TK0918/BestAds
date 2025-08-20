@@ -19,6 +19,10 @@
     .sheet-handle { width: 44px; height: 4px; border-radius: 9999px; background: #E5E7EB; margin: 10px auto; }
     .tab-active { color: #00FFB0; }
     .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; height: 58px; background: #FFFFFF; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-around; align-items: center; z-index: 40; }
+    .bottom-nav .nav-btn { padding: 6px 10px; border-radius: 10px; color: #6B7280; }
+    .bottom-nav .nav-btn i { padding: 6px; border-radius: 8px; transition: background .2s ease, color .2s ease; }
+    .bottom-nav .nav-btn.active { color: #111827; }
+    .bottom-nav .nav-btn.active i { background: #E6FFF5; color: #00BF85; }
     .page { display: none; }
     .page.active { display: block; }
     .card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; }
@@ -82,14 +86,21 @@
             <div class="text-xs text-gray-500">冻结金额</div>
             <div id="walletFrozen" class="text-lg font-semibold text-gray-900">$0.00</div>
           </div>
+          <div>
+            <div class="text-xs text-gray-500">信用额度</div>
+            <div id="walletCreditLimit" class="text-lg font-semibold text-gray-900">$0.00</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500">已用额度</div>
+            <div id="walletCreditUsed" class="text-lg font-semibold text-gray-900">$0.00</div>
+          </div>
         </div>
-        <div class="mt-4 grid grid-cols-2 gap-2">
-          <button class="btn-primary py-3 text-sm font-semibold" onclick="openModal('onlineRechargeModal')"><i class="fas fa-credit-card mr-2"></i>在线充值</button>
-          <button class="btn-secondary py-3 text-sm" onclick="openModal('offlineTransferModal')"><i class="fas fa-university mr-2"></i>线下转账</button>
+        <div class="mt-4">
+          <button class="btn-primary w-full py-3 text-sm font-semibold" onclick="openModal('onlineRechargeModal')"><i class="fas fa-credit-card mr-2"></i>在线充值</button>
         </div>
-        <div class="mt-3 text-right">
-          <button class="text-sm text-gray-600 underline" onclick="logout()">登出</button>
-        </div>
+      </div>
+      <div class="mt-3">
+        <button class="btn-secondary w-full py-3 font-semibold" onclick="logout()">登出</button>
       </div>
     </section>
 
@@ -114,21 +125,27 @@
           <button id="recordTabWithdraw" class="btn-secondary py-2" onclick="switchRecordTab('withdraw')">减款记录</button>
         </div>
       </div>
+      <div class="mt-3">
+        <div class="relative">
+          <i class="fas fa-search text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input id="recordSearchInput" type="text" class="input w-full pl-9 pr-3 py-2.5 text-sm" placeholder="搜索账户ID/名称" oninput="updateRecordSearch(this.value)">
+        </div>
+      </div>
       <div id="recordList" class="space-y-3 mt-3"></div>
     </section>
   </main>
 
   <!-- 底部导航 -->
   <nav id="bottomNav" class="bottom-nav">
-    <button class="flex flex-col items-center text-xs" onclick="showPage('accounts')">
+    <button class="nav-btn flex flex-col items-center text-xs" data-page="accounts" onclick="showPage('accounts')">
       <i class="fas fa-list text-base mb-1"></i>
       <span>账户</span>
     </button>
-    <button class="flex flex-col items-center text-xs" onclick="showPage('records')">
+    <button class="nav-btn flex flex-col items-center text-xs" data-page="records" onclick="showPage('records')">
       <i class="fas fa-clock-rotate-left text-base mb-1"></i>
       <span>记录</span>
     </button>
-    <button class="flex flex-col items-center text-xs" onclick="showPage('wallet')">
+    <button class="nav-btn flex flex-col items-center text-xs" data-page="wallet" onclick="showPage('wallet')">
       <i class="fas fa-wallet text-base mb-1"></i>
       <span>钱包</span>
     </button>
@@ -193,7 +210,7 @@
 
   <script>
     // 数据源（示例）
-    const wallet = { available: 2900.00, real: 3000.00, frozen: 100.00 };
+    const wallet = { available: 7900.00, real: 3000.00, frozen: 100.00, creditLimit: 5000.00, creditUsed: 0.00 };
     const accounts = [
       { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active' },
       { id: 'FB001234568', name: '测试广告账户02', currency: 'USD', balance: 850.75, timezone: 'UTC+8', status: 'active' },
@@ -229,6 +246,11 @@
       if (page === 'wallet') updateWalletUI();
       if (page === 'accounts') renderAccounts();
       if (page === 'records') renderRecords();
+      // 更新底部导航active态
+      document.querySelectorAll('#bottomNav .nav-btn').forEach(btn => {
+        if (btn.getAttribute('data-page') === page) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
     }
 
     // 钱包UI
@@ -236,9 +258,13 @@
       const av = document.getElementById('walletAvailable');
       const rl = document.getElementById('walletReal');
       const fr = document.getElementById('walletFrozen');
+      const cl = document.getElementById('walletCreditLimit');
+      const cu = document.getElementById('walletCreditUsed');
       if (av) av.textContent = `$${formatAmount(wallet.available)}`;
       if (rl) rl.textContent = `$${formatAmount(wallet.real)}`;
       if (fr) fr.textContent = `$${formatAmount(wallet.frozen)}`;
+      if (cl) cl.textContent = `$${formatAmount(wallet.creditLimit)}`;
+      if (cu) cu.textContent = `$${formatAmount(wallet.creditUsed)}`;
     }
 
     // 列表渲染
@@ -284,8 +310,12 @@
     function renderRecords() {
       const list = currentRecordTab === 'recharge' ? rechargeRecords : withdrawRecords;
       const wrap = document.getElementById('recordList');
-      if (!list.length) { wrap.innerHTML = `<div class="text-center text-gray-500 text-sm">暂无${currentRecordTab==='recharge'?'充值':'减款'}记录</div>`; return; }
-      wrap.innerHTML = list.map(r => `
+      const kw = (window.__recordSearchKw || '').toLowerCase();
+      const filtered = !kw ? list : list.filter(r =>
+        (r.accountId || '').toLowerCase().includes(kw) || (r.accountName || '').toLowerCase().includes(kw)
+      );
+      if (!filtered.length) { wrap.innerHTML = `<div class=\"text-center text-gray-500 text-sm\">暂无${currentRecordTab==='recharge'?'充值':'减款'}记录</div>`; return; }
+      wrap.innerHTML = filtered.map(r => `
         <div class="card p-3">
           <div class="flex items-center justify-between">
             <div>
@@ -301,6 +331,11 @@
           </div>
         </div>
       `).join('');
+    }
+
+    function updateRecordSearch(val) {
+      window.__recordSearchKw = (val || '').trim();
+      renderRecords();
     }
 
     function statusPillByText(text) {
@@ -425,7 +460,7 @@
     }
 
     // 初始化：优先校验登录，未登录展示登录页
-    document.addEventListener('DOMContentLoaded', () => { requireAuth('accounts'); });
+    document.addEventListener('DOMContentLoaded', () => { requireAuth('accounts'); document.querySelector('#bottomNav .nav-btn[data-page="accounts"]').classList.add('active'); });
 
     // 简易模态
     function openModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
