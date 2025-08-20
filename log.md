@@ -57,6 +57,17 @@
 
 ---
 
+#### 本次更新 - 账户减款弹窗UI优化
+为 `admin-system/fb-business/deduction-management.html` 的“发起减款”弹窗中【减款金额设置】列表，每个广告账户行在“当前余额”右侧新增“可减款金额”提示，便于用户参考与输入。
+
+**📄 涉及文件**
+- `admin-system/fb-business/deduction-management.html`
+
+**🧩 变更说明**
+- 每行结构由“账户信息 + 金额输入框”调整为“账户信息 + 金额输入框 + 可减款金额文案（¥balance）”。
+- 不影响原有校验逻辑（输入金额仍受账户余额上限限制）。
+
+
 
 ## 项目概述
 BestAds是一个海外媒体广告管理系统，包含客户端系统和内部运营系统两个部分。
@@ -196,6 +207,17 @@ BestAds是一个海外媒体广告管理系统，包含客户端系统和内部�
    - 排序逻辑可复用，便于添加其他排序字段
 
 ---
+
+#### 本次更新 - 客户端“批量减款”可减款金额展示
+为 `bestads-client-styled/account-management.html` 的“批量减款”弹窗账户列表，在“当前余额”下方新增“可减款金额：{余额}”展示，帮助用户快速判断上限。
+
+**📄 涉及文件**
+- `bestads-client-styled/account-management.html`
+
+**🧩 变更说明**
+- 打开弹窗时增强余额列DOM，避免重复增强（使用 `data-enhanced` 标记）。
+- 不影响原有分页/搜索/校验与提交逻辑。
+
 
 #### 本次更新 - 报表页面菜单简化优化
 更新了`admin-system/reports/account-consume-report.html`页面的侧边栏菜单，移除了收起展开交互效果，使其与主页面`index.html`保持简洁一致的风格。

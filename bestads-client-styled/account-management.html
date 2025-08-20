@@ -1440,6 +1440,8 @@
         // 初始化减款分页和数据
         initializeWithdrawPagination();
         resetBatchWithdrawForm();
+        // 增强当前余额单元格，增加“可减款金额”展示
+        enhanceWithdrawBalanceCells();
       }
     }
 
@@ -2779,6 +2781,17 @@
     let withdrawPageSize = 5;
     let allWithdrawAccountRows = [];
     let filteredWithdrawRows = [];
+
+    // 在“当前余额”右侧增加“可减款金额”展示（仅增强一次）
+    function enhanceWithdrawBalanceCells() {
+      const cells = document.querySelectorAll('#batchWithdrawAccountList .withdraw-account-row td:nth-child(4)');
+      cells.forEach(cell => {
+        if (cell.getAttribute('data-enhanced') === '1') return;
+        const balanceText = (cell.textContent || '').trim();
+        cell.innerHTML = `<div class="flex flex-col"><span class="text-sm font-medium text-gray-900">${balanceText}</span><span class="text-xs text-gray-500">可减款金额：${balanceText}</span></div>`;
+        cell.setAttribute('data-enhanced', '1');
+      });
+    }
 
     // 批量减款功能
     function resetBatchWithdrawForm() {
