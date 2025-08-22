@@ -29,6 +29,25 @@
     .btn-primary { background: #00FFB0; color: #000; border-radius: 8px; }
     .btn-secondary { background: #F3F4F6; color: #111827; border-radius: 8px; }
     .input { background: #FFFFFF; border: 1px solid #E5E7EB; color: #111827; border-radius: 10px; }
+    /* 报告图表自适应宽度 */
+    .chart { width: 100%; height: 160px; display: block; }
+    /* 深色主题覆盖 */
+    body.theme-dark { background: #0F172A; color: #F8FAFC; }
+    body.theme-dark .card { background: #111827; border-color: #334155; }
+    body.theme-dark .sheet { background: #0B1220; border-top-color: #334155; box-shadow: 0 -4px 24px rgba(0,0,0,0.6); }
+    body.theme-dark .sheet-handle { background: #334155; }
+    body.theme-dark .bottom-nav { background: #0B1220; border-top-color: #334155; }
+    body.theme-dark .bottom-nav .nav-btn { color: #94A3B8; }
+    body.theme-dark .bottom-nav .nav-btn.active { color: #E5E7EB; }
+    body.theme-dark .bottom-nav .nav-btn.active i { background: rgba(0,191,133,0.18); color: #00FFB0; }
+    body.theme-dark .btn-secondary { background: #1F2937; color: #F8FAFC; }
+    body.theme-dark .input { background: #0F172A; border-color: #334155; color: #F8FAFC; }
+    body.theme-dark .status-inactive { background: #4B5563; }
+    /* 常用灰色文字在深色下的可读性优化 */
+    body.theme-dark .text-gray-500 { color: #9CA3AF !important; }
+    body.theme-dark .text-gray-400 { color: #94A3B8 !important; }
+    body.theme-dark .text-gray-300 { color: #CBD5E1 !important; }
+    body.theme-dark .text-gray-900 { color: #F8FAFC !important; }
   </style>
 </head>
 <body class="min-h-screen pb-[70px]">
@@ -37,11 +56,15 @@
       <div class="flex items-center gap-3">
         <i class="fas fa-wallet text-lg" style="color:#00BF85"></i>
         <div>
-          <h1 class="text-base font-semibold">账户钱包</h1>
-          <p class="text-xs text-gray-500">移动端快速充值 / 减款 / 查看记录</p>
+          <h1 id="i18n_header_title" class="text-base font-semibold">账户钱包</h1>
+          <p id="i18n_header_desc" class="text-xs text-gray-500">移动端快速充值 / 减款 / 查看记录</p>
         </div>
       </div>
-      <button class="btn-secondary px-3 py-1.5 text-xs font-semibold" onclick="refreshData()">刷新</button>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" class="btn-secondary px-2 py-1.5 text-xs" title="Theme"><i class="fas fa-moon"></i></button>
+        <button id="langToggle" class="btn-secondary px-2 py-1.5 text-xs" title="Language"><i class="fas fa-globe"></i></button>
+        <button id="i18n_refresh" class="btn-secondary px-3 py-1.5 text-xs font-semibold" onclick="refreshData()">刷新</button>
+      </div>
     </div>
   </header>
 
@@ -51,20 +74,20 @@
       <div class="min-h-[70vh] flex items-center justify-center">
         <div class="card w-full max-w-sm p-5">
           <div class="mb-4">
-            <h2 class="text-xl font-bold">登录 BestAds</h2>
-            <p class="text-xs text-gray-500 mt-1">请输入账号和密码进行登录</p>
+            <h2 id="i18n_login_title" class="text-xl font-bold">登录 BestAds</h2>
+            <p id="i18n_login_desc" class="text-xs text-gray-500 mt-1">请输入账号和密码进行登录</p>
           </div>
           <form onsubmit="handleLogin(event)" class="space-y-3">
             <div>
-              <label class="text-sm text-gray-700 mb-1 block">账号</label>
+              <label id="i18n_login_user_label" class="text-sm text-gray-700 mb-1 block">账号</label>
               <input id="loginUsername" type="text" placeholder="请输入账号" class="input w-full px-3 py-3">
             </div>
             <div>
-              <label class="text-sm text-gray-700 mb-1 block">密码</label>
+              <label id="i18n_login_pwd_label" class="text-sm text-gray-700 mb-1 block">密码</label>
               <input id="loginPassword" type="password" placeholder="请输入密码" class="input w-full px-3 py-3">
             </div>
             <div id="loginError" class="text-sm text-red-500 hidden">账号或密码错误，请重试</div>
-            <button type="submit" class="btn-primary w-full py-3 font-semibold">登录</button>
+            <button id="i18n_login_btn" type="submit" class="btn-primary w-full py-3 font-semibold">登录</button>
           </form>
         </div>
       </div>
@@ -75,32 +98,33 @@
       <div class="card p-4">
         <div class="grid grid-cols-3 gap-3 items-start">
           <div class="col-span-3">
-            <div class="text-xs text-gray-500 mb-1">可用余额</div>
+            <div id="i18n_wallet_available_label" class="text-xs text-gray-500 mb-1">可用余额</div>
             <div id="walletAvailable" class="text-3xl font-extrabold" style="color:#00BF85;">$0.00</div>
           </div>
           <div>
-            <div class="text-xs text-gray-500">真实金额</div>
+            <div id="i18n_wallet_real_label" class="text-xs text-gray-500">真实金额</div>
             <div id="walletReal" class="text-lg font-semibold text-gray-900">$0.00</div>
           </div>
           <div>
-            <div class="text-xs text-gray-500">冻结金额</div>
+            <div id="i18n_wallet_frozen_label" class="text-xs text-gray-500">冻结金额</div>
             <div id="walletFrozen" class="text-lg font-semibold text-gray-900">$0.00</div>
           </div>
           <div>
-            <div class="text-xs text-gray-500">信用额度</div>
+            <div id="i18n_wallet_credit_label" class="text-xs text-gray-500">信用额度</div>
             <div id="walletCreditLimit" class="text-lg font-semibold text-gray-900">$0.00</div>
           </div>
           <div>
-            <div class="text-xs text-gray-500">已用额度</div>
+            <div id="i18n_wallet_used_label" class="text-xs text-gray-500">已用额度</div>
             <div id="walletCreditUsed" class="text-lg font-semibold text-gray-900">$0.00</div>
           </div>
         </div>
-        <div class="mt-4">
-          <button class="btn-primary w-full py-3 text-sm font-semibold" onclick="openModal('onlineRechargeModal')"><i class="fas fa-credit-card mr-2"></i>在线充值</button>
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          <button id="i18n_btn_online_recharge" class="btn-primary py-3 text-sm font-semibold" onclick="openModal('onlineRechargeModal')"><i class="fas fa-credit-card mr-2"></i>在线充值</button>
+          <button id="i18n_btn_offline_transfer" class="btn-secondary py-3 text-sm" onclick="openModal('offlineTransferModal')"><i class="fas fa-university mr-2"></i>线下转账</button>
         </div>
       </div>
       <div class="mt-3">
-        <button class="btn-secondary w-full py-3 font-semibold" onclick="logout()">登出</button>
+        <button id="i18n_btn_logout" class="btn-secondary w-full py-3 font-semibold" onclick="logout()">登出</button>
       </div>
     </section>
 
@@ -117,12 +141,30 @@
       <div id="accountList" class="space-y-3 mt-2"></div>
     </section>
 
+    <!-- 页面：报告 -->
+    <section id="page-reports" class="page">
+      <div class="card p-4">
+        <h3 id="i18n_report_monthly" class="text-base font-semibold mb-3">最近6个月每月消耗</h3>
+        <canvas id="spendChart" class="chart"></canvas>
+      </div>
+      <div class="card p-4 mt-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 id="i18n_report_ranking" class="text-base font-semibold">广告账户消耗排名</h3>
+          <div class="flex rounded-md border border-gray-200 overflow-hidden text-sm">
+            <button id="rankTabMonth" class="px-3 py-1 bg-gray-100" onclick="switchRank('month')">本月</button>
+            <button id="rankTabYesterday" class="px-3 py-1" onclick="switchRank('yesterday')">昨日</button>
+          </div>
+        </div>
+        <div id="rankList" class="divide-y divide-gray-100"></div>
+      </div>
+    </section>
+
     <!-- 页面：记录 -->
     <section id="page-records" class="page">
       <div class="card p-3">
         <div class="grid grid-cols-2 gap-2 text-sm">
-          <button id="recordTabRecharge" class="btn-secondary py-2 tab-active" onclick="switchRecordTab('recharge')">充值记录</button>
-          <button id="recordTabWithdraw" class="btn-secondary py-2" onclick="switchRecordTab('withdraw')">减款记录</button>
+          <button id="i18n_tab_recharge" class="btn-secondary py-2 tab-active" onclick="switchRecordTab('recharge')">充值记录</button>
+          <button id="i18n_tab_withdraw" class="btn-secondary py-2" onclick="switchRecordTab('withdraw')">减款记录</button>
         </div>
       </div>
       <div class="mt-3">
@@ -139,15 +181,19 @@
   <nav id="bottomNav" class="bottom-nav">
     <button class="nav-btn flex flex-col items-center text-xs" data-page="accounts" onclick="showPage('accounts')">
       <i class="fas fa-list text-base mb-1"></i>
-      <span>账户</span>
+      <span id="i18n_nav_accounts">账户</span>
+    </button>
+    <button class="nav-btn flex flex-col items-center text-xs" data-page="reports" onclick="showPage('reports')">
+      <i class="fas fa-chart-bar text-base mb-1"></i>
+      <span id="i18n_nav_reports">报告</span>
     </button>
     <button class="nav-btn flex flex-col items-center text-xs" data-page="records" onclick="showPage('records')">
       <i class="fas fa-clock-rotate-left text-base mb-1"></i>
-      <span>记录</span>
+      <span id="i18n_nav_records">记录</span>
     </button>
     <button class="nav-btn flex flex-col items-center text-xs" data-page="wallet" onclick="showPage('wallet')">
       <i class="fas fa-wallet text-base mb-1"></i>
-      <span>钱包</span>
+      <span id="i18n_nav_wallet">钱包</span>
     </button>
   </nav>
 
@@ -208,7 +254,197 @@
     </div>
   </div>
 
+  <!-- 线下转账弹层 -->
+  <div id="offlineTransferModal" class="fixed inset-0 bg-black bg-opacity-30 hidden z-50">
+    <div class="flex items-end min-h-screen">
+      <div class="w-full sheet show" style="bottom:0;">
+        <div class="sheet-handle"></div>
+        <div class="px-4 pb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-semibold">线下转账</h3>
+            <button class="text-gray-500" onclick="closeModal('offlineTransferModal')"><i class="fas fa-times text-lg"></i></button>
+          </div>
+          <form onsubmit="handleOfflineTransfer(event)" class="card p-3 space-y-3">
+            <div>
+              <label class="text-sm text-gray-700 mb-1 block">支付平台 *</label>
+              <select id="transferPlatform" class="input w-full px-3 py-3">
+                <option value="">请选择支付平台</option>
+                <option>Wise</option>
+                <option>Stripe</option>
+                <option>Airwallex</option>
+                <option>PayPal</option>
+                <option>Payoneer</option>
+                <option>Worldfirst</option>
+                <option>Others</option>
+              </select>
+              <div id="transferPlatformError" class="text-xs text-red-500 mt-1 hidden">请选择支付平台</div>
+            </div>
+            <div>
+              <label class="text-sm text-gray-700 mb-1 block">平台的支付ID *</label>
+              <input type="text" id="transferPaymentId" placeholder="请输入支付平台返回的ID" class="input w-full px-3 py-3">
+              <div id="transferPaymentIdError" class="text-xs text-red-500 mt-1 hidden">请输入支付平台的支付ID</div>
+            </div>
+            <div>
+              <label class="text-sm text-gray-700 mb-1 block">上传截图 *</label>
+              <input type="file" id="transferAttachment" multiple accept="image/*,.pdf,.doc,.docx" class="w-full text-sm">
+              <div class="text-xs text-gray-500 mt-1">最多可上传10个文件，支持 jpg/png/pdf/doc/docx</div>
+              <div id="transferAttachmentError" class="text-xs text-red-500 mt-1 hidden">请上传转账凭证（最多10个，类型需符合要求）</div>
+            </div>
+            <div class="flex gap-2">
+              <button type="submit" class="btn-primary flex-1 py-3 font-semibold">提交</button>
+              <button type="button" class="btn-secondary flex-1 py-3" onclick="closeModal('offlineTransferModal')">取消</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // 主题切换
+    const THEME_KEY = 'h5_theme';
+    function applyTheme(theme) {
+      const body = document.body;
+      body.classList.toggle('theme-dark', theme === 'dark');
+      // 切换图标
+      const icon = document.querySelector('#themeToggle i');
+      if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY) || 'light';
+      applyTheme(saved);
+      const btn = document.getElementById('themeToggle');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const next = (localStorage.getItem(THEME_KEY) || 'light') === 'light' ? 'dark' : 'light';
+          localStorage.setItem(THEME_KEY, next);
+          applyTheme(next);
+        });
+      }
+    }
+    // 语言包
+    const i18n = {
+      zh: {
+        // 头部
+        header_title: '账户钱包',
+        header_desc: '移动端快速充值 / 减款 / 查看记录',
+        refresh: '刷新',
+        
+        // 登录页面
+        login_title: '登录 BestAds',
+        login_desc: '请输入账号和密码进行登录',
+        login_user_label: '账号',
+        login_pwd_label: '密码',
+        login_btn: '登录',
+        
+        // 钱包页面
+        wallet_available_label: '可用余额',
+        wallet_real_label: '真实金额',
+        wallet_frozen_label: '冻结金额',
+        wallet_credit_label: '信用额度',
+        wallet_used_label: '已用额度',
+        online_recharge: '在线充值',
+        offline_transfer: '线下转账',
+        logout: '登出',
+        
+        // 账户页面
+        accounts_title: '广告账户列表',
+        accounts_search_placeholder: '搜索账户ID/名称',
+        accounts_clear: '清空',
+        account_balance: '余额',
+        account_status: '状态',
+        account_recharge: '充值',
+        account_withdraw: '减款',
+        
+        // 记录页面
+        tab_recharge: '充值记录',
+        tab_withdraw: '减款记录',
+        records_search_placeholder: '搜索账户ID/名称',
+        
+        // 报告页面
+        report_monthly: '最近6个月每月消耗',
+        report_ranking: '广告账户消耗排名',
+        rank_month: '本月',
+        rank_yesterday: '昨日',
+        
+        // 底部导航
+        nav_accounts: '账户',
+        nav_reports: '报告',
+        nav_records: '记录',
+        nav_wallet: '钱包',
+        
+        // 通用
+        confirm: '确认',
+        cancel: '取消',
+        submit: '提交',
+        close: '关闭',
+        success: '成功',
+        error: '错误',
+        loading: '加载中...'
+      },
+      en: {
+        // Header
+        header_title: 'Account Wallet',
+        header_desc: 'Mobile Recharge / Withdraw / Records',
+        refresh: 'Refresh',
+        
+        // Login page
+        login_title: 'Login BestAds',
+        login_desc: 'Please enter your username and password',
+        login_user_label: 'Username',
+        login_pwd_label: 'Password',
+        login_btn: 'Login',
+        
+        // Wallet page
+        wallet_available_label: 'Available Balance',
+        wallet_real_label: 'Real Amount',
+        wallet_frozen_label: 'Frozen Amount',
+        wallet_credit_label: 'Credit Limit',
+        wallet_used_label: 'Used Credit',
+        online_recharge: 'Online Recharge',
+        offline_transfer: 'Offline Transfer',
+        logout: 'Logout',
+        
+        // Accounts page
+        accounts_title: 'Ad Account List',
+        accounts_search_placeholder: 'Search by Account ID/Name',
+        accounts_clear: 'Clear',
+        account_balance: 'Balance',
+        account_status: 'Status',
+        account_recharge: 'Recharge',
+        account_withdraw: 'Withdraw',
+        
+        // Records page
+        tab_recharge: 'Recharge Records',
+        tab_withdraw: 'Withdraw Records',
+        records_search_placeholder: 'Search by Account ID/Name',
+        
+        // Reports page
+        report_monthly: 'Monthly Spend (Last 6 Months)',
+        report_ranking: 'Ad Account Spend Ranking',
+        rank_month: 'This Month',
+        rank_yesterday: 'Yesterday',
+        
+        // Bottom navigation
+        nav_accounts: 'Accounts',
+        nav_reports: 'Reports',
+        nav_records: 'Records',
+        nav_wallet: 'Wallet',
+        
+        // Common
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        submit: 'Submit',
+        close: 'Close',
+        success: 'Success',
+        error: 'Error',
+        loading: 'Loading...'
+      }
+    };
+
+    // 当前语言
+    let currentLang = 'zh';
+
     // 数据源（示例）
     const wallet = { available: 7900.00, real: 3000.00, frozen: 100.00, creditLimit: 5000.00, creditUsed: 0.00 };
     const accounts = [
@@ -243,6 +479,7 @@
     function showPage(page) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(`page-${page}`).classList.add('active');
+      if (page === 'reports') { renderReports(); }
       if (page === 'wallet') updateWalletUI();
       if (page === 'accounts') renderAccounts();
       if (page === 'records') renderRecords();
@@ -271,7 +508,10 @@
     function renderAccounts() {
       const wrap = document.getElementById('accountList');
       const kw = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-      const statusName = s => ({active:'活跃', pending:'待审核', inactive:'停用', disabled:'已禁用'}[s] || s);
+      const lang = i18n[currentLang];
+      const statusName = s => currentLang === 'zh'
+        ? ({active:'活跃', pending:'待审核', inactive:'停用', disabled:'已禁用'}[s] || s)
+        : ({active:'Active', pending:'Pending', inactive:'Inactive', disabled:'Disabled'}[s] || s);
       const statusClass = s => ({active:'status-active', pending:'status-pending', inactive:'status-inactive', disabled:'status-disabled'}[s] || 'status-inactive');
       const list = !kw ? accounts : accounts.filter(a => a.id.toLowerCase().includes(kw) || a.name.toLowerCase().includes(kw));
       wrap.innerHTML = list.map(a => `
@@ -280,7 +520,7 @@
             <div>
               <div class="text-sm text-gray-400">${a.id}</div>
               <div class="text-base font-semibold mt-0.5">${a.name}</div>
-              <div class="mt-1 text-xs text-gray-400">时区 ${a.timezone}</div>
+              <div class="mt-1 text-xs text-gray-400">${currentLang === 'zh' ? '时区' : 'Timezone'} ${a.timezone}</div>
               <div class="mt-1 flex items-center gap-2 text-sm">
                 <span class="text-gray-600 font-medium">${a.currency}</span>
                 <span class="text-gray-900 font-semibold">${formatAmount(a.balance)}</span>
@@ -288,8 +528,8 @@
               </div>
             </div>
             <div class="flex flex-col gap-2 min-w-[92px]">
-              <button class="btn-primary px-3 py-2 text-sm font-semibold" onclick="openSheet('recharge','${a.id}')">充值</button>
-              <button class="btn-secondary px-3 py-2 text-sm" onclick="openSheet('withdraw','${a.id}')">减款</button>
+              <button class="btn-primary px-3 py-2 text-sm font-semibold" onclick="openSheet('recharge','${a.id}')">${lang.account_recharge}</button>
+              <button class="btn-secondary px-3 py-2 text-sm" onclick="openSheet('withdraw','${a.id}')">${lang.account_withdraw}</button>
             </div>
           </div>
         </div>
@@ -302,8 +542,12 @@
     let currentRecordTab = 'recharge';
     function switchRecordTab(type) {
       currentRecordTab = type;
-      document.getElementById('recordTabRecharge').classList.toggle('tab-active', type==='recharge');
-      document.getElementById('recordTabWithdraw').classList.toggle('tab-active', type==='withdraw');
+      const btnR = document.getElementById('i18n_tab_recharge');
+      const btnW = document.getElementById('i18n_tab_withdraw');
+      if (btnR && btnW) {
+        btnR.classList.toggle('tab-active', type==='recharge');
+        btnW.classList.toggle('tab-active', type==='withdraw');
+      }
       renderRecords();
     }
 
@@ -311,10 +555,20 @@
       const list = currentRecordTab === 'recharge' ? rechargeRecords : withdrawRecords;
       const wrap = document.getElementById('recordList');
       const kw = (window.__recordSearchKw || '').toLowerCase();
+      const lang = i18n[currentLang];
+      const displayStatus = s => {
+        if (currentLang === 'zh') return s;
+        return ({'成功':'Success','处理中':'Processing','失败':'Failed'}[s] || s);
+      };
       const filtered = !kw ? list : list.filter(r =>
         (r.accountId || '').toLowerCase().includes(kw) || (r.accountName || '').toLowerCase().includes(kw)
       );
-      if (!filtered.length) { wrap.innerHTML = `<div class=\"text-center text-gray-500 text-sm\">暂无${currentRecordTab==='recharge'?'充值':'减款'}记录</div>`; return; }
+      if (!filtered.length) {
+        const emptyText = currentLang === 'zh'
+          ? `暂无${currentRecordTab==='recharge'?'充值':'减款'}记录`
+          : (currentRecordTab==='recharge'?'No recharge records':'No withdraw records');
+        wrap.innerHTML = `<div class=\"text-center text-gray-500 text-sm\">${emptyText}</div>`; return;
+      }
       wrap.innerHTML = filtered.map(r => `
         <div class="card p-3">
           <div class="flex items-center justify-between">
@@ -325,9 +579,9 @@
                 <span class="text-gray-300 mr-2">${r.currency}</span>
                 <span class="font-semibold">${formatAmount(r.amount)}</span>
               </div>
-              <div class="text-xs text-gray-400 mt-1">完成时间：${r.completeTime || '-'}</div>
+              <div class="text-xs text-gray-400 mt-1">${currentLang==='zh'?'完成时间':'Completed at'}：${r.completeTime || '-'}</div>
             </div>
-            <div class="text-xs"><span class="status-pill ${statusPillByText(r.status)}">${r.status}</span></div>
+            <div class="text-xs"><span class="status-pill ${statusPillByText(r.status)}">${displayStatus(r.status)}</span></div>
           </div>
         </div>
       `).join('');
@@ -336,6 +590,104 @@
     function updateRecordSearch(val) {
       window.__recordSearchKw = (val || '').trim();
       renderRecords();
+    }
+
+    // 报告页数据与渲染
+    const spendByMonth = [
+      { month: '08月', amount: 12000 },
+      { month: '09月', amount: 14500 },
+      { month: '10月', amount: 13200 },
+      { month: '11月', amount: 16800 },
+      { month: '12月', amount: 15200 },
+      { month: '01月', amount: 17600 }
+    ];
+    const rankMonth = [
+      { id: 'FB001234567', name: '跨境电商账户01', spend: 5800 },
+      { id: 'FB001234568', name: '移动应用账户02', spend: 4200 },
+      { id: 'GG001234570', name: 'Google搜索账户01', spend: 3900 }
+    ];
+    const rankYesterday = [
+      { id: 'FB001234571', name: 'Facebook跨境电商账户', spend: 980 },
+      { id: 'GG001234573', name: 'Google搜索广告账户', spend: 860 },
+      { id: 'FB001234575', name: '品牌推广账户', spend: 740 }
+    ];
+    let currentRank = 'month';
+
+    function switchRank(type) {
+      currentRank = type;
+      document.getElementById('rankTabMonth').className = `px-3 py-1 ${type==='month'?'bg-gray-100':''}`;
+      document.getElementById('rankTabYesterday').className = `px-3 py-1 ${type==='yesterday'?'bg-gray-100':''}`;
+      renderRankList();
+    }
+
+    function renderReports() {
+      renderSpendChart();
+      renderRankList();
+    }
+
+    function renderSpendChart() {
+      const canvas = document.getElementById('spendChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      // 使用容器宽度自适应
+      const container = canvas.parentElement;
+      const cssWidth = container.clientWidth || window.innerWidth - 32;
+      const cssHeight = 160; // 固定可视高度
+      canvas.style.width = cssWidth + 'px';
+      canvas.style.height = cssHeight + 'px';
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.floor(cssWidth * dpr);
+      const height = Math.floor(cssHeight * dpr);
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      ctx.scale(dpr, dpr);
+
+      const padding = { left: 28, right: 12, top: 12, bottom: 24 };
+      const viewW = cssWidth - padding.left - padding.right;
+      const viewH = cssHeight - padding.top - padding.bottom;
+      const maxVal = Math.max(...spendByMonth.map(d=>d.amount)) * 1.1;
+      const barW = Math.max(18, viewW / (spendByMonth.length * 1.8));
+      const gap = spendByMonth.length > 1 ? (viewW - barW * spendByMonth.length) / (spendByMonth.length - 1) : 0;
+
+      // 轴线
+      ctx.strokeStyle = '#E5E7EB';
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, padding.top + viewH);
+      ctx.lineTo(padding.left + viewW, padding.top + viewH);
+      ctx.stroke();
+
+      // 柱子
+      spendByMonth.forEach((d, i) => {
+        const x = padding.left + i * (barW + gap);
+        const h = Math.max(2, (d.amount / maxVal) * viewH);
+        const y = padding.top + viewH - h;
+        ctx.fillStyle = '#00BF85';
+        ctx.fillRect(x, y, barW, h);
+        // 月份
+        ctx.fillStyle = '#6B7280';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(d.month, x + barW/2, padding.top + viewH + 16);
+      });
+    }
+
+    function renderRankList() {
+      const listEl = document.getElementById('rankList');
+      if (!listEl) return;
+      const data = currentRank === 'month' ? rankMonth : rankYesterday;
+      listEl.innerHTML = data.map((r, idx) => `
+        <div class="py-2 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 inline-flex items-center justify-center rounded bg-gray-100 text-gray-700 text-xs">${idx+1}</span>
+            <div>
+              <div class="text-sm font-semibold text-gray-900">${r.name}</div>
+              <div class="text-xs text-gray-500">${r.id}</div>
+            </div>
+          </div>
+          <div class="text-sm font-semibold">$${formatAmount(r.spend)}</div>
+        </div>
+      `).join('');
     }
 
     function statusPillByText(text) {
@@ -613,6 +965,102 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // 语言切换功能
+    function switchLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('h5_language', lang);
+      updateUILanguage();
+    }
+
+    // 更新UI语言
+    function updateUILanguage() {
+      const lang = i18n[currentLang];
+      
+      // 更新头部
+      document.getElementById('i18n_header_title').textContent = lang.header_title;
+      document.getElementById('i18n_header_desc').textContent = lang.header_desc;
+      document.getElementById('i18n_refresh').textContent = lang.refresh;
+      
+      // 更新登录页面
+      const elLoginTitle = document.getElementById('i18n_login_title'); if (elLoginTitle) elLoginTitle.textContent = lang.login_title;
+      const elLoginDesc = document.getElementById('i18n_login_desc'); if (elLoginDesc) elLoginDesc.textContent = lang.login_desc;
+      const elLoginUser = document.getElementById('i18n_login_user_label'); if (elLoginUser) elLoginUser.textContent = lang.login_user_label;
+      const elLoginPwd = document.getElementById('i18n_login_pwd_label'); if (elLoginPwd) elLoginPwd.textContent = lang.login_pwd_label;
+      const elLoginBtn = document.getElementById('i18n_login_btn'); if (elLoginBtn) elLoginBtn.textContent = lang.login_btn;
+      
+      // 更新钱包页面
+      const w1 = document.getElementById('i18n_wallet_available_label'); if (w1) w1.textContent = lang.wallet_available_label;
+      const w2 = document.getElementById('i18n_wallet_real_label'); if (w2) w2.textContent = lang.wallet_real_label;
+      const w3 = document.getElementById('i18n_wallet_frozen_label'); if (w3) w3.textContent = lang.wallet_frozen_label;
+      const w4 = document.getElementById('i18n_wallet_credit_label'); if (w4) w4.textContent = lang.wallet_credit_label;
+      const w5 = document.getElementById('i18n_wallet_used_label'); if (w5) w5.textContent = lang.wallet_used_label;
+      
+      // 更新底部导航
+      const n1 = document.getElementById('i18n_nav_accounts'); if (n1) n1.textContent = lang.nav_accounts;
+      const n2 = document.getElementById('i18n_nav_reports'); if (n2) n2.textContent = lang.nav_reports;
+      const n3 = document.getElementById('i18n_nav_records'); if (n3) n3.textContent = lang.nav_records;
+      const n4 = document.getElementById('i18n_nav_wallet'); if (n4) n4.textContent = lang.nav_wallet;
+      
+      // 更新报告页面
+      const r1 = document.getElementById('i18n_report_monthly'); if (r1) r1.textContent = lang.report_monthly;
+      const r2 = document.getElementById('i18n_report_ranking'); if (r2) r2.textContent = lang.report_ranking;
+      const rt1 = document.getElementById('rankTabMonth'); if (rt1) rt1.textContent = lang.rank_month;
+      const rt2 = document.getElementById('rankTabYesterday'); if (rt2) rt2.textContent = lang.rank_yesterday;
+      
+      // 更新记录页面标签
+      const t1 = document.getElementById('i18n_tab_recharge'); if (t1) t1.textContent = lang.tab_recharge;
+      const t2 = document.getElementById('i18n_tab_withdraw'); if (t2) t2.textContent = lang.tab_withdraw;
+
+      // 更新钱包操作按钮与登出
+      const btnOnline = document.getElementById('i18n_btn_online_recharge');
+      if (btnOnline) btnOnline.innerHTML = `<i class="fas fa-credit-card mr-2"></i>${lang.online_recharge}`;
+      const btnOffline = document.getElementById('i18n_btn_offline_transfer');
+      if (btnOffline) btnOffline.innerHTML = `<i class=\"fas fa-university mr-2\"></i>${lang.offline_transfer}`;
+      const btnLogout = document.getElementById('i18n_btn_logout');
+      if (btnLogout) btnLogout.textContent = lang.logout;
+      
+      // 更新搜索框占位符
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.placeholder = lang.accounts_search_placeholder;
+      }
+      
+      const recordSearchInput = document.getElementById('recordSearchInput');
+      if (recordSearchInput) {
+        recordSearchInput.placeholder = lang.records_search_placeholder;
+      }
+      
+      // 更新清空按钮
+      const clearBtn = document.querySelector('button[onclick="clearSearch()"]');
+      if (clearBtn) {
+        clearBtn.textContent = lang.accounts_clear;
+      }
+      
+      // 更新账户列表中的按钮文本
+      renderAccounts();
+      renderRecords();
+    }
+
+    // 初始化语言
+    function initLanguage() {
+      const savedLang = localStorage.getItem('h5_language') || 'zh';
+      switchLanguage(savedLang);
+      
+      // 绑定语言切换按钮事件
+      document.getElementById('langToggle').addEventListener('click', () => {
+        const newLang = currentLang === 'zh' ? 'en' : 'zh';
+        switchLanguage(newLang);
+      });
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      initLanguage();
+      initTheme();
+    });
+  </script>
 </body>
 </html>
 
