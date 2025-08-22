@@ -30,7 +30,7 @@
     .btn-secondary { background: #F3F4F6; color: #111827; border-radius: 8px; }
     .input { background: #FFFFFF; border: 1px solid #E5E7EB; color: #111827; border-radius: 10px; }
     /* 报告图表自适应宽度 */
-    .chart { width: 100%; height: 160px; display: block; }
+    .chart { width: 100%; height: 160px; display: block; max-width: 100%; overflow: hidden; }
     /* 深色主题覆盖 */
     body.theme-dark { background: #0F172A; color: #F8FAFC; }
     body.theme-dark .card { background: #111827; border-color: #334155; }
@@ -54,16 +54,12 @@
   <header class="sticky top-0 z-40" style="background:#FFFFFF; border-bottom: 1px solid #E5E7EB;">
     <div class="px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <i class="fas fa-wallet text-lg" style="color:#00BF85"></i>
-        <div>
-          <h1 id="i18n_header_title" class="text-base font-semibold">账户钱包</h1>
-          <p id="i18n_header_desc" class="text-xs text-gray-500">移动端快速充值 / 减款 / 查看记录</p>
-        </div>
+        <div class="text-xl font-bold" style="color:#00BF85">BestADS</div>
       </div>
       <div class="flex items-center gap-2">
         <button id="themeToggle" class="btn-secondary px-2 py-1.5 text-xs" title="Theme"><i class="fas fa-moon"></i></button>
         <button id="langToggle" class="btn-secondary px-2 py-1.5 text-xs" title="Language"><i class="fas fa-globe"></i></button>
-        <button id="i18n_refresh" class="btn-secondary px-3 py-1.5 text-xs font-semibold" onclick="refreshData()">刷新</button>
+        <button id="i18n_btn_logout" class="btn-secondary px-3 py-1.5 text-xs font-semibold" onclick="logout()">登出</button>
       </div>
     </div>
   </header>
@@ -123,8 +119,13 @@
           <button id="i18n_btn_offline_transfer" class="btn-secondary py-3 text-sm" onclick="openModal('offlineTransferModal')"><i class="fas fa-university mr-2"></i>线下转账</button>
         </div>
       </div>
-      <div class="mt-3">
-        <button id="i18n_btn_logout" class="btn-secondary w-full py-3 font-semibold" onclick="logout()">登出</button>
+      
+      <!-- 充值转账记录卡片 -->
+      <div class="card p-4 mt-3">
+        <h3 class="text-base font-semibold mb-3">充值转账记录</h3>
+        <div id="walletRecordsList" class="space-y-2">
+          <!-- 记录将通过JavaScript动态生成 -->
+        </div>
       </div>
     </section>
 
@@ -144,7 +145,7 @@
     <!-- 页面：报告 -->
     <section id="page-reports" class="page">
       <div class="card p-4">
-        <h3 id="i18n_report_monthly" class="text-base font-semibold mb-3">最近6个月每月消耗</h3>
+        <h3 id="i18n_report_monthly" class="text-base font-semibold mb-3">月消耗</h3>
         <canvas id="spendChart" class="chart"></canvas>
       </div>
       <div class="card p-4 mt-3">
@@ -339,12 +340,14 @@
         
         // 钱包页面
         wallet_available_label: '可用余额',
-        wallet_real_label: '真实金额',
+        wallet_real_label: '真实余额',
         wallet_frozen_label: '冻结金额',
         wallet_credit_label: '信用额度',
         wallet_used_label: '已用额度',
         online_recharge: '在线充值',
         offline_transfer: '线下转账',
+        wallet_records_title: '充值转账记录',
+        wallet_no_records: '暂无充值转账记录',
         logout: '登出',
         
         // 账户页面
@@ -362,7 +365,7 @@
         records_search_placeholder: '搜索账户ID/名称',
         
         // 报告页面
-        report_monthly: '最近6个月每月消耗',
+        report_monthly: '月消耗',
         report_ranking: '广告账户消耗排名',
         rank_month: '本月',
         rank_yesterday: '昨日',
@@ -380,7 +383,15 @@
         close: '关闭',
         success: '成功',
         error: '错误',
-        loading: '加载中...'
+        loading: '加载中...',
+        
+        // 在线充值
+        online_recharge_title: '在线充值',
+        recharge_amount_label: '充值金额 *',
+        payment_platform_label: '支付平台 *',
+        quick_amount_label: '快捷金额',
+        go_payment_btn: '去支付',
+        cancel_btn: '取消'
       },
       en: {
         // Header
@@ -397,12 +408,14 @@
         
         // Wallet page
         wallet_available_label: 'Available Balance',
-        wallet_real_label: 'Real Amount',
+        wallet_real_label: 'Real Balance',
         wallet_frozen_label: 'Frozen Amount',
         wallet_credit_label: 'Credit Limit',
         wallet_used_label: 'Used Credit',
         online_recharge: 'Online Recharge',
         offline_transfer: 'Offline Transfer',
+        wallet_records_title: 'Recharge & Transfer Records',
+        wallet_no_records: 'No recharge records',
         logout: 'Logout',
         
         // Accounts page
@@ -438,7 +451,15 @@
         close: 'Close',
         success: 'Success',
         error: 'Error',
-        loading: 'Loading...'
+        loading: 'Loading...',
+        
+        // Online Recharge
+        online_recharge_title: 'Online Recharge',
+        recharge_amount_label: 'Recharge Amount *',
+        payment_platform_label: 'Payment Platform *',
+        quick_amount_label: 'Quick Amount',
+        go_payment_btn: 'Go to Payment',
+        cancel_btn: 'Cancel'
       }
     };
 
@@ -459,7 +480,7 @@
     ];
 
     // 记录（示例 + 本地存储）
-    const STORAGE_KEYS = { recharge: 'h5_recharge_records', withdraw: 'h5_withdraw_records' };
+    const STORAGE_KEYS = { recharge: 'h5_recharge_records', withdraw: 'h5_withdraw_records', wallet: 'h5_wallet_records' };
     let rechargeRecords = loadRecords(STORAGE_KEYS.recharge, [
       { id: 'RCG003', time: '2024-02-16 14:20', accountId: 'FB001234569', accountName: '游戏推广账户01', amount: 800.00, currency: 'USD', status: '成功', completeTime: '2024-02-16 14:35' },
       { id: 'RCG001', time: '2024-02-15 16:45', accountId: 'FB001234567', accountName: '跨境电商账户01', amount: 500.00, currency: 'USD', status: '成功', completeTime: '2024-02-15 17:00' },
@@ -468,6 +489,14 @@
     let withdrawRecords = loadRecords(STORAGE_KEYS.withdraw, [
       { id: 'WDW001', time: '2024-02-16 15:30', accountId: 'FB001234569', accountName: '游戏推广账户01', amount: 300.00, currency: 'USD', status: '成功', completeTime: '2024-02-16 15:45' },
       { id: 'WDW002', time: '2024-02-15 14:20', accountId: 'FB001234567', accountName: '跨境电商账户01', amount: 200.00, currency: 'USD', status: '处理中', completeTime: '' }
+    ]);
+    
+    // 钱包充值转账记录
+    let walletRecords = loadRecords(STORAGE_KEYS.wallet, [
+      { id: 'WLT001', time: '2024-02-16 16:30', type: '在线充值', amount: 1000.00, currency: 'USD', status: '成功' },
+      { id: 'WLT002', time: '2024-02-15 15:20', type: '线下转账', amount: 500.00, currency: 'USD', status: '处理中' },
+      { id: 'WLT003', time: '2024-02-14 10:15', type: '在线充值', amount: 2000.00, currency: 'USD', status: '成功' },
+      { id: 'WLT004', time: '2024-02-13 14:45', type: '线下转账', amount: 800.00, currency: 'USD', status: '成功' }
     ]);
 
     function loadRecords(key, fallback) {
@@ -502,6 +531,40 @@
       if (fr) fr.textContent = `$${formatAmount(wallet.frozen)}`;
       if (cl) cl.textContent = `$${formatAmount(wallet.creditLimit)}`;
       if (cu) cu.textContent = `$${formatAmount(wallet.creditUsed)}`;
+      
+      // 渲染钱包记录
+      renderWalletRecords();
+    }
+    
+    // 渲染钱包充值转账记录
+    function renderWalletRecords() {
+      const wrap = document.getElementById('walletRecordsList');
+      if (!wrap) return;
+      
+      const lang = i18n[currentLang];
+      
+      if (!walletRecords.length) {
+        wrap.innerHTML = `<div class="text-center text-gray-500 text-sm py-4">${lang.wallet_no_records}</div>`;
+        return;
+      }
+      
+      wrap.innerHTML = walletRecords.map(r => `
+        <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-gray-900 font-medium">${r.type}</span>
+              <span class="text-gray-500">${r.time}</span>
+            </div>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-gray-600">${r.currency}</span>
+              <span class="text-gray-900 font-semibold">${formatAmount(r.amount)}</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="status-pill ${statusPillByText(r.status)}">${r.status}</span>
+          </div>
+        </div>
+      `).join('');
     }
 
     // 列表渲染
@@ -520,7 +583,6 @@
             <div>
               <div class="text-sm text-gray-400">${a.id}</div>
               <div class="text-base font-semibold mt-0.5">${a.name}</div>
-              <div class="mt-1 text-xs text-gray-400">${currentLang === 'zh' ? '时区' : 'Timezone'} ${a.timezone}</div>
               <div class="mt-1 flex items-center gap-2 text-sm">
                 <span class="text-gray-600 font-medium">${a.currency}</span>
                 <span class="text-gray-900 font-semibold">${formatAmount(a.balance)}</span>
@@ -629,28 +691,59 @@
       const canvas = document.getElementById('spendChart');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      // 使用容器宽度自适应
+      
+      // 使用容器宽度自适应，确保不超出卡片范围
       const container = canvas.parentElement;
-      const cssWidth = container.clientWidth || window.innerWidth - 32;
+      const cssWidth = Math.min(container.clientWidth, window.innerWidth - 64); // 减去左右边距
       const cssHeight = 160; // 固定可视高度
+      
+      // 设置Canvas尺寸
       canvas.style.width = cssWidth + 'px';
       canvas.style.height = cssHeight + 'px';
+      
       const dpr = window.devicePixelRatio || 1;
       const width = Math.floor(cssWidth * dpr);
       const height = Math.floor(cssHeight * dpr);
+      
+      // 重置Canvas尺寸和上下文状态
       if (canvas.width !== width) canvas.width = width;
       if (canvas.height !== height) canvas.height = height;
+      
+      // 清空Canvas并重置变换
+      ctx.clearRect(0, 0, width, height);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
 
-      const padding = { left: 28, right: 12, top: 12, bottom: 24 };
+      const padding = { left: 35, right: 20, top: 20, bottom: 30 }; // 增加左边距显示纵坐标，增加顶部边距显示数值
       const viewW = cssWidth - padding.left - padding.right;
       const viewH = cssHeight - padding.top - padding.bottom;
       const maxVal = Math.max(...spendByMonth.map(d=>d.amount)) * 1.1;
-      const barW = Math.max(18, viewW / (spendByMonth.length * 1.8));
+      const barW = Math.max(12, viewW / (spendByMonth.length * 2.2)); // 减小柱子宽度
       const gap = spendByMonth.length > 1 ? (viewW - barW * spendByMonth.length) / (spendByMonth.length - 1) : 0;
 
+      // 绘制纵坐标刻度和数值
+      const ySteps = 5; // 纵坐标分5个刻度
+      
+      for (let i = 0; i <= ySteps; i++) {
+        const y = padding.top + (i / ySteps) * viewH;
+        const value = Math.round((maxVal * (ySteps - i) / ySteps) / 1000) * 1000; // 取整到千位
+        
+        // 绘制水平线
+        ctx.strokeStyle = '#E5E7EB';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding.left - 5, y);
+        ctx.lineTo(padding.left + viewW, y);
+        ctx.stroke();
+        
+        // 绘制纵坐标数值
+        ctx.font = '10px sans-serif';
+        ctx.fillStyle = '#6B7280';
+        ctx.textAlign = 'right';
+        ctx.fillText(`$${(value/1000).toFixed(0)}k`, padding.left - 8, y + 3);
+      }
+
       // 轴线
-      ctx.strokeStyle = '#E5E7EB';
       ctx.beginPath();
       ctx.moveTo(padding.left, padding.top);
       ctx.lineTo(padding.left, padding.top + viewH);
@@ -662,11 +755,20 @@
         const x = padding.left + i * (barW + gap);
         const h = Math.max(2, (d.amount / maxVal) * viewH);
         const y = padding.top + viewH - h;
+        
+        // 绘制柱子
         ctx.fillStyle = '#00BF85';
         ctx.fillRect(x, y, barW, h);
+        
+        // 柱子顶部显示数值
+        ctx.fillStyle = '#00BF85';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`$${(d.amount/1000).toFixed(1)}k`, x + barW/2, y - 5);
+        
         // 月份
         ctx.fillStyle = '#6B7280';
-        ctx.font = '12px sans-serif';
+        ctx.font = '11px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(d.month, x + barW/2, padding.top + viewH + 16);
       });
@@ -755,7 +857,7 @@
     function formatNow() { const d = new Date(); const p = v => String(v).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
     function makeId(prefix) { return `${prefix}${Math.random().toString(36).slice(2,6).toUpperCase()}${Date.now().toString().slice(-3)}`; }
 
-    function refreshData() { notify('已刷新', 'info'); updateWalletUI(); renderAccounts(); if (document.getElementById('page-records').classList.contains('active')) renderRecords(); }
+    // 移除刷新功能，保留其他功能
 
     // 通知
     function notify(message, type = 'info') {
@@ -907,18 +1009,18 @@
         <div class="sheet-handle"></div>
         <div class="px-4 pb-6">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-base font-semibold">在线充值</h3>
+            <h3 id="i18n_online_recharge_title" class="text-base font-semibold">在线充值</h3>
             <button class="text-gray-500" onclick="closeModal('onlineRechargeModal')"><i class="fas fa-times text-lg"></i></button>
           </div>
           <form onsubmit="handleRecharge(event)" class="card p-3 space-y-3">
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-sm text-gray-700 mb-1 block">充值金额 *</label>
+                <label id="i18n_recharge_amount_label" class="text-sm text-gray-700 mb-1 block">充值金额 *</label>
                 <input type="number" id="rechargeAmount" min="0.01" step="0.01" placeholder="请输入充值金额" class="input w-full px-3 py-3">
                 <div class="text-xs text-gray-500 mt-1">支持两位小数，例如 100 或 100.50</div>
               </div>
               <div>
-                <label class="text-sm text-gray-700 mb-1 block">支付平台 *</label>
+                <label id="i18n_payment_platform_label" class="text-sm text-gray-700 mb-1 block">支付平台 *</label>
                 <select id="paymentPlatform" class="input w-full px-3 py-3">
                   <option value="">请选择支付平台</option>
                   <option value="Stripe">Stripe</option>
@@ -926,28 +1028,9 @@
                 </select>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="text-sm text-gray-700 mb-1 block">支付币种 *</label>
-                <select id="paymentCurrency" class="input w-full px-3 py-3">
-                  <option value="USD" selected>USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="CNY">CNY</option>
-                </select>
-              </div>
-              <div>
-                <label class="text-sm text-gray-700 mb-1 block">入账币种 *</label>
-                <select id="creditCurrency" class="input w-full px-3 py-3">
-                  <option value="USD" selected>USD</option>
-                </select>
-              </div>
-            </div>
+            <div class="text-xs text-gray-500">币种：USD（默认）</div>
             <div>
-              <label class="text-sm text-gray-700 mb-1 block">备注（可选）</label>
-              <input type="text" id="rechargeNote" maxlength="100" placeholder="填写备注信息，最多100字" class="input w-full px-3 py-3">
-            </div>
-            <div>
-              <label class="text-sm text-gray-700 mb-2 block">快捷金额</label>
+              <label id="i18n_quick_amount_label" class="text-sm text-gray-700 mb-2 block">快捷金额</label>
               <div class="grid grid-cols-4 gap-2">
                 <button type="button" class="btn-secondary py-2" onclick="setRechargeQuick(100)">100</button>
                 <button type="button" class="btn-secondary py-2" onclick="setRechargeQuick(200)">200</button>
@@ -957,8 +1040,8 @@
             </div>
             <div class="text-xs text-gray-500">到账金额与时间以平台实际反馈为准。</div>
             <div class="flex gap-2">
-              <button type="submit" class="btn-primary flex-1 py-3 font-semibold">去支付</button>
-              <button type="button" class="btn-secondary flex-1 py-3" onclick="closeModal('onlineRechargeModal')">取消</button>
+              <button type="submit" class="btn-primary flex-1 py-3 font-semibold" id="i18n_go_payment_btn">去支付</button>
+              <button type="button" class="btn-secondary flex-1 py-3" onclick="closeModal('onlineRechargeModal')" id="i18n_cancel_btn">取消</button>
             </div>
           </form>
         </div>
@@ -978,10 +1061,7 @@
     function updateUILanguage() {
       const lang = i18n[currentLang];
       
-      // 更新头部
-      document.getElementById('i18n_header_title').textContent = lang.header_title;
-      document.getElementById('i18n_header_desc').textContent = lang.header_desc;
-      document.getElementById('i18n_refresh').textContent = lang.refresh;
+      // 更新头部（已简化为logo，无需更新）
       
       // 更新登录页面
       const elLoginTitle = document.getElementById('i18n_login_title'); if (elLoginTitle) elLoginTitle.textContent = lang.login_title;
@@ -1020,6 +1100,29 @@
       if (btnOffline) btnOffline.innerHTML = `<i class=\"fas fa-university mr-2\"></i>${lang.offline_transfer}`;
       const btnLogout = document.getElementById('i18n_btn_logout');
       if (btnLogout) btnLogout.textContent = lang.logout;
+      
+      // 更新钱包记录标题
+      const walletRecordsTitle = document.querySelector('#page-wallet .card:last-child h3');
+      if (walletRecordsTitle) walletRecordsTitle.textContent = lang.wallet_records_title;
+      
+      // 更新在线充值弹窗
+      const rechargeTitle = document.getElementById('i18n_online_recharge_title');
+      if (rechargeTitle) rechargeTitle.textContent = lang.online_recharge_title;
+      
+      const amountLabel = document.getElementById('i18n_recharge_amount_label');
+      if (amountLabel) amountLabel.textContent = lang.recharge_amount_label;
+      
+      const platformLabel = document.getElementById('i18n_payment_platform_label');
+      if (platformLabel) platformLabel.textContent = lang.payment_platform_label;
+      
+      const quickLabel = document.getElementById('i18n_quick_amount_label');
+      if (quickLabel) quickLabel.textContent = lang.quick_amount_label;
+      
+      const goPaymentBtn = document.getElementById('i18n_go_payment_btn');
+      if (goPaymentBtn) goPaymentBtn.textContent = lang.go_payment_btn;
+      
+      const cancelBtn = document.getElementById('i18n_cancel_btn');
+      if (cancelBtn) cancelBtn.textContent = lang.cancel_btn;
       
       // 更新搜索框占位符
       const searchInput = document.getElementById('searchInput');
