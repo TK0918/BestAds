@@ -118,6 +118,46 @@
 
 ## 项目概述
 BestAds是一个海外媒体广告管理系统，包含客户端系统和内部运营系统两个部分。
+### 2025-01-19
+
+#### 本次更新 - 新增服务费配置页面（账户维度）
+新增 `admin-system/fb-business/service-fee-config.html`，用于从广告账户维度配置服务费。
+
+**🎯 功能**
+- 账户服务费：含筛选项（代理、广告账户ID、广告账户名称、状态）；列表字段包含"广告账户ID、广告账户名称、账户服务费、状态、最后修改时间、最后修改人、代理、代理服务费"；支持新增、编辑、批量修改状态、批量修改服务费。
+- 新增配置优化：账户选择改为下拉多选方式，支持批量创建多个账户的服务费配置，简化操作流程。
+
+**📄 涉及文件**
+- 新增：`admin-system/fb-business/service-fee-config.html`
+- 更新：`log.md`（记录变更）、`admin-system/fb-business/account-management.html`、`account-opening.html`、`account-allocation.html`、`recharge-management.html`、`deduction-management.html`（侧边栏新增“服务费配置”菜单项，实现页面互跳）
+
+**💻 技术实现**
+- 复用 Tailwind/FontAwesome 与侧边栏结构，新增菜单项"服务费配置"。
+- 使用本地示例数据渲染表格；提供弹窗表单进行新增/编辑；提供批量操作弹窗并联动复选框启用按钮。
+- 自带通知提示与时间格式化工具；账户服务费展示关联代理的默认费率。
+- 新增配置采用多选下拉框，支持批量创建；编辑模式显示账户信息，新增模式显示账户选择；自动过滤已配置账户，防止重复创建。
+
+**✅ 使用说明**
+- 管理后台进入：`admin-system/fb-business/service-fee-config.html`
+- 直接进入账户服务费管理，支持筛选、批量修改。
+
+#### 本次更新 - 代理管理页面字段调整
+调整 `admin-system/main-functions/agent_management.html`，移除对接相关字段，新增服务费率配置。
+
+**🎯 功能调整**
+- 移除字段：对接Token、Client、Key
+- 新增字段：代理服务费率(%)、服务费率状态（启用/停用）
+- 表格显示：新增"服务费率"和"费率状态"列，状态以徽标形式展示
+
+**📄 涉及文件**
+- 更新：`admin-system/main-functions/agent_management.html`
+
+**💻 技术实现**
+- 表单字段调整：新增数字输入框和下拉选择框
+- 数据结构更新：`agentsData` 数组字段调整
+- 表格渲染：新增列显示服务费率和状态徽标
+- 表单处理：更新新增和编辑逻辑，支持服务费率配置
+
 
 ## 开发历程
 
