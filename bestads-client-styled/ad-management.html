@@ -119,6 +119,29 @@
       color: #D1D5DB;
       transform: translateY(-1px);
     }
+
+    /* 模版筛选按钮样式 */
+    .template-filter-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      background-color: #2A2F3D;
+      color: #B0B5C0;
+      border: 1px solid #2E333F;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .template-filter-btn:hover {
+      background-color: #3A3F4D;
+      color: #E0E5F0;
+    }
+
+    .template-filter-btn.active {
+      background-color: #00FFB0;
+      color: #000;
+      border-color: #00FFB0;
+    }
   </style>
 </head>
 <body class="m-0 p-0 h-screen">
@@ -470,13 +493,29 @@
           </button>
           <button onclick="saveTemplate()" class="btn-primary px-6 py-3">保存模版</button>
         </div>
-        <h2 class="text-2xl font-bold text-white mb-6">{{ t('btn.createTemplate') }}</h2>
+        <h2 class="text-2xl font-bold text-white mb-6">创建模版</h2>
         <form id="templateEditForm" class="space-y-8">
           <!-- 模版名称 -->
           <div>
             <label class="block text-sm font-medium mb-2 text-gray-300">模版名称 *</label>
             <input type="text" class="input-field w-full" placeholder="请输入模版名称" required>
           </div>
+          
+          <!-- 广告类型选择 -->
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">广告类型 *</label>
+            <select id="adTypeSelect" class="input-field w-full" onchange="onAdTypeChange()" required>
+              <option value="">请选择广告类型</option>
+              <option value="sales">销量广告</option>
+              <option value="asc">ASC广告</option>
+            </select>
+            <div class="text-xs text-gray-400 mt-1">
+              <div>销量广告：传统Facebook广告，支持详细受众和版位设置</div>
+              <div>ASC广告：Advantage+ Shopping Campaign，简化设置，自动优化</div>
+            </div>
+          </div>
+          <!-- 模版参数容器（广告类型选择后显示） -->
+          <div id="templateParamContainer" style="display:none;">
           <!-- Campaign层设置 -->
           <div class="bg-[#242A3A] rounded-lg p-6 border border-[#2E333F] mb-4">
             <div class="flex items-center justify-between cursor-pointer" onclick="toggleCollapse('campaignSettings')">
@@ -488,9 +527,9 @@
                 <label class="block text-sm font-medium mb-2 text-gray-300">Campaign名规则</label>
                 <input type="text" class="input-field w-full" placeholder="如：新产品推广_{{日期}}">
               </div>
-              <div class="mb-4">
+              <div class="mb-4" id="campaignObjectiveSetting">
                 <label class="block text-sm font-medium mb-2 text-gray-300">推广目标</label>
-                <select class="input-field w-full">
+                <select class="input-field w-full" id="campaignObjective">
                   <option value="CONVERSIONS">转化量</option>
                   <option value="REACH">覆盖人数</option>
                   <option value="TRAFFIC">网站流量</option>
@@ -498,19 +537,34 @@
                   <option value="LEAD_GENERATION">潜在客户</option>
                 </select>
               </div>
-              <div class="mb-4">
+              <div class="mb-4" id="promotionTemplateSetting">
+                <label class="block text-sm font-medium mb-2 text-gray-300">推广模板</label>
+                <select class="input-field w-full" id="promotionTemplate" disabled>
+                  <option value="sales" selected>销量</option>
+                </select>
+                <div class="text-xs text-gray-400 mt-1">ASC广告固定使用销量模板</div>
+              </div>
+              <div class="mb-4" id="budgetTypeSetting">
                 <label class="block text-sm font-medium mb-2 text-gray-300">预算类型</label>
                 <div class="flex items-center space-x-6">
-                  <label class="flex items-center"><input type="radio" name="budgetType" value="campaign" checked class="mr-2">推广系列预算</label>
-                  <label class="flex items-center"><input type="radio" name="budgetType" value="adset" class="mr-2">广告组预算</label>
+                  <label class="flex items-center"><input type="radio" name="budgetType" value="campaign" checked class="mr-2" onchange="toggleBudgetType()">推广系列预算</label>
+                  <label class="flex items-center"><input type="radio" name="budgetType" value="adset" class="mr-2" onchange="toggleBudgetType()">广告组预算</label>
                 </div>
               </div>
               <div id="campaignBudgetSettings">
-                <div class="mb-4">
-                  <label class="block text-sm font-medium mb-2 text-gray-300">日预算</label>
-                  <input type="number" class="input-field w-full" placeholder="请输入日预算金额">
+                <!-- ASC 专用：预算模式切换（日预算/总预算） -->
+                <div class="mb-4" id="campaignBudgetMode" style="display:none;">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">预算模式</label>
+                  <div class="flex items-center space-x-6">
+                    <label class="flex items-center"><input type="radio" name="campaignBudgetMode" value="daily" checked class="mr-2" onchange="toggleCampaignBudgetMode()">日预算</label>
+                    <label class="flex items-center"><input type="radio" name="campaignBudgetMode" value="lifetime" class="mr-2" onchange="toggleCampaignBudgetMode()">总预算</label>
+                  </div>
                 </div>
-                <div class="mb-4">
+                <div class="mb-4" id="dailyBudgetSetting">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">日预算</label>
+                  <input type="number" class="input-field w-full" placeholder="请输入日预算金额" value="200">
+                </div>
+                <div class="mb-4" id="totalBudgetSetting" style="display: none;">
                   <label class="block text-sm font-medium mb-2 text-gray-300">总预算</label>
                   <input type="number" class="input-field w-full" placeholder="请输入总预算金额">
                 </div>
@@ -524,69 +578,158 @@
               <i class="fas fa-chevron-down" id="icon-adsetSettings"></i>
             </div>
             <div id="adsetSettings" class="mt-4">
-              <div class="mb-4">
-                <label class="block text-sm font-medium mb-2 text-gray-300">Adset名规则</label>
-                <input type="text" class="input-field w-full" placeholder="如：受众_{{年龄}}_{{性别}}">
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm font-medium mb-2 text-gray-300">转化位置</label>
-                <select class="input-field w-full">
-                  <option value="WEBSITE">网站</option>
-                </select>
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm font-medium mb-2 text-gray-300">成效目标</label>
-                <select class="input-field w-full" id="adsetObjective" onchange="updateCostHint()">
-                  <option value="MAX_CONVERSIONS">转化量最大化</option>
-                  <option value="MAX_VALUE">转化价值最大化</option>
-                  <option value="MAX_LANDING_PAGE_VIEWS">落地页浏览最大化</option>
-                  <option value="MAX_LINK_CLICKS">链接点击量最大化</option>
-                  <option value="MAX_UNIQUE_DAILY_REACH">单日独立覆盖人数最大化</option>
-                  <option value="MAX_IMPRESSIONS">展示次数最大化</option>
-                </select>
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm font-medium mb-2 text-gray-300">成效费用</label>
-                <input type="text" class="input-field w-full" id="costInput" placeholder="请输入成效费用">
-                <div class="text-xs text-gray-400 mt-1" id="costHint">根据成效目标不同，填写不同费用</div>
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm font-medium mb-2 text-gray-300">归因设置</label>
-                <div class="flex items-center space-x-6">
-                  <label class="flex items-center"><input type="radio" name="attributionType" value="standard" checked class="mr-2" onchange="toggleAttributionOptions()">标准归因</label>
-                  <label class="flex items-center"><input type="radio" name="attributionType" value="incremental" class="mr-2" onchange="toggleAttributionOptions()">增量归因</label>
-                </div>
-              </div>
-              <div id="standardAttributionOptions">
+              <!-- 销量广告的广告组设置 -->
+              <div id="salesAdsetSettings">
                 <div class="mb-4">
-                  <label class="block text-sm font-medium mb-2 text-gray-300">点击天数</label>
-                  <input type="number" class="input-field w-full" placeholder="如：7">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">Adset名规则</label>
+                  <input type="text" class="input-field w-full" placeholder="如：受众_{{年龄}}_{{性别}}">
                 </div>
                 <div class="mb-4">
-                  <label class="block text-sm font-medium mb-2 text-gray-300">浏览天数</label>
-                  <input type="number" class="input-field w-full" placeholder="如：1">
-                </div>
-              </div>
-              <div id="adsetBudgetSettings">
-                <div class="mb-4">
-                  <label class="block text-sm font-medium mb-2 text-gray-300">日预算</label>
-                  <input type="number" class="input-field w-full" placeholder="请输入日预算金额">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">转化位置</label>
+                  <select class="input-field w-full">
+                    <option value="WEBSITE">网站</option>
+                  </select>
                 </div>
                 <div class="mb-4">
-                  <label class="block text-sm font-medium mb-2 text-gray-300">总预算</label>
-                  <input type="number" class="input-field w-full" placeholder="请输入总预算金额">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">成效目标</label>
+                  <select class="input-field w-full" id="adsetObjective" onchange="updateCostHint()">
+                    <option value="MAX_CONVERSIONS">转化量最大化</option>
+                    <option value="MAX_VALUE">转化价值最大化</option>
+                    <option value="MAX_LANDING_PAGE_VIEWS">落地页浏览最大化</option>
+                    <option value="MAX_LINK_CLICKS">链接点击量最大化</option>
+                    <option value="MAX_UNIQUE_DAILY_REACH">单日独立覆盖人数最大化</option>
+                    <option value="MAX_IMPRESSIONS">展示次数最大化</option>
+                  </select>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">成效费用</label>
+                  <input type="text" class="input-field w-full" id="costInput" placeholder="请输入成效费用">
+                  <div class="text-xs text-gray-400 mt-1" id="costHint">根据成效目标不同，填写不同费用</div>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">归因设置</label>
+                  <div class="flex items-center space-x-6">
+                    <label class="flex items-center"><input type="radio" name="attributionType" value="standard" checked class="mr-2" onchange="toggleAttributionOptions()">标准归因</label>
+                    <label class="flex items-center"><input type="radio" name="attributionType" value="incremental" class="mr-2" onchange="toggleAttributionOptions()">增量归因</label>
+                  </div>
+                </div>
+                <div id="standardAttributionOptions">
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">点击天数</label>
+                    <input type="number" class="input-field w-full" placeholder="如：7">
+                  </div>
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">浏览天数</label>
+                    <input type="number" class="input-field w-full" placeholder="如：1">
+                  </div>
+                </div>
+                <div id="adsetBudgetSettings">
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">日预算</label>
+                    <input type="number" class="input-field w-full" placeholder="请输入日预算金额">
+                  </div>
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">总预算</label>
+                    <input type="number" class="input-field w-full" placeholder="请输入总预算金额">
+                  </div>
+                </div>
+                <!-- 受众设置、版位设置 - 仅销量广告显示 -->
+                <div id="salesOnlySettings">
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">受众设置</label>
+                    <input type="text" class="input-field w-full" placeholder="如：18-35岁，女性，兴趣：美妆">
+                  </div>
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">版位设置</label>
+                    <input type="text" class="input-field w-full" placeholder="如：Facebook动态、Instagram动态">
+                  </div>
                 </div>
               </div>
-              <!-- 受众设置、版位设置预留 -->
-              <div class="mb-4">
-                <label class="block text-sm font-medium mb-2 text-gray-300">受众设置</label>
-                <input type="text" class="input-field w-full" placeholder="如：18-35岁，女性，兴趣：美妆">
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm font-medium mb-2 text-gray-300">版位设置</label>
-                <input type="text" class="input-field w-full" placeholder="如：Facebook动态、Instagram动态">
+              <!-- ASC广告特有设置 -->
+              <div id="ascOnlySettings" style="display: none;">
+                <!-- 1. 广告组名规则 -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">广告组名规则 *</label>
+                  <input type="text" id="ascAdsetNameRule" class="input-field w-full" placeholder="如: ASC广告组_{{日期}}">
+                </div>
+                
+                <!-- 2. 成效目标 -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">成效目标 *</label>
+                  <select id="ascOptimizationGoal" class="input-field w-full" onchange="onAscOptimizationGoalChange()">
+                    <option value="conversions">转化量最大化</option>
+                    <option value="value">转化价值最大化</option>
+                  </select>
+                </div>
+                
+                <!-- 3. 转化事件 (仅当成效目标为转化量最大化时显示) -->
+                <div id="ascConversionEventSetting" class="mb-4" style="display: block;">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">转化事件 *</label>
+                  <select id="ascConversionEvent" class="input-field w-full">
+                    <option value="">请选择转化事件</option>
+                    <option value="purchase">购买</option>
+                    <option value="add_to_cart">加入购物车</option>
+                    <option value="initiate_checkout">开始结账</option>
+                    <option value="view_content">查看内容</option>
+                  </select>
+                </div>
+                
+                <!-- 4. 归因设置 -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">归因设置 *</label>
+                  <select id="ascAttributionSetting" class="input-field w-full">
+                    <option value="1d_click">1天点击</option>
+                    <option value="7d_click">7天点击</option>
+                    <option value="1d_view">1天浏览</option>
+                    <option value="7d_view">7天浏览</option>
+                    <option value="7d_click_1d_view">7天点击或1天浏览</option>
+                  </select>
+                </div>
+                
+                <!-- 5. 预算 -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">预算</label>
+                  
+                  <!-- 广告组花费限额开关 -->
+                  <div class="mb-3">
+                    <div class="flex items-center">
+                      <input type="checkbox" id="ascAdsetBudgetLimit" class="mr-2" onchange="toggleAscAdsetBudgetLimit()">
+                      <label for="ascAdsetBudgetLimit" class="text-sm text-gray-300">广告组花费限额</label>
+                    </div>
+                  </div>
+                  
+                  <!-- 预算限额设置 (默认隐藏) -->
+                  <div id="ascAdsetBudgetLimitSettings" style="display: none;">
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">预算下限 *</label>
+                        <input type="number" id="ascAdsetBudgetMin" class="input-field w-full" placeholder="最小预算" min="0" step="0.01">
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">预算上限 *</label>
+                        <input type="number" id="ascAdsetBudgetMax" class="input-field w-full" placeholder="最大预算" min="0" step="0.01">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 6. 排期 -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">排期 *</label>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm text-gray-400 mb-1">开始时间</label>
+                      <input type="datetime-local" id="ascAdsetStartTime" class="input-field w-full">
+                    </div>
+                    <div>
+                      <label class="block text-sm text-gray-400 mb-1">结束时间</label>
+                      <input type="datetime-local" id="ascAdsetEndTime" class="input-field w-full">
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
           </div>
           <!-- Ad层设置 -->
           <div class="bg-[#242A3A] rounded-lg p-6 border border-[#2E333F] mb-4">
@@ -1430,12 +1573,24 @@
           </button>
         </div>
 
+        <!-- 模版类型筛选 -->
+        <div class="mb-6">
+          <div class="flex space-x-4">
+            <button onclick="filterTemplates('all')" class="template-filter-btn active" id="filter-all">全部模版</button>
+            <button onclick="filterTemplates('sales')" class="template-filter-btn" id="filter-sales">销量广告</button>
+            <button onclick="filterTemplates('asc')" class="template-filter-btn" id="filter-asc">ASC广告</button>
+          </div>
+        </div>
+
         <!-- 模版列表 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- 模版卡片1 -->
-          <div class="p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="templateList">
+          <!-- 模版卡片1 - 销量广告 -->
+          <div class="template-card p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;" data-type="sales">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-semibold text-white">电商产品推广模版</h4>
+              <div class="flex items-center space-x-2">
+                <h4 class="text-lg font-semibold text-white">电商产品推广模版</h4>
+                <span class="px-2 py-1 text-xs rounded" style="background-color: #00FFB0; color: #000;">销量广告</span>
+              </div>
               <div class="flex space-x-2">
                 <button onclick="openTemplateModal('edit', 'template1')" class="text-gray-400 hover:text-white">
                   <i class="fas fa-edit"></i>
@@ -1457,10 +1612,13 @@
             </div>
           </div>
 
-          <!-- 模版卡片2 -->
-          <div class="p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;">
+          <!-- 模版卡片2 - 销量广告 -->
+          <div class="template-card p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;" data-type="sales">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-semibold text-white">品牌推广模版</h4>
+              <div class="flex items-center space-x-2">
+                <h4 class="text-lg font-semibold text-white">品牌推广模版</h4>
+                <span class="px-2 py-1 text-xs rounded" style="background-color: #00FFB0; color: #000;">销量广告</span>
+              </div>
               <div class="flex space-x-2">
                 <button onclick="openTemplateModal('edit', 'template2')" class="text-gray-400 hover:text-white">
                   <i class="fas fa-edit"></i>
@@ -1482,10 +1640,13 @@
             </div>
           </div>
 
-          <!-- 模版卡片3 -->
-          <div class="p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;">
+          <!-- 模版卡片3 - 销量广告 -->
+          <div class="template-card p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;" data-type="sales">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-lg font-semibold text-white">应用推广模版</h4>
+              <div class="flex items-center space-x-2">
+                <h4 class="text-lg font-semibold text-white">应用推广模版</h4>
+                <span class="px-2 py-1 text-xs rounded" style="background-color: #00FFB0; color: #000;">销量广告</span>
+              </div>
               <div class="flex space-x-2">
                 <button onclick="openTemplateModal('edit', 'template3')" class="text-gray-400 hover:text-white">
                   <i class="fas fa-edit"></i>
@@ -1504,6 +1665,62 @@
             <div class="flex justify-between items-center">
               <span class="text-xs text-gray-500">创建时间：2024-01-05</span>
               <button onclick="selectTemplate('template3')" class="btn-secondary px-4 py-2 text-sm">使用模版</button>
+            </div>
+          </div>
+
+          <!-- 模版卡片4 - ASC广告 -->
+          <div class="template-card p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;" data-type="asc">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <h4 class="text-lg font-semibold text-white">ASC电商推广模版</h4>
+                <span class="px-2 py-1 text-xs rounded" style="background-color: #4A90E2; color: #fff;">ASC广告</span>
+              </div>
+              <div class="flex space-x-2">
+                <button onclick="openTemplateModal('edit', 'template4')" class="text-gray-400 hover:text-white">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteTemplate('template4')" class="text-gray-400 hover:text-red-400">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="space-y-2 text-sm text-gray-400 mb-4">
+              <div>目标：转化量</div>
+              <div>预算：$30-80/天</div>
+              <div>受众：自动优化</div>
+              <div>版位：自动版位</div>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-gray-500">创建时间：2024-01-20</span>
+              <button onclick="selectTemplate('template4')" class="btn-secondary px-4 py-2 text-sm">使用模版</button>
+            </div>
+          </div>
+
+          <!-- 模版卡片5 - ASC广告 -->
+          <div class="template-card p-6 rounded-lg border" style="background-color: #242A3A; border-color: #2E333F;" data-type="asc">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <h4 class="text-lg font-semibold text-white">ASC品牌推广模版</h4>
+                <span class="px-2 py-1 text-xs rounded" style="background-color: #4A90E2; color: #fff;">ASC广告</span>
+              </div>
+              <div class="flex space-x-2">
+                <button onclick="openTemplateModal('edit', 'template5')" class="text-gray-400 hover:text-white">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteTemplate('template5')" class="text-gray-400 hover:text-red-400">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="space-y-2 text-sm text-gray-400 mb-4">
+              <div>目标：转化量</div>
+              <div>预算：$50-150/天</div>
+              <div>受众：自动优化</div>
+              <div>版位：自动版位</div>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-gray-500">创建时间：2024-01-18</span>
+              <button onclick="selectTemplate('template5')" class="btn-secondary px-4 py-2 text-sm">使用模版</button>
             </div>
           </div>
         </div>
@@ -1945,8 +2162,20 @@
                 <textarea class="input-field w-full h-24" placeholder="输入模版描述"></textarea>
               </div>
               <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告类型 *</label>
+                <select id="adTypeSelect" class="input-field w-full" onchange="onAdTypeChange()" required ${mode === 'edit' ? 'disabled' : ''}>
+                  <option value="">请选择广告类型</option>
+                  <option value="sales">销量广告</option>
+                  <option value="asc">ASC广告</option>
+                </select>
+                <div class="text-xs text-gray-400 mt-1">
+                  <div>销量广告：传统Facebook广告，支持详细受众和版位设置</div>
+                  <div>ASC广告：Advantage+ Shopping Campaign，简化设置，自动优化</div>
+                </div>
+              </div>
+              <div>
                 <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告目标</label>
-                <select class="input-field w-full">
+                <select class="input-field w-full" id="campaignObjective">
                   <option value="conversions">转化量</option>
                   <option value="reach">覆盖人数</option>
                   <option value="traffic">网站流量</option>
@@ -2828,6 +3057,212 @@
       } else {
         std.style.display = 'none';
       }
+    }
+
+    // 广告类型切换处理
+    function onAdTypeChange() {
+      const adType = document.getElementById('adTypeSelect').value;
+      const paramContainer = document.getElementById('templateParamContainer');
+      const salesOnlySettings = document.getElementById('salesOnlySettings');
+      const ascOnlySettings = document.getElementById('ascOnlySettings');
+      const campaignObjective = document.getElementById('campaignObjective');
+      const promotionTemplateSetting = document.getElementById('promotionTemplateSetting');
+      const budgetTypeSetting = document.getElementById('budgetTypeSetting');
+      const campaignObjectiveSetting = document.getElementById('campaignObjectiveSetting');
+      
+      // 选择任一广告类型后展示参数容器
+      if (paramContainer) {
+        paramContainer.style.display = adType ? 'block' : 'none';
+      }
+
+      if (adType === 'asc') {
+        // ASC广告：隐藏销量广告特有设置，显示ASC特有设置
+        const salesAdsetSettings = document.getElementById('salesAdsetSettings');
+        if (salesAdsetSettings) salesAdsetSettings.style.display = 'none';
+        if (salesOnlySettings) salesOnlySettings.style.display = 'none';
+        if (ascOnlySettings) ascOnlySettings.style.display = 'block';
+        
+        // ASC广告：仅保留 名规则 + 预算。隐藏推广目标/推广模板/预算类型
+        if (campaignObjectiveSetting) campaignObjectiveSetting.style.display = 'none';
+        if (promotionTemplateSetting) promotionTemplateSetting.style.display = 'none';
+        if (budgetTypeSetting) budgetTypeSetting.style.display = 'none';
+        // 内部仍固定推广目标为转化量，避免后续使用报错
+        if (campaignObjective) {
+          campaignObjective.value = 'CONVERSIONS';
+          campaignObjective.disabled = true;
+        }
+        
+        // ASC广告预算类型固定为推广系列预算，不可修改
+        if (budgetTypeSetting) {
+          const campaignBudgetRadio = document.querySelector('input[name="budgetType"][value="campaign"]');
+          const adsetBudgetRadio = document.querySelector('input[name="budgetType"][value="adset"]');
+          if (campaignBudgetRadio) {
+            campaignBudgetRadio.checked = true;
+            campaignBudgetRadio.disabled = true;
+          }
+          if (adsetBudgetRadio) {
+            adsetBudgetRadio.disabled = true;
+          }
+        }
+        
+        // ASC广告预算设置：默认日预算200美元，展示预算模式（日/总）
+        const dailyBudgetInput = document.querySelector('input[type="number"][placeholder="请输入日预算金额"]');
+        if (dailyBudgetInput) dailyBudgetInput.value = '200';
+        const mode = document.getElementById('campaignBudgetMode');
+        if (mode) mode.style.display = 'block';
+      } else if (adType === 'sales') {
+        // 销量广告：显示销量广告特有设置，隐藏ASC特有设置
+        const salesAdsetSettings = document.getElementById('salesAdsetSettings');
+        if (salesAdsetSettings) salesAdsetSettings.style.display = 'block';
+        if (salesOnlySettings) salesOnlySettings.style.display = 'block';
+        if (ascOnlySettings) ascOnlySettings.style.display = 'none';
+        
+        // 销量广告显示推广目标、预算类型；隐藏推广模板
+        if (campaignObjectiveSetting) campaignObjectiveSetting.style.display = '';
+        if (budgetTypeSetting) budgetTypeSetting.style.display = '';
+        if (promotionTemplateSetting) promotionTemplateSetting.style.display = 'none';
+        
+        // 恢复推广目标选择
+        if (campaignObjective) {
+          campaignObjective.disabled = false;
+        }
+        
+        // 恢复预算类型选择
+        if (budgetTypeSetting) {
+          const campaignBudgetRadio = document.querySelector('input[name="budgetType"][value="campaign"]');
+          const adsetBudgetRadio = document.querySelector('input[name="budgetType"][value="adset"]');
+          if (campaignBudgetRadio) campaignBudgetRadio.disabled = false;
+          if (adsetBudgetRadio) adsetBudgetRadio.disabled = false;
+        }
+        const mode = document.getElementById('campaignBudgetMode');
+        if (mode) mode.style.display = 'none';
+      } else {
+        // 未选择：隐藏所有特殊设置
+        if (salesOnlySettings) salesOnlySettings.style.display = 'none';
+        if (ascOnlySettings) ascOnlySettings.style.display = 'none';
+        if (promotionTemplateSetting) {
+          promotionTemplateSetting.style.display = 'none';
+        }
+        if (campaignObjective) {
+          campaignObjective.disabled = false;
+        }
+        if (budgetTypeSetting) {
+          const campaignBudgetRadio = document.querySelector('input[name="budgetType"][value="campaign"]');
+          const adsetBudgetRadio = document.querySelector('input[name="budgetType"][value="adset"]');
+          if (campaignBudgetRadio) campaignBudgetRadio.disabled = false;
+          if (adsetBudgetRadio) adsetBudgetRadio.disabled = false;
+        }
+      }
+    }
+
+    // 预算类型切换处理
+    function toggleBudgetType() {
+      const budgetType = document.querySelector('input[name="budgetType"]:checked').value;
+      const totalBudgetSetting = document.getElementById('totalBudgetSetting');
+      const dailyBudgetSetting = document.querySelector('input[type="number"][placeholder="请输入日预算金额"]').parentElement;
+      
+      if (budgetType === 'campaign') {
+        // 推广系列预算：显示日预算，隐藏总预算
+        if (totalBudgetSetting) totalBudgetSetting.style.display = 'none';
+        if (dailyBudgetSetting) dailyBudgetSetting.style.display = 'block';
+        const mode = document.getElementById('campaignBudgetMode');
+        if (mode) mode.style.display = 'block';
+      } else if (budgetType === 'adset') {
+        // 广告组预算：显示总预算，隐藏日预算
+        if (totalBudgetSetting) totalBudgetSetting.style.display = 'block';
+        if (dailyBudgetSetting) dailyBudgetSetting.style.display = 'none';
+        const mode = document.getElementById('campaignBudgetMode');
+        if (mode) mode.style.display = 'none';
+      }
+    }
+
+    // ASC：预算模式切换（日预算 / 总预算）
+    function toggleCampaignBudgetMode() {
+      const selected = document.querySelector('input[name="campaignBudgetMode"]:checked').value;
+      const daily = document.getElementById('dailyBudgetSetting');
+      const total = document.getElementById('totalBudgetSetting');
+      if (selected === 'daily') {
+        if (daily) daily.style.display = 'block';
+        if (total) total.style.display = 'none';
+      } else {
+        if (daily) daily.style.display = 'none';
+        if (total) total.style.display = 'block';
+      }
+    }
+
+    // ASC广告组成效目标变化处理
+    function onAscOptimizationGoalChange() {
+      const optimizationGoal = document.getElementById('ascOptimizationGoal').value;
+      const conversionEventSetting = document.getElementById('ascConversionEventSetting');
+      
+      if (optimizationGoal === 'conversions') {
+        // 转化量最大化时显示转化事件
+        conversionEventSetting.style.display = 'block';
+      } else {
+        // 转化价值最大化时隐藏转化事件
+        conversionEventSetting.style.display = 'none';
+        // 清空转化事件选择
+        document.getElementById('ascConversionEvent').value = '';
+      }
+    }
+
+    // 切换ASC广告组花费限额
+    function toggleAscAdsetBudgetLimit() {
+      const budgetLimitCheckbox = document.getElementById('ascAdsetBudgetLimit');
+      const budgetLimitSettings = document.getElementById('ascAdsetBudgetLimitSettings');
+      
+      if (budgetLimitCheckbox.checked) {
+        budgetLimitSettings.style.display = 'block';
+        // 设置必填验证
+        document.getElementById('ascAdsetBudgetMin').required = true;
+        document.getElementById('ascAdsetBudgetMax').required = true;
+      } else {
+        budgetLimitSettings.style.display = 'none';
+        // 清除必填验证
+        document.getElementById('ascAdsetBudgetMin').required = false;
+        document.getElementById('ascAdsetBudgetMax').required = false;
+        // 清空输入值
+        document.getElementById('ascAdsetBudgetMin').value = '';
+        document.getElementById('ascAdsetBudgetMax').value = '';
+      }
+    }
+
+    // 模版筛选功能
+    function filterTemplates(type) {
+      // 更新筛选按钮状态
+      document.querySelectorAll('.template-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('filter-' + type).classList.add('active');
+      
+      // 筛选模版卡片
+      const templateCards = document.querySelectorAll('.template-card');
+      templateCards.forEach(card => {
+        const cardType = card.getAttribute('data-type');
+        if (type === 'all' || cardType === type) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // 编辑模版时禁用广告类型选择
+    function openTemplateModal(mode, templateId = null) {
+      document.getElementById('templateModalTitle').textContent = mode === 'create' ? '创建模版' : '编辑模版';
+      document.getElementById('templateContent').innerHTML = getTemplateFormContent(mode, templateId);
+      
+      // 编辑模式下禁用广告类型选择
+      if (mode === 'edit') {
+        const adTypeSelect = document.getElementById('adTypeSelect');
+        if (adTypeSelect) {
+          adTypeSelect.disabled = true;
+          adTypeSelect.style.backgroundColor = '#374151';
+          adTypeSelect.style.color = '#9CA3AF';
+        }
+      }
+      
+      openModal('templateModal');
     }
   </script>
 </body>
