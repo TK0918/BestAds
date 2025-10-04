@@ -232,6 +232,10 @@
                   </p>
                 </div>
                 <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                  <button onclick="updateAllBalances()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>更新全部余额</span>
+                  </button>
                   <button onclick="openAddAgent()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-plus"></i>
                     <span>新增代理</span>
@@ -257,6 +261,10 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">业务对接方式</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">服务费率</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">费率状态</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">代理余额</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">余额更新时间</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">余额提醒</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提醒间隔</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">修改人</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
@@ -314,6 +322,65 @@
               </select>
             </div>
           </div>
+          
+          <!-- 余额提醒设置 -->
+          <div class="mt-6 border-t border-gray-200 pt-6">
+            <h4 class="text-lg font-medium text-gray-900 mb-4">余额提醒设置</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <div class="flex items-center">
+                  <input type="checkbox" name="balanceReminderEnabled" id="balanceReminderEnabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                  <label for="balanceReminderEnabled" class="ml-2 block text-sm font-medium text-gray-700">
+                    启用余额提醒
+                  </label>
+                </div>
+              </div>
+              <div id="reminderSettings" class="md:col-span-2 hidden">
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">提醒间隔 *</label>
+                  <select name="reminderInterval" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="hourly">每小时</option>
+                    <option value="2hours">每2小时</option>
+                    <option value="4hours">每4小时</option>
+                    <option value="6hours">每6小时</option>
+                    <option value="12hours">每12小时</option>
+                    <option value="daily">每天</option>
+                  </select>
+                </div>
+                
+                <div class="mb-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <label class="block text-sm font-medium text-gray-700">余额提醒阈值范围 *</label>
+                    <button type="button" onclick="addThresholdRange('add')" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                      <i class="fas fa-plus mr-1"></i>
+                      添加范围
+                    </button>
+                  </div>
+                  <div id="thresholdRanges" class="space-y-3">
+                    <!-- 默认范围 -->
+                    <div class="threshold-range border border-gray-200 rounded-lg p-3 bg-gray-50">
+                      <div class="flex items-center space-x-3">
+                        <div class="flex-1">
+                          <label class="block text-xs font-medium text-gray-600 mb-1">上限 (小于等于)</label>
+                          <input type="number" name="rangeMaxs[]" step="0.01" min="0" placeholder="100000" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div class="flex-1">
+                          <label class="block text-xs font-medium text-gray-600 mb-1">下限 (大于)</label>
+                          <input type="number" name="rangeMins[]" step="0.01" min="0" placeholder="50000" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-end">
+                          <button type="button" onclick="removeThresholdRange(this)" class="text-red-600 hover:text-red-800 p-1">
+                            <i class="fas fa-trash text-sm"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-2">提示：可以设置多个余额范围，当余额落入某个范围时会发送提醒通知</p>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="flex justify-end space-x-3 mt-6">
             <button type="button" onclick="closeModal('addAgentModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
             <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">确认新增</button>
@@ -366,6 +433,65 @@
               </select>
             </div>
           </div>
+          
+          <!-- 余额提醒设置 -->
+          <div class="mt-6 border-t border-gray-200 pt-6">
+            <h4 class="text-lg font-medium text-gray-900 mb-4">余额提醒设置</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <div class="flex items-center">
+                  <input type="checkbox" name="balanceReminderEnabled" id="editBalanceReminderEnabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                  <label for="editBalanceReminderEnabled" class="ml-2 block text-sm font-medium text-gray-700">
+                    启用余额提醒
+                  </label>
+                </div>
+              </div>
+              <div id="editReminderSettings" class="md:col-span-2 hidden">
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">提醒间隔 *</label>
+                  <select name="reminderInterval" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="hourly">每小时</option>
+                    <option value="2hours">每2小时</option>
+                    <option value="4hours">每4小时</option>
+                    <option value="6hours">每6小时</option>
+                    <option value="12hours">每12小时</option>
+                    <option value="daily">每天</option>
+                  </select>
+                </div>
+                
+                <div class="mb-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <label class="block text-sm font-medium text-gray-700">余额提醒阈值范围 *</label>
+                    <button type="button" onclick="addThresholdRange('edit')" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                      <i class="fas fa-plus mr-1"></i>
+                      添加范围
+                    </button>
+                  </div>
+                  <div id="editThresholdRanges" class="space-y-3">
+                    <!-- 默认范围 -->
+                    <div class="threshold-range border border-gray-200 rounded-lg p-3 bg-gray-50">
+                      <div class="flex items-center space-x-3">
+                        <div class="flex-1">
+                          <label class="block text-xs font-medium text-gray-600 mb-1">上限 (小于等于)</label>
+                          <input type="number" name="rangeMaxs[]" step="0.01" min="0" placeholder="100000" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div class="flex-1">
+                          <label class="block text-xs font-medium text-gray-600 mb-1">下限 (大于)</label>
+                          <input type="number" name="rangeMins[]" step="0.01" min="0" placeholder="50000" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-end">
+                          <button type="button" onclick="removeThresholdRange(this)" class="text-red-600 hover:text-red-800 p-1">
+                            <i class="fas fa-trash text-sm"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-2">提示：可以设置多个余额范围，当余额落入某个范围时会发送提醒通知</p>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="flex justify-end space-x-3 mt-6">
             <button type="button" onclick="closeModal('editAgentModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
             <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">保存修改</button>
@@ -378,15 +504,66 @@
   <script>
     // 模拟数据
     let agentsData = [
-      { id: 'A001', agentName: '蓝标', agentNameEn: 'Madhouse', integrationType: 'api', serviceFee: 3.50, feeStatus: 'active', updateTime: '2025-08-01 10:00', updatedBy: '管理员' },
-      { id: 'A002', agentName: '省广', agentNameEn: 'MIGC', integrationType: 'system', serviceFee: 2.00, feeStatus: 'inactive', updateTime: '2025-08-10 14:20', updatedBy: '李四' }
+      { 
+        id: 'A001', 
+        agentName: '蓝标', 
+        agentNameEn: 'Madhouse', 
+        integrationType: 'api', 
+        serviceFee: 3.50, 
+        feeStatus: 'active', 
+        balance: 12500.50,
+        balanceUpdateTime: '2025-01-15 14:30',
+        balanceReminderEnabled: true,
+        reminderThresholds: [
+          { min: 0, max: 9999 },
+          { min: 10000, max: 19999 },
+          { min: 20000, max: 49999 },
+          { min: 50000, max: 99999 },
+          { min: 100000, max: 999999 }
+        ],
+        reminderInterval: 'daily',
+        updateTime: '2025-08-01 10:00', 
+        updatedBy: '管理员' 
+      },
+      { 
+        id: 'A002', 
+        agentName: '省广', 
+        agentNameEn: 'MIGC', 
+        integrationType: 'system', 
+        serviceFee: 2.00, 
+        feeStatus: 'inactive', 
+        balance: 8500.00,
+        balanceUpdateTime: '2025-01-15 09:15',
+        balanceReminderEnabled: false,
+        reminderThresholds: [],
+        reminderInterval: 'daily',
+        updateTime: '2025-08-10 14:20', 
+        updatedBy: '李四' 
+      }
     ];
 
     const integrationTypeMap = { api: '代理API', system: '代理系统', platform: '官方API' };
     const feeStatusMap = { active: '启用', inactive: '停用' };
+    const reminderIntervalMap = { 
+      hourly: '每小时', 
+      '2hours': '每2小时', 
+      '4hours': '每4小时', 
+      '6hours': '每6小时', 
+      '12hours': '每12小时', 
+      daily: '每天' 
+    };
 
     document.addEventListener('DOMContentLoaded', () => {
       renderAgentTable();
+      
+      // 添加余额提醒开关事件监听器
+      document.getElementById('balanceReminderEnabled').addEventListener('change', function() {
+        toggleReminderSettings('reminderSettings', this.checked);
+      });
+      
+      document.getElementById('editBalanceReminderEnabled').addEventListener('change', function() {
+        toggleReminderSettings('editReminderSettings', this.checked);
+      });
     });
 
     function renderAgentTable() {
@@ -405,6 +582,14 @@
               ${feeStatusMap[agent.feeStatus] || agent.feeStatus}
             </span>
           </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">¥${agent.balance.toLocaleString()}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${agent.balanceUpdateTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${agent.balanceReminderEnabled ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
+              ${agent.balanceReminderEnabled ? '启用' : '停用'}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agent.balanceReminderEnabled ? reminderIntervalMap[agent.reminderInterval] : '-'}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${agent.updateTime}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agent.updatedBy}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -429,6 +614,46 @@
       form.integrationType.value = agent.integrationType;
       form.serviceFee.value = agent.serviceFee;
       form.feeStatus.value = agent.feeStatus;
+      
+      // 设置余额提醒相关字段
+      form.balanceReminderEnabled.checked = agent.balanceReminderEnabled;
+      form.reminderInterval.value = agent.reminderInterval || 'daily';
+      
+      // 清空并重新填充阈值范围
+      const container = document.getElementById('editThresholdRanges');
+      container.innerHTML = '';
+      
+      if (agent.balanceReminderEnabled && agent.reminderThresholds && agent.reminderThresholds.length > 0) {
+        agent.reminderThresholds.forEach((range, index) => {
+          const rangeDiv = document.createElement('div');
+          rangeDiv.className = 'threshold-range border border-gray-200 rounded-lg p-3 bg-gray-50';
+          rangeDiv.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <div class="flex-1">
+                <label class="block text-xs font-medium text-gray-600 mb-1">上限 (小于等于)</label>
+                <input type="number" name="rangeMaxs[]" value="${range.max}" step="0.01" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+              </div>
+              <div class="flex-1">
+                <label class="block text-xs font-medium text-gray-600 mb-1">下限 (大于)</label>
+                <input type="number" name="rangeMins[]" value="${range.min}" step="0.01" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+              </div>
+              <div class="flex items-end">
+                <button type="button" onclick="removeThresholdRange(this)" class="text-red-600 hover:text-red-800 p-1">
+                  <i class="fas fa-trash text-sm"></i>
+                </button>
+              </div>
+            </div>
+          `;
+          container.appendChild(rangeDiv);
+        });
+      } else {
+        // 添加一个默认范围
+        addThresholdRange('edit');
+      }
+      
+      // 显示或隐藏提醒设置
+      toggleReminderSettings('editReminderSettings', agent.balanceReminderEnabled);
+      
       document.getElementById('editAgentModal').classList.remove('hidden');
     }
 
@@ -436,9 +661,81 @@
       document.getElementById(modalId).classList.add('hidden');
     }
 
+    function toggleReminderSettings(settingsId, enabled) {
+      const settings = document.getElementById(settingsId);
+      if (enabled) {
+        settings.classList.remove('hidden');
+        // 设置必填属性
+        const intervalSelect = settings.querySelector('select[name="reminderInterval"]');
+        if (intervalSelect) intervalSelect.required = true;
+      } else {
+        settings.classList.add('hidden');
+        // 移除必填属性
+        const intervalSelect = settings.querySelector('select[name="reminderInterval"]');
+        if (intervalSelect) intervalSelect.required = false;
+      }
+    }
+
+    function addThresholdRange(modalType) {
+      const containerId = modalType === 'edit' ? 'editThresholdRanges' : 'thresholdRanges';
+      const container = document.getElementById(containerId);
+      
+      const rangeDiv = document.createElement('div');
+      rangeDiv.className = 'threshold-range border border-gray-200 rounded-lg p-3 bg-gray-50';
+      rangeDiv.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-gray-600 mb-1">上限 (小于等于)</label>
+            <input type="number" name="rangeMaxs[]" step="0.01" min="0" placeholder="100000" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-gray-600 mb-1">下限 (大于)</label>
+            <input type="number" name="rangeMins[]" step="0.01" min="0" placeholder="50000" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+          </div>
+          <div class="flex items-end">
+            <button type="button" onclick="removeThresholdRange(this)" class="text-red-600 hover:text-red-800 p-1">
+              <i class="fas fa-trash text-sm"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      container.appendChild(rangeDiv);
+    }
+
+    function removeThresholdRange(button) {
+      const rangeDiv = button.closest('.threshold-range');
+      const container = rangeDiv.parentNode;
+      
+      // 至少保留一个范围
+      if (container.children.length > 1) {
+        rangeDiv.remove();
+      } else {
+        showToast('至少需要保留一个阈值范围');
+      }
+    }
+
     function submitAddAgent(event) {
       event.preventDefault();
       const formData = new FormData(event.target);
+      const balanceReminderEnabled = formData.get('balanceReminderEnabled') === 'on';
+      
+      // 处理多阈值范围
+      const reminderThresholds = [];
+      if (balanceReminderEnabled) {
+        const rangeMaxs = formData.getAll('rangeMaxs[]');
+        const rangeMins = formData.getAll('rangeMins[]');
+        
+        for (let i = 0; i < rangeMaxs.length; i++) {
+          if (rangeMaxs[i] && rangeMins[i]) {
+            reminderThresholds.push({
+              min: parseFloat(rangeMins[i]),
+              max: parseFloat(rangeMaxs[i])
+            });
+          }
+        }
+      }
+      
       const newAgent = {
         id: 'A' + String(Math.floor(Math.random() * 9000) + 1000),
         agentName: formData.get('agentName'),
@@ -446,6 +743,11 @@
         integrationType: formData.get('integrationType'),
         serviceFee: parseFloat(formData.get('serviceFee')),
         feeStatus: formData.get('feeStatus'),
+        balance: 0,
+        balanceUpdateTime: new Date().toLocaleString('zh-CN'),
+        balanceReminderEnabled: balanceReminderEnabled,
+        reminderThresholds: reminderThresholds,
+        reminderInterval: balanceReminderEnabled ? formData.get('reminderInterval') : 'daily',
         updateTime: new Date().toLocaleString('zh-CN'),
         updatedBy: '管理员'
       };
@@ -460,6 +762,24 @@
       event.preventDefault();
       const formData = new FormData(event.target);
       const id = formData.get('agentId');
+      const balanceReminderEnabled = formData.get('balanceReminderEnabled') === 'on';
+      
+      // 处理多阈值范围
+      const reminderThresholds = [];
+      if (balanceReminderEnabled) {
+        const rangeMaxs = formData.getAll('rangeMaxs[]');
+        const rangeMins = formData.getAll('rangeMins[]');
+        
+        for (let i = 0; i < rangeMaxs.length; i++) {
+          if (rangeMaxs[i] && rangeMins[i]) {
+            reminderThresholds.push({
+              min: parseFloat(rangeMins[i]),
+              max: parseFloat(rangeMaxs[i])
+            });
+          }
+        }
+      }
+      
       const idx = agentsData.findIndex(a => a.id === id);
       if (idx !== -1) {
         agentsData[idx].agentName = formData.get('agentName');
@@ -467,6 +787,9 @@
         agentsData[idx].integrationType = formData.get('integrationType');
         agentsData[idx].serviceFee = parseFloat(formData.get('serviceFee'));
         agentsData[idx].feeStatus = formData.get('feeStatus');
+        agentsData[idx].balanceReminderEnabled = balanceReminderEnabled;
+        agentsData[idx].reminderThresholds = reminderThresholds;
+        agentsData[idx].reminderInterval = balanceReminderEnabled ? formData.get('reminderInterval') : 'daily';
         agentsData[idx].updateTime = new Date().toLocaleString('zh-CN');
         agentsData[idx].updatedBy = '管理员';
       }
@@ -512,6 +835,37 @@
         this.classList.add('active');
       });
     });
+
+    function updateAllBalances() {
+      // 显示加载状态
+      const button = event.target;
+      const originalText = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>更新中...</span>';
+      button.disabled = true;
+      
+      // 模拟API调用延迟
+      setTimeout(() => {
+        const currentTime = new Date().toLocaleString('zh-CN');
+        
+        // 更新所有代理的余额（模拟从API获取最新余额）
+        agentsData.forEach(agent => {
+          // 模拟不同的余额变化
+          const randomChange = (Math.random() - 0.5) * 2000; // -1000 到 +1000 的随机变化
+          agent.balance = Math.max(0, agent.balance + randomChange);
+          agent.balanceUpdateTime = currentTime;
+        });
+        
+        // 重新渲染表格
+        renderAgentTable();
+        
+        // 恢复按钮状态
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+        // 显示成功提示
+        showToast('所有代理余额已更新');
+      }, 1500);
+    }
 
     function showToast(message) {
       const toast = document.createElement('div');
