@@ -18,6 +18,8 @@
     .sheet.show { bottom: 0; }
     .sheet-handle { width: 44px; height: 4px; border-radius: 9999px; background: #E5E7EB; margin: 10px auto; }
     .tab-active { color: #00FFB0; }
+    .filter-btn.active { background: #00FFB0; color: #000; }
+    .filter-btn:not(.active) { background: #F3F4F6; color: #111827; }
     .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; height: 58px; background: #FFFFFF; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-around; align-items: center; z-index: 40; }
     .bottom-nav .nav-btn { padding: 6px 10px; border-radius: 10px; color: #6B7280; }
     .bottom-nav .nav-btn i { padding: 6px; border-radius: 8px; transition: background .2s ease, color .2s ease; }
@@ -43,6 +45,8 @@
     body.theme-dark .btn-secondary { background: #1F2937; color: #F8FAFC; }
     body.theme-dark .input { background: #0F172A; border-color: #334155; color: #F8FAFC; }
     body.theme-dark .status-inactive { background: #4B5563; }
+    body.theme-dark .filter-btn.active { background: #00FFB0; color: #000; }
+    body.theme-dark .filter-btn:not(.active) { background: #1F2937; color: #F8FAFC; }
     /* 常用灰色文字在深色下的可读性优化 */
     body.theme-dark .text-gray-500 { color: #9CA3AF !important; }
     body.theme-dark .text-gray-400 { color: #94A3B8 !important; }
@@ -163,9 +167,11 @@
     <!-- 页面：记录 -->
     <section id="page-records" class="page">
       <div class="card p-3">
-        <div class="grid grid-cols-2 gap-2 text-sm">
-          <button id="i18n_tab_recharge" class="btn-secondary py-2 tab-active" onclick="switchRecordTab('recharge')">充值记录</button>
-          <button id="i18n_tab_withdraw" class="btn-secondary py-2" onclick="switchRecordTab('withdraw')">减款记录</button>
+        <div class="flex flex-wrap gap-2 text-sm">
+          <button class="btn-secondary py-2 px-3 filter-btn active" data-type="all" onclick="switchRecordFilter('all')">全部</button>
+          <button class="btn-secondary py-2 px-3 filter-btn" data-type="recharge" onclick="switchRecordFilter('recharge')">充值</button>
+          <button class="btn-secondary py-2 px-3 filter-btn" data-type="withdraw" onclick="switchRecordFilter('withdraw')">减款</button>
+          <button class="btn-secondary py-2 px-3 filter-btn" data-type="clear" onclick="switchRecordFilter('clear')">清零</button>
         </div>
       </div>
       <div class="mt-3">
@@ -357,11 +363,13 @@
         account_balance: '余额',
         account_status: '状态',
         account_recharge: '充值',
-        account_withdraw: '减款',
+        account_clear: '清零',
         
         // 记录页面
-        tab_recharge: '充值记录',
-        tab_withdraw: '减款记录',
+        filter_all: '全部',
+        filter_recharge: '充值',
+        filter_withdraw: '减款',
+        filter_clear: '清零',
         records_search_placeholder: '搜索账户ID/名称',
         
         // 报告页面
@@ -425,11 +433,13 @@
         account_balance: 'Balance',
         account_status: 'Status',
         account_recharge: 'Recharge',
-        account_withdraw: 'Withdraw',
+        account_clear: 'Clear',
         
         // Records page
-        tab_recharge: 'Recharge Records',
-        tab_withdraw: 'Withdraw Records',
+        filter_all: 'All',
+        filter_recharge: 'Recharge',
+        filter_withdraw: 'Withdraw',
+        filter_clear: 'Clear',
         records_search_placeholder: 'Search by Account ID/Name',
         
         // Reports page
@@ -469,18 +479,18 @@
     // 数据源（示例）
     const wallet = { available: 7900.00, real: 3000.00, frozen: 100.00, creditLimit: 5000.00, creditUsed: 0.00 };
     const accounts = [
-      { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active' },
-      { id: 'FB001234568', name: '测试广告账户02', currency: 'USD', balance: 850.75, timezone: 'UTC+8', status: 'active' },
-      { id: 'FB001234569', name: '测试广告账户03', currency: 'USD', balance: 2150.00, timezone: 'UTC+0', status: 'pending' },
-      { id: 'GG001234570', name: 'Google广告账户01', currency: 'USD', balance: 530.25, timezone: 'UTC-5', status: 'active' },
-      { id: 'FB001234571', name: 'Facebook跨境电商账户', currency: 'USD', balance: 2150.80, timezone: 'UTC+8', status: 'active' },
-      { id: 'FB001234572', name: 'Facebook游戏推广账户', currency: 'USD', balance: 675.30, timezone: 'UTC+8', status: 'active' },
-      { id: 'GG001234573', name: 'Google搜索广告账户', currency: 'USD', balance: 1320.45, timezone: 'UTC-5', status: 'active' },
-      { id: 'FB001234575', name: 'Facebook品牌推广账户', currency: 'EUR', balance: 435.90, timezone: 'UTC+1', status: 'inactive' }
+      { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active', canClear: true },
+      { id: 'FB001234568', name: '测试广告账户02', currency: 'USD', balance: 850.75, timezone: 'UTC+8', status: 'active', canClear: true },
+      { id: 'FB001234569', name: '测试广告账户03', currency: 'USD', balance: 2150.00, timezone: 'UTC+0', status: 'pending', canClear: false },
+      { id: 'GG001234570', name: 'Google广告账户01', currency: 'USD', balance: 530.25, timezone: 'UTC-5', status: 'active', canClear: true },
+      { id: 'FB001234571', name: 'Facebook跨境电商账户', currency: 'USD', balance: 2150.80, timezone: 'UTC+8', status: 'active', canClear: true },
+      { id: 'FB001234572', name: 'Facebook游戏推广账户', currency: 'USD', balance: 675.30, timezone: 'UTC+8', status: 'active', canClear: false },
+      { id: 'GG001234573', name: 'Google搜索广告账户', currency: 'USD', balance: 1320.45, timezone: 'UTC-5', status: 'active', canClear: true },
+      { id: 'FB001234575', name: 'Facebook品牌推广账户', currency: 'EUR', balance: 435.90, timezone: 'UTC+1', status: 'inactive', canClear: false }
     ];
 
     // 记录（示例 + 本地存储）
-    const STORAGE_KEYS = { recharge: 'h5_recharge_records', withdraw: 'h5_withdraw_records', wallet: 'h5_wallet_records' };
+    const STORAGE_KEYS = { recharge: 'h5_recharge_records', withdraw: 'h5_withdraw_records', clear: 'h5_clear_records', wallet: 'h5_wallet_records' };
     let rechargeRecords = loadRecords(STORAGE_KEYS.recharge, [
       { id: 'RCG003', time: '2024-02-16 14:20', accountId: 'FB001234569', accountName: '游戏推广账户01', amount: 800.00, currency: 'USD', status: '成功', completeTime: '2024-02-16 14:35' },
       { id: 'RCG001', time: '2024-02-15 16:45', accountId: 'FB001234567', accountName: '跨境电商账户01', amount: 500.00, currency: 'USD', status: '成功', completeTime: '2024-02-15 17:00' },
@@ -489,6 +499,10 @@
     let withdrawRecords = loadRecords(STORAGE_KEYS.withdraw, [
       { id: 'WDW001', time: '2024-02-16 15:30', accountId: 'FB001234569', accountName: '游戏推广账户01', amount: 300.00, currency: 'USD', status: '成功', completeTime: '2024-02-16 15:45' },
       { id: 'WDW002', time: '2024-02-15 14:20', accountId: 'FB001234567', accountName: '跨境电商账户01', amount: 200.00, currency: 'USD', status: '处理中', completeTime: '' }
+    ]);
+    let clearRecords = loadRecords(STORAGE_KEYS.clear, [
+      { id: 'CLR001', time: '2024-02-16 16:30', accountId: 'FB001234571', accountName: 'Facebook跨境电商账户', amount: 2150.80, currency: 'USD', status: '成功', completeTime: '2024-02-16 16:45' },
+      { id: 'CLR002', time: '2024-02-15 13:15', accountId: 'GG001234570', accountName: 'Google广告账户01', amount: 530.25, currency: 'USD', status: '处理中', completeTime: '' }
     ]);
     
     // 钱包充值转账记录
@@ -591,7 +605,9 @@
             </div>
             <div class="flex flex-col gap-2 min-w-[92px]">
               <button class="btn-primary px-3 py-2 text-sm font-semibold" onclick="openSheet('recharge','${a.id}')">${lang.account_recharge}</button>
-              <button class="btn-secondary px-3 py-2 text-sm" onclick="openSheet('withdraw','${a.id}')">${lang.account_withdraw}</button>
+              <button class="btn-secondary px-3 py-2 text-sm ${!a.canClear ? 'opacity-50 cursor-not-allowed' : ''}" 
+                      onclick="${a.canClear ? `openClearConfirm('${a.id}')` : ''}" 
+                      ${!a.canClear ? 'disabled' : ''}>${lang.account_clear}</button>
             </div>
           </div>
         </div>
@@ -601,20 +617,28 @@
     function clearSearch() { const i = document.getElementById('searchInput'); i.value=''; renderAccounts(); }
 
     // 记录渲染
-    let currentRecordTab = 'recharge';
-    function switchRecordTab(type) {
-      currentRecordTab = type;
-      const btnR = document.getElementById('i18n_tab_recharge');
-      const btnW = document.getElementById('i18n_tab_withdraw');
-      if (btnR && btnW) {
-        btnR.classList.toggle('tab-active', type==='recharge');
-        btnW.classList.toggle('tab-active', type==='withdraw');
-      }
+    let currentRecordFilter = 'all';
+    function switchRecordFilter(type) {
+      currentRecordFilter = type;
+      // 更新筛选按钮状态
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-type') === type);
+      });
       renderRecords();
     }
 
     function renderRecords() {
-      const list = currentRecordTab === 'recharge' ? rechargeRecords : withdrawRecords;
+      let list = [];
+      if (currentRecordFilter === 'all') {
+        list = [...rechargeRecords, ...withdrawRecords, ...clearRecords];
+      } else if (currentRecordFilter === 'recharge') {
+        list = rechargeRecords;
+      } else if (currentRecordFilter === 'withdraw') {
+        list = withdrawRecords;
+      } else if (currentRecordFilter === 'clear') {
+        list = clearRecords;
+      }
+      
       const wrap = document.getElementById('recordList');
       const kw = (window.__recordSearchKw || '').toLowerCase();
       const lang = i18n[currentLang];
@@ -622,15 +646,18 @@
         if (currentLang === 'zh') return s;
         return ({'成功':'Success','处理中':'Processing','失败':'Failed'}[s] || s);
       };
+      
       const filtered = !kw ? list : list.filter(r =>
         (r.accountId || '').toLowerCase().includes(kw) || (r.accountName || '').toLowerCase().includes(kw)
       );
+      
       if (!filtered.length) {
         const emptyText = currentLang === 'zh'
-          ? `暂无${currentRecordTab==='recharge'?'充值':'减款'}记录`
-          : (currentRecordTab==='recharge'?'No recharge records':'No withdraw records');
+          ? `暂无${currentRecordFilter==='all'?'':'记录'}`
+          : (currentRecordFilter==='all'?'No records':'No records');
         wrap.innerHTML = `<div class=\"text-center text-gray-500 text-sm\">${emptyText}</div>`; return;
       }
+      
       wrap.innerHTML = filtered.map(r => `
         <div class="card p-3">
           <div class="flex items-center justify-between">
@@ -652,6 +679,60 @@
     function updateRecordSearch(val) {
       window.__recordSearchKw = (val || '').trim();
       renderRecords();
+    }
+
+    // 清零相关函数
+    function openClearConfirm(accountId) {
+      const acc = accounts.find(a => a.id === accountId);
+      if (!acc || !acc.canClear) return;
+      
+      document.getElementById('clearAccountName').textContent = acc.name;
+      document.getElementById('clearAccountId').textContent = acc.id;
+      document.getElementById('clearCurrency').textContent = acc.currency;
+      document.getElementById('clearBalance').textContent = formatAmount(acc.balance);
+      
+      // 存储当前要清零的账户ID
+      window.__pendingClearAccountId = accountId;
+      
+      openModal('clearConfirmModal');
+    }
+
+    function confirmClear() {
+      const accountId = window.__pendingClearAccountId;
+      if (!accountId) return;
+      
+      const acc = accounts.find(a => a.id === accountId);
+      if (!acc || !acc.canClear) return;
+
+      // 更新账户余额为0
+      const clearAmount = acc.balance;
+      acc.balance = 0;
+      
+      // 更新钱包余额
+      wallet.available = round2(wallet.available + clearAmount);
+
+      // 创建清零记录
+      const now = formatNow();
+      const clearRecord = { 
+        id: makeId('CLR'), 
+        time: now, 
+        accountId: acc.id, 
+        accountName: acc.name, 
+        amount: clearAmount, 
+        currency: acc.currency, 
+        status: '成功', 
+        completeTime: now 
+      };
+      clearRecords.unshift(clearRecord);
+      saveRecords(STORAGE_KEYS.clear, clearRecords);
+
+      // 更新UI
+      renderAccounts();
+      updateWalletUI();
+      if (document.getElementById('page-records').classList.contains('active')) renderRecords();
+      
+      closeModal('clearConfirmModal');
+      notify(`账户清零成功：${acc.currency} ${formatAmount(clearAmount)}`, 'success');
     }
 
     // 报告页数据与渲染
@@ -802,7 +883,7 @@
       pendingAction = { type, accountId };
       const acc = accounts.find(a => a.id === accountId);
       if (!acc) return;
-      document.getElementById('sheetTitle').textContent = (type==='recharge' ? '充值' : '减款') + ' · 金额设置';
+      document.getElementById('sheetTitle').textContent = '充值 · 金额设置';
       document.getElementById('sheetAccountName').textContent = acc.name;
       document.getElementById('sheetAccountId').textContent = acc.id;
       document.getElementById('sheetCurrency').textContent = acc.currency;
@@ -818,32 +899,18 @@
       if (!amount || amount < 10) { return notify('金额不能少于 10', 'warning'); }
       const acc = accounts.find(a => a.id === pendingAction.accountId);
       if (!acc) return;
-      if (pendingAction.type === 'withdraw' && amount > acc.balance) { return notify('减款金额不能超过账户当前余额', 'error'); }
 
       // 更新余额（本地演示）+ 钱包联动
-      if (pendingAction.type === 'recharge') {
-        acc.balance = round2(acc.balance + amount);
-        wallet.available = Math.max(0, round2(wallet.available - amount));
-        wallet.frozen = round2(wallet.frozen + amount);
-      }
-      if (pendingAction.type === 'withdraw') {
-        acc.balance = round2(acc.balance - amount);
-        wallet.available = round2(wallet.available + amount);
-      }
+      acc.balance = round2(acc.balance + amount);
+      wallet.available = Math.max(0, round2(wallet.available - amount));
+      wallet.frozen = round2(wallet.frozen + amount);
 
       // 写入记录
       const now = formatNow();
-      if (pendingAction.type === 'recharge') {
-        const rec = { id: makeId('RCG'), time: now, accountId: acc.id, accountName: acc.name, amount, currency: acc.currency, status: '处理中', completeTime: '' };
-        rechargeRecords.unshift(rec);
-        saveRecords(STORAGE_KEYS.recharge, rechargeRecords);
-        notify(`充值提交成功：${acc.currency} ${formatAmount(amount)}`, 'success');
-      } else {
-        const rec = { id: makeId('WDW'), time: now, accountId: acc.id, accountName: acc.name, amount, currency: acc.currency, status: '处理中', completeTime: '' };
-        withdrawRecords.unshift(rec);
-        saveRecords(STORAGE_KEYS.withdraw, withdrawRecords);
-        notify(`减款提交成功：${acc.currency} ${formatAmount(amount)}`, 'success');
-      }
+      const rec = { id: makeId('RCG'), time: now, accountId: acc.id, accountName: acc.name, amount, currency: acc.currency, status: '处理中', completeTime: '' };
+      rechargeRecords.unshift(rec);
+      saveRecords(STORAGE_KEYS.recharge, rechargeRecords);
+      notify(`充值提交成功：${acc.currency} ${formatAmount(amount)}`, 'success');
 
       renderAccounts();
       updateWalletUI();
@@ -1002,6 +1069,37 @@
     </div>
   </div>
 
+  <!-- 清零确认弹窗 -->
+  <div id="clearConfirmModal" class="fixed inset-0 bg-black bg-opacity-30 hidden z-50">
+    <div class="flex items-end min-h-screen">
+      <div class="w-full sheet show" style="bottom:0;">
+        <div class="sheet-handle"></div>
+        <div class="px-4 pb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-semibold">确认清零</h3>
+            <button class="text-gray-500" onclick="closeModal('clearConfirmModal')"><i class="fas fa-times text-lg"></i></button>
+          </div>
+          <div class="card p-3 space-y-3">
+            <div class="text-sm text-gray-400">
+              <div>账户：<span id="clearAccountName" class="text-white"></span></div>
+              <div>ID：<span id="clearAccountId" class="text-white"></span></div>
+              <div>币种：<span id="clearCurrency" class="text-white"></span></div>
+              <div>当前余额：<span id="clearBalance" class="text-white"></span></div>
+            </div>
+            <div class="text-sm text-gray-300">
+              <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>
+              清零后将把账户余额全部清空，金额将返回您的钱包。此操作不可撤销，请确认是否继续？
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-primary flex-1 py-3 font-semibold" onclick="confirmClear()">确认清零</button>
+              <button class="btn-secondary flex-1 py-3" onclick="closeModal('clearConfirmModal')">取消</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 在线充值弹层（增强字段，与Web保持一致语义） -->
   <div id="onlineRechargeModal" class="fixed inset-0 bg-black bg-opacity-30 hidden z-50">
     <div class="flex items-end min-h-screen">
@@ -1089,9 +1187,15 @@
       const rt1 = document.getElementById('rankTabMonth'); if (rt1) rt1.textContent = lang.rank_month;
       const rt2 = document.getElementById('rankTabYesterday'); if (rt2) rt2.textContent = lang.rank_yesterday;
       
-      // 更新记录页面标签
-      const t1 = document.getElementById('i18n_tab_recharge'); if (t1) t1.textContent = lang.tab_recharge;
-      const t2 = document.getElementById('i18n_tab_withdraw'); if (t2) t2.textContent = lang.tab_withdraw;
+      // 更新记录页面筛选按钮
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      filterButtons.forEach(btn => {
+        const type = btn.getAttribute('data-type');
+        if (type === 'all') btn.textContent = lang.filter_all;
+        else if (type === 'recharge') btn.textContent = lang.filter_recharge;
+        else if (type === 'withdraw') btn.textContent = lang.filter_withdraw;
+        else if (type === 'clear') btn.textContent = lang.filter_clear;
+      });
 
       // 更新钱包操作按钮与登出
       const btnOnline = document.getElementById('i18n_btn_online_recharge');

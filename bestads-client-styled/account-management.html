@@ -345,6 +345,10 @@
               <i class="fas fa-minus-circle"></i>
               <span>批量减款</span>
             </button>
+            <button onclick="openModal('batchClear')" class="btn-secondary text-sm font-medium flex items-center space-x-2">
+              <i class="fas fa-eraser"></i>
+              <span>批量清零</span>
+            </button>
           </div>
       </div>
       <div class="overflow-x-auto">
@@ -1409,6 +1413,195 @@
     </div>
   </div>
 
+  <!-- 批量清零申请模态框 -->
+  <div id="batchClearModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">批量清零</h3>
+            <button onclick="closeModal('batchClearModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" id="batchClearForm">
+          <div class="space-y-6">
+            <!-- 账户选择区域 -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <label class="block text-sm font-medium text-gray-700">选择清零账户</label>
+              </div>
+              
+              <!-- 搜索框 -->
+              <div class="mb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                      </div>
+                      <input type="text" id="clearAccountSearch" placeholder="支持对账户ID和名称进行搜索" 
+                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                             oninput="filterClearAccounts(this.value)">
+                      <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button type="button" onclick="clearClearSearch()" class="text-gray-400 hover:text-gray-600" id="clearClearSearchBtn" style="display: none;">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- 全选/取消全选和已选中账户数 -->
+                <div class="flex flex-wrap items-center justify-between gap-2 mt-3 text-sm text-gray-600">
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="selectAllClearAccounts()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      <i class="fas fa-check-square mr-1"></i>全选
+                    </button>
+                    <button type="button" onclick="deselectAllClearAccounts()" class="text-gray-600 hover:text-gray-800 text-sm font-medium">
+                      <i class="fas fa-square mr-1"></i>取消全选
+                    </button>
+                  </div>
+                  <span id="clearSelectedInfo" class="text-blue-600 font-medium">已选中 0 个账户</span>
+                </div>
+              </div>
+              
+              <!-- 可清零账户列表 -->
+              <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">选择</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户信息</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">币种</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前余额</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">清零金额</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200" id="batchClearAccountList">
+                    <tr class="clear-account-row" data-account="FB001234567">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="clear-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleClearAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234567</div>
+                          <div class="text-sm text-gray-500">测试广告账户01</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">1,200.50</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-green-600">1,200.50</span>
+                      </td>
+                    </tr>
+                    <tr class="clear-account-row" data-account="FB001234568">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="clear-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleClearAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">FB001234568</div>
+                          <div class="text-sm text-gray-500">测试广告账户02</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">850.75</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-green-600">850.75</span>
+                      </td>
+                    </tr>
+                    <tr class="clear-account-row" data-account="GG001234570">
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="clear-account-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" onchange="toggleClearAccountRow(this)">
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">GG001234570</div>
+                          <div class="text-sm text-gray-500">Google广告账户01</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">USD</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-gray-900">530.25</span>
+                      </td>
+                      <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium text-green-600">530.25</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 清零摘要 -->
+            <div class="bg-gray-50 rounded-lg p-4" id="batchClearSummary" style="display: none;">
+              <h4 class="text-sm font-medium text-gray-900 mb-3">清零摘要</h4>
+              <div class="space-y-2" id="clearSummaryList">
+                <!-- 动态生成摘要内容 -->
+              </div>
+              <div class="border-t border-gray-200 pt-3 mt-3">
+                <div class="flex justify-between text-sm font-medium text-gray-900">
+                  <span>总计金额：</span>
+                  <span id="clearTotalAmount">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500 mt-1">
+                  <span>选中账户数：</span>
+                  <span id="clearSelectedCount">0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 清零提示信息 -->
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <i class="fas fa-exclamation-triangle text-orange-400 mt-0.5"></i>
+                </div>
+                <div class="ml-3">
+                  <h4 class="text-sm font-medium text-orange-800 mb-2">清零须知</h4>
+                  <div class="space-y-2 text-sm text-orange-700">
+                    <div class="flex items-start">
+                      <span class="text-orange-500 mr-2">•</span>
+                      <span>清零操作将把选中账户的全部余额清零，金额将返回钱包。</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="text-orange-500 mr-2">•</span>
+                      <span>清零操作不可撤销，请确认后再执行。</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="text-orange-500 mr-2">•</span>
+                      <span>建议暂停广告投放后再执行清零操作。</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+            <button type="button" onclick="closeModal('batchClearModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" id="batchClearSubmitBtn" class="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-md hover:bg-orange-700 transition-colors duration-200" disabled>
+              确认清零
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 导航切换
     document.querySelectorAll('.sidebar-item').forEach(item => {
@@ -1440,8 +1633,12 @@
         // 初始化减款分页和数据
         initializeWithdrawPagination();
         resetBatchWithdrawForm();
-        // 增强当前余额单元格，增加“可减款金额”展示
+        // 增强当前余额单元格，增加"可减款金额"展示
         enhanceWithdrawBalanceCells();
+      } else if (type === 'batchClear') {
+        document.getElementById('batchClearModal').classList.remove('hidden');
+        // 初始化清零数据和表单
+        resetBatchClearForm();
       }
     }
 
@@ -3178,6 +3375,177 @@
         selectedInfo.className = 'text-gray-500 font-medium';
       }
     }
+
+    // 批量清零功能
+    function resetBatchClearForm() {
+      // 重置所有复选框
+      document.querySelectorAll('.clear-account-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      
+      // 隐藏摘要
+      document.getElementById('batchClearSummary').style.display = 'none';
+      
+      // 禁用提交按钮
+      document.getElementById('batchClearSubmitBtn').disabled = true;
+      
+      // 重置搜索
+      document.getElementById('clearAccountSearch').value = '';
+      document.getElementById('clearClearSearchBtn').style.display = 'none';
+      
+      // 更新统计信息
+      updateClearStatistics();
+    }
+
+    function selectAllClearAccounts() {
+      // 选择所有账户
+      document.querySelectorAll('.clear-account-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+        toggleClearAccountRow(checkbox);
+      });
+    }
+
+    function deselectAllClearAccounts() {
+      // 取消选择所有账户
+      document.querySelectorAll('.clear-account-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+        toggleClearAccountRow(checkbox);
+      });
+    }
+
+    function toggleClearAccountRow(checkbox) {
+      const row = checkbox.closest('.clear-account-row');
+      
+      if (checkbox.checked) {
+        row.classList.add('bg-orange-50');
+      } else {
+        row.classList.remove('bg-orange-50');
+      }
+      
+      updateClearSummary();
+      updateClearStatistics();
+    }
+
+    function updateClearSummary() {
+      const selectedCheckboxes = document.querySelectorAll('.clear-account-checkbox:checked');
+      const summaryDiv = document.getElementById('batchClearSummary');
+      const summaryList = document.getElementById('clearSummaryList');
+      const totalAmountSpan = document.getElementById('clearTotalAmount');
+      const selectedCountSpan = document.getElementById('clearSelectedCount');
+      const submitBtn = document.getElementById('batchClearSubmitBtn');
+      
+      if (selectedCheckboxes.length === 0) {
+        summaryDiv.style.display = 'none';
+        submitBtn.disabled = true;
+        return;
+      }
+      
+      let totalAmount = 0;
+      let summaryHTML = '';
+      
+      selectedCheckboxes.forEach(checkbox => {
+        const row = checkbox.closest('.clear-account-row');
+        const accountIdDisplay = row.querySelector('.text-sm.font-medium').textContent;
+        const accountName = row.querySelector('.text-sm.text-gray-500').textContent;
+        const currentBalanceSpan = row.querySelector('td:nth-child(4) span');
+        const currencySpan = row.querySelector('td:nth-child(3) span');
+        
+        const amount = parseFloat(currentBalanceSpan.textContent.replace(/,/g, ''));
+        const currency = currencySpan.textContent;
+        
+        totalAmount += amount;
+        
+        summaryHTML += `
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-700">${accountName} (${accountIdDisplay})</span>
+            <span class="font-medium text-gray-900">${currency} ${amount.toFixed(2)}</span>
+          </div>
+        `;
+      });
+      
+      summaryList.innerHTML = summaryHTML;
+      totalAmountSpan.textContent = `$${totalAmount.toFixed(2)}`;
+      selectedCountSpan.textContent = selectedCheckboxes.length;
+      
+      // 显示摘要
+      summaryDiv.style.display = 'block';
+      
+      // 启用提交按钮
+      submitBtn.disabled = false;
+    }
+
+    function updateClearStatistics() {
+      const selectedCount = document.querySelectorAll('.clear-account-checkbox:checked').length;
+      
+      // 更新选中信息
+      const selectedInfo = document.getElementById('clearSelectedInfo');
+      selectedInfo.textContent = `已选中 ${selectedCount} 个账户`;
+      
+      // 更新选中信息颜色
+      if (selectedCount > 0) {
+        selectedInfo.className = 'text-blue-600 font-medium';
+      } else {
+        selectedInfo.className = 'text-gray-500 font-medium';
+      }
+    }
+
+    function filterClearAccounts(searchTerm) {
+      const clearBtn = document.getElementById('clearClearSearchBtn');
+      
+      // 显示/隐藏清空按钮
+      clearBtn.style.display = searchTerm.length > 0 ? 'block' : 'none';
+      
+      const allRows = document.querySelectorAll('#batchClearAccountList .clear-account-row');
+      
+      allRows.forEach(row => {
+        const accountId = row.querySelector('.text-sm.font-medium').textContent.toLowerCase();
+        const accountName = row.querySelector('.text-sm.text-gray-500').textContent.toLowerCase();
+        
+        if (!searchTerm || accountId.includes(searchTerm.toLowerCase()) || accountName.includes(searchTerm.toLowerCase())) {
+          row.style.display = 'table-row';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      updateClearStatistics();
+    }
+
+    function clearClearSearch() {
+      document.getElementById('clearAccountSearch').value = '';
+      filterClearAccounts('');
+    }
+
+    // 批量清零表单提交
+    document.getElementById('batchClearForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const selectedData = [];
+      document.querySelectorAll('.clear-account-checkbox:checked').forEach(checkbox => {
+        const row = checkbox.closest('.clear-account-row');
+        const accountId = row.getAttribute('data-account');
+        const currentBalanceSpan = row.querySelector('td:nth-child(4) span');
+        const currencySpan = row.querySelector('td:nth-child(3) span');
+        
+        const amount = parseFloat(currentBalanceSpan.textContent.replace(/,/g, ''));
+        const currency = currencySpan.textContent;
+        
+        selectedData.push({
+          accountId,
+          amount,
+          currency
+        });
+      });
+      
+      if (selectedData.length === 0) {
+        showNotification('请至少选择一个账户进行清零', 'warning');
+        return;
+      }
+      
+      console.log('批量清零数据:', selectedData);
+      showNotification(`批量清零申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
+      closeModal('batchClearModal');
+    });
   </script>
 </body>
 </html> 

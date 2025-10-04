@@ -1,3 +1,17 @@
+#### 本次更新 - 广告账户清零功能实现
+为 `bestads-client-styled` 增加广告账户余额清零功能：
+
+**🎯 功能**
+- 在账户管理页面增加批量清零按钮和模态框
+- 在操作记录页面增加清零记录Tab
+- 在钱包页面交易明细中增加广告账户清零变动原因
+- 清零金额返回用户钱包，记录在实际清零成功后
+
+**📄 改动点**
+- `account-management.html`: 增加批量清零按钮、清零模态框和JavaScript交互逻辑
+- `operation-records.html`: 增加清零记录Tab、筛选功能、排序功能和表格展示
+- `wallet.html`: 在变动原因筛选中增加"广告账户清零"选项，在交易明细中增加清零记录示例
+
 #### 本次更新 - 广告管理页面增加FB的ASC广告创编功能
 为 `bestads-client-styled/ad-management.html` 增加ASC广告模板管理功能：
 
