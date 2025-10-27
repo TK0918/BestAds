@@ -59,11 +59,6 @@
     .mobile-menu-closed {
       transform: translateX(-100%);
     }
-
-    .wallet-display {
-      font-size: 0.75rem;
-      line-height: 1.2;
-    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -132,6 +127,7 @@
             <ul id="sysMenu" class="space-y-1 mb-2">
               <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
               <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
             </ul>
           </div>
           <!-- 客户流水 -->
@@ -237,6 +233,14 @@
                   </p>
                 </div>
                 <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                  <button onclick="openDefaultPermissionModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-cog"></i>
+                    <span>客户默认权限</span>
+                  </button>
+                  <button onclick="openBulkPermissionModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-toggle-on"></i>
+                    <span>全量客户功能开关</span>
+                  </button>
                   <button onclick="openModal('add')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-plus"></i>
                     <span>添加客户</span>
@@ -675,6 +679,494 @@
     </div>
   </div>
 
+  <!-- 客户默认权限模态框 -->
+  <div id="defaultPermissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">客户默认权限设置</h3>
+            <button onclick="closeModal('defaultPermissionModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="handleDefaultPermissionsSubmit(event)">
+          <div class="mb-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p class="text-sm font-medium text-blue-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                执行对象：后续新增客户
+              </p>
+            </div>
+          </div>
+          <div class="space-y-2 border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
+            <!-- 广告管理 -->
+            <div class="permission-group">
+              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                <input type="checkbox" name="permissions" value="page:advertisement" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                <span class="text-sm font-medium text-gray-900">广告管理</span>
+              </label>
+              <div class="ml-6 mt-1 space-y-1">
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:advertisement:create" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">创建广告</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:advertisement:edit" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">编辑广告</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:advertisement:delete" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">删除广告</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 广告系列管理 -->
+            <div class="permission-group">
+              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                <input type="checkbox" name="permissions" value="page:campaign" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                <span class="text-sm font-medium text-gray-900">广告系列管理</span>
+              </label>
+              <div class="ml-6 mt-1 space-y-1">
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:campaign:create" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">创建系列</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:campaign:edit" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">编辑系列</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:campaign:delete" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">删除系列</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 广告组管理 -->
+            <div class="permission-group">
+              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                <input type="checkbox" name="permissions" value="page:adset" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                <span class="text-sm font-medium text-gray-900">广告组管理</span>
+              </label>
+              <div class="ml-6 mt-1 space-y-1">
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:adset:create" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">创建广告组</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:adset:edit" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">编辑广告组</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:adset:delete" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">删除广告组</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 账户管理 -->
+            <div class="permission-group">
+              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                <input type="checkbox" name="permissions" value="page:account" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                <span class="text-sm font-medium text-gray-900">账户管理</span>
+              </label>
+              <div class="ml-6 mt-1 space-y-1">
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:account:recharge" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">充值功能</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:account:withdraw" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">提现功能</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 钱包管理 -->
+            <div class="permission-group">
+              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                <input type="checkbox" name="permissions" value="page:wallet" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                <span class="text-sm font-medium text-gray-900">钱包管理</span>
+              </label>
+              <div class="ml-6 mt-1 space-y-1">
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:wallet:export" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">导出流水</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 报表查看 -->
+            <div class="permission-group">
+              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                <input type="checkbox" name="permissions" value="page:report" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                <span class="text-sm font-medium text-gray-900">报表查看</span>
+              </label>
+              <div class="ml-6 mt-1 space-y-1">
+                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                  <input type="checkbox" name="permissions" value="button:report:export" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                  <span class="text-gray-700">导出报表</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('defaultPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 transition-colors duration-200">
+              确认设置
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二次确认弹窗 -->
+  <div id="confirmDefaultPermissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">确认设置</h3>
+            <button onclick="closeModal('confirmDefaultPermissionModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p class="text-sm text-yellow-800">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              仅影响后续新建的客户
+            </p>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">
+            确定要保存这些默认权限设置吗？此设置将作为所有后续新增客户的默认权限。
+          </p>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <button onclick="closeModal('confirmDefaultPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+            取消
+          </button>
+          <button onclick="confirmDefaultPermissions()" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 transition-colors duration-200">
+            确认保存
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全量客户功能开关模态框 -->
+  <div id="bulkPermissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">全量客户功能开关</h3>
+            <button onclick="closeModal('bulkPermissionModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="handleBulkPermissionsSubmit(event)">
+          <div class="mb-4">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p class="text-sm font-medium text-red-800">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                执行对象：当前全部客户
+              </p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <h4 class="text-md font-medium text-gray-900 mb-3">选择功能项</h4>
+              <div class="border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
+                <div class="space-y-2">
+                  <!-- 广告管理 -->
+                  <div class="permission-group">
+                    <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                      <input type="checkbox" name="bulkPermissions" value="page:advertisement" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                      <span class="text-sm font-medium text-gray-900">广告管理</span>
+                    </label>
+                    <div class="ml-6 mt-1 space-y-1">
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:advertisement:create" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">创建广告</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:advertisement:edit" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">编辑广告</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:advertisement:delete" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">删除广告</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <!-- 广告系列管理 -->
+                  <div class="permission-group">
+                    <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                      <input type="checkbox" name="bulkPermissions" value="page:campaign" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                      <span class="text-sm font-medium text-gray-900">广告系列管理</span>
+                    </label>
+                    <div class="ml-6 mt-1 space-y-1">
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:campaign:create" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">创建系列</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:campaign:edit" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">编辑系列</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:campaign:delete" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">删除系列</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <!-- 广告组管理 -->
+                  <div class="permission-group">
+                    <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                      <input type="checkbox" name="bulkPermissions" value="page:adset" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                      <span class="text-sm font-medium text-gray-900">广告组管理</span>
+                    </label>
+                    <div class="ml-6 mt-1 space-y-1">
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:adset:create" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">创建广告组</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:adset:edit" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">编辑广告组</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:adset:delete" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">删除广告组</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <!-- 账户管理 -->
+                  <div class="permission-group">
+                    <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                      <input type="checkbox" name="bulkPermissions" value="page:account" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                      <span class="text-sm font-medium text-gray-900">账户管理</span>
+                    </label>
+                    <div class="ml-6 mt-1 space-y-1">
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:account:recharge" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">充值功能</span>
+                      </label>
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:account:withdraw" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">提现功能</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <!-- 钱包管理 -->
+                  <div class="permission-group">
+                    <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                      <input type="checkbox" name="bulkPermissions" value="page:wallet" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                      <span class="text-sm font-medium text-gray-900">钱包管理</span>
+                    </label>
+                    <div class="ml-6 mt-1 space-y-1">
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:wallet:export" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">导出流水</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <!-- 报表查看 -->
+                  <div class="permission-group">
+                    <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                      <input type="checkbox" name="bulkPermissions" value="page:report" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                      <span class="text-sm font-medium text-gray-900">报表查看</span>
+                    </label>
+                    <div class="ml-6 mt-1 space-y-1">
+                      <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
+                        <input type="checkbox" name="bulkPermissions" value="button:report:export" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-gray-700">导出报表</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 class="text-md font-medium text-gray-900 mb-3">选择操作</h4>
+              <div class="grid grid-cols-2 gap-4 border border-gray-200 rounded-lg p-4">
+                <div>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="radio" name="bulkAction" value="enable" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <div>
+                      <span class="text-sm font-medium text-green-700">开启功能</span>
+                      <p class="text-xs text-gray-500 mt-1">赋予客户权限</p>
+                    </div>
+                  </label>
+                </div>
+                <div>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="radio" name="bulkAction" value="disable" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <div>
+                      <span class="text-sm font-medium text-red-700">关闭功能</span>
+                      <p class="text-xs text-gray-500 mt-1">回收客户权限</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('bulkPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 transition-colors duration-200">
+              确认设置
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全量客户二次确认弹窗 -->
+  <div id="confirmBulkPermissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">确认设置</h3>
+            <button onclick="closeModal('confirmBulkPermissionModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p class="text-sm text-red-800">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              这是对全部客户的功能权限进行调整，请详细检查后再确认。
+            </p>
+          </div>
+          <div id="bulkConfirmContent" class="text-sm text-gray-600 mb-4">
+            <!-- 动态内容将通过JavaScript填充 -->
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <button onclick="closeModal('confirmBulkPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+            取消
+          </button>
+          <button onclick="confirmBulkPermissions()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 transition-colors duration-200">
+            确认执行
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 客户权限管理模态框 -->
+  <div id="permissionManagementModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">客户权限管理</h3>
+            <button onclick="closeModal('permissionManagementModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="handleCustomerPermissionsSubmit(event)">
+          <input type="hidden" id="permissionCustomerIdInput" name="customerId">
+          
+          <!-- 客户信息展示 -->
+          <div class="mb-6">
+            <h4 class="text-sm font-medium text-gray-500 uppercase mb-3">客户信息</h4>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">商户ID</p>
+                  <p class="text-sm font-medium text-gray-900" id="customerMerchantId">-</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">商户名称</p>
+                  <p class="text-sm font-medium text-gray-900" id="customerMerchantName">-</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">商户邮箱</p>
+                  <p class="text-sm font-medium text-gray-900" id="customerMerchantEmail">-</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 权限树形结构 -->
+          <div>
+            <h4 class="text-md font-medium text-gray-900 mb-3">权限配置</h4>
+            <div class="border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
+              <div class="space-y-2" id="permissionTreeContainer">
+                <!-- 动态生成权限树 -->
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('permissionManagementModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 transition-colors duration-200">
+              确认修改
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 客户权限二次确认弹窗 -->
+  <div id="confirmCustomerPermissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">确认修改</h3>
+            <button onclick="closeModal('confirmCustomerPermissionModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p class="text-sm text-yellow-800">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              确定要修改该客户的权限配置吗？
+            </p>
+          </div>
+          <div id="customerConfirmContent" class="text-sm text-gray-600 mb-4">
+            <!-- 动态内容将通过JavaScript填充 -->
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <button onclick="closeModal('confirmCustomerPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+            取消
+          </button>
+          <button onclick="confirmCustomerPermissions()" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 transition-colors duration-200">
+            确认保存
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 全局变量
     let allFields = [
@@ -691,14 +1183,21 @@
       { key: 'businessType', label: '商业类型', width: '120px' },
       { key: 'cooperationStatus', label: '合作状态', width: '120px' },
       { key: 'teamStatus', label: '团队状态', width: '100px' },
-      { key: 'walletDetails', label: '钱包明细', width: '180px' },
+      { key: 'defaultCurrency', label: '默认币种', width: '100px' },
+      { key: 'currentBalance', label: '当前余额', width: '120px' },
+      { key: 'availableBalance', label: '可用余额', width: '120px' },
+      { key: 'realAmount', label: '真实金额', width: '120px' },
+      { key: 'frozenAmount', label: '冻结金额', width: '120px' },
+      { key: 'creditLimit', label: '信用额度', width: '120px' },
+      { key: 'usedCredit', label: '已用额度', width: '120px' },
+      { key: 'remainingCredit', label: '剩余额度', width: '120px' },
       { key: 'registerTime', label: '注册时间', width: '150px' },
       { key: 'lastLoginTime', label: '最近登录', width: '150px' },
       { key: 'actions', label: '操作', width: '200px' }
     ];
 
     // 默认显示的字段
-    let defaultFields = ['customerId', 'email', 'customerStatus', 'walletDetails', 'registerTime', 'lastLoginTime', 'actions'];
+    let defaultFields = ['customerId', 'email', 'customerStatus', 'defaultCurrency', 'currentBalance', 'availableBalance', 'realAmount', 'frozenAmount', 'registerTime', 'lastLoginTime', 'actions'];
     
     // 当前显示的字段
     let currentFields = [...defaultFields];
@@ -707,8 +1206,12 @@
     let customerData = [
       {
         customerId: 'C001',
+        merchantId: 'M001',
+        merchantName: 'ABC科技有限公司',
+        merchantEmail: 'contact@abctech.com',
         email: 'contact@abctech.com',
         customerStatus: 'enabled',
+        permissions: ['page:advertisement', 'button:advertisement:create', 'button:advertisement:edit', 'page:campaign'],
         communicationChannel: 'email',
         contactInfo: 'contact@abctech.com',
         customerSource: 'organic',
@@ -719,14 +1222,25 @@
         businessType: 'ecommerce',
         cooperationStatus: 'active',
         teamStatus: 'enabled',
-        walletDetails: { real: '$8,200.50', pending: '$1,500.00', available: '$6,900.50' },
+        defaultCurrency: 'USD',
+        currentBalance: '$8,200.50',
+        availableBalance: '$6,900.50',
+        realAmount: '$8,200.50',
+        frozenAmount: '$1,500.00',
+        creditLimit: '$50,000.00',
+        usedCredit: '$8,200.50',
+        remainingCredit: '$41,799.50',
         registerTime: '2024-01-15 14:30',
         lastLoginTime: '2024-03-01 09:15'
       },
       {
         customerId: 'C002',
+        merchantId: 'M002',
+        merchantName: 'XYZ数字营销',
+        merchantEmail: 'admin@xyzdigital.com',
         email: 'admin@xyzdigital.com',
         customerStatus: 'enabled',
+        permissions: ['page:account', 'button:account:recharge', 'page:wallet'],
         communicationChannel: 'whatsapp',
         contactInfo: '+86 138 0000 0000',
         customerSource: 'referral',
@@ -737,14 +1251,25 @@
         businessType: 'saas',
         cooperationStatus: 'active',
         teamStatus: 'enabled',
-        walletDetails: { real: '$5,300.25', pending: '$800.00', available: '$4,700.25' },
+        defaultCurrency: 'USD',
+        currentBalance: '$5,300.25',
+        availableBalance: '$4,700.25',
+        realAmount: '$5,300.25',
+        frozenAmount: '$800.00',
+        creditLimit: '$30,000.00',
+        usedCredit: '$5,300.25',
+        remainingCredit: '$24,699.75',
         registerTime: '2024-01-20 16:45',
         lastLoginTime: '2024-02-28 18:22'
       },
       {
         customerId: 'C003',
+        merchantId: 'M003',
+        merchantName: '创新广告公司',
+        merchantEmail: 'info@innovativeads.com',
         email: 'info@innovativeads.com',
         customerStatus: 'disabled',
+        permissions: [],
         communicationChannel: 'email',
         contactInfo: 'info@innovativeads.com',
         customerSource: 'marketing',
@@ -755,7 +1280,14 @@
         businessType: 'other',
         cooperationStatus: 'trial',
         teamStatus: 'disabled',
-        walletDetails: { real: '$0.00', pending: '$0.00', available: '$0.00' },
+        defaultCurrency: 'USD',
+        currentBalance: '$0.00',
+        availableBalance: '$0.00',
+        realAmount: '$0.00',
+        frozenAmount: '$0.00',
+        creditLimit: '$10,000.00',
+        usedCredit: '$0.00',
+        remainingCredit: '$10,000.00',
         registerTime: '2024-02-01 10:30',
         lastLoginTime: '从未登录'
       }
@@ -783,6 +1315,14 @@
           const th = document.createElement('th');
           th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
           th.style.width = field.width;
+          
+          // 如果是操作列，应用粘性定位
+          if (fieldKey === 'actions') {
+            th.style.cssText = `width: ${field.width}; position: sticky; right: 0; background: #f9fafb; z-index: 10;`;
+          } else {
+            th.style.width = field.width;
+          }
+          
           th.textContent = field.label;
           headerRow.appendChild(th);
         }
@@ -854,14 +1394,29 @@
               const teamStatusText = customer.teamStatus === 'enabled' ? '启用' : '停用';
               td.innerHTML = `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${teamStatusClass}">${teamStatusText}</span>`;
               break;
-            case 'walletDetails':
-              td.innerHTML = `
-                <div class="wallet-display text-gray-900">
-                  <div>真实: ${customer.walletDetails.real}</div>
-                  <div>在途: ${customer.walletDetails.pending}</div>
-                  <div>可用: ${customer.walletDetails.available}</div>
-                </div>
-              `;
+            case 'defaultCurrency':
+              td.innerHTML = `<div class="text-sm font-medium text-gray-900">${customer.defaultCurrency}</div>`;
+              break;
+            case 'currentBalance':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.currentBalance}</div>`;
+              break;
+            case 'availableBalance':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.availableBalance}</div>`;
+              break;
+            case 'realAmount':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.realAmount}</div>`;
+              break;
+            case 'frozenAmount':
+              td.innerHTML = `<div class="text-sm text-orange-600">${customer.frozenAmount}</div>`;
+              break;
+            case 'creditLimit':
+              td.innerHTML = `<div class="text-sm text-blue-600">${customer.creditLimit}</div>`;
+              break;
+            case 'usedCredit':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.usedCredit}</div>`;
+              break;
+            case 'remainingCredit':
+              td.innerHTML = `<div class="text-sm text-green-600">${customer.remainingCredit}</div>`;
               break;
             case 'registerTime':
               td.innerHTML = `<div class="text-sm text-gray-500">${customer.registerTime}</div>`;
@@ -870,6 +1425,7 @@
               td.innerHTML = `<div class="text-sm text-gray-500">${customer.lastLoginTime}</div>`;
               break;
             case 'actions':
+              td.style.cssText = 'position: sticky; right: 0; background: white; z-index: 10;';
               td.innerHTML = `
                 <div class="text-sm font-medium space-x-2">
                   <button onclick="editCustomer('${customer.customerId}')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors duration-200">
@@ -877,6 +1433,9 @@
                   </button>
                   <button onclick="resetPassword('${customer.customerId}')" class="text-orange-600 hover:text-orange-900 bg-orange-50 hover:bg-orange-100 px-2 py-1 rounded text-xs transition-colors duration-200">
                     重置密码
+                  </button>
+                  <button onclick="managePermissions('${customer.customerId}')" class="text-purple-600 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded text-xs transition-colors duration-200">
+                    <i class="fas fa-user-shield"></i> 权限管理
                   </button>
                   <button onclick="adjustQuota('${customer.customerId}')" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-2 py-1 rounded text-xs transition-colors duration-200">
                     调整额度
@@ -1133,7 +1692,14 @@
         businessType: formData.get('businessType'),
         cooperationStatus: formData.get('cooperationStatus'),
         teamStatus: 'enabled',
-        walletDetails: { real: '$0.00', pending: '$0.00', available: '$0.00' },
+        defaultCurrency: 'USD',
+        currentBalance: '$0.00',
+        availableBalance: '$0.00',
+        realAmount: '$0.00',
+        frozenAmount: '$0.00',
+        creditLimit: '$10,000.00',
+        usedCredit: '$0.00',
+        remainingCredit: '$10,000.00',
         registerTime: new Date().toLocaleString('zh-CN'),
         lastLoginTime: '从未登录'
       };
@@ -1259,6 +1825,316 @@
         notification.classList.add('translate-x-full');
         setTimeout(() => notification.remove(), 300);
       }, 5000);
+    }
+
+    // 打开客户默认权限设置模态框
+    function openDefaultPermissionModal() {
+      document.getElementById('defaultPermissionModal').classList.remove('hidden');
+    }
+
+    // 打开全量客户功能开关模态框
+    function openBulkPermissionModal() {
+      document.getElementById('bulkPermissionModal').classList.remove('hidden');
+    }
+
+    // 管理客户权限
+    function managePermissions(customerId) {
+      const customer = customerData.find(c => c.customerId === customerId);
+      if (!customer) return;
+      
+      // 设置客户ID
+      document.getElementById('permissionCustomerIdInput').value = customerId;
+      
+      // 填充客户信息
+      document.getElementById('customerMerchantId').textContent = customer.merchantId || customerId;
+      document.getElementById('customerMerchantName').textContent = customer.merchantName || '';
+      document.getElementById('customerMerchantEmail').textContent = customer.merchantEmail || customer.email || '';
+      
+      // 生成权限树
+      renderPermissionTree(customer.permissions || []);
+      
+      // 显示弹窗
+      document.getElementById('permissionManagementModal').classList.remove('hidden');
+    }
+
+    // 渲染权限树
+    function renderPermissionTree(currentPermissions) {
+      const container = document.getElementById('permissionTreeContainer');
+      container.innerHTML = '';
+      
+      const permissionTree = [
+        {
+          page: { key: 'page:advertisement', label: '广告管理' },
+          buttons: [
+            { key: 'button:advertisement:create', label: '创建广告' },
+            { key: 'button:advertisement:edit', label: '编辑广告' },
+            { key: 'button:advertisement:delete', label: '删除广告' }
+          ]
+        },
+        {
+          page: { key: 'page:campaign', label: '广告系列管理' },
+          buttons: [
+            { key: 'button:campaign:create', label: '创建系列' },
+            { key: 'button:campaign:edit', label: '编辑系列' },
+            { key: 'button:campaign:delete', label: '删除系列' }
+          ]
+        },
+        {
+          page: { key: 'page:adset', label: '广告组管理' },
+          buttons: [
+            { key: 'button:adset:create', label: '创建广告组' },
+            { key: 'button:adset:edit', label: '编辑广告组' },
+            { key: 'button:adset:delete', label: '删除广告组' }
+          ]
+        },
+        {
+          page: { key: 'page:account', label: '账户管理' },
+          buttons: [
+            { key: 'button:account:recharge', label: '充值功能' },
+            { key: 'button:account:withdraw', label: '提现功能' }
+          ]
+        },
+        {
+          page: { key: 'page:wallet', label: '钱包管理' },
+          buttons: [
+            { key: 'button:wallet:export', label: '导出流水' }
+          ]
+        },
+        {
+          page: { key: 'page:report', label: '报表查看' },
+          buttons: [
+            { key: 'button:report:export', label: '导出报表' }
+          ]
+        }
+      ];
+      
+      permissionTree.forEach(item => {
+        const isPageChecked = currentPermissions.includes(item.page.key);
+        const pageGroupDiv = document.createElement('div');
+        pageGroupDiv.className = 'permission-group';
+        
+        // 页面权限复选框
+        const pageLabel = document.createElement('label');
+        pageLabel.className = 'flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded';
+        pageLabel.innerHTML = `
+          <input type="checkbox" name="permissions" value="${item.page.key}" 
+                 ${isPageChecked ? 'checked' : ''} 
+                 class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+          <span class="text-sm font-medium text-gray-900">${item.page.label}</span>
+        `;
+        
+        // 按钮权限复选框
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'ml-6 mt-1 space-y-1';
+        
+        item.buttons.forEach(button => {
+          const isButtonChecked = currentPermissions.includes(button.key);
+          const buttonLabel = document.createElement('label');
+          buttonLabel.className = 'flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm';
+          buttonLabel.innerHTML = `
+            <input type="checkbox" name="permissions" value="${button.key}" 
+                   ${isButtonChecked ? 'checked' : ''} 
+                   class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+            <span class="text-gray-700">${button.label}</span>
+          `;
+          buttonsDiv.appendChild(buttonLabel);
+        });
+        
+        pageGroupDiv.appendChild(pageLabel);
+        pageGroupDiv.appendChild(buttonsDiv);
+        container.appendChild(pageGroupDiv);
+      });
+    }
+
+    // 全局变量：存储待确认的权限数据
+    let pendingDefaultPermissions = null;
+
+    // 处理客户默认权限提交（显示二次确认）
+    function handleDefaultPermissionsSubmit(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const permissions = formData.getAll('permissions');
+      
+      // 保存待确认的权限数据
+      pendingDefaultPermissions = permissions;
+      
+      // 显示二次确认弹窗
+      document.getElementById('confirmDefaultPermissionModal').classList.remove('hidden');
+    }
+
+    // 确认并保存客户默认权限
+    function confirmDefaultPermissions() {
+      if (pendingDefaultPermissions && pendingDefaultPermissions.length > 0) {
+        // 分离页面权限和按钮权限
+        const pagePermissions = pendingDefaultPermissions.filter(p => p.startsWith('page:'));
+        const buttonPermissions = pendingDefaultPermissions.filter(p => p.startsWith('button:'));
+        
+        // 格式化显示
+        const formattedPermissions = [
+          ...pagePermissions.map(p => p.replace('page:', '')),
+          ...buttonPermissions.map(p => p.replace('button:', '').replace(':', ' '))
+        ];
+        
+        showNotification(`客户默认权限设置已保存！\n选中的权限：${formattedPermissions.join(', ') || '无'}`, 'success');
+        closeModal('confirmDefaultPermissionModal');
+        closeModal('defaultPermissionModal');
+        pendingDefaultPermissions = null;
+      } else {
+        showNotification('请至少选择一个权限项！', 'warning');
+      }
+    }
+
+    // 全局变量：存储待确认的全量权限数据
+    let pendingBulkPermissions = null;
+    let pendingBulkAction = null;
+
+    // 处理全量客户功能提交（显示二次确认）
+    function handleBulkPermissionsSubmit(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const action = formData.get('bulkAction');
+      const permissions = formData.getAll('bulkPermissions');
+      
+      if (!action) {
+        showNotification('请选择操作类型（开启或关闭）！', 'warning');
+        return;
+      }
+      
+      if (permissions.length === 0) {
+        showNotification('请至少选择一个功能项！', 'warning');
+        return;
+      }
+      
+      // 保存待确认的数据
+      pendingBulkAction = action;
+      pendingBulkPermissions = permissions;
+      
+      // 显示二次确认弹窗并填充内容
+      displayBulkConfirmContent(permissions, action);
+      document.getElementById('confirmBulkPermissionModal').classList.remove('hidden');
+    }
+
+    // 显示全量客户二次确认弹窗内容
+    function displayBulkConfirmContent(permissions, action) {
+      const actionText = action === 'enable' ? '开启' : '关闭';
+      const actionColor = action === 'enable' ? 'green' : 'red';
+      
+      // 格式化权限名称
+      const formattedPermissions = permissions.map(p => {
+        if (p.startsWith('page:')) {
+          return p.replace('page:', '');
+        } else {
+          return p.replace('button:', '').replace(':', ' ');
+        }
+      });
+      
+      const contentDiv = document.getElementById('bulkConfirmContent');
+      contentDiv.innerHTML = `
+        <div class="space-y-2">
+          <p><strong>操作类型：</strong><span class="text-${actionColor}-700">${actionText === '开启' ? '赋予客户权限' : '回收客户权限'}</span></p>
+          <p><strong>涉及功能：</strong>${formattedPermissions.join('、')}</p>
+          <p><strong>影响客户：</strong>全部 ${customerData.length} 位客户</p>
+        </div>
+      `;
+    }
+
+    // 确认并执行全量客户功能开关
+    function confirmBulkPermissions() {
+      if (pendingBulkPermissions && pendingBulkAction) {
+        const actionText = pendingBulkAction === 'enable' ? '开启' : '关闭';
+        const actionDesc = pendingBulkAction === 'enable' ? '赋予客户权限' : '回收客户权限';
+        
+        // 格式化权限名称
+        const formattedPermissions = pendingBulkPermissions.map(p => {
+          if (p.startsWith('page:')) {
+            return p.replace('page:', '');
+          } else {
+            return p.replace('button:', '').replace(':', ' ');
+          }
+        });
+        
+        showNotification(
+          `全量客户功能${actionText}已应用！\n操作类型：${actionDesc}\n涉及功能：${formattedPermissions.join('、')}\n影响客户数：${customerData.length}位`, 
+          'success'
+        );
+        
+        closeModal('confirmBulkPermissionModal');
+        closeModal('bulkPermissionModal');
+        pendingBulkPermissions = null;
+        pendingBulkAction = null;
+      }
+    }
+
+    // 全局变量：存储待确认的客户权限数据
+    let pendingCustomerPermissions = null;
+    let pendingCustomerId = null;
+
+    // 处理客户权限提交（显示二次确认）
+    function handleCustomerPermissionsSubmit(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const customerId = formData.get('customerId');
+      const permissions = formData.getAll('permissions');
+      
+      // 保存待确认的数据
+      pendingCustomerId = customerId;
+      pendingCustomerPermissions = permissions;
+      
+      // 显示二次确认弹窗并填充内容
+      displayCustomerConfirmContent(customerId, permissions);
+      document.getElementById('confirmCustomerPermissionModal').classList.remove('hidden');
+    }
+
+    // 显示客户权限二次确认弹窗内容
+    function displayCustomerConfirmContent(customerId, permissions) {
+      const customer = customerData.find(c => c.customerId === customerId);
+      if (!customer) return;
+      
+      // 分离页面权限和按钮权限
+      const pagePermissions = permissions.filter(p => p.startsWith('page:'));
+      const buttonPermissions = permissions.filter(p => p.startsWith('button:'));
+      
+      // 格式化权限名称
+      const formattedPagePermissions = pagePermissions.map(p => p.replace('page:', ''));
+      const formattedButtonPermissions = buttonPermissions.map(p => p.replace('button:', '').replace(':', ' '));
+      
+      const contentDiv = document.getElementById('customerConfirmContent');
+      contentDiv.innerHTML = `
+        <div class="space-y-2">
+          <p><strong>客户名称：</strong>${customer.merchantName || customerId}</p>
+          <p><strong>页面权限：</strong>${formattedPagePermissions.join('、') || '无'}</p>
+          <p><strong>按钮权限：</strong>${formattedButtonPermissions.join('、') || '无'}</p>
+        </div>
+      `;
+    }
+
+    // 确认并保存客户权限
+    function confirmCustomerPermissions() {
+      if (pendingCustomerPermissions !== null && pendingCustomerId) {
+        const customer = customerData.find(c => c.customerId === pendingCustomerId);
+        
+        if (customer) {
+          // 更新客户权限
+          customer.permissions = [...pendingCustomerPermissions];
+          
+          // 分离页面权限和按钮权限用于显示
+          const pagePermissions = pendingCustomerPermissions.filter(p => p.startsWith('page:'));
+          const buttonPermissions = pendingCustomerPermissions.filter(p => p.startsWith('button:'));
+          
+          const formattedPagePermissions = pagePermissions.map(p => p.replace('page:', ''));
+          const formattedButtonPermissions = buttonPermissions.map(p => p.replace('button:', '').replace(':', ' '));
+          
+          showNotification(
+            `客户 ${customer.merchantName || pendingCustomerId} 的权限已更新！\n页面权限：${formattedPagePermissions.join('、') || '无'}\n按钮权限：${formattedButtonPermissions.join('、') || '无'}`,
+            'success'
+          );
+        }
+        
+        closeModal('confirmCustomerPermissionModal');
+        closeModal('permissionManagementModal');
+        pendingCustomerPermissions = null;
+        pendingCustomerId = null;
+      }
     }
   </script>
 </body>
