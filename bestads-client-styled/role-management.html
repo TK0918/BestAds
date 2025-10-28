@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>角色管理 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    .modal-backdrop {
+      backdrop-filter: blur(4px);
+    }
+    .permission-tree {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .permission-item {
+      padding: 8px;
+      border-radius: 4px;
+      margin: 4px 0;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .permission-item:hover {
+      background-color: #2A2F3D;
+    }
+    .permission-item input[type="checkbox"] {
+      accent-color: #00FFB0;
+    }
+    .account-item {
+      padding: 8px;
+      border-radius: 4px;
+      margin: 4px 0;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .account-item:hover {
+      background-color: #2A2F3D;
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen">
+  <div class="flex w-full h-screen">
+    <!-- Left Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top Header -->
+      <div id="header-container"></div>
+
+      <!-- Content Area -->
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2">角色管理</h2>
+              <p class="page-description" style="color: #B0B5C0;">管理和配置系统角色及权限</p>
+            </div>
+            <button onclick="openCreateRoleModal()" class="btn-primary px-4 py-2 text-sm font-medium flex items-center space-x-2">
+              <i class="fas fa-plus"></i>
+              <span>创建角色</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inherit Notice -->
+        <div class="mb-6 p-4 rounded-lg flex items-start space-x-3" style="background-color: #1E2230; border: 1px solid #00FFB0;">
+          <i class="fas fa-info-circle text-green-400 mt-1"></i>
+          <div>
+            <p class="text-sm text-white font-medium mb-1">权限继承规则</p>
+            <p class="text-xs text-gray-400">新创建的角色权限默认继承商户/团队管理员的权限上限，但只能做减法（即关闭某些页面/按钮，或收紧广告账户范围/级别），不能赋予管理员本身没有的功能或广告账户。</p>
+          </div>
+        </div>
+
+        <!-- Filter Area -->
+        <div class="mb-6" style="background-color: #1E2230; border-radius: 6px; border: 1px solid #2E333F; padding: 20px;">
+          <h3 class="text-lg font-medium text-white mb-4">筛选条件</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">角色名</label>
+              <input type="text" id="filterRoleName" class="input-field w-full" placeholder="请输入角色名">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">状态</label>
+              <select id="filterStatus" class="input-field w-full">
+                <option value="">全部状态</option>
+                <option value="启用">启用</option>
+                <option value="停用">停用</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4 space-x-3">
+            <button onclick="resetFilter()" class="btn-secondary px-4 py-2 text-sm font-medium">
+              <i class="fas fa-redo mr-2"></i>重置
+            </button>
+            <button onclick="applyFilter()" class="btn-primary px-4 py-2 text-sm font-medium">
+              <i class="fas fa-search mr-2"></i>搜索
+            </button>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="mb-6" style="background-color: #1E2230; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="px-6 py-4" style="border-bottom: 1px solid #2E333F;">
+            <h3 class="text-lg font-medium text-white">角色列表</h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr style="background-color: #1A1F2B;">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">角色名</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">绑定用户数</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">状态</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">更新时间</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">操作</th>
+                </tr>
+              </thead>
+              <tbody id="roleTableBody" class="table-hover">
+                <!-- 数据将通过JavaScript动态加载 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create/Edit Role Modal -->
+  <div id="roleModal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+    <div class="fixed inset-0 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative bg-slate-800 rounded-lg shadow-xl max-w-4xl w-full p-6 animate-fadeIn" style="background-color: #1E2230; border: 1px solid #2E333F;">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white" id="roleModalTitle">创建角色</h3>
+            <button onclick="closeRoleModal()" class="text-gray-400 hover:text-white">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <form id="roleForm">
+            <div class="space-y-6">
+              <!-- 基本信息 -->
+              <div class="grid grid-cols-2 gap-4">
+                <!-- 角色名 -->
+                <div>
+                  <label class="block text-sm text-gray-400 mb-2">角色名 <span class="text-red-500">*</span></label>
+                  <input type="text" id="roleName" name="roleName" class="input-field w-full" placeholder="128位字符" required>
+                  <p class="text-xs text-gray-500 mt-1">最多128个字符</p>
+                </div>
+
+                <!-- 状态 -->
+                <div>
+                  <label class="block text-sm text-gray-400 mb-2">状态 <span class="text-red-500">*</span></label>
+                  <select id="roleStatus" name="roleStatus" class="input-field w-full" required>
+                    <option value="启用">启用</option>
+                    <option value="停用">停用</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 描述 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">描述</label>
+                <textarea id="roleDescription" name="roleDescription" class="input-field flex-col w-full" rows="3" placeholder="最多500个字符"></textarea>
+                <p class="text-xs text-gray-500 mt-1">最多500个字符</p>
+              </div>
+
+              <!-- 权限树 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">权限分配 <span class="text-red-500">*</span></label>
+                <div class="permission-tree p-4 rounded-lg" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
+                  <div class="permission-item">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" id="perm-all" onchange="toggleAllPermissions(this)">
+                      <span class="text-white font-medium">全部权限</span>
+                    </label>
+                  </div>
+                  <div class="ml-4 space-y-2">
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="account-management">
+                        <span class="text-white">账户管理</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="ad-management">
+                        <span class="text-white">广告管理</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="data-analysis">
+                        <span class="text-white">数据分析</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="wallet">
+                        <span class="text-white">余额管理</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="operation-records">
+                        <span class="text-white">操作记录</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">至少选择一项权限</p>
+              </div>
+
+              <!-- 广告账户管理 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">可管理的广告账户 <span class="text-red-500">*</span></label>
+                
+                <!-- 余额广告账户 -->
+                <div class="mb-4">
+                  <p class="text-sm text-white mb-2">余额广告账户</p>
+                  <div class="p-4 rounded-lg" style="background-color: #1A1F2B; border: 1px solid #2E333F; max-height: 150px; overflow-y: auto;">
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="balanceAccount" value="act_10001">
+                        <span class="text-white">act_10001 - 账户A</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="balanceAccount" value="act_10002">
+                        <span class="text-white">act_10002 - 账户B</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="balanceAccount" value="act_10003">
+                        <span class="text-white">act_10003 - 账户C</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 普通广告账户 -->
+                <div>
+                  <p class="text-sm text-white mb-2">普通广告账户</p>
+                  <div class="p-4 rounded-lg" style="background-color: #1A1F2B; border: 1px solid #2E333F; max-height: 150px; overflow-y: auto;">
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="normalAccount" value="act_20001">
+                        <span class="text-white">act_20001 - 账户X</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="normalAccount" value="act_20002">
+                        <span class="text-white">act_20002 - 账户Y</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="normalAccount" value="act_20003">
+                        <span class="text-white">act_20003 - 账户Z</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-end space-x-3 mt-6">
+              <button type="button" onclick="closeRoleModal()" class="btn-secondary px-4 py-2 text-sm font-medium">
+                取消
+              </button>
+              <button type="submit" class="btn-primary px-4 py-2 text-sm font-medium">
+                确定
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="./js/common.js"></script>
+  <script>
+    // 示例数据
+    let roles = [
+      {
+        id: 1,
+        name: '管理员',
+        userCount: 5,
+        status: '启用',
+        updateTime: '2024-01-15 10:30:00'
+      },
+      {
+        id: 2,
+        name: '操作员',
+        userCount: 12,
+        status: '启用',
+        updateTime: '2024-01-14 15:20:00'
+      },
+      {
+        id: 3,
+        name: '财务',
+        userCount: 3,
+        status: '停用',
+        updateTime: '2024-01-10 11:15:00'
+      }
+    ];
+
+    let editingRoleId = null;
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      loadRoles();
+    });
+
+    // 加载角色列表
+    function loadRoles() {
+      const tbody = document.getElementById('roleTableBody');
+      tbody.innerHTML = '';
+
+      roles.forEach(role => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #2E333F';
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${role.name}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${role.userCount}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="${role.status === '启用' ? 'status-active' : 'status-inactive'}">${role.status}</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${role.updateTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <button onclick="editRole(${role.id})" class="text-blue-400 hover:text-blue-300">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 打开创建角色模态框
+    function openCreateRoleModal() {
+      editingRoleId = null;
+      document.getElementById('roleModalTitle').textContent = '创建角色';
+      document.getElementById('roleForm').reset();
+      document.getElementById('roleModal').classList.remove('hidden');
+    }
+
+    // 编辑角色
+    function editRole(id) {
+      editingRoleId = id;
+      const role = roles.find(r => r.id === id);
+      
+      document.getElementById('roleModalTitle').textContent = '编辑角色';
+      document.getElementById('roleName').value = role.name;
+      document.getElementById('roleStatus').value = role.status;
+      
+      document.getElementById('roleModal').classList.remove('hidden');
+    }
+
+    // 关闭角色模态框
+    function closeRoleModal() {
+      document.getElementById('roleModal').classList.add('hidden');
+    }
+
+    // 全选/取消全选权限
+    function toggleAllPermissions(checkbox) {
+      const permissions = document.querySelectorAll('input[name="permission"]');
+      permissions.forEach(p => {
+        p.checked = checkbox.checked;
+      });
+    }
+
+    // 提交表单
+    document.getElementById('roleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // 验证至少选择一项权限
+      const selectedPermissions = document.querySelectorAll('input[name="permission"]:checked');
+      if (selectedPermissions.length === 0) {
+        alert('请至少选择一项权限');
+        return;
+      }
+
+      // 验证至少选择一个广告账户
+      const selectedBalanceAccounts = document.querySelectorAll('input[name="balanceAccount"]:checked');
+      const selectedNormalAccounts = document.querySelectorAll('input[name="normalAccount"]:checked');
+      if (selectedBalanceAccounts.length === 0 && selectedNormalAccounts.length === 0) {
+        alert('请至少选择一个可管理的广告账户');
+        return;
+      }
+      
+      if (editingRoleId) {
+        // 编辑
+        const role = roles.find(r => r.id === editingRoleId);
+        role.name = document.getElementById('roleName').value;
+        role.status = document.getElementById('roleStatus').value;
+        role.updateTime = new Date().toLocaleString('zh-CN');
+        alert('编辑成功！');
+      } else {
+        // 创建
+        const newRole = {
+          id: roles.length + 1,
+          name: document.getElementById('roleName').value,
+          userCount: 0,
+          status: document.getElementById('roleStatus').value,
+          updateTime: new Date().toLocaleString('zh-CN')
+        };
+        
+        roles.push(newRole);
+        alert('创建成功！');
+      }
+      
+      closeRoleModal();
+      loadRoles();
+    });
+
+    // 筛选
+    function applyFilter() {
+      alert('筛选功能');
+    }
+
+    // 重置筛选
+    function resetFilter() {
+      document.getElementById('filterRoleName').value = '';
+      document.getElementById('filterStatus').value = '';
+    }
+  </script>
+</body>
+</html>
+

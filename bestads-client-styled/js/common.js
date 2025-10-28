@@ -252,6 +252,18 @@ function loadFallbackSidebar() {
           <span>余额管理</span>
         </a>
       </li>
+      <li>
+        <a href="sub-account-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="sub-account-management">
+          <i class="fas fa-user-circle mr-3" style="color: #B0B5C0;"></i>
+          <span>子账号管理</span>
+        </a>
+      </li>
+      <li>
+        <a href="role-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="role-management">
+          <i class="fas fa-user-shield mr-3" style="color: #B0B5C0;"></i>
+          <span>角色管理</span>
+        </a>
+      </li>
     </ul>
   </nav>
 </div>`;

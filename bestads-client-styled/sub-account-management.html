@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>子账号管理 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    .modal-backdrop {
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+<body class="m-0 p-0 h-screen">
+  <div class="flex w-full h-screen">
+    <!-- Left Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top Header -->
+      <div id="header-container"></div>
+
+      <!-- Content Area -->
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2">子账号管理</h2>
+              <p class="page-description" style="color: #B0B5C0;">管理和配置子账号信息</p>
+            </div>
+            <button onclick="openCreateModal()" class="btn-primary px-4 py-2 text-sm font-medium flex items-center space-x-2">
+              <i class="fas fa-plus"></i>
+              <span>创建子账号</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Area -->
+        <div class="mb-6" style="background-color: #1E2230; border-radius: 6px; border: 1px solid #2E333F; padding: 20px;">
+          <h3 class="text-lg font-medium text-white mb-4">筛选条件</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">账号名</label>
+              <input type="text" id="filterUsername" class="input-field w-full" placeholder="请输入账号名">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">绑定角色</label>
+              <select id="filterRole" class="input-field w-full">
+                <option value="">全部角色</option>
+                <option value="管理员">管理员</option>
+                <option value="操作员">操作员</option>
+                <option value="财务">财务</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-2">状态</label>
+              <select id="filterStatus" class="input-field w-full">
+                <option value="">全部状态</option>
+                <option value="启用">启用</option>
+                <option value="停用">停用</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4 space-x-3">
+            <button onclick="resetFilter()" class="btn-secondary px-4 py-2 text-sm font-medium">
+              <i class="fas fa-redo mr-2"></i>重置
+            </button>
+            <button onclick="applyFilter()" class="btn-primary px-4 py-2 text-sm font-medium">
+              <i class="fas fa-search mr-2"></i>搜索
+            </button>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="mb-6" style="background-color: #1E2230; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="px-6 py-4" style="border-bottom: 1px solid #2E333F;">
+            <h3 class="text-lg font-medium text-white">子账号列表</h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr style="background-color: #1A1F2B;">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">账号名</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">姓名</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">绑定角色</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">状态</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">最近登录时间</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">创建时间</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">操作</th>
+                </tr>
+              </thead>
+              <tbody id="subAccountTableBody" class="table-hover">
+                <!-- 数据将通过JavaScript动态加载 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Create/Edit Sub Account Modal -->
+  <div id="subAccountModal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+    <div class="fixed inset-0 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full p-6 animate-fadeIn" style="background-color: #1E2230; border: 1px solid #2E333F;">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white" id="modalTitle">创建子账号</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <form id="subAccountForm">
+            <div class="space-y-4">
+              <!-- 账号名 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">账号名 <span class="text-red-500">*</span></label>
+                <input type="text" id="username" name="username" class="input-field w-full" placeholder="4-32位，支持字母数字符号" required>
+                <p class="text-xs text-gray-500 mt-1">4-32个字符，支持字母、数字和符号</p>
+              </div>
+
+              <!-- 姓名 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">姓名 <span class="text-red-500">*</span></label>
+                <input type="text" id="realName" name="realName" class="input-field w-full" placeholder="4-32位字符" required>
+                <p class="text-xs text-gray-500 mt-1">4-32个字符</p>
+              </div>
+
+              <!-- 初始密码（仅创建时显示） -->
+              <div id="passwordFields">
+                <label class="block text-sm text-gray-400 mb-2">初始密码 <span class="text-red-500">*</span></label>
+                <input type="password" id="password" name="password" class="input-field w-full" placeholder="8-32位，支持字母数字符号" required>
+                <p class="text-xs text-gray-500 mt-1">8-32个字符，支持字母、数字和符号</p>
+              </div>
+
+              <!-- 确认密码（仅创建时显示） -->
+              <div id="confirmPasswordFields">
+                <label class="block text-sm text-gray-400 mb-2">确认密码 <span class="text-red-500">*</span></label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="input-field w-full" placeholder="请再次输入密码" required>
+                <p class="text-xs text-gray-500 mt-1">请再次输入密码</p>
+              </div>
+
+              <!-- 绑定角色 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">绑定角色 <span class="text-red-500">*</span></label>
+                <select id="role" name="role" class="input-field w-full" required>
+                  <option value="">请选择角色</option>
+                  <option value="管理员">管理员</option>
+                  <option value="操作员">操作员</option>
+                  <option value="财务">财务</option>
+                </select>
+              </div>
+
+              <!-- 状态 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">状态 <span class="text-red-500">*</span></label>
+                <select id="status" name="status" class="input-field w-full" required>
+                  <option value="启用">启用</option>
+                  <option value="停用">停用</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-end space-x-3 mt-6">
+              <button type="button" onclick="closeModal()" class="btn-secondary px-4 py-2 text-sm font-medium">
+                取消
+              </button>
+              <button type="submit" class="btn-primary px-4 py-2 text-sm font-medium">
+                确定
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Password Modal -->
+  <div id="resetPasswordModal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+    <div class="fixed inset-0 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 animate-fadeIn" style="background-color: #1E2230; border: 1px solid #2E333F;">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white">重置密码</h3>
+            <button onclick="closeResetPasswordModal()" class="text-gray-400 hover:text-white">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <form id="resetPasswordForm">
+            <div class="space-y-4">
+              <p class="text-gray-400 mb-4">为账号 <span id="resetPasswordUsername" class="font-bold text-white"></span> 设置新密码。</p>
+              
+              <!-- 新密码 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">新密码 <span class="text-red-500">*</span></label>
+                <input type="password" id="newPassword" name="newPassword" class="input-field w-full" placeholder="8-32位，支持字母数字符号" required>
+                <p class="text-xs text-gray-500 mt-1">8-32个字符，支持字母、数字和符号</p>
+              </div>
+
+              <!-- 确认密码 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">确认密码 <span class="text-red-500">*</span></label>
+                <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="input-field w-full" placeholder="请再次输入密码" required>
+                <p class="text-xs text-gray-500 mt-1">请再次输入密码</p>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-end space-x-3 mt-6">
+              <button type="button" onclick="closeResetPasswordModal()" class="btn-secondary px-4 py-2 text-sm font-medium">取消</button>
+              <button type="submit" class="btn-primary px-4 py-2 text-sm font-medium">确定</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="./js/common.js"></script>
+  <script>
+    // 示例数据
+    let subAccounts = [
+      {
+        id: 1,
+        username: 'zhangsan',
+        realName: '张三',
+        role: '管理员',
+        status: '启用',
+        lastLogin: '2024-01-15 10:30:00',
+        createTime: '2024-01-01 09:00:00'
+      },
+      {
+        id: 2,
+        username: 'lisi',
+        realName: '李四',
+        role: '操作员',
+        status: '启用',
+        lastLogin: '2024-01-14 15:20:00',
+        createTime: '2024-01-05 14:00:00'
+      },
+      {
+        id: 3,
+        username: 'wangwu',
+        realName: '王五',
+        role: '财务',
+        status: '停用',
+        lastLogin: '2024-01-10 11:15:00',
+        createTime: '2024-01-08 16:00:00'
+      }
+    ];
+
+    let editingId = null;
+    let resettingId = null;
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSubAccounts();
+    });
+
+    // 加载子账号列表
+    function loadSubAccounts() {
+      const tbody = document.getElementById('subAccountTableBody');
+      tbody.innerHTML = '';
+
+      subAccounts.forEach(account => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #2E333F';
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${account.username}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${account.realName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${account.role}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="${account.status === '启用' ? 'status-active' : 'status-inactive'}">${account.status}</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${account.lastLogin}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${account.createTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <div class="flex space-x-2">
+              <button onclick="editSubAccount(${account.id})" class="px-3 py-1 text-sm rounded transition-colors" style="background-color: #2A2F3D; color: #00FFB0;" onmouseover="this.style.backgroundColor='#3A3F4D'" onmouseout="this.style.backgroundColor='#2A2F3D'">
+                编辑
+              </button>
+              <button onclick="openResetPassword(${account.id})" class="px-3 py-1 text-sm rounded transition-colors" style="background-color: #2A2F3D; color: #FFA500;" onmouseover="this.style.backgroundColor='#3A3F4D'" onmouseout="this.style.backgroundColor='#2A2F3D'">
+                重置密码
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 打开创建模态框
+    function openCreateModal() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '创建子账号';
+      document.getElementById('subAccountForm').reset();
+      document.getElementById('passwordFields').style.display = 'block';
+      document.getElementById('confirmPasswordFields').style.display = 'block';
+      document.getElementById('password').required = true;
+      document.getElementById('confirmPassword').required = true;
+      document.getElementById('subAccountModal').classList.remove('hidden');
+    }
+
+    // 编辑子账号
+    function editSubAccount(id) {
+      editingId = id;
+      const account = subAccounts.find(a => a.id === id);
+      
+      document.getElementById('modalTitle').textContent = '编辑子账号';
+      document.getElementById('username').value = account.username;
+      document.getElementById('username').disabled = true;
+      document.getElementById('realName').value = account.realName;
+      document.getElementById('role').value = account.role;
+      document.getElementById('status').value = account.status;
+      
+      // 编辑时隐藏密码字段
+      document.getElementById('passwordFields').style.display = 'none';
+      document.getElementById('confirmPasswordFields').style.display = 'none';
+      document.getElementById('password').required = false;
+      document.getElementById('confirmPassword').required = false;
+      
+      document.getElementById('subAccountModal').classList.remove('hidden');
+    }
+
+    // 关闭模态框
+    function closeModal() {
+      document.getElementById('subAccountModal').classList.add('hidden');
+      document.getElementById('username').disabled = false;
+    }
+
+    // 提交表单
+    document.getElementById('subAccountForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (editingId) {
+        // 编辑
+        const account = subAccounts.find(a => a.id === editingId);
+        account.realName = document.getElementById('realName').value;
+        account.role = document.getElementById('role').value;
+        account.status = document.getElementById('status').value;
+        alert('编辑成功！如果角色或状态发生变更，该账号将被强制退出登录。');
+      } else {
+        // 创建
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (password !== confirmPassword) {
+          alert('两次输入的密码不一致');
+          return;
+        }
+        
+        const newAccount = {
+          id: subAccounts.length + 1,
+          username: document.getElementById('username').value,
+          realName: document.getElementById('realName').value,
+          role: document.getElementById('role').value,
+          status: document.getElementById('status').value,
+          lastLogin: '从未登录',
+          createTime: new Date().toLocaleString('zh-CN')
+        };
+        
+        subAccounts.push(newAccount);
+        alert('创建成功！');
+      }
+      
+      closeModal();
+      loadSubAccounts();
+    });
+
+    // 打开重置密码模态框
+    function openResetPassword(id) {
+      resettingId = id;
+      const account = subAccounts.find(a => a.id === id);
+      document.getElementById('resetPasswordUsername').textContent = account.username;
+      document.getElementById('resetPasswordModal').classList.remove('hidden');
+    }
+
+    // 关闭重置密码模态框
+    function closeResetPasswordModal() {
+      document.getElementById('resetPasswordModal').classList.add('hidden');
+      const form = document.getElementById('resetPasswordForm');
+      if (form) {
+        form.reset();
+      }
+    }
+
+    // 提交重置密码表单
+    document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+      
+      if (newPassword !== confirmNewPassword) {
+        alert('两次输入的密码不一致');
+        return;
+      }
+      
+      // 验证密码长度
+      if (newPassword.length < 8 || newPassword.length > 32) {
+        alert('密码长度为8-32个字符');
+        return;
+      }
+      
+      alert('密码已重置！该账号已被强制退出登录。');
+      closeResetPasswordModal();
+      document.getElementById('resetPasswordForm').reset();
+    });
+
+    // 筛选
+    function applyFilter() {
+      alert('筛选功能');
+    }
+
+    // 重置筛选
+    function resetFilter() {
+      document.getElementById('filterUsername').value = '';
+      document.getElementById('filterRole').value = '';
+      document.getElementById('filterStatus').value = '';
+    }
+  </script>
+</body>
+</html>
+

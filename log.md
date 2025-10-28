@@ -1,3 +1,66 @@
+#### 本次更新 - 子账号管理页面优化
+对`bestads-client-styled/sub-account-management.html`进行了以下优化：
+
+**菜单跳转功能：**
+- 在侧边栏组件中添加了"子账号管理"和"角色管理"菜单项
+- 更新了common.js的PAGE_CONFIG配置，支持新页面的跳转
+- 菜单使用Font Awesome图标（fa-user-circle和fa-user-shield）
+
+**操作列改进：**
+- 将图标按钮改为文本按钮形式
+- 编辑按钮：绿色主题（#00FFB0），显示"编辑"
+- 重置密码按钮：橙色主题（#FFA500），显示"重置密码"
+- 按钮添加了hover效果，提升用户体验
+
+**重置密码功能增强：**
+- 重置密码弹窗改为输入新密码的形式
+- 添加了新密码输入框（8-32位字符，支持字母数字符号）
+- 添加了确认密码输入框
+- 密码验证：检查两次输入是否一致、长度是否符合要求
+- 重置成功后显示提示信息
+
+#### 本次更新 - 重新创建子账号管理和角色管理页面
+根据功能规范文档，在`bestads-client-styled/`中创建了两个功能完整的HTML页面：
+
+**创建的文件：**
+1. `sub-account-management.html` - 子账号管理页面
+2. `role-management.html` - 角色管理页面
+
+**子账号管理功能（sub-account-management.html）：**
+- **筛选功能**：支持按账号名、绑定角色、状态筛选
+- **列表展示**：显示账号名、姓名、绑定角色、状态、最近登录时间、创建时间
+- **创建子账号**：支持设置账号名(4-32字符)、姓名(4-32字符)、初始密码(8-32字符)、绑定角色、状态
+- **编辑子账号**：可编辑姓名、绑定角色、状态（角色或状态变更会强制退出登录）
+- **重置密码**：重置后会强制退出登录
+- **数据验证**：密码确认、唯一性校验等
+
+**角色管理功能（role-management.html）：**
+- **筛选功能**：支持按角色名、状态筛选
+- **列表展示**：显示角色名、绑定用户数、状态、更新时间
+- **创建/编辑角色**：支持设置角色名(128字符)、描述(500字符)、状态
+- **权限分配**：权限树形式展示，支持全选/取消全选，至少选择一项
+- **广告账户管理**：分别配置余额广告账户和普通广告账户（支持多选）
+- **权限继承规则提示**：页面顶部显示继承规则说明
+
+**技术实现：**
+- 使用组件化的头部和侧边栏
+- 使用Tailwind CSS和自定义样式保持统一的深色主题风格
+- 模态框交互和数据表单验证
+- 示例数据展示功能
+- 符合BestAds设计系统的UI/UX规范
+
+#### 本次更新 - 删除角色管理和子账号管理相关文件
+删除了以下文件：
+- `bestads-client-styled/role-edit.html` - 角色编辑页面
+- `bestads-client-styled/role-management.html` - 角色管理页面
+- `bestads-client-styled/sub- Colombia-management.html` - 子账号管理页面（Colombia）
+- `bestads-client-styled/sub-account-edit.html` - 子账号编辑页面
+- `bestads-client-styled/sub-account-management.html` - 子账号管理页面
+- `bestads-client-styled/js/role-edit.js` - 角色编辑JavaScript
+- `bestads-client-styled/js/sub-account-edit.js` - 子账号编辑JavaScript
+- `bestads-client-styled/final_fix_sub_account.py` - 子账号Python脚本
+- `bestads-client-styled/modify_sub_edit.py` - 子账号修改Python脚本
+
 #### 本次更新 - 广告账户清零功能实现
 为 `bestads-client-styled` 增加广告账户余额清零功能：
 
@@ -7410,4 +7473,159 @@ BestAds/
 
 ### 📋 验证结果
 所有文件都已正确修复为 `../Log/permission-audit-log.html`，现在从任何页面点击权限审计日志都能正确跳转到日志页面。
+
+
+---
+
+## 2024-12-28 - 新增角色管理和子账号管理功能
+
+### 任务描述
+在bestads-client-styled目录下新增两个HTML页面：
+1. 角色管理页面 - 支持创建和编辑角色
+2. 子账号管理页面 - 支持创建子账号、分配角色、重置密码
+
+### 完成内容
+
+#### 1. 角色管理页面 (role-management.html) ✅
+- **文件位置：** bestads-client-styled/role-management.html
+- **功能特性：**
+  - 角色列表展示
+  - 创建角色功能
+  - 编辑角色功能
+  - 删除角色功能
+  - 搜索和筛选功能
+
+- **角色内容包括：**
+  - 角色名称
+  - 页面和按钮权限（首页、账户管理、操作记录、被拒广告、广告管理、余额管理、角色管理、子账号管理）
+  - 可管理余额的广告账户
+  - 可管理广告的广告账户
+  - 状态（启用/禁用）
+
+- **技术实现：**
+  - 使用Tailwind CSS和公共样式文件
+  - 模态框形式的创建/编辑界面
+  - JavaScript实现CRUD操作
+  - 模拟数据展示功能
+
+#### 2. 子账号管理页面 (sub-account-management.html) 🔄
+- **文件位置：** bestads-client-styled/sub-account-management.html  
+- **开发状态：** 进行中
+- **计划功能特性：**
+  - 子账号列表展示
+  - 创建子账号功能
+  - 编辑子账号功能
+  - 重置密码功能
+  - 删除子账号功能
+
+- **子账号内容包括：**
+  - 登录账号（全局唯一）
+  - 姓名（用于客户识别）
+  - 密码和确认密码
+  - 角色分配
+  - 状态（启用/禁用）
+
+#### 3. 侧边栏更新 🔄
+- 需要在所有页面添加两个新的菜单项：
+  - 角色管理（带fa-user-tag图标）
+  - 子账号管理（带fa-user-plus图标）
+- 待更新页面列表：
+  - index.html
+  - account-management.html
+  - operation-records.html
+  - ad-review-notifications.html
+  - ad-management.html
+  - wallet.html
+  - role-management.html
+  - sub-account-management.html
+
+#### 4. common.js配置更新 🔄
+- 需要在PAGE_CONFIG中添加新页面的配置
+- 待添加配置：
+  - 'role-management': { title: '角色管理', description: '...' }
+  - 'sub-account-management': { title: '子账号管理', description: '...' }
+
+### 文件修改清单
+- ✅ 新增：bestads-client-styled/role-management.html (635行)
+- 🔄 新增：bestads-client-styled/sub-account-management.html (进行中)
+
+### 待完成工作
+1. 完善子账号管理页面的创建和表单功能
+2. 在所有现有页面的侧边栏中添加新菜单项
+3. 更新common.js中的PAGE_CONFIG
+4. 完成跨页面导航测试
+
+### 技术细节
+- 使用Tailwind CSS进行样式设计
+- 遵循现有页面的设计规范和代码风格
+- 模态框使用modal-backdrop类实现遮罩效果
+- 使用Font Awesome图标库
+
+### 备注
+由于文件修改过程中遇到一些编码和技术问题，子账号管理页面需要重新创建完整版本。
+建议在完成子账号管理页面后，统一更新所有页面的侧边栏菜单。
+
+
+## 2024-12-28 更新 - 角色管理页面调整
+
+### 需求说明
+调整角色管理页面功能：
+1. 创建和编辑角色改为页面跳转形式，而非弹窗
+2. 页面权限和按钮改为树结构展示
+3. 可管理广告账户支持搜索筛选和多选
+
+### 已完成
+- ✅ 修改role-management.html中的创建和编辑按钮，改为页面跳转
+- ✅ 记录修改日志
+
+### 待完成
+- 🔄 创建role-edit.html子页面（包含返回功能）
+- 🔄 实现权限树结构展示
+- 🔄 实现广告账户的搜索筛选和多选功能
+- 🔄 创建role-edit.js JavaScript文件
+
+
+---
+
+## 2024-12-28 更新 - 角色管理页面功能完善
+
+### 修改内容总结
+
+#### 1. 角色管理页面调整 (role-management.html) ✅
+- 创建和编辑角色改为页面跳转形式，不再使用弹窗
+- 创建按钮跳转到 `role-edit.html?mode=create`
+- 编辑按钮跳转到 `role-edit.html?mode=edit&id={id}`
+
+#### 2. 角色编辑页面创建 (role-edit.html) ✅
+- 新增独立页面用于角色创建和编辑
+- 包含返回按钮，可返回角色管理页面
+- 页面包含三个主要部分：
+  - 基本信息（角色名称、状态）
+  - 页面和操作权限（树结构展示）
+  - 可管理广告账户（支持筛选和多选）
+
+#### 3. 权限树结构实现 (role-edit.js) ✅
+- 实现可折叠的树形结构展示权限
+- 支持展开/折叠操作
+- 每个页面下显示对应的操作权限（查看、创建、编辑、删除等）
+
+#### 4. 广告账户筛选和多选 (role-edit.js) ✅
+- 可管理余额的广告账户支持搜索筛选
+- 可管理广告的广告账户支持搜索筛选
+- 搜索支持按广告账户ID和名称筛选
+- 支持多选广告账户
+- 选中的账户有高亮显示
+
+### 文件修改清单
+- ✅ 修改：bestads-client-styled/role-management.html
+- ✅ 新增：bestads-client-styled/role-edit.html (266行)
+- ✅ 新增：bestads-client-styled/js/role-edit.js (330行)
+- ✅ 修复：多个乱码问题
+
+### 技术细节
+- 使用Font Awesome图标库
+- 权限树支持展开/折叠
+- 账户选择支持点击整行选择
+- 表单提交后跳转回角色管理页面
+- 编辑模式支持加载现有角色数据
 
