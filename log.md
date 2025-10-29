@@ -1,3 +1,23 @@
+#### 本次更新 - 角色管理页面优化
+对`bestads-client-styled/role-management.html`进行了以下优化：
+
+**操作列改进：**
+- 将编辑按钮从图标改为文案形式
+- 编辑按钮显示为绿色文字按钮（#00FFB0）
+
+**子页面跳转功能：**
+- 创建角色按钮改为链接到独立子页面`role-create.html`
+- 编辑角色改为跳转到`role-edit.html?id=xxx`
+- 创建了`role-create.html`和`role-edit.html`两个页面
+- 子页面包含返回上级页面的箭头按钮
+- 更新了common.js的PAGE_CONFIG，添加新页面配置
+
+**技术实现：**
+- 子页面基于template.html创建
+- 使用组件化的头部和侧边栏
+- 返回按钮使用Font Awesome箭头图标
+- 保持统一的深色主题风格
+
 #### 本次更新 - 子账号管理页面优化
 对`bestads-client-styled/sub-account-management.html`进行了以下优化：
 
