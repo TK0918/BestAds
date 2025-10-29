@@ -61,10 +61,10 @@
               <h2 class="text-2xl font-bold text-white mb-2">角色管理</h2>
               <p class="page-description" style="color: #B0B5C0;">管理和配置系统角色及权限</p>
             </div>
-            <button onclick="openCreateRoleModal()" class="btn-primary px-4 py-2 text-sm font-medium flex items-center space-x-2">
+            <a href="role-create.html" class="btn-primary px-4 py-2 text-sm font-medium flex items-center space-x-2 inline-block">
               <i class="fas fa-plus"></i>
               <span>创建角色</span>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -341,8 +341,8 @@
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${role.updateTime}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm">
-            <button onclick="editRole(${role.id})" class="text-blue-400 hover:text-blue-300">
-              <i class="fas fa-edit"></i>
+            <button onclick="editRole(${role.id})" class="px-3 py-1 text-sm rounded transition-colors" style="background-color: #2A2F3D; color: #00FFB0;" onmouseover="this.style.backgroundColor='#3A3F4D'" onmouseout="this.style.backgroundColor='#2A2F3D'">
+              编辑
             </button>
           </td>
         `;
@@ -360,14 +360,7 @@
 
     // 编辑角色
     function editRole(id) {
-      editingRoleId = id;
-      const role = roles.find(r => r.id === id);
-      
-      document.getElementById('roleModalTitle').textContent = '编辑角色';
-      document.getElementById('roleName').value = role.name;
-      document.getElementById('roleStatus').value = role.status;
-      
-      document.getElementById('roleModal').classList.remove('hidden');
+      window.location.href = `role-edit.html?id=${id}`;
     }
 
     // 关闭角色模态框

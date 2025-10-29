@@ -7,7 +7,11 @@ const PAGE_CONFIG = {
   'account-management': { title: '账户管理', description: '管理您的广告账户，查看账户状态和余额信息' },
   'operation-records': { title: '操作记录', description: '查看您的开户申请和充值记录，跟踪所有操作的处理状态' },
   'wallet': { title: '钱包', description: '管理您的钱包余额、充值与转账' },
-  'ad-review-notifications': { title: '被拒广告', description: '查看您的广告审核结果和详细说明，了解不通过的具体原因' }
+  'ad-review-notifications': { title: '被拒广告', description: '查看您的广告审核结果和详细说明，了解不通过的具体原因' },
+  'sub-account-management': { title: '子账号管理', description: '管理和配置子账号信息' },
+  'role-management': { title: '角色管理', description: '管理和配置系统角色及权限' },
+  'role-create': { title: '创建角色', description: '配置新的系统角色及权限' },
+  'role-edit': { title: '编辑角色', description: '修改系统角色及权限' }
 };
 
 // 余额数据（统一管理）

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>创建角色 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/common.css">
+</head>
+<body class="m-0 p-0 h-screen">
+  <div class="flex w-full h-screen">
+    <!-- Left Sidebar -->
+    <div id="sidebar-container">
+      <!-- 侧边栏将通过JavaScript动态加载 -->
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top Header -->
+      <div id="header-container">
+        <!-- 头部将通过JavaScript动态加载 -->
+      </div>
+
+      <!-- Content Area -->
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <a href="role-management.html" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+              </a>
+              <div>
+                <h2 class="text-2xl font-bold text-white mb-2">创建角色</h2>
+                <p class="page-description" style="color: #B0B5C0;">配置新的系统角色及权限</p>
+              </div>
+            </div>
+            <!-- 页面特定的操作按钮可以放在这里 -->
+            <div>
+              <!-- 示例按钮 -->
+              <!-- <button class="btn-primary px-4 py-2 text-sm font-medium flex items-center space-x-2">
+                <i class="fas fa-plus"></i>
+                <span>新增</span>
+              </button> -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Content -->
+        <div class="mb-6 p-6" style="background-color: #1E2230; border-radius: 6px; border: 1px solid #2E333F;">
+          <p class="text-white mb-4">表单内容待完善</p>
+          <div class="flex justify-end space-x-3 mt-6">
+            <a href="role-management.html" class="btn-secondary px-4 py-2 text-sm font-medium">
+              取消
+            </a>
+            <button onclick="alert('创建成功！'); window.location.href='role-management.html'" class="btn-primary px-4 py-2 text-sm font-medium">
+              确定
+            </button>
+          </div>
+        </div>
+
+        <!-- 更多内容区域可以继续添加 -->
+      </main>
+    </div>
+  </div>
+
+  <!-- 页面特定的模态框或其他组件可以放在这里 -->
+
+  <!-- 引入公共JavaScript -->
+  <script src="./js/common.js"></script>
+  
+  <!-- 页面特定的JavaScript -->
+  <script>
+    // 页面特定的JavaScript代码
+    document.addEventListener('DOMContentLoaded', function() {
+      // 页面初始化完成后的额外操作
+      console.log('页面加载完成');
+      
+      // 如果需要自定义页面标题，可以使用：
+      // CommonUtils.setPageTitle('custom-page-name');
+      
+      // 如果需要更新余额，可以使用：
+      // CommonUtils.updateBalance({ available: '$3,000.00' });
+    });
+  </script>
+</body>
+</html> 
