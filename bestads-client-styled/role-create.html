@@ -7,6 +7,37 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./css/common.css">
+  <style>
+    .permission-tree {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .permission-item {
+      padding: 8px;
+      border-radius: 4px;
+      margin: 4px 0;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .permission-item:hover {
+      background-color: #2A2F3D;
+    }
+    .permission-item input[type="checkbox"] {
+      accent-color: #00FFB0;
+    }
+    .account-item {
+      padding: 8px;
+      border-radius: 4px;
+      margin: 4px 0;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .account-item:hover {
+      background-color: #2A2F3D;
+    }
+  </style>
 </head>
 <body class="m-0 p-0 h-screen">
   <div class="flex w-full h-screen">
@@ -47,17 +78,157 @@
           </div>
         </div>
 
-        <!-- Form Content -->
-        <div class="mb-6 p-6" style="background-color: #1E2230; border-radius: 6px; border: 1px solid #2E333F;">
-          <p class="text-white mb-4">表单内容待完善</p>
-          <div class="flex justify-end space-x-3 mt-6">
-            <a href="role-management.html" class="btn-secondary px-4 py-2 text-sm font-medium">
-              取消
-            </a>
-            <button onclick="alert('创建成功！'); window.location.href='role-management.html'" class="btn-primary px-4 py-2 text-sm font-medium">
-              确定
-            </button>
+        <!-- Inherit Notice -->
+        <div class="mb-6 p-4 rounded-lg flex items-start space-x-3" style="background-color: #1E2230; border: 1px solid #00FFB0;">
+          <i class="fas fa-info-circle text-green-400 mt-1"></i>
+          <div>
+            <p class="text-sm text-white font-medium mb-1">权限继承规则</p>
+            <p class="text-xs text-gray-400">新创建的角色权限默认继承商户/团队管理员的权限上限，但只能做减法（即关闭某些页面/按钮，或收紧广告账户范围/级别），不能赋予管理员本身没有的功能或广告账户。</p>
           </div>
+        </div>
+
+        <!-- Form Content -->
+        <div class="mb-6" style="background-color: #1E2230; border-radius: 6px; border: 1px solid #2E333F; padding: 24px;">
+          <form id="roleForm">
+            <div class="space-y-6">
+              <!-- 基本信息 -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 角色名 -->
+                <div>
+                  <label class="block text-sm text-gray-400 mb-2">角色名 <span class="text-red-500">*</span></label>
+                  <input type="text" id="roleName" name="roleName" class="input-field w-full" placeholder="128位字符" required>
+                  <p class="text-xs text-gray-500 mt-1">最多128个字符</p>
+                </div>
+
+                <!-- 状态 -->
+                <div>
+                  <label class="block text-sm text-gray-400 mb-2">状态 <span class="text-red-500">*</span></label>
+                  <select id="roleStatus" name="roleStatus" class="input-field w-full" required>
+                    <option value="启用">启用</option>
+                    <option value="停用">停用</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 描述 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">描述</label>
+                <textarea id="roleDescription" name="roleDescription" class="input-field w-full" rows="3" placeholder="最多500个字符"></textarea>
+                <p class="text-xs text-gray-500 mt-1">最多500个字符</p>
+              </div>
+
+              <!-- 权限树 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">权限分配 <span class="text-red-500">*</span></label>
+                <div class="permission-tree p-4 rounded-lg" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
+                  <div class="permission-item">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" id="perm-all" onchange="toggleAllPermissions(this)">
+                      <span class="text-white font-medium">全部权限</span>
+                    </label>
+                  </div>
+                  <div class="ml-4 space-y-2">
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="account-management">
+                        <span class="text-white">账户管理</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="ad-management">
+                        <span class="text-white">广告管理</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="data-analysis">
+                        <span class="text-white">数据分析</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="wallet">
+                        <span class="text-white">余额管理</span>
+                      </label>
+                    </div>
+                    <div class="permission-item">
+                      <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="permission" value="operation-records">
+                        <span class="text-white">操作记录</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">至少选择一项权限</p>
+              </div>
+
+              <!-- 广告账户管理 -->
+              <div>
+                <label class="block text-sm text-gray-400 mb-2">可管理的广告账户 <span class="text-red-500">*</span></label>
+                
+                <!-- 余额广告账户 -->
+                <div class="mb-4">
+                  <p class="text-sm text-white mb-2">余额广告账户</p>
+                  <div class="p-4 rounded-lg" style="background-color: #1A1F2B; border: 1px solid #2E333F; max-height: 150px; overflow-y: auto;">
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="balanceAccount" value="act_10001">
+                        <span class="text-white">act_10001 - 账户A</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="balanceAccount" value="act_10002">
+                        <span class="text-white">act_10002 - 账户B</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="balanceAccount" value="act_10003">
+                        <span class="text-white">act_10003 - 账户C</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 普通广告账户 -->
+                <div>
+                  <p class="text-sm text-white mb-2">普通广告账户</p>
+                  <div class="p-4 rounded-lg" style="background-color: #1A1F2B; border: 1px solid #2E333F; max-height: 150px; overflow-y: auto;">
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="normalAccount" value="act_20001">
+                        <span class="text-white">act_20001 - 账户X</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="normalAccount" value="act_20002">
+                        <span class="text-white">act_20002 - 账户Y</span>
+                      </label>
+                    </div>
+                    <div class="account-item">
+                      <label class="flex items-center space-x-2 cursor-pointer w-full">
+                        <input type="checkbox" name="normalAccount" value="act_20003">
+                        <span class="text-white">act_20003 - 账户Z</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="flex justify-end space-x-3 mt-8">
+              <a href="role-management.html" class="btn-secondary px-4 py-2 text-sm font-medium">
+                取消
+              </a>
+              <button type="submit" class="btn-primary px-4 py-2 text-sm font-medium">
+                确定
+              </button>
+            </div>
+          </form>
         </div>
 
         <!-- 更多内容区域可以继续添加 -->
@@ -72,16 +243,35 @@
   
   <!-- 页面特定的JavaScript -->
   <script>
-    // 页面特定的JavaScript代码
-    document.addEventListener('DOMContentLoaded', function() {
-      // 页面初始化完成后的额外操作
-      console.log('页面加载完成');
+    // 全选/取消全选权限
+    function toggleAllPermissions(checkbox) {
+      const permissions = document.querySelectorAll('input[name="permission"]');
+      permissions.forEach(p => {
+        p.checked = checkbox.checked;
+      });
+    }
+
+    // 提交表单
+    document.getElementById('roleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
       
-      // 如果需要自定义页面标题，可以使用：
-      // CommonUtils.setPageTitle('custom-page-name');
+      // 验证至少选择一项权限
+      const selectedPermissions = document.querySelectorAll('input[name="permission"]:checked');
+      if (selectedPermissions.length === 0) {
+        alert('请至少选择一项权限');
+        return;
+      }
+
+      // 验证至少选择一个广告账户
+      const selectedBalanceAccounts = document.querySelectorAll('input[name="balanceAccount"]:checked');
+      const selectedNormalAccounts = document.querySelectorAll('input[name="normalAccount"]:checked');
+      if (selectedBalanceAccounts.length === 0 && selectedNormalAccounts.length === 0) {
+        alert('请至少选择一个可管理的广告账户');
+        return;
+      }
       
-      // 如果需要更新余额，可以使用：
-      // CommonUtils.updateBalance({ available: '$3,000.00' });
+      alert('创建成功！');
+      window.location.href = 'role-management.html';
     });
   </script>
 </body>
