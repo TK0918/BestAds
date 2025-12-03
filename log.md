@@ -1,3 +1,62 @@
+#### 本次更新 - 更新所有页面的侧边栏菜单
+更新了`admin-system`目录下所有HTML文件的侧边栏菜单，添加了"返点配置"和"代理管理"菜单项，确保所有页面都能正常跳转到返点配置页面。
+
+**更新的文件列表：**
+- main-functions/index.html
+- main-functions/agent_management.html
+- main-functions/customer-management.html
+- fb-business/account-management.html
+- fb-business/account-opening.html
+- fb-business/account-allocation.html
+- fb-business/recharge-management.html
+- fb-business/deduction-management.html
+- fb-business/clear-management.html
+- fb-business/service-fee-config.html
+- ad-governance/ad-review.html
+- reports/report1.html
+- reports/negative-ad-report.html
+- reports/customer-recharge-report.html
+- reports/account-recharge-report.html
+- reports/account-consume-report.html
+- customer-transactions/transaction-detail.html
+- customer-transactions/online-recharge.html
+- customer-transactions/offline-transfer.html
+- Log/permission-audit-log.html
+
+**更新内容：**
+- 在所有页面的"主要功能"菜单中添加了"代理管理"链接（如果之前没有）
+- 在所有页面的"主要功能"菜单中添加了"返点配置"链接
+- 使用正确的相对路径：`../main-functions/rebate-config.html` 或 `rebate-config.html`（取决于文件位置）
+- 使用Font Awesome图标 `fa-percent` 表示返点配置
+
+#### 本次更新 - 返点配置页面创建
+在`admin-system/main-functions/`文件夹下创建了`rebate-config.html`返点配置页面，实现了V2.3账户返点设置功能。
+
+**页面结构：**
+- 使用标签页切换：账户类型返点设置、账户返点设置
+- 保持与现有项目一致的UI风格和组件结构
+- 包含完整的侧边栏导航和顶部栏
+
+**账户类型返点设置功能：**
+- 列表显示：代理、账户类型、返点(%)、状态、修改人、最后修改时间
+- 新增配置：支持选择代理（多选）、账户类型、输入返点、选择状态
+- 编辑配置：可修改返点和状态
+- 支持7种账户类型：Facebook-三不限、企业户、海外户、绿通户；Tiktok-企业户；Google-海外户；Snapchat-企业户
+
+**账户返点设置功能：**
+- 筛选功能：支持按代理、账户类型、广告账户ID、广告账户名称、状态筛选
+- 列表显示：广告账户ID、账户名称、返点(%)、状态、最后修改时间、修改人、代理、账户类型、账户类型返点
+- 新增配置：支持选择广告账户（多选）、输入返点、选择状态
+- 编辑配置：可修改返点和状态
+- 批量操作：支持批量修改状态、批量修改返点
+- 复选框选择：支持全选和单独选择
+
+**技术实现：**
+- 使用Tailwind CSS和Font Awesome图标
+- 模态框弹窗用于新增和编辑操作
+- JavaScript实现标签页切换、模态框控制、批量操作等功能
+- 响应式设计，支持移动端和桌面端
+
 #### 本次更新 - 角色管理页面优化
 对`bestads-client-styled/role-management.html`进行了以下优化：
 
