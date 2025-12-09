@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>消耗分析报表 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .card-metric { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.25rem; }
+    .card-metric .title { color: #6B7280; font-size: 0.95rem; font-weight: 500; }
+    .card-metric .value { font-size: 1.75rem; font-weight: 700; color: #1F2937; }
+    .card-metric .sub { color: #6B7280; font-size: 0.9rem; }
+    .echarts-box { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .echarts-title { font-size: 1.1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .echarts-toggle { background: #F3F4F6; border-radius: 0.375rem; padding: 0.25rem 0.75rem; font-size: 0.9rem; cursor: pointer; margin-left: 0.5rem; }
+    .echarts-toggle.active { background: #2563EB; color: white; }
+    .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.8rem; }
+    .badge-success { background: #ECFDF3; color: #16A34A; }
+    .badge-warn { background: #FEF3C7; color: #D97706; }
+    .badge-danger { background: #FEF2F2; color: #DC2626; }
+    .table-simple th, .table-simple td { padding: 0.6rem 0.75rem; font-size: 0.9rem; border-bottom: 1px solid #E5E7EB; }
+    .table-simple th { background: #F9FAFB; text-align: left; color: #4B5563; font-weight: 600; }
+    .table-simple td { color: #374151; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-between h-16 border-b border-gray-200 px-4">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+        <button id="sidebarCollapseBtn" class="lg:block hidden p-2 ml-2 text-gray-400 hover:text-blue-600 focus:outline-none" onclick="toggleSidebarCollapse()">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+      <!-- 侧边栏菜单区 -->
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            </ul>
+          </div>
+          <!-- FB业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+              <li><a href="data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i>数据报表</a></li>
+              <li><a href="consume-analysis-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-bolt w-5 h-5 mr-3 text-blue-500"></i>消耗分析</a></li>
+              <li><a href="recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i>充值分布分析</a></li>
+              <li><a href="profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i>预计利润波动分析</a></li>
+              <li><a href="customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i>客户资金变动</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <!-- 主要内容 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">消耗分析</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+            <!-- 筛选区 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">日期范围</label>
+                  <div class="flex items-center gap-2">
+                    <input type="date" id="filterStart" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <span class="text-gray-500">至</span>
+                    <input type="date" id="filterEnd" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">默认最近15天</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">账户类型</label>
+                  <div id="accountTypeContainer" class="flex flex-wrap gap-2 max-w-md">
+                    <!-- 动态生成 -->
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">代理</label>
+                  <div id="agentContainer" class="flex flex-wrap gap-2 max-w-md">
+                    <!-- 动态生成 -->
+                  </div>
+                </div>
+                <button class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" onclick="onFilterSubmit()">
+                  <i class="fas fa-search mr-2"></i>查询
+                </button>
+              </div>
+            </div>
+
+            <!-- 卡片区：月度进度 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="card-metric">
+                <div class="title mb-2">上月总消耗</div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="value" id="card-last-month">$0.00</div>
+                    <div class="sub mt-1">自然月合计</div>
+                  </div>
+                  <div class="text-blue-600 text-2xl"><i class="fas fa-wallet"></i></div>
+                </div>
+              </div>
+              <div class="card-metric">
+                <div class="title mb-2">本月总消耗</div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="value" id="card-this-month">$0.00</div>
+                    <div class="sub mt-1 flex items-center">本月累计至今日</div>
+                  </div>
+                  <div class="text-purple-600 text-2xl"><i class="fas fa-burn"></i></div>
+                </div>
+                <div class="mt-3">
+                  <div class="flex justify-between text-sm text-gray-500 mb-1">
+                    <span>时间进度</span><span id="time-progress-label">0%</span>
+                  </div>
+                  <div class="w-full bg-gray-100 rounded-full h-2"><div id="time-progress-bar" class="h-2 rounded-full bg-blue-500" style="width:0%"></div></div>
+                </div>
+                <div class="mt-3">
+                  <div class="flex justify-between text-sm text-gray-500 mb-1">
+                    <span>消耗追赶进度</span><span id="catch-progress-label">0%</span>
+                  </div>
+                  <div class="w-full bg-gray-100 rounded-full h-2"><div id="catch-progress-bar" class="h-2 rounded-full bg-green-500" style="width:0%"></div></div>
+                </div>
+              </div>
+              <div class="card-metric">
+                <div class="title mb-2">进度提示</div>
+                <div id="progress-hint" class="text-sm text-gray-700 leading-6">
+                  加载中...
+                </div>
+              </div>
+            </div>
+
+            <!-- 模块：客户排行榜 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>当月累计消耗榜（客户）</span>
+                </div>
+                <div id="chart-monthly-top" style="height: 360px;"></div>
+              </div>
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>日消耗排名异动榜（客户）</span>
+                  <div class="text-sm text-gray-500">横向条形 + 右侧显示金额与升降</div>
+                </div>
+                <div id="chart-daily-rank" style="height: 360px;"></div>
+              </div>
+            </div>
+
+            <!-- 模块：消耗分布与下钻 -->
+            <div class="echarts-box">
+              <div class="echarts-title">
+                <span>消耗分布（代理 x 账户类型，堆叠占比）</span>
+                <div class="text-sm text-gray-500">点击某日查看TOP异动</div>
+              </div>
+              <div id="chart-distribution" style="height: 380px;"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>TOP20 排名上升客户</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full table-simple" id="table-rise-customers">
+                    <thead>
+                      <tr><th>客户</th><th>变化金额</th><th>变化幅度</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>TOP20 排名下跌客户</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full table-simple" id="table-fall-customers">
+                    <thead>
+                      <tr><th>客户</th><th>变化金额</th><th>变化幅度</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>TOP20 排名上升广告账户</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full table-simple" id="table-rise-accounts">
+                    <thead>
+                      <tr><th>广告账户</th><th>变化金额</th><th>变化幅度</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="echarts-box">
+                <div class="echarts-title">
+                  <span>TOP20 排名下跌广告账户</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full table-simple" id="table-fall-accounts">
+                    <thead>
+                      <tr><th>广告账户</th><th>变化金额</th><th>变化幅度</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const accountTypes = [
+      'Facebook-三不限', 'Facebook-企业户', 'Facebook-海外户', 'Facebook-绿通户',
+      'Tiktok-企业户', 'Google-海外户', 'Snapchat-企业户'
+    ];
+    const agents = ['星河代理', '晨光代理', '北辰代理', '青云代理', '极光代理', '瀚海代理'];
+    const customers = Array.from({ length: 25 }, (_, i) => '客户' + (i + 1));
+    const adAccounts = Array.from({ length: 30 }, (_, i) => 'ACC-' + String(100000 + i));
+
+    // 初始化筛选 UI
+    function initFilters() {
+      const accContainer = document.getElementById('accountTypeContainer');
+      accountTypes.forEach(type => {
+        const id = 'acc-' + type;
+        const label = document.createElement('label');
+        label.className = 'flex items-center space-x-2 text-sm bg-gray-100 px-2 py-1 rounded';
+        label.innerHTML = `<input type="checkbox" id="${id}" value="${type}" class="accent-blue-600" checked> <span>${type}</span>`;
+        accContainer.appendChild(label);
+      });
+      const agentContainer = document.getElementById('agentContainer');
+      agents.forEach(a => {
+        const id = 'ag-' + a;
+        const label = document.createElement('label');
+        label.className = 'flex items-center space-x-2 text-sm bg-gray-100 px-2 py-1 rounded';
+        label.innerHTML = `<input type="checkbox" id="${id}" value="${a}" class="accent-blue-600" checked> <span>${a}</span>`;
+        agentContainer.appendChild(label);
+      });
+      // 默认日期：最近15天
+      const end = new Date();
+      const start = new Date();
+      start.setDate(end.getDate() - 14);
+      document.getElementById('filterStart').value = toDateInput(start);
+      document.getElementById('filterEnd').value = toDateInput(end);
+    }
+
+    function toDateInput(d) { return d.toISOString().slice(0, 10); }
+
+    function getCheckedValues(containerId) {
+      return Array.from(document.querySelectorAll('#' + containerId + ' input[type="checkbox"]:checked')).map(i => i.value);
+    }
+
+    // 数据生成
+    function genDateRange(startStr, endStr) {
+      const arr = [];
+      let d = new Date(startStr);
+      const end = new Date(endStr);
+      while (d <= end) {
+        arr.push(toDateInput(d));
+        d.setDate(d.getDate() + 1);
+      }
+      return arr;
+    }
+
+    function genConsumeMatrix(dates, accTypes, selectedAgents) {
+      // 返回 {date: {accountType: amount}}，同时计算代理系数
+      const result = {};
+      dates.forEach(date => {
+        result[date] = {};
+        accTypes.forEach(type => {
+          const base = 3000 + Math.random() * 7000;
+          const agentFactor = 0.7 + Math.random() * 0.6; // 0.7~1.3
+          const agentLoad = Math.max(1, selectedAgents.length);
+          const amount = base * agentFactor * agentLoad * 0.2; // 稍微缩放以防过大
+          result[date][type] = +amount.toFixed(2);
+        });
+      });
+      return result;
+    }
+
+    function sumAmount(matrix) {
+      let total = 0;
+      Object.values(matrix).forEach(dayObj => {
+        Object.values(dayObj).forEach(v => { total += v; });
+      });
+      return +total.toFixed(2);
+    }
+
+    function calcMonthlyCards(matrix) {
+      const today = new Date();
+      const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const elapsedDays = today.getDate();
+
+      let thisMonth = 0;
+      let lastMonth = 0;
+      Object.entries(matrix).forEach(([dateStr, values]) => {
+        const d = new Date(dateStr);
+        const daySum = Object.values(values).reduce((a, b) => a + b, 0);
+        if (d >= currentMonthStart && d <= today) thisMonth += daySum;
+        if (d >= lastMonthStart && d <= lastMonthEnd) lastMonth += daySum;
+      });
+      // 如果选定范围不包含上月，用随机值填充一个模拟上月基准
+      if (lastMonth === 0) {
+        lastMonth = thisMonth * (0.8 + Math.random() * 0.3);
+      }
+      const timeProgress = Math.min(100, +(elapsedDays / daysInMonth * 100).toFixed(1));
+      const catchProgress = lastMonth === 0 ? 0 : +(thisMonth / lastMonth * 100).toFixed(1);
+      return {
+        thisMonth: thisMonth.toFixed(2),
+        lastMonth: lastMonth.toFixed(2),
+        timeProgress,
+        catchProgress
+      };
+    }
+
+    // 榜单假数据
+    function genMonthlyTop() {
+      const data = customers.map(c => ({
+        name: c,
+        amount: +(5000 + Math.random() * 90000).toFixed(2)
+      }));
+      data.sort((a, b) => b.amount - a.amount);
+      return data.slice(0, 15);
+    }
+
+    function genDailyRankChange() {
+      const list = customers.slice(0, 15).map(c => {
+        const amount = +(2000 + Math.random() * 30000).toFixed(2);
+        const delta = Math.floor(Math.random() * 15) - 7; // -7~7
+        return { name: c, amount, delta };
+      });
+      list.sort((a, b) => b.amount - a.amount);
+      return list;
+    }
+
+    function genTopChangeItems(sourceList, isAccount = false, isDecline = false) {
+      const list = sourceList.map(n => ({
+        name: n,
+        amount: +(2000 + Math.random() * 60000).toFixed(2),
+        percent: +(Math.random() * 80 + 5).toFixed(1)
+      }));
+      if (isDecline) {
+        list.forEach(i => { i.amount = -i.amount; i.percent = -i.percent; });
+        list.sort((a, b) => a.amount - b.amount);
+      } else {
+        list.sort((a, b) => b.amount - a.amount);
+      }
+      return list.slice(0, 20);
+    }
+
+    // 渲染函数
+    function renderMonthlyTop(data) {
+      const chart = echarts.init(document.getElementById('chart-monthly-top'));
+      chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', name: '本月消耗(USD)' },
+        yAxis: { type: 'category', data: data.map(d => d.name), inverse: true },
+        series: [{
+          name: '消耗金额',
+          type: 'bar',
+          data: data.map(d => d.amount),
+          label: { show: true, position: 'right', formatter: '{c}' },
+          itemStyle: { color: '#2563EB' }
+        }]
+      });
+    }
+
+    function renderDailyRankChart(list) {
+      const chart = echarts.init(document.getElementById('chart-daily-rank'));
+      const names = list.map(d => d.name);
+      const amounts = list.map(d => d.amount);
+      const deltas = list.map(d => d.delta);
+      chart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: params => {
+            const p = params[0];
+            const delta = deltas[p.dataIndex];
+            const arrow = delta > 0 ? '↑' : delta < 0 ? '↓' : '-';
+            const color = delta > 0 ? '#16A34A' : delta < 0 ? '#DC2626' : '#6B7280';
+            return `
+              <div>${p.name}</div>
+              <div>当天消耗：$${p.value.toLocaleString()}</div>
+              <div style="color:${color}">排名变化：${arrow}${delta === 0 ? '' : Math.abs(delta)}</div>
+            `;
+          }
+        },
+        grid: { left: '3%', right: '26%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', name: '当天消耗(USD)' },
+        yAxis: { type: 'category', data: names, inverse: true },
+        series: [{
+          name: '当天消耗',
+          type: 'bar',
+          data: amounts,
+          label: {
+            show: true,
+            position: 'right',
+            formatter: ({ dataIndex, value }) => {
+              const delta = deltas[dataIndex];
+              const arrow = delta > 0 ? '↑' : delta < 0 ? '↓' : '-';
+              const sign = delta === 0 ? '' : Math.abs(delta);
+              const styleName = delta > 0 ? 'rise' : delta < 0 ? 'fall' : 'same';
+              return `{amt|$${Number(value).toLocaleString()}}  {${styleName}|${arrow}${sign}}`;
+            },
+            rich: {
+              amt: { color: '#111827', fontWeight: 600 },
+              rise: { color: '#16A34A', fontWeight: 'bold', padding: [0, 0, 0, 6] },
+              fall: { color: '#DC2626', fontWeight: 'bold', padding: [0, 0, 0, 6] },
+              same: { color: '#6B7280', fontWeight: 'bold', padding: [0, 0, 0, 6] }
+            }
+          },
+          itemStyle: {
+            color: '#10B981'
+          }
+        }]
+      });
+    }
+
+    function renderDistribution(dates, accTypes, matrix) {
+      const chart = echarts.init(document.getElementById('chart-distribution'));
+      const series = accTypes.map(type => ({
+        name: type,
+        type: 'bar',
+        stack: 'total',
+        emphasis: { focus: 'series' },
+        data: dates.map(d => matrix[d][type] || 0)
+      }));
+      chart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: params => {
+            const total = params.reduce((a, b) => a + b.value, 0) || 1;
+            let html = `<div class="text-sm mb-1">${params[0].axisValue}</div>`;
+            params.forEach(p => {
+              const ratio = ((p.value / total) * 100).toFixed(1);
+              html += `<div>${p.marker}${p.seriesName}: $${p.value.toLocaleString()} (${ratio}%)</div>`;
+            });
+            return html;
+          }
+        },
+        legend: { type: 'scroll', top: 10 },
+        grid: { left: '3%', right: '4%', bottom: '6%', containLabel: true },
+        xAxis: { type: 'category', data: dates },
+        yAxis: { type: 'value', name: '消耗金额(USD)' },
+        series
+      });
+      chart.off('click');
+      chart.on('click', (params) => handleDrilldown(params.name));
+    }
+
+    function renderTopTable(tbodyId, data) {
+      const tbody = document.querySelector(tbodyId);
+      tbody.innerHTML = '';
+      data.forEach(item => {
+        const isNegative = item.amount < 0;
+        const color = isNegative ? 'text-red-600' : 'text-green-600';
+        const sign = isNegative ? '-' : '+';
+        const absAmount = Math.abs(item.amount).toLocaleString();
+        const absPercent = Math.abs(item.percent).toFixed(1);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.name}</td>
+          <td class="${color}">${sign}$${absAmount}</td>
+          <td class="${color}">${sign}${absPercent}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 下钻
+    function handleDrilldown(dateStr) {
+      // 模拟不同日期的波动
+      const seed = dateStr.split('-').join('');
+      const idx = parseInt(seed.slice(-2), 10) || 1;
+      const rotatedCustomers = customers.slice(idx).concat(customers.slice(0, idx));
+      const rotatedAccounts = adAccounts.slice(idx).concat(adAccounts.slice(0, idx));
+
+      const riseCustomers = genTopChangeItems(rotatedCustomers, false, false);
+      const fallCustomers = genTopChangeItems(rotatedCustomers, false, true);
+      const riseAccounts = genTopChangeItems(rotatedAccounts, true, false);
+      const fallAccounts = genTopChangeItems(rotatedAccounts, true, true);
+
+      renderTopTable('#table-rise-customers tbody', riseCustomers);
+      renderTopTable('#table-fall-customers tbody', fallCustomers);
+      renderTopTable('#table-rise-accounts tbody', riseAccounts);
+      renderTopTable('#table-fall-accounts tbody', fallAccounts);
+    }
+
+    // 卡片与提示
+    function renderCards(matrix) {
+      const cards = calcMonthlyCards(matrix);
+      document.getElementById('card-last-month').innerText = '$' + Number(cards.lastMonth).toLocaleString();
+      document.getElementById('card-this-month').innerText = '$' + Number(cards.thisMonth).toLocaleString();
+      document.getElementById('time-progress-label').innerText = cards.timeProgress + '%';
+      document.getElementById('time-progress-bar').style.width = cards.timeProgress + '%';
+      document.getElementById('catch-progress-label').innerText = cards.catchProgress + '%';
+      document.getElementById('catch-progress-bar').style.width = Math.min(100, cards.catchProgress) + '%';
+
+      let hint = '';
+      if (cards.catchProgress >= cards.timeProgress + 5) {
+        hint = '消耗进度领先时间进度，保持节奏。';
+      } else if (cards.catchProgress >= cards.timeProgress - 5) {
+        hint = '消耗进度接近时间进度，关注核心客户稳定输出。';
+      } else {
+        hint = '消耗进度落后时间进度，需拉动大户或增加投放计划。';
+      }
+      document.getElementById('progress-hint').innerText = hint;
+    }
+
+    function onFilterSubmit() {
+      const start = document.getElementById('filterStart').value;
+      const end = document.getElementById('filterEnd').value;
+      const selectedAcc = getCheckedValues('accountTypeContainer');
+      const selectedAgents = getCheckedValues('agentContainer');
+      if (!start || !end) { alert('请选择日期范围'); return; }
+      if (selectedAcc.length === 0) { alert('至少选择一个账户类型'); return; }
+      if (selectedAgents.length === 0) { alert('至少选择一个代理'); return; }
+
+      const dates = genDateRange(start, end);
+      const matrix = genConsumeMatrix(dates, selectedAcc, selectedAgents);
+      renderCards(matrix);
+      renderMonthlyTop(genMonthlyTop());
+      renderDailyRankChart(genDailyRankChange());
+      renderDistribution(dates, selectedAcc, matrix);
+      // 默认下钻为最后一天
+      handleDrilldown(dates[dates.length - 1]);
+    }
+
+    // 侧边栏交互
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+      }
+    }
+    document.getElementById('sidebar-overlay').addEventListener('click', function() { toggleSidebar(); });
+    function toggleSidebarCollapse() {
+      document.getElementById('sidebar').classList.toggle('sidebar-collapsed');
+      document.querySelectorAll('#sidebar span, #sidebar h3').forEach(el => { el.classList.toggle('hidden'); });
+    }
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id.replace('Menu', 'MenuArrow'));
+      const isHidden = ul.classList.contains('hidden');
+      ul.classList.toggle('hidden', !isHidden);
+      arrow.classList.toggle('rotate-180', !isHidden);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      initFilters();
+      onFilterSubmit();
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.getElementById('sidebar-overlay');
+          sidebar.classList.remove('mobile-menu-closed');
+          sidebar.classList.add('mobile-menu-open');
+          overlay.classList.add('hidden');
+          overlay.classList.add('opacity-0');
+          overlay.classList.remove('opacity-50');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

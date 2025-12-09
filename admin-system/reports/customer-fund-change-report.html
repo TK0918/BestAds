@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户资金变动监控 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .card-metric { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .card-metric .title { color: #6B7280; font-size: 1rem; font-weight: 500; }
+    .card-metric .value { font-size: 2rem; font-weight: 700; color: #1F2937; }
+    .card-metric .trend { font-size: 0.95rem; }
+    .trend-up { color: #16A34A; }
+    .trend-down { color: #EF4444; }
+    .echarts-box { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .echarts-title { font-size: 1.1rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .echarts-toggle { background: #F3F4F6; border-radius: 0.375rem; padding: 0.25rem 0.75rem; font-size: 0.95rem; cursor: pointer; margin-left: 1rem; }
+    .echarts-toggle.active { background: #2563EB; color: white; }
+    .sidebar-collapsed { width: 64px !important; }
+    .sidebar-collapsed .sidebar-item span, .sidebar-collapsed h3 { display: none !important; }
+    .sidebar-collapsed .sidebar-item i { margin-right: 0 !important; }
+    .table-box { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .fund-table-header { display: grid; grid-template-columns: 1.2fr repeat(5, 1fr); gap: 0.75rem; padding: 0.75rem 0.75rem; color: #4B5563; font-weight: 600; font-size: 0.9rem; background: #F9FAFB; border-radius: 0.5rem; }
+    .fund-table-row { display: grid; grid-template-columns: 1.2fr repeat(5, 1fr); gap: 0.75rem; padding: 0.9rem 0.75rem; border-bottom: 1px solid #E5E7EB; cursor: pointer; align-items: center; }
+    .fund-table-row:hover { background: #F3F4F6; }
+    .fund-sort-btn { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: #6B7280; }
+    .fund-sort-btn.active { color: #2563EB; font-weight: 600; }
+    .pill { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 9999px; background: #EFF6FF; color: #1D4ED8; font-size: 0.75rem; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-between h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+        <button id="sidebarCollapseBtn" class="lg:block hidden p-2 ml-2 text-gray-400 hover:text-blue-600 focus:outline-none" onclick="toggleSidebarCollapse()">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+      <!-- 侧边栏菜单区，支持滚动和树状折叠 -->
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            </ul>
+          </div>
+          <!-- FB业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+              <li><a href="data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i>数据报表</a></li>
+              <li><a href="consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i>消耗分析</a></li>
+              <li><a href="recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i>充值分布分析</a></li>
+              <li><a href="profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i>预计利润波动分析</a></li>
+              <li><a href="customer-fund-change-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-blue-500"></i>客户资金变动</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+    <!-- 主要内容区域 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">客户资金变动监控</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <!-- 汇总筛选 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">汇总范围</label>
+                  <select id="rangeSelect" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="refreshTable()">
+                    <option value="3">最近3天</option>
+                    <option value="5">最近5天</option>
+                    <option value="7" selected>最近7天</option>
+                    <option value="15">最近15天</option>
+                    <option value="30">最近30天</option>
+                  </select>
+                </div>
+                <div class="text-sm text-gray-500 flex items-center gap-2">
+                  <span class="pill">核心风险指标：昨日总资产净值</span>
+                  <span class="pill">异常模式：无打款充值 / 无充值消耗</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 客户汇总表 -->
+            <div class="table-box">
+              <div class="flex justify-between items-center mb-3">
+                <div>
+                  <h2 class="text-lg font-semibold text-gray-900">客户资金汇总</h2>
+                  <p class="text-sm text-gray-500">点击客户行查看逐日趋势</p>
+                </div>
+                <div class="text-sm text-gray-500">单位：USD</div>
+              </div>
+              <div class="fund-table-header">
+                <div>商户ID / 名称</div>
+                <div class="flex items-center gap-1">
+                  <span>昨日总资产净值</span>
+                  <span class="fund-sort-btn" data-field="netAsset" onclick="setSort('netAsset')"><i class="fas fa-sort"></i></span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span>钱包变动金额</span>
+                  <span class="fund-sort-btn" data-field="walletChange" onclick="setSort('walletChange')"><i class="fas fa-sort"></i></span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span>打款金额</span>
+                  <span class="fund-sort-btn" data-field="remitAmount" onclick="setSort('remitAmount')"><i class="fas fa-sort"></i></span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span>支出金额</span>
+                  <span class="fund-sort-btn" data-field="spendAmount" onclick="setSort('spendAmount')"><i class="fas fa-sort"></i></span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span>消耗金额</span>
+                  <span class="fund-sort-btn" data-field="consumeAmount" onclick="setSort('consumeAmount')"><i class="fas fa-sort"></i></span>
+                </div>
+              </div>
+              <div id="customerTable"></div>
+            </div>
+
+            <!-- 趋势图 -->
+            <div class="echarts-box">
+              <div class="echarts-title">
+                <div>
+                  <span id="trendTitle" class="font-semibold text-gray-900">请选择客户查看趋势</span>
+                  <span id="trendHint" class="ml-3 text-sm text-gray-500"></span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <label>日期范围</label>
+                    <input type="date" id="trendStart" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <span class="text-gray-400">至</span>
+                    <input type="date" id="trendEnd" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <button class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="refreshTrend()">
+                    <i class="fas fa-sync-alt mr-1"></i>刷新趋势
+                  </button>
+                </div>
+              </div>
+              <div id="trendChart" style="height: 380px;"></div>
+              <p class="mt-3 text-sm text-gray-500">指标口径：打款≈支出，消耗&lt;支出，钱包变动趋近0 为健康状态</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // 侧边栏切换
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+      }
+    }
+    document.getElementById('sidebar-overlay').addEventListener('click', function() { toggleSidebar(); });
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        if (this.getAttribute('href') === '#') { e.preventDefault(); }
+        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active', 'text-gray-900', 'bg-gray-100'));
+        this.classList.add('active', 'text-gray-900', 'bg-gray-100');
+      });
+    });
+    window.addEventListener('resize', function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+    });
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+    function toggleSidebarCollapse() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('sidebar-collapsed');
+      const btn = document.getElementById('sidebarCollapseBtn');
+      const icon = btn.querySelector('i');
+      if (sidebar.classList.contains('sidebar-collapsed')) {
+        icon.classList.remove('fa-angle-double-left');
+        icon.classList.add('fa-angle-double-right');
+      } else {
+        icon.classList.remove('fa-angle-double-right');
+        icon.classList.add('fa-angle-double-left');
+      }
+    }
+
+    // ========== 数据生成与工具 ==========
+    const clientNames = ['客户A', '客户B', '客户C', '客户D', '客户E', '客户F', '客户G', '客户H', '客户I', '客户J'];
+
+    function getDateArray(start, end) {
+      const arr = [];
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      let dt = new Date(startDate);
+      while (dt <= endDate) {
+        arr.push(dt.toISOString().slice(0, 10));
+        dt.setDate(dt.getDate() + 1);
+      }
+      return arr;
+    }
+
+    function getNDaysAgo(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function genTableData(rangeDays) {
+      return clientNames.map((name, idx) => {
+        const netAsset = +(Math.random() * 80000 + 20000).toFixed(2);
+        const walletChange = +(Math.random() * 20000 - 10000).toFixed(2); // 可能为负
+        const remitAmount = +(Math.random() * 60000 + 10000).toFixed(2);
+        const spendAmount = +(remitAmount * (0.7 + Math.random() * 0.5)).toFixed(2);
+        const consumeAmount = +(spendAmount * (0.6 + Math.random() * 0.3)).toFixed(2);
+        return {
+          merchantId: 'MER' + String(100000 + idx),
+          name,
+          netAsset,
+          walletChange,
+          remitAmount,
+          spendAmount,
+          consumeAmount
+        };
+      });
+    }
+
+    function genTrendData(customerName, start, end) {
+      const dates = getDateArray(start, end);
+      return {
+        customerName,
+        dates,
+        netAsset: dates.map(() => +(Math.random() * 50000 + 15000).toFixed(2)),
+        walletChange: dates.map(() => +(Math.random() * 4000 - 2000).toFixed(2)),
+        remitAmount: dates.map(() => +(Math.random() * 10000 + 2000).toFixed(2)),
+        spendAmount: dates.map(() => +(Math.random() * 9000 + 1500).toFixed(2)),
+        consumeAmount: dates.map(() => +(Math.random() * 7000 + 1000).toFixed(2))
+      };
+    }
+
+    // ========== 表格与排序 ==========
+    let tableData = [];
+    let sortField = 'netAsset';
+    let sortAsc = false; // 默认净值倒序
+    let selectedCustomer = null;
+
+    function setSort(field) {
+      if (sortField === field) {
+        sortAsc = !sortAsc;
+      } else {
+        sortField = field;
+        sortAsc = false;
+      }
+      // 只重新渲染当前数据，避免刷新数据导致排序错乱
+      renderTable();
+    }
+
+    function formatMoney(num) {
+      const n = Number(num);
+      const isNeg = n < 0;
+      const abs = Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      return (isNeg ? '-' : '') + '$' + abs;
+    }
+
+    function renderTable() {
+      const container = document.getElementById('customerTable');
+      const sorted = [...tableData].sort((a, b) => {
+        const va = a[sortField];
+        const vb = b[sortField];
+        return sortAsc ? va - vb : vb - va;
+      });
+
+      document.querySelectorAll('.fund-sort-btn').forEach(btn => {
+        btn.classList.remove('active');
+        const field = btn.getAttribute('data-field');
+        if (field === sortField) btn.classList.add('active');
+      });
+
+      container.innerHTML = sorted.map(row => `
+        <div class="fund-table-row" onclick="selectCustomer('${row.merchantId}', '${row.name}')">
+          <div class="flex flex-col">
+            <span class="text-gray-900 font-semibold">${row.merchantId}</span>
+            <span class="text-sm text-gray-500">${row.name}</span>
+          </div>
+          <div class="text-gray-900 font-semibold">${formatMoney(row.netAsset)}</div>
+          <div class="${row.walletChange < 0 ? 'text-red-600' : 'text-green-600'} font-semibold">${formatMoney(row.walletChange)}</div>
+          <div class="text-gray-900 font-semibold">${formatMoney(row.remitAmount)}</div>
+          <div class="text-gray-900 font-semibold">${formatMoney(row.spendAmount)}</div>
+          <div class="text-gray-900 font-semibold">${formatMoney(row.consumeAmount)}</div>
+        </div>
+      `).join('');
+    }
+
+    function refreshTable() {
+      const rangeDays = Number(document.getElementById('rangeSelect').value);
+      tableData = genTableData(rangeDays);
+      renderTable();
+      // 默认选中第一行
+      if (tableData.length) {
+        selectCustomer(tableData[0].merchantId, tableData[0].name, false);
+      }
+    }
+
+    // ========== 趋势图 ==========
+    let chartInstance = null;
+
+    function setDefaultTrendRange() {
+      const end = getNDaysAgo(1);
+      const start = getNDaysAgo(7);
+      document.getElementById('trendStart').value = start;
+      document.getElementById('trendEnd').value = end;
+    }
+
+    function selectCustomer(merchantId, name, scrollIntoView = true) {
+      selectedCustomer = { merchantId, name };
+      document.getElementById('trendTitle').textContent = `${name} (${merchantId})`;
+      document.getElementById('trendHint').textContent = '展示该客户每日资金链路指标';
+      if (scrollIntoView) {
+        document.getElementById('trendChart').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      refreshTrend();
+    }
+
+    function refreshTrend() {
+      if (!selectedCustomer) return;
+      const start = document.getElementById('trendStart').value;
+      const end = document.getElementById('trendEnd').value;
+      const data = genTrendData(selectedCustomer.name, start, end);
+      renderTrendChart(data);
+    }
+
+    function renderTrendChart(data) {
+      if (chartInstance) chartInstance.dispose();
+      chartInstance = echarts.init(document.getElementById('trendChart'));
+      const option = {
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['当天总资产净值', '钱包变动金额', '打款金额', '支出金额', '消耗金额'] },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: data.dates },
+        yAxis: { type: 'value', name: '金额(USD)' },
+        series: [
+          { name: '当天总资产净值', type: 'line', smooth: true, data: data.netAsset, itemStyle: { color: '#2563EB' } },
+          { name: '钱包变动金额', type: 'bar', data: data.walletChange, itemStyle: { color: '#10B981' }, yAxisIndex: 0 },
+          { name: '打款金额', type: 'line', smooth: true, data: data.remitAmount, itemStyle: { color: '#F59E0B' } },
+          { name: '支出金额', type: 'line', smooth: true, data: data.spendAmount, itemStyle: { color: '#3B82F6' } },
+          { name: '消耗金额', type: 'line', smooth: true, data: data.consumeAmount, itemStyle: { color: '#EF4444' } }
+        ]
+      };
+      chartInstance.setOption(option);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      setDefaultTrendRange();
+      refreshTable();
+    });
+  </script>
+</body>
+</html>
+
