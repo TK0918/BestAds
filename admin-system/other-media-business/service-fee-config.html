@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>其他媒体服务费配置 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .modal-backdrop { backdrop-filter: blur(8px); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .status-active { background-color: #10b981; color: white; }
+    .status-inactive { background-color: #6b7280; color: white; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+      </div>
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="service-fee-config.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-500"></i>服务费率配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <script>
+        function toggleMenuSection(id) {
+          const ul = document.getElementById(id);
+          const arrow = document.getElementById(id + 'Arrow');
+          if (ul.style.display === 'none') { ul.style.display = ''; arrow.classList.remove('fa-chevron-right'); arrow.classList.add('fa-chevron-down'); } else { ul.style.display = 'none'; arrow.classList.remove('fa-chevron-down'); arrow.classList.add('fa-chevron-right'); }
+        }
+      </script>
+    </aside>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">其他媒体业务管理</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">服务费率配置</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative"><button class="p-2 text-gray-400 hover:text-gray-500 relative"><i class="fas fa-bell text-lg"></i><span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">1</span></button></div>
+            <div class="flex items-center space-x-3"><div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center"><span class="text-white text-sm font-medium">A</span></div><span class="hidden md:block text-sm font-medium text-gray-700">管理员</span></div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+              <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">服务费率配置</h2>
+                  <p class="mt-1 text-sm text-gray-500">从广告账户维度配置服务费率规则</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+              <div class="p-6">
+                <section id="panel-account" class="">
+                  <div class="bg-white border border-gray-200 rounded-lg mb-4">
+                    <div class="px-4 py-4 border-b border-gray-200"><h3 class="text-md font-medium text-gray-900">筛选条件</h3></div>
+                    <div class="p-4">
+                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-2">媒体平台</label>
+                          <select id="filterPlatform" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">全部平台</option>
+                            <option value="Snapchat">Snapchat</option>
+                            <option value="X">X</option>
+                            <option value="Taboola">Taboola</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-2">代理</label>
+                          <select id="filterAgent" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">全部代理</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-2">广告账户ID</label>
+                          <input id="filterAccountId" type="text" placeholder="输入账户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-2">广告账户名称</label>
+                          <input id="filterAccountName" type="text" placeholder="输入账户名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                          <select id="filterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">全部状态</option>
+                            <option value="active">启用</option>
+                            <option value="inactive">停用</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="flex justify-between items-center mt-4">
+                        <button onclick="searchAccountFees()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm"><i class="fas fa-search mr-2"></i>搜索</button>
+                        <div class="space-x-2">
+                          <button onclick="resetAccountFilters()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm">重置</button>
+                          <button onclick="openAccountEditModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm"><i class="fas fa-plus mr-2"></i>新增配置</button>
+                          <button id="batchStatusBtn" onclick="openBatchStatusModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm opacity-50 cursor-not-allowed" disabled><i class="fas fa-toggle-on mr-2"></i>批量修改状态</button>
+                          <button id="batchFeeBtn" onclick="openBatchFeeModal()" class="bg-purple-600 text-white px-4 py-2 rounded-md text-sm opacity-50 cursor-not-allowed" disabled><i class="fas fa-percent mr-2"></i>批量修改服务费率</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 table-hover">
+                      <thead class="bg-gray-50">
+                        <tr>
+                          <th class="px-6 py-3"></th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户服务费率</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最后修改时间</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最后修改人</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">代理</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">代理服务费率</th>
+                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                      </thead>
+                      <tbody id="accountFeeTbody" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                  </div>
+                  <div class="text-sm text-gray-500 mt-3">共 <span id="accountFeeTotal" class="text-gray-900 font-medium">0</span> 条</div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <!-- 账户服务费率 新增/编辑 -->
+  <div id="accountEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900" id="accountEditTitle">新增账户服务费率</h3>
+          <button onclick="closeModal('accountEditModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitAccountEdit(event)">
+          <input type="hidden" id="accountEditIndex">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">选择账户 <span class="text-gray-500">(支持多选)</span></label>
+              <select id="accountSelect" multiple class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" style="min-height: 120px;">
+              </select>
+              <div class="text-xs text-gray-500 mt-1">按住 Ctrl/Cmd 键可多选账户</div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">账户服务费率(%)</label>
+              <input id="accountFeeInput" type="number" step="0.01" min="0" max="100" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+              <select id="accountStatusInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="active">启用</option>
+                <option value="inactive">停用</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('accountEditModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">确认</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量状态 -->
+  <div id="batchStatusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-sm w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900">批量修改状态</h3>
+          <button onclick="closeModal('batchStatusModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="px-6 py-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">目标状态</label>
+          <select id="batchStatusSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="active">启用</option><option value="inactive">停用</option></select>
+          <div class="text-xs text-gray-500 mt-3">将对所选账户生效</div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('batchStatusModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+            <button type="button" onclick="submitBatchStatus()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">确认</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量服务费率 -->
+  <div id="batchFeeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-sm w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900">批量修改服务费率</h3>
+          <button onclick="closeModal('batchFeeModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="px-6 py-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">服务费率(%)</label>
+          <input id="batchFeeInput" type="number" step="0.01" min="0" max="100" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <div class="text-xs text-gray-500 mt-3">将对所选账户生效</div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('batchFeeModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+            <button type="button" onclick="submitBatchFee()" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700">确认</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 数据示例
+    let accountFeeRows = [
+      { id: 'act_123456', name: '电商推广账户', fee: 5.00, status: 'active', updatedAt: '2024-07-01 08:00:00', updatedBy: 'Admin', agent: 'GIMC 广告', agentFee: 3.50 },
+      { id: 'act_999888', name: '游戏发行账户', fee: 4.20, status: 'inactive', updatedAt: '2024-06-25 11:30:00', updatedBy: 'Alice', agent: 'Madhouse', agentFee: 2.00 }
+    ];
+    
+    // 可用账户列表（模拟数据）
+    let availableAccounts = [
+      { id: 'act_111111', name: '品牌推广账户', agent: 'GIMC 广告' },
+      { id: 'act_222222', name: '效果广告账户', agent: 'GIMC 广告' },
+      { id: 'act_333333', name: '社交营销账户', agent: 'Madhouse' },
+      { id: 'act_444444', name: '视频广告账户', agent: 'Madhouse' },
+      { id: 'act_555555', name: '搜索广告账户', agent: 'GIMC 广告' },
+      { id: 'act_666666', name: '展示广告账户', agent: 'Madhouse' }
+    ];
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing...');
+      renderAccountFees();
+      fillAgentOptions();
+      fillAccountOptions();
+      console.log('Initialization complete');
+    });
+
+
+    // 渲染账户服务费率
+    function renderAccountFees(rows = accountFeeRows) {
+      const tbody = document.getElementById('accountFeeTbody');
+      tbody.innerHTML = '';
+      rows.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select h-4 w-4 text-blue-600" data-id="${row.id}"></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.name}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatPercent(row.fee)}</td>
+          <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${row.status==='active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${row.status==='active'?'启用':'停用'}</span></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.updatedAt}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.updatedBy}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.agent}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatPercent(row.agentFee)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm"><button class="text-blue-600 hover:text-blue-800" onclick="openAccountEditModal(${findIndexById(row.id)})"><i class="fas fa-edit mr-1"></i>编辑</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('accountFeeTotal').textContent = rows.length;
+      bindRowSelect();
+    }
+
+    function openAccountEditModal(index) {
+      console.log('openAccountEditModal called with index:', index);
+      const isEdit = typeof index === 'number' && index >= 0;
+      document.getElementById('accountEditIndex').value = isEdit ? String(index) : '';
+      document.getElementById('accountEditTitle').textContent = isEdit ? '编辑账户服务费率' : '新增账户服务费率';
+      
+      const accountSelectEl = document.getElementById('accountSelect');
+      const feeEl = document.getElementById('accountFeeInput');
+      const stEl = document.getElementById('accountStatusInput');
+      
+      if (isEdit) {
+        // 编辑模式：隐藏账户选择，显示当前账户信息
+        const row = accountFeeRows[index];
+        accountSelectEl.style.display = 'none';
+        
+        // 隐藏label和提示文字
+        const labelEl = accountSelectEl.previousElementSibling;
+        const hintEl = accountSelectEl.nextElementSibling;
+        if (labelEl) labelEl.style.display = 'none';
+        if (hintEl) hintEl.style.display = 'none';
+        
+        // 显示当前账户信息
+        const accountInfo = document.createElement('div');
+        accountInfo.className = 'mb-4 p-3 bg-gray-50 rounded-md';
+        accountInfo.innerHTML = `
+          <div class="text-sm text-gray-700">
+            <div><strong>账户ID:</strong> ${row.id}</div>
+            <div><strong>账户名称:</strong> ${row.name}</div>
+            <div><strong>代理:</strong> ${row.agent}</div>
+          </div>
+        `;
+        accountSelectEl.parentNode.insertBefore(accountInfo, accountSelectEl);
+        
+        feeEl.value = row.fee;
+        stEl.value = row.status;
+      } else {
+        // 新增模式：显示账户选择
+        accountSelectEl.style.display = 'block';
+        
+        // 显示label和提示文字
+        const labelEl = accountSelectEl.previousElementSibling;
+        const hintEl = accountSelectEl.nextElementSibling;
+        if (labelEl) labelEl.style.display = 'block';
+        if (hintEl) hintEl.style.display = 'block';
+        
+        // 移除账户信息显示
+        const accountInfo = accountSelectEl.parentNode.querySelector('.bg-gray-50');
+        if (accountInfo) accountInfo.remove();
+        
+        // 清空选择
+        Array.from(accountSelectEl.options).forEach(option => option.selected = false);
+        feeEl.value = '';
+        stEl.value = 'active';
+      }
+      
+      const modal = document.getElementById('accountEditModal');
+      console.log('Modal element:', modal);
+      console.log('Modal classes before:', modal.className);
+      modal.classList.remove('hidden');
+      console.log('Modal classes after:', modal.className);
+    }
+    function submitAccountEdit(e) {
+      e.preventDefault();
+      const idxStr = document.getElementById('accountEditIndex').value;
+      const isEdit = idxStr !== '';
+      
+      if (isEdit) {
+        // 编辑模式：更新单个账户
+        const row = accountFeeRows[Number(idxStr)];
+        row.fee = parseFloat(document.getElementById('accountFeeInput').value);
+        row.status = document.getElementById('accountStatusInput').value;
+        row.updatedAt = formatNow();
+        row.updatedBy = 'Admin';
+        
+        closeModal('accountEditModal');
+        renderAccountFees();
+        showNotification('账户服务费率已更新', 'success');
+      } else {
+        // 新增模式：批量创建多个账户
+        const selectedOptions = Array.from(document.getElementById('accountSelect').selectedOptions);
+        const fee = parseFloat(document.getElementById('accountFeeInput').value);
+        const status = document.getElementById('accountStatusInput').value;
+        
+        if (selectedOptions.length === 0) {
+          showNotification('请选择至少一个账户', 'error');
+          return;
+        }
+        
+        const newAccounts = selectedOptions.map(option => {
+          const accountData = availableAccounts.find(acc => acc.id === option.value);
+          return {
+            id: accountData.id,
+            name: accountData.name,
+            fee: fee,
+            status: status,
+            updatedAt: formatNow(),
+            updatedBy: 'Admin',
+            agent: accountData.agent,
+            agentFee: getAgentFeeByName(accountData.agent)
+          };
+        });
+        
+        // 检查是否已存在相同账户
+        const existingIds = accountFeeRows.map(row => row.id);
+        const duplicateIds = newAccounts.filter(acc => existingIds.includes(acc.id));
+        
+        if (duplicateIds.length > 0) {
+          showNotification(`以下账户已存在配置：${duplicateIds.map(acc => acc.id).join(', ')}`, 'error');
+          return;
+        }
+        
+        accountFeeRows.unshift(...newAccounts);
+        closeModal('accountEditModal');
+        renderAccountFees();
+        fillAccountOptions(); // 更新账户选择列表
+        showNotification(`已成功创建 ${newAccounts.length} 个账户的服务费率配置`, 'success');
+      }
+    }
+
+    // 批量
+    function bindRowSelect() {
+      const checkboxes = document.querySelectorAll('#accountFeeTbody .row-select');
+      const refresh = () => {
+        const any = Array.from(checkboxes).some(cb => cb.checked);
+        toggleBatchButtons(any);
+      };
+      checkboxes.forEach(cb => cb.addEventListener('change', refresh));
+      refresh();
+    }
+    function toggleBatchButtons(enabled) {
+      const btn1 = document.getElementById('batchStatusBtn');
+      const btn2 = document.getElementById('batchFeeBtn');
+      [btn1, btn2].forEach(btn => {
+        if (enabled) { btn.classList.remove('opacity-50','cursor-not-allowed'); btn.removeAttribute('disabled'); }
+        else { btn.classList.add('opacity-50','cursor-not-allowed'); btn.setAttribute('disabled','true'); }
+      });
+    }
+    function openBatchStatusModal() { document.getElementById('batchStatusModal').classList.remove('hidden'); }
+    function openBatchFeeModal() { document.getElementById('batchFeeModal').classList.remove('hidden'); }
+    function submitBatchStatus() {
+      const status = document.getElementById('batchStatusSelect').value;
+      const ids = selectedAccountIds();
+      accountFeeRows = accountFeeRows.map(r => ids.includes(r.id) ? { ...r, status, updatedAt: formatNow(), updatedBy: 'Admin' } : r);
+      renderAccountFees();
+      closeModal('batchStatusModal');
+      showNotification(`已更新 ${ids.length} 个账户状态`, 'success');
+    }
+    function submitBatchFee() {
+      const feeVal = parseFloat(document.getElementById('batchFeeInput').value);
+      if (isNaN(feeVal)) { showNotification('请输入有效的服务费率', 'error'); return; }
+      const ids = selectedAccountIds();
+      accountFeeRows = accountFeeRows.map(r => ids.includes(r.id) ? { ...r, fee: feeVal, updatedAt: formatNow(), updatedBy: 'Admin' } : r);
+      renderAccountFees();
+      closeModal('batchFeeModal');
+      showNotification(`已更新 ${ids.length} 个账户服务费率`, 'success');
+    }
+    function selectedAccountIds() {
+      return Array.from(document.querySelectorAll('#accountFeeTbody .row-select:checked')).map(cb => cb.dataset.id);
+    }
+
+    // 筛选
+    function searchAccountFees() {
+      const ag = document.getElementById('filterAgent').value.trim().toLowerCase();
+      const id = document.getElementById('filterAccountId').value.trim().toLowerCase();
+      const name = document.getElementById('filterAccountName').value.trim().toLowerCase();
+      const st = document.getElementById('filterStatus').value;
+      const filtered = accountFeeRows.filter(r =>
+        (!ag || r.agent.toLowerCase().includes(ag)) &&
+        (!id || r.id.toLowerCase().includes(id)) &&
+        (!name || r.name.toLowerCase().includes(name)) &&
+        (!st || r.status === st)
+      );
+      renderAccountFees(filtered);
+      showNotification(`搜索完成，共 ${filtered.length} 条结果`, 'info');
+    }
+    function resetAccountFilters() {
+      document.getElementById('filterAgent').value = '';
+      document.getElementById('filterAccountId').value = '';
+      document.getElementById('filterAccountName').value = '';
+      document.getElementById('filterStatus').value = '';
+      renderAccountFees();
+      showNotification('筛选条件已重置', 'info');
+    }
+
+    // 工具函数
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    document.addEventListener('click', function(e){ if (e.target.classList.contains('modal-backdrop')) { e.target.classList.add('hidden'); } });
+    function formatPercent(n) { return (Number(n) || 0).toFixed(2) + '%'; }
+    function formatNow() { const d = new Date(); const pad = (n)=> String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+    function findIndexById(id) { return accountFeeRows.findIndex(r => r.id === id); }
+    function getAgentFeeByName(name) { 
+      // 模拟代理数据，实际应从后端获取
+      const mockAgents = [
+        { name: 'GIMC 广告', fee: 3.50 },
+        { name: 'Madhouse', fee: 2.00 }
+      ];
+      const row = mockAgents.find(a => a.name === name); 
+      return row ? row.fee : 0; 
+    }
+    function fillAgentOptions() {
+      // 模拟代理数据，实际应从后端获取
+      const agents = ['GIMC 广告', 'Madhouse'];
+      const sel1 = document.getElementById('filterAgent');
+      if (sel1) { sel1.innerHTML = '<option value="">全部代理</option>' + agents.map(a=>`<option value="${a}">${a}</option>`).join(''); }
+    }
+    
+    function fillAccountOptions() {
+      // 填充账户选择下拉框，排除已配置的账户
+      const existingIds = accountFeeRows.map(row => row.id);
+      const availableOptions = availableAccounts
+        .filter(acc => !existingIds.includes(acc.id))
+        .map(acc => `<option value="${acc.id}">${acc.id} - ${acc.name} (${acc.agent})</option>`)
+        .join('');
+      
+      const accountSelect = document.getElementById('accountSelect');
+      console.log('fillAccountOptions - accountSelect element:', accountSelect);
+      console.log('fillAccountOptions - availableOptions:', availableOptions);
+      if (accountSelect) {
+        accountSelect.innerHTML = availableOptions;
+        console.log('fillAccountOptions - options set successfully');
+      }
+    }
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) { sidebar.classList.remove('mobile-menu-closed'); sidebar.classList.add('mobile-menu-open'); overlay.classList.remove('hidden'); overlay.classList.remove('opacity-0'); overlay.classList.add('opacity-50'); }
+      else { sidebar.classList.remove('mobile-menu-open'); sidebar.classList.add('mobile-menu-closed'); overlay.classList.add('opacity-0'); overlay.classList.remove('opacity-50'); setTimeout(()=>overlay.classList.add('hidden'),300); }
+    }
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-20 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto transform transition-all duration-300 translate-x-full`;
+      const typeColors = { 'info': 'border-blue-400 text-blue-700', 'success': 'border-green-400 text-green-700', 'warning': 'border-yellow-400 text-yellow-700', 'error': 'border-red-400 text-red-700' };
+      const typeIcons = { 'info': 'fas fa-info-circle', 'success': 'fas fa-check-circle', 'warning': 'fas fa-exclamation-triangle', 'error': 'fas fa-times-circle' };
+      notification.innerHTML = `
+        <div class="rounded-lg shadow-lg border-l-4 ${typeColors[type]} p-4">
+          <div class="flex">
+            <div class="flex-shrink-0"><i class="${typeIcons[type]}"></i></div>
+            <div class="ml-3"><p class="text-sm font-medium">${message}</p></div>
+            <div class="ml-auto pl-3"><button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
+          </div>
+        </div>`;
+      document.body.appendChild(notification);
+      setTimeout(()=>{ notification.classList.remove('translate-x-full'); }, 100);
+      setTimeout(()=>{ notification.classList.add('translate-x-full'); setTimeout(()=>notification.remove(), 300); }, 4000);
+    }
+  </script>
+</body>
+</html>
+

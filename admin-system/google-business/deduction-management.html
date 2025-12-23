@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google账户减款 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .sort-icon { cursor: pointer; color: #9CA3AF; transition: color 0.2s; }
+    .sort-icon:hover { color: #4B5563; }
+    .sort-icon.active { color: #00FFB0; }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            BestAds Admin
+          </span>
+        </div>
+      </div>
+      <!-- 侧边栏菜单区，支持滚动和树状折叠 -->
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            </ul>
+          </div>
+          <!-- Google业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="deduction-management.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-500"></i>账户减款</a></li>
+              <li><a href="clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <script>
+        function toggleMenuSection(id) {
+          const ul = document.getElementById(id);
+          const arrow = document.getElementById(id + 'Arrow');
+          if (ul.style.display === 'none') {
+            ul.style.display = '';
+            arrow.classList.remove('fa-chevron-right');
+            arrow.classList.add('fa-chevron-down');
+          } else {
+            ul.style.display = 'none';
+            arrow.classList.remove('fa-chevron-down');
+            arrow.classList.add('fa-chevron-right');
+          }
+        }
+      </script>
+          </aside>
+
+    <!-- 遮罩层 (移动端) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <!-- 主要内容区域 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <!-- 左侧 -->
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">账户减款</span>
+              </nav>
+            </div>
+          </div>
+          <!-- 右侧 -->
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 页面标题区域 -->
+            <div class="mb-8">
+              <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">账户减款</h2>
+                  <p class="mt-1 text-sm text-gray-500">记录客户提交的减款需求，并从一代处更新减款状态</p>
+                </div>
+              </div>
+            </div>
+            <!-- 筛选区域 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+              <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
+              </div>
+              <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-9 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">提交时间</label>
+                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">减款ID</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="减款ID">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">广告账户ID</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="广告账户ID">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">广告账户名称</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="广告账户名称">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="客户ID">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="客户名称">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户邮箱</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="客户邮箱">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">一代</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="一代">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部</option>
+                      <option value="减款中">减款中</option>
+                      <option value="待人工处理">待人工处理</option>
+                      <option value="完成">完成</option>
+                      <option value="失败">失败</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                  <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-search mr-2"></i>筛选
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- 列表表格 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">减款需求列表</h3>
+                <div class="flex items-center space-x-3">
+                  <button id="openDeductionModal" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-minus mr-2"></i>减款
+                  </button>
+                  <a href="clear-management.html" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-eraser mr-2"></i>清零管理
+                  </a>
+                  <button id="manualProcessBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 opacity-50 cursor-not-allowed" disabled>
+                    <i class="fas fa-tools mr-2"></i>人工处理
+                  </button>
+                  <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-download mr-2"></i>导出
+                  </button>
+                  <div class="text-sm text-gray-500">共 <span class="font-medium text-gray-900">10</span> 条</div>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 table-hover" id="deductionTable">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">选择</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">减款ID</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户ID</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户邮箱</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('submitTime')">
+                        提交时间
+                        <i class="fas fa-sort-down sort-icon active ml-1" id="submitTimeIcon"></i>
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">一代</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">减款金额</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('completeTime')">
+                        完成时间
+                        <i class="fas fa-sort sort-icon ml-1" id="completeTimeIcon"></i>
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200" id="deductionTableBody">
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC001</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1001</td>
+                      <td class="px-6 py-4 whitespace-nowrap">张三</td>
+                      <td class="px-6 py-4 whitespace-nowrap">zhangsan@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-09 10:30">2024-06-09 10:30</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB001234567</td>
+                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户01</td>
+                      <td class="px-6 py-4 whitespace-nowrap">王一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">1,000.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-09 11:00">2024-06-09 11:00</td>
+                      <td class="px-6 py-4 whitespace-nowrap">到账无误</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC002</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1002</td>
+                      <td class="px-6 py-4 whitespace-nowrap">李四</td>
+                      <td class="px-6 py-4 whitespace-nowrap">lisi@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-08 09:20">2024-06-08 09:20</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB001234568</td>
+                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户02</td>
+                      <td class="px-6 py-4 whitespace-nowrap">李一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">500.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-yellow-600">减款中</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">等待一代确认</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC003</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1003</td>
+                      <td class="px-6 py-4 whitespace-nowrap">王五</td>
+                      <td class="px-6 py-4 whitespace-nowrap">wangwu@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-07 12:10">2024-06-07 12:10</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB009876543</td>
+                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户03</td>
+                      <td class="px-6 py-4 whitespace-nowrap">赵一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">800.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC004</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1004</td>
+                      <td class="px-6 py-4 whitespace-nowrap">赵六</td>
+                      <td class="px-6 py-4 whitespace-nowrap">zhaoliu@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-07 09:45">2024-06-07 09:45</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB001111222</td>
+                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户04</td>
+                      <td class="px-6 py-4 whitespace-nowrap">钱一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">1,200.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC005</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1005</td>
+                      <td class="px-6 py-4 whitespace-nowrap">钱七</td>
+                      <td class="px-6 py-4 whitespace-nowrap">qianqi@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 15:20">2024-06-06 15:20</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB003333444</td>
+                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户05</td>
+                      <td class="px-6 py-4 whitespace-nowrap">孙一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">300.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC006</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1006</td>
+                      <td class="px-6 py-4 whitespace-nowrap">孙八</td>
+                      <td class="px-6 py-4 whitespace-nowrap">sunba@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 08:00">2024-06-06 08:00</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB005555666</td>
+                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户06</td>
+                      <td class="px-6 py-4 whitespace-nowrap">周一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">900.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-red-600">失败</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 09:10">2024-06-06 09:10</td>
+                      <td class="px-6 py-4 whitespace-nowrap">余额不足</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC007</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1007</td>
+                      <td class="px-6 py-4 whitespace-nowrap">周九</td>
+                      <td class="px-6 py-4 whitespace-nowrap">zhoujiu@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-05 18:40">2024-06-05 18:40</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB007777888</td>
+                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户07</td>
+                      <td class="px-6 py-4 whitespace-nowrap">吴一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">2,500.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-05 19:00">2024-06-05 19:00</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC008</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1008</td>
+                      <td class="px-6 py-4 whitespace-nowrap">吴十</td>
+                      <td class="px-6 py-4 whitespace-nowrap">wushi@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-04 14:15">2024-06-04 14:15</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB009999000</td>
+                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户08</td>
+                      <td class="px-6 py-4 whitespace-nowrap">郑一代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">700.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-yellow-600">减款中</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC009</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1009</td>
+                      <td class="px-6 py-4 whitespace-nowrap">郑十一</td>
+                      <td class="px-6 py-4 whitespace-nowrap">zheng11@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-03 10:05">2024-06-03 10:05</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB001212121</td>
+                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户09</td>
+                      <td class="px-6 py-4 whitespace-nowrap">王二代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">1,800.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-red-600">失败</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-03 10:45">2024-06-03 10:45</td>
+                      <td class="px-6 py-4 whitespace-nowrap">风控拒绝</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+                      <td class="px-6 py-4 whitespace-nowrap">DC010</td>
+                      <td class="px-6 py-4 whitespace-nowrap">C1010</td>
+                      <td class="px-6 py-4 whitespace-nowrap">钱十二</td>
+                      <td class="px-6 py-4 whitespace-nowrap">qian12@bestads.com</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-02 16:55">2024-06-02 16:55</td>
+                      <td class="px-6 py-4 whitespace-nowrap">FB004545454</td>
+                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户10</td>
+                      <td class="px-6 py-4 whitespace-nowrap">李二代</td>
+                      <td class="px-6 py-4 whitespace-nowrap">950.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
+                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-02 17:25">2024-06-02 17:25</td>
+                      <td class="px-6 py-4 whitespace-nowrap">-</td>
+                    </tr>
+                  </tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 减款弹窗 -->
+  <div id="deductionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+      <button id="closeDeductionModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4">发起减款</h3>
+      <form id="deductionForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">选择客户</label>
+          <select id="customerSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">请选择客户</option>
+          </select>
+          <div id="customerBalance" class="mt-2 text-sm text-gray-500"></div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">选择广告账户（支持搜索，多选）</label>
+          <input type="text" id="accountSearch" placeholder="输入广告账户名称/ID搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-2">
+          <div id="accountList" class="max-h-32 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50"></div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">减款金额设置</label>
+          <div id="deductionAmounts" class="space-y-2"></div>
+          <div id="totalAmount" class="mt-2 text-sm text-gray-500"></div>
+        </div>
+        <div class="flex justify-end">
+          <button type="button" id="submitDeduction" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium">提交</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- 人工处理弹窗 -->
+  <div id="manualProcessModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button id="closeManualProcessModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4">人工处理</h3>
+      <div class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+        请确认已经在代理的系统中完成减款处理再使用此功能。
+      </div>
+      <form id="manualProcessForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">处理结果（必选）</label>
+          <select id="manualResult" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">请选择</option>
+            <option value="成功">成功</option>
+            <option value="失败">失败</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">备注（选填）</label>
+          <textarea id="manualRemark" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="填写备注（可选）"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancelManualProcess" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+          <button type="submit" id="confirmManualProcess" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">确定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentSort = {
+      column: 'submitTime',
+      direction: 'desc'
+    };
+
+    function sortTable(column) {
+      const table = document.getElementById('deductionTableBody');
+      const rows = Array.from(table.rows);
+      // 确定排序方向
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.direction = 'asc';
+      }
+      currentSort.column = column;
+      // 获取列索引
+      let columnIndex;
+      if (column === 'submitTime') {
+        columnIndex = 4;
+      } else if (column === 'completeTime') {
+        columnIndex = 10;
+      }
+      // 排序
+      rows.sort((a, b) => {
+        const aValue = a.cells[columnIndex].getAttribute('data-sort') || '';
+        const bValue = b.cells[columnIndex].getAttribute('data-sort') || '';
+        // 处理空值，空值总是排在最后
+        if (aValue === '' && bValue === '') return 0;
+        if (aValue === '') return 1;
+        if (bValue === '') return -1;
+        const result = aValue.localeCompare(bValue);
+        return currentSort.direction === 'asc' ? result : -result;
+      });
+      // 重新插入排序后的行
+      rows.forEach(row => table.appendChild(row));
+      // 更新排序图标
+      updateSortIcons();
+    }
+
+    function updateSortIcons() {
+      // 重置所有图标
+      document.getElementById('submitTimeIcon').className = 'fas fa-sort sort-icon ml-1';
+      document.getElementById('completeTimeIcon').className = 'fas fa-sort sort-icon ml-1';
+      // 设置当前排序列的图标
+      const iconId = currentSort.column + 'Icon';
+      const icon = document.getElementById(iconId);
+      if (currentSort.direction === 'asc') {
+        icon.className = 'fas fa-sort-up sort-icon active ml-1';
+      } else {
+        icon.className = 'fas fa-sort-down sort-icon active ml-1';
+      }
+    }
+
+    // 页面加载时默认按提交时间倒序排序，并绑定人工处理逻辑
+    document.addEventListener('DOMContentLoaded', function() {
+      updateSortIcons();
+      bindManualProcessEnable();
+      setupManualProcessModal();
+    });
+
+    // 模拟客户和广告账户数据
+    const customers = [
+      { id: 'C1001', name: '张三', balance: 5000, accounts: [
+        { id: 'FB001234567', name: '跨境电商账户01', balance: 200 },
+        { id: 'FB001234569', name: '品牌推广账户03', balance: 150 }
+      ] },
+      { id: 'C1002', name: '李四', balance: 1200, accounts: [
+        { id: 'FB001234568', name: '移动应用账户02', balance: 300 }
+      ] }
+    ];
+
+    // 打开弹窗
+    const openBtn = document.getElementById('openDeductionModal');
+    const modal = document.getElementById('deductionModal');
+    const closeBtn = document.getElementById('closeDeductionModal');
+    openBtn.addEventListener('click', () => { modal.classList.remove('hidden'); });
+    closeBtn.addEventListener('click', () => { modal.classList.add('hidden'); });
+
+    // 客户下拉和余额展示
+    const customerSelect = document.getElementById('customerSelect');
+    const customerBalance = document.getElementById('customerBalance');
+    customers.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.name}（${c.id}）`;
+      customerSelect.appendChild(opt);
+    });
+    customerSelect.addEventListener('change', function() {
+      const selected = customers.find(c => c.id === this.value);
+      customerBalance.textContent = selected ? `可用余额：¥${selected.balance}` : '';
+      renderAccountList(selected ? selected.accounts : []);
+    });
+
+    // 广告账户搜索与多选
+    const accountSearch = document.getElementById('accountSearch');
+    const accountList = document.getElementById('accountList');
+    const deductionAmounts = document.getElementById('deductionAmounts');
+    const totalAmount = document.getElementById('totalAmount');
+    let currentAccounts = [];
+    let selectedCustomer = null;
+
+    function renderAccountList(accounts) {
+      currentAccounts = accounts;
+      accountList.innerHTML = '';
+      accounts.forEach(acc => {
+        const label = document.createElement('label');
+        label.className = 'flex items-center mb-1 cursor-pointer';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = acc.id;
+        checkbox.className = 'mr-2';
+        checkbox.addEventListener('change', updateDeductionAmounts);
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(`${acc.name}（${acc.id}）- 当前余额：¥${acc.balance}`));
+        accountList.appendChild(label);
+      });
+    }
+
+    function updateDeductionAmounts() {
+      const checked = Array.from(accountList.querySelectorAll('input[type=checkbox]:checked'));
+      deductionAmounts.innerHTML = '';
+      
+      checked.forEach(checkbox => {
+        const account = currentAccounts.find(acc => acc.id === checkbox.value);
+        if (!account) return;
+        
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+        div.innerHTML = `
+          <div class="flex-1 pr-2">
+            <div class="text-sm font-medium">${account.name}</div>
+            <div class="text-xs text-gray-500 flex items-center space-x-4">
+              <span>当前余额：¥${account.balance}</span>
+              <span>可减款金额：¥${account.balance}</span>
+            </div>
+          </div>
+          <input type="number" min="1" max="${account.balance}" placeholder="减款金额" 
+                 class="w-28 px-2 py-1 text-sm border border-gray-300 rounded deduction-input text-right"
+                 data-account-id="${account.id}" data-max-balance="${account.balance}">
+        `;
+        deductionAmounts.appendChild(div);
+      });
+      
+      updateTotalAmount();
+    }
+
+    function updateTotalAmount() {
+      const inputs = deductionAmounts.querySelectorAll('.deduction-input');
+      let total = 0;
+      let hasError = false;
+      
+      inputs.forEach(input => {
+        const amount = parseFloat(input.value) || 0;
+        const maxBalance = parseFloat(input.dataset.maxBalance);
+        total += amount;
+        
+        // 实时校验减款金额不能大于账户余额
+        if (amount > maxBalance) {
+          input.classList.add('border-red-500');
+          hasError = true;
+        } else {
+          input.classList.remove('border-red-500');
+        }
+      });
+      
+      if (selectedCustomer) {
+        const balance = selectedCustomer.balance;
+        totalAmount.innerHTML = `总减款金额：¥${total} / 可用余额：¥${balance}`;
+        totalAmount.className = total > balance || hasError ? 'mt-2 text-sm text-red-500' : 'mt-2 text-sm text-gray-500';
+      }
+    }
+
+    // 监听减款金额输入变化
+    deductionAmounts.addEventListener('input', function(e) {
+      if (e.target.classList.contains('deduction-input')) {
+        const amount = parseFloat(e.target.value) || 0;
+        const maxBalance = parseFloat(e.target.dataset.maxBalance);
+        
+        // 实时限制输入金额不能超过账户余额
+        if (amount > maxBalance) {
+          e.target.value = maxBalance;
+        }
+        
+        updateTotalAmount();
+      }
+    });
+
+    accountSearch.addEventListener('input', function() {
+      const val = this.value.trim().toLowerCase();
+      const selected = customers.find(c => c.id === customerSelect.value);
+      if (!selected) return;
+      const filtered = selected.accounts.filter(acc =>
+        acc.name.toLowerCase().includes(val) || acc.id.toLowerCase().includes(val)
+      );
+      renderAccountList(filtered);
+    });
+
+    // 提交减款
+    const submitBtn = document.getElementById('submitDeduction');
+    submitBtn.addEventListener('click', function() {
+      const customerId = customerSelect.value;
+      const customer = customers.find(c => c.id === customerId);
+      if (!customer) return alert('请选择客户');
+      
+      const checked = Array.from(accountList.querySelectorAll('input[type=checkbox]:checked'));
+      if (checked.length === 0) return alert('请选择广告账户');
+      
+      const inputs = deductionAmounts.querySelectorAll('.deduction-input');
+      let totalAmount = 0;
+      const deductionDetails = [];
+      let hasError = false;
+      
+      inputs.forEach(input => {
+        const amount = parseFloat(input.value) || 0;
+        const maxBalance = parseFloat(input.dataset.maxBalance);
+        
+        if (amount > 0) {
+          if (amount > maxBalance) {
+            hasError = true;
+            return;
+          }
+          totalAmount += amount;
+          deductionDetails.push({
+            accountId: input.dataset.accountId,
+            amount: amount
+          });
+        }
+      });
+      
+      if (hasError) return alert('减款金额不能大于广告账户当前余额');
+      if (totalAmount === 0) return alert('请输入减款金额');
+      if (totalAmount > customer.balance) return alert(`可用余额不足！总减款金额：¥${totalAmount}，可用余额：¥${customer.balance}`);
+      
+      // 模拟提交
+      alert(`为客户${customer.name}的${deductionDetails.length}个广告账户减款，总金额：¥${totalAmount}`);
+      modal.classList.add('hidden');
+      document.getElementById('deductionForm').reset();
+      customerBalance.textContent = '';
+      accountList.innerHTML = '';
+      deductionAmounts.innerHTML = '';
+      totalAmount.textContent = '';
+    });
+
+    customerSelect.addEventListener('change', function() {
+      selectedCustomer = customers.find(c => c.id === this.value);
+      customerBalance.textContent = selectedCustomer ? `可用余额：¥${selectedCustomer.balance}` : '';
+      renderAccountList(selectedCustomer ? selectedCustomer.accounts : []);
+    });
+
+    // 侧边栏切换
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    // 点击遮罩层关闭侧边栏
+    document.getElementById('sidebar-overlay').addEventListener('click', function() {
+      toggleSidebar();
+    });
+
+    // 菜单项切换
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        if (this.getAttribute('href') === '#') {
+          e.preventDefault();
+        }
+        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // 响应式处理
+    window.addEventListener('resize', function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+    });
+    // 根据复选框选择，切换人工处理按钮可用状态
+    function bindManualProcessEnable() {
+      const btn = document.getElementById('manualProcessBtn');
+      const update = () => {
+        const anyChecked = Array.from(document.querySelectorAll('#deductionTableBody .row-select'))
+          .some(cb => cb.checked);
+        if (anyChecked) {
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+          btn.removeAttribute('disabled');
+        } else {
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+          btn.setAttribute('disabled', 'true');
+        }
+      };
+      document.querySelectorAll('#deductionTableBody .row-select').forEach(cb => {
+        cb.addEventListener('change', update);
+      });
+      update();
+    }
+
+    // 打开/关闭人工处理弹窗、提交处理
+    function setupManualProcessModal() {
+      const openBtn = document.getElementById('manualProcessBtn');
+      const modal = document.getElementById('manualProcessModal');
+      const closeBtn = document.getElementById('closeManualProcessModal');
+      const cancelBtn = document.getElementById('cancelManualProcess');
+      const form = document.getElementById('manualProcessForm');
+      openBtn.addEventListener('click', () => {
+        if (openBtn.hasAttribute('disabled')) return;
+        modal.classList.remove('hidden');
+      });
+      const closeModal = () => modal.classList.add('hidden');
+      closeBtn.addEventListener('click', closeModal);
+      cancelBtn.addEventListener('click', closeModal);
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const result = document.getElementById('manualResult').value;
+        if (!result) {
+          alert('请选择处理结果');
+          return;
+        }
+        // 简单刷新：关闭弹窗并刷新页面
+        closeModal();
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html> 
