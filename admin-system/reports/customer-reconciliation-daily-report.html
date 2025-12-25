@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户对账日报 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .modal-backdrop { backdrop-filter: blur(8px); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .tab-button.active { border-bottom-color: #2563EB; color: #2563EB; }
+    .balance-display { font-family: 'Courier New', monospace; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+      </div>
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            </ul>
+          </div>
+          <!-- FB业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- Google业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 其他媒体业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+              <li><a href="customer-reconciliation-daily-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-file-contract w-5 h-5 mr-3 text-blue-500"></i>客户对账日报</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <script>
+        function toggleMenuSection(id) {
+          const ul = document.getElementById(id);
+          const arrow = document.getElementById(id + 'Arrow');
+          if (ul.style.display === 'none') {
+            ul.style.display = '';
+            arrow.classList.remove('fa-chevron-right');
+            arrow.classList.add('fa-chevron-down');
+          } else {
+            ul.style.display = 'none';
+            arrow.classList.remove('fa-chevron-down');
+            arrow.classList.add('fa-chevron-right');
+          }
+        }
+      </script>
+    </aside>
+
+    <!-- 遮罩层 (移动端) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <!-- 主要内容区域 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">报表</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">客户对账日报</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 页面标题区域 -->
+            <div class="mb-8">
+              <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    客户对账日报
+                  </h2>
+                  <p class="mt-1 text-sm text-gray-500">
+                    管理客户期初数据，自动统计客户对账日报数据
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+              <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                  <button onclick="switchTab('dailyReport')" id="tabDailyReport" class="tab-button active py-4 px-6 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
+                    日报
+                  </button>
+                  <button onclick="switchTab('initialData')" id="tabInitialData" class="tab-button py-4 px-6 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
+                    期初数据设定
+                  </button>
+                </nav>
+              </div>
+
+              <!-- Tab1: 日报内容 -->
+              <div id="dailyReportContent" class="p-6">
+                <!-- 筛选区域 -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+                      <input type="text" id="filterMerchantId" placeholder="支持模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
+                      <input type="text" id="filterCustomerName" placeholder="支持模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">统计日期</label>
+                      <input type="date" id="filterStatDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                  </div>
+                  <div class="flex justify-end mt-4">
+                    <button onclick="searchDailyReport()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                    <button onclick="resetDailyFilters()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-redo mr-2"></i>重置
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="mb-4 flex justify-end">
+                  <button onclick="exportDailyReport()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-file-excel"></i>
+                    <span>导出Excel</span>
+                  </button>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200 table-hover">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">统计日期</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商户ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">应收总额</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值总额</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">消耗总额</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">本月应收</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">本月充值</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">本月消耗</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">累计未付账单金额</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">累计付账单数</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="dailyReportTableBody">
+                      <!-- 动态生成 -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200 mt-4">
+                  <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                      <label class="text-sm text-gray-700">每页显示:</label>
+                      <select id="dailyPageSize" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                    </div>
+                    <div class="hidden sm:block">
+                      <p class="text-sm text-gray-700">
+                        显示 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 共 <span class="font-medium" id="dailyTotalCount">0</span> 条结果
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                      <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                      </button>
+                      <button class="bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</button>
+                      <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab2: 期初数据设定内容 -->
+              <div id="initialDataContent" class="p-6 hidden">
+                <!-- 筛选区域 -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+                      <input type="text" id="filterInitialMerchantId" placeholder="支持模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
+                      <input type="text" id="filterInitialCustomerName" placeholder="支持模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                  </div>
+                  <div class="flex justify-end mt-4">
+                    <button onclick="searchInitialData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                    <button onclick="resetInitialFilters()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-redo mr-2"></i>重置
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="mb-4 flex justify-between items-center">
+                  <div class="flex space-x-2">
+                    <button onclick="downloadTemplate()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                      <i class="fas fa-download"></i>
+                      <span>模板下载</span>
+                    </button>
+                    <button onclick="openBatchUploadModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                      <i class="fas fa-upload"></i>
+                      <span>批量上传</span>
+                    </button>
+                  </div>
+                  <button onclick="exportInitialData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-file-excel"></i>
+                    <span>导出</span>
+                  </button>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200 table-hover">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商户ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初应收款</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初充值</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初消耗</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初日期</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">修改人</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最后修改时间</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="initialDataTableBody">
+                      <!-- 动态生成 -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200 mt-4">
+                  <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                      <label class="text-sm text-gray-700">每页显示:</label>
+                      <select id="initialPageSize" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                    </div>
+                    <div class="hidden sm:block">
+                      <p class="text-sm text-gray-700">
+                        显示 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 共 <span class="font-medium" id="initialTotalCount">0</span> 条结果
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                      <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                      </button>
+                      <button class="bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</button>
+                      <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 批量上传模态框 -->
+  <div id="batchUploadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full animate-fadeIn max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">批量上传期初数据</h3>
+            <button onclick="closeModal('batchUploadModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4 flex-1 overflow-y-auto">
+          <!-- 文件上传区域 -->
+          <div class="mb-6">
+            <h4 class="text-sm font-medium text-gray-900 mb-4">选择文件</h4>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+              <input type="file" id="uploadFileInput" accept=".csv,.xlsx,.xls" class="hidden" onchange="handleFileSelect(event)">
+              <label for="uploadFileInput" class="cursor-pointer">
+                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                <p class="text-sm text-gray-600 mb-1">
+                  <span class="text-blue-600 font-medium">点击上传</span> 或拖拽文件到此处
+                </p>
+                <p class="text-xs text-gray-500">支持 CSV、XLSX、XLS 格式</p>
+              </label>
+            </div>
+            <div id="selectedFileName" class="mt-2 text-sm text-gray-600 hidden"></div>
+            <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+              <p class="text-xs text-blue-800 font-medium mb-1">文件格式要求：</p>
+              <ul class="text-xs text-blue-700 space-y-1">
+                <li>• 文件需包含列：商户ID、期初应收、期初充值、期初消耗、期初日期（年-月-日）</li>
+                <li>• 商户ID为必填，需要判断商户ID是否存在</li>
+                <li>• 期初应收、期初充值、期初消耗支持正负值，保留两位小数，四舍五入</li>
+                <li>• 期初日期格式：年-月-日（如：2024-01-15）</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 预览区域 -->
+          <div id="previewSection" class="hidden">
+            <h4 class="text-sm font-medium text-gray-900 mb-4">预览上传数据</h4>
+            <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+              <p class="text-sm text-gray-700">
+                本次上传共 <span class="font-bold text-blue-600" id="previewTotalCount">0</span> 条数据，
+                其中 <span class="font-bold text-green-600" id="previewValidCount">0</span> 条数据有效。
+                成功上传后，数据将应用在下次统计任务中，历史统计不更新。
+              </p>
+            </div>
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+              <div class="overflow-x-auto max-h-96">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50 sticky top-0">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">商户ID</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">客户名称</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初应收</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初充值</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初消耗</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初日期</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">是否有效</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">原因</th>
+                    </tr>
+                  </thead>
+                  <tbody id="previewTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- 预览数据将在这里显示 -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3 flex-shrink-0">
+          <button type="button" onclick="closeModal('batchUploadModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
+          <button type="button" id="confirmUploadBtn" onclick="confirmBatchUpload()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200 opacity-50 cursor-not-allowed" disabled>确认上传</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑期初数据模态框 -->
+  <div id="editInitialDataModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">编辑期初数据</h3>
+            <button onclick="closeModal('editInitialDataModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitEditInitialData(event)">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+              <input type="text" id="editMerchantId" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" readonly>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
+              <input type="text" id="editCustomerName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" readonly>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">期初应收款 <span class="text-red-500">*</span></label>
+              <input type="number" id="editInitialReceivable" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">期初充值 <span class="text-red-500">*</span></label>
+              <input type="number" id="editInitialRecharge" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">期初消耗 <span class="text-red-500">*</span></label>
+              <input type="number" id="editInitialConsumption" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">期初日期 <span class="text-red-500">*</span></label>
+              <input type="date" id="editInitialDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            </div>
+            <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p class="text-xs text-yellow-800">
+                <i class="fas fa-info-circle mr-1"></i>
+                保存成功后，期初数据会应用到下次统计任务中，历史数据不更新。
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('editInitialDataModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认模态框 -->
+  <div id="deleteConfirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">确认删除</h3>
+            <button onclick="closeModal('deleteConfirmModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <p class="text-sm text-gray-600 mb-4">删除配置数据？删除后，下次统计不使用期初数据。</p>
+          <div class="flex justify-end space-x-3">
+            <button type="button" onclick="closeModal('deleteConfirmModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
+            <button type="button" onclick="confirmDelete()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 transition-colors duration-200">确认删除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let currentTab = 'dailyReport';
+    let dailyReportData = [];
+    let initialData = [];
+    let uploadPreviewData = [];
+    let editingMerchantId = '';
+    let deletingMerchantId = '';
+    let existingMerchantIds = new Set();
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      // 设置统计日期默认为昨天
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      document.getElementById('filterStatDate').value = yesterday.toISOString().split('T')[0];
+      
+      // 初始化数据
+      initDailyReportData();
+      initInitialData();
+      renderDailyReportTable();
+      renderInitialDataTable();
+    });
+
+    // Tab切换
+    function switchTab(tabName) {
+      currentTab = tabName;
+      
+      // 更新Tab按钮样式
+      document.getElementById('tabDailyReport').classList.remove('active');
+      document.getElementById('tabInitialData').classList.remove('active');
+      document.getElementById('tabDailyReport').classList.remove('border-blue-500', 'text-blue-600');
+      document.getElementById('tabInitialData').classList.remove('border-blue-500', 'text-blue-600');
+      
+      // 隐藏所有内容
+      document.getElementById('dailyReportContent').classList.add('hidden');
+      document.getElementById('initialDataContent').classList.add('hidden');
+      
+      // 显示选中的Tab内容
+      if (tabName === 'dailyReport') {
+        document.getElementById('dailyReportContent').classList.remove('hidden');
+        document.getElementById('tabDailyReport').classList.add('active', 'border-blue-500', 'text-blue-600');
+      } else if (tabName === 'initialData') {
+        document.getElementById('initialDataContent').classList.remove('hidden');
+        document.getElementById('tabInitialData').classList.add('active', 'border-blue-500', 'text-blue-600');
+      }
+    }
+
+    // ========== Tab1: 日报相关函数 ==========
+    
+    // 初始化日报数据
+    function initDailyReportData() {
+      dailyReportData = [
+        {
+          statDate: '2024-03-12',
+          merchantId: 'MERCHANT001',
+          customerName: 'ABC科技有限公司',
+          receivableTotal: 125680.50,
+          rechargeTotal: 150000.00,
+          consumptionTotal: 98320.75,
+          currentMonthReceivable: 45680.50,
+          currentMonthRecharge: 50000.00,
+          currentMonthConsumption: 32120.75,
+          accumulatedUnpaid: 0.00,
+          accumulatedPaidOrders: 0
+        },
+        {
+          statDate: '2024-03-12',
+          merchantId: 'MERCHANT002',
+          customerName: 'XYZ数字营销',
+          receivableTotal: 98765.32,
+          rechargeTotal: 120000.00,
+          consumptionTotal: 87654.21,
+          currentMonthReceivable: 38765.32,
+          currentMonthRecharge: 40000.00,
+          currentMonthConsumption: 27654.21,
+          accumulatedUnpaid: 0.00,
+          accumulatedPaidOrders: 0
+        }
+      ];
+    }
+
+    // 渲染日报表格
+    function renderDailyReportTable(data = dailyReportData) {
+      const tbody = document.getElementById('dailyReportTableBody');
+      tbody.innerHTML = '';
+      
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>';
+        document.getElementById('dailyTotalCount').textContent = '0';
+        return;
+      }
+      
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.statDate}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">${row.merchantId}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.customerName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.receivableTotal >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.receivableTotal)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-green-600">${formatCurrency(row.rechargeTotal)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-red-600">${formatCurrency(row.consumptionTotal)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.currentMonthReceivable >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.currentMonthReceivable)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-green-600">${formatCurrency(row.currentMonthRecharge)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-red-600">${formatCurrency(row.currentMonthConsumption)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-gray-600">${formatCurrency(row.accumulatedUnpaid)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.accumulatedPaidOrders}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      document.getElementById('dailyTotalCount').textContent = data.length;
+    }
+
+    // 搜索日报
+    function searchDailyReport() {
+      const merchantId = document.getElementById('filterMerchantId').value.toLowerCase();
+      const customerName = document.getElementById('filterCustomerName').value.toLowerCase();
+      const statDate = document.getElementById('filterStatDate').value;
+      
+      const filtered = dailyReportData.filter(row => {
+        const byMerchantId = !merchantId || row.merchantId.toLowerCase().includes(merchantId);
+        const byCustomerName = !customerName || row.customerName.toLowerCase().includes(customerName);
+        const byStatDate = !statDate || row.statDate === statDate;
+        return byMerchantId && byCustomerName && byStatDate;
+      });
+      
+      renderDailyReportTable(filtered);
+      showNotification(`搜索完成，找到 ${filtered.length} 条数据`, 'info');
+    }
+
+    // 重置日报筛选
+    function resetDailyFilters() {
+      document.getElementById('filterMerchantId').value = '';
+      document.getElementById('filterCustomerName').value = '';
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      document.getElementById('filterStatDate').value = yesterday.toISOString().split('T')[0];
+      renderDailyReportTable();
+      showNotification('筛选条件已重置', 'info');
+    }
+
+    // 导出日报Excel
+    function exportDailyReport() {
+      showNotification('正在准备导出数据...', 'info');
+      setTimeout(() => {
+        showNotification('数据导出完成！', 'success');
+      }, 1500);
+    }
+
+    // ========== Tab2: 期初数据设定相关函数 ==========
+    
+    // 初始化期初数据
+    function initInitialData() {
+      initialData = [
+        {
+          merchantId: 'MERCHANT001',
+          customerName: 'ABC科技有限公司',
+          initialReceivable: 50000.00,
+          initialRecharge: 100000.00,
+          initialConsumption: 30000.00,
+          initialDate: '2024-01-01',
+          modifier: '张三',
+          lastModifiedTime: '2024-03-10 14:30:25'
+        },
+        {
+          merchantId: 'MERCHANT002',
+          customerName: 'XYZ数字营销',
+          initialReceivable: 30000.00,
+          initialRecharge: 80000.00,
+          initialConsumption: 25000.00,
+          initialDate: '2024-01-15',
+          modifier: '李四',
+          lastModifiedTime: '2024-03-11 09:15:42'
+        }
+      ];
+      existingMerchantIds = new Set(initialData.map(item => item.merchantId));
+    }
+
+    // 渲染期初数据表格
+    function renderInitialDataTable(data = initialData) {
+      const tbody = document.getElementById('initialDataTableBody');
+      tbody.innerHTML = '';
+      
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>';
+        document.getElementById('initialTotalCount').textContent = '0';
+        return;
+      }
+      
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">${row.merchantId}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.customerName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.initialReceivable >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.initialReceivable)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-green-600">${formatCurrency(row.initialRecharge)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-red-600">${formatCurrency(row.initialConsumption)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.initialDate}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.modifier}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.lastModifiedTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button onclick="openEditModal('${row.merchantId}')" class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+            <button onclick="openDeleteModal('${row.merchantId}')" class="text-red-600 hover:text-red-900">删除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      document.getElementById('initialTotalCount').textContent = data.length;
+    }
+
+    // 搜索期初数据
+    function searchInitialData() {
+      const merchantId = document.getElementById('filterInitialMerchantId').value.toLowerCase();
+      const customerName = document.getElementById('filterInitialCustomerName').value.toLowerCase();
+      
+      const filtered = initialData.filter(row => {
+        const byMerchantId = !merchantId || row.merchantId.toLowerCase().includes(merchantId);
+        const byCustomerName = !customerName || row.customerName.toLowerCase().includes(customerName);
+        return byMerchantId && byCustomerName;
+      });
+      
+      renderInitialDataTable(filtered);
+      showNotification(`搜索完成，找到 ${filtered.length} 条数据`, 'info');
+    }
+
+    // 重置期初数据筛选
+    function resetInitialFilters() {
+      document.getElementById('filterInitialMerchantId').value = '';
+      document.getElementById('filterInitialCustomerName').value = '';
+      renderInitialDataTable();
+      showNotification('筛选条件已重置', 'info');
+    }
+
+    // 下载模板
+    function downloadTemplate() {
+      // 创建CSV内容
+      const csvContent = '商户ID,期初应收,期初充值,期初消耗,期初日期 (年-月-日)\nMERCHANT001,50000.00,100000.00,30000.00,2024-01-01';
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '期初数据批量上传模板.csv';
+      link.click();
+      showNotification('模板下载成功', 'success');
+    }
+
+    // 打开批量上传模态框
+    function openBatchUploadModal() {
+      uploadPreviewData = [];
+      document.getElementById('uploadFileInput').value = '';
+      document.getElementById('selectedFileName').classList.add('hidden');
+      document.getElementById('previewSection').classList.add('hidden');
+      document.getElementById('confirmUploadBtn').disabled = true;
+      document.getElementById('confirmUploadBtn').classList.add('opacity-50', 'cursor-not-allowed');
+      document.getElementById('previewTableBody').innerHTML = '';
+      document.getElementById('batchUploadModal').classList.remove('hidden');
+    }
+
+    // 处理文件选择
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const fileName = file.name;
+      document.getElementById('selectedFileName').textContent = `已选择文件：${fileName}`;
+      document.getElementById('selectedFileName').classList.remove('hidden');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          parseUploadFile(e.target.result, fileName);
+        } catch (error) {
+          showNotification('文件解析失败：' + error.message, 'error');
+        }
+      };
+      
+      if (fileName.endsWith('.csv')) {
+        reader.readAsText(file, 'UTF-8');
+      } else {
+        showNotification('请使用CSV格式文件，或联系技术支持处理Excel文件', 'warning');
+      }
+    }
+
+    // 解析上传文件
+    function parseUploadFile(content, fileName) {
+      const lines = content.split('\n').filter(line => line.trim());
+      if (lines.length < 2) {
+        throw new Error('文件至少需要包含表头和数据行');
+      }
+
+      const allRows = [];
+      const merchantIdToCustomerName = {}; // 商户ID到客户名称的映射
+      
+      // 从现有数据中获取客户名称映射
+      initialData.forEach(item => {
+        merchantIdToCustomerName[item.merchantId] = item.customerName;
+      });
+
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const columns = line.split(',').map(col => col.trim().replace(/^"|"$/g, ''));
+        if (columns.length < 5) continue;
+
+        const merchantId = columns[0].trim();
+        const initialReceivable = parseFloat(columns[1]);
+        const initialRecharge = parseFloat(columns[2]);
+        const initialConsumption = parseFloat(columns[3]);
+        const initialDate = columns[4].trim();
+
+        // 验证数据
+        let isValid = true;
+        let reason = '';
+
+        if (!merchantId) {
+          isValid = false;
+          reason = '商户ID不能为空';
+        } else if (!existingMerchantIds.has(merchantId)) {
+          // 这里应该调用API检查商户ID是否存在，暂时模拟
+          isValid = false;
+          reason = '商户ID不存在';
+        }
+
+        if (isNaN(initialReceivable)) {
+          isValid = false;
+          reason = reason || '期初应收格式错误';
+        }
+        if (isNaN(initialRecharge)) {
+          isValid = false;
+          reason = reason || '期初充值格式错误';
+        }
+        if (isNaN(initialConsumption)) {
+          isValid = false;
+          reason = reason || '期初消耗格式错误';
+        }
+
+        // 验证日期格式
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(initialDate)) {
+          isValid = false;
+          reason = reason || '期初日期格式错误（应为年-月-日）';
+        }
+
+        // 检查是否已存在
+        const exists = initialData.some(item => item.merchantId === merchantId);
+        const customerName = merchantIdToCustomerName[merchantId] || '未知客户';
+
+        allRows.push({
+          merchantId: merchantId || '(空)',
+          customerName: customerName,
+          initialReceivable: isNaN(initialReceivable) ? 0 : Math.round(initialReceivable * 100) / 100,
+          initialRecharge: isNaN(initialRecharge) ? 0 : Math.round(initialRecharge * 100) / 100,
+          initialConsumption: isNaN(initialConsumption) ? 0 : Math.round(initialConsumption * 100) / 100,
+          initialDate: initialDate || '(空)',
+          isValid: isValid,
+          reason: reason || (exists ? '将覆盖现有数据' : ''),
+          exists: exists
+        });
+      }
+
+      uploadPreviewData = allRows;
+      renderUploadPreview();
+    }
+
+    // 渲染上传预览
+    function renderUploadPreview() {
+      const previewSection = document.getElementById('previewSection');
+      const previewTableBody = document.getElementById('previewTableBody');
+      const previewTotalCount = document.getElementById('previewTotalCount');
+      const previewValidCount = document.getElementById('previewValidCount');
+      const confirmBtn = document.getElementById('confirmUploadBtn');
+
+      if (uploadPreviewData.length === 0) {
+        previewSection.classList.add('hidden');
+        confirmBtn.disabled = true;
+        confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        return;
+      }
+
+      previewSection.classList.remove('hidden');
+      const validCount = uploadPreviewData.filter(r => r.isValid).length;
+      previewTotalCount.textContent = uploadPreviewData.length;
+      previewValidCount.textContent = validCount;
+
+      previewTableBody.innerHTML = '';
+      uploadPreviewData.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+        
+        const statusBadge = row.isValid 
+          ? '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">有效</span>'
+          : '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">无效</span>';
+        
+        const reasonText = row.reason || '-';
+
+        tr.innerHTML = `
+          <td class="px-4 py-2 text-sm text-gray-900 font-mono">${row.merchantId}</td>
+          <td class="px-4 py-2 text-sm text-gray-900">${row.customerName}</td>
+          <td class="px-4 py-2 text-sm text-gray-900">${formatCurrency(row.initialReceivable)}</td>
+          <td class="px-4 py-2 text-sm text-gray-900">${formatCurrency(row.initialRecharge)}</td>
+          <td class="px-4 py-2 text-sm text-gray-900">${formatCurrency(row.initialConsumption)}</td>
+          <td class="px-4 py-2 text-sm text-gray-900">${row.initialDate}</td>
+          <td class="px-4 py-2 text-sm">${statusBadge}</td>
+          <td class="px-4 py-2 text-sm text-gray-600">${reasonText}</td>
+        `;
+        previewTableBody.appendChild(tr);
+      });
+
+      if (validCount > 0) {
+        confirmBtn.disabled = false;
+        confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        confirmBtn.disabled = true;
+        confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    // 确认批量上传
+    function confirmBatchUpload() {
+      const validData = uploadPreviewData.filter(r => r.isValid);
+      
+      if (validData.length === 0) {
+        showNotification('没有可上传的有效数据', 'error');
+        return;
+      }
+
+      showNotification(`正在上传 ${validData.length} 条数据...`, 'info');
+      
+      setTimeout(() => {
+        // 更新或添加数据
+        validData.forEach(row => {
+          const existingIndex = initialData.findIndex(item => item.merchantId === row.merchantId);
+          const now = new Date().toLocaleString('zh-CN');
+          
+          if (existingIndex >= 0) {
+            // 覆盖现有数据
+            initialData[existingIndex] = {
+              merchantId: row.merchantId,
+              customerName: row.customerName,
+              initialReceivable: row.initialReceivable,
+              initialRecharge: row.initialRecharge,
+              initialConsumption: row.initialConsumption,
+              initialDate: row.initialDate,
+              modifier: '管理员', // 实际应该从登录用户获取
+              lastModifiedTime: now
+            };
+          } else {
+            // 添加新数据
+            initialData.push({
+              merchantId: row.merchantId,
+              customerName: row.customerName,
+              initialReceivable: row.initialReceivable,
+              initialRecharge: row.initialRecharge,
+              initialConsumption: row.initialConsumption,
+              initialDate: row.initialDate,
+              modifier: '管理员',
+              lastModifiedTime: now
+            });
+            existingMerchantIds.add(row.merchantId);
+          }
+        });
+
+        renderInitialDataTable();
+        closeModal('batchUploadModal');
+        showNotification(`成功上传 ${validData.length} 条数据！`, 'success');
+      }, 1500);
+    }
+
+    // 打开编辑模态框
+    function openEditModal(merchantId) {
+      const item = initialData.find(d => d.merchantId === merchantId);
+      if (!item) return;
+
+      editingMerchantId = merchantId;
+      document.getElementById('editMerchantId').value = item.merchantId;
+      document.getElementById('editCustomerName').value = item.customerName;
+      document.getElementById('editInitialReceivable').value = item.initialReceivable;
+      document.getElementById('editInitialRecharge').value = item.initialRecharge;
+      document.getElementById('editInitialConsumption').value = item.initialConsumption;
+      document.getElementById('editInitialDate').value = item.initialDate;
+      document.getElementById('editInitialDataModal').classList.remove('hidden');
+    }
+
+    // 提交编辑
+    function submitEditInitialData(event) {
+      event.preventDefault();
+      
+      const item = initialData.find(d => d.merchantId === editingMerchantId);
+      if (!item) return;
+
+      item.initialReceivable = Math.round(parseFloat(document.getElementById('editInitialReceivable').value) * 100) / 100;
+      item.initialRecharge = Math.round(parseFloat(document.getElementById('editInitialRecharge').value) * 100) / 100;
+      item.initialConsumption = Math.round(parseFloat(document.getElementById('editInitialConsumption').value) * 100) / 100;
+      item.initialDate = document.getElementById('editInitialDate').value;
+      item.modifier = '管理员'; // 实际应该从登录用户获取
+      item.lastModifiedTime = new Date().toLocaleString('zh-CN');
+
+      renderInitialDataTable();
+      closeModal('editInitialDataModal');
+      showNotification('期初数据保存成功！', 'success');
+    }
+
+    // 打开删除确认模态框
+    function openDeleteModal(merchantId) {
+      deletingMerchantId = merchantId;
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    }
+
+    // 确认删除
+    function confirmDelete() {
+      const index = initialData.findIndex(d => d.merchantId === deletingMerchantId);
+      if (index >= 0) {
+        initialData.splice(index, 1);
+        existingMerchantIds.delete(deletingMerchantId);
+        renderInitialDataTable();
+        closeModal('deleteConfirmModal');
+        showNotification('删除成功！', 'success');
+      }
+    }
+
+    // 导出期初数据
+    function exportInitialData() {
+      showNotification('正在准备导出数据...', 'info');
+      setTimeout(() => {
+        showNotification('数据导出完成！', 'success');
+      }, 1500);
+    }
+
+    // ========== 工具函数 ==========
+    
+    // 格式化货币
+    function formatCurrency(amount) {
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // 模态框操作
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // 通知函数
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-20 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto transform transition-all duration-300 translate-x-full`;
+      
+      const typeColors = {
+        'info': 'border-blue-400 text-blue-700',
+        'success': 'border-green-400 text-green-700',
+        'warning': 'border-yellow-400 text-yellow-700',
+        'error': 'border-red-400 text-red-700'
+      };
+      
+      const typeIcons = {
+        'info': 'fas fa-info-circle',
+        'success': 'fas fa-check-circle',
+        'warning': 'fas fa-exclamation-triangle',
+        'error': 'fas fa-times-circle'
+      };
+      
+      notification.innerHTML = `
+        <div class="rounded-lg shadow-lg border-l-4 ${typeColors[type]} p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="${typeIcons[type]}"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium">${message}</p>
+            </div>
+            <div class="ml-auto pl-3">
+              <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+      }, 100);
+      
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+      }, 5000);
+    }
+
+    // 侧边栏切换
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    // 点击遮罩层关闭侧边栏
+    document.getElementById('sidebar-overlay').addEventListener('click', function() {
+      toggleSidebar();
+    });
+
+    // 响应式处理
+    window.addEventListener('resize', function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+    });
+  </script>
+</body>
+</html>
+
