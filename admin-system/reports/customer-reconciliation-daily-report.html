@@ -20,6 +20,48 @@
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     .tab-button.active { border-bottom-color: #2563EB; color: #2563EB; }
     .balance-display { font-family: 'Courier New', monospace; font-weight: 600; }
+    .tooltip-wrapper { position: relative; display: inline-block; }
+    .tooltip-icon { cursor: help; color: #6B7280; margin-left: 4px; }
+    .tooltip-icon:hover { color: #2563EB; }
+    .tooltip-content { 
+      visibility: hidden; 
+      opacity: 0;
+      position: fixed;
+      background-color: #1F2937;
+      color: #fff;
+      text-align: left;
+      padding: 8px 12px;
+      border-radius: 6px;
+      white-space: normal;
+      width: 300px;
+      max-width: 90vw;
+      font-size: 12px;
+      font-weight: normal;
+      z-index: 99999;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: opacity 0.2s, visibility 0.2s;
+      line-height: 1.5;
+      pointer-events: none;
+    }
+    .tooltip-content::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1F2937;
+    }
+    .tooltip-content.tooltip-bottom::after {
+      top: auto;
+      bottom: 100%;
+      border-top-color: transparent;
+      border-bottom-color: #1F2937;
+    }
+    .tooltip-wrapper:hover .tooltip-content {
+      visibility: visible;
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -273,17 +315,118 @@
                   <table class="min-w-full divide-y divide-gray-200 table-hover">
                     <thead class="bg-gray-50">
                       <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">统计日期</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商户ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">应收总额</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值总额</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">消耗总额</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">本月应收</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">本月充值</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">本月消耗</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">累计未付账单金额</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">累计付账单数</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          统计日期
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          商户ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          客户名称
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          期初收款
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          期初充值
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          期初消耗
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          期初其他费用
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            收款总额
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                有期初: 期初收款+期初日期后在线充值金额+线下转账金额+调整钱包金额(增加)-调整钱包金额(减少)<br><br>
+                                无期初: 截止到统计日期的在线充值金额+线下转账金额+调整钱包金额(增加)-调整钱包金额(减少)
+                              </div>
+                            </div>
+                          </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            充值总额
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                有期初: 期初充值+期初日期后的(广告账户充值成功金额-广告账户减款金额-广告账户清零金额)<br><br>
+                                无期初: 截止到统计日期的广告账户充值成功金额-广告账户减款金额-广告账户清零金额
+                              </div>
+                            </div>
+                          </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            消耗总额
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                有期初: 期初消耗+期初日期后的广告账户消耗金额<br><br>
+                                无期初: 截止到统计日期的广告账户消耗金额
+                              </div>
+                            </div>
+                          </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            本月收款
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                本月1号开始, 截止到统计日期的在线充值金额+线下转账金额+调整钱包金额(增加)-调整钱包金额(减少)
+                              </div>
+                            </div>
+                          </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            本月充值
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                本月1号开始, 截止到统计日期的广告账户充值成功金额-广告账户减款金额-广告账户清零金额
+                              </div>
+                            </div>
+                          </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            本月消耗
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                本月1号开始, 截止到统计日期的广告账户消耗金额
+                              </div>
+                            </div>
+                          </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            累计未充值余额
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                计算公式: 期初收款-期初充值-期初其他费用+本月收款-本月充值
+                              </div>
+                            </div>
+                          </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div class="flex items-center">
+                            累计消耗余额
+                            <div class="tooltip-wrapper">
+                              <i class="fas fa-question-circle tooltip-icon text-xs"></i>
+                              <div class="tooltip-content">
+                                计算公式: 期初收款-期初消耗-期初其他费用+本月收款-本月消耗
+                              </div>
+                            </div>
+                          </div>
+                        </th>
                       </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="dailyReportTableBody">
@@ -376,6 +519,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初应收款</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初充值</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初消耗</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初其他费用</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期初日期</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">修改人</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最后修改时间</th>
@@ -456,9 +600,9 @@
             <div class="mt-3 p-3 bg-blue-50 rounded-lg">
               <p class="text-xs text-blue-800 font-medium mb-1">文件格式要求：</p>
               <ul class="text-xs text-blue-700 space-y-1">
-                <li>• 文件需包含列：商户ID、期初应收、期初充值、期初消耗、期初日期（年-月-日）</li>
+                <li>• 文件需包含列：商户ID、期初应收、期初充值、期初消耗、期初其他费用、期初日期（年-月-日）</li>
                 <li>• 商户ID为必填，需要判断商户ID是否存在</li>
-                <li>• 期初应收、期初充值、期初消耗支持正负值，保留两位小数，四舍五入</li>
+                <li>• 期初应收、期初充值、期初消耗、期初其他费用支持正负值，保留两位小数，四舍五入</li>
                 <li>• 期初日期格式：年-月-日（如：2024-01-15）</li>
               </ul>
             </div>
@@ -484,6 +628,7 @@
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初应收</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初充值</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初消耗</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初其他费用</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">期初日期</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">是否有效</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">原因</th>
@@ -538,6 +683,10 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">期初消耗 <span class="text-red-500">*</span></label>
               <input type="number" id="editInitialConsumption" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">期初其他费用 <span class="text-red-500">*</span></label>
+              <input type="number" id="editInitialOtherFee" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">期初日期 <span class="text-red-500">*</span></label>
@@ -604,7 +753,78 @@
       initInitialData();
       renderDailyReportTable();
       renderInitialDataTable();
+      
+      // 初始化工具提示定位
+      initTooltips();
     });
+
+    // 初始化工具提示定位
+    function initTooltips() {
+      const tooltipWrappers = document.querySelectorAll('.tooltip-wrapper');
+      tooltipWrappers.forEach(wrapper => {
+        const icon = wrapper.querySelector('.tooltip-icon');
+        const tooltip = wrapper.querySelector('.tooltip-content');
+        
+        if (!icon || !tooltip) return;
+        
+        // 鼠标进入时计算位置
+        wrapper.addEventListener('mouseenter', function() {
+          const rect = icon.getBoundingClientRect();
+          const tooltipRect = tooltip.getBoundingClientRect();
+          
+          // 计算位置：在图标上方居中显示
+          let top = rect.top - tooltipRect.height - 8; // 8px间距
+          let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+          
+          // 确保不超出视口左侧
+          if (left < 10) {
+            left = 10;
+          }
+          
+          // 确保不超出视口右侧
+          if (left + tooltipRect.width > window.innerWidth - 10) {
+            left = window.innerWidth - tooltipRect.width - 10;
+          }
+          
+          // 如果上方空间不足，显示在下方
+          if (top < 10) {
+            top = rect.bottom + 8;
+            tooltip.classList.add('tooltip-bottom');
+          } else {
+            tooltip.classList.remove('tooltip-bottom');
+          }
+          
+          tooltip.style.top = top + 'px';
+          tooltip.style.left = left + 'px';
+        });
+        
+        // 窗口滚动时更新位置
+        window.addEventListener('scroll', function() {
+          if (tooltip.style.visibility === 'visible' || tooltip.style.opacity === '1') {
+            const rect = icon.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            
+            let top = rect.top - tooltipRect.height - 8;
+            let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+            
+            if (left < 10) left = 10;
+            if (left + tooltipRect.width > window.innerWidth - 10) {
+              left = window.innerWidth - tooltipRect.width - 10;
+            }
+            
+            if (top < 10) {
+              top = rect.bottom + 8;
+              tooltip.classList.add('tooltip-bottom');
+            } else {
+              tooltip.classList.remove('tooltip-bottom');
+            }
+            
+            tooltip.style.top = top + 'px';
+            tooltip.style.left = left + 'px';
+          }
+        }, true);
+      });
+    }
 
     // Tab切换
     function switchTab(tabName) {
@@ -639,27 +859,35 @@
           statDate: '2024-03-12',
           merchantId: 'MERCHANT001',
           customerName: 'ABC科技有限公司',
+          initialReceivable: 50000.00,
+          initialRecharge: 100000.00,
+          initialConsumption: 30000.00,
+          initialOtherFee: 5000.00,
           receivableTotal: 125680.50,
           rechargeTotal: 150000.00,
           consumptionTotal: 98320.75,
           currentMonthReceivable: 45680.50,
           currentMonthRecharge: 50000.00,
           currentMonthConsumption: 32120.75,
-          accumulatedUnpaid: 0.00,
-          accumulatedPaidOrders: 0
+          accumulatedUnrechargeBalance: -24319.50,
+          accumulatedConsumptionBalance: -12340.25
         },
         {
           statDate: '2024-03-12',
           merchantId: 'MERCHANT002',
           customerName: 'XYZ数字营销',
+          initialReceivable: 30000.00,
+          initialRecharge: 80000.00,
+          initialConsumption: 25000.00,
+          initialOtherFee: 3000.00,
           receivableTotal: 98765.32,
           rechargeTotal: 120000.00,
           consumptionTotal: 87654.21,
           currentMonthReceivable: 38765.32,
           currentMonthRecharge: 40000.00,
           currentMonthConsumption: 27654.21,
-          accumulatedUnpaid: 0.00,
-          accumulatedPaidOrders: 0
+          accumulatedUnrechargeBalance: -51234.68,
+          accumulatedConsumptionBalance: -13654.21
         }
       ];
     }
@@ -670,7 +898,7 @@
       tbody.innerHTML = '';
       
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="15" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>';
         document.getElementById('dailyTotalCount').textContent = '0';
         return;
       }
@@ -681,14 +909,18 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.statDate}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">${row.merchantId}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.customerName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${(row.initialReceivable || 0) >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.initialReceivable || 0)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-green-600">${formatCurrency(row.initialRecharge || 0)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-red-600">${formatCurrency(row.initialConsumption || 0)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${(row.initialOtherFee || 0) >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.initialOtherFee || 0)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.receivableTotal >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.receivableTotal)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-green-600">${formatCurrency(row.rechargeTotal)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-red-600">${formatCurrency(row.consumptionTotal)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.currentMonthReceivable >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.currentMonthReceivable)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-green-600">${formatCurrency(row.currentMonthRecharge)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-red-600">${formatCurrency(row.currentMonthConsumption)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-gray-600">${formatCurrency(row.accumulatedUnpaid)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.accumulatedPaidOrders}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.accumulatedUnrechargeBalance >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.accumulatedUnrechargeBalance)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.accumulatedConsumptionBalance >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.accumulatedConsumptionBalance)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -743,6 +975,7 @@
           initialReceivable: 50000.00,
           initialRecharge: 100000.00,
           initialConsumption: 30000.00,
+          initialOtherFee: 5000.00,
           initialDate: '2024-01-01',
           modifier: '张三',
           lastModifiedTime: '2024-03-10 14:30:25'
@@ -753,6 +986,7 @@
           initialReceivable: 30000.00,
           initialRecharge: 80000.00,
           initialConsumption: 25000.00,
+          initialOtherFee: 3000.00,
           initialDate: '2024-01-15',
           modifier: '李四',
           lastModifiedTime: '2024-03-11 09:15:42'
@@ -767,7 +1001,7 @@
       tbody.innerHTML = '';
       
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>';
         document.getElementById('initialTotalCount').textContent = '0';
         return;
       }
@@ -780,6 +1014,7 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${row.initialReceivable >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.initialReceivable)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-green-600">${formatCurrency(row.initialRecharge)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm balance-display text-red-600">${formatCurrency(row.initialConsumption)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm balance-display ${(row.initialOtherFee || 0) >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(row.initialOtherFee || 0)}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.initialDate}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.modifier}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.lastModifiedTime}</td>
@@ -820,7 +1055,7 @@
     // 下载模板
     function downloadTemplate() {
       // 创建CSV内容
-      const csvContent = '商户ID,期初应收,期初充值,期初消耗,期初日期 (年-月-日)\nMERCHANT001,50000.00,100000.00,30000.00,2024-01-01';
+      const csvContent = '商户ID,期初应收,期初充值,期初消耗,期初其他费用,期初日期 (年-月-日)\nMERCHANT001,50000.00,100000.00,30000.00,5000.00,2024-01-01';
       const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -886,13 +1121,14 @@
         if (!line) continue;
         
         const columns = line.split(',').map(col => col.trim().replace(/^"|"$/g, ''));
-        if (columns.length < 5) continue;
+        if (columns.length < 6) continue;
 
         const merchantId = columns[0].trim();
         const initialReceivable = parseFloat(columns[1]);
         const initialRecharge = parseFloat(columns[2]);
         const initialConsumption = parseFloat(columns[3]);
-        const initialDate = columns[4].trim();
+        const initialOtherFee = parseFloat(columns[4]);
+        const initialDate = columns[5].trim();
 
         // 验证数据
         let isValid = true;
@@ -919,6 +1155,10 @@
           isValid = false;
           reason = reason || '期初消耗格式错误';
         }
+        if (isNaN(initialOtherFee)) {
+          isValid = false;
+          reason = reason || '期初其他费用格式错误';
+        }
 
         // 验证日期格式
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -937,6 +1177,7 @@
           initialReceivable: isNaN(initialReceivable) ? 0 : Math.round(initialReceivable * 100) / 100,
           initialRecharge: isNaN(initialRecharge) ? 0 : Math.round(initialRecharge * 100) / 100,
           initialConsumption: isNaN(initialConsumption) ? 0 : Math.round(initialConsumption * 100) / 100,
+          initialOtherFee: isNaN(initialOtherFee) ? 0 : Math.round(initialOtherFee * 100) / 100,
           initialDate: initialDate || '(空)',
           isValid: isValid,
           reason: reason || (exists ? '将覆盖现有数据' : ''),
@@ -985,6 +1226,7 @@
           <td class="px-4 py-2 text-sm text-gray-900">${formatCurrency(row.initialReceivable)}</td>
           <td class="px-4 py-2 text-sm text-gray-900">${formatCurrency(row.initialRecharge)}</td>
           <td class="px-4 py-2 text-sm text-gray-900">${formatCurrency(row.initialConsumption)}</td>
+          <td class="px-4 py-2 text-sm text-gray-900">${formatCurrency(row.initialOtherFee || 0)}</td>
           <td class="px-4 py-2 text-sm text-gray-900">${row.initialDate}</td>
           <td class="px-4 py-2 text-sm">${statusBadge}</td>
           <td class="px-4 py-2 text-sm text-gray-600">${reasonText}</td>
@@ -1026,6 +1268,7 @@
               initialReceivable: row.initialReceivable,
               initialRecharge: row.initialRecharge,
               initialConsumption: row.initialConsumption,
+              initialOtherFee: row.initialOtherFee,
               initialDate: row.initialDate,
               modifier: '管理员', // 实际应该从登录用户获取
               lastModifiedTime: now
@@ -1038,6 +1281,7 @@
               initialReceivable: row.initialReceivable,
               initialRecharge: row.initialRecharge,
               initialConsumption: row.initialConsumption,
+              initialOtherFee: row.initialOtherFee,
               initialDate: row.initialDate,
               modifier: '管理员',
               lastModifiedTime: now
@@ -1063,6 +1307,7 @@
       document.getElementById('editInitialReceivable').value = item.initialReceivable;
       document.getElementById('editInitialRecharge').value = item.initialRecharge;
       document.getElementById('editInitialConsumption').value = item.initialConsumption;
+      document.getElementById('editInitialOtherFee').value = item.initialOtherFee || 0;
       document.getElementById('editInitialDate').value = item.initialDate;
       document.getElementById('editInitialDataModal').classList.remove('hidden');
     }
@@ -1077,6 +1322,7 @@
       item.initialReceivable = Math.round(parseFloat(document.getElementById('editInitialReceivable').value) * 100) / 100;
       item.initialRecharge = Math.round(parseFloat(document.getElementById('editInitialRecharge').value) * 100) / 100;
       item.initialConsumption = Math.round(parseFloat(document.getElementById('editInitialConsumption').value) * 100) / 100;
+      item.initialOtherFee = Math.round(parseFloat(document.getElementById('editInitialOtherFee').value) * 100) / 100;
       item.initialDate = document.getElementById('editInitialDate').value;
       item.modifier = '管理员'; // 实际应该从登录用户获取
       item.lastModifiedTime = new Date().toLocaleString('zh-CN');
