@@ -270,6 +270,28 @@
 
             <!-- Tab 1: 设置规则 -->
             <div id="content-rules" class="tab-content active bg-white shadow-sm rounded-b-lg border border-gray-200">
+              <!-- 筛选区域 -->
+              <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">筛选条件</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">规则名称</label>
+                    <input type="text" id="filterRuleName" placeholder="请输入规则名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" oninput="filterRules()">
+                  </div>
+                  <div class="flex items-end">
+                    <div class="flex space-x-2 w-full">
+                      <button onclick="filterRules()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex-1">
+                        <i class="fas fa-search mr-2"></i>搜索
+                      </button>
+                      <button onclick="resetRuleFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex-1">
+                        <i class="fas fa-redo mr-2"></i>重置
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 规则列表 -->
               <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-900">监控规则列表</h3>
                 <button onclick="openRuleModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center space-x-2">
@@ -282,10 +304,15 @@
                   <thead class="bg-gray-50">
                     <tr>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规则名称</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">余额阈值</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规则状态</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">条件</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户数</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最后更新人</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="flex items-center">
+                          <span>更新时间</span>
+                          <i class="fas fa-sort-down ml-1 text-blue-600"></i>
+                        </div>
+                      </th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                     </tr>
                   </thead>
@@ -293,12 +320,10 @@
                     <!-- 示例数据 -->
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">规则001</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">FB001234567</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">低于 $100</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-sent">启用</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-10 10:00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">欧伟权(ouweiquan@bestfulfill.com)</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 10:30</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <button onclick="editRule(1)" class="text-blue-600 hover:text-blue-700 mr-3" title="编辑">
                           <i class="fas fa-edit"></i>
@@ -307,12 +332,10 @@
                     </tr>
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">规则002</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">GG001234570</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">低于 $200</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-sent">启用</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-08 14:20</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">张三(zhangsan@bestfulfill.com)</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14 14:20</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <button onclick="editRule(2)" class="text-blue-600 hover:text-blue-700 mr-3" title="编辑">
                           <i class="fas fa-edit"></i>
@@ -329,39 +352,29 @@
               <!-- 筛选区域 -->
               <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">筛选条件</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
-                    <input type="text" id="filterMonitorCustomerId" placeholder="请输入客户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
-                    <input type="text" id="filterMonitorCustomerName" placeholder="请输入客户名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">广告账户ID</label>
-                    <input type="text" id="filterMonitorAccountId" placeholder="请输入广告账户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">时间范围</label>
-                    <input type="date" id="filterMonitorDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  </div>
-                  <div class="flex items-end">
-                    <div class="flex space-x-2 w-full">
-                      <button onclick="filterMonitorLogs()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex-1">
-                        <i class="fas fa-search mr-2"></i>搜索
-                      </button>
-                      <button onclick="resetMonitorFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex-1">
-                        <i class="fas fa-redo mr-2"></i>重置
-                      </button>
+                <div class="flex flex-col md:flex-row gap-4 items-end">
+                  <div class="flex-1 w-full md:w-auto">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">判断时间</label>
+                    <div class="flex space-x-2">
+                      <input type="datetime-local" id="filterMonitorStartTime" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <span class="flex items-center text-gray-500 whitespace-nowrap">至</span>
+                      <input type="datetime-local" id="filterMonitorEndTime" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
+                  </div>
+                  <div class="flex space-x-2 w-full md:w-auto">
+                    <button onclick="filterMonitorLogs()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center">
+                      <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                    <button onclick="resetMonitorFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center">
+                      <i class="fas fa-redo mr-2"></i>重置
+                    </button>
                   </div>
                 </div>
               </div>
 
               <!-- 通知列表 -->
               <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">通知列表</h3>
+                <h3 class="text-lg font-medium text-gray-900">余额监控日志</h3>
                 <div class="flex space-x-3">
                   <button onclick="refreshMonitorLogs()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-sync"></i>
@@ -375,72 +388,52 @@
                 <table class="min-w-full divide-y divide-gray-200 table-hover">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">通知时间</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户ID</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">判断时间</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规则名称</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体平台</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">代理</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前余额</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">余额阈值</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规则名称</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">飞书通知状态</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">通知人</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">是否有发送飞书通知</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="monitorLogsTableBody">
                     <!-- 示例数据 -->
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 10:30</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C001</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">科技有限公司</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">规则001</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Facebook</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理A</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">FB001234567</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">科技公司广告账户</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">$85.50</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">低于 $100</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则001</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">欧伟权(ouweiquan@bestfulfill.com)</td>
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-sent">已发送</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <button onclick="addRemark(1)" class="text-blue-600 hover:text-blue-700" title="添加备注">
-                          <i class="fas fa-comment"></i>
-                        </button>
+                        <span class="status-sent">是</span>
                       </td>
                     </tr>
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14 14:20</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C002</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">创新科技公司</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">规则002</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Google</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理B</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">GG001234570</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">创新科技广告账户</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">$150.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">低于 $200</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则002</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">张三(zhangsan@bestfulfill.com)</td>
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-failed">发送失败</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <button onclick="addRemark(2)" class="text-blue-600 hover:text-blue-700" title="添加备注">
-                          <i class="fas fa-comment"></i>
-                        </button>
+                        <span class="status-failed">否</span>
                       </td>
                     </tr>
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 09:15</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C003</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划公司</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">规则003</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Facebook</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理A</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">FB001234568</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划广告账户</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">$45.20</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">低于 $100</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则003</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">李四(lisi@bestfulfill.com)</td>
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-sent">已发送</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <button onclick="addRemark(3)" class="text-blue-600 hover:text-blue-700" title="添加备注">
-                          <i class="fas fa-comment"></i>
-                        </button>
+                        <span class="status-sent">是</span>
                       </td>
                     </tr>
                   </tbody>
@@ -453,29 +446,58 @@
               <!-- 筛选区域 -->
               <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">筛选条件</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div class="lg:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">判断时间</label>
+                    <div class="flex space-x-2">
+                      <input type="datetime-local" id="filterRechargeStartTime" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <span class="flex items-center text-gray-500 whitespace-nowrap">至</span>
+                      <input type="datetime-local" id="filterRechargeEndTime" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                  </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
-                    <input type="text" id="filterRechargeCustomerId" placeholder="请输入客户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+                    <input type="text" id="filterRechargeMerchantId" placeholder="请输入商户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
-                    <input type="text" id="filterRechargeCustomerName" placeholder="请输入客户名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="text" id="filterRechargeCustomerName" placeholder="请输入客户名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" oninput="filterRechargeLogs()">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">媒体平台</label>
+                    <select id="filterRechargePlatform" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部</option>
+                      <option value="Meta">Meta</option>
+                      <option value="TikTok">TikTok</option>
+                      <option value="Google">Google</option>
+                      <option value="Snapchat">Snapchat</option>
+                      <option value="Taboola">Taboola</option>
+                      <option value="X">X</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">代理</label>
+                    <select id="filterRechargeAgent" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部</option>
+                      <option value="代理A">代理A</option>
+                      <option value="代理B">代理B</option>
+                      <option value="代理C">代理C</option>
+                    </select>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">广告账户ID</label>
                     <input type="text" id="filterRechargeAccountId" placeholder="请输入广告账户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">时间范围</label>
-                    <input type="date" id="filterRechargeDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">广告账户名称</label>
+                    <input type="text" id="filterRechargeAccountName" placeholder="请输入广告账户名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" oninput="filterRechargeLogs()">
                   </div>
                   <div class="flex items-end">
                     <div class="flex space-x-2 w-full">
-                      <button onclick="filterRechargeLogs()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex-1">
+                      <button onclick="filterRechargeLogs()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center">
                         <i class="fas fa-search mr-2"></i>搜索
                       </button>
-                      <button onclick="resetRechargeFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex-1">
+                      <button onclick="resetRechargeFilter()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center">
                         <i class="fas fa-redo mr-2"></i>重置
                       </button>
                     </div>
@@ -499,57 +521,55 @@
                 <table class="min-w-full divide-y divide-gray-200 table-hover">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">执行时间</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户ID</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">判断时间</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规则名称</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体平台</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">代理</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规则名称</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">触发原因</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值金额</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值状态</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值结果</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="rechargeLogsTableBody">
                     <!-- 示例数据 -->
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 10:30</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C001</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">M001</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">科技有限公司</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则001</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Facebook</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理A</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">FB001234567</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">科技公司广告账户</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则001</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">余额低于阈值</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">$500.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-success">成功</span>
-                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$500.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">发起成功,充值ID: RCH20240115001</td>
                     </tr>
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14 14:20</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C002</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">M002</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">创新科技公司</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则002</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Google</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理B</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">GG001234570</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">创新科技广告账户</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则002</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">余额低于阈值</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">$1000.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-processing">处理中</span>
-                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$1000.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">发起失败</td>
                     </tr>
                     <tr>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-13 09:15</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C003</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">M003</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划公司</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则003</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Facebook</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">代理A</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">FB001234568</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划广告账户</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">规则003</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">余额低于阈值</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">$500.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="status-error">失败</span>
-                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$500.00</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">发起成功,充值ID: RCH20240113001</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1005,25 +1025,95 @@
       activeButton.classList.remove('border-transparent');
     }
 
+    // 筛选规则列表
+    function filterRules() {
+      const ruleName = document.getElementById('filterRuleName').value.trim();
+      
+      console.log('筛选规则条件:', { ruleName });
+      
+      // 这里应该调用API筛选规则
+      // 模糊搜索规则名称
+      if (ruleName) {
+        // 实际应该调用API进行模糊搜索
+        // 这里只是示例，实际应该重新渲染表格数据
+        const rows = document.querySelectorAll('#rulesTableBody tr');
+        rows.forEach(row => {
+          const nameCell = row.querySelector('td:first-child');
+          if (nameCell) {
+            const name = nameCell.textContent.trim();
+            if (name.toLowerCase().includes(ruleName.toLowerCase())) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          }
+        });
+      } else {
+        // 显示所有行
+        const rows = document.querySelectorAll('#rulesTableBody tr');
+        rows.forEach(row => {
+          row.style.display = '';
+        });
+      }
+    }
+
+    // 重置规则筛选
+    function resetRuleFilter() {
+      document.getElementById('filterRuleName').value = '';
+      filterRules();
+    }
+
     // 筛选余额监控日志
     function filterMonitorLogs() {
-      const customerId = document.getElementById('filterMonitorCustomerId').value;
-      const customerName = document.getElementById('filterMonitorCustomerName').value;
-      const accountId = document.getElementById('filterMonitorAccountId').value;
-      const date = document.getElementById('filterMonitorDate').value;
+      const startTime = document.getElementById('filterMonitorStartTime').value;
+      const endTime = document.getElementById('filterMonitorEndTime').value;
       
-      console.log('筛选余额监控日志条件:', { customerId, customerName, accountId, date });
+      console.log('筛选余额监控日志条件:', { startTime, endTime });
       // 这里应该调用API筛选通知
+      // 实际应该根据时间范围调用API获取数据
       alert('筛选功能已触发');
     }
 
     // 重置余额监控日志筛选
     function resetMonitorFilter() {
-      document.getElementById('filterMonitorCustomerId').value = '';
-      document.getElementById('filterMonitorCustomerName').value = '';
-      document.getElementById('filterMonitorAccountId').value = '';
-      document.getElementById('filterMonitorDate').value = '';
+      // 重置为默认值（最近7天）
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
+      
+      // 格式化为 datetime-local 格式
+      const formatDateTime = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+      
+      document.getElementById('filterMonitorStartTime').value = formatDateTime(startDate);
+      document.getElementById('filterMonitorEndTime').value = formatDateTime(endDate);
       filterMonitorLogs();
+    }
+
+    // 初始化余额监控日志筛选默认值（最近7天）
+    function initMonitorFilter() {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
+      
+      // 格式化为 datetime-local 格式
+      const formatDateTime = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+      
+      document.getElementById('filterMonitorStartTime').value = formatDateTime(startDate);
+      document.getElementById('filterMonitorEndTime').value = formatDateTime(endDate);
     }
 
     // 刷新余额监控日志
@@ -1035,23 +1125,75 @@
 
     // 筛选客户自动充值日志
     function filterRechargeLogs() {
-      const customerId = document.getElementById('filterRechargeCustomerId').value;
+      const startTime = document.getElementById('filterRechargeStartTime').value;
+      const endTime = document.getElementById('filterRechargeEndTime').value;
+      const merchantId = document.getElementById('filterRechargeMerchantId').value;
       const customerName = document.getElementById('filterRechargeCustomerName').value;
+      const platform = document.getElementById('filterRechargePlatform').value;
+      const agent = document.getElementById('filterRechargeAgent').value;
       const accountId = document.getElementById('filterRechargeAccountId').value;
-      const date = document.getElementById('filterRechargeDate').value;
+      const accountName = document.getElementById('filterRechargeAccountName').value;
       
-      console.log('筛选客户自动充值日志条件:', { customerId, customerName, accountId, date });
+      console.log('筛选客户自动充值日志条件:', { 
+        startTime, 
+        endTime, 
+        merchantId, 
+        customerName, 
+        platform, 
+        agent, 
+        accountId, 
+        accountName 
+      });
       // 这里应该调用API筛选日志
-      alert('筛选功能已触发');
+      // 实际应该根据筛选条件调用API获取数据
     }
 
     // 重置客户自动充值日志筛选
     function resetRechargeFilter() {
-      document.getElementById('filterRechargeCustomerId').value = '';
+      // 重置为默认值（最近7天）
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
+      
+      // 格式化为 datetime-local 格式
+      const formatDateTime = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+      
+      document.getElementById('filterRechargeStartTime').value = formatDateTime(startDate);
+      document.getElementById('filterRechargeEndTime').value = formatDateTime(endDate);
+      document.getElementById('filterRechargeMerchantId').value = '';
       document.getElementById('filterRechargeCustomerName').value = '';
+      document.getElementById('filterRechargePlatform').value = '';
+      document.getElementById('filterRechargeAgent').value = '';
       document.getElementById('filterRechargeAccountId').value = '';
-      document.getElementById('filterRechargeDate').value = '';
+      document.getElementById('filterRechargeAccountName').value = '';
       filterRechargeLogs();
+    }
+
+    // 初始化客户自动充值日志筛选默认值（最近7天）
+    function initRechargeFilter() {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
+      
+      // 格式化为 datetime-local 格式
+      const formatDateTime = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+      
+      document.getElementById('filterRechargeStartTime').value = formatDateTime(startDate);
+      document.getElementById('filterRechargeEndTime').value = formatDateTime(endDate);
     }
 
     // 刷新客户自动充值日志
@@ -1071,6 +1213,10 @@
     // 页面加载完成后的初始化
     document.addEventListener('DOMContentLoaded', function() {
       console.log('余额监控通知页面已加载');
+      // 初始化余额监控日志筛选默认值（最近7天）
+      initMonitorFilter();
+      // 初始化客户自动充值日志筛选默认值（最近7天）
+      initRechargeFilter();
     });
   </script>
 </body>
