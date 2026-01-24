@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自动充值规则 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=PingFang+SC:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #1A1F2B;
+      font-size: 14px;
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: #242A3A;
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #00FFB0;
+      transform: scaleY(0);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .btn-primary {
+      background: #00FFB0;
+      color: #000000;
+      border-radius: 4px;
+      padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-primary:hover {
+      background: #00E0A0;
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #2A2F3D;
+      color: #FFFFFF;
+      border-radius: 4px;
+      padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn-secondary:hover {
+      background: #3A3F4D;
+      transform: scale(0.98);
+    }
+
+    .input-field {
+      background: #2A2F3D;
+      color: #FFFFFF;
+      border: 1px solid #3C404B;
+      border-radius: 4px;
+      padding: 8px 12px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .input-field::placeholder {
+      color: #888888;
+    }
+
+    .input-field:focus {
+      border-color: #00FFB0;
+      outline: 2px solid #00FFB0;
+    }
+
+    .status-active {
+      background: #1FBF75;
+      color: #FFFFFF;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-inactive {
+      background: #6B7280;
+      color: #FFFFFF;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #3C404B;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #00FFB0;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .account-item {
+      transition: all 0.2s ease-in-out;
+    }
+
+    .account-item:hover {
+      background-color: #2A2F3D !important;
+    }
+
+    .selected-account-item {
+      transition: all 0.2s ease-in-out;
+    }
+
+    .selected-account-item:hover {
+      background-color: #3A3F4D !important;
+    }
+
+    #accountListContainer::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #accountListContainer::-webkit-scrollbar-track {
+      background: #1E2230;
+      border-radius: 3px;
+    }
+
+    #accountListContainer::-webkit-scrollbar-thumb {
+      background: #3C404B;
+      border-radius: 3px;
+    }
+
+    #accountListContainer::-webkit-scrollbar-thumb:hover {
+      background: #4A4F5B;
+    }
+
+    /* datetime-local 输入框样式 */
+    input[type="datetime-local"] {
+      background: #2A2F3D;
+      color: #FFFFFF;
+      border: 1px solid #3C404B;
+      border-radius: 4px;
+      padding: 8px 12px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    input[type="datetime-local"]:focus {
+      border-color: #00FFB0;
+      outline: 2px solid #00FFB0;
+    }
+
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen text-white">
+  <!-- 左侧边栏 -->
+  <div class="fixed inset-y-0 left-0 z-50 bg-slate-800 shadow-lg" style="width: 220px; background-color: #0F121A;">
+    <div class="flex h-full flex-col">
+      <!-- Logo -->
+      <div class="pt-6 px-8">
+        <h1 class="text-white text-2xl font-semibold">BestAds</h1>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="mt-8 flex-1">
+        <ul class="space-y-2 px-4">
+          <li>
+            <a href="index.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-home mr-3" style="color: #B0B5C0;"></i>
+              <span>首页</span>
+            </a>
+          </li>
+          <li>
+            <a href="account-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-users mr-3" style="color: #B0B5C0;"></i>
+              <span>账户管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="operation-records.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-history mr-3" style="color: #B0B5C0;"></i>
+              <span>操作记录</span>
+            </a>
+          </li>
+          <li>
+            <a href="ad-review-notifications.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-bell mr-3" style="color: #B0B5C0;"></i>
+              <span>被拒广告</span>
+            </a>
+          </li>
+          <li>
+            <a href="wallet.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'">
+              <i class="fas fa-wallet mr-3" style="color: #B0B5C0;"></i>
+              <span>余额管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="auto-recharge-rules.html" class="sidebar-item active flex items-center px-4 py-3 text-white rounded-md" style="background-color: #2A2F3D; color: #00FFB0;">
+              <i class="fas fa-sync-alt mr-3" style="color: #00FFB0;"></i>
+              <span>自动充值规则</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- 主要内容区域 -->
+  <div class="ml-56 flex-1 min-h-screen" style="background-color: #1A1F2B;">
+    <!-- 页面标题 -->
+    <div class="p-6 border-b" style="border-color: #2E333F;">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-2">自动充值规则</h2>
+          <p class="text-sm" style="color: #B0B5C0;">管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值</p>
+        </div>
+        <button onclick="openAddModal()" class="btn-primary flex items-center space-x-2">
+          <i class="fas fa-plus"></i>
+          <span>新增规则</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="p-6">
+      <div class="mb-6 p-4 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告账户</label>
+            <select id="filterAccount" class="input-field w-full">
+              <option value="">全部账户</option>
+              <option value="FB001234567">FB001234567 - 测试广告账户01</option>
+              <option value="FB001234568">FB001234568 - 测试广告账户02</option>
+              <option value="GG001234570">GG001234570 - Google广告账户01</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">规则状态</label>
+            <select id="filterStatus" class="input-field w-full">
+              <option value="">全部状态</option>
+              <option value="active">启用</option>
+              <option value="inactive">停用</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <div class="flex space-x-2 w-full">
+              <button onclick="filterRules()" class="btn-primary flex-1 flex items-center justify-center space-x-2">
+                <i class="fas fa-search"></i>
+                <span>搜索</span>
+              </button>
+              <button onclick="resetFilter()" class="btn-secondary flex-1 flex items-center justify-center space-x-2">
+                <i class="fas fa-redo"></i>
+                <span>重置</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 规则列表 -->
+      <div class="rounded-lg overflow-hidden" style="background-color: #242A3A; border: 1px solid #2E333F;">
+        <div class="px-6 py-4 border-b" style="border-color: #2E333F;">
+          <h3 class="text-lg font-medium text-white">规则列表</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full table-hover">
+            <thead style="background-color: #1E2230;">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">规则名称</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">广告账户</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">余额阈值</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">充值金额</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">规则状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">最后执行时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">执行次数</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="rulesTableBody" class="divide-y" style="border-color: #2E333F;">
+              <!-- 示例数据 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">规则001</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">FB001234567</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">低于 $100</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">$500</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="status-active">启用</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">2024-01-15 10:30</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">5</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <div class="flex items-center space-x-2">
+                    <button onclick="editRule(1)" class="text-blue-400 hover:text-blue-300" title="编辑">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <label class="switch">
+                      <input type="checkbox" checked onchange="toggleRuleStatus(1, this.checked)">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">规则002</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">GG001234570</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">低于 $200</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">$1000</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="status-inactive">停用</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">2024-01-10 14:20</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">2</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <div class="flex items-center space-x-2">
+                    <button onclick="editRule(2)" class="text-blue-400 hover:text-blue-300" title="编辑">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <label class="switch">
+                      <input type="checkbox" onchange="toggleRuleStatus(2, this.checked)">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增/编辑规则模态框 -->
+  <div id="ruleModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50 flex items-center justify-center">
+    <div class="bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 animate-fadeIn" style="background-color: #242A3A; border: 1px solid #2E333F;">
+      <div class="px-6 py-4 border-b flex items-center justify-between" style="border-color: #2E333F;">
+        <h3 class="text-lg font-medium text-white" id="modalTitle">新增规则</h3>
+        <button onclick="closeRuleModal()" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="ruleForm" class="p-6">
+        <input type="hidden" id="ruleId" value="">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">规则名称 *</label>
+            <input type="text" id="ruleName" required class="input-field w-full" placeholder="请输入规则名称">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告账户 *</label>
+            <!-- 搜索框 -->
+            <div class="mb-3">
+              <input type="text" id="accountSearch" class="input-field w-full" placeholder="搜索广告账户ID或名称..." oninput="filterAccountList()">
+            </div>
+            <!-- 已选账户列表 -->
+            <div id="selectedAccountsList" class="mb-3 p-3 rounded-lg" style="background-color: #1E2230; border: 1px solid #2E333F; min-height: 60px;">
+              <div class="text-xs mb-2" style="color: #888888;">已选账户:</div>
+              <div id="selectedAccountsContainer" class="space-y-2">
+                <div class="text-sm" style="color: #888888;">暂未选择账户</div>
+              </div>
+            </div>
+            <!-- 账户选择列表 -->
+            <div class="max-h-60 overflow-y-auto rounded-lg" style="background-color: #1E2230; border: 1px solid #2E333F;">
+              <div id="accountListContainer" class="p-2 space-y-1">
+                <!-- 账户列表将通过JavaScript动态生成 -->
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">余额阈值类型 *</label>
+              <select id="thresholdType" required class="input-field w-full">
+                <option value="below">低于</option>
+                <option value="equal">等于</option>
+                <option value="above">高于</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">余额阈值金额 *</label>
+              <div class="flex">
+                <span class="input-field rounded-r-none" style="border-right: none; color: #B0B5C0;">$</span>
+                <input type="number" id="thresholdAmount" required step="0.01" min="0" class="input-field w-full rounded-l-none" placeholder="0.00">
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">充值金额 *</label>
+            <div class="flex">
+              <span class="input-field rounded-r-none" style="border-right: none; color: #B0B5C0;">$</span>
+              <input type="number" id="rechargeAmount" required step="0.01" min="0" class="input-field w-full rounded-l-none" placeholder="0.00">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">有效开始时间</label>
+              <input type="datetime-local" id="startTime" class="input-field w-full" placeholder="请输入0时区的时间">
+              <p class="text-xs mt-1" style="color: #888888;">请输入0时区的时间</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">有效结束时间</label>
+              <input type="datetime-local" id="endTime" class="input-field w-full" placeholder="请输入0时区的时间">
+              <p class="text-xs mt-1" style="color: #888888;">请输入0时区的时间</p>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">规则状态 *</label>
+            <select id="ruleStatus" required class="input-field w-full">
+              <option value="active">启用</option>
+              <option value="inactive">停用</option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeRuleModal()" class="btn-secondary">取消</button>
+          <button type="submit" class="btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 所有广告账户数据（示例数据，实际应该从API获取）
+    const allAccounts = [
+      { id: 'FB001234567', name: '测试广告账户01', platform: 'Facebook' },
+      { id: 'FB001234568', name: '测试广告账户02', platform: 'Facebook' },
+      { id: 'FB001234569', name: '营销广告账户', platform: 'Facebook' },
+      { id: 'GG001234570', name: 'Google广告账户01', platform: 'Google' },
+      { id: 'GG001234571', name: 'Google广告账户02', platform: 'Google' },
+      { id: 'SC001234572', name: 'Snapchat广告账户', platform: 'Snapchat' },
+      { id: 'TT001234573', name: 'TikTok广告账户', platform: 'TikTok' }
+    ];
+
+    // 已选账户列表
+    let selectedAccounts = [];
+
+    // 初始化账户列表
+    function initAccountList() {
+      renderAccountList(allAccounts);
+      renderSelectedAccounts();
+    }
+
+    // 渲染账户列表
+    function renderAccountList(accounts) {
+      const container = document.getElementById('accountListContainer');
+      if (accounts.length === 0) {
+        container.innerHTML = '<div class="p-3 text-sm text-center" style="color: #888888;">未找到匹配的账户</div>';
+        return;
+      }
+      
+        container.innerHTML = accounts.map(account => {
+        const isSelected = selectedAccounts.some(a => a.id === account.id);
+        return `
+          <div class="account-item p-2 rounded cursor-pointer ${isSelected ? 'bg-gray-700' : ''}" onclick="toggleAccount('${account.id}')">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="text-sm text-white font-medium">${account.name}</div>
+                <div class="text-xs mt-1" style="color: #B0B5C0;">
+                  <span class="mr-3">${account.platform}</span>
+                  <span>${account.id}</span>
+                </div>
+              </div>
+              <div class="ml-3">
+                ${isSelected ? '<i class="fas fa-check-circle text-green-400"></i>' : '<i class="far fa-circle text-gray-500"></i>'}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 渲染已选账户列表
+    function renderSelectedAccounts() {
+      const container = document.getElementById('selectedAccountsContainer');
+      if (selectedAccounts.length === 0) {
+        container.innerHTML = '<div class="text-sm" style="color: #888888;">暂未选择账户</div>';
+        return;
+      }
+      
+      container.innerHTML = selectedAccounts.map(account => `
+        <div class="selected-account-item flex items-center justify-between p-2 rounded" style="background-color: #2A2F3D;">
+          <div class="flex-1">
+            <div class="text-sm text-white font-medium">${account.name}</div>
+            <div class="text-xs mt-1" style="color: #B0B5C0;">
+              <span class="mr-3">${account.platform}</span>
+              <span>${account.id}</span>
+            </div>
+          </div>
+          <button onclick="removeAccount('${account.id}')" class="ml-3 text-red-400 hover:text-red-300" title="移除">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // 切换账户选择状态
+    function toggleAccount(accountId) {
+      const account = allAccounts.find(a => a.id === accountId);
+      if (!account) return;
+
+      const index = selectedAccounts.findIndex(a => a.id === accountId);
+      if (index > -1) {
+        selectedAccounts.splice(index, 1);
+      } else {
+        selectedAccounts.push(account);
+      }
+      
+      renderAccountList(getFilteredAccounts());
+      renderSelectedAccounts();
+    }
+
+    // 移除账户
+    function removeAccount(accountId) {
+      selectedAccounts = selectedAccounts.filter(a => a.id !== accountId);
+      renderAccountList(getFilteredAccounts());
+      renderSelectedAccounts();
+    }
+
+    // 获取过滤后的账户列表
+    function getFilteredAccounts() {
+      const searchText = document.getElementById('accountSearch').value.toLowerCase();
+      if (!searchText) {
+        return allAccounts;
+      }
+      return allAccounts.filter(account => 
+        account.id.toLowerCase().includes(searchText) || 
+        account.name.toLowerCase().includes(searchText) ||
+        account.platform.toLowerCase().includes(searchText)
+      );
+    }
+
+    // 过滤账户列表
+    function filterAccountList() {
+      renderAccountList(getFilteredAccounts());
+    }
+
+    // 打开新增规则模态框
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = '新增规则';
+      document.getElementById('ruleId').value = '';
+      document.getElementById('ruleForm').reset();
+      selectedAccounts = [];
+      document.getElementById('accountSearch').value = '';
+      document.getElementById('ruleStatus').value = 'active'; // 默认启用
+      document.getElementById('startTime').value = '';
+      document.getElementById('endTime').value = '';
+      initAccountList();
+      document.getElementById('ruleModal').classList.remove('hidden');
+    }
+
+    // 编辑规则
+    function editRule(ruleId) {
+      document.getElementById('modalTitle').textContent = '编辑规则';
+      document.getElementById('ruleId').value = ruleId;
+      // 这里应该从API获取规则数据并填充表单
+      // 示例数据
+      document.getElementById('ruleName').value = '规则001';
+      document.getElementById('thresholdType').value = 'below';
+      document.getElementById('thresholdAmount').value = '100';
+      document.getElementById('rechargeAmount').value = '500';
+      document.getElementById('ruleStatus').value = 'active';
+      
+      // 设置有效时间（示例，格式：YYYY-MM-DDTHH:mm）
+      // 实际应该从API获取并转换为0时区时间
+      document.getElementById('startTime').value = '2024-01-01T00:00';
+      document.getElementById('endTime').value = '2024-12-31T23:59';
+      
+      // 设置已选账户（示例）
+      selectedAccounts = [allAccounts.find(a => a.id === 'FB001234567')].filter(Boolean);
+      document.getElementById('accountSearch').value = '';
+      initAccountList();
+      document.getElementById('ruleModal').classList.remove('hidden');
+    }
+
+    // 关闭模态框
+    function closeRuleModal() {
+      document.getElementById('ruleModal').classList.add('hidden');
+      document.getElementById('ruleForm').reset();
+      selectedAccounts = [];
+      document.getElementById('accountSearch').value = '';
+      document.getElementById('startTime').value = '';
+      document.getElementById('endTime').value = '';
+      document.getElementById('ruleStatus').value = 'active';
+    }
+
+    // 切换规则状态
+    function toggleRuleStatus(ruleId, enabled) {
+      const status = enabled ? '启用' : '停用';
+      if (confirm(`确定要${status}该规则吗?`)) {
+        // 这里应该调用API更新规则状态
+        console.log(`规则 ${ruleId} 状态已更新为: ${enabled ? '启用' : '停用'}`);
+        // 刷新列表
+        location.reload();
+      } else {
+        // 恢复开关状态
+        const checkbox = event.target;
+        checkbox.checked = !enabled;
+      }
+    }
+
+    // 提交表单
+    document.getElementById('ruleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // 验证是否选择了账户
+      if (selectedAccounts.length === 0) {
+        alert('请至少选择一个广告账户');
+        return;
+      }
+      
+      const ruleId = document.getElementById('ruleId').value;
+      const isEdit = ruleId !== '';
+      
+      // 验证有效时间
+      const startTime = document.getElementById('startTime').value;
+      const endTime = document.getElementById('endTime').value;
+      if (startTime && endTime && new Date(startTime) >= new Date(endTime)) {
+        alert('有效结束时间必须晚于有效开始时间');
+        return;
+      }
+      
+      const formData = {
+        ruleName: document.getElementById('ruleName').value,
+        accountIds: selectedAccounts.map(a => a.id),
+        thresholdType: document.getElementById('thresholdType').value,
+        thresholdAmount: document.getElementById('thresholdAmount').value,
+        rechargeAmount: document.getElementById('rechargeAmount').value,
+        startTime: startTime || null,
+        endTime: endTime || null,
+        status: document.getElementById('ruleStatus').value
+      };
+
+      // 这里应该调用API保存规则
+      console.log(isEdit ? '编辑规则:' : '新增规则:', formData);
+      alert(isEdit ? '规则已更新' : '规则已创建');
+      closeRuleModal();
+      // 刷新列表
+      location.reload();
+    });
+
+    // 筛选规则
+    function filterRules() {
+      const account = document.getElementById('filterAccount').value;
+      const status = document.getElementById('filterStatus').value;
+      console.log('筛选条件:', { account, status });
+      // 这里应该调用API筛选规则
+      alert('筛选功能已触发');
+    }
+
+    // 重置筛选
+    function resetFilter() {
+      document.getElementById('filterAccount').value = '';
+      document.getElementById('filterStatus').value = '';
+      filterRules();
+    }
+
+    // 点击模态框外部关闭
+    document.getElementById('ruleModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeRuleModal();
+      }
+    });
+
+    // 页面加载时初始化账户列表
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化账户列表（在打开模态框时也会调用）
+    });
+  </script>
+</body>
+</html>

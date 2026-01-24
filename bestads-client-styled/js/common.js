@@ -11,7 +11,8 @@ const PAGE_CONFIG = {
   'sub-account-management': { title: '子账号管理', description: '管理和配置子账号信息' },
   'role-management': { title: '角色管理', description: '管理和配置系统角色及权限' },
   'role-create': { title: '创建角色', description: '配置新的系统角色及权限' },
-  'role-edit': { title: '编辑角色', description: '修改系统角色及权限' }
+  'role-edit': { title: '编辑角色', description: '修改系统角色及权限' },
+  'auto-recharge-rules': { title: '自动充值规则', description: '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值' }
 };
 
 // 余额数据（统一管理）
