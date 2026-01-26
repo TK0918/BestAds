@@ -5,6 +5,7 @@
 const PAGE_CONFIG = {
   'index': { title: '首页', description: '欢迎使用BestAds海外广告管理系统' },
   'account-management': { title: '账户管理', description: '管理您的广告账户，查看账户状态和余额信息' },
+  'ad-management': { title: '广告管理', description: '管理和查看您的广告投放情况' },
   'operation-records': { title: '操作记录', description: '查看您的开户申请和充值记录，跟踪所有操作的处理状态' },
   'wallet': { title: '钱包', description: '管理您的钱包余额、充值与转账' },
   'ad-review-notifications': { title: '被拒广告', description: '查看您的广告审核结果和详细说明，了解不通过的具体原因' },
@@ -216,6 +217,12 @@ function loadFallbackSidebar() {
         </a>
       </li>
       <li>
+        <a href="ad-management.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="ad-management">
+          <i class="fas fa-ad mr-3" style="color: #B0B5C0;"></i>
+          <span>广告管理</span>
+        </a>
+      </li>
+      <li>
         <a href="#" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="facebook-ads">
           <i class="fab fa-facebook mr-3" style="color: #B0B5C0;"></i>
           <span>Facebook广告</span>
@@ -255,6 +262,12 @@ function loadFallbackSidebar() {
         <a href="wallet.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="wallet">
           <i class="fas fa-wallet mr-3" style="color: #B0B5C0;"></i>
           <span>余额管理</span>
+        </a>
+      </li>
+      <li>
+        <a href="auto-recharge-rules.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="auto-recharge-rules">
+          <i class="fas fa-sync-alt mr-3" style="color: #B0B5C0;"></i>
+          <span>自动充值规则</span>
         </a>
       </li>
       <li>
