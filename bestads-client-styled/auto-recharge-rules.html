@@ -227,46 +227,51 @@
     <div class="p-6 border-b" style="border-color: #2E333F;">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-white mb-2">自动充值规则</h2>
-          <p class="text-sm" style="color: #B0B5C0;">管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值</p>
+          <h2 class="text-2xl font-bold text-white mb-2" data-i18n="page.title">自动充值规则</h2>
+          <p class="text-sm" style="color: #B0B5C0;" data-i18n="page.description">管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值</p>
         </div>
-        <button onclick="openAddModal()" class="btn-primary flex items-center space-x-2">
-          <i class="fas fa-plus"></i>
-          <span>新增规则</span>
-        </button>
+        <div class="flex items-center space-x-4">
+          <!-- 语言切换 -->
+          <div class="relative">
+            <button id="languageToggle" onclick="toggleLanguage()" class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
+              <i class="fas fa-globe text-lg"></i>
+            </button>
+            <div id="languageDropdown" class="absolute right-0 mt-2 w-32 bg-slate-800 rounded-md shadow-lg hidden z-50" style="border: 1px solid #2E333F;">
+              <div class="py-1">
+                <button onclick="changeLanguage('zh-CN')" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-slate-700" data-lang="zh-CN">
+                  <i class="fas fa-check mr-2" id="zh-check" style="display: none;"></i>中文
+                </button>
+                <button onclick="changeLanguage('en-US')" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-slate-700" data-lang="en-US">
+                  <i class="fas fa-check mr-2" id="en-check" style="display: none;"></i>English
+                </button>
+              </div>
+            </div>
+          </div>
+          <button onclick="openAddModal()" class="btn-primary flex items-center space-x-2">
+            <i class="fas fa-plus"></i>
+            <span data-i18n="btn.addRule">新增规则</span>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- 筛选区域 -->
     <div class="p-6">
       <div class="mb-6 p-4 rounded-lg" style="background-color: #242A3A; border: 1px solid #2E333F;">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">广告账户</label>
-            <select id="filterAccount" class="input-field w-full">
-              <option value="">全部账户</option>
-              <option value="FB001234567">FB001234567 - 测试广告账户01</option>
-              <option value="FB001234568">FB001234568 - 测试广告账户02</option>
-              <option value="GG001234570">GG001234570 - Google广告账户01</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">规则状态</label>
-            <select id="filterStatus" class="input-field w-full">
-              <option value="">全部状态</option>
-              <option value="active">启用</option>
-              <option value="inactive">停用</option>
-            </select>
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;" data-i18n="filter.ruleName">规则名称</label>
+            <input type="text" id="filterRuleName" class="input-field w-full" placeholder="" data-i18n-placeholder="filter.ruleNamePlaceholder">
           </div>
           <div class="flex items-end">
-            <div class="flex space-x-2 w-full">
-              <button onclick="filterRules()" class="btn-primary flex-1 flex items-center justify-center space-x-2">
+            <div class="flex space-x-2 w-full md:w-auto">
+              <button onclick="filterRules()" class="btn-primary flex items-center justify-center space-x-2 px-6">
                 <i class="fas fa-search"></i>
-                <span>搜索</span>
+                <span data-i18n="btn.search">搜索</span>
               </button>
-              <button onclick="resetFilter()" class="btn-secondary flex-1 flex items-center justify-center space-x-2">
+              <button onclick="resetFilter()" class="btn-secondary flex items-center justify-center space-x-2 px-6">
                 <i class="fas fa-redo"></i>
-                <span>重置</span>
+                <span data-i18n="btn.reset">重置</span>
               </button>
             </div>
           </div>
@@ -276,68 +281,22 @@
       <!-- 规则列表 -->
       <div class="rounded-lg overflow-hidden" style="background-color: #242A3A; border: 1px solid #2E333F;">
         <div class="px-6 py-4 border-b" style="border-color: #2E333F;">
-          <h3 class="text-lg font-medium text-white">规则列表</h3>
+          <h3 class="text-lg font-medium text-white" data-i18n="table.title">规则列表</h3>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full table-hover">
             <thead style="background-color: #1E2230;">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">规则名称</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">广告账户</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">余额阈值</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">充值金额</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">规则状态</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">最后执行时间</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">执行次数</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;">操作</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.ruleName">规则名称</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.accountCount">账户数</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.status">状态</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.effectiveTime">生效时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.updateTime">更新时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.actions">操作</th>
               </tr>
             </thead>
             <tbody id="rulesTableBody" class="divide-y" style="border-color: #2E333F;">
-              <!-- 示例数据 -->
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">规则001</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">FB001234567</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">低于 $100</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">$500</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="status-active">启用</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">2024-01-15 10:30</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">5</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <div class="flex items-center space-x-2">
-                    <button onclick="editRule(1)" class="text-blue-400 hover:text-blue-300" title="编辑">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <label class="switch">
-                      <input type="checkbox" checked onchange="toggleRuleStatus(1, this.checked)">
-                      <span class="slider"></span>
-                    </label>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">规则002</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">GG001234570</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">低于 $200</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">$1000</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="status-inactive">停用</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">2024-01-10 14:20</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">2</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <div class="flex items-center space-x-2">
-                    <button onclick="editRule(2)" class="text-blue-400 hover:text-blue-300" title="编辑">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <label class="switch">
-                      <input type="checkbox" onchange="toggleRuleStatus(2, this.checked)">
-                      <span class="slider"></span>
-                    </label>
-                  </div>
-                </td>
-              </tr>
+              <!-- 示例数据将通过JavaScript动态生成 -->
             </tbody>
           </table>
         </div>
@@ -426,14 +385,82 @@
           </div>
         </div>
         <div class="mt-6 flex justify-end space-x-3">
-          <button type="button" onclick="closeRuleModal()" class="btn-secondary">取消</button>
-          <button type="submit" class="btn-primary">保存</button>
+          <button type="button" onclick="closeRuleModal()" class="btn-secondary"><span data-i18n="btn.cancel">取消</span></button>
+          <button type="submit" class="btn-primary"><span data-i18n="btn.save">保存</span></button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
+    // 语言设置
+    let currentLanguage = localStorage.getItem('language') || 'zh-CN';
+
+    // 国际化文本
+    const i18n = {
+      'zh-CN': {
+        'page.title': '自动充值规则',
+        'page.description': '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值',
+        'btn.addRule': '新增规则',
+        'btn.search': '搜索',
+        'btn.reset': '重置',
+        'btn.edit': '编辑',
+        'btn.cancel': '取消',
+        'btn.save': '保存',
+        'filter.ruleName': '规则名称',
+        'filter.ruleNamePlaceholder': '请输入规则名称进行模糊搜索',
+        'table.title': '规则列表',
+        'table.ruleName': '规则名称',
+        'table.accountCount': '账户数',
+        'table.status': '状态',
+        'table.effectiveTime': '生效时间',
+        'table.updateTime': '更新时间',
+        'table.actions': '操作',
+        'status.enabled': '启用',
+        'status.disabled': '停用',
+        'modal.addRule': '新增规则',
+        'modal.editRule': '编辑规则',
+        'confirm.toggleStatus': '确定要{status}该规则吗?',
+        'alert.selectAccount': '请至少选择一个广告账户',
+        'alert.timeRange': '有效结束时间必须晚于有效开始时间',
+        'alert.ruleCreated': '规则已创建',
+        'alert.ruleUpdated': '规则已更新'
+      },
+      'en-US': {
+        'page.title': 'Auto Recharge Rules',
+        'page.description': 'Manage automatic recharge rules for ad accounts. Automatically recharge when account balance falls below the threshold',
+        'btn.addRule': 'Add Rule',
+        'btn.search': 'Search',
+        'btn.reset': 'Reset',
+        'btn.edit': 'Edit',
+        'btn.cancel': 'Cancel',
+        'btn.save': 'Save',
+        'filter.ruleName': 'Rule Name',
+        'filter.ruleNamePlaceholder': 'Enter rule name for fuzzy search',
+        'table.title': 'Rules List',
+        'table.ruleName': 'Rule Name',
+        'table.accountCount': 'Account Count',
+        'table.status': 'Status',
+        'table.effectiveTime': 'Effective Time',
+        'table.updateTime': 'Update Time',
+        'table.actions': 'Actions',
+        'status.enabled': 'Enabled',
+        'status.disabled': 'Disabled',
+        'modal.addRule': 'Add Rule',
+        'modal.editRule': 'Edit Rule',
+        'confirm.toggleStatus': 'Are you sure you want to {status} this rule?',
+        'alert.selectAccount': 'Please select at least one ad account',
+        'alert.timeRange': 'End time must be later than start time',
+        'alert.ruleCreated': 'Rule created successfully',
+        'alert.ruleUpdated': 'Rule updated successfully'
+      }
+    };
+
+    // 获取国际化文本
+    function getText(key) {
+      return i18n[currentLanguage][key] || key;
+    }
+
     // 所有广告账户数据（示例数据，实际应该从API获取）
     const allAccounts = [
       { id: 'FB001234567', name: '测试广告账户01', platform: 'Facebook' },
@@ -447,6 +474,26 @@
 
     // 已选账户列表
     let selectedAccounts = [];
+
+    // 示例规则数据（实际应该从API获取）
+    let rulesData = [
+      {
+        id: 1,
+        ruleName: '规则001',
+        accountCount: 3,
+        status: 'active',
+        effectiveTime: '2024-01-01 00:00:00 ~ 2024-12-31 23:59:59',
+        updateTime: '2024-01-15 10:30:00'
+      },
+      {
+        id: 2,
+        ruleName: '规则002',
+        accountCount: 2,
+        status: 'inactive',
+        effectiveTime: '2024-02-01 00:00:00 ~ 2024-12-31 23:59:59',
+        updateTime: '2024-01-10 14:20:00'
+      }
+    ];
 
     // 初始化账户列表
     function initAccountList() {
@@ -548,9 +595,58 @@
       renderAccountList(getFilteredAccounts());
     }
 
+    // 渲染规则列表
+    function renderRulesTable() {
+      const tbody = document.getElementById('rulesTableBody');
+      const filterRuleName = document.getElementById('filterRuleName').value.toLowerCase();
+      
+      let filteredRules = rulesData;
+      if (filterRuleName) {
+        filteredRules = rulesData.filter(rule => 
+          rule.ruleName.toLowerCase().includes(filterRuleName)
+        );
+      }
+      
+      if (filteredRules.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-sm" style="color: #B0B5C0;">
+              ${getText('table.noData') || '暂无数据'}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = filteredRules.map(rule => `
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${rule.ruleName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${rule.accountCount}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="${rule.status === 'active' ? 'status-active' : 'status-inactive'}">
+              ${rule.status === 'active' ? getText('status.enabled') : getText('status.disabled')}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.effectiveTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.updateTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <div class="flex items-center space-x-2">
+              <button onclick="editRule(${rule.id})" class="text-blue-400 hover:text-blue-300" title="${getText('btn.edit')}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <label class="switch">
+                <input type="checkbox" ${rule.status === 'active' ? 'checked' : ''} onchange="toggleRuleStatus(${rule.id}, this.checked)">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
     // 打开新增规则模态框
     function openAddModal() {
-      document.getElementById('modalTitle').textContent = '新增规则';
+      document.getElementById('modalTitle').textContent = getText('modal.addRule');
       document.getElementById('ruleId').value = '';
       document.getElementById('ruleForm').reset();
       selectedAccounts = [];
@@ -564,15 +660,22 @@
 
     // 编辑规则
     function editRule(ruleId) {
-      document.getElementById('modalTitle').textContent = '编辑规则';
+      document.getElementById('modalTitle').textContent = getText('modal.editRule');
       document.getElementById('ruleId').value = ruleId;
       // 这里应该从API获取规则数据并填充表单
       // 示例数据
-      document.getElementById('ruleName').value = '规则001';
-      document.getElementById('thresholdType').value = 'below';
-      document.getElementById('thresholdAmount').value = '100';
-      document.getElementById('rechargeAmount').value = '500';
-      document.getElementById('ruleStatus').value = 'active';
+      const rule = rulesData.find(r => r.id === ruleId);
+      if (rule) {
+        document.getElementById('ruleName').value = rule.ruleName;
+        document.getElementById('ruleStatus').value = rule.status;
+      } else {
+        // 默认示例数据
+        document.getElementById('ruleName').value = '规则001';
+        document.getElementById('thresholdType').value = 'below';
+        document.getElementById('thresholdAmount').value = '100';
+        document.getElementById('rechargeAmount').value = '500';
+        document.getElementById('ruleStatus').value = 'active';
+      }
       
       // 设置有效时间（示例，格式：YYYY-MM-DDTHH:mm）
       // 实际应该从API获取并转换为0时区时间
@@ -599,12 +702,15 @@
 
     // 切换规则状态
     function toggleRuleStatus(ruleId, enabled) {
-      const status = enabled ? '启用' : '停用';
-      if (confirm(`确定要${status}该规则吗?`)) {
+      const status = enabled ? getText('status.enabled') : getText('status.disabled');
+      const confirmText = getText('confirm.toggleStatus').replace('{status}', status);
+      if (confirm(confirmText)) {
         // 这里应该调用API更新规则状态
-        console.log(`规则 ${ruleId} 状态已更新为: ${enabled ? '启用' : '停用'}`);
-        // 刷新列表
-        location.reload();
+        const rule = rulesData.find(r => r.id === ruleId);
+        if (rule) {
+          rule.status = enabled ? 'active' : 'inactive';
+        }
+        renderRulesTable();
       } else {
         // 恢复开关状态
         const checkbox = event.target;
@@ -618,7 +724,7 @@
       
       // 验证是否选择了账户
       if (selectedAccounts.length === 0) {
-        alert('请至少选择一个广告账户');
+        alert(getText('alert.selectAccount'));
         return;
       }
       
@@ -629,7 +735,7 @@
       const startTime = document.getElementById('startTime').value;
       const endTime = document.getElementById('endTime').value;
       if (startTime && endTime && new Date(startTime) >= new Date(endTime)) {
-        alert('有效结束时间必须晚于有效开始时间');
+        alert(getText('alert.timeRange'));
         return;
       }
       
@@ -646,26 +752,132 @@
 
       // 这里应该调用API保存规则
       console.log(isEdit ? '编辑规则:' : '新增规则:', formData);
-      alert(isEdit ? '规则已更新' : '规则已创建');
+      
+      // 更新本地数据（实际应该从API响应获取）
+      if (isEdit) {
+        const rule = rulesData.find(r => r.id === parseInt(ruleId));
+        if (rule) {
+          rule.ruleName = formData.ruleName;
+          rule.accountCount = selectedAccounts.length;
+          rule.status = formData.status;
+          rule.effectiveTime = startTime && endTime ? 
+            `${formatDateTime(startTime)} ~ ${formatDateTime(endTime)}` : '';
+          rule.updateTime = formatDateTime(new Date());
+        }
+        alert(getText('alert.ruleUpdated'));
+      } else {
+        const newRule = {
+          id: rulesData.length + 1,
+          ruleName: formData.ruleName,
+          accountCount: selectedAccounts.length,
+          status: formData.status,
+          effectiveTime: startTime && endTime ? 
+            `${formatDateTime(startTime)} ~ ${formatDateTime(endTime)}` : '',
+          updateTime: formatDateTime(new Date())
+        };
+        rulesData.push(newRule);
+        alert(getText('alert.ruleCreated'));
+      }
+      
       closeRuleModal();
-      // 刷新列表
-      location.reload();
+      renderRulesTable();
     });
+
+    // 格式化日期时间
+    function formatDateTime(dateTime) {
+      if (!dateTime) return '';
+      const date = new Date(dateTime);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
 
     // 筛选规则
     function filterRules() {
-      const account = document.getElementById('filterAccount').value;
-      const status = document.getElementById('filterStatus').value;
-      console.log('筛选条件:', { account, status });
-      // 这里应该调用API筛选规则
-      alert('筛选功能已触发');
+      renderRulesTable();
     }
 
     // 重置筛选
     function resetFilter() {
-      document.getElementById('filterAccount').value = '';
-      document.getElementById('filterStatus').value = '';
-      filterRules();
+      document.getElementById('filterRuleName').value = '';
+      renderRulesTable();
+    }
+
+    // 初始化语言设置
+    function initializeLanguage() {
+      const savedLanguage = localStorage.getItem('language') || 'zh-CN';
+      currentLanguage = savedLanguage;
+      updateLanguageUI();
+      applyLanguage();
+    }
+
+    // 切换语言下拉菜单
+    function toggleLanguage() {
+      const dropdown = document.getElementById('languageDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+
+    // 更改语言
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('language', lang);
+      updateLanguageUI();
+      applyLanguage();
+      document.getElementById('languageDropdown').classList.add('hidden');
+    }
+
+    // 更新语言UI
+    function updateLanguageUI() {
+      const zhCheck = document.getElementById('zh-check');
+      const enCheck = document.getElementById('en-check');
+      
+      if (currentLanguage === 'zh-CN') {
+        if (zhCheck) zhCheck.style.display = 'inline';
+        if (enCheck) enCheck.style.display = 'none';
+      } else {
+        if (zhCheck) zhCheck.style.display = 'none';
+        if (enCheck) enCheck.style.display = 'inline';
+      }
+    }
+
+    // 应用语言
+    function applyLanguage() {
+      // 更新所有带有 data-i18n 属性的元素
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const text = getText(key);
+        if (el.tagName === 'INPUT' && el.hasAttribute('data-i18n-placeholder')) {
+          const placeholderKey = el.getAttribute('data-i18n-placeholder');
+          el.placeholder = getText(placeholderKey);
+        } else {
+          // 如果元素有子元素（如图标），只更新文本内容
+          const hasChildren = el.children.length > 0;
+          if (hasChildren) {
+            // 查找文本节点或span标签来更新
+            const textNode = Array.from(el.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+            const spanNode = el.querySelector('span[data-i18n]');
+            if (spanNode) {
+              spanNode.textContent = text;
+            } else if (textNode) {
+              textNode.textContent = text;
+            } else {
+              el.textContent = text;
+            }
+          } else {
+            el.textContent = text;
+          }
+        }
+      });
+      
+      // 更新页面标题
+      document.title = getText('page.title') + ' - BestAds';
+      
+      // 重新渲染表格
+      renderRulesTable();
     }
 
     // 点击模态框外部关闭
@@ -675,9 +887,21 @@
       }
     });
 
-    // 页面加载时初始化账户列表
+    // 页面加载时初始化
     document.addEventListener('DOMContentLoaded', function() {
-      // 初始化账户列表（在打开模态框时也会调用）
+      initializeLanguage();
+      renderRulesTable();
+      
+      // 点击外部关闭语言下拉菜单
+      document.addEventListener('click', function(e) {
+        const languageToggle = document.getElementById('languageToggle');
+        const languageDropdown = document.getElementById('languageDropdown');
+        if (languageToggle && languageDropdown && 
+            !languageToggle.contains(e.target) && 
+            !languageDropdown.contains(e.target)) {
+          languageDropdown.classList.add('hidden');
+        }
+      });
     });
   </script>
   <script src="./js/common.js"></script>
