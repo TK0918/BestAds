@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广告周数据 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .card-metric { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.25rem; }
+    .card-metric .title { color: #6B7280; font-size: 0.95rem; font-weight: 500; }
+    .card-metric .value { font-size: 1.75rem; font-weight: 700; color: #1F2937; }
+    .card-metric .sub { color: #6B7280; font-size: 0.9rem; }
+    .trend-up { color: #16A34A; }
+    .trend-down { color: #EF4444; }
+    .echarts-box { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 1.5rem; }
+    .echarts-title { font-size: 1.05rem; font-weight: 600; color: #1F2937; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .tab-button { transition: all 0.2s ease; }
+    .tab-button.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
+    .badge { display: inline-flex; align-items: center; gap: 0.25rem; background: #EEF2FF; color: #4338CA; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .table-simple th, .table-simple td { padding: 0.6rem 0.75rem; font-size: 0.85rem; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+    .table-simple th { background: #F9FAFB; text-align: left; color: #4B5563; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+    .table-simple td { color: #374151; }
+    .number-positive { color: #16A34A; }
+    .number-negative { color: #EF4444; }
+    .sidebar-collapsed { width: 64px !important; }
+    .sidebar-collapsed .sidebar-item span, .sidebar-collapsed h3 { display: none !important; }
+    .sidebar-collapsed .sidebar-item i { margin-right: 0 !important; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-between h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+        <button id="sidebarCollapseBtn" class="lg:block hidden p-2 ml-2 text-gray-400 hover:text-blue-600 focus:outline-none" onclick="toggleSidebarCollapse()">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+      <!-- 侧边栏菜单区 -->
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i><span>仪表盘</span></a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i><span>客户管理</span></a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i><span>代理管理</span></a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i><span>返点配置</span></a></li>
+            </ul>
+          </div>
+          <!-- FB业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i><span>账户管理</span></a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i><span>开户管理</span></a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i><span>账户分配</span></a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i><span>账户充值</span></a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i><span>账户减款</span></a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i><span>账户清零</span></a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i><span>服务费配置</span></a></li>
+            </ul>
+          </div>
+          <!-- Google业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 其他媒体业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          <!-- 余额监控管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+            </ul>
+          </div>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i><span>客户打款情况</span></a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i><span>广告账户充值报表</span></a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i><span>广告消耗情况</span></a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i><span>负向广告报表</span></a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i><span>运营日报</span></a></li>
+              <li><a href="customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i><span>客户对账日报</span></a></li>
+              <li><a href="data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i><span>数据报表</span></a></li>
+              <li><a href="consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i><span>消耗分析</span></a></li>
+              <li><a href="recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i><span>充值分布分析</span></a></li>
+              <li><a href="profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i><span>预计利润波动分析</span></a></li>
+              <li><a href="customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i><span>客户资金变动</span></a></li>
+              <li><a href="weekly-ad-data-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-blue-500"></i><span>广告周数据</span></a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <!-- 主内容 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">报表</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">广告周数据</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <!-- 顶部说明与Tab -->
+            <div class="space-y-3">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl font-bold text-gray-900">广告周数据</span>
+                <span class="badge"><i class="fas fa-info-circle"></i>以自然周为统计周期</span>
+              </div>
+              <div class="bg-white shadow-sm rounded-t-lg border border-gray-200 border-b-0">
+                <div class="border-b border-gray-200">
+                  <nav class="-mb-px flex space-x-6 px-6" aria-label="Tabs">
+                    <button onclick="switchTab('accountType')" id="tab-account-type-btn" class="tab-button active py-3 px-1 border-b-2 font-medium text-sm text-blue-600 border-blue-500 whitespace-nowrap">
+                      账户类型变化
+                    </button>
+                    <button onclick="switchTab('industry')" id="tab-industry-btn" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                      行业
+                    </button>
+                    <button onclick="switchTab('top20')" id="tab-top20-btn" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                      增减客户TOP 20
+                    </button>
+                    <button onclick="switchTab('newTable')" id="tab-new-table-btn" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                      新数据表
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab1: 账户类型变化 -->
+            <section id="tab-account-type" class="space-y-4">
+              <!-- 筛选区 -->
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex flex-wrap gap-4 items-end">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">时间范围（自然周）</label>
+                    <div class="flex items-center gap-2">
+                      <input type="week" id="accountTypeWeekStart" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <span class="text-gray-500">至</span>
+                      <input type="week" id="accountTypeWeekEnd" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">默认最近10个自然周（周一至周日）</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">账户类型</label>
+                    <select id="accountTypeSelect" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" style="min-width:160px;">
+                      <option value="all">全部类型</option>
+                      <option value="Facebook-三不限">Facebook-三不限</option>
+                      <option value="Facebook-企业户">Facebook-企业户</option>
+                      <option value="Facebook-海外户">Facebook-海外户</option>
+                      <option value="Tiktok-企业户">Tiktok-企业户</option>
+                      <option value="未分配">未分配</option>
+                    </select>
+                  </div>
+                  <button class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" onclick="refreshAccountTypeView()">
+                    <i class="fas fa-search mr-2"></i>查询
+                  </button>
+                </div>
+              </div>
+              <!-- 图表 + 表格 -->
+              <div class="flex flex-col gap-4">
+                <div class="echarts-box">
+                  <div class="echarts-title">
+                    <span>账户类型周消耗趋势</span>
+                    <span class="text-xs text-gray-400">按自然周聚合</span>
+                  </div>
+                  <div id="accountTypeChart" style="height:320px;"></div>
+                </div>
+                <div class="echarts-box overflow-x-auto">
+                  <div class="echarts-title">
+                    <span>账户类型周度明细</span>
+                    <span class="text-xs text-gray-400">末列为最近一周 vs 上一周</span>
+                  </div>
+                  <div class="overflow-x-auto" style="max-height:320px;">
+                    <table class="min-w-full table-simple" id="accountTypeTable">
+                      <thead></thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Tab2: 行业 -->
+            <section id="tab-industry" class="space-y-4 hidden">
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex flex-wrap gap-4 items-end">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">时间范围（自然周）</label>
+                    <div class="flex items-center gap-2">
+                      <input type="week" id="industryWeekStart" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <span class="text-gray-500">至</span>
+                      <input type="week" id="industryWeekEnd" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">默认最近10个自然周（周一至周日）</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">行业</label>
+                    <select id="industrySelect" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" style="min-width:160px;">
+                      <option value="all">全部行业</option>
+                      <option value="电商">电商</option>
+                      <option value="游戏">游戏</option>
+                      <option value="金融">金融</option>
+                      <option value="工具应用">工具应用</option>
+                      <option value="品牌">品牌</option>
+                    </select>
+                  </div>
+                  <button class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" onclick="refreshIndustryView()">
+                    <i class="fas fa-search mr-2"></i>查询
+                  </button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-4">
+                <div class="echarts-box">
+                  <div class="echarts-title">
+                    <span>行业周消耗趋势</span>
+                    <span class="text-xs text-gray-400">按行业维度聚合</span>
+                  </div>
+                  <div id="industryChart" style="height:320px;"></div>
+                </div>
+                <div class="echarts-box overflow-x-auto">
+                  <div class="echarts-title">
+                    <span>行业周度明细</span>
+                    <span class="text-xs text-gray-400">末列为最近一周 vs 上一周</span>
+                  </div>
+                  <div class="overflow-x-auto" style="max-height:320px;">
+                    <table class="min-w-full table-simple" id="industryTable">
+                      <thead></thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Tab3: 增减客户 TOP 20 -->
+            <section id="tab-top20" class="space-y-4 hidden">
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex flex-wrap gap-4 items-end">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">统计周（自然周）</label>
+                    <input type="week" id="top20Week" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-gray-400 mt-1">仅支持选择单个自然周，默认上一周</p>
+                  </div>
+                  <button class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" onclick="refreshTop20View()">
+                    <i class="fas fa-search mr-2"></i>查询
+                  </button>
+                </div>
+              </div>
+              <div class="space-y-6">
+                <!-- 全局 TOP20 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div class="echarts-box overflow-x-auto">
+                    <div class="echarts-title">
+                      <span>增量客户 TOP 20（全局）</span>
+                      <span class="text-xs text-gray-400">按消耗变动绝对值倒序</span>
+                    </div>
+                    <div class="overflow-x-auto" style="max-height:380px;">
+                      <table class="min-w-full table-simple" id="topIncreaseTable">
+                        <thead>
+                          <tr>
+                            <th>商户ID</th>
+                            <th>客户名称</th>
+                            <th>BD</th>
+                            <th>消耗金额</th>
+                            <th>消耗变动</th>
+                            <th id="topIncreaseWowHeader" class="cursor-pointer" onclick="sortTopTable('increase', 'wow')">环比</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="echarts-box overflow-x-auto">
+                    <div class="echarts-title">
+                      <span>减量客户 TOP 20（全局）</span>
+                      <span class="text-xs text-gray-400">按消耗变动绝对值正序</span>
+                    </div>
+                    <div class="overflow-x-auto" style="max-height:380px;">
+                      <table class="min-w-full table-simple" id="topDecreaseTable">
+                        <thead>
+                          <tr>
+                            <th>商户ID</th>
+                            <th>客户名称</th>
+                            <th>BD</th>
+                            <th>消耗金额</th>
+                            <th>消耗变动</th>
+                            <th id="topDecreaseWowHeader" class="cursor-pointer" onclick="sortTopTable('decrease', 'wow')">环比</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- BD一组 TOP20 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div class="echarts-box overflow-x-auto">
+                    <div class="echarts-title">
+                      <span>BD一组增量客户 TOP 20</span>
+                      <span class="text-xs text-gray-400">按消耗变动绝对值倒序</span>
+                    </div>
+                    <div class="overflow-x-auto" style="max-height:380px;">
+                      <table class="min-w-full table-simple" id="topIncreaseTableBd1">
+                        <thead>
+                          <tr>
+                            <th>商户ID</th>
+                            <th>客户名称</th>
+                            <th>BD</th>
+                            <th>消耗金额</th>
+                            <th>消耗变动</th>
+                            <th>环比</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="echarts-box overflow-x-auto">
+                    <div class="echarts-title">
+                      <span>BD一组减量客户 TOP 20</span>
+                      <span class="text-xs text-gray-400">按消耗变动绝对值正序</span>
+                    </div>
+                    <div class="overflow-x-auto" style="max-height:380px;">
+                      <table class="min-w-full table-simple" id="topDecreaseTableBd1">
+                        <thead>
+                          <tr>
+                            <th>商户ID</th>
+                            <th>客户名称</th>
+                            <th>BD</th>
+                            <th>消耗金额</th>
+                            <th>消耗变动</th>
+                            <th>环比</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- BD二组 TOP20 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div class="echarts-box overflow-x-auto">
+                    <div class="echarts-title">
+                      <span>BD二组增量客户 TOP 20</span>
+                      <span class="text-xs text-gray-400">按消耗变动绝对值倒序</span>
+                    </div>
+                    <div class="overflow-x-auto" style="max-height:380px;">
+                      <table class="min-w-full table-simple" id="topIncreaseTableBd2">
+                        <thead>
+                          <tr>
+                            <th>商户ID</th>
+                            <th>客户名称</th>
+                            <th>BD</th>
+                            <th>消耗金额</th>
+                            <th>消耗变动</th>
+                            <th>环比</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="echarts-box overflow-x-auto">
+                    <div class="echarts-title">
+                      <span>BD二组减量客户 TOP 20</span>
+                      <span class="text-xs text-gray-400">按消耗变动绝对值正序</span>
+                    </div>
+                    <div class="overflow-x-auto" style="max-height:380px;">
+                      <table class="min-w-full table-simple" id="topDecreaseTableBd2">
+                        <thead>
+                          <tr>
+                            <th>商户ID</th>
+                            <th>客户名称</th>
+                            <th>BD</th>
+                            <th>消耗金额</th>
+                            <th>消耗变动</th>
+                            <th>环比</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Tab4: 新数据表 -->
+            <section id="tab-new-table" class="space-y-4 hidden">
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex flex-wrap gap-4 items-end">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">时间范围（自然周）</label>
+                    <div class="flex items-center gap-2">
+                      <input type="week" id="newTableWeekStart" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <span class="text-gray-500">至</span>
+                      <input type="week" id="newTableWeekEnd" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1" id="newTableWeekHint">默认最近3个自然周（周一至周日）</p>
+                  </div>
+                  <button class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" onclick="refreshNewTableView()">
+                    <i class="fas fa-search mr-2"></i>查询
+                  </button>
+                </div>
+              </div>
+              <div class="echarts-box overflow-x-auto">
+                <div class="echarts-title">
+                  <span>客户周度对比表</span>
+                  <span class="text-xs text-gray-400" id="newTableWeekLabel">—</span>
+                </div>
+                <div class="overflow-x-auto" style="max-height:480px;">
+                  <table class="min-w-full table-simple" id="newDataTable">
+                    <thead></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // 侧边栏切换
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+      }
+    }
+    document.getElementById('sidebar-overlay').addEventListener('click', function() { toggleSidebar(); });
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        if (this.getAttribute('href') === '#') { e.preventDefault(); }
+        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active', 'text-gray-900', 'bg-gray-100'));
+        this.classList.add('active', 'text-gray-900', 'bg-gray-100');
+      });
+    });
+    window.addEventListener('resize', function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+      if (accountTypeChartInstance) accountTypeChartInstance.resize();
+      if (industryChartInstance) industryChartInstance.resize();
+    });
+    function toggleSidebarCollapse() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('sidebar-collapsed');
+      const btn = document.getElementById('sidebarCollapseBtn');
+      const icon = btn.querySelector('i');
+      if (sidebar.classList.contains('sidebar-collapsed')) {
+        icon.classList.remove('fa-angle-double-left');
+        icon.classList.add('fa-angle-double-right');
+      } else {
+        icon.classList.remove('fa-angle-double-right');
+        icon.classList.add('fa-angle-double-left');
+      }
+    }
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+
+    // Tab 切换（参考余额监控通知页）
+    const tabSectionIdMap = {
+      accountType: 'tab-account-type',
+      industry: 'tab-industry',
+      top20: 'tab-top20',
+      newTable: 'tab-new-table'
+    };
+    const tabBtnIdMap = {
+      accountType: 'tab-account-type-btn',
+      industry: 'tab-industry-btn',
+      top20: 'tab-top20-btn',
+      newTable: 'tab-new-table-btn'
+    };
+    function switchTab(tab) {
+      const tabs = ['accountType', 'industry', 'top20', 'newTable'];
+      tabs.forEach(name => {
+        const section = document.getElementById(tabSectionIdMap[name]);
+        if (section) {
+          section.classList.toggle('hidden', name !== tab);
+        }
+      });
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active', 'text-blue-600', 'border-blue-500');
+        button.classList.add('text-gray-500', 'border-transparent');
+      });
+      const activeButton = document.getElementById(tabBtnIdMap[tab]);
+      if (activeButton) {
+        activeButton.classList.add('active', 'text-blue-600', 'border-blue-500');
+        activeButton.classList.remove('text-gray-500', 'border-transparent');
+      }
+      setTimeout(() => {
+        if (tab === 'accountType' && accountTypeChartInstance) {
+          accountTypeChartInstance.resize();
+        }
+        if (tab === 'industry') {
+          if (!industryChartInstance) {
+            refreshIndustryView();
+          } else {
+            industryChartInstance.resize();
+          }
+        }
+      }, 0);
+    }
+
+    // 工具函数：周字符串与日期
+    function getDefaultWeekRange(lastWeeks = 10) {
+      const end = new Date();
+      // 取最近一个完整自然周的周日
+      const day = end.getDay() || 7; // 1-7
+      end.setDate(end.getDate() - day); // 上一周周日
+      const start = new Date(end);
+      start.setDate(start.getDate() - (lastWeeks - 1) * 7 - 6); // 对齐到周一
+      return { start, end };
+    }
+
+    function dateToWeekInput(d) {
+      const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = tmp.getUTCDay() || 7;
+      tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
+      return tmp.getUTCFullYear() + '-W' + String(weekNo).padStart(2, '0');
+    }
+
+    function weekInputToMonday(weekStr) {
+      const [year, week] = weekStr.split('-W').map(Number);
+      const simple = new Date(year, 0, 1 + (week - 1) * 7);
+      const dow = simple.getDay() || 7;
+      const monday = new Date(simple);
+      monday.setDate(simple.getDate() - dow + 1);
+      return monday;
+    }
+
+    function formatWeekLabel(monday) {
+      const start = new Date(monday);
+      const end = new Date(monday);
+      end.setDate(end.getDate() + 6);
+      const s = (start.getMonth() + 1) + '.' + start.getDate();
+      const e = (end.getMonth() + 1) + '.' + end.getDate();
+      return s + ' - ' + e;
+    }
+
+    function buildWeekRangeLabels(startWeekStr, endWeekStr) {
+      if (!startWeekStr || !endWeekStr) return [];
+      const weeks = [];
+      let cur = weekInputToMonday(startWeekStr);
+      const end = weekInputToMonday(endWeekStr);
+      while (cur <= end) {
+        weeks.push(formatWeekLabel(cur));
+        cur = new Date(cur);
+        cur.setDate(cur.getDate() + 7);
+      }
+      return weeks;
+    }
+
+    // 假数据生成
+    const accountTypeList = ['Facebook-三不限', 'Facebook-企业户', 'Facebook-海外户', 'Tiktok-企业户', '未分配'];
+    const industryList = ['电商', '游戏', '金融', '工具应用', '品牌'];
+
+    function genSeriesData(categories, weeks) {
+      return categories.map(name => {
+        const values = weeks.map(() => +(Math.random() * 8000 + 2000).toFixed(2));
+        const last = values[values.length - 1] || 0;
+        const prev = values[values.length - 2] || last;
+        const diff = +(last - prev).toFixed(2);
+        const wow = prev === 0 ? null : +(((last - prev) / prev) * 100).toFixed(2);
+        return { name, values, diff, wow };
+      });
+    }
+
+    function randomCustomerRow(bdPool) {
+      const id = 'MER' + String(100000 + Math.floor(Math.random() * 900000));
+      const name = '客户' + String.fromCharCode(65 + Math.floor(Math.random() * 26));
+      let bd;
+      if (Array.isArray(bdPool) && bdPool.length) {
+        bd = bdPool[Math.floor(Math.random() * bdPool.length)];
+      } else {
+        bd = 'BD-' + String.fromCharCode(65 + Math.floor(Math.random() * 6));
+      }
+      return { id, name, bd };
+    }
+
+    // 卡片（已移除UI，不再生成数据）
+
+    // 渲染趋势表格（通用）
+    function renderTrendTable(tableId, firstColName, rows, weeks) {
+      const thead = document.querySelector('#' + tableId + ' thead');
+      const tbody = document.querySelector('#' + tableId + ' tbody');
+      if (!thead || !tbody) return;
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = '<th>' + firstColName + '</th>' + weeks.map(w => '<th>' + w + '</th>').join('') + '<th>变化</th><th>环比</th>';
+      thead.appendChild(headerRow);
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        let diffClass = row.diff > 0 ? 'number-positive' : (row.diff < 0 ? 'number-negative' : '');
+        let wowStr = '--';
+        let wowClass = '';
+        if (row.wow !== null) {
+          wowStr = (row.wow >= 0 ? '+' : '') + row.wow.toFixed(2) + '%';
+          wowClass = row.wow >= 0 ? 'number-positive' : 'number-negative';
+        }
+        tr.innerHTML =
+          '<td>' + row.name + '</td>' +
+          row.values.map(v => '<td>$' + v.toLocaleString(undefined, { minimumFractionDigits: 2 }) + '</td>').join('') +
+          '<td class="' + diffClass + '">' + (row.diff >= 0 ? '+' : '') + row.diff.toFixed(2) + '</td>' +
+          '<td class="' + wowClass + '">' + wowStr + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 渲染 ECharts 折线图（通用，带 try-catch 防止 CDN 加载失败导致崩溃）
+    function renderLineChart(chartInstance, containerId, legendData, weeks, rows) {
+      try {
+        if (typeof echarts === 'undefined') return chartInstance;
+        if (!chartInstance) {
+          chartInstance = echarts.init(document.getElementById(containerId));
+        }
+        chartInstance.setOption({
+          tooltip: { trigger: 'axis' },
+          legend: { data: legendData },
+          grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+          xAxis: { type: 'category', data: weeks },
+          yAxis: { type: 'value', name: '消耗金额(USD)' },
+          series: rows.map(row => ({
+            name: row.name,
+            type: 'line',
+            smooth: true,
+            data: row.values
+          }))
+        });
+      } catch (e) {
+        console.warn('ECharts 渲染失败:', e);
+      }
+      return chartInstance;
+    }
+
+    // 账户类型图表和表格
+    let accountTypeChartInstance = null;
+    function refreshAccountTypeView() {
+      const startWeekStr = document.getElementById('accountTypeWeekStart').value;
+      const endWeekStr = document.getElementById('accountTypeWeekEnd').value;
+      const weeks = buildWeekRangeLabels(startWeekStr, endWeekStr);
+      if (!weeks.length) return;
+      const rows = genSeriesData(accountTypeList, weeks);
+      renderTrendTable('accountTypeTable', '账户类型', rows, weeks);
+      accountTypeChartInstance = renderLineChart(accountTypeChartInstance, 'accountTypeChart', accountTypeList, weeks, rows);
+    }
+
+    // 行业图表和表格
+    let industryChartInstance = null;
+    function refreshIndustryView() {
+      const startWeekStr = document.getElementById('industryWeekStart').value;
+      const endWeekStr = document.getElementById('industryWeekEnd').value;
+      const weeks = buildWeekRangeLabels(startWeekStr, endWeekStr);
+      if (!weeks.length) return;
+      const rows = genSeriesData(industryList, weeks);
+      renderTrendTable('industryTable', '行业', rows, weeks);
+      industryChartInstance = renderLineChart(industryChartInstance, 'industryChart', industryList, weeks, rows);
+    }
+
+    // 增减客户 TOP20
+    let topIncreaseData = [];
+    let topDecreaseData = [];
+    let topIncreaseDataBd1 = [];
+    let topDecreaseDataBd1 = [];
+    let topIncreaseDataBd2 = [];
+    let topDecreaseDataBd2 = [];
+    function refreshTop20View() {
+      const weekStr = document.getElementById('top20Week').value;
+      if (!weekStr) return;
+      topIncreaseData = [];
+      topDecreaseData = [];
+      topIncreaseDataBd1 = [];
+      topDecreaseDataBd1 = [];
+      topIncreaseDataBd2 = [];
+      topDecreaseDataBd2 = [];
+      for (let i = 0; i < 20; i++) {
+        const base = randomCustomerRow();
+        const amount = +(Math.random() * 50000 + 5000).toFixed(2);
+        const diff = +(Math.random() * 40000 + 5000).toFixed(2);
+        const wow = +((diff / (amount - diff + 1)) * 100).toFixed(2);
+        topIncreaseData.push({
+          ...base,
+          amount,
+          diff,
+          wow
+        });
+      }
+      for (let i = 0; i < 20; i++) {
+        const base = randomCustomerRow();
+        const amount = +(Math.random() * 50000 + 5000).toFixed(2);
+        const diff = -(Math.random() * 40000 + 5000).toFixed(2);
+        const wow = +((diff / (amount - diff + 1)) * 100).toFixed(2);
+        topDecreaseData.push({
+          ...base,
+          amount,
+          diff,
+          wow
+        });
+      }
+      // 排序规则
+      topIncreaseData.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+      topDecreaseData.sort((a, b) => Math.abs(a.diff) - Math.abs(b.diff));
+      renderTopTableBody('increase');
+      renderTopTableBody('decrease');
+
+      // BD 一组（例如 BD-A / BD-B / BD-C）
+      const bdGroup1Pool = ['BD-A', 'BD-B', 'BD-C'];
+      for (let i = 0; i < 20; i++) {
+        const base = randomCustomerRow(bdGroup1Pool);
+        const amount = +(Math.random() * 40000 + 3000).toFixed(2);
+        const diff = +(Math.random() * 30000 + 3000).toFixed(2);
+        const wow = +((diff / (amount - diff + 1)) * 100).toFixed(2);
+        topIncreaseDataBd1.push({
+          ...base,
+          amount,
+          diff,
+          wow
+        });
+      }
+      for (let i = 0; i < 20; i++) {
+        const base = randomCustomerRow(bdGroup1Pool);
+        const amount = +(Math.random() * 40000 + 3000).toFixed(2);
+        const diff = -(Math.random() * 30000 + 3000).toFixed(2);
+        const wow = +((diff / (amount - diff + 1)) * 100).toFixed(2);
+        topDecreaseDataBd1.push({
+          ...base,
+          amount,
+          diff,
+          wow
+        });
+      }
+
+      // BD 二组（例如 BD-D / BD-E / BD-F）
+      const bdGroup2Pool = ['BD-D', 'BD-E', 'BD-F'];
+      for (let i = 0; i < 20; i++) {
+        const base = randomCustomerRow(bdGroup2Pool);
+        const amount = +(Math.random() * 40000 + 3000).toFixed(2);
+        const diff = +(Math.random() * 30000 + 3000).toFixed(2);
+        const wow = +((diff / (amount - diff + 1)) * 100).toFixed(2);
+        topIncreaseDataBd2.push({
+          ...base,
+          amount,
+          diff,
+          wow
+        });
+      }
+      for (let i = 0; i < 20; i++) {
+        const base = randomCustomerRow(bdGroup2Pool);
+        const amount = +(Math.random() * 40000 + 3000).toFixed(2);
+        const diff = -(Math.random() * 30000 + 3000).toFixed(2);
+        const wow = +((diff / (amount - diff + 1)) * 100).toFixed(2);
+        topDecreaseDataBd2.push({
+          ...base,
+          amount,
+          diff,
+          wow
+        });
+      }
+
+      // 渲染各分组表格
+      renderTopTableBodyBd('bd1', 'increase');
+      renderTopTableBodyBd('bd1', 'decrease');
+      renderTopTableBodyBd('bd2', 'increase');
+      renderTopTableBodyBd('bd2', 'decrease');
+    }
+
+    function renderTopTableBody(type) {
+      const data = type === 'increase' ? topIncreaseData : topDecreaseData;
+      const tbody = document.querySelector(type === 'increase' ? '#topIncreaseTable tbody' : '#topDecreaseTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        const diffClass = row.diff > 0 ? 'number-positive' : (row.diff < 0 ? 'number-negative' : '');
+        const wowClass = row.wow > 0 ? 'number-positive' : (row.wow < 0 ? 'number-negative' : '');
+        tr.innerHTML =
+          '<td>' + row.id + '</td>' +
+          '<td>' + row.name + '</td>' +
+          '<td>' + row.bd + '</td>' +
+          '<td>$' + row.amount.toLocaleString(undefined, { minimumFractionDigits: 2 }) + '</td>' +
+          '<td class="' + diffClass + '">' + (row.diff >= 0 ? '+' : '') + row.diff.toFixed(2) + '</td>' +
+          '<td class="' + wowClass + '">' + (row.wow >= 0 ? '+' : '') + row.wow.toFixed(2) + '%</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTopTableBodyBd(group, type) {
+      let data;
+      let tbodySelector;
+      if (group === 'bd1') {
+        data = type === 'increase' ? topIncreaseDataBd1 : topDecreaseDataBd1;
+        tbodySelector = type === 'increase' ? '#topIncreaseTableBd1 tbody' : '#topDecreaseTableBd1 tbody';
+      } else {
+        data = type === 'increase' ? topIncreaseDataBd2 : topDecreaseDataBd2;
+        tbodySelector = type === 'increase' ? '#topIncreaseTableBd2 tbody' : '#topDecreaseTableBd2 tbody';
+      }
+      const tbody = document.querySelector(tbodySelector);
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        const diffClass = row.diff > 0 ? 'number-positive' : (row.diff < 0 ? 'number-negative' : '');
+        const wowClass = row.wow > 0 ? 'number-positive' : (row.wow < 0 ? 'number-negative' : '');
+        tr.innerHTML =
+          '<td>' + row.id + '</td>' +
+          '<td>' + row.name + '</td>' +
+          '<td>' + row.bd + '</td>' +
+          '<td>$' + row.amount.toLocaleString(undefined, { minimumFractionDigits: 2 }) + '</td>' +
+          '<td class="' + diffClass + '">' + (row.diff >= 0 ? '+' : '') + row.diff.toFixed(2) + '</td>' +
+          '<td class="' + wowClass + '">' + (row.wow >= 0 ? '+' : '') + row.wow.toFixed(2) + '%</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function sortTopTable(type, field) {
+      const data = type === 'increase' ? topIncreaseData : topDecreaseData;
+      if (!data.length) return;
+      if (field === 'wow') {
+        data.sort((a, b) => b.wow - a.wow);
+      }
+      renderTopTableBody(type);
+    }
+
+    // 新数据表（多周）
+    function refreshNewTableView() {
+      const startWeekStr = document.getElementById('newTableWeekStart').value;
+      const endWeekStr = document.getElementById('newTableWeekEnd').value;
+      const weeks = buildWeekRangeLabels(startWeekStr, endWeekStr);
+      if (!weeks.length) return;
+
+      document.getElementById('newTableWeekLabel').textContent =
+        weeks[0] + ' 至 ' + weeks[weeks.length - 1] + '，共 ' + weeks.length + ' 周';
+
+      const thead = document.querySelector('#newDataTable thead');
+      const tbody = document.querySelector('#newDataTable tbody');
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      // 表头: 商户ID、客户名称、BD、各周区间列、变化（末周-前周）、环比
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML =
+        '<th>商户ID</th>' +
+        '<th>客户名称</th>' +
+        '<th>BD</th>' +
+        weeks.map(w => '<th>' + w + '</th>').join('') +
+        '<th>变化</th>' +
+        '<th>环比</th>';
+      thead.appendChild(headerRow);
+
+      for (let i = 0; i < 20; i++) {
+        const base = randomCustomerRow();
+        const weekValues = weeks.map(() => +(Math.random() * 60000 + 5000).toFixed(2));
+        const last = weekValues[weekValues.length - 1];
+        const prev = weekValues.length >= 2 ? weekValues[weekValues.length - 2] : last;
+        const diff = +(last - prev).toFixed(2);
+        const wow = prev === 0 ? null : +(((last - prev) / prev) * 100).toFixed(2);
+        const tr = document.createElement('tr');
+        const diffClass = diff > 0 ? 'number-positive' : (diff < 0 ? 'number-negative' : '');
+        let wowStr = '--';
+        let wowClass = '';
+        if (wow !== null) {
+          wowStr = (wow >= 0 ? '+' : '') + wow.toFixed(2) + '%';
+          wowClass = wow >= 0 ? 'number-positive' : 'number-negative';
+        }
+        tr.innerHTML =
+          '<td>' + base.id + '</td>' +
+          '<td>' + base.name + '</td>' +
+          '<td>' + base.bd + '</td>' +
+          weekValues.map(v => '<td>$' + v.toLocaleString(undefined, { minimumFractionDigits: 2 }) + '</td>').join('') +
+          '<td class="' + diffClass + '">' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + '</td>' +
+          '<td class="' + wowClass + '">' + wowStr + '</td>';
+        tbody.appendChild(tr);
+      }
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      const range10 = getDefaultWeekRange(10);
+      const startWeekStr = dateToWeekInput(range10.start);
+      const endWeekStr = dateToWeekInput(range10.end);
+      document.getElementById('accountTypeWeekStart').value = startWeekStr;
+      document.getElementById('accountTypeWeekEnd').value = endWeekStr;
+      document.getElementById('industryWeekStart').value = startWeekStr;
+      document.getElementById('industryWeekEnd').value = endWeekStr;
+      const lastWeekMonday = weekInputToMonday(endWeekStr);
+      const lastWeekStr = dateToWeekInput(lastWeekMonday);
+      document.getElementById('top20Week').value = lastWeekStr;
+      // 新数据表默认最近 3 个自然周
+      const range3 = getDefaultWeekRange(3);
+      const newTableStartStr = dateToWeekInput(range3.start);
+      const newTableEndStr = dateToWeekInput(range3.end);
+      document.getElementById('newTableWeekStart').value = newTableStartStr;
+      document.getElementById('newTableWeekEnd').value = newTableEndStr;
+      const hint3 = formatWeekLabel(range3.start) + ' 至 ' + formatWeekLabel(range3.end);
+      document.getElementById('newTableWeekHint').textContent = '默认最近3个自然周: ' + hint3;
+      refreshAccountTypeView();
+      refreshIndustryView();
+      refreshTop20View();
+      refreshNewTableView();
+    });
+  </script>
+</body>
+</html>
+
