@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>运营管理系统 - BestAds</title>
+  <title>我的绩效 - BestAds Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
@@ -35,26 +35,8 @@
       transform: scaleY(1);
     }
 
-    .card-hover {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .card-hover:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .stat-animate {
-      animation: countUp 1s ease-out;
-    }
-
-    @keyframes countUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .table-hover tbody tr:hover {
+      background-color: #f9fafb;
     }
 
     .mobile-menu-open {
@@ -76,13 +58,11 @@
           <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
             <i class="fas fa-chart-line text-white text-sm"></i>
           </div>
-          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            BestAds Admin
-          </span>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
         </div>
       </div>
 
-      <!-- 侧边栏菜单区，支持滚动和树状折叠 -->
+      <!-- 侧边栏菜单区 -->
       <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
         <nav>
           <!-- 主要功能 -->
@@ -92,12 +72,12 @@
               <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
             </div>
             <ul id="mainMenu" class="space-y-1 mb-2">
-              <li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
-              <li><a href="customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
-              <li><a href="agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
-              <li><a href="rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
-              <li><a href="deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
-              <li><a href="system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+              <li><a href="../main-functions/deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+              <li><a href="../main-functions/system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
             </ul>
           </div>
           <!-- 绩效 -->
@@ -107,11 +87,11 @@
               <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
             </div>
             <ul id="perfMenu" class="space-y-1 mb-2">
-              <li><a href="../performance/metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
-              <li><a href="../performance/performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
-              <li><a href="../performance/all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
-              <li><a href="../performance/my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
-              <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+              <li><a href="metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+              <li><a href="performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+              <li><a href="all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
+              <li><a href="my-performance.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-500"></i>我的绩效</a></li>
+              <li><a href="performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
             </ul>
           </div>
           <!-- FB业务管理 -->
@@ -192,6 +172,7 @@
               <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
               <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
             </ul>
+          </div>
           <!-- 余额监控管理 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
@@ -201,7 +182,6 @@
             <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
               <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
             </ul>
-          </div>
           </div>
           <!-- 报表 -->
           <div class="px-4 mb-6">
@@ -244,22 +224,20 @@
       <!-- 顶部栏 -->
       <header class="bg-white shadow-sm border-b border-gray-200">
         <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-          <!-- 左侧 -->
           <div class="flex items-center">
             <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
               <i class="fas fa-bars text-lg"></i>
             </button>
-            
             <div class="ml-4 lg:ml-0">
               <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
                 <span class="text-gray-500">主页</span>
                 <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
-                <span class="text-gray-900 font-medium">仪表盘</span>
+                <span class="text-gray-500">绩效</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">我的绩效</span>
               </nav>
             </div>
           </div>
-          
-          <!-- 右侧 -->
           <div class="flex items-center space-x-4">
             <div class="relative">
               <button class="p-2 text-gray-400 hover:text-gray-500 relative">
@@ -267,7 +245,6 @@
                 <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
               </button>
             </div>
-            
             <div class="flex items-center space-x-3">
               <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                 <span class="text-white text-sm font-medium">A</span>
@@ -282,286 +259,78 @@
       <main class="flex-1 overflow-y-auto bg-gray-50">
         <div class="py-6">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- 页面标题 -->
             <div class="mb-8">
-              <h1 class="text-2xl font-bold text-gray-900">运营管理仪表盘</h1>
-              <p class="mt-1 text-sm text-gray-500">BestAds海外广告管理系统运营中心</p>
-            </div>
-
-            <!-- 统计卡片网格 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <!-- 总客户数 -->
-              <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
-                <div class="p-6">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-users text-blue-600 text-xl"></i>
-                      </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                      <p class="text-sm font-medium text-gray-500">总客户数</p>
-                      <p class="text-2xl font-bold text-gray-900 stat-animate">1,247</p>
-                    </div>
-                  </div>
-                  <div class="mt-4 flex items-center text-sm">
-                    <span class="text-green-600 font-medium flex items-center">
-                      <i class="fas fa-arrow-up text-xs mr-1"></i>
-                      +12%
-                    </span>
-                    <span class="text-gray-500 ml-2">本月</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 管理账户 -->
-              <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
-                <div class="p-6">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-chart-bar text-green-600 text-xl"></i>
-                      </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                      <p class="text-sm font-medium text-gray-500">管理账户</p>
-                      <p class="text-2xl font-bold text-gray-900 stat-animate">3,456</p>
-                    </div>
-                  </div>
-                  <div class="mt-4 flex items-center text-sm">
-                    <span class="text-green-600 font-medium flex items-center">
-                      <i class="fas fa-arrow-up text-xs mr-1"></i>
-                      +8%
-                    </span>
-                    <span class="text-gray-500 ml-2">本月</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 待处理申请 -->
-              <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
-                <div class="p-6">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                      <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                      </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                      <p class="text-sm font-medium text-gray-500">待处理申请</p>
-                      <p class="text-2xl font-bold text-gray-900 stat-animate">23</p>
-                    </div>
-                  </div>
-                  <div class="mt-4 flex items-center text-sm">
-                    <span class="text-red-600 font-medium flex items-center">
-                      <i class="fas fa-arrow-down text-xs mr-1"></i>
-                      -5%
-                    </span>
-                    <span class="text-gray-500 ml-2">本周</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 月度营收 -->
-              <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 card-hover">
-                <div class="p-6">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
-                      </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                      <p class="text-sm font-medium text-gray-500">月度营收</p>
-                      <p class="text-2xl font-bold text-gray-900 stat-animate">$45.2K</p>
-                    </div>
-                  </div>
-                  <div class="mt-4 flex items-center text-sm">
-                    <span class="text-green-600 font-medium flex items-center">
-                      <i class="fas fa-arrow-up text-xs mr-1"></i>
-                      +15%
-                    </span>
-                    <span class="text-gray-500 ml-2">本月</span>
-                  </div>
+              <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">我的绩效</h2>
+                  <p class="mt-1 text-sm text-gray-500">查看本人的绩效完成情况, 支持查看历史季度数据</p>
                 </div>
               </div>
             </div>
 
-            <!-- 快速操作网格 -->
-            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-8">
-              <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">快速操作</h3>
-              </div>
-              <div class="p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <a href="customer-management.html" class="group relative p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center">
-                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                        <i class="fas fa-users text-blue-600"></i>
-                      </div>
-                      <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">客户管理</h4>
-                        <p class="text-sm text-gray-500">添加或编辑客户信息</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="#" class="group relative p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center">
-                      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                        <i class="fas fa-plus-circle text-green-600"></i>
-                      </div>
-                      <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">处理开户申请</h4>
-                        <p class="text-sm text-gray-500">审核客户开户申请</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="#" class="group relative p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center">
-                      <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                        <i class="fas fa-clipboard-list text-purple-600"></i>
-                      </div>
-                      <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">账户分配</h4>
-                        <p class="text-sm text-gray-500">分配账户给客户</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="#" class="group relative p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center">
-                      <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
-                        <i class="fas fa-dollar-sign text-yellow-600"></i>
-                      </div>
-                      <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">账户充值</h4>
-                        <p class="text-sm text-gray-500">处理客户充值申请</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="#" class="group relative p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center">
-                      <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                        <i class="fas fa-sync text-indigo-600"></i>
-                      </div>
-                      <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">同步账户数据</h4>
-                        <p class="text-sm text-gray-500">从代理商同步账户信息</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="#" class="group relative p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center">
-                      <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors">
-                        <i class="fas fa-chart-line text-red-600"></i>
-                      </div>
-                      <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">数据报表</h4>
-                        <p class="text-sm text-gray-500">查看详细统计报表</p>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-              </div>
+            <!-- 筛选区 -->
+            <div class="mb-6">
+              <label class="text-sm font-medium text-gray-700 mr-2">考核季度:</label>
+              <select id="quarterSelect" onchange="switchQuarter(this.value)" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                <option value="2026Q1" selected>2026Q1</option>
+                <option value="2025Q4">2025Q4</option>
+                <option value="2025Q3">2025Q3</option>
+                <option value="2025Q2">2025Q2</option>
+              </select>
             </div>
 
-            <!-- 最近活动 -->
-            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
-              <div class="px-6 py-4 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                  <h3 class="text-lg font-medium text-gray-900">最近活动</h3>
-                  <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">查看全部</a>
-                </div>
+            <!-- 绩效内容卡片 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">考核季度: <span id="quarterLabel">2026Q1</span></h3>
               </div>
-              <div class="divide-y divide-gray-200">
-                <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
-                  <div class="flex items-center space-x-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-plus text-green-600"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-gray-900">客户 "ABC公司" 提交了新的开户申请</p>
-                      <p class="text-sm text-gray-500 mt-1">需要审核和处理</p>
-                    </div>
-                    <div class="flex-shrink-0 text-sm text-gray-500">
-                      2分钟前
-                    </div>
-                  </div>
-                </div>
-
-                <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
-                  <div class="flex items-center space-x-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-dollar-sign text-blue-600"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-gray-900">账户 FB001234567 充值 $500 已完成</p>
-                      <p class="text-sm text-gray-500 mt-1">客户余额已更新</p>
-                    </div>
-                    <div class="flex-shrink-0 text-sm text-gray-500">
-                      15分钟前
-                    </div>
-                  </div>
-                </div>
-
-                <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
-                  <div class="flex items-center space-x-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-clipboard-list text-purple-600"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-gray-900">运营员 张三 分配了5个广告账户</p>
-                      <p class="text-sm text-gray-500 mt-1">分配给客户XYZ科技</p>
-                    </div>
-                    <div class="flex-shrink-0 text-sm text-gray-500">
-                      1小时前
-                    </div>
-                  </div>
-                </div>
-
-                <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
-                  <div class="flex items-center space-x-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-sync text-indigo-600"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-gray-900">系统从代理商A同步了120个账户</p>
-                      <p class="text-sm text-gray-500 mt-1">账户数据已更新</p>
-                    </div>
-                    <div class="flex-shrink-0 text-sm text-gray-500">
-                      2小时前
-                    </div>
-                  </div>
-                </div>
-
-                <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
-                  <div class="flex items-center space-x-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user-plus text-green-600"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-gray-900">新客户 "XYZ科技" 已完成注册</p>
-                      <p class="text-sm text-gray-500 mt-1">客户信息已录入系统</p>
-                    </div>
-                    <div class="flex-shrink-0 text-sm text-gray-500">
-                      3小时前
-                    </div>
-                  </div>
-                </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 table-hover">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">考核指标</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">目标值</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前值</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成度</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">权重</th>
+                    </tr>
+                  </thead>
+                  <tbody id="performanceTableBody" class="bg-white divide-y divide-gray-200">
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">总广告消耗</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">1,000,000</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">900,000</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-500">90%</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">0.3</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">新客消耗</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">500,000</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">520,000</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">104%</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">0.3</td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">广告利润</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">300,000</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">330,000</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">110%</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">0.4</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="5" class="px-6 py-4 bg-blue-50 border-t-2 border-blue-200">
+                        <span class="text-lg font-bold text-blue-700">预计考核系数: <span id="coefficientValue">1.03</span></span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="px-6 py-4 bg-blue-50 border-t border-blue-100">
+                <p class="text-sm text-blue-800">
+                  预计考核系数 = Σ(完成度 × 权重) = <span id="formulaDetail">90%×0.3 + 104%×0.3 + 110%×0.4 = 1.03</span>
+                </p>
               </div>
             </div>
           </div>
@@ -571,11 +340,69 @@
   </div>
 
   <script>
-    // 侧边栏切换
+    const quarterData = {
+      '2026Q1': {
+        rows: [
+          { metric: '总广告消耗', target: '1,000,000', current: '900,000', completion: 90, weight: '0.3' },
+          { metric: '新客消耗', target: '500,000', current: '520,000', completion: 104, weight: '0.3' },
+          { metric: '广告利润', target: '300,000', current: '330,000', completion: 110, weight: '0.4' }
+        ],
+        coefficient: '1.03',
+        formula: '90%×0.3 + 104%×0.3 + 110%×0.4 = 1.03'
+      },
+      '2025Q4': {
+        rows: [
+          { metric: '总广告消耗', target: '800,000', current: '850,000', completion: 106, weight: '0.3' },
+          { metric: '新客消耗', target: '400,000', current: '380,000', completion: 95, weight: '0.3' },
+          { metric: '广告利润', target: '250,000', current: '275,000', completion: 110, weight: '0.4' }
+        ],
+        coefficient: '1.04',
+        formula: '106%×0.3 + 95%×0.3 + 110%×0.4 = 1.04'
+      },
+      '2025Q3': {
+        rows: [
+          { metric: '总广告消耗', target: '600,000', current: '540,000', completion: 90, weight: '0.3' },
+          { metric: '新客消耗', target: '300,000', current: '315,000', completion: 105, weight: '0.3' },
+          { metric: '广告利润', target: '200,000', current: '220,000', completion: 110, weight: '0.4' }
+        ],
+        coefficient: '1.02',
+        formula: '90%×0.3 + 105%×0.3 + 110%×0.4 = 1.02'
+      },
+      '2025Q2': {
+        rows: [
+          { metric: '总广告消耗', target: '500,000', current: '550,000', completion: 110, weight: '0.3' },
+          { metric: '新客消耗', target: '250,000', current: '250,000', completion: 100, weight: '0.3' },
+          { metric: '广告利润', target: '180,000', current: '162,000', completion: 90, weight: '0.4' }
+        ],
+        coefficient: '0.99',
+        formula: '110%×0.3 + 100%×0.3 + 90%×0.4 = 0.99'
+      }
+    };
+
+    function switchQuarter(quarter) {
+      const data = quarterData[quarter];
+      if (!data) return;
+
+      document.getElementById('quarterLabel').textContent = quarter;
+      document.getElementById('coefficientValue').textContent = data.coefficient;
+      document.getElementById('formulaDetail').textContent = data.formula;
+
+      const tbody = document.getElementById('performanceTableBody');
+      tbody.innerHTML = data.rows.map(function(row) {
+        const completionClass = row.completion >= 100 ? 'text-green-600' : 'text-orange-500';
+        return '<tr>' +
+          '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + row.metric + '</td>' +
+          '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">' + row.target + '</td>' +
+          '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">' + row.current + '</td>' +
+          '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ' + completionClass + '">' + row.completion + '%</td>' +
+          '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">' + row.weight + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
-      
       if (sidebar.classList.contains('mobile-menu-closed')) {
         sidebar.classList.remove('mobile-menu-closed');
         sidebar.classList.add('mobile-menu-open');
@@ -587,33 +414,17 @@
         sidebar.classList.add('mobile-menu-closed');
         overlay.classList.add('opacity-0');
         overlay.classList.remove('opacity-50');
-        setTimeout(() => {
-          overlay.classList.add('hidden');
-        }, 300);
+        setTimeout(function() { overlay.classList.add('hidden'); }, 300);
       }
     }
 
-    // 点击遮罩层关闭侧边栏
     document.getElementById('sidebar-overlay').addEventListener('click', function() {
       toggleSidebar();
     });
 
-    // 菜单项切换
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-      item.addEventListener('click', function(e) {
-        if (this.getAttribute('href') === '#') {
-          e.preventDefault();
-        }
-        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-
-    // 响应式处理
     window.addEventListener('resize', function() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
-      
       if (window.innerWidth >= 1024) {
         sidebar.classList.remove('mobile-menu-closed');
         sidebar.classList.add('mobile-menu-open');
@@ -622,25 +433,6 @@
         overlay.classList.remove('opacity-50');
       }
     });
-
-    // 统计数字动画
-    document.addEventListener('DOMContentLoaded', function() {
-      const stats = document.querySelectorAll('.stat-animate');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-          }
-        });
-      });
-      
-      stats.forEach(stat => {
-        stat.style.opacity = '0';
-        stat.style.transform = 'translateY(20px)';
-        observer.observe(stat);
-      });
-    });
   </script>
 </body>
-</html> 
+</html>

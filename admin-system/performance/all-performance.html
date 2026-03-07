@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全员绩效查看 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .mobile-menu-open {
+      transform: translateX(0);
+    }
+
+    .mobile-menu-closed {
+      transform: translateX(-100%);
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+      </div>
+
+      <!-- 侧边栏菜单区 -->
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+              <li><a href="../main-functions/deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+              <li><a href="../main-functions/system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            </ul>
+          </div>
+          <!-- 绩效 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
+              <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="perfMenu" class="space-y-1 mb-2">
+              <li><a href="metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+              <li><a href="performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+              <li><a href="all-performance.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-500"></i>全员绩效查看</a></li>
+              <li><a href="my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
+              <li><a href="performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+            </ul>
+          </div>
+          <!-- FB业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- Google业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 其他媒体业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <!-- 余额监控管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+            </ul>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <script>
+        function toggleMenuSection(id) {
+          const ul = document.getElementById(id);
+          const arrow = document.getElementById(id + 'Arrow');
+          if (ul.style.display === 'none') {
+            ul.style.display = '';
+            arrow.classList.remove('fa-chevron-right');
+            arrow.classList.add('fa-chevron-down');
+          } else {
+            ul.style.display = 'none';
+            arrow.classList.remove('fa-chevron-down');
+            arrow.classList.add('fa-chevron-right');
+          }
+        }
+      </script>
+    </aside>
+
+    <!-- 遮罩层 (移动端) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <!-- 主要内容区域 -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <!-- 顶部栏 -->
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <!-- 左侧 -->
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">绩效</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">全员绩效查看</span>
+              </nav>
+            </div>
+          </div>
+
+          <!-- 右侧 -->
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 页面标题区域 -->
+            <div class="mb-8">
+              <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    全员绩效查看
+                  </h2>
+                  <p class="mt-1 text-sm text-gray-500">
+                    管理员查看所有员工的绩效完成情况, 支持下钻明细、导出数据
+                  </p>
+                </div>
+                <div class="mt-4 flex md:mt-0 md:ml-4">
+                  <button onclick="exportData()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-200">
+                    <i class="fas fa-download mr-2"></i>导出数据
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 筛选区域 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-4 mb-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">考核季度</label>
+                  <select id="filterQuarter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">全部</option>
+                    <option value="2026Q1">2026Q1</option>
+                    <option value="2026Q2">2026Q2</option>
+                    <option value="2025Q4">2025Q4</option>
+                    <option value="2025Q3">2025Q3</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">考核人员</label>
+                  <select id="filterPerson" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">全部</option>
+                    <option value="运营A">运营A</option>
+                    <option value="运营B">运营B</option>
+                    <option value="运营C">运营C</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">考核结束</label>
+                  <select id="filterEnded" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">全部</option>
+                    <option value="yes">是</option>
+                    <option value="no">否</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex justify-end mt-4 space-x-2">
+                <button onclick="resetFilters()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+                  重置
+                </button>
+                <button onclick="searchPerformance()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
+                  <i class="fas fa-search mr-2"></i>搜索
+                </button>
+              </div>
+            </div>
+
+            <!-- 表格 -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 table-hover">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">考核季度</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">考核人员</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">考核指标</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">预计考核系数</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">考核结束</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">考核系数</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200" id="performanceTableBody">
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2026Q1</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">运营A</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">总广告消耗/新客消耗/广告利润</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1.03</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">否</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="openDetailModal('运营A', '2026Q1')" class="text-blue-600 hover:text-blue-900">详情</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2026Q1</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">运营B</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">总广告消耗/新客消耗/客户数(留存)</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">0.95</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">否</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="openDetailModal('运营B', '2026Q1')" class="text-blue-600 hover:text-blue-900">详情</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2026Q1</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">运营C</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">总广告消耗/广告利润</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1.10</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">否</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="openDetailModal('运营C', '2026Q1')" class="text-blue-600 hover:text-blue-900">详情</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025Q4</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">运营A</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">总广告消耗/新客消耗/广告利润</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1.15</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">是</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">1.20</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="openDetailModal('运营A', '2025Q4')" class="text-blue-600 hover:text-blue-900">详情</button>
+                        <button onclick="openAdjustModal('运营A', '2025Q4', 1.20)" class="text-blue-600 hover:text-blue-900">调整考核系数</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025Q4</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">运营B</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">总广告消耗/新客消耗</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">0.88</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">是</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">0.90</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="openDetailModal('运营B', '2025Q4')" class="text-blue-600 hover:text-blue-900">详情</button>
+                        <button onclick="openAdjustModal('运营B', '2025Q4', 0.90)" class="text-blue-600 hover:text-blue-900">调整考核系数</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025Q4</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">运营C</td>
+                      <td class="px-6 py-4 text-sm text-gray-600">总广告消耗/广告利润/客户数(留存)</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1.05</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">是</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">1.05</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="openDetailModal('运营C', '2025Q4')" class="text-blue-600 hover:text-blue-900">详情</button>
+                        <button onclick="openAdjustModal('运营C', '2025Q4', 1.05)" class="text-blue-600 hover:text-blue-900">调整考核系数</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 分页 -->
+              <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                  <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">上一页</a>
+                  <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">下一页</a>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                  <div>
+                    <p class="text-sm text-gray-700">
+                      共 <span class="font-medium">6</span> 条记录
+                    </p>
+                  </div>
+                  <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                      <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                      </a>
+                      <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 border-blue-500 text-sm font-medium text-blue-600 z-10">1</a>
+                      <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                      </a>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-[60] space-y-2"></div>
+
+  <!-- Modal 1: 绩效详情 -->
+  <div id="detailModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 id="detailModalTitle" class="text-lg font-medium text-gray-900">绩效详情</h3>
+            <button onclick="closeModal('detailModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">考核指标</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">目标值</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前值</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成度</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">权重</th>
+                </tr>
+              </thead>
+              <tbody id="detailModalBody" class="bg-white divide-y divide-gray-200">
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-sm font-medium text-gray-900">预计考核系数: <span id="detailModalCoefficient" class="text-blue-600">1.03</span></p>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+          <button onclick="closeModal('detailModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: 调整考核系数 -->
+  <div id="adjustModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">调整考核系数</h3>
+            <button onclick="closeModal('adjustModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">考核人员</label>
+            <p id="adjustModalPerson" class="text-sm text-gray-900">-</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">考核季度</label>
+            <p id="adjustModalQuarter" class="text-sm text-gray-900">-</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">当前考核系数</label>
+            <p id="adjustModalCurrent" class="text-sm text-gray-900">-</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">新考核系数</label>
+            <input type="number" id="adjustModalNewCoefficient" step="0.01" min="0" placeholder="请输入新考核系数" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-2">
+          <button onclick="closeModal('adjustModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
+          <button onclick="confirmAdjust()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: 确认调整 -->
+  <div id="confirmAdjustModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-[55]">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">确认要调整考核系数?</h3>
+        <div class="flex justify-end space-x-2">
+          <button onclick="closeConfirmAdjust()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">否</button>
+          <button onclick="executeAdjust()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">是</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(function() { overlay.classList.add('hidden'); }, 300);
+      }
+    }
+
+    document.getElementById('sidebar-overlay').addEventListener('click', function() {
+      toggleSidebar();
+    });
+
+    window.addEventListener('resize', function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+    });
+
+    const detailData = {
+      '运营A-2026Q1': [
+        { metric: '总广告消耗', target: '100万', current: '90万', completion: '90%', weight: '0.3' },
+        { metric: '新客消耗', target: '50万', current: '52万', completion: '104%', weight: '0.3' },
+        { metric: '广告利润', target: '30万', current: '33万', completion: '110%', weight: '0.4' }
+      ],
+      '运营B-2026Q1': [
+        { metric: '总广告消耗', target: '80万', current: '75万', completion: '94%', weight: '0.4' },
+        { metric: '新客消耗', target: '40万', current: '38万', completion: '95%', weight: '0.3' },
+        { metric: '客户数(留存)', target: '20', current: '22', completion: '110%', weight: '0.3' }
+      ],
+      '运营C-2026Q1': [
+        { metric: '总广告消耗', target: '120万', current: '132万', completion: '110%', weight: '0.5' },
+        { metric: '广告利润', target: '35万', current: '38万', completion: '109%', weight: '0.5' }
+      ],
+      '运营A-2025Q4': [
+        { metric: '总广告消耗', target: '100万', current: '115万', completion: '115%', weight: '0.3' },
+        { metric: '新客消耗', target: '50万', current: '55万', completion: '110%', weight: '0.3' },
+        { metric: '广告利润', target: '30万', current: '36万', completion: '120%', weight: '0.4' }
+      ],
+      '运营B-2025Q4': [
+        { metric: '总广告消耗', target: '80万', current: '70万', completion: '88%', weight: '0.5' },
+        { metric: '新客消耗', target: '40万', current: '35万', completion: '88%', weight: '0.5' }
+      ],
+      '运营C-2025Q4': [
+        { metric: '总广告消耗', target: '120万', current: '126万', completion: '105%', weight: '0.4' },
+        { metric: '广告利润', target: '35万', current: '37万', completion: '106%', weight: '0.3' },
+        { metric: '客户数(留存)', target: '25', current: '26', completion: '104%', weight: '0.3' }
+      ]
+    };
+
+    const coefficientData = {
+      '运营A-2026Q1': 1.03,
+      '运营B-2026Q1': 0.95,
+      '运营C-2026Q1': 1.10,
+      '运营A-2025Q4': 1.15,
+      '运营B-2025Q4': 0.88,
+      '运营C-2025Q4': 1.05
+    };
+
+    function openDetailModal(person, quarter) {
+      const key = person + '-' + quarter;
+      const data = detailData[key] || [];
+      const coefficient = coefficientData[key] || '-';
+
+      document.getElementById('detailModalTitle').textContent = '绩效详情 - ' + person + ' - ' + quarter;
+      document.getElementById('detailModalCoefficient').textContent = coefficient;
+
+      const tbody = document.getElementById('detailModalBody');
+      tbody.innerHTML = data.map(function(row) {
+        return '<tr><td class="px-4 py-2 text-sm text-gray-900">' + row.metric + '</td>' +
+          '<td class="px-4 py-2 text-sm text-gray-600">' + row.target + '</td>' +
+          '<td class="px-4 py-2 text-sm text-gray-600">' + row.current + '</td>' +
+          '<td class="px-4 py-2 text-sm text-gray-600">' + row.completion + '</td>' +
+          '<td class="px-4 py-2 text-sm text-gray-600">' + row.weight + '</td></tr>';
+      }).join('');
+
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    let adjustContext = { person: '', quarter: '', currentCoefficient: 0 };
+
+    function openAdjustModal(person, quarter, currentCoefficient) {
+      adjustContext = { person: person, quarter: quarter, currentCoefficient: currentCoefficient };
+      document.getElementById('adjustModalPerson').textContent = person;
+      document.getElementById('adjustModalQuarter').textContent = quarter;
+      document.getElementById('adjustModalCurrent').textContent = currentCoefficient;
+      document.getElementById('adjustModalNewCoefficient').value = '';
+      document.getElementById('adjustModal').classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function confirmAdjust() {
+      const newVal = document.getElementById('adjustModalNewCoefficient').value;
+      if (!newVal || isNaN(parseFloat(newVal))) {
+        showToast('请输入有效的新考核系数', 'error');
+        return;
+      }
+      closeModal('adjustModal');
+      document.getElementById('confirmAdjustModal').classList.remove('hidden');
+    }
+
+    function closeConfirmAdjust() {
+      document.getElementById('confirmAdjustModal').classList.add('hidden');
+    }
+
+    function executeAdjust() {
+      closeConfirmAdjust();
+      showToast('考核系数调整成功', 'success');
+    }
+
+    function showToast(message, type) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium animate-fadeIn ' + (type === 'success' ? 'bg-green-600' : 'bg-red-600');
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(function() {
+        toast.remove();
+      }, 3000);
+    }
+
+    function exportData() {
+      showToast('数据导出中...', 'success');
+    }
+
+    function searchPerformance() {
+      showToast('搜索完成', 'success');
+    }
+
+    function resetFilters() {
+      document.getElementById('filterQuarter').value = '';
+      document.getElementById('filterPerson').value = '';
+      document.getElementById('filterEnded').value = '';
+    }
+  </script>
+</body>
+</html>
