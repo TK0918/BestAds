@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户端通知配置 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Quill 富文本编辑器 -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .modal-backdrop { backdrop-filter: blur(8px); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+
+    /* 富文本编辑器 */
+    .ql-container { font-family: 'Inter', sans-serif; font-size: 14px; min-height: 200px; }
+    .ql-editor { min-height: 200px; }
+
+    /* Web端预览 */
+    .preview-web {
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .preview-web .notify-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .preview-web .notify-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+    .preview-web .notify-body { font-size: 14px; color: #333; line-height: 1.6; }
+    .preview-web .notify-time { font-size: 12px; color: #999; margin-top: 10px; }
+
+    /* H5端预览 */
+    .preview-h5-shell {
+      width: 320px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 36px;
+      padding: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .preview-h5-screen {
+      background: #fff;
+      border-radius: 26px;
+      overflow: hidden;
+      min-height: 480px;
+    }
+    .preview-h5-statusbar {
+      background: #fff;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 11px;
+      color: #333;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .preview-h5-content { padding: 16px; }
+    .preview-h5-content .notify-card {
+      background: #f8f8f8;
+      border-radius: 10px;
+      padding: 14px;
+      border-left: 3px solid #667eea;
+    }
+    .preview-h5-content .notify-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+    .preview-h5-content .notify-body { font-size: 13px; color: #555; line-height: 1.6; }
+    .preview-h5-content .notify-time { font-size: 11px; color: #bbb; margin-top: 8px; }
+
+    /* Toast */
+    .toast-enter { animation: toastIn 0.3s ease-out; }
+    @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body class="bg-gray-50">
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+    <div class="flex items-center justify-center h-16 border-b border-gray-200">
+      <div class="flex items-center">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-line text-white text-sm"></i>
+        </div>
+        <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+      </div>
+    </div>
+    <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+      <nav>
+        <!-- 主要功能 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+            <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="mainMenu" class="space-y-1 mb-2">
+            <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+            <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+            <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+            <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            <li><a href="../main-functions/deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+            <li><a href="../main-functions/system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+          </ul>
+        </div>
+        <!-- 绩效 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
+            <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="perfMenu" class="space-y-1 mb-2">
+            <li><a href="../performance/metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+            <li><a href="../performance/performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+            <li><a href="../performance/all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
+            <li><a href="../performance/my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
+            <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+          </ul>
+        </div>
+        <!-- FB业务管理 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+            <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="fbMenu" class="space-y-1 mb-2">
+            <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+            <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+            <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+        <!-- 广告治理 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+            <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="adMenu" class="space-y-1 mb-2">
+            <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+          </ul>
+        </div>
+        <!-- Google业务管理 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+            <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="googleMenu" class="space-y-1 mb-2">
+            <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+            <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+        <!-- 其他媒体业务管理 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+            <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="otherMediaMenu" class="space-y-1 mb-2">
+            <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+        <!-- 系统设置 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+            <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="sysMenu" class="space-y-1 mb-2">
+            <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+            <li><a href="notification-config.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-500"></i>客户端通知配置</a></li>
+            <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+          </ul>
+        </div>
+        <!-- 客户流水 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+            <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="flowMenu" class="space-y-1 mb-2">
+            <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+            <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+            <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+          </ul>
+        </div>
+        <!-- 余额监控管理 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+            <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+            <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+          </ul>
+        </div>
+        <!-- 报表 -->
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+            <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="reportMenu" class="space-y-1 mb-2">
+            <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+            <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+            <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+            <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+            <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <script>
+      function toggleMenuSection(id) {
+        const ul = document.getElementById(id);
+        const arrow = document.getElementById(id + 'Arrow');
+        if (ul.style.display === 'none') { ul.style.display = ''; arrow.classList.remove('fa-chevron-right'); arrow.classList.add('fa-chevron-down'); }
+        else { ul.style.display = 'none'; arrow.classList.remove('fa-chevron-down'); arrow.classList.add('fa-chevron-right'); }
+      }
+    </script>
+  </aside>
+
+  <!-- 遮罩层 -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+  <!-- ===== 主内容区 ===== -->
+  <div class="flex flex-col flex-1 overflow-hidden">
+    <!-- 顶部栏 -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"><i class="fas fa-bars text-lg"></i></button>
+          <div class="ml-4 lg:ml-0">
+            <nav class="flex space-x-2 text-sm">
+              <span class="text-gray-500">主页</span>
+              <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+              <span class="text-gray-500">系统设置</span>
+              <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+              <span class="text-gray-900 font-medium">客户端通知配置</span>
+            </nav>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button class="p-2 text-gray-400 hover:text-gray-500 relative"><i class="fas fa-bell text-lg"></i><span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span></button>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center"><span class="text-white text-sm font-medium">A</span></div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 页面主体 -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+      <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <!-- 标题区 -->
+          <div class="mb-8">
+            <div class="md:flex md:items-center md:justify-between">
+              <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">客户端通知配置</h2>
+                <p class="mt-1 text-sm text-gray-500">配置推送给 Web端 / H5端 客户的通知内容</p>
+              </div>
+              <div class="mt-4 flex md:mt-0 md:ml-4">
+                <button onclick="openAddPage()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
+                  <i class="fas fa-plus"></i><span>新增</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 筛选区 -->
+          <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+            <div class="px-6 py-4 border-b border-gray-200"><h3 class="text-lg font-medium text-gray-900">筛选条件</h3></div>
+            <div class="p-6">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">通知任务</label>
+                  <input type="text" id="filterTask" placeholder="模糊匹配" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">客户端</label>
+                  <div class="flex items-center space-x-4 mt-1">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" id="filterWeb" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                      <span class="text-sm text-gray-700">Web</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" id="filterH5" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                      <span class="text-sm text-gray-700">H5</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                  <select id="filterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">全部</option>
+                    <option value="enabled">启用</option>
+                    <option value="disabled">停用</option>
+                  </select>
+                </div>
+                <div class="flex items-end space-x-3">
+                  <button onclick="filterTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"><i class="fas fa-search mr-2"></i>搜索</button>
+                  <button onclick="resetFilter()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md font-medium transition-colors">重置</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 列表 -->
+          <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 class="text-lg font-medium text-gray-900">通知列表</h3>
+              <div class="text-sm text-gray-500">共 <span id="totalCount" class="font-medium text-gray-900">4</span> 条记录</div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 table-hover">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">通知任务</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户端</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排序</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">通知时间</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">查看详情</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新人</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody" class="bg-white divide-y divide-gray-200"></tbody>
+              </table>
+            </div>
+            <!-- 分页 -->
+            <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+              <div class="text-sm text-gray-700">显示 <span class="font-medium">1</span> 到 <span class="font-medium" id="showCount">4</span> 共 <span class="font-medium" id="totalCount2">4</span> 条结果</div>
+              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"><i class="fas fa-chevron-left"></i></button>
+                <button class="bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</button>
+                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"><i class="fas fa-chevron-right"></i></button>
+              </nav>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ===== 查看详情弹窗 ===== -->
+<div id="previewModal" class="fixed inset-0 bg-gray-600 bg-opacity-60 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">通知内容预览</h3>
+          <p id="previewTaskName" class="text-sm text-gray-500 mt-0.5"></p>
+        </div>
+        <button onclick="closeModal('previewModal')" class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-times text-lg"></i></button>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Web端预览 -->
+          <div>
+            <div class="flex items-center space-x-2 mb-4">
+              <div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center"><i class="fas fa-desktop text-blue-600 text-xs"></i></div>
+              <h4 class="text-sm font-semibold text-gray-900">Web 端预览</h4>
+            </div>
+            <div class="preview-web border border-gray-200">
+              <div class="notify-card">
+                <div class="notify-title" id="previewWebTitle">通知标题</div>
+                <div class="notify-body" id="previewWebBody"></div>
+                <div class="notify-time" id="previewWebTime"></div>
+              </div>
+            </div>
+          </div>
+          <!-- H5端预览 -->
+          <div>
+            <div class="flex items-center space-x-2 mb-4">
+              <div class="w-6 h-6 bg-purple-100 rounded flex items-center justify-center"><i class="fas fa-mobile-alt text-purple-600 text-xs"></i></div>
+              <h4 class="text-sm font-semibold text-gray-900">H5 端预览</h4>
+            </div>
+            <div class="preview-h5-shell">
+              <div class="preview-h5-screen">
+                <div class="preview-h5-statusbar">
+                  <span>9:41</span>
+                  <div class="flex items-center space-x-1">
+                    <i class="fas fa-signal text-gray-600" style="font-size:10px"></i>
+                    <i class="fas fa-wifi text-gray-600" style="font-size:10px"></i>
+                    <i class="fas fa-battery-full text-gray-600" style="font-size:10px"></i>
+                  </div>
+                </div>
+                <div class="preview-h5-content">
+                  <div class="notify-card">
+                    <div class="notify-title" id="previewH5Title">通知标题</div>
+                    <div class="notify-body" id="previewH5Body"></div>
+                    <div class="notify-time" id="previewH5Time"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+        <button onclick="closeModal('previewModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 新增/编辑页面(覆盖式) ===== -->
+<div id="editPage" class="fixed inset-0 bg-gray-50 z-40 hidden overflow-y-auto">
+  <div class="min-h-screen">
+    <!-- 编辑页头部 -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+      <div class="flex items-center justify-between h-16 px-6">
+        <div class="flex items-center space-x-4">
+          <button onclick="closeEditPage()" class="text-gray-400 hover:text-gray-600 flex items-center space-x-2 text-sm font-medium">
+            <i class="fas fa-arrow-left"></i><span>返回</span>
+          </button>
+          <div class="h-5 w-px bg-gray-200"></div>
+          <h2 id="editPageTitle" class="text-lg font-semibold text-gray-900">新增通知配置</h2>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="closeEditPage()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+          <button onclick="saveNotification()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">保存</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto py-8 px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+        <!-- 左侧表单 (3列) -->
+        <div class="lg:col-span-3 space-y-6">
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-base font-semibold text-gray-900 mb-6">基本信息</h3>
+            <div class="space-y-5">
+              <!-- 通知任务 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">通知任务 <span class="text-red-500">*</span></label>
+                <input type="text" id="formTask" placeholder="内部查看, 可中文, 用于识别通知任务" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <!-- 客户端 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">客户端 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal">至少选中1个</span></label>
+                <div class="flex items-center space-x-6">
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="checkbox" id="formWeb" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4" checked onchange="syncPreview()">
+                    <span class="text-sm text-gray-700">Web</span>
+                  </label>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="checkbox" id="formH5" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4" checked onchange="syncPreview()">
+                    <span class="text-sm text-gray-700">H5</span>
+                  </label>
+                </div>
+              </div>
+              <!-- 状态 + 排序 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">状态 <span class="text-red-500">*</span></label>
+                  <select id="formStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="enabled">启用</option>
+                    <option value="disabled">停用</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">排序 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal">1-99 整数</span></label>
+                  <input type="number" id="formOrder" min="1" max="99" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+              <!-- 通知时间 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">通知时间 <span class="text-xs text-gray-400 font-normal">UTC+8时区, 不填则不限制</span></label>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs text-gray-500 mb-1">开始时间</label>
+                    <input type="datetime-local" id="formStartTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-xs text-gray-500 mb-1">结束时间</label>
+                    <input type="datetime-local" id="formEndTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 富文本内容 -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-base font-semibold text-gray-900 mb-4">通知内容 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal">不限制长度, 支持文本和图片</span></h3>
+            <div id="quillEditor" style="min-height: 220px;"></div>
+          </div>
+        </div>
+
+        <!-- 右侧实时预览 (2列) -->
+        <div class="lg:col-span-2">
+          <div class="sticky top-24 space-y-6">
+            <div class="bg-white rounded-lg border border-gray-200 p-5">
+              <div class="flex items-center space-x-2 mb-5">
+                <i class="fas fa-eye text-gray-400"></i>
+                <h3 class="text-sm font-semibold text-gray-900">实时预览</h3>
+              </div>
+
+              <!-- Tab 切换 -->
+              <div class="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-5">
+                <button id="tabWeb" onclick="switchPreviewTab('web')" class="flex-1 flex items-center justify-center space-x-1.5 py-1.5 rounded-md text-sm font-medium bg-white text-gray-900 shadow-sm transition-all">
+                  <i class="fas fa-desktop text-blue-600 text-xs"></i><span>Web 端</span>
+                </button>
+                <button id="tabH5" onclick="switchPreviewTab('h5')" class="flex-1 flex items-center justify-center space-x-1.5 py-1.5 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all">
+                  <i class="fas fa-mobile-alt text-purple-500 text-xs"></i><span>H5 端</span>
+                </button>
+              </div>
+
+              <!-- Web预览 -->
+              <div id="previewWebPane" class="preview-web border border-gray-100">
+                <div class="notify-card">
+                  <div class="notify-title" id="liveWebTitle">通知任务名称</div>
+                  <div class="notify-body" id="liveWebBody"><span class="text-gray-300 text-sm">通知内容将在此处显示...</span></div>
+                  <div class="notify-time" id="liveWebTime">2026-1-1 10:00:00 ~ 2026-1-1 23:59:59</div>
+                </div>
+              </div>
+
+              <!-- H5预览 -->
+              <div id="previewH5Pane" class="hidden">
+                <div class="preview-h5-shell">
+                  <div class="preview-h5-screen">
+                    <div class="preview-h5-statusbar">
+                      <span>9:41</span>
+                      <div class="flex items-center space-x-1">
+                        <i class="fas fa-signal text-gray-600" style="font-size:10px"></i>
+                        <i class="fas fa-wifi text-gray-600" style="font-size:10px"></i>
+                        <i class="fas fa-battery-full text-gray-600" style="font-size:10px"></i>
+                      </div>
+                    </div>
+                    <div class="preview-h5-content">
+                      <div class="notify-card">
+                        <div class="notify-title" id="liveH5Title">通知任务名称</div>
+                        <div class="notify-body" id="liveH5Body"><span class="text-gray-300 text-xs">通知内容将在此处显示...</span></div>
+                        <div class="notify-time" id="liveH5Time">2026-1-1 10:00:00 ~ 2026-1-1 23:59:59</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-6 right-6 z-[70] hidden">
+  <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 toast-enter">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg">操作成功</span>
+  </div>
+</div>
+
+<script>
+  // ===== Mock 数据 =====
+  const notifyData = [
+    { id: 1, task: '春节活动公告', clients: ['Web', 'H5'], status: 'enabled', order: 1, startTime: '2026-01-20 00:00:00', endTime: '2026-02-10 23:59:59', content: '<p>尊敬的用户, 春节期间系统将于 2026年1月28日 至 2026年2月4日 进行例行维护, 期间部分功能可能受到影响, 给您带来不便敬请谅解.</p>', updatedAt: '2026-01-15 10:30:00', updatedBy: '张三' },
+    { id: 2, task: '系统升级通知', clients: ['Web'], status: 'enabled', order: 2, startTime: '2026-03-01 08:00:00', endTime: '2026-03-01 12:00:00', content: '<p>系统将于 <strong>2026年3月1日 08:00~12:00</strong> 进行版本升级, 升级期间系统暂停服务, 请提前完成相关操作.</p>', updatedAt: '2026-02-20 14:20:00', updatedBy: '李四' },
+    { id: 3, task: 'H5端功能上线', clients: ['H5'], status: 'enabled', order: 3, startTime: '', endTime: '', content: '<p>H5端全新功能已上线! 包括账户快速充值、实时消耗查看等功能, 欢迎体验.</p><p><img src="https://via.placeholder.com/300x100/667eea/ffffff?text=New+Feature" style="max-width:100%;border-radius:8px;margin-top:8px"></p>', updatedAt: '2026-03-01 09:00:00', updatedBy: '王五' },
+    { id: 4, task: '旧版功能下线公告', clients: ['Web', 'H5'], status: 'disabled', order: 10, startTime: '2025-12-01 00:00:00', endTime: '2025-12-31 23:59:59', content: '<p>旧版报表功能将于 2025年12月31日 正式下线, 请尽快迁移至新版报表系统.</p>', updatedAt: '2025-11-20 16:00:00', updatedBy: '赵六' }
+  ];
+
+  let filteredData = [...notifyData];
+  let editingId = null;
+  let quill = null;
+  let currentPreviewTab = 'web';
+
+  // ===== 渲染表格 =====
+  function renderTable(data) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    data.forEach(row => {
+      const timeRange = row.startTime ? `${row.startTime} ~ ${row.endTime}` : '<span class="text-gray-400">不限制</span>';
+      const clientBadges = row.clients.map(c => {
+        const color = c === 'Web' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700';
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${color}">${c}</span>`;
+      }).join(' ');
+      const statusBadge = row.status === 'enabled'
+        ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><i class="fas fa-circle text-green-500 mr-1" style="font-size:6px"></i>启用</span>'
+        : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600"><i class="fas fa-circle text-gray-400 mr-1" style="font-size:6px"></i>停用</span>';
+
+      tbody.innerHTML += `<tr>
+        <td class="px-4 py-3 text-sm text-gray-500">${row.id}</td>
+        <td class="px-4 py-3 text-sm font-medium text-gray-900">${row.task}</td>
+        <td class="px-4 py-3 text-sm">${clientBadges}</td>
+        <td class="px-4 py-3 text-sm">${statusBadge}</td>
+        <td class="px-4 py-3 text-sm text-gray-700 text-center">${row.order}</td>
+        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${timeRange}</td>
+        <td class="px-4 py-3 text-sm">
+          <button onclick="openPreview(${row.id})" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1">
+            <i class="fas fa-eye text-xs"></i><span>查看详情</span>
+          </button>
+        </td>
+        <td class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">${row.updatedAt}</td>
+        <td class="px-4 py-3 text-sm text-gray-700">${row.updatedBy}</td>
+        <td class="px-4 py-3 text-sm">
+          <button onclick="openEditPage(${row.id})" class="text-indigo-600 hover:text-indigo-800 font-medium">编辑</button>
+        </td>
+      </tr>`;
+    });
+    document.getElementById('totalCount').textContent = data.length;
+    document.getElementById('showCount').textContent = data.length;
+    document.getElementById('totalCount2').textContent = data.length;
+  }
+
+  // ===== 筛选 =====
+  function filterTable() {
+    const task = document.getElementById('filterTask').value.toLowerCase();
+    const web = document.getElementById('filterWeb').checked;
+    const h5 = document.getElementById('filterH5').checked;
+    const status = document.getElementById('filterStatus').value;
+    filteredData = notifyData.filter(r => {
+      const taskMatch = !task || r.task.toLowerCase().includes(task);
+      const clientMatch = (web && r.clients.includes('Web')) || (h5 && r.clients.includes('H5')) || (!web && !h5);
+      const statusMatch = !status || r.status === status;
+      return taskMatch && clientMatch && statusMatch;
+    });
+    renderTable(filteredData);
+  }
+
+  function resetFilter() {
+    document.getElementById('filterTask').value = '';
+    document.getElementById('filterWeb').checked = true;
+    document.getElementById('filterH5').checked = true;
+    document.getElementById('filterStatus').value = '';
+    filteredData = [...notifyData];
+    renderTable(filteredData);
+  }
+
+  // ===== 查看详情弹窗 =====
+  function openPreview(id) {
+    const row = notifyData.find(r => r.id === id);
+    document.getElementById('previewTaskName').textContent = row.task;
+    const timeText = row.startTime ? `${row.startTime} ~ ${row.endTime}` : '不限制';
+
+    document.getElementById('previewWebTitle').textContent = row.task;
+    document.getElementById('previewWebBody').innerHTML = row.content;
+    document.getElementById('previewWebTime').textContent = timeText;
+
+    document.getElementById('previewH5Title').textContent = row.task;
+    document.getElementById('previewH5Body').innerHTML = row.content;
+    document.getElementById('previewH5Time').textContent = timeText;
+
+    document.getElementById('previewModal').classList.remove('hidden');
+  }
+
+  function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+  // ===== 新增/编辑页面 =====
+  function openAddPage() {
+    editingId = null;
+    document.getElementById('editPageTitle').textContent = '新增通知配置';
+    document.getElementById('formTask').value = '';
+    document.getElementById('formWeb').checked = true;
+    document.getElementById('formH5').checked = true;
+    document.getElementById('formStatus').value = 'enabled';
+    document.getElementById('formOrder').value = 1;
+    document.getElementById('formStartTime').value = '';
+    document.getElementById('formEndTime').value = '';
+    if (quill) quill.setContents([]);
+    syncPreview();
+    document.getElementById('editPage').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => { initQuill(); }, 100);
+  }
+
+  function openEditPage(id) {
+    const row = notifyData.find(r => r.id === id);
+    editingId = id;
+    document.getElementById('editPageTitle').textContent = '编辑通知配置';
+    document.getElementById('formTask').value = row.task;
+    document.getElementById('formWeb').checked = row.clients.includes('Web');
+    document.getElementById('formH5').checked = row.clients.includes('H5');
+    document.getElementById('formStatus').value = row.status;
+    document.getElementById('formOrder').value = row.order;
+    document.getElementById('formStartTime').value = row.startTime ? row.startTime.replace(' ', 'T') : '';
+    document.getElementById('formEndTime').value = row.endTime ? row.endTime.replace(' ', 'T') : '';
+    document.getElementById('editPage').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      initQuill();
+      if (quill) quill.root.innerHTML = row.content;
+      syncPreview();
+    }, 150);
+  }
+
+  function closeEditPage() {
+    document.getElementById('editPage').classList.add('hidden');
+    document.body.style.overflow = '';
+    if (quill) { quill.destroy(); quill = null; }
+  }
+
+  // ===== 初始化 Quill 富文本 =====
+  function initQuill() {
+    if (quill) return;
+    quill = new Quill('#quillEditor', {
+      theme: 'snow',
+      placeholder: '请输入通知内容, 支持文本和图片...',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'align': [] }],
+          ['link', 'image'],
+          ['clean']
+        ]
+      }
+    });
+    quill.on('text-change', syncPreview);
+  }
+
+  // ===== 实时预览同步 =====
+  function syncPreview() {
+    const task = document.getElementById('formTask').value || '通知任务名称';
+    const startTime = document.getElementById('formStartTime').value;
+    const endTime = document.getElementById('formEndTime').value;
+    const timeText = (startTime && endTime)
+      ? `${startTime.replace('T', ' ')} ~ ${endTime.replace('T', ' ')}`
+      : '不限制';
+    const content = quill ? quill.root.innerHTML : '<span class="text-gray-300 text-sm">通知内容将在此处显示...</span>';
+
+    document.getElementById('liveWebTitle').textContent = task;
+    document.getElementById('liveWebBody').innerHTML = content;
+    document.getElementById('liveWebTime').textContent = timeText;
+
+    document.getElementById('liveH5Title').textContent = task;
+    document.getElementById('liveH5Body').innerHTML = content;
+    document.getElementById('liveH5Time').textContent = timeText;
+  }
+
+  // ===== 预览 Tab 切换 =====
+  function switchPreviewTab(tab) {
+    currentPreviewTab = tab;
+    const webPane = document.getElementById('previewWebPane');
+    const h5Pane = document.getElementById('previewH5Pane');
+    const tabWeb = document.getElementById('tabWeb');
+    const tabH5 = document.getElementById('tabH5');
+    if (tab === 'web') {
+      webPane.classList.remove('hidden');
+      h5Pane.classList.add('hidden');
+      tabWeb.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+      tabWeb.classList.remove('text-gray-500');
+      tabH5.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+      tabH5.classList.add('text-gray-500');
+    } else {
+      webPane.classList.add('hidden');
+      h5Pane.classList.remove('hidden');
+      tabH5.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+      tabH5.classList.remove('text-gray-500');
+      tabWeb.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+      tabWeb.classList.add('text-gray-500');
+    }
+  }
+
+  // ===== 保存 =====
+  function saveNotification() {
+    const task = document.getElementById('formTask').value.trim();
+    const web = document.getElementById('formWeb').checked;
+    const h5 = document.getElementById('formH5').checked;
+    const order = parseInt(document.getElementById('formOrder').value);
+
+    if (!task) { alert('请填写通知任务'); return; }
+    if (!web && !h5) { alert('客户端至少选中1个'); return; }
+    if (!order || order < 1 || order > 99) { alert('排序必须为 1-99 的整数'); return; }
+    if (!quill || quill.getText().trim().length === 0) { alert('请填写通知内容'); return; }
+
+    const clients = [];
+    if (web) clients.push('Web');
+    if (h5) clients.push('H5');
+
+    const startTime = document.getElementById('formStartTime').value.replace('T', ' ');
+    const endTime = document.getElementById('formEndTime').value.replace('T', ' ');
+
+    if (editingId) {
+      const idx = notifyData.findIndex(r => r.id === editingId);
+      notifyData[idx] = { ...notifyData[idx], task, clients, status: document.getElementById('formStatus').value, order, startTime, endTime, content: quill.root.innerHTML, updatedAt: new Date().toLocaleString('zh-CN'), updatedBy: '管理员' };
+      showToast('通知配置已更新');
+    } else {
+      const newId = Math.max(...notifyData.map(r => r.id)) + 1;
+      notifyData.push({ id: newId, task, clients, status: document.getElementById('formStatus').value, order, startTime, endTime, content: quill.root.innerHTML, updatedAt: new Date().toLocaleString('zh-CN'), updatedBy: '管理员' });
+      showToast('通知配置已新增');
+    }
+
+    filteredData = [...notifyData];
+    renderTable(filteredData);
+    closeEditPage();
+  }
+
+  // ===== Toast =====
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+  }
+
+  // ===== 侧边栏 =====
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar.classList.contains('mobile-menu-closed')) {
+      sidebar.classList.remove('mobile-menu-closed'); sidebar.classList.add('mobile-menu-open');
+      overlay.classList.remove('hidden', 'opacity-0'); overlay.classList.add('opacity-50');
+    } else {
+      sidebar.classList.remove('mobile-menu-open'); sidebar.classList.add('mobile-menu-closed');
+      overlay.classList.add('opacity-0'); overlay.classList.remove('opacity-50');
+      setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+    }
+  }
+  document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+
+  // 表单实时同步预览
+  document.getElementById('formTask').addEventListener('input', syncPreview);
+  document.getElementById('formStartTime').addEventListener('change', syncPreview);
+  document.getElementById('formEndTime').addEventListener('change', syncPreview);
+
+  // ===== 初始化 =====
+  document.addEventListener('DOMContentLoaded', () => { renderTable(notifyData); });
+</script>
+</body>
+</html>
