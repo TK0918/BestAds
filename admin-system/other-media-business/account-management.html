@@ -281,7 +281,7 @@
                     其他媒体账户管理
                   </h2>
                   <p class="mt-1 text-sm text-gray-500">
-                    管理公司全部其他媒体（Snapchat、X、Taboola）广告账户信息，支持手动上传账户数据
+                    管理公司全部其他媒体（Snapchat、Taboola、AppLovin、Pinterest、Newsbreak、Bing）广告账户信息，支持手动上传账户数据
                   </p>
                 </div>
                 <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
@@ -309,12 +309,15 @@
               <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">媒体平台</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">媒体</label>
                     <select id="filterPlatform" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option value="">全部平台</option>
+                      <option value="">全部媒体</option>
                       <option value="Snapchat">Snapchat</option>
-                      <option value="X">X</option>
                       <option value="Taboola">Taboola</option>
+                      <option value="Applovin">Applovin</option>
+                      <option value="Pinterest">Pinterest</option>
+                      <option value="Newsbreak">Newsbreak</option>
+                      <option value="Bing">Bing</option>
                     </select>
                   </div>
                   <div>
@@ -458,8 +461,11 @@
                   <select id="uploadMediaSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">请选择媒体</option>
                     <option value="Snapchat">Snapchat</option>
-                    <option value="X">X</option>
                     <option value="Taboola">Taboola</option>
+                    <option value="Applovin">Applovin</option>
+                    <option value="Pinterest">Pinterest</option>
+                    <option value="Newsbreak">Newsbreak</option>
+                    <option value="Bing">Bing</option>
                   </select>
                 </div>
                 <div>
@@ -689,7 +695,147 @@
     </div>
   </div>
 
+  <!-- 配置 AppLovin Token -->
+  <div id="applovinTokenModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">配置 token（AppLovin）</h3>
+            <button type="button" onclick="closeModal('applovinTokenModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitApplovinToken(event)">
+          <input type="hidden" id="applovinTokenAccountId" value="">
+          <p class="text-sm text-gray-500 mb-4">配置后系统将使用该 token 拉取对应广告账户的日消耗数据。此项为选填，可不填写。</p>
+          <div>
+            <label for="applovinTokenInput" class="block text-sm font-medium text-gray-700 mb-2">API Token</label>
+            <textarea id="applovinTokenInput" rows="4" placeholder="请输入或粘贴 token（可选）" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"></textarea>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('applovinTokenModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 transition-colors duration-200">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 修改账户类型 -->
+  <div id="changeAccountTypeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">修改账户类型</h3>
+            <button type="button" onclick="closeModal('changeAccountTypeModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitChangeAccountType(event)">
+          <input type="hidden" id="changeTypeAccountId" value="">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">账户类型</label>
+            <select id="changeTypeSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="企业账户">企业账户</option>
+              <option value="个人账户">个人账户</option>
+              <option value="代理商子账户">代理商子账户</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('changeAccountTypeModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">取消</button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">确认</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
+    function getAccountMedia(account) {
+      return (account.media || account.platform || 'Snapchat').trim();
+    }
+
+    function isApplovinMedia(media) {
+      const m = (media || '').trim().toLowerCase();
+      return m === 'applovin' || m === 'app lovin';
+    }
+
+    function accountCompositeKey(account) {
+      return `${getAccountMedia(account)}::${account.accountId}`;
+    }
+
+    function escapeHtml(text) {
+      if (text == null) return '';
+      const s = String(text);
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+      return s.replace(/[&<>"']/g, ch => map[ch] || ch);
+    }
+
+    function renderOperationCell(account) {
+      // 属性必须用单引号包裹, 否则 JSON.stringify 产生的双引号会截断 onclick
+      const idJson = JSON.stringify(account.accountId);
+      const showToken = isApplovinMedia(getAccountMedia(account));
+      const tokenBtn = showToken
+        ? `<button type="button" onclick='openApplovinTokenModal(${idJson})' class="mt-1 text-sm font-medium text-red-600 hover:text-red-800">配置token</button>`
+        : '';
+      return `
+        <div class="flex flex-col items-start gap-0.5">
+          <button type="button" onclick='openChangeAccountTypeModal(${idJson})' class="text-sm text-blue-600 hover:text-blue-800">修改账户类型</button>
+          ${tokenBtn}
+        </div>`;
+    }
+
+    function findAccountById(accountId) {
+      return accountData.find(a => a.accountId === accountId);
+    }
+
+    function openApplovinTokenModal(accountId) {
+      const acc = findAccountById(accountId);
+      if (!acc || !isApplovinMedia(getAccountMedia(acc))) return;
+      document.getElementById('applovinTokenAccountId').value = accountId;
+      document.getElementById('applovinTokenInput').value = acc.applovinToken != null ? String(acc.applovinToken) : '';
+      document.getElementById('applovinTokenModal').classList.remove('hidden');
+    }
+
+    function submitApplovinToken(event) {
+      event.preventDefault();
+      const accountId = document.getElementById('applovinTokenAccountId').value;
+      const token = document.getElementById('applovinTokenInput').value;
+      accountData = accountData.map(acc =>
+        acc.accountId === accountId ? { ...acc, applovinToken: token } : acc
+      );
+      closeModal('applovinTokenModal');
+      renderAccountTable();
+      showNotification('Token 已保存', 'success');
+    }
+
+    function openChangeAccountTypeModal(accountId) {
+      const acc = findAccountById(accountId);
+      if (!acc) return;
+      document.getElementById('changeTypeAccountId').value = accountId;
+      const sel = document.getElementById('changeTypeSelect');
+      const types = ['企业账户', '个人账户', '代理商子账户'];
+      const current = acc.accountType || '企业账户';
+      sel.value = types.includes(current) ? current : '企业账户';
+      document.getElementById('changeAccountTypeModal').classList.remove('hidden');
+    }
+
+    function submitChangeAccountType(event) {
+      event.preventDefault();
+      const accountId = document.getElementById('changeTypeAccountId').value;
+      const type = document.getElementById('changeTypeSelect').value;
+      accountData = accountData.map(acc =>
+        acc.accountId === accountId ? { ...acc, accountType: type } : acc
+      );
+      closeModal('changeAccountTypeModal');
+      renderAccountTable();
+      showNotification('账户类型已更新', 'success');
+    }
+
     // 全局变量
     let allFields = [
       { key: 'accountId', label: '广告账户ID', width: '150px' },
@@ -706,12 +852,12 @@
       { key: 'mediaAgency', label: '媒体代理', width: '130px' },
       { key: 'ownerId', label: '所有者ID', width: '130px' },
       { key: 'banReason', label: '被封原因', width: '150px' },
+      { key: 'accountType', label: '账户类型', width: '120px' },
       { key: 'openingAgency', label: '开户代理', width: '120px' }
-      ,{ key: 'select', label: '', width: '40px' }
     ];
 
-    // 默认显示的字段
-    let defaultFields = ['select', 'accountId', 'accountName', 'status', 'currency', 'balance', 'totalSpent', 'createdTime', 'openingAgency'];
+    // 默认显示的字段（复选框列固定最左, 不在此列表）
+    let defaultFields = ['accountId', 'accountName', 'status', 'currency', 'balance', 'totalSpent', 'createdTime', 'accountType', 'openingAgency'];
     
     // 当前显示的字段
     let currentFields = [...defaultFields];
@@ -721,6 +867,7 @@
       {
         accountId: 'act_1234567890',
         accountName: 'ABC科技有限公司广告账户',
+        media: 'Applovin',
         status: 'active',
         timezone: 'Asia/Shanghai',
         currency: 'USD',
@@ -733,11 +880,14 @@
         mediaAgency: 'Meta一级代理A',
         ownerId: 'user_abc123456',
         banReason: '',
-        openingAgency: 'GIMC'
+        accountType: '企业账户',
+        openingAgency: 'GIMC',
+        applovinToken: ''
       },
       {
         accountId: 'act_0987654321',
         accountName: 'XYZ数字营销推广账户',
+        media: 'Applovin',
         status: 'limited',
         timezone: 'America/New_York',
         currency: 'USD',
@@ -750,11 +900,14 @@
         mediaAgency: 'Meta一级代理B',
         ownerId: 'user_xyz789012',
         banReason: '',
-        openingAgency: 'Wezonet'
+        accountType: '企业账户',
+        openingAgency: 'Wezonet',
+        applovinToken: 'sk-demo-***'
       },
       {
         accountId: 'act_1122334455',
-        accountName: '创新广告公司FB账户',
+        accountName: '创新广告公司渠道账户',
+        media: 'Taboola',
         status: 'banned',
         timezone: 'Europe/London',
         currency: 'EUR',
@@ -767,11 +920,13 @@
         mediaAgency: 'Meta一级代理C',
         ownerId: 'user_inn345678',
         banReason: '违反政策：误导性内容',
+        accountType: '个人账户',
         openingAgency: 'Madhouse'
       },
       {
         accountId: 'act_5566778899',
         accountName: '电商推广专用账户',
+        media: 'Snapchat',
         status: 'active',
         timezone: 'Asia/Tokyo',
         currency: 'USD',
@@ -784,11 +939,13 @@
         mediaAgency: 'Meta一级代理A',
         ownerId: 'user_ecom901234',
         banReason: '',
+        accountType: '代理商子账户',
         openingAgency: ' '
       },
       {
         accountId: 'act_9988776655',
         accountName: '游戏推广营销账户',
+        media: 'Pinterest',
         status: 'pending',
         timezone: 'Asia/Shanghai',
         currency: 'USD',
@@ -801,7 +958,46 @@
         mediaAgency: 'Meta一级代理B',
         ownerId: 'user_game567890',
         banReason: '',
+        accountType: '企业账户',
         openingAgency: ' '
+      },
+      {
+        accountId: 'act_newsbreak_001',
+        accountName: 'NewsBreak 测试账户',
+        media: 'Newsbreak',
+        status: 'active',
+        timezone: 'America/Los_Angeles',
+        currency: 'USD',
+        balance: 1200.00,
+        totalSpent: 8000.00,
+        spendLimit: 20000.00,
+        createdDays: 60,
+        createdTime: '2024-02-01 10:00:00',
+        businessManager: '',
+        mediaAgency: '',
+        ownerId: '',
+        banReason: '',
+        accountType: '企业账户',
+        openingAgency: 'GIMC'
+      },
+      {
+        accountId: 'act_bing_001',
+        accountName: 'Bing 搜索推广',
+        media: 'Bing',
+        status: 'active',
+        timezone: 'UTC',
+        currency: 'USD',
+        balance: 300.50,
+        totalSpent: 2100.00,
+        spendLimit: 5000.00,
+        createdDays: 12,
+        createdTime: '2024-03-01 09:30:00',
+        businessManager: '',
+        mediaAgency: '',
+        ownerId: '',
+        banReason: '',
+        accountType: '个人账户',
+        openingAgency: 'Wezonet'
       }
     ];
 
@@ -816,11 +1012,23 @@
       renderTableBody(data);
     }
 
-    // 渲染表头
+    // 渲染表头（固定最左复选框、媒体, 最右操作, 中间为可配置列）
     function renderTableHeader() {
       const tableHead = document.getElementById('tableHead');
       const headerRow = document.createElement('tr');
-      
+
+      const thSelect = document.createElement('th');
+      thSelect.className = 'px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12';
+      thSelect.setAttribute('scope', 'col');
+      thSelect.innerHTML = '<span class="sr-only">选择</span>';
+      headerRow.appendChild(thSelect);
+
+      const thMedia = document.createElement('th');
+      thMedia.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+      thMedia.style.width = '120px';
+      thMedia.textContent = '媒体';
+      headerRow.appendChild(thMedia);
+
       currentFields.forEach(fieldKey => {
         const field = allFields.find(f => f.key === fieldKey);
         if (field) {
@@ -831,7 +1039,13 @@
           headerRow.appendChild(th);
         }
       });
-      
+
+      const thOp = document.createElement('th');
+      thOp.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+      thOp.style.width = '140px';
+      thOp.textContent = '操作';
+      headerRow.appendChild(thOp);
+
       tableHead.innerHTML = '';
       tableHead.appendChild(headerRow);
     }
@@ -843,19 +1057,28 @@
       
       data.forEach(account => {
         const row = document.createElement('tr');
-        
+
+        const tdSelect = document.createElement('td');
+        tdSelect.className = 'px-4 py-4 whitespace-nowrap';
+        {
+          const disabled = account.openingAgency && account.openingAgency.trim() !== '';
+          const disabledAttr = disabled ? 'disabled' : '';
+          const extraCls = disabled ? 'opacity-40 cursor-not-allowed' : '';
+          const aid = escapeHtml(account.accountId);
+          tdSelect.innerHTML = `<input type="checkbox" class="row-select h-4 w-4 text-blue-600 ${extraCls}" ${disabledAttr} data-account-id="${aid}">`;
+        }
+        row.appendChild(tdSelect);
+
+        const tdMedia = document.createElement('td');
+        tdMedia.className = 'px-6 py-4 whitespace-nowrap';
+        tdMedia.innerHTML = `<span class="text-sm font-medium text-gray-900">${escapeHtml(getAccountMedia(account))}</span>`;
+        row.appendChild(tdMedia);
+
         currentFields.forEach(fieldKey => {
           const td = document.createElement('td');
           td.className = 'px-6 py-4 whitespace-nowrap';
           
           switch(fieldKey) {
-            case 'select': {
-              const disabled = account.openingAgency && account.openingAgency.trim() !== '';
-              const disabledAttr = disabled ? 'disabled' : '';
-              const extraCls = disabled ? 'opacity-40 cursor-not-allowed' : '';
-              td.innerHTML = `<input type="checkbox" class="row-select h-4 w-4 text-blue-600 ${extraCls}" ${disabledAttr} data-account-id="${account.accountId}">`;
-              break;
-            }
             case 'accountId':
               td.innerHTML = `<div class="text-sm font-medium text-gray-900">${account.accountId}</div>`;
               break;
@@ -898,6 +1121,9 @@
             case 'banReason':
               td.innerHTML = `<div class="text-sm ${account.banReason ? 'text-red-600' : 'text-gray-500'}">${account.banReason || '-'}</div>`;
               break;
+            case 'accountType':
+              td.innerHTML = `<div class="text-sm text-gray-900">${escapeHtml(account.accountType || '-')}</div>`;
+              break;
             case 'openingAgency':
               td.innerHTML = `<div class="text-sm text-gray-900">${account.openingAgency}</div>`;
               break;
@@ -905,7 +1131,12 @@
           
           row.appendChild(td);
         });
-        
+
+        const tdOp = document.createElement('td');
+        tdOp.className = 'px-6 py-4 whitespace-nowrap';
+        tdOp.innerHTML = renderOperationCell(account);
+        row.appendChild(tdOp);
+
         tableBody.appendChild(row);
       });
       
@@ -1123,8 +1354,8 @@
       document.getElementById('uploadFileInput').value = '';
       document.getElementById('selectedFileName').classList.add('hidden');
       
-      // 获取已入库的账户ID（用于过滤）
-      existingAccountIds = new Set(accountData.map(acc => acc.accountId));
+      // 已入库：同媒体 + 广告账户ID 唯一（与上传所选媒体组合校验在 parse 中使用 uploadSelectedMedia）
+      existingAccountIds = new Set(accountData.map(acc => accountCompositeKey(acc)));
       
       document.getElementById('manualUploadModal').classList.remove('hidden');
     }
@@ -1202,7 +1433,8 @@
       // 解析CSV（简单处理，实际应该使用CSV解析库）
       const allRows = [];
       fileDuplicateIds = new Set();
-      const seenIdsInFile = new Set();
+      const seenKeysInFile = new Set();
+      const uploadKey = (id) => `${uploadSelectedMedia}::${id}`;
 
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
@@ -1230,8 +1462,9 @@
           continue;
         }
 
-        // 检查文件内重复
-        if (seenIdsInFile.has(accountId)) {
+        // 检查文件内重复（同次上传、同媒体下账户 ID 唯一）
+        const rowKey = uploadKey(accountId);
+        if (seenKeysInFile.has(rowKey)) {
           fileDuplicateIds.add(accountId);
           allRows.push({
             accountId: accountId,
@@ -1242,7 +1475,7 @@
           });
           continue;
         }
-        seenIdsInFile.add(accountId);
+        seenKeysInFile.add(rowKey);
 
         // 验证币种格式
         if (!validateCurrency(currency)) {
@@ -1256,8 +1489,8 @@
           continue;
         }
 
-        // 检查是否与数据库重复
-        if (existingAccountIds.has(accountId)) {
+        // 检查是否与数据库重复（同媒体同账户 ID）
+        if (existingAccountIds.has(rowKey)) {
           allRows.push({
             accountId: accountId,
             accountName: accountName,
@@ -1349,17 +1582,18 @@
       
       // 模拟API调用
       setTimeout(() => {
-        // 重新检查数据库（模拟在预览和上传之间可能有新数据同步）
-        const currentExistingIds = new Set(accountData.map(acc => acc.accountId));
+        const currentExistingKeys = new Set(accountData.map(acc => accountCompositeKey(acc)));
         let actualSuccessCount = 0;
+        const rowKey = (id) => `${uploadSelectedMedia}::${id}`;
 
-        // 将数据添加到账户列表
         successData.forEach(row => {
-          // 再次检查是否与数据库重复（可能在预览和上传之间系统同步了新数据）
-          if (!currentExistingIds.has(row.accountId)) {
+          const key = rowKey(row.accountId);
+          if (!currentExistingKeys.has(key)) {
+            currentExistingKeys.add(key);
             accountData.push({
               accountId: row.accountId,
               accountName: row.accountName,
+              media: uploadSelectedMedia,
               status: 'pending',
               timezone: 'Asia/Shanghai',
               currency: row.currency,
@@ -1372,8 +1606,9 @@
               mediaAgency: uploadSelectedAgent,
               ownerId: '',
               banReason: '',
+              accountType: '企业账户',
               openingAgency: '',
-              platform: uploadSelectedMedia // 添加平台字段
+              ...(isApplovinMedia(uploadSelectedMedia) ? { applovinToken: '' } : {})
             });
             actualSuccessCount++;
           }
@@ -1404,6 +1639,7 @@
     function searchAccounts() {
       const accountId = document.getElementById('filterAccountId').value.toLowerCase();
       const accountName = document.getElementById('filterAccountName').value.toLowerCase();
+      const mediaFilter = document.getElementById('filterPlatform').value;
       const status = document.getElementById('filterStatus').value;
       const currency = document.getElementById('filterCurrency').value;
       const openingAgency = document.getElementById('filterOpeningAgency').value; // 空字符串表示筛选为空
@@ -1411,10 +1647,11 @@
       const filtered = accountData.filter(account => {
         const byId = !accountId || account.accountId.toLowerCase().includes(accountId);
         const byName = !accountName || account.accountName.toLowerCase().includes(accountName);
+        const byMedia = !mediaFilter || getAccountMedia(account) === mediaFilter;
         const byStatus = !status || account.status === status;
         const byCurrency = !currency || account.currency === currency;
         const byAgency = openingAgency === '' ? (account.openingAgency.trim() === '') : (account.openingAgency === openingAgency);
-        return byId && byName && byStatus && byCurrency && byAgency;
+        return byId && byName && byMedia && byStatus && byCurrency && byAgency;
       });
       
       renderAccountTable(filtered);
@@ -1425,6 +1662,7 @@
     function resetFilters() {
       document.getElementById('filterAccountId').value = '';
       document.getElementById('filterAccountName').value = '';
+      document.getElementById('filterPlatform').value = '';
       document.getElementById('filterStatus').value = '';
       document.getElementById('filterCurrency').value = '';
       document.getElementById('filterOpeningAgency').value = '';
