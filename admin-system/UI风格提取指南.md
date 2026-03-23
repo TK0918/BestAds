@@ -438,6 +438,129 @@ document.addEventListener('DOMContentLoaded', function() {
    - 在侧边栏中添加你的菜单项
    - 使用相同的 HTML 结构和 CSS 类
 
+### 多选筛选项统一规范
+
+后续所有 `筛选区多选项` 必须统一使用 `单行触发器 + 下拉滚动面板` 方式, 不再直接使用原生 `select[multiple]` 的高控件.
+
+#### 视觉与交互规范
+
+- 默认高度与单选输入保持一致: `38px`
+- 默认态只显示摘要文案: `全部` 或 `已选N项`
+- 点击触发器展开下拉面板
+- 下拉面板使用 `max-height + overflow-y: auto` 滚动展示全部枚举项
+- 点击页面空白区域自动收起面板
+
+#### 推荐 CSS
+
+```css
+.multi-select { position: relative; width: 9rem; }
+.multi-select-btn {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.375rem;
+  background: #fff;
+  font-size: 0.875rem;
+  padding: 0 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #374151;
+}
+.multi-select-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 0.5rem;
+  z-index: 40;
+  display: none;
+}
+.multi-select.open .multi-select-panel { display: block; }
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+  padding: 0.25rem;
+}
+```
+
+#### 推荐 HTML
+
+```html
+<div class="multi-select" id="bdFilter">
+  <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('bdFilter')">
+    <span class="multi-select-label">全部</span>
+    <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+  </button>
+  <div class="multi-select-panel">
+    <label class="multi-select-option"><input type="checkbox" value="BD-A">BD-A</label>
+    <label class="multi-select-option"><input type="checkbox" value="BD-B">BD-B</label>
+    <label class="multi-select-option"><input type="checkbox" value="BD-C">BD-C</label>
+  </div>
+</div>
+```
+
+#### 推荐 JS
+
+```javascript
+function getSelectedValues(id) {
+  return Array.from(
+    document.querySelectorAll('#' + id + ' input[type="checkbox"]:checked')
+  ).map(input => input.value);
+}
+
+function updateMultiSelectLabel(id) {
+  const root = document.getElementById(id);
+  const allInputs = root.querySelectorAll('input[type="checkbox"]');
+  const checked = root.querySelectorAll('input[type="checkbox"]:checked');
+  const label = root.querySelector('.multi-select-label');
+  if (checked.length === 0 || checked.length === allInputs.length) {
+    label.textContent = '全部';
+  } else {
+    label.textContent = '已选' + checked.length + '项';
+  }
+}
+
+function toggleMultiSelect(id) {
+  const target = document.getElementById(id);
+  document.querySelectorAll('.multi-select.open').forEach(node => {
+    if (node.id !== id) node.classList.remove('open');
+  });
+  target.classList.toggle('open');
+}
+
+function setupMultiSelect() {
+  document.querySelectorAll('.multi-select').forEach(root => {
+    root.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      input.addEventListener('change', () => updateMultiSelectLabel(root.id));
+    });
+    updateMultiSelectLabel(root.id);
+  });
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.multi-select')) {
+      document.querySelectorAll('.multi-select.open').forEach(node => node.classList.remove('open'));
+    }
+  });
+}
+```
+
+#### 适用范围
+
+- 侧边栏筛选区
+- 报表筛选区
+- 弹窗内筛选区
+
+统一要求: 只要是多选筛选项, 一律按本规范实现.
+
 ### 自定义样式
 
 如果需要修改主题色，在 `base.css` 中修改：
