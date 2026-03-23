@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绑卡户数据核对 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .tab-button { transition: all 0.2s ease; }
+    .tab-button.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
+    .table-simple th, .table-simple td { padding: 0.6rem 0.75rem; font-size: 0.85rem; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+    .table-simple th { background: #F9FAFB; text-align: left; color: #4B5563; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+    .table-simple td { color: #374151; }
+    .card-box { background: #fff; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #E5E7EB; }
+    .modal-mask { background: rgba(17, 24, 39, 0.45); }
+    .sidebar-collapsed { width: 64px !important; }
+    .sidebar-collapsed .sidebar-item span, .sidebar-collapsed h3 { display: none !important; }
+    .sidebar-collapsed .sidebar-item i { margin-right: 0 !important; }
+    .multi-select-panel { position: absolute; top: calc(100% + 6px); left: 0; width: 100%; background: #fff; border: 1px solid #E5E7EB; border-radius: 0.5rem; box-shadow: 0 10px 24px rgba(0,0,0,0.08); z-index: 30; max-height: 220px; overflow: auto; }
+    .multi-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; color: #374151; }
+    .multi-option:hover { background: #F9FAFB; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-between h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+        <button id="sidebarCollapseBtn" class="lg:block hidden p-2 ml-2 text-gray-400 hover:text-blue-600 focus:outline-none" onclick="toggleSidebarCollapse()">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i><span>仪表盘</span></a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i><span>客户管理</span></a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i><span>代理管理</span></a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i><span>返点配置</span></a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i><span>账户管理</span></a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i><span>开户管理</span></a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i><span>账户分配</span></a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i><span>账户充值</span></a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i><span>账户减款</span></a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i><span>账户清零</span></a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i><span>服务费配置</span></a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i><span>客户打款情况</span></a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i><span>广告账户充值报表</span></a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i><span>广告消耗情况</span></a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i><span>负向广告报表</span></a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i><span>运营日报</span></a></li>
+              <li><a href="customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i><span>客户对账日报</span></a></li>
+              <li><a href="data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i><span>数据报表</span></a></li>
+              <li><a href="consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i><span>消耗分析</span></a></li>
+              <li><a href="recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i><span>充值分布分析</span></a></li>
+              <li><a href="profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i><span>预计利润波动分析</span></a></li>
+              <li><a href="customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i><span>客户资金变动</span></a></li>
+              <li><a href="ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i><span>广告客户表现</span></a></li>
+              <li><a href="weekly-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-gray-400"></i><span>广告周数据</span></a></li>
+              <li><a href="account-card-reconciliation-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-link w-5 h-5 mr-3 text-blue-500"></i><span>绑卡户数据核对</span></a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">报表</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">绑卡户数据核对</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+            <div class="space-y-3">
+              <h1 class="text-2xl font-bold text-gray-900">绑卡户数据核对</h1>
+              <div class="bg-white rounded-t-lg border border-gray-200 border-b-0">
+                <div class="border-b border-gray-200">
+                  <nav class="-mb-px flex space-x-6 px-6">
+                    <button onclick="switchTab('config')" id="tab-config-btn" class="tab-button active py-3 px-1 border-b-2 font-medium text-sm text-blue-600 border-blue-500 whitespace-nowrap">广告账户和银行卡配置</button>
+                    <button onclick="switchTab('reconcile')" id="tab-reconcile-btn" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">数据核对</button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+
+            <section id="tab-config" class="space-y-4">
+              <div class="card-box p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">媒体</label>
+                    <select id="cfgMedia" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                      <option value="">全部媒体</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户ID</label>
+                    <input id="cfgAccountId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
+                    <input id="cfgAccountName" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">卡ID</label>
+                    <input id="cfgCardId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
+                  </div>
+                  <div class="flex gap-2">
+                    <button onclick="renderConfigTable()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-search mr-1"></i>查询</button>
+                    <button onclick="openAddModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700"><i class="fas fa-plus mr-1"></i>新增</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-box p-4">
+                <div class="overflow-auto" style="max-height:520px;">
+                  <table class="min-w-full table-simple" id="configTable">
+                    <thead>
+                      <tr>
+                        <th>媒体</th>
+                        <th>广告账户ID</th>
+                        <th>广告账户名称</th>
+                        <th>卡ID</th>
+                        <th>更新时间</th>
+                        <th>更新人</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <section id="tab-reconcile" class="space-y-4 hidden">
+              <div class="card-box p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                    <input id="rcStartDate" type="date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                    <input id="rcEndDate" type="date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">媒体(多选)</label>
+                    <div class="relative">
+                      <button id="rcMediaTrigger" type="button" onclick="toggleRcMediaPanel()" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-left flex items-center justify-between">
+                        <span id="rcMediaText" class="text-gray-500">请选择媒体</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                      </button>
+                      <div id="rcMediaPanel" class="multi-select-panel hidden"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户ID</label>
+                    <input id="rcAccountId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
+                    <input id="rcAccountName" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
+                  </div>
+                  <div class="space-y-2">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">卡ID</label>
+                      <input id="rcCardId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
+                    </div>
+                    <button onclick="renderReconcileTable()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-search mr-1"></i>查询</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-box p-4">
+                <div class="overflow-auto" style="max-height:520px;">
+                  <table class="min-w-full table-simple" id="reconcileTable">
+                    <thead>
+                      <tr>
+                        <th>日期</th>
+                        <th>媒体</th>
+                        <th>广告账户ID</th>
+                        <th>广告账户名称</th>
+                        <th>账户币种</th>
+                        <th>账户消耗</th>
+                        <th>卡ID</th>
+                        <th>卡币种</th>
+                        <th>卡消耗</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                      <tr class="bg-gray-50 font-semibold">
+                        <td colspan="5">当前数据汇总</td>
+                        <td id="sumAccountConsume">0.00</td>
+                        <td colspan="2"></td>
+                        <td id="sumCardConsume">0.00</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="addModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-lg mx-4">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">新增账户卡映射</h3>
+        <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">媒体 <span class="text-red-500">*</span></label>
+          <select id="addMedia" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="onAddMediaChanged()"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">账户 <span class="text-red-500">*</span></label>
+          <select id="addAccount" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">卡ID <span class="text-red-500">*</span></label>
+          <select id="addCardId" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
+        </div>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
+        <button onclick="closeAddModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="saveMapping()" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const mediaList = ['Facebook', 'Google', 'Tiktok', 'AppLovin'];
+    const accountPool = [
+      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', currency: 'USD' },
+      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', currency: 'USD' },
+      { media: 'Google', accountId: '223123', accountName: '账户名称CCC', currency: 'USD' },
+      { media: 'Tiktok', accountId: '323123', accountName: '账户名称DDD', currency: 'USD' },
+      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', currency: 'USD' }
+    ];
+    const cardPool = ['卡AAAA', '卡BBBB', '卡CCCC', '卡DDDD', '卡EEEE', '卡FFFF'];
+    const operator = '飞书人A, a@example.com';
+
+    let mappingRows = [
+      { media: 'AppLovin', accountId: '123123', accountName: '账户名称AAA', cardId: '卡AAAA', updatedAt: '2026-03-20 16:42:01', updatedBy: operator },
+      { media: 'AppLovin', accountId: '123123', accountName: '账户名称AAA', cardId: '卡BBBB', updatedAt: '2026-03-20 16:43:02', updatedBy: operator },
+      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', cardId: '卡CCCC', updatedAt: '2026-03-19 11:20:13', updatedBy: operator }
+    ];
+
+    function switchTab(tab) {
+      document.getElementById('tab-config').classList.toggle('hidden', tab !== 'config');
+      document.getElementById('tab-reconcile').classList.toggle('hidden', tab !== 'reconcile');
+      document.getElementById('tab-config-btn').classList.toggle('active', tab === 'config');
+      document.getElementById('tab-config-btn').classList.toggle('text-blue-600', tab === 'config');
+      document.getElementById('tab-config-btn').classList.toggle('border-blue-500', tab === 'config');
+      document.getElementById('tab-config-btn').classList.toggle('text-gray-500', tab !== 'config');
+      document.getElementById('tab-config-btn').classList.toggle('border-transparent', tab !== 'config');
+      document.getElementById('tab-reconcile-btn').classList.toggle('active', tab === 'reconcile');
+      document.getElementById('tab-reconcile-btn').classList.toggle('text-blue-600', tab === 'reconcile');
+      document.getElementById('tab-reconcile-btn').classList.toggle('border-blue-500', tab === 'reconcile');
+      document.getElementById('tab-reconcile-btn').classList.toggle('text-gray-500', tab !== 'reconcile');
+      document.getElementById('tab-reconcile-btn').classList.toggle('border-transparent', tab !== 'reconcile');
+    }
+
+    function formatMoney(v) {
+      return Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fillSelect(selectId, items, includeAll = false, allLabel = '全部') {
+      const el = document.getElementById(selectId);
+      if (!el) return;
+      el.innerHTML = '';
+      if (includeAll) {
+        const op = document.createElement('option');
+        op.value = '';
+        op.textContent = allLabel;
+        el.appendChild(op);
+      }
+      items.forEach(item => {
+        const op = document.createElement('option');
+        op.value = item;
+        op.textContent = item;
+        el.appendChild(op);
+      });
+    }
+
+    function renderConfigTable() {
+      const media = document.getElementById('cfgMedia').value.trim().toLowerCase();
+      const accountId = document.getElementById('cfgAccountId').value.trim().toLowerCase();
+      const accountName = document.getElementById('cfgAccountName').value.trim().toLowerCase();
+      const cardId = document.getElementById('cfgCardId').value.trim().toLowerCase();
+      const tbody = document.querySelector('#configTable tbody');
+      tbody.innerHTML = '';
+
+      const rows = mappingRows.filter(row => {
+        return (!media || row.media.toLowerCase().includes(media)) &&
+          (!accountId || row.accountId.toLowerCase().includes(accountId)) &&
+          (!accountName || row.accountName.toLowerCase().includes(accountName)) &&
+          (!cardId || row.cardId.toLowerCase().includes(cardId));
+      });
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
+        return;
+      }
+
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + row.media + '</td>' +
+          '<td>' + row.accountId + '</td>' +
+          '<td>' + row.accountName + '</td>' +
+          '<td>' + row.cardId + '</td>' +
+          '<td>' + row.updatedAt + '</td>' +
+          '<td>' + row.updatedBy + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    let rcMediaSelected = new Set();
+
+    function renderRcMediaPanel() {
+      const panel = document.getElementById('rcMediaPanel');
+      if (!panel) return;
+      panel.innerHTML = '';
+
+      const allRow = document.createElement('label');
+      allRow.className = 'multi-option border-b border-gray-100 sticky top-0 bg-white';
+      allRow.innerHTML = '<input type="checkbox" id="rcMediaAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"><span>全部媒体</span>';
+      panel.appendChild(allRow);
+
+      mediaList.forEach(media => {
+        const row = document.createElement('label');
+        row.className = 'multi-option';
+        row.innerHTML = '<input type="checkbox" class="rc-media-item rounded border-gray-300 text-blue-600 focus:ring-blue-500" value="' + media + '"><span>' + media + '</span>';
+        panel.appendChild(row);
+      });
+
+      panel.querySelectorAll('.rc-media-item').forEach(input => {
+        input.checked = rcMediaSelected.has(input.value);
+        input.addEventListener('change', function() {
+          if (this.checked) {
+            rcMediaSelected.add(this.value);
+          } else {
+            rcMediaSelected.delete(this.value);
+          }
+          syncRcMediaAllCheckbox();
+          updateRcMediaText();
+        });
+      });
+
+      const allInput = document.getElementById('rcMediaAll');
+      allInput.checked = rcMediaSelected.size === mediaList.length;
+      allInput.addEventListener('change', function() {
+        rcMediaSelected = this.checked ? new Set(mediaList) : new Set();
+        panel.querySelectorAll('.rc-media-item').forEach(item => { item.checked = this.checked; });
+        updateRcMediaText();
+      });
+      updateRcMediaText();
+    }
+
+    function syncRcMediaAllCheckbox() {
+      const allInput = document.getElementById('rcMediaAll');
+      if (!allInput) return;
+      allInput.checked = rcMediaSelected.size === mediaList.length;
+    }
+
+    function updateRcMediaText() {
+      const textEl = document.getElementById('rcMediaText');
+      if (!textEl) return;
+      if (rcMediaSelected.size === 0) {
+        textEl.textContent = '请选择媒体';
+        textEl.className = 'text-gray-500';
+        return;
+      }
+      if (rcMediaSelected.size === mediaList.length) {
+        textEl.textContent = '全部媒体';
+      } else {
+        textEl.textContent = '已选择 ' + rcMediaSelected.size + ' 项';
+      }
+      textEl.className = 'text-gray-900';
+    }
+
+    function toggleRcMediaPanel() {
+      const panel = document.getElementById('rcMediaPanel');
+      panel.classList.toggle('hidden');
+    }
+
+    function closeRcMediaPanel() {
+      const panel = document.getElementById('rcMediaPanel');
+      if (panel) panel.classList.add('hidden');
+    }
+
+    function getDateList(startDate, endDate) {
+      const list = [];
+      let current = new Date(startDate);
+      const end = new Date(endDate);
+      while (current <= end) {
+        list.push(current.toISOString().slice(0, 10));
+        current.setDate(current.getDate() + 1);
+      }
+      return list;
+    }
+
+    function buildReconcileRows() {
+      const startDate = document.getElementById('rcStartDate').value;
+      const endDate = document.getElementById('rcEndDate').value;
+      if (!startDate || !endDate) return [];
+      const days = getDateList(startDate, endDate);
+      const mediaValues = Array.from(rcMediaSelected);
+      const accountIdLike = document.getElementById('rcAccountId').value.trim().toLowerCase();
+      const accountNameLike = document.getElementById('rcAccountName').value.trim().toLowerCase();
+      const cardIdLike = document.getElementById('rcCardId').value.trim().toLowerCase();
+
+      const rows = [];
+      days.forEach((day, dIdx) => {
+        mappingRows.forEach((map, mIdx) => {
+          const accountMeta = accountPool.find(a => a.accountId === map.accountId) || { currency: 'USD' };
+          if (mediaValues.length && !mediaValues.includes(map.media)) return;
+          if (accountIdLike && !map.accountId.toLowerCase().includes(accountIdLike)) return;
+          if (accountNameLike && !map.accountName.toLowerCase().includes(accountNameLike)) return;
+          if (cardIdLike && !map.cardId.toLowerCase().includes(cardIdLike)) return;
+          const seed = (dIdx + 1) * 137 + (mIdx + 1) * 53;
+          const accountConsume = +(80 + (seed % 200) + (seed % 17) / 100).toFixed(2);
+          const cardConsume = +(accountConsume * (0.9 + ((seed % 21) / 100))).toFixed(2);
+          rows.push({
+            date: day,
+            media: map.media,
+            accountId: map.accountId,
+            accountName: map.accountName,
+            accountCurrency: accountMeta.currency,
+            accountConsume,
+            cardId: map.cardId,
+            cardCurrency: 'USD',
+            cardConsume
+          });
+        });
+      });
+      return rows;
+    }
+
+    function renderReconcileTable() {
+      const tbody = document.querySelector('#reconcileTable tbody');
+      tbody.innerHTML = '';
+      const rows = buildReconcileRows();
+      let sumAccount = 0;
+      let sumCard = 0;
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
+        document.getElementById('sumAccountConsume').textContent = '0.00';
+        document.getElementById('sumCardConsume').textContent = '0.00';
+        return;
+      }
+
+      rows.forEach(row => {
+        sumAccount += row.accountConsume;
+        sumCard += row.cardConsume;
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + row.date + '</td>' +
+          '<td>' + row.media + '</td>' +
+          '<td>' + row.accountId + '</td>' +
+          '<td>' + row.accountName + '</td>' +
+          '<td>' + row.accountCurrency + '</td>' +
+          '<td>' + formatMoney(row.accountConsume) + '</td>' +
+          '<td>' + row.cardId + '</td>' +
+          '<td>' + row.cardCurrency + '</td>' +
+          '<td>' + formatMoney(row.cardConsume) + '</td>';
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('sumAccountConsume').textContent = formatMoney(sumAccount);
+      document.getElementById('sumCardConsume').textContent = formatMoney(sumCard);
+    }
+
+    function openAddModal() {
+      document.getElementById('addModal').classList.remove('hidden');
+      document.getElementById('addModal').classList.add('flex');
+    }
+
+    function closeAddModal() {
+      document.getElementById('addModal').classList.add('hidden');
+      document.getElementById('addModal').classList.remove('flex');
+    }
+
+    function onAddMediaChanged() {
+      const media = document.getElementById('addMedia').value;
+      const accounts = accountPool.filter(item => item.media === media);
+      const addAccount = document.getElementById('addAccount');
+      addAccount.innerHTML = '';
+      accounts.forEach(item => {
+        const op = document.createElement('option');
+        op.value = item.accountId;
+        op.textContent = item.accountId + ' - ' + item.accountName;
+        addAccount.appendChild(op);
+      });
+    }
+
+    function saveMapping() {
+      const media = document.getElementById('addMedia').value;
+      const accountId = document.getElementById('addAccount').value;
+      const cardId = document.getElementById('addCardId').value;
+      if (!media || !accountId || !cardId) {
+        alert('请填写必填项');
+        return;
+      }
+
+      const cardUsed = mappingRows.find(item => item.cardId === cardId);
+      if (cardUsed) {
+        alert('该卡ID已绑定其他账户, 请更换');
+        return;
+      }
+
+      const accountMeta = accountPool.find(a => a.accountId === accountId);
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const timestamp = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      mappingRows.unshift({
+        media,
+        accountId,
+        accountName: accountMeta ? accountMeta.accountName : '-',
+        cardId,
+        updatedAt: timestamp,
+        updatedBy: operator
+      });
+
+      renderConfigTable();
+      closeAddModal();
+      switchTab('config');
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+      }
+    }
+
+    function toggleSidebarCollapse() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('sidebar-collapsed');
+      const icon = document.querySelector('#sidebarCollapseBtn i');
+      if (sidebar.classList.contains('sidebar-collapsed')) {
+        icon.classList.remove('fa-angle-double-left');
+        icon.classList.add('fa-angle-double-right');
+      } else {
+        icon.classList.remove('fa-angle-double-right');
+        icon.classList.add('fa-angle-double-left');
+      }
+    }
+
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      fillSelect('cfgMedia', mediaList, true, '全部媒体');
+      fillSelect('addMedia', mediaList, false);
+      fillSelect('addCardId', cardPool, false);
+      renderRcMediaPanel();
+      onAddMediaChanged();
+
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const weekAgo = new Date(today);
+      weekAgo.setDate(today.getDate() - 7);
+      const toDate = d => d.toISOString().slice(0, 10);
+      document.getElementById('rcStartDate').value = toDate(weekAgo);
+      document.getElementById('rcEndDate').value = toDate(yesterday);
+
+      renderConfigTable();
+      renderReconcileTable();
+
+      document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+      document.addEventListener('click', function(event) {
+        const panel = document.getElementById('rcMediaPanel');
+        const trigger = document.getElementById('rcMediaTrigger');
+        if (!panel || !trigger) return;
+        if (!panel.contains(event.target) && !trigger.contains(event.target)) {
+          closeRcMediaPanel();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
