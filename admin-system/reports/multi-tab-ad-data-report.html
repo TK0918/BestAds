@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户广告表现(新) - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .sidebar-collapsed { width: 64px !important; }
+    .sidebar-collapsed .sidebar-item span, .sidebar-collapsed h3 { display: none !important; }
+    .sidebar-collapsed .sidebar-item i { margin-right: 0 !important; }
+    .tab-button.active { border-bottom: 2px solid #2563eb; color: #2563eb; }
+    .card { background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); border: 1px solid #E5E7EB; }
+    .table-simple th, .table-simple td { padding: 0.6rem 0.75rem; font-size: 0.85rem; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+    .table-simple th { background: #F9FAFB; text-align: left; color: #4B5563; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+    .table-simple td { color: #374151; }
+    .table-simple tfoot td { position: sticky; bottom: 0; z-index: 1; background: #F3F4F6; font-weight: 600; border-top: 2px solid #D1D5DB; }
+    .sortable { cursor: pointer; user-select: none; }
+    .metric-up { color: #EF4444; }
+    .metric-down { color: #16A34A; }
+    .status-enabled { color: #16A34A; font-weight: 600; }
+    .status-paused { color: #F59E0B; font-weight: 600; }
+    .status-disabled, .status-ended { color: #EF4444; font-weight: 600; }
+    .chip { display: inline-flex; align-items: center; gap: 0.25rem; background: #EEF2FF; color: #4338CA; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-between h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+        <button id="sidebarCollapseBtn" class="lg:block hidden p-2 ml-2 text-gray-400 hover:text-blue-600 focus:outline-none" onclick="toggleSidebarCollapse()">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i><span>仪表盘</span></a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i><span>客户管理</span></a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i><span>代理管理</span></a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i><span>返点配置</span></a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i><span>账户管理</span></a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i><span>开户管理</span></a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i><span>账户分配</span></a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i><span>账户充值</span></a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i><span>账户减款</span></a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i><span>账户清零</span></a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i><span>服务费配置</span></a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+            </ul>
+          </div>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i><span>客户打款情况</span></a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i><span>广告账户充值报表</span></a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i><span>广告消耗情况</span></a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i><span>负向广告报表</span></a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i><span>运营日报</span></a></li>
+              <li><a href="customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i><span>客户对账日报</span></a></li>
+              <li><a href="data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i><span>数据报表</span></a></li>
+              <li><a href="consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i><span>消耗分析</span></a></li>
+              <li><a href="recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i><span>充值分布分析</span></a></li>
+              <li><a href="profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i><span>预计利润波动分析</span></a></li>
+              <li><a href="customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i><span>客户资金变动</span></a></li>
+              <li><a href="ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i><span>广告客户表现</span></a></li>
+              <li><a href="weekly-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-gray-400"></i><span>广告周数据</span></a></li>
+              <li><a href="multi-tab-ad-data-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-table w-5 h-5 mr-3 text-blue-500"></i><span>客户广告表现(新)</span></a></li>
+              <li><a href="account-card-reconciliation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-link w-5 h-5 mr-3 text-gray-400"></i><span>绑卡户数据核对</span></a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">报表</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">客户广告表现(新)</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-gray-900">客户广告表现(新)</h1>
+                <span class="chip"><i class="fas fa-calendar-day"></i>天级别统计</span>
+              </div>
+              <button onclick="exportCurrentTab()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm">
+                <i class="fas fa-download mr-1"></i>导出当前Tab
+              </button>
+            </div>
+
+            <div class="card rounded-t-lg">
+              <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-6 px-6 overflow-x-auto">
+                  <button class="tab-button active py-3 px-1 border-b-2 border-blue-500 text-sm font-medium whitespace-nowrap" data-tab="customer">客户</button>
+                  <button class="tab-button py-3 px-1 border-b-2 border-transparent text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap" data-tab="account">广告账户</button>
+                  <button class="tab-button py-3 px-1 border-b-2 border-transparent text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap" data-tab="campaign">Campaign</button>
+                  <button class="tab-button py-3 px-1 border-b-2 border-transparent text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap" data-tab="adset">Adset</button>
+                  <button class="tab-button py-3 px-1 border-b-2 border-transparent text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap" data-tab="ad">Ad</button>
+                </nav>
+              </div>
+            </div>
+
+            <section class="card p-4">
+              <div id="filterContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end"></div>
+              <div class="mt-4 flex gap-3">
+                <button onclick="queryCurrentTab()" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 text-sm">
+                  <i class="fas fa-search mr-1"></i>查询
+                </button>
+                <button onclick="resetCurrentTabFilters()" class="bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-md hover:bg-gray-50 text-sm">
+                  重置
+                </button>
+              </div>
+            </section>
+
+            <section class="card overflow-hidden">
+              <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                <div class="text-base font-semibold text-gray-900" id="tableTitle">客户Tab列表</div>
+                <div class="text-xs text-gray-500" id="tableDesc">按日期聚合, 支持层级归属分析</div>
+              </div>
+              <div class="overflow-auto" style="max-height:560px;">
+                <table class="min-w-full table-simple" id="reportTable">
+                  <thead></thead>
+                  <tbody></tbody>
+                  <tfoot></tfoot>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const DIMENSIONS = {
+      customers: ['环球电商', '星火教育', '远洋游戏', '云峰工具', '启航品牌'],
+      accounts: ['ACCT_2026001', 'ACCT_2026002', 'ACCT_2026003', 'ACCT_2026004'],
+      campaigns: ['CAM_2026001', 'CAM_2026002', 'CAM_2026003'],
+      adsets: ['ADSET_2026001', 'ADSET_2026002', 'ADSET_2026003'],
+      ads: ['AD_2026001', 'AD_2026002', 'AD_2026003', 'AD_2026004'],
+      platforms: ['Facebook', 'Google', 'TikTok'],
+      countries: ['US', 'CN', 'JP', 'GB'],
+      industries: ['电商', '教育', '游戏', '工具应用', '品牌'],
+      billingTypes: ['CPM', 'CPC', 'CPA', 'CPL'],
+      statuses: ['启用', '暂停', '禁用', '活跃', '已结束'],
+      accountTypes: ['Facebook-三不限', 'Facebook-企业户', 'Facebook-海外户', 'Tiktok-企业户'],
+      adFormats: ['图片广告', '视频广告', '图文广告', '短视频广告'],
+      goals: ['曝光', '点击', '转化', '下载', '注册'],
+      targetingTypes: ['兴趣定向', '人群定向', '关键词定向']
+    };
+
+    const TAB_CONFIG = {
+      customer: {
+        title: '客户Tab列表',
+        desc: '客户层级, 含客户状态与消耗趋势指标',
+        filters: [
+          { id: 'dateStart', label: '开始日期', type: 'date', required: true },
+          { id: 'dateEnd', label: '结束日期', type: 'date', required: true },
+          { id: 'customerName', field: '客户名称', label: '客户名称', type: 'text', placeholder: '支持模糊搜索' },
+          { id: 'customerStatus', field: '客户状态', label: '客户状态', type: 'select', options: ['全部', '启用', '禁用'] },
+          { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] }
+        ],
+        columns: [
+          '日期', '客户ID', '客户名称', '行业分类', '广告消耗(元)', '曝光量', '点击量', 'CTR', '转化量', 'CVR',
+          '平均CPC', '平均CPA', '客户状态', '账户数量', '昨日消耗(元)', '消耗环比增长率'
+        ]
+      },
+      account: {
+        title: '账户Tab列表',
+        desc: '账户层级, 关联客户维度与平台维度',
+        filters: [
+          { id: 'dateStart', label: '开始日期', type: 'date', required: true },
+          { id: 'dateEnd', label: '结束日期', type: 'date', required: true },
+          { id: 'customer', field: '所属客户名称', label: '所属客户', type: 'select', options: ['全部', ...DIMENSIONS.customers] },
+          { id: 'accountId', field: '广告账户ID', label: '广告账户ID', type: 'text', placeholder: '支持精确搜索' },
+          { id: 'accountName', field: '广告账户名称', label: '广告账户名称', type: 'text', placeholder: '支持模糊搜索' },
+          { id: 'accountStatus', field: '账户状态', label: '账户状态', type: 'select', options: ['全部', '启用', '暂停', '禁用'] },
+          { id: 'accountType', field: '账户类型', label: '账户类型', type: 'select', options: ['全部', ...DIMENSIONS.accountTypes] },
+          { id: 'platform', field: '投放平台', label: '投放平台', type: 'select', options: ['全部', ...DIMENSIONS.platforms] }
+        ],
+        columns: [
+          '日期', '所属客户ID', '所属客户名称', '广告账户ID', '广告账户名称', '投放平台', '广告消耗(元)', '曝光量', '点击量',
+          'CTR', '转化量', 'CVR', '平均CPC', '平均CPA', '账户状态', '账户类型', 'Campaign数量', '昨日消耗(元)', '消耗环比增长率'
+        ]
+      },
+      campaign: {
+        title: 'Campaign Tab列表',
+        desc: '支持国家和行业细分聚合',
+        filters: [
+          { id: 'dateStart', label: '开始日期', type: 'date', required: true },
+          { id: 'dateEnd', label: '结束日期', type: 'date', required: true },
+          { id: 'customer', field: '所属客户名称', label: '所属客户', type: 'select', options: ['全部', ...DIMENSIONS.customers] },
+          { id: 'account', field: '所属广告账户ID', label: '所属广告账户', type: 'select', options: ['全部', ...DIMENSIONS.accounts] },
+          { id: 'campaignId', field: 'Campaign ID', label: 'Campaign ID', type: 'text', placeholder: '支持精确搜索' },
+          { id: 'country', field: '国家/地区', label: '国家/地区', type: 'select', options: ['全部', ...DIMENSIONS.countries] },
+          { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] },
+          { id: 'goal', field: '投放目标', label: '投放目标', type: 'select', options: ['全部', ...DIMENSIONS.goals] }
+        ],
+        columns: [
+          '日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', 'Campaign ID', 'Campaign名称',
+          '国家/地区', '行业分类', '投放平台', '投放目标', '广告消耗(元)', '曝光量', '覆盖人数', '点击量', 'CTR',
+          '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA', '转化价值(元)', 'ROI', 'Adset数量',
+          '昨日消耗(元)', '消耗环比增长率'
+        ]
+      },
+      adset: {
+        title: 'Adset Tab列表',
+        desc: '支持国家和行业细分聚合, 支持定向维度',
+        filters: [
+          { id: 'dateStart', label: '开始日期', type: 'date', required: true },
+          { id: 'dateEnd', label: '结束日期', type: 'date', required: true },
+          { id: 'customer', field: '所属客户名称', label: '所属客户', type: 'select', options: ['全部', ...DIMENSIONS.customers] },
+          { id: 'account', field: '所属广告账户ID', label: '所属广告账户', type: 'select', options: ['全部', ...DIMENSIONS.accounts] },
+          { id: 'campaign', field: '所属Campaign ID', label: '所属Campaign', type: 'select', options: ['全部', ...DIMENSIONS.campaigns] },
+          { id: 'adsetId', field: 'Adset ID', label: 'Adset ID', type: 'text', placeholder: '支持精确搜索' },
+          { id: 'country', field: '国家/地区', label: '国家/地区', type: 'select', options: ['全部', ...DIMENSIONS.countries] },
+          { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] }
+        ],
+        columns: [
+          '日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', '所属Campaign ID', '所属Campaign名称',
+          'Adset ID', 'Adset名称', '国家/地区', '行业分类', '广告消耗(元)', '曝光量', '覆盖人数',
+          '点击量', 'CTR', '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA', '转化价值(元)', 'ROI',
+          'Ad数量', '昨日消耗(元)', '消耗环比增长率'
+        ]
+      },
+      ad: {
+        title: 'Ad Tab列表',
+        desc: '支持国家和行业细分聚合, 支持广告创意维度',
+        filters: [
+          { id: 'dateStart', label: '开始日期', type: 'date', required: true },
+          { id: 'dateEnd', label: '结束日期', type: 'date', required: true },
+          { id: 'customer', field: '所属客户名称', label: '所属客户', type: 'select', options: ['全部', ...DIMENSIONS.customers] },
+          { id: 'account', field: '所属广告账户ID', label: '所属广告账户', type: 'select', options: ['全部', ...DIMENSIONS.accounts] },
+          { id: 'campaign', field: '所属Campaign ID', label: '所属Campaign', type: 'select', options: ['全部', ...DIMENSIONS.campaigns] },
+          { id: 'adset', field: '所属Adset ID', label: '所属Adset', type: 'select', options: ['全部', ...DIMENSIONS.adsets] },
+          { id: 'adId', field: 'Ad ID', label: 'Ad ID', type: 'text', placeholder: '支持精确搜索' },
+          { id: 'country', field: '国家/地区', label: '国家/地区', type: 'select', options: ['全部', ...DIMENSIONS.countries] },
+          { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] }
+        ],
+        columns: [
+          '日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', '所属Campaign ID', '所属Campaign名称',
+          '所属Adset ID', '所属Adset名称', 'Ad ID', 'Ad名称', '国家/地区', '行业分类',
+          '广告消耗(元)', '曝光量', '覆盖人数', '点击量', 'CTR', '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA',
+          '转化价值(元)', 'ROI', '昨日消耗(元)', '消耗环比增长率'
+        ]
+      }
+    };
+    const NUMERIC_COLUMNS = new Set([
+      '广告消耗(元)', '曝光量', '点击量', '转化量', '覆盖人数', '平均CPM', '平均CPC', '平均CPA',
+      '转化价值(元)', '昨日消耗(元)', '账户数量', 'Campaign数量', 'Adset数量', 'Ad数量',
+      'CTR', 'CVR', 'ROI', '消耗环比增长率'
+    ]);
+    const tabRawData = {};
+    let currentTab = 'customer';
+    let displayedRows = [];
+    const sortState = { column: '', direction: 'asc' };
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden', 'opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+    }
+
+    function toggleSidebarCollapse() {
+      const sidebar = document.getElementById('sidebar');
+      const icon = document.querySelector('#sidebarCollapseBtn i');
+      sidebar.classList.toggle('sidebar-collapsed');
+      icon.classList.toggle('fa-angle-double-left');
+      icon.classList.toggle('fa-angle-double-right');
+    }
+
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (!ul || !arrow) return;
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function randomFloat(min, max, fixed = 2) {
+      return +(Math.random() * (max - min) + min).toFixed(fixed);
+    }
+
+    function makeDate(offset) {
+      const date = new Date();
+      date.setDate(date.getDate() - offset);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function defaultDateRange() {
+      return { start: makeDate(6), end: makeDate(0) };
+    }
+
+    function renderFilters(tab) {
+      const filterContainer = document.getElementById('filterContainer');
+      const conf = TAB_CONFIG[tab];
+      const { start, end } = defaultDateRange();
+      filterContainer.innerHTML = conf.filters.map((f) => {
+        if (f.type === 'date') {
+          const val = f.id === 'dateStart' ? start : end;
+          return `
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${f.label}${f.required ? ' *' : ''}</label>
+              <input id="filter-${f.id}" type="date" value="${val}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          `;
+        }
+        if (f.type === 'select') {
+          return `
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">${f.label}</label>
+              <select id="filter-${f.id}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+              </select>
+            </div>
+          `;
+        }
+        return `
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">${f.label}</label>
+            <input id="filter-${f.id}" type="text" placeholder="${f.placeholder || ''}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        `;
+      }).join('');
+    }
+
+    function statusClass(val) {
+      if (val === '启用' || val === '活跃') return 'status-enabled';
+      if (val === '暂停') return 'status-paused';
+      if (val === '禁用') return 'status-disabled';
+      if (val === '已结束') return 'status-ended';
+      return '';
+    }
+
+    function metricClassByValue(v) {
+      if (typeof v !== 'string') return '';
+      if (v.startsWith('+')) return 'metric-up';
+      if (v.startsWith('-')) return 'metric-down';
+      return '';
+    }
+
+    function calculateDerived(spend, impressions, clicks, conversions, value) {
+      const ctr = impressions === 0 ? 0 : (clicks / impressions) * 100;
+      const cvr = clicks === 0 ? 0 : (conversions / clicks) * 100;
+      const cpm = impressions === 0 ? 0 : (spend / impressions) * 1000;
+      const cpc = clicks === 0 ? 0 : spend / clicks;
+      const cpa = conversions === 0 ? null : spend / conversions;
+      const roi = spend === 0 ? null : (value / spend) * 100;
+      return {
+        ctr: `${ctr.toFixed(4)}%`,
+        cvr: `${cvr.toFixed(4)}%`,
+        cpm: cpm.toFixed(2),
+        cpc: cpc.toFixed(2),
+        cpa: cpa === null ? '-' : cpa.toFixed(2),
+        roi: roi === null ? '-' : `${roi.toFixed(2)}%`
+      };
+    }
+
+    function mockRow(tab, idx) {
+      const spend = randomFloat(800, 80000, 2);
+      const impressions = randomInt(5000, 800000);
+      const clicks = randomInt(500, 40000);
+      const conversions = randomInt(50, 2000);
+      const value = randomFloat(1000, 200000, 2);
+      const ySpend = randomFloat(500, 76000, 2);
+      const wow = ySpend === 0 ? 0 : ((spend - ySpend) / ySpend) * 100;
+      const derived = calculateDerived(spend, impressions, clicks, conversions, value);
+
+      const common = {
+        '日期': makeDate(randomInt(0, 6)),
+        '所属客户ID': `CUST_20260${randomInt(10, 99)}`,
+        '所属客户名称': DIMENSIONS.customers[randomInt(0, DIMENSIONS.customers.length - 1)],
+        '所属广告账户ID': DIMENSIONS.accounts[randomInt(0, DIMENSIONS.accounts.length - 1)],
+        '所属广告账户名称': `账户-${randomInt(1, 30)}`,
+        '所属Campaign ID': DIMENSIONS.campaigns[randomInt(0, DIMENSIONS.campaigns.length - 1)],
+        '所属Campaign名称': `Campaign-${randomInt(1, 20)}`,
+        '所属Adset ID': DIMENSIONS.adsets[randomInt(0, DIMENSIONS.adsets.length - 1)],
+        '所属Adset名称': `Adset-${randomInt(1, 40)}`,
+        '国家/地区': DIMENSIONS.countries[randomInt(0, DIMENSIONS.countries.length - 1)],
+        '行业分类': DIMENSIONS.industries[randomInt(0, DIMENSIONS.industries.length - 1)],
+        '投放平台': DIMENSIONS.platforms[randomInt(0, DIMENSIONS.platforms.length - 1)],
+        '结算方式': DIMENSIONS.billingTypes[randomInt(0, DIMENSIONS.billingTypes.length - 1)],
+        '广告消耗(元)': spend.toFixed(2),
+        '曝光量': impressions.toLocaleString(),
+        '覆盖人数': randomInt(4000, 600000).toLocaleString(),
+        '点击量': clicks.toLocaleString(),
+        'CTR': derived.ctr,
+        '转化量': conversions.toLocaleString(),
+        'CVR': derived.cvr,
+        '平均CPM': derived.cpm,
+        '平均CPC': derived.cpc,
+        '平均CPA': derived.cpa,
+        '转化价值(元)': value.toFixed(2),
+        'ROI': derived.roi,
+        '昨日消耗(元)': ySpend.toFixed(2),
+        '消耗环比增长率': `${wow >= 0 ? '+' : ''}${wow.toFixed(2)}%`
+      };
+
+      if (tab === 'customer') {
+        return {
+          '日期': common['日期'],
+          '客户ID': `CUST_20260${randomInt(10, 99)}`,
+          '客户名称': DIMENSIONS.customers[randomInt(0, DIMENSIONS.customers.length - 1)],
+          '行业分类': common['行业分类'],
+          '广告消耗(元)': common['广告消耗(元)'],
+          '曝光量': common['曝光量'],
+          '点击量': common['点击量'],
+          'CTR': common['CTR'],
+          '转化量': common['转化量'],
+          'CVR': common['CVR'],
+          '平均CPC': common['平均CPC'],
+          '平均CPA': common['平均CPA'],
+          '客户状态': idx % 4 === 0 ? '禁用' : '启用',
+          '账户数量': randomInt(1, 9),
+          '昨日消耗(元)': common['昨日消耗(元)'],
+          '消耗环比增长率': common['消耗环比增长率']
+        };
+      }
+
+      if (tab === 'account') {
+        return {
+          ...common,
+          '广告账户ID': common['所属广告账户ID'],
+          '广告账户名称': common['所属广告账户名称'],
+          '账户状态': ['启用', '暂停', '禁用'][idx % 3],
+          'Campaign数量': randomInt(2, 30)
+        };
+      }
+
+      if (tab === 'campaign') {
+        return {
+          ...common,
+          'Campaign ID': common['所属Campaign ID'],
+          'Campaign名称': common['所属Campaign名称'],
+          '投放目标': DIMENSIONS.goals[randomInt(0, DIMENSIONS.goals.length - 1)],
+          '投放状态': ['活跃', '暂停', '已结束'][idx % 3],
+          'Adset数量': randomInt(1, 20)
+        };
+      }
+
+      if (tab === 'adset') {
+        return {
+          ...common,
+          'Adset ID': common['所属Adset ID'],
+          'Adset名称': common['所属Adset名称'],
+          '定向类型': DIMENSIONS.targetingTypes[randomInt(0, DIMENSIONS.targetingTypes.length - 1)],
+          '受众规模': `${randomInt(100, 900)}万-${randomInt(1000, 5000)}万`,
+          '投放状态': ['活跃', '暂停', '已结束'][idx % 3],
+          'Ad数量': randomInt(1, 100)
+        };
+      }
+
+      const isVideo = idx % 2 === 0;
+      const plays = isVideo ? randomInt(1000, 30000) : 0;
+      const completeRate = isVideo ? `${randomFloat(5, 60, 2)}%` : '-';
+      return {
+        ...common,
+        'Ad ID': DIMENSIONS.ads[randomInt(0, DIMENSIONS.ads.length - 1)],
+        'Ad名称': `Ad-${randomInt(1, 200)}`,
+        '广告形式': isVideo ? '视频广告' : DIMENSIONS.adFormats[randomInt(0, DIMENSIONS.adFormats.length - 1)],
+        '创意尺寸': ['1080x1920', '1200x628', '1:1', '9:16'][randomInt(0, 3)],
+        '视频播放次数': plays.toLocaleString(),
+        '视频完播率': completeRate,
+        '投放状态': ['活跃', '暂停', '已结束'][idx % 3]
+      };
+    }
+
+    function buildRows(tab, count = 16) {
+      return Array.from({ length: count }).map((_, idx) => mockRow(tab, idx));
+    }
+
+    function parseNumeric(value) {
+      const text = String(value ?? '').replace(/,/g, '').replace(/%/g, '').trim();
+      if (text === '-' || text === '') return 0;
+      const n = Number(text);
+      return Number.isNaN(n) ? 0 : n;
+    }
+
+    function ensureTabData(tab) {
+      if (!tabRawData[tab]) {
+        tabRawData[tab] = buildRows(tab, 28);
+      }
+      return tabRawData[tab];
+    }
+
+    function getFilterValues(tab) {
+      const values = {};
+      TAB_CONFIG[tab].filters.forEach((f) => {
+        const element = document.getElementById(`filter-${f.id}`);
+        values[f.id] = element ? element.value : '';
+      });
+      return values;
+    }
+
+    function filterRows(tab, rows, filters) {
+      return rows.filter((row) => {
+        if (filters.dateStart && row['日期'] < filters.dateStart) return false;
+        if (filters.dateEnd && row['日期'] > filters.dateEnd) return false;
+        return TAB_CONFIG[tab].filters.every((f) => {
+          if (!f.field) return true;
+          const raw = filters[f.id];
+          if (!raw || raw === '全部') return true;
+          const fieldVal = String(row[f.field] ?? '');
+          return f.type === 'text' ? fieldVal.includes(raw) : fieldVal === raw;
+        });
+      });
+    }
+
+    function sortRows(rows) {
+      if (!sortState.column) return rows;
+      const sorted = [...rows];
+      sorted.sort((a, b) => {
+        const av = a[sortState.column];
+        const bv = b[sortState.column];
+        const cmp = NUMERIC_COLUMNS.has(sortState.column)
+          ? parseNumeric(av) - parseNumeric(bv)
+          : String(av ?? '').localeCompare(String(bv ?? ''));
+        return sortState.direction === 'asc' ? cmp : -cmp;
+      });
+      return sorted;
+    }
+
+    function buildSummaryRow(columns, rows) {
+      const summary = { [columns[0]]: '汇总' };
+      columns.forEach((col, idx) => {
+        if (idx === 0) return;
+        if (!NUMERIC_COLUMNS.has(col)) {
+          summary[col] = '-';
+          return;
+        }
+        if (col === 'CTR' || col === 'CVR' || col === 'ROI' || col === '消耗环比增长率') {
+          const avg = rows.length ? rows.reduce((acc, r) => acc + parseNumeric(r[col]), 0) / rows.length : 0;
+          summary[col] = `${avg.toFixed(2)}%`;
+          return;
+        }
+        const total = rows.reduce((acc, r) => acc + parseNumeric(r[col]), 0);
+        summary[col] = ['曝光量', '点击量', '转化量', '覆盖人数', '账户数量', 'Campaign数量', 'Adset数量', 'Ad数量'].includes(col)
+          ? Math.round(total).toLocaleString()
+          : total.toFixed(2);
+      });
+      return summary;
+    }
+
+    function renderTable(tab, rows) {
+      const table = document.getElementById('reportTable');
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      const tfoot = table.querySelector('tfoot');
+      const conf = TAB_CONFIG[tab];
+      const summary = buildSummaryRow(conf.columns, rows);
+
+      thead.innerHTML = `<tr>${conf.columns.map(c => {
+        const arrow = sortState.column === c ? (sortState.direction === 'asc' ? '↑' : '↓') : '';
+        return `<th class="sortable" data-sort="${c}">${c} ${arrow}</th>`;
+      }).join('')}</tr>`;
+      tbody.innerHTML = rows.map((row) => {
+        return `<tr>${conf.columns.map((col) => {
+          const val = row[col] !== undefined ? row[col] : '-';
+          const cls = `${statusClass(String(val))} ${metricClassByValue(String(val))}`.trim();
+          return `<td class="${cls}">${val}</td>`;
+        }).join('')}</tr>`;
+      }).join('');
+      tfoot.innerHTML = `<tr>${conf.columns.map((col) => `<td>${summary[col] ?? '-'}</td>`).join('')}</tr>`;
+
+      thead.querySelectorAll('th[data-sort]').forEach((th) => {
+        th.addEventListener('click', () => {
+          const column = th.getAttribute('data-sort');
+          if (sortState.column === column) {
+            sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+          } else {
+            sortState.column = column;
+            sortState.direction = 'asc';
+          }
+          applyCurrentTabData();
+        });
+      });
+    }
+
+    function applyCurrentTabData() {
+      const rows = ensureTabData(currentTab);
+      const filters = getFilterValues(currentTab);
+      displayedRows = sortRows(filterRows(currentTab, rows, filters));
+      renderTable(currentTab, displayedRows);
+    }
+
+    function mountTab(tab) {
+      currentTab = tab;
+      sortState.column = '';
+      sortState.direction = 'asc';
+      const conf = TAB_CONFIG[tab];
+      document.getElementById('tableTitle').textContent = conf.title;
+      document.getElementById('tableDesc').textContent = conf.desc;
+      renderFilters(tab);
+      applyCurrentTabData();
+    }
+
+    function queryCurrentTab() {
+      const start = document.getElementById('filter-dateStart')?.value;
+      const end = document.getElementById('filter-dateEnd')?.value;
+      if (!start || !end) {
+        alert('开始日期和结束日期为必填');
+        return;
+      }
+      if (new Date(start) > new Date(end)) {
+        alert('开始日期不能大于结束日期');
+        return;
+      }
+      applyCurrentTabData();
+    }
+
+    function resetCurrentTabFilters() {
+      renderFilters(currentTab);
+      sortState.column = '';
+      sortState.direction = 'asc';
+      applyCurrentTabData();
+    }
+
+    function exportCurrentTab() {
+      alert(`已触发导出: ${TAB_CONFIG[currentTab].title}`);
+    }
+
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+    document.querySelectorAll('.tab-button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-button').forEach((node) => {
+          node.classList.remove('active', 'text-blue-600', 'border-blue-500');
+          node.classList.add('text-gray-500', 'border-transparent');
+        });
+        btn.classList.add('active', 'text-blue-600', 'border-blue-500');
+        btn.classList.remove('text-gray-500', 'border-transparent');
+        mountTab(btn.dataset.tab);
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      mountTab('customer');
+    });
+  </script>
+</body>
+</html>
