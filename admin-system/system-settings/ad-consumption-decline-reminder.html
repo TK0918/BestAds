@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>广告账户消耗下降提醒系统 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .modal-backdrop { backdrop-filter: blur(8px); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .toast-enter { animation: toastIn 0.3s ease-out; }
+    @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .sticky-col-right { position: sticky; right: 0; z-index: 5; }
+    .sticky-col-left { position: sticky; left: 0; z-index: 5; }
+  </style>
+</head>
+<body class="bg-gray-50">
+<div class="flex h-screen overflow-hidden">
+  <!-- ===== 侧边栏 ===== -->
+  <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+    <div class="flex items-center justify-center h-16 border-b border-gray-200">
+      <div class="flex items-center">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-line text-white text-sm"></i>
+        </div>
+        <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+      </div>
+    </div>
+    <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+      <nav>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+            <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="mainMenu" class="space-y-1 mb-2">
+            <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+            <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+            <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+            <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            <li><a href="../main-functions/deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+            <li><a href="../main-functions/system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
+            <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="perfMenu" class="space-y-1 mb-2">
+            <li><a href="../performance/metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+            <li><a href="../performance/performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+            <li><a href="../performance/all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
+            <li><a href="../performance/my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
+            <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+            <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="fbMenu" class="space-y-1 mb-2">
+            <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+            <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+            <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+            <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="adMenu" class="space-y-1 mb-2">
+            <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+            <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="googleMenu" class="space-y-1 mb-2">
+            <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+            <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+            <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="otherMediaMenu" class="space-y-1 mb-2">
+            <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+            <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="sysMenu" class="space-y-1 mb-2">
+            <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+            <li><a href="notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+            <li><a href="ad-consumption-decline-reminder.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-500"></i>消耗下降提醒配置</a></li>
+            <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+            <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="flowMenu" class="space-y-1 mb-2">
+            <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+            <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+            <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+            <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+            <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+          </ul>
+        </div>
+
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+            <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="reportMenu" class="space-y-1 mb-2">
+            <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+            <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+            <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+            <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+            <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <script>
+      function toggleMenuSection(id) {
+        const ul = document.getElementById(id);
+        const arrow = document.getElementById(id + 'Arrow');
+        if (!ul || !arrow) return;
+        if (ul.style.display === 'none') {
+          ul.style.display = '';
+          arrow.classList.remove('fa-chevron-right');
+          arrow.classList.add('fa-chevron-down');
+        } else {
+          ul.style.display = 'none';
+          arrow.classList.remove('fa-chevron-down');
+          arrow.classList.add('fa-chevron-right');
+        }
+      }
+    </script>
+  </aside>
+
+  <!-- 遮罩层 (移动端) -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+  <!-- ===== 主内容区 ===== -->
+  <div class="flex flex-col flex-1 overflow-hidden">
+    <!-- 顶部栏 -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+            <i class="fas fa-bars text-lg"></i>
+          </button>
+          <div class="ml-4 lg:ml-0">
+            <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+              <span class="text-gray-500">主页</span>
+              <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+              <span class="text-gray-500">系统设置</span>
+              <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+              <span class="text-gray-900 font-medium">消耗下降提醒</span>
+            </nav>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+            <i class="fas fa-bell text-lg"></i>
+            <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+          </button>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 页面内容 -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+      <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-8">
+            <div class="md:flex md:items-center md:justify-between">
+              <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">广告账户消耗下降提醒系统</h2>
+                <p class="mt-1 text-sm text-gray-500">在一个页面内完成配置, 记录跟进, 以及推送日志排查</p>
+              </div>
+              <div class="mt-4 md:mt-0">
+                <button onclick="showToast('保存请求已发送(示例)')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
+                  <i class="fas fa-save"></i><span>保存</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 切换 -->
+          <div class="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6">
+            <button id="tabConfig" onclick="switchTab('config')" class="flex-1 flex items-center justify-center space-x-1.5 py-2 rounded-md text-sm font-medium bg-white text-gray-900 shadow-sm transition-all">
+              <i class="fas fa-sliders-h text-blue-600 text-xs"></i><span>配置</span>
+            </button>
+            <button id="tabRecord" onclick="switchTab('record')" class="flex-1 flex items-center justify-center space-x-1.5 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all">
+              <i class="fas fa-list-check text-indigo-600 text-xs"></i><span>消耗降幅记录</span>
+            </button>
+            <button id="tabLog" onclick="switchTab('log')" class="flex-1 flex items-center justify-center space-x-1.5 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all">
+              <i class="fas fa-file-alt text-purple-600 text-xs"></i><span>推送日志</span>
+            </button>
+          </div>
+
+          <!-- 配置 Tab -->
+          <div id="paneConfig">
+            <!-- 全局基础配置(顶部一横, 展示 + 弹窗编辑) -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+              <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <i class="fas fa-globe text-blue-600"></i>
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">全局基础配置</h3>
+                    <p class="text-sm text-gray-500">平时仅展示, 点击编辑在弹窗中修改并保存生效</p>
+                  </div>
+                </div>
+                <button onclick="openGlobalConfigModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                  <i class="fas fa-pen mr-2"></i>编辑
+                </button>
+              </div>
+              <div class="px-6 py-5">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="text-xs text-gray-500">全局最低判断消耗(元)</div>
+                    <div id="globalMinConsumptionText" class="mt-1 text-lg font-semibold text-gray-900">100</div>
+                  </div>
+                  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="text-xs text-gray-500">每日执行时间</div>
+                    <div id="dailyExecTimeText" class="mt-1 text-lg font-semibold text-gray-900">09:00</div>
+                  </div>
+                  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="text-xs text-gray-500">提醒功能总开关</div>
+                    <div id="reminderSwitchText" class="mt-1 text-lg font-semibold text-gray-900">开启</div>
+                  </div>
+                  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="text-xs text-gray-500">更新时间</div>
+                    <div id="globalUpdatedAtText" class="mt-1 text-sm font-medium text-gray-900">2026-03-25 09:00:00</div>
+                    <div id="globalUpdatedByText" class="text-xs text-gray-500 mt-1">更新人: 管理员</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 个别账户专属配置(列表 + 添加/编辑弹窗) -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <i class="fas fa-user-lock text-indigo-600"></i>
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">个别账户专属配置</h3>
+                    <p class="text-sm text-gray-500">同一账户仅保留一条专属配置, 用于控制最低判断消耗</p>
+                  </div>
+                </div>
+                <button onclick="openExclusiveConfigModal('add')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                  <i class="fas fa-plus mr-2"></i>添加
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 table-hover">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户ID</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户名称</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最低判断消耗(元)</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新人</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="exclusiveConfigBody" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 消耗降幅记录 Tab -->
+          <div id="paneRecord" class="hidden">
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-4 mb-6">
+              <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">日期范围</label>
+                  <div class="flex gap-2">
+                    <input id="recordStartDate" type="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2" value="2026-03-01">
+                    <input id="recordEndDate" type="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2" value="2026-03-25">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">客户名称</label>
+                  <input id="recordCustomer" type="text" placeholder="模糊匹配" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">商务负责人</label>
+                  <select id="recordBizOwner" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                    <option value="all" selected>全部</option>
+                    <option value="张三">张三</option>
+                    <option value="李四">李四</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">运营负责人</label>
+                  <select id="recordOpsOwner" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                    <option value="all" selected>全部</option>
+                    <option value="王五">王五</option>
+                    <option value="赵六">赵六</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">投放平台</label>
+                  <select id="recordPlatform" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                    <option value="all" selected>全部</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Google">Google</option>
+                    <option value="TikTok">TikTok</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">处理状态</label>
+                  <select id="recordHandleStatus" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                    <option value="all" selected>全部</option>
+                    <option value="unhandled">未处理</option>
+                    <option value="followed">已跟进</option>
+                    <option value="normal">正常波动</option>
+                    <option value="resolved">已解决</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">账户 ID / 名称</label>
+                  <input id="recordAccountKeyword" type="text" placeholder="模糊匹配" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                </div>
+                <div class="flex gap-2 ml-auto">
+                  <button onclick="filterRecords()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-search mr-2"></i>搜索
+                  </button>
+                  <button onclick="resetRecordFilter()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    重置
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">消耗降幅异常记录</h3>
+                  <div class="text-sm text-gray-500 mt-0.5">示例数据, 支持复选与批量处理</div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button id="bulkHandleBtn" onclick="openHandleModal('BULK')" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-pen-to-square mr-2"></i>批量处理
+                  </button>
+                  <button onclick="exportRecords()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    <i class="fas fa-file-export mr-2"></i>导出 Excel
+                  </button>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 table-hover">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky-col-left bg-gray-50">
+                        <label class="inline-flex items-center">
+                          <input id="selectAllDeclines" type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" onchange="toggleSelectAllDeclines(this.checked)">
+                          <span class="ml-2">全选</span>
+                        </label>
+                      </th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">执行日期</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商务/运营</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">投放平台</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">T-2 消耗</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">T-1 消耗</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">降幅</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">适用阈值</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">处理状态</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">处理时间</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">处理人员</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky-col-right bg-gray-50">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="declineRecordBody" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 推送日志 Tab -->
+          <div id="paneLog" class="hidden">
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-4 mb-6">
+              <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">执行日期范围</label>
+                  <div class="flex gap-2">
+                    <input id="logStartDate" type="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2" value="2026-03-01">
+                    <input id="logEndDate" type="date" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2" value="2026-03-25">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">客户名称</label>
+                  <input id="logCustomer" type="text" placeholder="模糊匹配" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">账户名称</label>
+                  <input id="logAccount" type="text" placeholder="模糊匹配" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">接收人姓名</label>
+                  <input id="logReceiver" type="text" placeholder="姓名" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">发送状态</label>
+                  <select id="logStatus" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                    <option value="all" selected>全部</option>
+                    <option value="unsent">未发送</option>
+                    <option value="success">发送成功</option>
+                    <option value="failed">发送失败</option>
+                    <option value="retrying">重试中</option>
+                  </select>
+                </div>
+                <div class="flex gap-2 ml-auto">
+                  <button onclick="filterLogs()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-search mr-2"></i>搜索
+                  </button>
+                  <button onclick="resetLogFilter()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    重置
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">飞书推送日志</h3>
+                <button onclick="exportLogs()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  <i class="fas fa-file-export mr-2"></i>导出日志
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 table-hover">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日志ID</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">执行日期</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户/账户</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">接收人</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发送状态</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发送时间</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">失败原因</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pushLogBody" class="bg-white divide-y divide-gray-200">
+                    <tr>
+                      <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">LOG_20260325001</td>
+                      <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">2026-03-25</td>
+                      <td class="px-4 py-3 text-sm text-gray-600">
+                        XXX品牌 / XXX-Facebook主力账户
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-600">张三(飞书ID: zh_san)</td>
+                      <td class="px-4 py-3 text-sm whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 whitespace-nowrap">
+                          <i class="fas fa-circle mr-1" style="font-size:6px"></i>发送失败
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">2026-03-25 09:12:30</td>
+                      <td class="px-4 py-3 text-sm text-red-700">飞书接口超时</td>
+                      <td class="px-4 py-3 text-sm">
+                        <div class="flex items-center gap-3">
+                          <button class="text-blue-600 hover:text-blue-800 font-medium" onclick="openLogDetail('LOG_20260325001')">查看详情</button>
+                          <button class="text-indigo-600 hover:text-indigo-800 font-medium" onclick="manualResend('LOG_20260325001')">手动重推</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">LOG_20260325002</td>
+                      <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">2026-03-25</td>
+                      <td class="px-4 py-3 text-sm text-gray-600">
+                        XXX品牌 / XXX-Facebook主力账户
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-600">李四(飞书ID: li_si)</td>
+                      <td class="px-4 py-3 text-sm whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">
+                          <i class="fas fa-circle mr-1" style="font-size:6px"></i>发送成功
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">2026-03-25 09:12:35</td>
+                      <td class="px-4 py-3 text-sm text-gray-400">-</td>
+                      <td class="px-4 py-3 text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium" onclick="openLogDetail('LOG_20260325002')">查看详情</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-6 right-6 z-[70] hidden">
+  <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 toast-enter">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg">操作成功</span>
+  </div>
+</div>
+
+<!-- 通用详情弹窗 -->
+<div id="detailModal" class="fixed inset-0 bg-gray-600 bg-opacity-60 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h3 id="detailTitle" class="text-lg font-semibold text-gray-900">详情</h3>
+        </div>
+        <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600 p-1">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6" id="detailBody">
+        ...
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+        <button onclick="closeDetailModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 全局基础配置编辑弹窗 -->
+<div id="globalConfigModal" class="fixed inset-0 bg-gray-600 bg-opacity-60 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">编辑全局基础配置</h3>
+          <p class="text-sm text-gray-500 mt-0.5">保存后立即更新页面展示信息(示例)</p>
+        </div>
+        <button onclick="closeModal('globalConfigModal')" class="text-gray-400 hover:text-gray-600 p-1">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">全局最低判断消耗(元) <span class="text-red-500">*</span></label>
+            <input id="globalConfigMinConsumptionInput" type="number" min="1" max="1000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">每日执行时间 <span class="text-red-500">*</span></label>
+            <input id="globalConfigExecTimeInput" type="time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">提醒功能总开关 <span class="text-red-500">*</span></label>
+            <select id="globalConfigSwitchInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="enabled">开启</option>
+              <option value="disabled">关闭</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+        <button onclick="closeModal('globalConfigModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+        <button onclick="saveGlobalConfig()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 专属配置添加/编辑弹窗 -->
+<div id="exclusiveConfigModal" class="fixed inset-0 bg-gray-600 bg-opacity-60 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h3 id="exclusiveModalTitle" class="text-lg font-semibold text-gray-900">添加专属配置</h3>
+          <p class="text-sm text-gray-500 mt-0.5">添加和编辑的交互一致: 弹窗输入, 保存生效</p>
+        </div>
+        <button onclick="closeModal('exclusiveConfigModal')" class="text-gray-400 hover:text-gray-600 p-1">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">媒体 <span class="text-red-500">*</span></label>
+            <select id="exclusiveMediaInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="Facebook">Facebook</option>
+              <option value="Google">Google</option>
+              <option value="TikTok">TikTok</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">广告账户 <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input id="exclusiveAccountSearchInput" type="text" placeholder="输入账户ID或名称模糊搜索" autocomplete="off" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="onExclusiveAccountSearchInput()" onfocus="onExclusiveAccountSearchFocus()">
+              <div id="exclusiveAccountDropdown" class="hidden absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-56 overflow-auto">
+                <!-- 由 JS 渲染 -->
+              </div>
+            </div>
+            <input id="exclusiveAccountIdInput" type="hidden" value="">
+            <input id="exclusiveAccountNameInput" type="hidden" value="">
+            <p id="exclusiveAccountSelectedHint" class="text-xs text-gray-500 mt-2">未选择账户</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">最低判断消耗(元) <span class="text-red-500">*</span></label>
+            <input id="exclusiveMinConsumptionInput" type="number" min="1" max="1000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-xs text-gray-500 mt-2">
+              当广告账户前天的消耗超过这个最低判断消耗, 才会进行判断. 例如设定最低判断消耗为30, 今天是1月3日. 那么T-2(即1月1日)的消耗要大于30, 才会在1月3日判断这个广告账户是否消耗下降.
+            </p>
+          </div>
+        </div>
+        <input id="exclusiveEditingKey" type="hidden" value="">
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+        <button onclick="closeModal('exclusiveConfigModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+        <button onclick="saveExclusiveConfig()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 消耗降幅记录处理弹窗 -->
+<div id="handleModal" class="fixed inset-0 bg-gray-600 bg-opacity-60 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h3 id="handleModalTitle" class="text-lg font-semibold text-gray-900">处理消耗降幅异常</h3>
+          <p id="handleModalSubTitle" class="text-sm text-gray-500 mt-0.5"></p>
+        </div>
+        <button onclick="closeModal('handleModal')" class="text-gray-400 hover:text-gray-600 p-1">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">处理状态 <span class="text-red-500">*</span></label>
+            <select id="handleStatusInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="unhandled">未处理</option>
+              <option value="followed">已跟进</option>
+              <option value="normal">正常波动</option>
+              <option value="resolved">已解决</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+            <textarea id="handleRemarkInput" rows="4" placeholder="可填写跟进备注, 记录原因/动作/客户反馈" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          </div>
+        </div>
+        <input id="handleEditingId" type="hidden" value="">
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+        <button onclick="closeModal('handleModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+        <button onclick="saveHandle()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CURRENT_USER = '管理员';
+
+  // ===== Sidebar =====
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar.classList.contains('mobile-menu-closed')) {
+      sidebar.classList.remove('mobile-menu-closed');
+      sidebar.classList.add('mobile-menu-open');
+      overlay.classList.remove('hidden', 'opacity-0');
+      overlay.classList.add('opacity-50');
+    } else {
+      sidebar.classList.remove('mobile-menu-open');
+      sidebar.classList.add('mobile-menu-closed');
+      overlay.classList.add('opacity-0');
+      overlay.classList.remove('opacity-50');
+      setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+    }
+  }
+  document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+
+  window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (window.innerWidth >= 1024) {
+      sidebar.classList.remove('mobile-menu-closed');
+      sidebar.classList.add('mobile-menu-open');
+      overlay.classList.add('hidden');
+      overlay.classList.add('opacity-0');
+      overlay.classList.remove('opacity-50');
+    }
+  });
+
+  // ===== Tabs =====
+  function switchTab(tab) {
+    const panes = {
+      config: document.getElementById('paneConfig'),
+      record: document.getElementById('paneRecord'),
+      log: document.getElementById('paneLog')
+    };
+    Object.keys(panes).forEach(k => panes[k].classList.add('hidden'));
+    panes[tab].classList.remove('hidden');
+
+    const tabButtons = {
+      config: document.getElementById('tabConfig'),
+      record: document.getElementById('tabRecord'),
+      log: document.getElementById('tabLog')
+    };
+    Object.keys(tabButtons).forEach(k => {
+      tabButtons[k].classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+      tabButtons[k].classList.add('text-gray-500');
+    });
+    tabButtons[tab].classList.remove('text-gray-500');
+    tabButtons[tab].classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+  }
+
+  // ===== Toast =====
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+  }
+
+  // ===== 工具方法 =====
+  function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+  function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function formatDateTime(dt) {
+    const d = dt instanceof Date ? dt : new Date(dt);
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  }
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  // ===== Mock 数据 =====
+  const globalConfig = {
+    minConsumption: 100,
+    execTime: '09:00',
+    reminderSwitch: 'enabled',
+    updatedAt: '2026-03-25 09:00:00',
+    updatedBy: '管理员'
+  };
+
+  let exclusiveConfigs = [
+    { media: 'Facebook', accountId: 'ACCT_2026001', accountName: 'XXX-Facebook主力账户', minConsumption: 50, updatedAt: '2026-03-25 09:00:00', updatedBy: '管理员' },
+    { media: 'TikTok', accountId: 'ACCT_2026003', accountName: 'XXX-TikTok主力账户', minConsumption: 80, updatedAt: '2026-03-23 18:20:00', updatedBy: '管理员' }
+  ];
+
+  const adAccountOptions = [
+    { media: 'Facebook', accountId: 'ACCT_2026001', accountName: 'XXX-Facebook主力账户' },
+    { media: 'Google', accountId: 'ACCT_2026002', accountName: 'YYY-Google主力账户' },
+    { media: 'TikTok', accountId: 'ACCT_2026003', accountName: 'XXX-TikTok主力账户' },
+    { media: 'TikTok', accountId: 'ACCT_2026009', accountName: 'ZZZ-TikTok测试账户' }
+  ];
+
+  const selectedDeclineIds = new Set();
+
+  let declineRecords = [
+    {
+      id: 'DECLINE_1',
+      executeDate: '2026-03-25',
+      customerName: 'XXX品牌',
+      bizOwner: '张三',
+      opsOwner: '李四',
+      platform: 'Facebook',
+      accountId: 'ACCT_2026001',
+      accountName: 'XXX-Facebook主力账户',
+      t2: 28600.00,
+      t1: 1200.00,
+      declineText: '95.8%',
+      declineColor: 'text-red-700',
+      thresholdText: '专属阈值 50',
+      handleStatus: 'unhandled',
+      handledAt: '',
+      handledBy: '',
+      remark: ''
+    },
+    {
+      id: 'DECLINE_2',
+      executeDate: '2026-03-25',
+      customerName: 'YYY品牌',
+      bizOwner: '李四',
+      opsOwner: '王五',
+      platform: 'Google',
+      accountId: 'ACCT_2026002',
+      accountName: 'YYY-Google主力账户',
+      t2: 5000.00,
+      t1: 3000.00,
+      declineText: '40.0%',
+      declineColor: 'text-indigo-700',
+      thresholdText: '全局阈值 100',
+      handleStatus: 'followed',
+      handledAt: '2026-03-25 10:05:12',
+      handledBy: '李四',
+      remark: '已联系客户确认预算调整'
+    },
+    {
+      id: 'DECLINE_3',
+      executeDate: '2026-03-24',
+      customerName: 'ZZZ品牌',
+      bizOwner: '张三',
+      opsOwner: '赵六',
+      platform: 'TikTok',
+      accountId: 'ACCT_2026009',
+      accountName: 'ZZZ-TikTok测试账户',
+      t2: 9800.00,
+      t1: 0.00,
+      declineText: '归零',
+      declineColor: 'text-red-700',
+      thresholdText: '全局阈值 100',
+      handleStatus: 'unhandled',
+      handledAt: '',
+      handledBy: '',
+      remark: ''
+    }
+  ];
+
+  // ===== 渲染 =====
+  function renderGlobalConfig() {
+    document.getElementById('globalMinConsumptionText').textContent = String(globalConfig.minConsumption);
+    document.getElementById('dailyExecTimeText').textContent = globalConfig.execTime;
+    document.getElementById('reminderSwitchText').textContent = globalConfig.reminderSwitch === 'enabled' ? '开启' : '关闭';
+    document.getElementById('globalUpdatedAtText').textContent = globalConfig.updatedAt;
+    document.getElementById('globalUpdatedByText').textContent = '更新人: ' + globalConfig.updatedBy;
+  }
+
+  function renderExclusiveConfigs() {
+    const tbody = document.getElementById('exclusiveConfigBody');
+    tbody.innerHTML = '';
+    if (exclusiveConfigs.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500">暂无专属配置, 点击右上角添加</td>
+        </tr>
+      `;
+      return;
+    }
+
+    exclusiveConfigs.forEach(row => {
+      tbody.innerHTML += `
+        <tr>
+          <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.media)}</td>
+          <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.accountId)}</td>
+          <td class="px-4 py-3 text-sm text-gray-900">${escapeHtml(row.accountName)}</td>
+          <td class="px-4 py-3 text-sm text-gray-900"><span class="font-semibold">${escapeHtml(row.minConsumption)}</span></td>
+          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.updatedAt)}</td>
+          <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.updatedBy)}</td>
+          <td class="px-4 py-3 text-sm whitespace-nowrap">
+            <button onclick="openExclusiveConfigModal('edit', '${escapeHtml(row.accountId)}')" class="text-blue-600 hover:text-blue-800 font-medium">编辑</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  function statusLabel(v) {
+    if (v === 'unhandled') return '未处理';
+    if (v === 'followed') return '已跟进';
+    if (v === 'normal') return '正常波动';
+    if (v === 'resolved') return '已解决';
+    return '-';
+  }
+  function statusBadge(v) {
+    const label = statusLabel(v);
+    if (v === 'unhandled') return `<span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 whitespace-nowrap"><i class="fas fa-circle mr-1" style="font-size:6px"></i>${label}</span>`;
+    if (v === 'followed') return `<span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap"><i class="fas fa-circle mr-1" style="font-size:6px"></i>${label}</span>`;
+    if (v === 'normal') return `<span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap"><i class="fas fa-circle mr-1" style="font-size:6px"></i>${label}</span>`;
+    if (v === 'resolved') return `<span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap"><i class="fas fa-circle mr-1" style="font-size:6px"></i>${label}</span>`;
+    return `<span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 whitespace-nowrap">-</span>`;
+  }
+
+  function formatMoney(n) {
+    const num = Number(n);
+    return '¥' + num.toFixed(2);
+  }
+
+  function renderDeclineRecords() {
+    const tbody = document.getElementById('declineRecordBody');
+    tbody.innerHTML = '';
+    declineRecords.forEach(row => {
+      tbody.innerHTML += `
+        <tr>
+          <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap sticky-col-left bg-white">
+            <input type="checkbox" class="row-select rounded border-gray-300 text-blue-600 focus:ring-blue-500" data-id="${escapeHtml(row.id)}" ${selectedDeclineIds.has(row.id) ? 'checked' : ''} onchange="toggleDeclineSelection('${escapeHtml(row.id)}', this.checked)">
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.executeDate)}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">${escapeHtml(row.customerName)}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.bizOwner)} / ${escapeHtml(row.opsOwner)}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.platform)}</td>
+          <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.accountId)}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">${escapeHtml(row.accountName)}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">${formatMoney(row.t2)}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">${formatMoney(row.t1)}</td>
+          <td class="px-4 py-3 text-sm font-semibold ${escapeHtml(row.declineColor)} whitespace-nowrap">${escapeHtml(row.declineText)}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.thresholdText)}</td>
+          <td class="px-4 py-3 text-sm whitespace-nowrap">${statusBadge(row.handleStatus)}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${row.handledAt ? escapeHtml(row.handledAt) : '<span class="text-gray-400">-</span>'}</td>
+          <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${row.handledBy ? escapeHtml(row.handledBy) : '<span class="text-gray-400">-</span>'}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 max-w-[260px] truncate" title="${escapeHtml(row.remark || '')}">${row.remark ? escapeHtml(row.remark) : '<span class="text-gray-400">-</span>'}</td>
+          <td class="px-4 py-3 text-sm whitespace-nowrap sticky-col-right bg-white border-l border-gray-200">
+            <button class="text-indigo-600 hover:text-indigo-800 font-medium" onclick="openHandleModal('${escapeHtml(row.id)}')">处理</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    syncDeclineSelectionUI();
+  }
+
+  // ===== 全局配置弹窗 =====
+  function openGlobalConfigModal() {
+    document.getElementById('globalConfigMinConsumptionInput').value = globalConfig.minConsumption;
+    document.getElementById('globalConfigExecTimeInput').value = globalConfig.execTime;
+    document.getElementById('globalConfigSwitchInput').value = globalConfig.reminderSwitch;
+    openModal('globalConfigModal');
+  }
+
+  function saveGlobalConfig() {
+    const minConsumption = parseInt(document.getElementById('globalConfigMinConsumptionInput').value, 10);
+    const execTime = document.getElementById('globalConfigExecTimeInput').value;
+    const reminderSwitch = document.getElementById('globalConfigSwitchInput').value;
+    if (!minConsumption || minConsumption < 1 || minConsumption > 1000) { alert('全局最低判断消耗需为 1-1000 的整数'); return; }
+    if (!execTime) { alert('请填写每日执行时间'); return; }
+    if (reminderSwitch !== 'enabled' && reminderSwitch !== 'disabled') { alert('提醒开关值不合法'); return; }
+
+    globalConfig.minConsumption = minConsumption;
+    globalConfig.execTime = execTime;
+    globalConfig.reminderSwitch = reminderSwitch;
+    globalConfig.updatedAt = formatDateTime(new Date());
+    globalConfig.updatedBy = '管理员';
+
+    renderGlobalConfig();
+    closeModal('globalConfigModal');
+    showToast('全局基础配置已保存');
+  }
+
+  // ===== 专属配置弹窗 =====
+  function openExclusiveConfigModal(mode, accountId) {
+    const title = mode === 'edit' ? '编辑专属配置' : '添加专属配置';
+    document.getElementById('exclusiveModalTitle').textContent = title;
+
+    if (mode === 'edit') {
+      const row = exclusiveConfigs.find(x => x.accountId === accountId);
+      if (!row) { alert('未找到对应专属配置'); return; }
+      document.getElementById('exclusiveMediaInput').value = row.media;
+      document.getElementById('exclusiveAccountIdInput').value = row.accountId;
+      document.getElementById('exclusiveAccountNameInput').value = row.accountName;
+      document.getElementById('exclusiveAccountSearchInput').value = `${row.accountId} - ${row.accountName}`;
+      document.getElementById('exclusiveAccountSearchInput').disabled = true;
+      document.getElementById('exclusiveAccountSelectedHint').textContent = '已选择账户: ' + row.accountId;
+      document.getElementById('exclusiveMinConsumptionInput').value = row.minConsumption;
+      document.getElementById('exclusiveEditingKey').value = row.accountId;
+    } else {
+      document.getElementById('exclusiveMediaInput').value = 'Facebook';
+      document.getElementById('exclusiveAccountIdInput').value = '';
+      document.getElementById('exclusiveAccountNameInput').value = '';
+      document.getElementById('exclusiveAccountSearchInput').value = '';
+      document.getElementById('exclusiveAccountSearchInput').disabled = false;
+      document.getElementById('exclusiveAccountSelectedHint').textContent = '未选择账户';
+      document.getElementById('exclusiveMinConsumptionInput').value = 50;
+      document.getElementById('exclusiveEditingKey').value = '';
+    }
+
+    openModal('exclusiveConfigModal');
+    renderExclusiveAccountDropdown();
+  }
+
+  function saveExclusiveConfig() {
+    const media = document.getElementById('exclusiveMediaInput').value;
+    const accountId = document.getElementById('exclusiveAccountIdInput').value.trim();
+    const accountName = document.getElementById('exclusiveAccountNameInput').value.trim();
+    const minConsumption = parseInt(document.getElementById('exclusiveMinConsumptionInput').value, 10);
+    const updatedBy = CURRENT_USER;
+    const editingKey = document.getElementById('exclusiveEditingKey').value;
+
+    if (!media) { alert('请选择媒体'); return; }
+    if (!accountId || !accountName) { alert('请选择广告账户'); return; }
+    if (!minConsumption || minConsumption < 1 || minConsumption > 1000) { alert('最低判断消耗需为 1-1000 的整数'); return; }
+
+    const now = formatDateTime(new Date());
+
+    if (editingKey) {
+      const idx = exclusiveConfigs.findIndex(x => x.accountId === editingKey);
+      if (idx < 0) { alert('未找到对应专属配置'); return; }
+      exclusiveConfigs[idx] = { ...exclusiveConfigs[idx], media, accountName, minConsumption, updatedAt: now, updatedBy };
+      showToast('专属配置已更新');
+    } else {
+      const existedIdx = exclusiveConfigs.findIndex(x => x.accountId === accountId);
+      if (existedIdx >= 0) {
+        exclusiveConfigs[existedIdx] = { ...exclusiveConfigs[existedIdx], media, accountName, minConsumption, updatedAt: now, updatedBy };
+        showToast('专属配置已覆盖');
+      } else {
+        exclusiveConfigs.unshift({ media, accountId, accountName, minConsumption, updatedAt: now, updatedBy });
+        showToast('专属配置已添加');
+      }
+    }
+
+    closeModal('exclusiveConfigModal');
+    renderExclusiveConfigs();
+  }
+
+  // ===== 记录处理弹窗 =====
+  function openHandleModal(declineId) {
+    if (declineId === 'BULK') {
+      if (selectedDeclineIds.size === 0) { alert('请先勾选要批量处理的记录'); return; }
+      document.getElementById('handleEditingId').value = 'BULK';
+      document.getElementById('handleModalSubTitle').textContent = `已选择 ${selectedDeclineIds.size} 条记录`;
+      document.getElementById('handleStatusInput').value = 'followed';
+      document.getElementById('handleRemarkInput').value = '';
+      openModal('handleModal');
+      return;
+    }
+
+    const row = declineRecords.find(x => x.id === declineId);
+    if (!row) { alert('未找到对应记录'); return; }
+    document.getElementById('handleEditingId').value = declineId;
+    document.getElementById('handleModalSubTitle').textContent = `${row.customerName} | ${row.accountId}`;
+    document.getElementById('handleStatusInput').value = row.handleStatus;
+    document.getElementById('handleRemarkInput').value = row.remark || '';
+    openModal('handleModal');
+  }
+
+  function saveHandle() {
+    const declineId = document.getElementById('handleEditingId').value;
+    const nextStatus = document.getElementById('handleStatusInput').value;
+    const remark = document.getElementById('handleRemarkInput').value.trim();
+    if (!declineId) { alert('缺少记录ID'); return; }
+
+    const handledBy = CURRENT_USER;
+    const now = formatDateTime(new Date());
+
+    if (declineId === 'BULK') {
+      selectedDeclineIds.forEach(id => {
+        const row = declineRecords.find(x => x.id === id);
+        if (!row) return;
+        row.handleStatus = nextStatus;
+        row.remark = remark;
+        row.handledBy = handledBy;
+        row.handledAt = now;
+      });
+      selectedDeclineIds.clear();
+      renderDeclineRecords();
+      closeModal('handleModal');
+      showToast('批量处理已保存');
+      return;
+    }
+
+    const row = declineRecords.find(x => x.id === declineId);
+    if (!row) { alert('未找到对应记录'); return; }
+
+    row.handleStatus = nextStatus;
+    row.remark = remark;
+    row.handledBy = handledBy;
+    row.handledAt = now;
+
+    renderDeclineRecords();
+    closeModal('handleModal');
+    showToast('处理信息已保存');
+  }
+
+  // ===== 账户模糊搜索下拉 =====
+  function renderExclusiveAccountDropdown() {
+    const dropdown = document.getElementById('exclusiveAccountDropdown');
+    const keyword = (document.getElementById('exclusiveAccountSearchInput').value || '').trim().toLowerCase();
+    const media = document.getElementById('exclusiveMediaInput').value;
+    const list = adAccountOptions
+      .filter(a => !media || a.media === media)
+      .filter(a => {
+        if (!keyword) return true;
+        return a.accountId.toLowerCase().includes(keyword) || a.accountName.toLowerCase().includes(keyword);
+      })
+      .slice(0, 50);
+
+    dropdown.innerHTML = '';
+    if (list.length === 0) {
+      dropdown.innerHTML = `<div class="px-3 py-2 text-sm text-gray-500">无匹配账户</div>`;
+      return;
+    }
+
+    list.forEach(a => {
+      dropdown.innerHTML += `
+        <button type="button" class="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between" onclick="selectExclusiveAccount('${escapeHtml(a.accountId)}')">
+          <div class="min-w-0">
+            <div class="text-sm font-medium text-gray-900 whitespace-nowrap">${escapeHtml(a.accountId)}</div>
+            <div class="text-xs text-gray-500 whitespace-nowrap">${escapeHtml(a.accountName)}</div>
+          </div>
+          <span class="text-xs text-gray-400 ml-3 whitespace-nowrap">${escapeHtml(a.media)}</span>
+        </button>
+      `;
+    });
+  }
+
+  function onExclusiveAccountSearchFocus() {
+    renderExclusiveAccountDropdown();
+    document.getElementById('exclusiveAccountDropdown').classList.remove('hidden');
+  }
+
+  function onExclusiveAccountSearchInput() {
+    renderExclusiveAccountDropdown();
+    document.getElementById('exclusiveAccountDropdown').classList.remove('hidden');
+  }
+
+  function selectExclusiveAccount(accountId) {
+    const row = adAccountOptions.find(a => a.accountId === accountId);
+    if (!row) return;
+    document.getElementById('exclusiveAccountIdInput').value = row.accountId;
+    document.getElementById('exclusiveAccountNameInput').value = row.accountName;
+    document.getElementById('exclusiveAccountSearchInput').value = `${row.accountId} - ${row.accountName}`;
+    document.getElementById('exclusiveAccountSelectedHint').textContent = '已选择账户: ' + row.accountId;
+    document.getElementById('exclusiveAccountDropdown').classList.add('hidden');
+  }
+
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('exclusiveAccountDropdown');
+    const input = document.getElementById('exclusiveAccountSearchInput');
+    if (!dropdown || !input) return;
+    if (dropdown.contains(e.target) || input.contains(e.target)) return;
+    dropdown.classList.add('hidden');
+  });
+
+  document.getElementById('exclusiveMediaInput')?.addEventListener('change', function() {
+    document.getElementById('exclusiveAccountIdInput').value = '';
+    document.getElementById('exclusiveAccountNameInput').value = '';
+    document.getElementById('exclusiveAccountSearchInput').value = '';
+    document.getElementById('exclusiveAccountSelectedHint').textContent = '未选择账户';
+    renderExclusiveAccountDropdown();
+  });
+
+  // ===== 记录: 复选与批量处理 =====
+  function toggleDeclineSelection(id, checked) {
+    if (checked) selectedDeclineIds.add(id);
+    else selectedDeclineIds.delete(id);
+    syncDeclineSelectionUI();
+  }
+
+  function toggleSelectAllDeclines(checked) {
+    if (checked) declineRecords.forEach(r => selectedDeclineIds.add(r.id));
+    else selectedDeclineIds.clear();
+    renderDeclineRecords();
+  }
+
+  function syncDeclineSelectionUI() {
+    const selectAll = document.getElementById('selectAllDeclines');
+    const bulkBtn = document.getElementById('bulkHandleBtn');
+    if (selectAll) {
+      const allChecked = declineRecords.length > 0 && selectedDeclineIds.size === declineRecords.length;
+      const noneChecked = selectedDeclineIds.size === 0;
+      selectAll.checked = allChecked;
+      selectAll.indeterminate = !allChecked && !noneChecked;
+    }
+    if (bulkBtn) {
+      if (selectedDeclineIds.size > 0) bulkBtn.classList.remove('hidden');
+      else bulkBtn.classList.add('hidden');
+    }
+  }
+
+  // ===== 记录 Tab(筛选/导出占位) =====
+  function filterRecords() { showToast('筛选已应用(示例)'); }
+  function resetRecordFilter() { showToast('筛选已重置(示例)'); }
+  function exportRecords() { showToast('导出已开始(示例)'); }
+
+  // ===== 通用详情弹窗(保留给推送日志详情) =====
+  function closeDetailModal() {
+    document.getElementById('detailModal').classList.add('hidden');
+    document.getElementById('detailBody').innerHTML = '...';
+  }
+
+  // ===== 推送日志 Tab =====
+  function filterLogs() { showToast('筛选已应用(示例)'); }
+  function resetLogFilter() { showToast('筛选已重置(示例)'); }
+  function exportLogs() { showToast('日志导出已开始(示例)'); }
+  function openLogDetail(logId) {
+    document.getElementById('detailTitle').textContent = '推送日志详情 - ' + logId;
+    document.getElementById('detailBody').innerHTML = `
+      <div class="space-y-4">
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div class="text-sm text-gray-600">关键字段</div>
+          <div class="mt-1 text-sm text-gray-900">logId: ${escapeHtml(logId)}</div>
+          <div class="text-sm text-gray-900">包含完整飞书推送内容, 以及接口返回结果(示例)</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('detailModal').classList.remove('hidden');
+  }
+  function manualResend(logId) { showToast('手动重推已触发(示例): ' + logId); }
+
+  // ===== 初始化 =====
+  document.addEventListener('DOMContentLoaded', function() {
+    switchTab('config');
+    renderGlobalConfig();
+    renderExclusiveConfigs();
+    renderDeclineRecords();
+  });
+</script>
+</body>
+</html>
+
