@@ -272,7 +272,7 @@
       statuses: ['启用', '暂停', '禁用', '活跃', '已结束'],
       accountTypes: ['Facebook-三不限', 'Facebook-企业户', 'Facebook-海外户', 'Tiktok-企业户'],
       adFormats: ['图片广告', '视频广告', '图文广告', '短视频广告'],
-      goals: ['曝光', '点击', '转化', '下载', '注册'],
+      goals: ['应用广告', '销量广告', '线索广告', '品牌广告', '转化广告'],
       targetingTypes: ['兴趣定向', '人群定向', '关键词定向']
     };
 
@@ -284,11 +284,10 @@
           { id: 'dateStart', label: '开始日期', type: 'date', required: true },
           { id: 'dateEnd', label: '结束日期', type: 'date', required: true },
           { id: 'customerName', field: '客户名称', label: '客户名称', type: 'text', placeholder: '支持模糊搜索' },
-          { id: 'customerStatus', field: '客户状态', label: '客户状态', type: 'select', options: ['全部', '启用', '禁用'] },
-          { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] }
+          { id: 'customerStatus', field: '客户状态', label: '客户状态', type: 'select', options: ['全部', '启用', '禁用'] }
         ],
         columns: [
-          '日期', '客户ID', '客户名称', '行业分类', '广告消耗', '曝光量', '点击量', 'CTR', '转化量', 'CVR',
+          '日期', '客户ID', '客户名称', '广告消耗', '曝光量', '点击量', 'CTR', '转化量', 'CVR',
           '平均CPC', '平均CPA', '客户状态', '账户数量', '昨日消耗', '消耗环比增长率'
         ]
       },
@@ -301,13 +300,13 @@
           { id: 'customer', field: '所属客户名称', label: '所属客户', type: 'select', options: ['全部', ...DIMENSIONS.customers] },
           { id: 'accountId', field: '广告账户ID', label: '广告账户ID', type: 'text', placeholder: '支持精确搜索' },
           { id: 'accountName', field: '广告账户名称', label: '广告账户名称', type: 'text', placeholder: '支持模糊搜索' },
-          { id: 'accountStatus', field: '账户状态', label: '账户状态', type: 'select', options: ['全部', '启用', '暂停', '禁用'] },
           { id: 'accountType', field: '账户类型', label: '账户类型', type: 'select', options: ['全部', ...DIMENSIONS.accountTypes] },
-          { id: 'platform', field: '投放平台', label: '投放平台', type: 'select', options: ['全部', ...DIMENSIONS.platforms] }
+          { id: 'platform', field: '投放平台', label: '投放平台', type: 'select', options: ['全部', ...DIMENSIONS.platforms] },
+          { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] }
         ],
         columns: [
-          '日期', '所属客户ID', '所属客户名称', '广告账户ID', '广告账户名称', '投放平台', '广告消耗', '曝光量', '点击量',
-          'CTR', '转化量', 'CVR', '平均CPC', '平均CPA', '账户状态', '账户类型', 'Campaign数量', '昨日消耗', '消耗环比增长率'
+          '日期', '所属客户ID', '所属客户名称', '广告账户ID', '广告账户名称', '投放平台', '行业分类', '广告消耗', '曝光量', '点击量',
+          'CTR', '转化量', 'CVR', '平均CPC', '平均CPA', '账户类型', 'Campaign数量', '昨日消耗', '消耗环比增长率'
         ]
       },
       campaign: {
