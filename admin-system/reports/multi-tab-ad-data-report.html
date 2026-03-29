@@ -6,6 +6,7 @@
   <title>客户广告表现(新) - BestAds运营管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -26,6 +27,10 @@
     .sortable { cursor: pointer; user-select: none; }
     .metric-up { color: #EF4444; }
     .metric-down { color: #16A34A; }
+    .metric-positive { color: #16A34A; font-weight: 600; }
+    .metric-negative { color: #EF4444; font-weight: 600; }
+    .table-simple td.metric-positive { color: #16A34A !important; }
+    .table-simple td.metric-negative { color: #EF4444 !important; }
     .status-enabled { color: #16A34A; font-weight: 600; }
     .status-paused { color: #F59E0B; font-weight: 600; }
     .status-disabled, .status-ended { color: #EF4444; font-weight: 600; }
@@ -261,6 +266,7 @@
       ads: ['AD_2026001', 'AD_2026002', 'AD_2026003', 'AD_2026004'],
       platforms: ['Facebook', 'Google', 'TikTok'],
       countries: ['US', 'CN', 'JP', 'GB'],
+      currencies: ['CNY', 'USD', 'EUR', 'GBP'],
       industries: ['电商', '教育', '游戏', '工具应用', '品牌'],
       billingTypes: ['CPM', 'CPC', 'CPA', 'CPL'],
       statuses: ['启用', '暂停', '禁用', '活跃', '已结束'],
@@ -282,8 +288,8 @@
           { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] }
         ],
         columns: [
-          '日期', '客户ID', '客户名称', '行业分类', '广告消耗(元)', '曝光量', '点击量', 'CTR', '转化量', 'CVR',
-          '平均CPC', '平均CPA', '客户状态', '账户数量', '昨日消耗(元)', '消耗环比增长率'
+          '日期', '客户ID', '客户名称', '行业分类', '广告消耗', '曝光量', '点击量', 'CTR', '转化量', 'CVR',
+          '平均CPC', '平均CPA', '客户状态', '账户数量', '昨日消耗', '消耗环比增长率'
         ]
       },
       account: {
@@ -300,8 +306,8 @@
           { id: 'platform', field: '投放平台', label: '投放平台', type: 'select', options: ['全部', ...DIMENSIONS.platforms] }
         ],
         columns: [
-          '日期', '所属客户ID', '所属客户名称', '广告账户ID', '广告账户名称', '投放平台', '广告消耗(元)', '曝光量', '点击量',
-          'CTR', '转化量', 'CVR', '平均CPC', '平均CPA', '账户状态', '账户类型', 'Campaign数量', '昨日消耗(元)', '消耗环比增长率'
+          '日期', '所属客户ID', '所属客户名称', '广告账户ID', '广告账户名称', '投放平台', '广告消耗', '曝光量', '点击量',
+          'CTR', '转化量', 'CVR', '平均CPC', '平均CPA', '账户状态', '账户类型', 'Campaign数量', '昨日消耗', '消耗环比增长率'
         ]
       },
       campaign: {
@@ -319,9 +325,9 @@
         ],
         columns: [
           '日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', 'Campaign ID', 'Campaign名称',
-          '国家/地区', '行业分类', '投放平台', '投放目标', '广告消耗(元)', '曝光量', '覆盖人数', '点击量', 'CTR',
-          '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA', '转化价值(元)', 'ROI', 'Adset数量',
-          '昨日消耗(元)', '消耗环比增长率'
+          '国家/地区', '行业分类', '投放平台', '投放目标', '广告消耗', '曝光量', '覆盖人数', '点击量', 'CTR',
+          '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA', '转化价值', 'ROAS', 'Adset数量',
+          '昨日消耗', '消耗环比增长率'
         ]
       },
       adset: {
@@ -339,9 +345,9 @@
         ],
         columns: [
           '日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', '所属Campaign ID', '所属Campaign名称',
-          'Adset ID', 'Adset名称', '国家/地区', '行业分类', '广告消耗(元)', '曝光量', '覆盖人数',
-          '点击量', 'CTR', '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA', '转化价值(元)', 'ROI',
-          'Ad数量', '昨日消耗(元)', '消耗环比增长率'
+          'Adset ID', 'Adset名称', '国家/地区', '行业分类', '广告消耗', '曝光量', '覆盖人数',
+          '点击量', 'CTR', '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA', '转化价值', 'ROAS',
+          'Ad数量', '昨日消耗', '消耗环比增长率'
         ]
       },
       ad: {
@@ -350,7 +356,7 @@
         filters: [
           { id: 'dateStart', label: '开始日期', type: 'date', required: true },
           { id: 'dateEnd', label: '结束日期', type: 'date', required: true },
-          { id: 'customer', field: '所属客户名称', label: '所属客户', type: 'select', options: ['全部', ...DIMENSIONS.customers] },
+          { id: 'customer', field: '所属客户名称', label: '广告客户', type: 'select', options: ['全部', ...DIMENSIONS.customers] },
           { id: 'account', field: '所属广告账户ID', label: '所属广告账户', type: 'select', options: ['全部', ...DIMENSIONS.accounts] },
           { id: 'campaign', field: '所属Campaign ID', label: '所属Campaign', type: 'select', options: ['全部', ...DIMENSIONS.campaigns] },
           { id: 'adset', field: '所属Adset ID', label: '所属Adset', type: 'select', options: ['全部', ...DIMENSIONS.adsets] },
@@ -359,19 +365,21 @@
           { id: 'industry', field: '行业分类', label: '行业分类', type: 'select', options: ['全部', ...DIMENSIONS.industries] }
         ],
         columns: [
-          '日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', '所属Campaign ID', '所属Campaign名称',
-          '所属Adset ID', '所属Adset名称', 'Ad ID', 'Ad名称', '国家/地区', '行业分类',
-          '广告消耗(元)', '曝光量', '覆盖人数', '点击量', 'CTR', '转化量', 'CVR', '平均CPM', '平均CPC', '平均CPA',
-          '转化价值(元)', 'ROI', '昨日消耗(元)', '消耗环比增长率'
+          '日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称',
+          '所属Campaign ID', '所属Campaign名称', '所属Adset ID', '所属Adset名称',
+          'Ad ID', 'Ad名称', '国家/地区', '行业分类',
+          '账户币种', '广告消耗', '曝光量', '点击量', 'CTR', '转化量', 'CVR',
+          '平均CPM', '平均CPC', '平均CPA', '转化价值', 'ROAS', '昨日消耗', '消耗环比增长率'
         ]
       }
     };
     const NUMERIC_COLUMNS = new Set([
-      '广告消耗(元)', '曝光量', '点击量', '转化量', '覆盖人数', '平均CPM', '平均CPC', '平均CPA',
-      '转化价值(元)', '昨日消耗(元)', '账户数量', 'Campaign数量', 'Adset数量', 'Ad数量',
-      'CTR', 'CVR', 'ROI', '消耗环比增长率'
+      '广告消耗', '曝光量', '点击量', '转化量', '覆盖人数', '平均CPM', '平均CPC', '平均CPA',
+      '转化价值', '昨日消耗', '账户数量', 'Campaign数量', 'Adset数量', 'Ad数量',
+      'CTR', 'CVR', 'ROAS', '消耗环比增长率'
     ]);
     const tabRawData = {};
+    let baseAdRows = [];
     let currentTab = 'customer';
     let displayedRows = [];
     const sortState = { column: '', direction: 'asc' };
@@ -485,134 +493,227 @@
       return '';
     }
 
+    function metricClassByColumnValue(col, v) {
+      if (typeof v !== 'string') return '';
+      // For spend WoW growth, positive should be green and negative red.
+      if (col === '消耗环比增长率') {
+        if (v.startsWith('+')) return 'metric-positive';
+        if (v.startsWith('-')) return 'metric-negative';
+        return '';
+      }
+      return metricClassByValue(v);
+    }
+
     function calculateDerived(spend, impressions, clicks, conversions, value) {
       const ctr = impressions === 0 ? 0 : (clicks / impressions) * 100;
       const cvr = clicks === 0 ? 0 : (conversions / clicks) * 100;
       const cpm = impressions === 0 ? 0 : (spend / impressions) * 1000;
       const cpc = clicks === 0 ? 0 : spend / clicks;
       const cpa = conversions === 0 ? null : spend / conversions;
-      const roi = spend === 0 ? null : (value / spend) * 100;
+      const roas = spend === 0 ? null : (value / spend) * 100;
       return {
-        ctr: `${ctr.toFixed(4)}%`,
-        cvr: `${cvr.toFixed(4)}%`,
+        ctr: `${ctr.toFixed(2)}%`,
+        cvr: `${cvr.toFixed(2)}%`,
         cpm: cpm.toFixed(2),
         cpc: cpc.toFixed(2),
         cpa: cpa === null ? '-' : cpa.toFixed(2),
-        roi: roi === null ? '-' : `${roi.toFixed(2)}%`
+        roas: roas === null ? '-' : `${roas.toFixed(2)}%`
       };
     }
 
-    function mockRow(tab, idx) {
-      const spend = randomFloat(800, 80000, 2);
-      const impressions = randomInt(5000, 800000);
-      const clicks = randomInt(500, 40000);
-      const conversions = randomInt(50, 2000);
-      const value = randomFloat(1000, 200000, 2);
-      const ySpend = randomFloat(500, 76000, 2);
-      const wow = ySpend === 0 ? 0 : ((spend - ySpend) / ySpend) * 100;
-      const derived = calculateDerived(spend, impressions, clicks, conversions, value);
+    function makeHierarchyMaps() {
+      const accountToCustomer = {};
+      DIMENSIONS.accounts.forEach((accountId, idx) => {
+        accountToCustomer[accountId] = DIMENSIONS.customers[idx % DIMENSIONS.customers.length];
+      });
 
-      const common = {
-        '日期': makeDate(randomInt(0, 6)),
-        '所属客户ID': `CUST_20260${randomInt(10, 99)}`,
-        '所属客户名称': DIMENSIONS.customers[randomInt(0, DIMENSIONS.customers.length - 1)],
-        '所属广告账户ID': DIMENSIONS.accounts[randomInt(0, DIMENSIONS.accounts.length - 1)],
-        '所属广告账户名称': `账户-${randomInt(1, 30)}`,
-        '所属Campaign ID': DIMENSIONS.campaigns[randomInt(0, DIMENSIONS.campaigns.length - 1)],
-        '所属Campaign名称': `Campaign-${randomInt(1, 20)}`,
-        '所属Adset ID': DIMENSIONS.adsets[randomInt(0, DIMENSIONS.adsets.length - 1)],
-        '所属Adset名称': `Adset-${randomInt(1, 40)}`,
-        '国家/地区': DIMENSIONS.countries[randomInt(0, DIMENSIONS.countries.length - 1)],
-        '行业分类': DIMENSIONS.industries[randomInt(0, DIMENSIONS.industries.length - 1)],
-        '投放平台': DIMENSIONS.platforms[randomInt(0, DIMENSIONS.platforms.length - 1)],
-        '结算方式': DIMENSIONS.billingTypes[randomInt(0, DIMENSIONS.billingTypes.length - 1)],
-        '广告消耗(元)': spend.toFixed(2),
-        '曝光量': impressions.toLocaleString(),
-        '覆盖人数': randomInt(4000, 600000).toLocaleString(),
-        '点击量': clicks.toLocaleString(),
+      const campaignToAccount = {};
+      DIMENSIONS.campaigns.forEach((campaignId, idx) => {
+        campaignToAccount[campaignId] = DIMENSIONS.accounts[idx % DIMENSIONS.accounts.length];
+      });
+
+      const adsetToCampaign = {};
+      DIMENSIONS.adsets.forEach((adsetId, idx) => {
+        adsetToCampaign[adsetId] = DIMENSIONS.campaigns[idx % DIMENSIONS.campaigns.length];
+      });
+
+      const campaignToGoal = {};
+      DIMENSIONS.campaigns.forEach((campaignId, idx) => {
+        campaignToGoal[campaignId] = DIMENSIONS.goals[idx % DIMENSIONS.goals.length];
+      });
+
+      return { accountToCustomer, campaignToAccount, adsetToCampaign, campaignToGoal };
+    }
+
+    const HIERARCHY = makeHierarchyMaps();
+
+    function makeMetrics(spend, impressions, clicks, conversions, value, ySpend, reach) {
+      const derived = calculateDerived(spend, impressions, clicks, conversions, value);
+      const wow = ySpend === 0 ? 0 : ((spend - ySpend) / ySpend) * 100;
+      const finalReach = typeof reach === 'number' ? reach : Math.round(impressions * randomFloat(0.5, 0.9, 4));
+      return {
+        '广告消耗': spend.toFixed(2),
+        '曝光量': Math.round(impressions).toLocaleString(),
+        '点击量': Math.round(clicks).toLocaleString(),
+        '转化量': Math.round(conversions).toLocaleString(),
+        '转化价值': value.toFixed(2),
+        '覆盖人数': Math.round(finalReach).toLocaleString(),
         'CTR': derived.ctr,
-        '转化量': conversions.toLocaleString(),
         'CVR': derived.cvr,
         '平均CPM': derived.cpm,
         '平均CPC': derived.cpc,
         '平均CPA': derived.cpa,
-        '转化价值(元)': value.toFixed(2),
-        'ROI': derived.roi,
-        '昨日消耗(元)': ySpend.toFixed(2),
+        'ROAS': derived.roas,
+        '昨日消耗': ySpend.toFixed(2),
         '消耗环比增长率': `${wow >= 0 ? '+' : ''}${wow.toFixed(2)}%`
-      };
-
-      if (tab === 'customer') {
-        return {
-          '日期': common['日期'],
-          '客户ID': `CUST_20260${randomInt(10, 99)}`,
-          '客户名称': DIMENSIONS.customers[randomInt(0, DIMENSIONS.customers.length - 1)],
-          '行业分类': common['行业分类'],
-          '广告消耗(元)': common['广告消耗(元)'],
-          '曝光量': common['曝光量'],
-          '点击量': common['点击量'],
-          'CTR': common['CTR'],
-          '转化量': common['转化量'],
-          'CVR': common['CVR'],
-          '平均CPC': common['平均CPC'],
-          '平均CPA': common['平均CPA'],
-          '客户状态': idx % 4 === 0 ? '禁用' : '启用',
-          '账户数量': randomInt(1, 9),
-          '昨日消耗(元)': common['昨日消耗(元)'],
-          '消耗环比增长率': common['消耗环比增长率']
-        };
-      }
-
-      if (tab === 'account') {
-        return {
-          ...common,
-          '广告账户ID': common['所属广告账户ID'],
-          '广告账户名称': common['所属广告账户名称'],
-          '账户状态': ['启用', '暂停', '禁用'][idx % 3],
-          'Campaign数量': randomInt(2, 30)
-        };
-      }
-
-      if (tab === 'campaign') {
-        return {
-          ...common,
-          'Campaign ID': common['所属Campaign ID'],
-          'Campaign名称': common['所属Campaign名称'],
-          '投放目标': DIMENSIONS.goals[randomInt(0, DIMENSIONS.goals.length - 1)],
-          '投放状态': ['活跃', '暂停', '已结束'][idx % 3],
-          'Adset数量': randomInt(1, 20)
-        };
-      }
-
-      if (tab === 'adset') {
-        return {
-          ...common,
-          'Adset ID': common['所属Adset ID'],
-          'Adset名称': common['所属Adset名称'],
-          '定向类型': DIMENSIONS.targetingTypes[randomInt(0, DIMENSIONS.targetingTypes.length - 1)],
-          '受众规模': `${randomInt(100, 900)}万-${randomInt(1000, 5000)}万`,
-          '投放状态': ['活跃', '暂停', '已结束'][idx % 3],
-          'Ad数量': randomInt(1, 100)
-        };
-      }
-
-      const isVideo = idx % 2 === 0;
-      const plays = isVideo ? randomInt(1000, 30000) : 0;
-      const completeRate = isVideo ? `${randomFloat(5, 60, 2)}%` : '-';
-      return {
-        ...common,
-        'Ad ID': DIMENSIONS.ads[randomInt(0, DIMENSIONS.ads.length - 1)],
-        'Ad名称': `Ad-${randomInt(1, 200)}`,
-        '广告形式': isVideo ? '视频广告' : DIMENSIONS.adFormats[randomInt(0, DIMENSIONS.adFormats.length - 1)],
-        '创意尺寸': ['1080x1920', '1200x628', '1:1', '9:16'][randomInt(0, 3)],
-        '视频播放次数': plays.toLocaleString(),
-        '视频完播率': completeRate,
-        '投放状态': ['活跃', '暂停', '已结束'][idx % 3]
       };
     }
 
-    function buildRows(tab, count = 16) {
-      return Array.from({ length: count }).map((_, idx) => mockRow(tab, idx));
+    function buildAdRows(count = 120) {
+      return Array.from({ length: count }).map((_, idx) => {
+        const adsetId = DIMENSIONS.adsets[randomInt(0, DIMENSIONS.adsets.length - 1)];
+        const campaignId = HIERARCHY.adsetToCampaign[adsetId];
+        const accountId = HIERARCHY.campaignToAccount[campaignId];
+        const customerName = HIERARCHY.accountToCustomer[accountId];
+        const customerIdx = DIMENSIONS.customers.indexOf(customerName);
+        const spend = randomFloat(800, 80000, 2);
+        const impressions = randomInt(5000, 800000);
+        const clicks = randomInt(500, 40000);
+        const conversions = randomInt(50, 2000);
+        const value = randomFloat(1000, 200000, 2);
+        const ySpend = randomFloat(500, 76000, 2);
+
+        return {
+          '日期': makeDate(randomInt(0, 6)),
+          '所属客户ID': `CUST_2026${String(customerIdx + 1).padStart(3, '0')}`,
+          '所属客户名称': customerName,
+          '所属广告账户ID': accountId,
+          '所属广告账户名称': `账户-${accountId.slice(-3)}`,
+          '所属Campaign ID': campaignId,
+          '所属Campaign名称': `Campaign-${campaignId.slice(-3)}`,
+          '所属Adset ID': adsetId,
+          '所属Adset名称': `Adset-${adsetId.slice(-3)}`,
+          'Ad ID': `AD_2026${String(idx + 1).padStart(4, '0')}`,
+          'Ad名称': `Ad-${idx + 1}`,
+          '国家/地区': DIMENSIONS.countries[randomInt(0, DIMENSIONS.countries.length - 1)],
+          '行业分类': DIMENSIONS.industries[randomInt(0, DIMENSIONS.industries.length - 1)],
+          '账户币种': DIMENSIONS.currencies[randomInt(0, DIMENSIONS.currencies.length - 1)],
+          '投放平台': DIMENSIONS.platforms[randomInt(0, DIMENSIONS.platforms.length - 1)],
+          '投放目标': HIERARCHY.campaignToGoal[campaignId],
+          '账户状态': ['启用', '暂停', '禁用'][randomInt(0, 2)],
+          '账户类型': DIMENSIONS.accountTypes[randomInt(0, DIMENSIONS.accountTypes.length - 1)],
+          '客户状态': randomInt(0, 4) === 0 ? '禁用' : '启用',
+          ...makeMetrics(spend, impressions, clicks, conversions, value, ySpend, randomInt(4000, 600000))
+        };
+      });
+    }
+
+    function aggregateRows(rows, groupFields, enrich) {
+      const bucket = new Map();
+      rows.forEach((row) => {
+        const key = groupFields.map((f) => String(row[f] ?? '')).join('||');
+        if (!bucket.has(key)) {
+          const seed = {};
+          groupFields.forEach((f) => { seed[f] = row[f]; });
+          bucket.set(key, {
+            seed,
+            spend: 0,
+            impressions: 0,
+            clicks: 0,
+            conversions: 0,
+            value: 0,
+            ySpend: 0,
+            reach: 0,
+            adIds: new Set(),
+            adsetIds: new Set(),
+            campaignIds: new Set(),
+            accountIds: new Set()
+          });
+        }
+        const acc = bucket.get(key);
+        acc.spend += parseNumeric(row['广告消耗']);
+        acc.impressions += parseNumeric(row['曝光量']);
+        acc.clicks += parseNumeric(row['点击量']);
+        acc.conversions += parseNumeric(row['转化量']);
+        acc.value += parseNumeric(row['转化价值']);
+        acc.ySpend += parseNumeric(row['昨日消耗']);
+        acc.reach += parseNumeric(row['覆盖人数']);
+        if (row['Ad ID']) acc.adIds.add(row['Ad ID']);
+        if (row['所属Adset ID']) acc.adsetIds.add(row['所属Adset ID']);
+        if (row['所属Campaign ID']) acc.campaignIds.add(row['所属Campaign ID']);
+        if (row['所属广告账户ID']) acc.accountIds.add(row['所属广告账户ID']);
+      });
+
+      return Array.from(bucket.values()).map((acc) => {
+        const metrics = makeMetrics(acc.spend, acc.impressions, acc.clicks, acc.conversions, acc.value, acc.ySpend, acc.reach);
+        const row = { ...acc.seed, ...metrics };
+        if (enrich) enrich(row, acc);
+        return row;
+      });
+    }
+
+    function buildAdsetRowsFromAds(adRows) {
+      return aggregateRows(
+        adRows,
+        ['日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', '所属Campaign ID', '所属Campaign名称', '所属Adset ID', '所属Adset名称', '国家/地区', '行业分类'],
+        (row, acc) => {
+          row['Adset ID'] = row['所属Adset ID'];
+          row['Adset名称'] = row['所属Adset名称'];
+          row['Ad数量'] = acc.adIds.size;
+        }
+      );
+    }
+
+    function buildCampaignRowsFromAdset(adsetRows) {
+      return aggregateRows(
+        adsetRows,
+        ['日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', '所属Campaign ID', '所属Campaign名称', '国家/地区', '行业分类'],
+        (row, acc) => {
+          row['Campaign ID'] = row['所属Campaign ID'];
+          row['Campaign名称'] = row['所属Campaign名称'];
+          row['投放平台'] = DIMENSIONS.platforms[randomInt(0, DIMENSIONS.platforms.length - 1)];
+          row['投放目标'] = HIERARCHY.campaignToGoal[row['所属Campaign ID']];
+          row['Adset数量'] = acc.adsetIds.size || 1;
+        }
+      );
+    }
+
+    function buildAccountRowsFromCampaign(campaignRows) {
+      return aggregateRows(
+        campaignRows,
+        ['日期', '所属客户ID', '所属客户名称', '所属广告账户ID', '所属广告账户名称', '投放平台', '行业分类'],
+        (row, acc) => {
+          row['广告账户ID'] = row['所属广告账户ID'];
+          row['广告账户名称'] = row['所属广告账户名称'];
+          row['账户状态'] = ['启用', '暂停', '禁用'][randomInt(0, 2)];
+          row['账户类型'] = DIMENSIONS.accountTypes[randomInt(0, DIMENSIONS.accountTypes.length - 1)];
+          row['Campaign数量'] = acc.campaignIds.size || 1;
+        }
+      );
+    }
+
+    function buildCustomerRowsFromAccount(accountRows) {
+      return aggregateRows(
+        accountRows,
+        ['日期', '所属客户ID', '所属客户名称', '行业分类'],
+        (row, acc) => {
+          row['客户ID'] = row['所属客户ID'];
+          row['客户名称'] = row['所属客户名称'];
+          row['客户状态'] = randomInt(0, 4) === 0 ? '禁用' : '启用';
+          row['账户数量'] = acc.accountIds.size || 1;
+        }
+      );
+    }
+
+    function buildRows(tab) {
+      if (!baseAdRows.length) {
+        baseAdRows = buildAdRows(140);
+      }
+      if (tab === 'ad') return baseAdRows;
+      if (tab === 'adset') return buildAdsetRowsFromAds(baseAdRows);
+      if (tab === 'campaign') return buildCampaignRowsFromAdset(buildAdsetRowsFromAds(baseAdRows));
+      if (tab === 'account') return buildAccountRowsFromCampaign(buildCampaignRowsFromAdset(buildAdsetRowsFromAds(baseAdRows)));
+      return buildCustomerRowsFromAccount(buildAccountRowsFromCampaign(buildCampaignRowsFromAdset(buildAdsetRowsFromAds(baseAdRows))));
     }
 
     function parseNumeric(value) {
@@ -624,7 +725,7 @@
 
     function ensureTabData(tab) {
       if (!tabRawData[tab]) {
-        tabRawData[tab] = buildRows(tab, 28);
+        tabRawData[tab] = buildRows(tab);
       }
       return tabRawData[tab];
     }
@@ -666,6 +767,7 @@
       return sorted;
     }
 
+
     function buildSummaryRow(columns, rows) {
       const summary = { [columns[0]]: '汇总' };
       columns.forEach((col, idx) => {
@@ -674,7 +776,7 @@
           summary[col] = '-';
           return;
         }
-        if (col === 'CTR' || col === 'CVR' || col === 'ROI' || col === '消耗环比增长率') {
+        if (col === 'CTR' || col === 'CVR' || col === 'ROAS' || col === '消耗环比增长率') {
           const avg = rows.length ? rows.reduce((acc, r) => acc + parseNumeric(r[col]), 0) / rows.length : 0;
           summary[col] = `${avg.toFixed(2)}%`;
           return;
@@ -702,11 +804,15 @@
       tbody.innerHTML = rows.map((row) => {
         return `<tr>${conf.columns.map((col) => {
           const val = row[col] !== undefined ? row[col] : '-';
-          const cls = `${statusClass(String(val))} ${metricClassByValue(String(val))}`.trim();
+          const cls = `${statusClass(String(val))} ${metricClassByColumnValue(col, String(val))}`.trim();
           return `<td class="${cls}">${val}</td>`;
         }).join('')}</tr>`;
       }).join('');
-      tfoot.innerHTML = `<tr>${conf.columns.map((col) => `<td>${summary[col] ?? '-'}</td>`).join('')}</tr>`;
+      tfoot.innerHTML = `<tr>${conf.columns.map((col) => {
+        const val = summary[col] ?? '-';
+        const cls = metricClassByColumnValue(col, String(val));
+        return `<td class="${cls}">${val}</td>`;
+      }).join('')}</tr>`;
 
       thead.querySelectorAll('th[data-sort]').forEach((th) => {
         th.addEventListener('click', () => {
@@ -762,7 +868,27 @@
     }
 
     function exportCurrentTab() {
-      alert(`已触发导出: ${TAB_CONFIG[currentTab].title}`);
+      const conf = TAB_CONFIG[currentTab];
+      const rows = displayedRows && displayedRows.length ? displayedRows : ensureTabData(currentTab);
+      const summary = buildSummaryRow(conf.columns, rows);
+      const aoa = [
+        conf.columns,
+        ...rows.map((row) => conf.columns.map((col) => row[col] ?? '-')),
+        conf.columns.map((col) => summary[col] ?? '-')
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, `${currentTab}-tab`);
+      const date = new Date();
+      const stamp = [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        String(date.getDate()).padStart(2, '0'),
+        String(date.getHours()).padStart(2, '0'),
+        String(date.getMinutes()).padStart(2, '0'),
+        String(date.getSeconds()).padStart(2, '0')
+      ].join('');
+      XLSX.writeFile(wb, `${currentTab}-tab-${stamp}.xlsx`);
     }
 
     document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
