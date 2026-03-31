@@ -236,12 +236,7 @@
             <div class="md:flex md:items-center md:justify-between">
               <div class="flex-1 min-w-0">
                 <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">广告账户消耗下降提醒系统</h2>
-                <p class="mt-1 text-sm text-gray-500">在一个页面内完成配置, 记录跟进, 以及推送日志排查</p>
-              </div>
-              <div class="mt-4 md:mt-0">
-                <button onclick="showToast('保存请求已发送(示例)')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
-                  <i class="fas fa-save"></i><span>保存</span>
-                </button>
+                <p class="mt-1 text-sm text-gray-500">在一个页面内完成配置与记录跟进</p>
               </div>
             </div>
           </div>
@@ -254,7 +249,7 @@
             <button id="tabRecord" onclick="switchTab('record')" class="flex-1 flex items-center justify-center space-x-1.5 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all">
               <i class="fas fa-list-check text-indigo-600 text-xs"></i><span>消耗降幅记录</span>
             </button>
-            <button id="tabLog" onclick="switchTab('log')" class="flex-1 flex items-center justify-center space-x-1.5 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all">
+            <button id="tabLog" onclick="switchTab('log')" class="hidden flex-1 items-center justify-center space-x-1.5 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-all">
               <i class="fas fa-file-alt text-purple-600 text-xs"></i><span>推送日志</span>
             </button>
           </div>
@@ -276,10 +271,14 @@
                 </button>
               </div>
               <div class="px-6 py-5">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <div class="text-xs text-gray-500">全局最低判断消耗(元)</div>
                     <div id="globalMinConsumptionText" class="mt-1 text-lg font-semibold text-gray-900">100</div>
+                  </div>
+                  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="text-xs text-gray-500">全局降幅阈值(%)</div>
+                    <div id="globalDeclineThresholdText" class="mt-1 text-lg font-semibold text-gray-900">30%</div>
                   </div>
                   <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <div class="text-xs text-gray-500">每日执行时间</div>
@@ -305,12 +304,42 @@
                   <i class="fas fa-user-lock text-indigo-600"></i>
                   <div>
                     <h3 class="text-lg font-semibold text-gray-900">个别账户专属配置</h3>
-                    <p class="text-sm text-gray-500">同一账户仅保留一条专属配置, 用于控制最低判断消耗</p>
+                    <p class="text-sm text-gray-500">同一账户仅保留一条专属配置, 支持覆盖最低判断消耗和降幅阈值</p>
                   </div>
                 </div>
                 <button onclick="openExclusiveConfigModal('add')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                   <i class="fas fa-plus mr-2"></i>添加
                 </button>
+              </div>
+              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex flex-wrap gap-4 items-end">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">媒体</label>
+                    <select id="exclusiveFilterMedia" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                      <option value="all" selected>全部</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="Google">Google</option>
+                      <option value="TikTok">TikTok</option>
+                      <option value="其他">其他</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户ID</label>
+                    <input id="exclusiveFilterAccountId" type="text" placeholder="模糊匹配" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
+                    <input id="exclusiveFilterAccountName" type="text" placeholder="模糊匹配" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2">
+                  </div>
+                  <div class="flex gap-2 ml-auto">
+                    <button onclick="filterExclusiveConfigs()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                      <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                    <button onclick="resetExclusiveFilter()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                      重置
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 table-hover">
@@ -320,6 +349,7 @@
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户ID</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户名称</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最低判断消耗(元)</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">降幅阈值(%)</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新人</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
@@ -424,7 +454,8 @@
                       </th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">执行日期</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商务/运营</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商务负责人</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">运营负责人</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">投放平台</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
@@ -612,6 +643,11 @@
             <input id="globalConfigMinConsumptionInput" type="number" min="1" max="1000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">全局降幅阈值(%) <span class="text-red-500">*</span></label>
+            <input id="globalConfigDeclineThresholdInput" type="number" min="1" max="99" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-xs text-gray-500 mt-2">规则: 当T-2到T-1消耗降幅超过该阈值时触发预警</p>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">每日执行时间 <span class="text-red-500">*</span></label>
             <input id="globalConfigExecTimeInput" type="time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
@@ -674,6 +710,11 @@
             <p class="text-xs text-gray-500 mt-2">
               当广告账户前天的消耗超过这个最低判断消耗, 才会进行判断. 例如设定最低判断消耗为30, 今天是1月3日. 那么T-2(即1月1日)的消耗要大于30, 才会在1月3日判断这个广告账户是否消耗下降.
             </p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">降幅阈值(%) <span class="text-red-500">*</span></label>
+            <input id="exclusiveDeclineThresholdInput" type="number" min="1" max="99" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-xs text-gray-500 mt-2">当T-2到T-1降幅超过该阈值时触发预警</p>
           </div>
         </div>
         <input id="exclusiveEditingKey" type="hidden" value="">
@@ -810,6 +851,7 @@
   // ===== Mock 数据 =====
   const globalConfig = {
     minConsumption: 100,
+    declineThreshold: 30,
     execTime: '09:00',
     reminderSwitch: 'enabled',
     updatedAt: '2026-03-25 09:00:00',
@@ -817,8 +859,8 @@
   };
 
   let exclusiveConfigs = [
-    { media: 'Facebook', accountId: 'ACCT_2026001', accountName: 'XXX-Facebook主力账户', minConsumption: 50, updatedAt: '2026-03-25 09:00:00', updatedBy: '管理员' },
-    { media: 'TikTok', accountId: 'ACCT_2026003', accountName: 'XXX-TikTok主力账户', minConsumption: 80, updatedAt: '2026-03-23 18:20:00', updatedBy: '管理员' }
+    { media: 'Facebook', accountId: 'ACCT_2026001', accountName: 'XXX-Facebook主力账户', minConsumption: 50, declineThreshold: 35, updatedAt: '2026-03-25 09:00:00', updatedBy: '管理员' },
+    { media: 'TikTok', accountId: 'ACCT_2026003', accountName: 'XXX-TikTok主力账户', minConsumption: 80, declineThreshold: 45, updatedAt: '2026-03-23 18:20:00', updatedBy: '管理员' }
   ];
 
   const adAccountOptions = [
@@ -829,6 +871,11 @@
   ];
 
   const selectedDeclineIds = new Set();
+  const exclusiveFilters = {
+    media: 'all',
+    accountId: '',
+    accountName: ''
+  };
 
   let declineRecords = [
     {
@@ -844,7 +891,7 @@
       t1: 1200.00,
       declineText: '95.8%',
       declineColor: 'text-red-700',
-      thresholdText: '专属阈值 50',
+      thresholdText: '专属降幅阈值 35%',
       handleStatus: 'unhandled',
       handledAt: '',
       handledBy: '',
@@ -863,7 +910,7 @@
       t1: 3000.00,
       declineText: '40.0%',
       declineColor: 'text-indigo-700',
-      thresholdText: '全局阈值 100',
+      thresholdText: '全局降幅阈值 30%',
       handleStatus: 'followed',
       handledAt: '2026-03-25 10:05:12',
       handledBy: '李四',
@@ -882,7 +929,7 @@
       t1: 0.00,
       declineText: '归零',
       declineColor: 'text-red-700',
-      thresholdText: '全局阈值 100',
+      thresholdText: '全局降幅阈值 30%',
       handleStatus: 'unhandled',
       handledAt: '',
       handledBy: '',
@@ -893,6 +940,7 @@
   // ===== 渲染 =====
   function renderGlobalConfig() {
     document.getElementById('globalMinConsumptionText').textContent = String(globalConfig.minConsumption);
+    document.getElementById('globalDeclineThresholdText').textContent = String(globalConfig.declineThreshold) + '%';
     document.getElementById('dailyExecTimeText').textContent = globalConfig.execTime;
     document.getElementById('reminderSwitchText').textContent = globalConfig.reminderSwitch === 'enabled' ? '开启' : '关闭';
     document.getElementById('globalUpdatedAtText').textContent = globalConfig.updatedAt;
@@ -902,22 +950,30 @@
   function renderExclusiveConfigs() {
     const tbody = document.getElementById('exclusiveConfigBody');
     tbody.innerHTML = '';
-    if (exclusiveConfigs.length === 0) {
+    const filteredRows = exclusiveConfigs.filter(row => {
+      const mediaOk = exclusiveFilters.media === 'all' || row.media === exclusiveFilters.media;
+      const accountIdOk = !exclusiveFilters.accountId || row.accountId.toLowerCase().includes(exclusiveFilters.accountId);
+      const accountNameOk = !exclusiveFilters.accountName || row.accountName.toLowerCase().includes(exclusiveFilters.accountName);
+      return mediaOk && accountIdOk && accountNameOk;
+    });
+
+    if (filteredRows.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500">暂无专属配置, 点击右上角添加</td>
+          <td colspan="8" class="px-4 py-10 text-center text-sm text-gray-500">暂无匹配配置, 请调整筛选条件</td>
         </tr>
       `;
       return;
     }
-
-    exclusiveConfigs.forEach(row => {
+ 
+    filteredRows.forEach(row => {
       tbody.innerHTML += `
         <tr>
           <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.media)}</td>
           <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.accountId)}</td>
           <td class="px-4 py-3 text-sm text-gray-900">${escapeHtml(row.accountName)}</td>
           <td class="px-4 py-3 text-sm text-gray-900"><span class="font-semibold">${escapeHtml(row.minConsumption)}</span></td>
+          <td class="px-4 py-3 text-sm text-gray-900"><span class="font-semibold">${escapeHtml(row.declineThreshold)}%</span></td>
           <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.updatedAt)}</td>
           <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.updatedBy)}</td>
           <td class="px-4 py-3 text-sm whitespace-nowrap">
@@ -926,6 +982,26 @@
         </tr>
       `;
     });
+  }
+
+  function filterExclusiveConfigs() {
+    const media = document.getElementById('exclusiveFilterMedia').value;
+    const accountId = document.getElementById('exclusiveFilterAccountId').value.trim().toLowerCase();
+    const accountName = document.getElementById('exclusiveFilterAccountName').value.trim().toLowerCase();
+    exclusiveFilters.media = media;
+    exclusiveFilters.accountId = accountId;
+    exclusiveFilters.accountName = accountName;
+    renderExclusiveConfigs();
+  }
+
+  function resetExclusiveFilter() {
+    document.getElementById('exclusiveFilterMedia').value = 'all';
+    document.getElementById('exclusiveFilterAccountId').value = '';
+    document.getElementById('exclusiveFilterAccountName').value = '';
+    exclusiveFilters.media = 'all';
+    exclusiveFilters.accountId = '';
+    exclusiveFilters.accountName = '';
+    renderExclusiveConfigs();
   }
 
   function statusLabel(v) {
@@ -960,7 +1036,8 @@
           </td>
           <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.executeDate)}</td>
           <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">${escapeHtml(row.customerName)}</td>
-          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.bizOwner)} / ${escapeHtml(row.opsOwner)}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.bizOwner)}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.opsOwner)}</td>
           <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">${escapeHtml(row.platform)}</td>
           <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">${escapeHtml(row.accountId)}</td>
           <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">${escapeHtml(row.accountName)}</td>
@@ -985,6 +1062,7 @@
   // ===== 全局配置弹窗 =====
   function openGlobalConfigModal() {
     document.getElementById('globalConfigMinConsumptionInput').value = globalConfig.minConsumption;
+    document.getElementById('globalConfigDeclineThresholdInput').value = globalConfig.declineThreshold;
     document.getElementById('globalConfigExecTimeInput').value = globalConfig.execTime;
     document.getElementById('globalConfigSwitchInput').value = globalConfig.reminderSwitch;
     openModal('globalConfigModal');
@@ -992,13 +1070,16 @@
 
   function saveGlobalConfig() {
     const minConsumption = parseInt(document.getElementById('globalConfigMinConsumptionInput').value, 10);
+    const declineThreshold = parseInt(document.getElementById('globalConfigDeclineThresholdInput').value, 10);
     const execTime = document.getElementById('globalConfigExecTimeInput').value;
     const reminderSwitch = document.getElementById('globalConfigSwitchInput').value;
     if (!minConsumption || minConsumption < 1 || minConsumption > 1000) { alert('全局最低判断消耗需为 1-1000 的整数'); return; }
+    if (!declineThreshold || declineThreshold < 1 || declineThreshold > 99) { alert('全局降幅阈值需为 1-99 的整数'); return; }
     if (!execTime) { alert('请填写每日执行时间'); return; }
     if (reminderSwitch !== 'enabled' && reminderSwitch !== 'disabled') { alert('提醒开关值不合法'); return; }
 
     globalConfig.minConsumption = minConsumption;
+    globalConfig.declineThreshold = declineThreshold;
     globalConfig.execTime = execTime;
     globalConfig.reminderSwitch = reminderSwitch;
     globalConfig.updatedAt = formatDateTime(new Date());
@@ -1024,6 +1105,7 @@
       document.getElementById('exclusiveAccountSearchInput').disabled = true;
       document.getElementById('exclusiveAccountSelectedHint').textContent = '已选择账户: ' + row.accountId;
       document.getElementById('exclusiveMinConsumptionInput').value = row.minConsumption;
+      document.getElementById('exclusiveDeclineThresholdInput').value = row.declineThreshold || globalConfig.declineThreshold;
       document.getElementById('exclusiveEditingKey').value = row.accountId;
     } else {
       document.getElementById('exclusiveMediaInput').value = 'Facebook';
@@ -1033,6 +1115,7 @@
       document.getElementById('exclusiveAccountSearchInput').disabled = false;
       document.getElementById('exclusiveAccountSelectedHint').textContent = '未选择账户';
       document.getElementById('exclusiveMinConsumptionInput').value = 50;
+      document.getElementById('exclusiveDeclineThresholdInput').value = globalConfig.declineThreshold;
       document.getElementById('exclusiveEditingKey').value = '';
     }
 
@@ -1045,27 +1128,29 @@
     const accountId = document.getElementById('exclusiveAccountIdInput').value.trim();
     const accountName = document.getElementById('exclusiveAccountNameInput').value.trim();
     const minConsumption = parseInt(document.getElementById('exclusiveMinConsumptionInput').value, 10);
+    const declineThreshold = parseInt(document.getElementById('exclusiveDeclineThresholdInput').value, 10);
     const updatedBy = CURRENT_USER;
     const editingKey = document.getElementById('exclusiveEditingKey').value;
 
     if (!media) { alert('请选择媒体'); return; }
     if (!accountId || !accountName) { alert('请选择广告账户'); return; }
     if (!minConsumption || minConsumption < 1 || minConsumption > 1000) { alert('最低判断消耗需为 1-1000 的整数'); return; }
+    if (!declineThreshold || declineThreshold < 1 || declineThreshold > 99) { alert('降幅阈值需为 1-99 的整数'); return; }
 
     const now = formatDateTime(new Date());
 
     if (editingKey) {
       const idx = exclusiveConfigs.findIndex(x => x.accountId === editingKey);
       if (idx < 0) { alert('未找到对应专属配置'); return; }
-      exclusiveConfigs[idx] = { ...exclusiveConfigs[idx], media, accountName, minConsumption, updatedAt: now, updatedBy };
+      exclusiveConfigs[idx] = { ...exclusiveConfigs[idx], media, accountName, minConsumption, declineThreshold, updatedAt: now, updatedBy };
       showToast('专属配置已更新');
     } else {
       const existedIdx = exclusiveConfigs.findIndex(x => x.accountId === accountId);
       if (existedIdx >= 0) {
-        exclusiveConfigs[existedIdx] = { ...exclusiveConfigs[existedIdx], media, accountName, minConsumption, updatedAt: now, updatedBy };
+        exclusiveConfigs[existedIdx] = { ...exclusiveConfigs[existedIdx], media, accountName, minConsumption, declineThreshold, updatedAt: now, updatedBy };
         showToast('专属配置已覆盖');
       } else {
-        exclusiveConfigs.unshift({ media, accountId, accountName, minConsumption, updatedAt: now, updatedBy });
+        exclusiveConfigs.unshift({ media, accountId, accountName, minConsumption, declineThreshold, updatedAt: now, updatedBy });
         showToast('专属配置已添加');
       }
     }
