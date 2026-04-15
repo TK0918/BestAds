@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户生命周期报表 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .tab-btn.active { color: #2563eb; border-color: #2563eb; background: #eff6ff; }
+    .timeline-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .timeline-line { width: 2px; background: #e5e7eb; }
+    .timeline-h-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+    }
+    .timeline-h-scroll::-webkit-scrollbar { height: 8px; }
+    .timeline-h-scroll::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 4px; }
+    .timeline-h-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .timeline-h-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .badge { display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+    .badge-success { background: #ecfdf3; color: #15803d; }
+    .badge-warn { background: #ffedd5; color: #c2410c; }
+    .badge-danger { background: #fef2f2; color: #b91c1c; }
+    .badge-muted { background: #f3f4f6; color: #4b5563; }
+    .funnel-step { position: relative; }
+    .funnel-bar { height: 14px; border-radius: 999px; background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%); }
+    .dist-bar { height: 10px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
+    .dist-bar-inner { height: 100%; background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%); }
+    .sidebar-collapsed { width: 64px !important; }
+    .sidebar-collapsed .sidebar-item span, .sidebar-collapsed h3 { display: none !important; }
+    .sidebar-collapsed .sidebar-item i { margin-right: 0 !important; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-between h-16 border-b border-gray-200 px-4">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+        <button id="sidebarCollapseBtn" class="lg:block hidden p-2 ml-2 text-gray-400 hover:text-blue-600 focus:outline-none" onclick="toggleSidebarCollapse()">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+            </ul>
+          </div>
+
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i>广告客户表现</a></li>
+              <li><a href="customer-lifecycle-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-hourglass-half w-5 h-5 mr-3 text-blue-500"></i>客户生命周期报表</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">客户生命周期报表</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h1 class="text-xl font-semibold text-gray-900">客户生命周期报表</h1>
+              <p class="text-sm text-gray-500 mt-1">支持单客户卡点诊断, 以及BD客户池转化效率分析。</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">报表模式</label>
+                  <select id="modeSelect" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    <option value="single">单客户分析</option>
+                    <option value="multi">多客户分析</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">注册时间范围</label>
+                  <div class="flex items-center gap-2">
+                    <input id="startDate" type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    <span class="text-gray-500">至</span>
+                    <input id="endDate" type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">BD负责人</label>
+                  <select id="bdFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    <option value="all">全部</option>
+                  </select>
+                </div>
+                <div id="singleCustomerBlock">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">客户</label>
+                  <select id="customerFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-52"></select>
+                  <p class="text-xs text-gray-500 mt-1 max-w-xs">选「全部」时下方表格展示全部客户, 选单个客户时展示时间轴与卡点。</p>
+                </div>
+                <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                  <i class="fas fa-search mr-2"></i>查询
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 px-6 pt-4">
+              <div class="flex gap-2">
+                <button id="tabSingle" type="button" class="tab-btn active border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('single'); applyFilters();">单客户分析</button>
+                <button id="tabMulti" type="button" class="tab-btn border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('multi'); applyFilters();">多客户分析</button>
+              </div>
+
+              <div id="singlePanel" class="py-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">当前卡点</div>
+                    <div id="singleCurrentStage" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">卡点停留天数</div>
+                    <div id="singleStayDays" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">下户->首次账户充值耗时</div>
+                    <div id="singleOnboardToRechargeDays" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">下户->首次账户消耗耗时</div>
+                    <div id="singleOnboardToSpendDays" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">历史最高月消耗</div>
+                    <div id="singleMaxMonthSpend" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">历史最高周消耗</div>
+                    <div id="singleMaxWeekSpend" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">历史最高日消耗</div>
+                    <div id="singleMaxDaySpend" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div class="text-xs text-gray-500">最近7天平均消耗</div>
+                    <div id="singleRecent7dAvgSpend" class="text-lg font-semibold text-gray-900 mt-1">-</div>
+                  </div>
+                </div>
+
+                <div class="rounded-lg border border-gray-200 p-5">
+                  <h3 class="text-base font-semibold text-gray-900 mb-2">生命周期时间轴</h3>
+                  <p class="text-xs text-gray-500 mb-3">节点较多时可左右滑动查看。</p>
+                  <div id="timeline" class="timeline-h-scroll rounded-md border border-gray-100 bg-gray-50/80"></div>
+                </div>
+
+                <div class="rounded-lg border border-gray-200 overflow-auto max-h-[min(70vh,560px)]">
+                  <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">客户ID</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">客户名称</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">BD</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">注册</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">打款</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">下户</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">首次账户充值</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">首次账户消耗</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">累计1k</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">累计5k</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">累计10k</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">累计100k</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">当前卡点</th>
+                      </tr>
+                    </thead>
+                    <tbody id="singleTableBody" class="divide-y divide-gray-100"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div id="multiPanel" class="hidden py-6 space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50"><div class="text-xs text-gray-500">客户总数</div><div id="kpiTotal" class="text-lg font-semibold mt-1">0</div></div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50"><div class="text-xs text-gray-500">打款转化率</div><div id="kpiPayRate" class="text-lg font-semibold mt-1">0%</div></div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50"><div class="text-xs text-gray-500">首次账户消耗转化率</div><div id="kpiSpendRate" class="text-lg font-semibold mt-1">0%</div></div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50"><div class="text-xs text-gray-500">累计10k转化率</div><div id="kpiReach10kRate" class="text-lg font-semibold mt-1">0%</div></div>
+                  <div class="rounded-lg border border-gray-200 p-4 bg-gray-50"><div class="text-xs text-gray-500">首次账户消耗P50</div><div id="kpiP50" class="text-lg font-semibold mt-1">0天</div></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div class="rounded-lg border border-gray-200 p-5">
+                    <h3 class="text-base font-semibold text-gray-900 mb-4">当前事件占比(注册时间范围内)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-[220px,1fr] gap-4 items-center">
+                      <div id="eventPieChart" class="w-[220px] h-[220px] mx-auto rounded-full border border-gray-100 bg-gray-100"></div>
+                      <div id="eventPieLegend" class="space-y-2"></div>
+                    </div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-5">
+                    <div class="flex flex-wrap items-end gap-3 mb-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">事件A</label>
+                        <select id="durationFromEvent" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-44"></select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">事件B</label>
+                        <select id="durationToEvent" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-44"></select>
+                      </div>
+                    </div>
+                    <h3 class="text-base font-semibold text-gray-900 mb-2">事件A->事件B时长占比</h3>
+                    <p id="durationChartHint" class="text-xs text-gray-500 mb-4">-</p>
+                    <div id="durationBars" class="space-y-3"></div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div class="rounded-lg border border-gray-200 p-5">
+                    <h3 class="text-base font-semibold text-gray-900 mb-4">生命周期转化漏斗</h3>
+                    <div id="funnel" class="space-y-4"></div>
+                  </div>
+                  <div class="rounded-lg border border-gray-200 p-5">
+                    <h3 class="text-base font-semibold text-gray-900 mb-4">首次消耗天数分布</h3>
+                    <div id="distribution" class="space-y-4"></div>
+                  </div>
+                </div>
+
+                <div class="rounded-lg border border-gray-200 overflow-auto max-h-[min(70vh,560px)]">
+                  <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">客户ID</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">客户名称</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">BD</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">注册</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">打款</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">首次账户消耗</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">注册->首次账户消耗天数</th>
+                        <th class="px-4 py-3 text-left text-gray-600 font-semibold">当前卡点</th>
+                      </tr>
+                    </thead>
+                    <tbody id="multiTableBody" class="divide-y divide-gray-100"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const stageDefs = [
+      { key: 'registeredAt', name: '注册' },
+      { key: 'paymentAt', name: '打款' },
+      { key: 'onboardedAt', name: '下户' },
+      { key: 'firstRechargeAt', name: '首次账户充值' },
+      { key: 'firstSpendAt', name: '首次账户消耗' },
+      { key: 'cum1kAt', name: '累计消耗达到1k' },
+      { key: 'cum5kAt', name: '累计消耗达到5k' },
+      { key: 'cum10kAt', name: '累计消耗达到10k' },
+      { key: 'cum100kAt', name: '累计消耗达到100k' }
+    ];
+
+    let currentTab = 'single';
+    let currentRows = [];
+
+    function toDateStr(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + day;
+    }
+
+    function addDays(baseDate, days) {
+      if (days === null || days === undefined) return null;
+      const d = new Date(baseDate + 'T00:00:00');
+      d.setDate(d.getDate() + days);
+      return toDateStr(d);
+    }
+
+    function buildBaseCustomers() {
+      const bds = ['BD-A', 'BD-B', 'BD-C'];
+      const prefixes = ['晨星','北极','云桥','海豚','极光','瀚海','青云','北辰','星河','晨光','碧澜','锦途','曜石','岚风','松果','赤焰','蓝鲸','银翼','金穗','青竹'];
+      const suffixes = ['出海','电商','互动','品牌','服饰','科技','数字','营销','传媒','广告','贸易','物流','咨询','生物','教育','跨境','家居','美妆','3C','食品','游戏','文娱','金融'];
+      const out = [];
+      const today = new Date();
+      const startWindow = new Date(today);
+      startWindow.setDate(today.getDate() - 88);
+      const endWindow = new Date(today);
+      endWindow.setDate(today.getDate() - 3);
+      const span = endWindow.getTime() - startWindow.getTime();
+      for (let i = 0; i < 100; i++) {
+        const t = startWindow.getTime() + (span * i) / 99;
+        const reg = toDateStr(new Date(t));
+        const tier = i % 10;
+        let payment = null;
+        let onboard = null;
+        let firstRecharge = null;
+        let firstSpend = null;
+        let cum1k = null;
+        let cum5k = null;
+        let cum10k = null;
+        let cum100k = null;
+        if (tier >= 1) payment = 1 + (i % 5);
+        if (tier >= 2) onboard = payment + 1 + (i % 4);
+        if (tier >= 3) firstRecharge = onboard + 1 + (i % 3);
+        if (tier >= 4) firstSpend = firstRecharge + 1 + (i % 6);
+        if (tier >= 5) cum1k = firstSpend + 2 + (i % 8);
+        if (tier >= 6) cum5k = cum1k + 3 + (i % 10);
+        if (tier >= 7) cum10k = cum5k + 3 + (i % 12);
+        if (tier >= 8) cum100k = cum10k + 15 + (i % 30);
+        if (tier === 9 && cum100k) {
+          cum100k = cum10k + 8 + (i % 16);
+        }
+        const name = prefixes[i % prefixes.length] + suffixes[(i * 7) % suffixes.length] + '-' + String(i + 1).padStart(3, '0');
+        out.push({
+          id: 'C' + String(2000 + i),
+          name: name,
+          bd: bds[i % 3],
+          register: reg,
+          payment: payment,
+          onboard: onboard,
+          firstRecharge: firstRecharge,
+          firstSpend: firstSpend,
+          cum1kByDay: cum1k,
+          cum5kByDay: cum5k,
+          cum10kByDay: cum10k,
+          cum100kByDay: cum100k,
+          maxMonthSpend: tier >= 4 ? (22000 + i * 420 + (i % 7) * 800) : null,
+          maxWeekSpend: tier >= 4 ? (6200 + i * 110 + (i % 5) * 260) : null,
+          maxDaySpend: tier >= 4 ? (980 + i * 14 + (i % 4) * 40) : null,
+          recent7dAvgSpend: tier >= 4 ? (320 + i * 9 + (i % 6) * 15) : null
+        });
+      }
+      return out;
+    }
+
+    const baseCustomers = buildBaseCustomers();
+
+    function diffDays(a, b) {
+      if (!a || !b) return null;
+      const aa = new Date(a + 'T00:00:00').getTime();
+      const bb = new Date(b + 'T00:00:00').getTime();
+      return Math.round((bb - aa) / (24 * 3600 * 1000));
+    }
+
+    function calcStage(row) {
+      const now = document.getElementById('endDate').value || toDateStr(new Date());
+      if (!row.paymentAt) return { stage: '未打款', from: row.registeredAt || now };
+      if (!row.onboardedAt) return { stage: '未下户', from: row.paymentAt };
+      if (!row.firstRechargeAt) return { stage: '未首次账户充值', from: row.onboardedAt };
+      if (!row.firstSpendAt) return { stage: '未首次账户消耗', from: row.firstRechargeAt };
+      if (!row.cum1kAt) return { stage: '未达累计1k', from: row.firstSpendAt };
+      if (!row.cum5kAt) return { stage: '未达累计5k', from: row.cum1kAt };
+      if (!row.cum10kAt) return { stage: '未达累计10k', from: row.cum5kAt };
+      if (!row.cum100kAt) return { stage: '未达累计100k', from: row.cum10kAt };
+      return { stage: '已完成', from: row.cum100kAt, fixed: 0 };
+    }
+
+    function stageBadge(stage) {
+      if (stage === '已完成') return '<span class="badge badge-success">已完成</span>';
+      if (stage === '未首次账户充值' || stage === '未首次账户消耗' || stage === '未达累计1k' || stage === '未达累计5k' || stage === '未达累计10k' || stage === '未达累计100k') return '<span class="badge badge-warn">' + stage + '</span>';
+      if (stage === '未下户' || stage === '未打款') return '<span class="badge badge-danger">' + stage + '</span>';
+      return '<span class="badge badge-muted">' + stage + '</span>';
+    }
+
+    function percentile(arr, p) {
+      if (!arr.length) return 0;
+      const idx = (arr.length - 1) * p;
+      const lower = Math.floor(idx);
+      const upper = Math.ceil(idx);
+      if (lower === upper) return arr[lower];
+      return Math.round(arr[lower] + (arr[upper] - arr[lower]) * (idx - lower));
+    }
+
+    function buildRows() {
+      return baseCustomers.map(c => {
+        const n1 = c.register;
+        const n2 = c.payment !== null ? addDays(n1, c.payment) : null;
+        const n3 = c.onboard !== null ? addDays(n1, c.onboard) : null;
+        const n4 = c.firstRecharge !== null ? addDays(n1, c.firstRecharge) : null;
+        const n5 = c.firstSpend !== null ? addDays(n1, c.firstSpend) : null;
+        const n6 = c.cum1kByDay !== null ? addDays(n1, c.cum1kByDay) : null;
+        const n7 = c.cum5kByDay !== null ? addDays(n1, c.cum5kByDay) : null;
+        const n8 = c.cum10kByDay !== null ? addDays(n1, c.cum10kByDay) : null;
+        const n9 = c.cum100kByDay !== null ? addDays(n1, c.cum100kByDay) : null;
+        return {
+          customerId: c.id,
+          customerName: c.name,
+          bd: c.bd,
+          registeredAt: n1,
+          paymentAt: n2,
+          onboardedAt: n3,
+          firstRechargeAt: n4,
+          firstSpendAt: n5,
+          cum1kAt: n6,
+          cum5kAt: n7,
+          cum10kAt: n8,
+          cum100kAt: n9,
+          maxMonthSpend: c.maxMonthSpend,
+          maxWeekSpend: c.maxWeekSpend,
+          maxDaySpend: c.maxDaySpend,
+          recent7dAvgSpend: c.recent7dAvgSpend
+        };
+      });
+    }
+
+    function applyFilters() {
+      const mode = document.getElementById('modeSelect').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const bd = document.getElementById('bdFilter').value;
+      const customer = document.getElementById('customerFilter').value;
+      currentRows = buildRows().filter(r => {
+        const inRange = (!startDate || r.registeredAt >= startDate) && (!endDate || r.registeredAt <= endDate);
+        const bdOk = bd === 'all' || r.bd === bd;
+        const customerOk = mode === 'multi' || customer === 'all' || r.customerId === customer;
+        return inRange && bdOk && customerOk;
+      });
+      currentRows.sort((a, b) => (a.registeredAt || '').localeCompare(b.registeredAt || ''));
+
+      if (mode !== currentTab) switchTab(mode);
+      renderSingle();
+      renderMulti();
+    }
+
+    function renderSingle() {
+      const customer = document.getElementById('customerFilter').value;
+      const rows = currentRows;
+      const body = document.getElementById('singleTableBody');
+      const timeline = document.getElementById('timeline');
+      body.innerHTML = '';
+      timeline.innerHTML = '';
+      if (!rows.length) {
+        body.innerHTML = '<tr><td class="px-4 py-8 text-center text-gray-500" colspan="13">暂无数据</td></tr>';
+        document.getElementById('singleCurrentStage').textContent = '-';
+        document.getElementById('singleStayDays').textContent = '-';
+        document.getElementById('singleOnboardToRechargeDays').textContent = '-';
+        document.getElementById('singleOnboardToSpendDays').textContent = '-';
+        document.getElementById('singleMaxMonthSpend').textContent = '-';
+        document.getElementById('singleMaxWeekSpend').textContent = '-';
+        document.getElementById('singleMaxDaySpend').textContent = '-';
+        document.getElementById('singleRecent7dAvgSpend').textContent = '-';
+        return;
+      }
+
+      rows.forEach(row => {
+        const stage = calcStage(row);
+        body.innerHTML += '<tr class="hover:bg-gray-50">' +
+          '<td class="px-4 py-3">' + row.customerId + '</td>' +
+          '<td class="px-4 py-3">' + row.customerName + '</td>' +
+          '<td class="px-4 py-3">' + row.bd + '</td>' +
+          '<td class="px-4 py-3">' + (row.registeredAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.paymentAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.onboardedAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.firstRechargeAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.firstSpendAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.cum1kAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.cum5kAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.cum10kAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (row.cum100kAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + stageBadge(stage.stage) + '</td>' +
+        '</tr>';
+      });
+
+      if (customer === 'all') {
+        document.getElementById('singleCurrentStage').innerHTML = '<span class="text-gray-700">列表共 ' + rows.length + ' 条</span>';
+        document.getElementById('singleStayDays').textContent = '-';
+        document.getElementById('singleOnboardToRechargeDays').textContent = '-';
+        document.getElementById('singleOnboardToSpendDays').textContent = '-';
+        document.getElementById('singleMaxMonthSpend').textContent = '-';
+        document.getElementById('singleMaxWeekSpend').textContent = '-';
+        document.getElementById('singleMaxDaySpend').textContent = '-';
+        document.getElementById('singleRecent7dAvgSpend').textContent = '-';
+        timeline.innerHTML = '<p class="text-sm text-gray-500">上方「客户」下拉框选择<strong>单个客户</strong>后, 此处展示该客户生命周期时间轴与卡点指标。</p>';
+        return;
+      }
+
+      const row = rows[0];
+      const stage = calcStage(row);
+      const endRef = document.getElementById('endDate').value || toDateStr(new Date());
+      const stayDays = stage.fixed === 0 ? 0 : diffDays(stage.from, endRef);
+      document.getElementById('singleCurrentStage').innerHTML = stageBadge(stage.stage);
+      document.getElementById('singleStayDays').textContent = (stayDays === null ? '-' : stayDays + '天');
+      const onboardToRechargeDays = diffDays(row.onboardedAt, row.firstRechargeAt);
+      const onboardToSpendDays = diffDays(row.onboardedAt, row.firstSpendAt);
+      document.getElementById('singleOnboardToRechargeDays').textContent = onboardToRechargeDays === null ? '-' : onboardToRechargeDays + '天';
+      document.getElementById('singleOnboardToSpendDays').textContent = onboardToSpendDays === null ? '-' : onboardToSpendDays + '天';
+      document.getElementById('singleMaxMonthSpend').textContent = row.maxMonthSpend === null ? '-' : row.maxMonthSpend.toLocaleString() + ' USD';
+      document.getElementById('singleMaxWeekSpend').textContent = row.maxWeekSpend === null ? '-' : row.maxWeekSpend.toLocaleString() + ' USD';
+      document.getElementById('singleMaxDaySpend').textContent = row.maxDaySpend === null ? '-' : row.maxDaySpend.toLocaleString() + ' USD';
+      document.getElementById('singleRecent7dAvgSpend').textContent = row.recent7dAvgSpend === null ? '-' : row.recent7dAvgSpend.toLocaleString() + ' USD';
+
+      let trackHtml = '<div class="inline-flex min-w-max items-center gap-0 px-3 py-4">';
+      stageDefs.forEach((s, i) => {
+        const reached = !!row[s.key];
+        const next = stageDefs[i + 1];
+        const nextDays = next ? diffDays(row[s.key], row[next.key]) : null;
+        const nextReached = next ? !!row[next.key] : false;
+        trackHtml += '<div class="flex flex-col items-center shrink-0 w-[148px] sm:w-[160px] text-center">' +
+          '<div class="text-xs font-semibold text-gray-900 leading-snug px-0.5 min-h-[2.5rem]">' + s.name + '</div>' +
+          '<div class="text-xs text-gray-600 mt-1">' + (row[s.key] || '未达成') + '</div>' +
+          '<div class="mt-3 flex h-9 w-full items-center justify-center">' +
+            '<span class="timeline-dot ' + (reached ? 'bg-green-500 ring-2 ring-green-100' : 'bg-gray-300') + '"></span>' +
+          '</div>' +
+          (i < stageDefs.length - 1
+            ? '<div class="text-[10px] text-gray-500 mt-2 leading-tight px-1">→下一节点 ' + (nextDays === null ? '-' : (nextDays + '天')) + '</div>'
+            : '<div class="mt-2 h-4" aria-hidden="true"></div>') +
+        '</div>';
+        if (i < stageDefs.length - 1) {
+          const segDone = reached && nextReached;
+          trackHtml += '<div class="flex shrink-0 items-center self-center px-0.5" aria-hidden="true">' +
+            '<div class="h-0.5 w-8 sm:w-12 ' + (segDone ? 'bg-green-400' : 'bg-gray-200') + ' rounded-full"></div>' +
+          '</div>';
+        }
+      });
+      trackHtml += '</div>';
+      timeline.innerHTML = trackHtml;
+    }
+
+    function renderMulti() {
+      const rows = currentRows;
+      const total = rows.length;
+      const payCount = rows.filter(r => r.paymentAt).length;
+      const onboardCount = rows.filter(r => r.onboardedAt).length;
+      const rechargeCount = rows.filter(r => r.firstRechargeAt).length;
+      const spendCount = rows.filter(r => r.firstSpendAt).length;
+      const reach1kCount = rows.filter(r => r.cum1kAt).length;
+      const reach5kCount = rows.filter(r => r.cum5kAt).length;
+      const reach10kCount = rows.filter(r => r.cum10kAt).length;
+      const reach100kCount = rows.filter(r => r.cum100kAt).length;
+      const n15Days = rows.map(r => diffDays(r.registeredAt, r.firstSpendAt)).filter(v => v !== null).sort((a, b) => a - b);
+
+      document.getElementById('kpiTotal').textContent = total;
+      document.getElementById('kpiPayRate').textContent = (total ? (payCount / total * 100).toFixed(1) : '0.0') + '%';
+      document.getElementById('kpiSpendRate').textContent = (total ? (spendCount / total * 100).toFixed(1) : '0.0') + '%';
+      document.getElementById('kpiReach10kRate').textContent = (total ? (reach10kCount / total * 100).toFixed(1) : '0.0') + '%';
+      document.getElementById('kpiP50').textContent = percentile(n15Days, 0.5) + '天';
+      renderEventPie(rows);
+      renderDurationBars(rows);
+
+      const funnel = [
+        { label: '注册', count: total },
+        { label: '打款', count: payCount },
+        { label: '下户', count: onboardCount },
+        { label: '首次账户充值', count: rechargeCount },
+        { label: '首次账户消耗', count: spendCount },
+        { label: '累计1k', count: reach1kCount },
+        { label: '累计5k', count: reach5kCount },
+        { label: '累计10k', count: reach10kCount },
+        { label: '累计100k', count: reach100kCount }
+      ];
+      const funnelRoot = document.getElementById('funnel');
+      funnelRoot.innerHTML = '';
+      funnel.forEach(step => {
+        const pct = total ? Math.round(step.count / total * 100) : 0;
+        funnelRoot.innerHTML += '<div class="funnel-step">' +
+          '<div class="flex justify-between text-sm text-gray-700 mb-1"><span>' + step.label + '</span><span>' + step.count + '人 / ' + pct + '%</span></div>' +
+          '<div class="funnel-bar" style="width:' + Math.max(6, pct) + '%"></div>' +
+        '</div>';
+      });
+
+      const buckets = [
+        { key: 'D1', max: 1 },
+        { key: 'D3', max: 3 },
+        { key: 'D7', max: 7 },
+        { key: 'D14', max: 14 },
+        { key: 'D30', max: 30 }
+      ];
+      const distRoot = document.getElementById('distribution');
+      distRoot.innerHTML = '';
+      buckets.forEach(b => {
+        const count = n15Days.filter(v => v <= b.max).length;
+        const pct = total ? (count / total * 100) : 0;
+        distRoot.innerHTML += '<div>' +
+          '<div class="flex justify-between text-sm text-gray-700 mb-1"><span>' + b.key + '内首次消耗占比</span><span>' + pct.toFixed(1) + '%</span></div>' +
+          '<div class="dist-bar"><div class="dist-bar-inner" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '</div>';
+      });
+
+      const tbody = document.getElementById('multiTableBody');
+      tbody.innerHTML = '';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td class="px-4 py-8 text-center text-gray-500" colspan="8">暂无数据</td></tr>';
+        return;
+      }
+      rows.forEach(r => {
+        const stage = calcStage(r);
+        const n14 = diffDays(r.registeredAt, r.firstSpendAt);
+        tbody.innerHTML += '<tr>' +
+          '<td class="px-4 py-3">' + r.customerId + '</td>' +
+          '<td class="px-4 py-3">' + r.customerName + '</td>' +
+          '<td class="px-4 py-3">' + r.bd + '</td>' +
+          '<td class="px-4 py-3">' + (r.registeredAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (r.paymentAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (r.firstSpendAt || '-') + '</td>' +
+          '<td class="px-4 py-3">' + (n14 === null ? '-' : (n14 + '天')) + '</td>' +
+          '<td class="px-4 py-3">' + stageBadge(stage.stage) + '</td>' +
+        '</tr>';
+      });
+    }
+
+    function getCurrentStageName(row) {
+      for (let i = stageDefs.length - 1; i >= 0; i--) {
+        if (row[stageDefs[i].key]) return stageDefs[i].name;
+      }
+      return stageDefs[0].name;
+    }
+
+    function renderEventPie(rows) {
+      const pie = document.getElementById('eventPieChart');
+      const legend = document.getElementById('eventPieLegend');
+      const palette = ['#3b82f6', '#06b6d4', '#14b8a6', '#22c55e', '#84cc16', '#f59e0b', '#f97316', '#ef4444', '#a855f7'];
+      const counts = {};
+      stageDefs.forEach(s => { counts[s.name] = 0; });
+      rows.forEach(r => {
+        counts[getCurrentStageName(r)] += 1;
+      });
+      const total = rows.length;
+      if (!total) {
+        pie.style.background = '#f3f4f6';
+        legend.innerHTML = '<div class="text-sm text-gray-500">暂无数据</div>';
+        return;
+      }
+      let start = 0;
+      const segs = [];
+      stageDefs.forEach((s, i) => {
+        const count = counts[s.name];
+        if (!count) return;
+        const pct = count / total;
+        const end = start + pct * 360;
+        segs.push(palette[i] + ' ' + start.toFixed(2) + 'deg ' + end.toFixed(2) + 'deg');
+        start = end;
+      });
+      pie.style.background = 'conic-gradient(' + segs.join(', ') + ')';
+      legend.innerHTML = '';
+      stageDefs.forEach((s, i) => {
+        const count = counts[s.name];
+        if (!count) return;
+        const pct = (count / total * 100).toFixed(1);
+        legend.innerHTML += '<div class="flex items-center justify-between text-sm">' +
+          '<div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-full" style="background:' + palette[i] + '"></span><span class="text-gray-700">' + s.name + '</span></div>' +
+          '<span class="text-gray-600">' + count + '人 / ' + pct + '%</span>' +
+        '</div>';
+      });
+    }
+
+    function renderDurationBars(rows) {
+      const fromKey = document.getElementById('durationFromEvent').value;
+      const toKey = document.getElementById('durationToEvent').value;
+      const root = document.getElementById('durationBars');
+      const hint = document.getElementById('durationChartHint');
+      const buckets = [
+        { key: '1天内', min: 0, max: 1 },
+        { key: '3天内', min: 2, max: 3 },
+        { key: '7天内', min: 4, max: 7 },
+        { key: '14天内', min: 8, max: 14 },
+        { key: '30天内', min: 15, max: 30 },
+        { key: '30天以上', min: 31, max: Infinity }
+      ];
+      const diffs = rows.map(r => diffDays(r[fromKey], r[toKey])).filter(v => v !== null && v >= 0);
+      const sample = diffs.length;
+      const fromName = stageDefs.find(s => s.key === fromKey)?.name || '事件A';
+      const toName = stageDefs.find(s => s.key === toKey)?.name || '事件B';
+      if (!sample) {
+        hint.textContent = fromName + ' -> ' + toName + ', 可计算样本 0 人';
+        root.innerHTML = '<div class="text-sm text-gray-500">暂无可计算数据</div>';
+        return;
+      }
+      hint.textContent = fromName + ' -> ' + toName + ', 可计算样本 ' + sample + ' 人';
+      root.innerHTML = '';
+      buckets.forEach(b => {
+        const count = diffs.filter(v => v >= b.min && v <= b.max).length;
+        const pct = count / sample * 100;
+        root.innerHTML += '<div>' +
+          '<div class="flex justify-between text-sm text-gray-700 mb-1"><span>' + b.key + '</span><span>' + count + '人 / ' + pct.toFixed(1) + '%</span></div>' +
+          '<div class="h-3 rounded-full bg-gray-100 overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '</div>';
+      });
+    }
+
+    function setupDurationSelectors() {
+      const fromSelect = document.getElementById('durationFromEvent');
+      const toSelect = document.getElementById('durationToEvent');
+      if (!fromSelect || !toSelect || fromSelect.options.length) return;
+      stageDefs.forEach(s => {
+        const optA = document.createElement('option');
+        optA.value = s.key;
+        optA.textContent = s.name;
+        fromSelect.appendChild(optA);
+        const optB = document.createElement('option');
+        optB.value = s.key;
+        optB.textContent = s.name;
+        toSelect.appendChild(optB);
+      });
+      fromSelect.value = 'onboardedAt';
+      toSelect.value = 'firstRechargeAt';
+      fromSelect.addEventListener('change', () => renderDurationBars(currentRows));
+      toSelect.addEventListener('change', () => renderDurationBars(currentRows));
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabSingle').classList.toggle('active', tab === 'single');
+      document.getElementById('tabMulti').classList.toggle('active', tab === 'multi');
+      document.getElementById('singlePanel').classList.toggle('hidden', tab !== 'single');
+      document.getElementById('multiPanel').classList.toggle('hidden', tab !== 'multi');
+      document.getElementById('modeSelect').value = tab;
+      document.getElementById('singleCustomerBlock').classList.toggle('hidden', tab !== 'single');
+    }
+
+    function setupFilters() {
+      const bds = Array.from(new Set(baseCustomers.map(i => i.bd)));
+      const bdSelect = document.getElementById('bdFilter');
+      bds.forEach(bd => {
+        const opt = document.createElement('option');
+        opt.value = bd;
+        opt.textContent = bd;
+        bdSelect.appendChild(opt);
+      });
+
+      const customerSelect = document.getElementById('customerFilter');
+      const allOpt = document.createElement('option');
+      allOpt.value = 'all';
+      allOpt.textContent = '全部';
+      customerSelect.appendChild(allOpt);
+      baseCustomers.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name + ' (' + c.id + ')';
+        customerSelect.appendChild(opt);
+      });
+      customerSelect.value = 'all';
+
+      const dates = baseCustomers.map(c => c.register).sort();
+      document.getElementById('startDate').value = dates[0];
+      document.getElementById('endDate').value = dates[dates.length - 1];
+
+      document.getElementById('modeSelect').addEventListener('change', () => applyFilters());
+      document.getElementById('startDate').addEventListener('change', () => applyFilters());
+      document.getElementById('endDate').addEventListener('change', () => applyFilters());
+      document.getElementById('customerFilter').addEventListener('change', () => applyFilters());
+      bdSelect.addEventListener('change', () => {
+        const mode = document.getElementById('modeSelect').value;
+        if (mode === 'single') {
+          const list = baseCustomers.filter(c => bdSelect.value === 'all' || c.bd === bdSelect.value);
+          customerSelect.innerHTML = '';
+          const optAll = document.createElement('option');
+          optAll.value = 'all';
+          optAll.textContent = '全部';
+          customerSelect.appendChild(optAll);
+          list.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name + ' (' + c.id + ')';
+            customerSelect.appendChild(opt);
+          });
+          customerSelect.value = 'all';
+        }
+        applyFilters();
+      });
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden', 'opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+    }
+
+    document.getElementById('sidebar-overlay').addEventListener('click', () => toggleSidebar());
+
+    function toggleSidebarCollapse() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('sidebar-collapsed');
+      const icon = document.querySelector('#sidebarCollapseBtn i');
+      icon.classList.toggle('fa-angle-double-left');
+      icon.classList.toggle('fa-angle-double-right');
+    }
+
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupFilters();
+      setupDurationSelectors();
+      applyFilters();
+    });
+  </script>
+</body>
+</html>
