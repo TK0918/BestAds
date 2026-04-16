@@ -312,16 +312,16 @@
               <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
-                    <input type="text" placeholder="输入客户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+                    <input id="filterMerchantIds" type="text" placeholder="输入商户ID, 支持多个(逗号/空格/换行分隔)" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
-                    <input type="text" placeholder="输入邮箱地址" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input id="filterEmail" type="text" placeholder="输入邮箱地址" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户状态</label>
-                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="filterCustomerStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                       <option value="">全部状态</option>
                       <option value="enabled">启用</option>
                       <option value="disabled">停用</option>
@@ -329,15 +329,15 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">团队ID</label>
-                    <input type="text" placeholder="输入团队ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input id="filterTeamId" type="text" placeholder="输入团队ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">团队名称</label>
-                    <input type="text" placeholder="输入团队名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input id="filterTeamName" type="text" placeholder="输入团队名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">团队状态</label>
-                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="filterTeamStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                       <option value="">全部状态</option>
                       <option value="enabled">启用</option>
                       <option value="disabled">停用</option>
@@ -345,12 +345,17 @@
                   </div>
                 </div>
                 <div class="flex justify-between items-center mt-4">
-                  <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                  <button onclick="searchCustomers()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                     <i class="fas fa-search mr-2"></i>搜索
                   </button>
-                  <button onclick="openCustomizeFields()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
-                    <i class="fas fa-cog mr-2"></i>自定义字段
-                  </button>
+                  <div class="flex items-center space-x-3">
+                    <button onclick="openBatchEditModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-edit mr-2"></i>批量修改
+                    </button>
+                    <button onclick="openCustomizeFields()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-cog mr-2"></i>自定义字段
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1222,12 +1227,56 @@
     </div>
   </div>
 
+  <!-- 批量修改客户模态框 -->
+  <div id="batchEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">批量修改客户字段</h3>
+            <button onclick="closeModal('batchEditModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitBatchEdit(event)">
+          <div class="space-y-4">
+            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+              <p class="text-sm text-indigo-700">已选客户: <span id="batchSelectedCount" class="font-medium">0</span> 位</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">选择批量修改字段</label>
+              <select id="batchFieldSelect" required onchange="renderBatchValueInput()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <option value="">请选择字段</option>
+              </select>
+            </div>
+            <div id="batchValueInputContainer">
+              <label class="block text-sm font-medium text-gray-700 mb-2">设置内容</label>
+              <input type="text" disabled placeholder="请先选择需要修改的字段" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-400">
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('batchEditModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 transition-colors duration-200">
+              确认修改
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 全局变量
     let allFields = [
       { key: 'customerId', label: '客户ID', width: '100px' },
+      { key: 'customerLevel', label: '客户级别', width: '100px' },
       { key: 'email', label: '邮箱', width: '200px' },
       { key: 'customerStatus', label: '客户状态', width: '100px' },
+      { key: 'am', label: 'AM', width: '120px' },
+      { key: 'bd', label: 'BD', width: '120px' },
       { key: 'communicationChannel', label: '沟通渠道', width: '120px' },
       { key: 'contactInfo', label: '联系方式', width: '150px' },
       { key: 'customerSource', label: '客户来源', width: '120px' },
@@ -1252,10 +1301,76 @@
     ];
 
     // 默认显示的字段
-    let defaultFields = ['customerId', 'email', 'customerStatus', 'defaultCurrency', 'currentBalance', 'availableBalance', 'realAmount', 'frozenAmount', 'registerTime', 'lastLoginTime', 'actions'];
+    let defaultFields = ['customerId', 'customerLevel', 'email', 'customerStatus', 'am', 'bd', 'defaultCurrency', 'currentBalance', 'availableBalance', 'realAmount', 'frozenAmount', 'registerTime', 'lastLoginTime', 'actions'];
     
     // 当前显示的字段
     let currentFields = [...defaultFields];
+    let filteredCustomerData = [];
+    let hasAppliedFilter = false;
+    let selectedCustomerIds = new Set();
+
+    const batchEditableFields = {
+      customerStatus: {
+        label: '客户状态',
+        type: 'enum',
+        options: [
+          { value: 'enabled', label: '启用' },
+          { value: 'disabled', label: '停用' }
+        ]
+      },
+      customerLevel: {
+        label: '客户级别',
+        type: 'enum',
+        options: [
+          { value: 'normal', label: '普通' },
+          { value: 'vip', label: 'VIP' },
+          { value: 'svip', label: 'SVIP' }
+        ]
+      },
+      am: { label: 'AM', type: 'text' },
+      bd: { label: 'BD', type: 'text' },
+      customerSource: {
+        label: '客户来源',
+        type: 'enum',
+        options: [
+          { value: 'organic', label: '自然注册' },
+          { value: 'referral', label: '推荐注册' },
+          { value: 'marketing', label: '营销获客' },
+          { value: 'partner', label: '合作伙伴' }
+        ]
+      },
+      referrer: { label: '介绍人', type: 'text' },
+      businessType: {
+        label: '商业类型',
+        type: 'enum',
+        options: [
+          { value: 'ecommerce', label: '电商' },
+          { value: 'saas', label: 'SaaS软件' },
+          { value: 'gaming', label: '游戏' },
+          { value: 'finance', label: '金融' },
+          { value: 'education', label: '教育' },
+          { value: 'other', label: '其他' }
+        ]
+      },
+      cooperationStatus: {
+        label: '合作状态',
+        type: 'enum',
+        options: [
+          { value: 'active', label: '活跃合作' },
+          { value: 'inactive', label: '暂停合作' },
+          { value: 'trial', label: '试用期' },
+          { value: 'terminated', label: '终止合作' }
+        ]
+      },
+      teamStatus: {
+        label: '团队状态',
+        type: 'enum',
+        options: [
+          { value: 'enabled', label: '启用' },
+          { value: 'disabled', label: '停用' }
+        ]
+      }
+    };
 
     // 模拟客户数据
     let customerData = [
@@ -1265,7 +1380,10 @@
         merchantName: 'ABC科技有限公司',
         merchantEmail: 'contact@abctech.com',
         email: 'contact@abctech.com',
+        customerLevel: 'vip',
         customerStatus: 'enabled',
+        am: 'Alice',
+        bd: 'David',
         permissions: ['page:advertisement', 'button:advertisement:create', 'button:advertisement:edit', 'page:campaign'],
         communicationChannel: 'email',
         contactInfo: 'contact@abctech.com',
@@ -1294,7 +1412,10 @@
         merchantName: 'XYZ数字营销',
         merchantEmail: 'admin@xyzdigital.com',
         email: 'admin@xyzdigital.com',
+        customerLevel: 'normal',
         customerStatus: 'enabled',
+        am: 'Bob',
+        bd: 'Evan',
         permissions: ['page:account', 'button:account:recharge', 'page:wallet'],
         communicationChannel: 'whatsapp',
         contactInfo: '+86 138 0000 0000',
@@ -1323,7 +1444,10 @@
         merchantName: '创新广告公司',
         merchantEmail: 'info@innovativeads.com',
         email: 'info@innovativeads.com',
+        customerLevel: 'svip',
         customerStatus: 'disabled',
+        am: 'Carol',
+        bd: 'Frank',
         permissions: [],
         communicationChannel: 'email',
         contactInfo: 'info@innovativeads.com',
@@ -1350,6 +1474,8 @@
 
     // 初始化页面
     document.addEventListener('DOMContentLoaded', function() {
+      filteredCustomerData = [...customerData];
+      initBatchFieldSelect();
       renderTable();
     });
 
@@ -1363,6 +1489,15 @@
     function renderTableHeader() {
       const tableHead = document.getElementById('tableHead');
       const headerRow = document.createElement('tr');
+      const selectedRows = getDisplayedCustomers().filter(customer => selectedCustomerIds.has(customer.customerId));
+
+      const checkboxTh = document.createElement('th');
+      checkboxTh.className = 'px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+      checkboxTh.style.width = '48px';
+      checkboxTh.innerHTML = `
+        <input id="selectAllCustomers" type="checkbox" ${selectedRows.length > 0 && selectedRows.length === getDisplayedCustomers().length ? 'checked' : ''} onchange="toggleSelectAllCustomers(this.checked)" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+      `;
+      headerRow.appendChild(checkboxTh);
       
       currentFields.forEach(fieldKey => {
         const field = allFields.find(f => f.key === fieldKey);
@@ -1391,9 +1526,17 @@
     function renderTableBody() {
       const tableBody = document.getElementById('tableBody');
       tableBody.innerHTML = '';
-      
-      customerData.forEach(customer => {
+
+      getDisplayedCustomers().forEach(customer => {
         const row = document.createElement('tr');
+        const checked = selectedCustomerIds.has(customer.customerId);
+
+        const checkboxTd = document.createElement('td');
+        checkboxTd.className = 'px-4 py-4 whitespace-nowrap';
+        checkboxTd.innerHTML = `
+          <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleCustomerSelection('${customer.customerId}', this.checked)" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+        `;
+        row.appendChild(checkboxTd);
         
         currentFields.forEach(fieldKey => {
           const td = document.createElement('td');
@@ -1403,6 +1546,10 @@
             case 'customerId':
               td.innerHTML = `<div class="text-sm font-medium text-gray-900">${customer.customerId}</div>`;
               break;
+            case 'customerLevel':
+              const levelMap = { normal: '普通', vip: 'VIP', svip: 'SVIP' };
+              td.innerHTML = `<div class="text-sm text-gray-900">${levelMap[customer.customerLevel] || customer.customerLevel || '-'}</div>`;
+              break;
             case 'email':
               td.innerHTML = `<div class="text-sm text-gray-900">${customer.email}</div>`;
               break;
@@ -1410,6 +1557,12 @@
               const statusClass = customer.customerStatus === 'enabled' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
               const statusText = customer.customerStatus === 'enabled' ? '启用' : '停用';
               td.innerHTML = `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>`;
+              break;
+            case 'am':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.am || '-'}</div>`;
+              break;
+            case 'bd':
+              td.innerHTML = `<div class="text-sm text-gray-900">${customer.bd || '-'}</div>`;
               break;
             case 'communicationChannel':
               const channelMap = { email: '邮箱', whatsapp: 'WhatsApp', telegram: 'Telegram', wechat: '微信' };
@@ -1631,6 +1784,146 @@
       showNotification('字段设置已应用！', 'success');
     }
 
+    function getDisplayedCustomers() {
+      return hasAppliedFilter ? filteredCustomerData : customerData;
+    }
+
+    function searchCustomers() {
+      const merchantIdRaw = document.getElementById('filterMerchantIds').value.trim();
+      const merchantIds = merchantIdRaw
+        ? merchantIdRaw.split(/[\s,，;；\n]+/).map(item => item.trim().toUpperCase()).filter(Boolean)
+        : [];
+      const email = document.getElementById('filterEmail').value.trim().toLowerCase();
+      const customerStatus = document.getElementById('filterCustomerStatus').value;
+      const teamId = document.getElementById('filterTeamId').value.trim().toLowerCase();
+      const teamName = document.getElementById('filterTeamName').value.trim().toLowerCase();
+      const teamStatus = document.getElementById('filterTeamStatus').value;
+
+      filteredCustomerData = customerData.filter(customer => {
+        const merchantMatched = merchantIds.length === 0 || merchantIds.includes((customer.merchantId || '').toUpperCase());
+        const emailMatched = !email || (customer.email || '').toLowerCase().includes(email);
+        const customerStatusMatched = !customerStatus || customer.customerStatus === customerStatus;
+        const teamIdMatched = !teamId || (customer.teamId || '').toLowerCase().includes(teamId);
+        const teamNameMatched = !teamName || (customer.teamName || '').toLowerCase().includes(teamName);
+        const teamStatusMatched = !teamStatus || customer.teamStatus === teamStatus;
+        return merchantMatched && emailMatched && customerStatusMatched && teamIdMatched && teamNameMatched && teamStatusMatched;
+      });
+
+      const displayedIds = new Set(filteredCustomerData.map(item => item.customerId));
+      selectedCustomerIds.forEach(id => {
+        if (!displayedIds.has(id)) {
+          selectedCustomerIds.delete(id);
+        }
+      });
+
+      hasAppliedFilter = true;
+      renderTable();
+      showNotification(`查询完成, 共匹配 ${filteredCustomerData.length} 位客户`, 'success');
+    }
+
+    function toggleCustomerSelection(customerId, checked) {
+      if (checked) {
+        selectedCustomerIds.add(customerId);
+      } else {
+        selectedCustomerIds.delete(customerId);
+      }
+      renderTableHeader();
+    }
+
+    function toggleSelectAllCustomers(checked) {
+      getDisplayedCustomers().forEach(customer => {
+        if (checked) {
+          selectedCustomerIds.add(customer.customerId);
+        } else {
+          selectedCustomerIds.delete(customer.customerId);
+        }
+      });
+      renderTable();
+    }
+
+    function initBatchFieldSelect() {
+      const select = document.getElementById('batchFieldSelect');
+      if (!select) return;
+
+      Object.entries(batchEditableFields).forEach(([key, config]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = config.label;
+        select.appendChild(option);
+      });
+    }
+
+    function openBatchEditModal() {
+      if (selectedCustomerIds.size === 0) {
+        showNotification('请先勾选要批量修改的客户', 'warning');
+        return;
+      }
+
+      document.getElementById('batchSelectedCount').textContent = selectedCustomerIds.size;
+      document.getElementById('batchFieldSelect').value = '';
+      renderBatchValueInput();
+      document.getElementById('batchEditModal').classList.remove('hidden');
+    }
+
+    function renderBatchValueInput() {
+      const selectedField = document.getElementById('batchFieldSelect').value;
+      const container = document.getElementById('batchValueInputContainer');
+
+      if (!selectedField) {
+        container.innerHTML = `
+          <label class="block text-sm font-medium text-gray-700 mb-2">设置内容</label>
+          <input type="text" disabled placeholder="请先选择需要修改的字段" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-400">
+        `;
+        return;
+      }
+
+      const config = batchEditableFields[selectedField];
+      if (config.type === 'enum') {
+        container.innerHTML = `
+          <label class="block text-sm font-medium text-gray-700 mb-2">设置内容</label>
+          <select id="batchFieldValue" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <option value="">请选择</option>
+            ${config.options.map(option => `<option value="${option.value}">${option.label}</option>`).join('')}
+          </select>
+        `;
+      } else {
+        container.innerHTML = `
+          <label class="block text-sm font-medium text-gray-700 mb-2">设置内容</label>
+          <input id="batchFieldValue" type="text" required placeholder="请输入${config.label}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        `;
+      }
+    }
+
+    function submitBatchEdit(event) {
+      event.preventDefault();
+
+      const selectedField = document.getElementById('batchFieldSelect').value;
+      const valueInput = document.getElementById('batchFieldValue');
+      const nextValue = valueInput ? valueInput.value.trim() : '';
+
+      if (!selectedField) {
+        showNotification('请选择需要批量修改的字段', 'warning');
+        return;
+      }
+
+      if (!nextValue) {
+        showNotification('请填写批量修改内容', 'warning');
+        return;
+      }
+
+      let updateCount = 0;
+      customerData.forEach(customer => {
+        if (selectedCustomerIds.has(customer.customerId)) {
+          customer[selectedField] = nextValue;
+          updateCount += 1;
+        }
+      });
+
+      renderTable();
+      closeModal('batchEditModal');
+      showNotification(`批量修改成功, 已更新 ${updateCount} 位客户的${batchEditableFields[selectedField].label}`, 'success');
+    }
+
     // 侧边栏切换
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
@@ -1735,8 +2028,12 @@
       // 创建新客户数据
       const newCustomer = {
         customerId: customerId,
+        merchantId: 'M' + customerId.slice(1),
         email: formData.get('email'),
+        customerLevel: 'normal',
         customerStatus: 'enabled',
+        am: '待分配',
+        bd: '待分配',
         communicationChannel: formData.get('communicationChannel'),
         contactInfo: formData.get('contactInfo'),
         customerSource: formData.get('customerSource'),
@@ -1761,6 +2058,8 @@
       
       // 添加到数据中
       customerData.unshift(newCustomer);
+      filteredCustomerData = [...customerData];
+      hasAppliedFilter = false;
       
       // 重新渲染表格
       renderTable();
@@ -1795,6 +2094,8 @@
         // 重新渲染表格
         renderTable();
       }
+      filteredCustomerData = [...customerData];
+      hasAppliedFilter = false;
       
       showNotification(`客户 ${customerId} 信息修改成功！`, 'success');
       closeModal('editModal');
