@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Metrics - Media Authorization</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-soft: #fafbfe;
+      --border: #e7eaf3;
+      --text: #202634;
+      --muted: #75809a;
+      --blue: #2f73ff;
+      --blue-deep: #1e5ee8;
+      --green: #16a34a;
+      --shadow: 0 12px 40px rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 232px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      padding: 18px 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 26px;
+      padding: 6px 8px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #d72f2f 0%, #ff8f8f 100%);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .brand-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-group-title {
+      margin: 18px 8px 10px;
+      font-size: 11px;
+      color: #9aa3b5;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin: 4px 0;
+      border-radius: 10px;
+      color: #394150;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      background: #f4f7ff;
+    }
+
+    .nav-item.active {
+      color: #d72f2f;
+      background: #fff2f2;
+      font-weight: 600;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: #ffef9c;
+      color: #684d00;
+      font-size: 11px;
+      line-height: 18px;
+      text-align: center;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 64px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      backdrop-filter: blur(8px);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .toggle {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      background: #dfe5ef;
+      position: relative;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1f6fff 0%, #53a4ff 100%);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .page {
+      padding: 28px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 860px;
+    }
+
+    .currency {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #4d5565;
+      font-size: 14px;
+      min-width: 110px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+      padding-left: 2px;
+    }
+
+    .tab {
+      position: relative;
+      padding: 13px 0 12px;
+      border: 0;
+      background: transparent;
+      color: #677286;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .intro-line {
+      color: #7d8799;
+      font-size: 14px;
+      margin: 0 0 14px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .channel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .channel-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface-soft);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .channel-card:hover {
+      border-color: #cfdbff;
+      box-shadow: 0 8px 24px rgba(47, 115, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .channel-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .channel-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .logo-meta {
+      color: #1d4ed8;
+    }
+
+    .logo-google {
+      color: #f59e0b;
+    }
+
+    .logo-tiktok {
+      color: #111827;
+    }
+
+    .logo-klaviyo {
+      color: #0f172a;
+    }
+
+    .logo-applovin {
+      padding: 0;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .logo-applovin img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .channel-info {
+      min-width: 0;
+    }
+
+    .channel-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .channel-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #202634;
+    }
+
+    .channel-desc {
+      color: #7b8698;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-connected {
+      background: #eaf8ef;
+      color: #1c8f4f;
+    }
+
+    .status-pending {
+      background: #fff4df;
+      color: #b76d00;
+    }
+
+    .status-unlinked {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.85;
+    }
+
+    .channel-side {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .profile-count {
+      color: #6c768a;
+      font-size: 13px;
+      min-width: 96px;
+      text-align: right;
+    }
+
+    .action-btn {
+      min-width: 88px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-manage {
+      background: var(--blue);
+    }
+
+    .btn-manage:hover {
+      background: var(--blue-deep);
+    }
+
+    .btn-connect {
+      background: #4c8dff;
+    }
+
+    .btn-connect:hover {
+      background: #2f73ff;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .summary-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-label {
+      color: #7b8698;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .summary-note {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1080px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .topbar,
+      .page {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .hero {
+        flex-direction: column;
+      }
+
+      .channel-card,
+      .channel-side {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .profile-count {
+        text-align: left;
+        min-width: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .tabs {
+        gap: 16px;
+        overflow-x: auto;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">B</div>
+        <div class="brand-text">BESTFULFILL</div>
+      </div>
+
+      <nav>
+        <a class="nav-item" href="javascript:void(0)">
+          <span>Home</span>
+        </a>
+        <a class="nav-item" href="javascript:void(0)">
+          <span>Orders</span>
+          <span class="nav-badge">9</span>
+        </a>
+        <a class="nav-item" href="javascript:void(0)">
+          <span>Products</span>
+        </a>
+        <a class="nav-item" href="javascript:void(0)">
+          <span>Payment</span>
+        </a>
+
+        <div class="nav-group-title">Apps</div>
+
+        <a class="nav-item" href="javascript:void(0)">
+          <span>Bestrack Parcel AI</span>
+        </a>
+        <a class="nav-item active" href="javascript:void(0)">
+          <span>Marketing Metrics</span>
+        </a>
+        <a class="nav-item" href="javascript:void(0)">
+          <span>Spy Tool</span>
+        </a>
+        <a class="nav-item" href="javascript:void(0)">
+          <span>My Inventory</span>
+        </a>
+      </nav>
+    </aside>
+
+    <div class="content">
+      <header class="topbar">
+        <div></div>
+        <div class="topbar-right">
+          <div class="toggle" aria-hidden="true"></div>
+          <div style="color:#64748b;font-size:14px;">ajx.printerl...com</div>
+          <div class="avatar">AJ</div>
+        </div>
+      </header>
+
+      <main class="page">
+        <section class="hero">
+          <div>
+            <h1>Marketing Metrics</h1>
+            <p>
+              This attribution platform is designed for Shopify-based stores.
+              Data statistics are based on the store's timezone. It centralizes ad channel authorization,
+              profile visibility, and conversion tracking readiness for your marketing team.
+            </p>
+          </div>
+          <div class="currency">HKD</div>
+        </section>
+
+        <div class="tabs" id="tabs">
+          <button class="tab" data-tab="dashboard">Dashboard</button>
+          <button class="tab" data-tab="analysis">Analysis</button>
+          <button class="tab active" data-tab="integration">Integration</button>
+          <button class="tab" data-tab="tracking">Tracking</button>
+          <button class="tab" data-tab="smart-api">Smart Conversion API</button>
+        </div>
+
+        <section class="tab-panel hidden" data-panel="dashboard">
+          <div class="panel">
+            <div class="channel-list">
+              <div class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-meta">M</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">Overview</span>
+                      <span class="status-chip status-connected">
+                        <span class="status-dot"></span>
+                        Healthy
+                      </span>
+                    </div>
+                    <div class="channel-desc">Dashboard tab preview. This page focuses on account health, recent conversions, and sync quality across all connected channels.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel hidden" data-panel="analysis">
+          <div class="panel">
+            <div class="channel-list">
+              <div class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-google">A</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">Attribution Analysis</span>
+                    </div>
+                    <div class="channel-desc">Analysis tab preview. Teams can compare attributed revenue, ad spend, and conversion lag between authorized channels.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="integration">
+          <p class="intro-line">Connect the ad channels you are using to auto sync ad spend and get precise conversions.</p>
+
+          <div class="panel">
+            <div class="channel-list">
+              <article class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-meta">∞</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">Meta</span>
+                      <span class="status-chip status-connected">
+                        <span class="status-dot"></span>
+                        Connected
+                      </span>
+                    </div>
+                    <div class="channel-desc">Facebook and Instagram ad accounts are linked for spend sync, pixel attribution, and campaign performance mapping.</div>
+                  </div>
+                </div>
+                <div class="channel-side">
+                  <div class="profile-count">1/1 profile</div>
+                  <button class="action-btn btn-manage" type="button">Manage</button>
+                </div>
+              </article>
+
+              <article class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-google">△</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">Google</span>
+                      <span class="status-chip status-connected">
+                        <span class="status-dot"></span>
+                        Connected
+                      </span>
+                    </div>
+                    <div class="channel-desc">Google Ads profiles are authorized for spend data import, conversion lift measurement, and cross-channel comparison.</div>
+                  </div>
+                </div>
+                <div class="channel-side">
+                  <div class="profile-count">1/1 profile</div>
+                  <button class="action-btn btn-manage" type="button">Manage</button>
+                </div>
+              </article>
+
+              <article class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-tiktok">♪</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">TikTok</span>
+                      <span class="status-chip status-unlinked">
+                        <span class="status-dot"></span>
+                        Not connected
+                      </span>
+                    </div>
+                    <div class="channel-desc">Authorize TikTok Ads to sync campaign spend and unlock unified attribution for short-video traffic.</div>
+                  </div>
+                </div>
+                <div class="channel-side">
+                  <div class="profile-count">0/1 profile</div>
+                  <button class="action-btn btn-connect" type="button">Connect</button>
+                </div>
+              </article>
+
+              <article class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-klaviyo">K</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">Klaviyo</span>
+                      <span class="status-chip status-pending">
+                        <span class="status-dot"></span>
+                        Ready to connect
+                      </span>
+                    </div>
+                    <div class="channel-desc">Connect Klaviyo to align email marketing conversions with paid media attribution and customer journey analysis.</div>
+                  </div>
+                </div>
+                <div class="channel-side">
+                  <div class="profile-count">0/1 profile</div>
+                  <button class="action-btn btn-connect" type="button">Connect</button>
+                </div>
+              </article>
+
+              <article class="channel-card" id="applovinChannelCard">
+                <div class="channel-main">
+                  <div class="channel-logo logo-applovin">
+                    <img src="https://companieslogo.com/img/orig/APP-bff1e50e.svg?t=1752312076" alt="AppLovin logo">
+                  </div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">AppLovin</span>
+                      <span class="status-chip status-unlinked" id="applovinStatusChip">
+                        <span class="status-dot"></span>
+                        Not connected
+                      </span>
+                    </div>
+                    <div class="channel-desc">Manage AppLovin media accounts for attribution sync, event uploads, and app-growth conversion analysis.</div>
+                  </div>
+                </div>
+                <div class="channel-side">
+                  <div class="profile-count" id="applovinProfileCount">0/1 profile</div>
+                  <button class="action-btn btn-manage" type="button" id="applovinManageBtn">Manage</button>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="summary-grid hidden">
+            <section class="summary-card">
+              <div class="summary-label">Authorized channels</div>
+              <div class="summary-value" id="authorizedChannelsValue">2</div>
+              <div class="summary-note" id="authorizedChannelsNote">Meta and Google are already syncing profile-level data.</div>
+            </section>
+
+            <section class="summary-card">
+              <div class="summary-label">Pending connections</div>
+              <div class="summary-value" id="pendingConnectionsValue">3</div>
+              <div class="summary-note">TikTok, Klaviyo, and AppLovin can be connected to expand attribution coverage.</div>
+            </section>
+
+            <section class="summary-card">
+              <div class="summary-label">Profiles available</div>
+              <div class="summary-value" id="profilesAvailableValue">2 / 5</div>
+              <div class="summary-note" id="profilesAvailableNote">Two of the five available profiles have completed authorization.</div>
+            </section>
+
+            <section class="summary-card">
+              <div class="summary-label">Primary goal</div>
+              <div class="summary-value" style="font-size:22px;">Spend + Conversion Sync</div>
+              <div class="summary-note">The page is centered on media authorization rather than campaign editing.</div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-panel hidden" data-panel="tracking">
+          <div class="panel">
+            <div class="channel-list">
+              <div class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-meta">T</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">Tracking Setup</span>
+                    </div>
+                    <div class="channel-desc">Tracking tab preview. This area would typically configure pixels, server-side events, UTM rules, and conversion windows.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel hidden" data-panel="smart-api">
+          <div class="panel">
+            <div class="channel-list">
+              <div class="channel-card">
+                <div class="channel-main">
+                  <div class="channel-logo logo-google">API</div>
+                  <div class="channel-info">
+                    <div class="channel-name-row">
+                      <span class="channel-name">Smart Conversion API</span>
+                    </div>
+                    <div class="channel-desc">API tab preview. Use this section to manage server event delivery, fallback attribution, and advanced conversion enrichment.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const APPLOVIN_STORAGE_KEY = "bps_applovin_accounts";
+    const tabs = document.querySelectorAll(".tab");
+    const panels = document.querySelectorAll(".tab-panel");
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const target = tab.dataset.tab;
+
+        tabs.forEach((item) => item.classList.remove("active"));
+        panels.forEach((panel) => panel.classList.add("hidden"));
+
+        tab.classList.add("active");
+        document.querySelector(`[data-panel="${target}"]`).classList.remove("hidden");
+      });
+    });
+
+    const applovinManageBtn = document.getElementById("applovinManageBtn");
+    const applovinStatusChip = document.getElementById("applovinStatusChip");
+    const applovinProfileCount = document.getElementById("applovinProfileCount");
+    const authorizedChannelsValue = document.getElementById("authorizedChannelsValue");
+    const authorizedChannelsNote = document.getElementById("authorizedChannelsNote");
+    const pendingConnectionsValue = document.getElementById("pendingConnectionsValue");
+    const profilesAvailableValue = document.getElementById("profilesAvailableValue");
+    const profilesAvailableNote = document.getElementById("profilesAvailableNote");
+
+    function getAppLovinAccounts() {
+      try {
+        return JSON.parse(localStorage.getItem(APPLOVIN_STORAGE_KEY) || "[]");
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function renderAppLovinStatus() {
+      const accounts = getAppLovinAccounts();
+      const connected = accounts.length > 0;
+      const authorizedCount = 2 + (connected ? 1 : 0);
+      const pendingCount = 5 - authorizedCount;
+
+      applovinStatusChip.className = `status-chip ${connected ? "status-connected" : "status-unlinked"}`;
+      applovinStatusChip.innerHTML = `
+        <span class="status-dot"></span>
+        ${connected ? "Connected" : "Not connected"}
+      `;
+      applovinProfileCount.textContent = `${Math.min(accounts.length, 1)}/1 profile`;
+      authorizedChannelsValue.textContent = String(authorizedCount);
+      pendingConnectionsValue.textContent = String(pendingCount);
+      profilesAvailableValue.textContent = `${2 + Math.min(accounts.length, 1)} / 5`;
+      authorizedChannelsNote.textContent = connected
+        ? "Meta, Google, and AppLovin are syncing profile-level data."
+        : "Meta and Google are already syncing profile-level data.";
+      profilesAvailableNote.textContent = connected
+        ? "Three of the five available profiles have completed authorization."
+        : "Two of the five available profiles have completed authorization.";
+    }
+
+    applovinManageBtn.addEventListener("click", () => {
+      window.location.href = "./applovin-account-manage.html";
+    });
+
+    renderAppLovinStatus();
+    window.addEventListener("storage", renderAppLovinStatus);
+  </script>
+</body>
+</html>

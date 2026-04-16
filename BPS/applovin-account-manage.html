@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AppLovin Account Management</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-soft: #fafbfe;
+      --border: #e7eaf3;
+      --text: #202634;
+      --muted: #75809a;
+      --blue: #2f73ff;
+      --blue-deep: #1e5ee8;
+      --red: #ef4444;
+      --red-deep: #dc2626;
+      --green: #16a34a;
+      --green-soft: #eaf8ef;
+      --warn-soft: #fff7dd;
+      --warn-text: #a16207;
+      --shadow: 0 12px 40px rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 232px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      padding: 18px 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 26px;
+      padding: 6px 8px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #d72f2f 0%, #ff8f8f 100%);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .brand-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-group-title {
+      margin: 18px 8px 10px;
+      font-size: 11px;
+      color: #9aa3b5;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin: 4px 0;
+      border-radius: 10px;
+      color: #394150;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      background: #f4f7ff;
+    }
+
+    .nav-item.active {
+      color: #d72f2f;
+      background: #fff2f2;
+      font-weight: 600;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: #ffef9c;
+      color: #684d00;
+      font-size: 11px;
+      line-height: 18px;
+      text-align: center;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 64px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      backdrop-filter: blur(8px);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .toggle {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      background: #dfe5ef;
+      position: relative;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1f6fff 0%, #53a4ff 100%);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .page {
+      padding: 28px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 860px;
+    }
+
+    .currency {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #4d5565;
+      font-size: 14px;
+      min-width: 110px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      padding-left: 2px;
+    }
+
+    .tab {
+      position: relative;
+      padding: 13px 0 12px;
+      border: 0;
+      background: transparent;
+      color: #677286;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #58657a;
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .back-link:hover {
+      color: var(--blue);
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .logo-shell {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .logo-shell img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search {
+      width: 220px;
+      max-width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+
+    .search:focus,
+    .field input:focus {
+      border-color: #b9ccff;
+      box-shadow: 0 0 0 3px rgba(47, 115, 255, 0.12);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-deep);
+    }
+
+    .btn-secondary {
+      background: #eef3ff;
+      color: var(--blue);
+    }
+
+    .btn-secondary:hover {
+      background: #dfe9ff;
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: var(--red-deep);
+    }
+
+    .btn-light {
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid var(--border);
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      background: #fcfdff;
+      flex-wrap: wrap;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.85;
+    }
+
+    .status-connected {
+      background: var(--green-soft);
+      color: #1c8f4f;
+    }
+
+    .status-empty {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .status-message {
+      padding: 12px 18px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      display: none;
+    }
+
+    .status-message.show {
+      display: block;
+    }
+
+    .status-message.success {
+      background: var(--green-soft);
+      color: #166534;
+    }
+
+    .status-message.error {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 14px 18px;
+      border-bottom: 1px solid #edf1f7;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #708097;
+      font-weight: 600;
+      font-size: 13px;
+      background: #fbfcff;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #202634;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .link-btn {
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .link-btn.danger {
+      color: var(--red);
+    }
+
+    .sync-switch {
+      position: relative;
+      display: inline-flex;
+      width: 40px;
+      height: 22px;
+      border-radius: 999px;
+      background: #d8e2f0;
+      vertical-align: middle;
+    }
+
+    .sync-switch.on {
+      background: #bfdbfe;
+    }
+
+    .sync-switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
+      transition: left 0.2s ease;
+    }
+
+    .sync-switch.on::after {
+      left: 20px;
+    }
+
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    .empty-state strong {
+      display: block;
+      color: #475569;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 30;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+      overflow: hidden;
+    }
+
+    .modal-header,
+    .modal-footer {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-footer {
+      border-bottom: 0;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #475569;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .field-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .guide-card {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid #dbe5f4;
+      border-radius: 14px;
+      background: #f8fbff;
+    }
+
+    .guide-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .guide-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .guide-body {
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+      max-height: 600px;
+    }
+
+    .guide-card.collapsed .guide-body {
+      max-height: 0;
+    }
+
+    .guide-copy {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #64748b;
+    }
+
+    .guide-steps {
+      margin: 0 0 12px;
+      padding-left: 18px;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .guide-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      border: 1px solid #dbe5f4;
+      background: #fff;
+      object-fit: contain;
+    }
+
+    .guide-image-wrap {
+      position: relative;
+    }
+
+    /* 注：图片本身已经包含 1-4 的红色定位圈, 因此不再做额外浮层叠加 */
+
+    .error-text {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #dc2626;
+    }
+
+    .connect-result {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .connect-result.show {
+      display: block;
+    }
+
+    .connect-result.success {
+      background: var(--green-soft);
+      color: #166534;
+    }
+
+    .connect-result.error {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .testing-row {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .testing-row.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #dbeafe;
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .confirm-copy {
+      color: #64748b;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .page,
+      .topbar {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .hero {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">B</div>
+        <div class="brand-text">BESTFULFILL</div>
+      </div>
+
+      <nav>
+        <a class="nav-item" href="javascript:void(0)"><span>Home</span></a>
+        <a class="nav-item" href="javascript:void(0)"><span>Orders</span><span class="nav-badge">9</span></a>
+        <a class="nav-item" href="javascript:void(0)"><span>Products</span></a>
+        <a class="nav-item" href="javascript:void(0)"><span>Payment</span></a>
+        <div class="nav-group-title">Apps</div>
+        <a class="nav-item" href="javascript:void(0)"><span>Bestrack Parcel AI</span></a>
+        <a class="nav-item active" href="javascript:void(0)"><span>Marketing Metrics</span></a>
+        <a class="nav-item" href="javascript:void(0)"><span>Spy Tool</span></a>
+        <a class="nav-item" href="javascript:void(0)"><span>My Inventory</span></a>
+      </nav>
+    </aside>
+
+    <div class="content">
+      <header class="topbar">
+        <div></div>
+        <div class="topbar-right">
+          <div class="toggle" aria-hidden="true"></div>
+          <div style="color:#64748b;font-size:14px;">ajx.printerl...com</div>
+          <div class="avatar">AJ</div>
+        </div>
+      </header>
+
+      <main class="page">
+        <section class="hero">
+          <div>
+            <h1>Marketing Metrics</h1>
+            <p>
+              This attribution platform is designed for Shopify-based stores.
+              Manage AppLovin accounts, validate access credentials, and control the sync status for media attribution.
+            </p>
+          </div>
+          <div class="currency">HKD</div>
+        </section>
+
+        <div class="tabs">
+          <button class="tab">Dashboard</button>
+          <button class="tab">Analysis</button>
+          <button class="tab active">Integration</button>
+          <button class="tab">Tracking</button>
+          <button class="tab">Smart Conversion API</button>
+        </div>
+
+        <a href="./media-authorization.html" class="back-link">
+          <span>&larr;</span>
+          <span>Manage integration</span>
+        </a>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="logo-shell">
+                <img src="https://companieslogo.com/img/orig/APP-bff1e50e.svg?t=1752312076" alt="AppLovin logo">
+              </span>
+              <span>AppLovin Accounts</span>
+            </div>
+            <div class="toolbar">
+              <input class="search" id="searchInput" type="search" placeholder="Account name or ID...">
+              <button class="btn btn-danger" id="disconnectBtn" type="button">Disconnect</button>
+            </div>
+          </div>
+
+          <div class="status-bar">
+            <div class="status-chip status-empty" id="overallStatus">
+              <span class="status-dot"></span>
+              No active account
+            </div>
+            <div class="toolbar">
+              <button class="btn btn-primary" id="addAccountBtn" type="button">Share media account</button>
+            </div>
+          </div>
+
+          <div class="status-message" id="flashMessage"></div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Enable sync</th>
+                  <th>Name</th>
+                  <th>Account ID</th>
+                  <th>Reporting Key</th>
+                  <th>Status</th>
+                  <th>Currency</th>
+                  <th>Last synced</th>
+                  <th>Bind stores</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="accountTableBody"></tbody>
+            </table>
+            <div class="empty-state hidden" id="emptyState">
+              <strong>No data</strong>
+              Add an AppLovin account to start sync and attribution management.
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="accountModalMask">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="accountModalTitle">Add AppLovin account</h2>
+      </div>
+      <div class="modal-body">
+        <div class="connect-result" id="connectResult"></div>
+        <div class="testing-row" id="testingRow">
+          <span class="spinner"></span>
+          <span>Testing account connection...</span>
+        </div>
+
+        <form id="accountForm">
+          <div class="field hidden" id="accountNameField">
+            <label for="accountName">Account name</label>
+            <input id="accountName" name="accountName" type="text" placeholder="Optional display name">
+            <div class="field-hint">If left empty, the page will generate a default name based on the account ID.</div>
+          </div>
+
+          <div class="field">
+            <label for="accountId">Account ID *</label>
+            <input id="accountId" name="accountId" type="text" placeholder="Enter AppLovin account ID" required>
+            <div class="error-text hidden" id="accountIdError"></div>
+          </div>
+
+          <div class="field">
+            <label for="accountToken">Reporting Key *</label>
+            <input id="accountToken" name="accountToken" type="text" placeholder="Enter AppLovin Reporting Key" required>
+            <div class="field-hint">The connection test runs automatically after submission.</div>
+            <div class="error-text hidden" id="accountTokenError"></div>
+          </div>
+
+          <div class="guide-card" id="reportingKeyGuideCard">
+            <div class="guide-topbar">
+              <h3 class="guide-title">Where to find the Reporting Key</h3>
+              <button class="btn btn-secondary" id="toggleGuideBtn" type="button" aria-expanded="true">Hide guide</button>
+            </div>
+
+            <div class="guide-body" id="guideBody">
+              <p class="guide-copy">Ask the customer to open the Axon console, switch to the correct account, then go to the Keys page and copy the value from the Reporting Key field.</p>
+              <ol class="guide-steps">
+                <li>Open the account switcher in the top-right corner and select the target account.</li>
+                <li>Enter `Account settings`.</li>
+                <li>In the left navigation, click `Keys`.</li>
+                <li>Copy the `Reporting Key` shown on that page and paste it here.</li>
+              </ol>
+
+              <div class="guide-image-wrap">
+                <img
+                  class="guide-image"
+                  src="./image-75a9b539-bc95-4ad2-aa46-2bafc022e3d4.png"
+                  alt="Axon Reporting Key guide"
+                >
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" id="cancelAccountBtn" type="button">Cancel</button>
+        <button class="btn btn-primary" id="saveAccountBtn" type="button">Save and test</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="deleteModalMask">
+    <div class="modal" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Confirm delete</h2>
+      </div>
+      <div class="modal-body">
+        <div class="confirm-copy" id="deleteCopy">
+          Deleting this account will remove its Reporting Key and disable AppLovin sync. Are you sure you want to continue?
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" id="cancelDeleteBtn" type="button">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn" type="button">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "bps_applovin_accounts";
+
+    const searchInput = document.getElementById("searchInput");
+    const disconnectBtn = document.getElementById("disconnectBtn");
+    const addAccountBtn = document.getElementById("addAccountBtn");
+    const accountTableBody = document.getElementById("accountTableBody");
+    const emptyState = document.getElementById("emptyState");
+    const overallStatus = document.getElementById("overallStatus");
+    const flashMessage = document.getElementById("flashMessage");
+
+    const accountModalMask = document.getElementById("accountModalMask");
+    const accountModalTitle = document.getElementById("accountModalTitle");
+    const accountForm = document.getElementById("accountForm");
+    const accountNameField = document.getElementById("accountNameField");
+    const accountNameInput = document.getElementById("accountName");
+    const accountIdInput = document.getElementById("accountId");
+    const accountTokenInput = document.getElementById("accountToken");
+    const accountIdError = document.getElementById("accountIdError");
+    const accountTokenError = document.getElementById("accountTokenError");
+    const connectResult = document.getElementById("connectResult");
+    const testingRow = document.getElementById("testingRow");
+    const cancelAccountBtn = document.getElementById("cancelAccountBtn");
+    const saveAccountBtn = document.getElementById("saveAccountBtn");
+
+    const reportingKeyGuideCard = document.getElementById("reportingKeyGuideCard");
+    const guideBody = document.getElementById("guideBody");
+    const toggleGuideBtn = document.getElementById("toggleGuideBtn");
+
+    const deleteModalMask = document.getElementById("deleteModalMask");
+    const deleteCopy = document.getElementById("deleteCopy");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+
+    let editingAccountId = null;
+    let deletingAccountId = null;
+
+    function setGuideCollapsed(collapsed) {
+      if (!reportingKeyGuideCard || !toggleGuideBtn) return;
+      reportingKeyGuideCard.classList.toggle("collapsed", collapsed);
+      toggleGuideBtn.setAttribute("aria-expanded", String(!collapsed));
+      toggleGuideBtn.textContent = collapsed ? "Show guide" : "Hide guide";
+    }
+
+    if (toggleGuideBtn) {
+      toggleGuideBtn.addEventListener("click", () => {
+        const collapsed = reportingKeyGuideCard.classList.contains("collapsed");
+        setGuideCollapsed(!collapsed);
+      });
+    }
+
+    function readAccounts() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function writeAccounts(accounts) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+    }
+
+    function maskToken(token) {
+      if (token.length <= 3) {
+        return `${token}***`;
+      }
+
+      if (token.length <= 7) {
+        return `${token.slice(0, 3)}***${token.slice(-1)}`;
+      }
+
+      return `${token.slice(0, 3)}***${token.slice(-4)}`;
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+      return date.toLocaleString("en-GB", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function showFlashMessage(type, text) {
+      flashMessage.className = `status-message show ${type}`;
+      flashMessage.textContent = text;
+    }
+
+    function hideFlashMessage() {
+      flashMessage.className = "status-message";
+      flashMessage.textContent = "";
+    }
+
+    function setOverallStatus(hasAccounts) {
+      overallStatus.className = `status-chip ${hasAccounts ? "status-connected" : "status-empty"}`;
+      overallStatus.innerHTML = `
+        <span class="status-dot"></span>
+        ${hasAccounts ? "Connected" : "No active account"}
+      `;
+    }
+
+    function renderAccounts() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const accounts = readAccounts();
+      const visibleAccounts = accounts.filter((account) => {
+        const haystack = `${account.name} ${account.accountId}`.toLowerCase();
+        return haystack.includes(keyword);
+      });
+
+      accountTableBody.innerHTML = "";
+      emptyState.classList.toggle("hidden", visibleAccounts.length > 0);
+      setOverallStatus(accounts.length > 0);
+      disconnectBtn.disabled = accounts.length === 0;
+      disconnectBtn.style.opacity = accounts.length === 0 ? "0.5" : "1";
+
+      if (!visibleAccounts.length) {
+        return;
+      }
+
+      visibleAccounts.forEach((account) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><span class="sync-switch ${account.syncEnabled ? "on" : ""}" aria-hidden="true"></span></td>
+          <td><div style="font-weight:600;">${account.name}</div></td>
+          <td>${account.accountId}</td>
+          <td>${maskToken(account.token)}</td>
+          <td><span class="status-chip status-connected"><span class="status-dot"></span>Connected</span></td>
+          <td>${account.currency}</td>
+          <td>${formatDate(account.lastSyncedAt)}</td>
+          <td>${account.bindStores}</td>
+          <td>
+            <div class="row-actions">
+              <button class="link-btn" type="button" data-action="edit" data-id="${account.accountId}">Edit</button>
+              <button class="link-btn" type="button" data-action="test" data-id="${account.accountId}">Retest</button>
+              <button class="link-btn danger" type="button" data-action="delete" data-id="${account.accountId}">Delete</button>
+            </div>
+          </td>
+        `;
+        accountTableBody.appendChild(row);
+      });
+    }
+
+    function resetFormErrors() {
+      accountIdError.classList.add("hidden");
+      accountTokenError.classList.add("hidden");
+      accountIdError.textContent = "";
+      accountTokenError.textContent = "";
+      connectResult.className = "connect-result";
+      connectResult.textContent = "";
+      testingRow.classList.remove("show");
+    }
+
+    function openAccountModal(mode, account = null) {
+      resetFormErrors();
+      editingAccountId = account ? account.accountId : null;
+      accountModalTitle.textContent = mode === "edit" ? "Edit AppLovin account" : "Add AppLovin account";
+      accountNameField.classList.toggle("hidden", mode !== "edit");
+      accountNameInput.value = account ? account.name : "";
+      accountIdInput.value = account ? account.accountId : "";
+      accountIdInput.disabled = mode === "edit";
+      accountTokenInput.value = account ? account.token : "";
+      setGuideCollapsed(false);
+      accountModalMask.classList.add("show");
+    }
+
+    function closeAccountModal() {
+      accountModalMask.classList.remove("show");
+      accountForm.reset();
+      accountIdInput.disabled = false;
+      editingAccountId = null;
+      resetFormErrors();
+    }
+
+    function openDeleteModal(accountId) {
+      deletingAccountId = accountId;
+      deleteCopy.textContent = `Delete AppLovin account "${accountId}"? This action requires confirmation and will remove the saved Reporting Key.`;
+      deleteModalMask.classList.add("show");
+    }
+
+    function closeDeleteModal() {
+      deleteModalMask.classList.remove("show");
+      deletingAccountId = null;
+    }
+
+    function validateForm(accountId, token) {
+      let valid = true;
+      resetFormErrors();
+
+      if (!accountId.trim()) {
+        accountIdError.textContent = "Account ID is required.";
+        accountIdError.classList.remove("hidden");
+        valid = false;
+      }
+
+      if (!token.trim()) {
+        accountTokenError.textContent = "Reporting Key is required.";
+        accountTokenError.classList.remove("hidden");
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    function simulateConnectionTest(accountId, token) {
+      return new Promise((resolve) => {
+        const normalizedId = accountId.trim();
+        const normalizedToken = token.trim();
+        const pass = normalizedId.length > 0 && normalizedToken.length > 0 && normalizedToken.length % 2 === 0;
+
+        setTimeout(() => {
+          resolve({
+            success: pass,
+            message: pass
+              ? "Connection test passed. The account is ready for sync."
+              : "Connection test failed. Please verify the Account ID and Reporting Key, then submit again."
+          });
+        }, 900);
+      });
+    }
+
+    async function handleSaveAccount() {
+      const name = accountNameInput.value.trim();
+      const accountId = accountIdInput.value.trim();
+      const token = accountTokenInput.value.trim();
+
+      if (!validateForm(accountId, token)) {
+        return;
+      }
+
+      const accounts = readAccounts();
+      if (!editingAccountId && accounts.some((item) => item.accountId === accountId)) {
+        accountIdError.textContent = "This Account ID already exists.";
+        accountIdError.classList.remove("hidden");
+        return;
+      }
+
+      saveAccountBtn.disabled = true;
+      saveAccountBtn.style.opacity = "0.6";
+      testingRow.classList.add("show");
+      connectResult.className = "connect-result";
+      connectResult.textContent = "";
+
+      const result = await simulateConnectionTest(accountId, token);
+
+      testingRow.classList.remove("show");
+      connectResult.className = `connect-result show ${result.success ? "success" : "error"}`;
+      connectResult.textContent = result.message;
+
+      if (!result.success) {
+        saveAccountBtn.disabled = false;
+        saveAccountBtn.style.opacity = "1";
+        return;
+      }
+
+      const newAccount = {
+        name: name || `AppLovin ${accountId.slice(-4)}`,
+        accountId,
+        token,
+        status: "Connected",
+        currency: "USD",
+        lastSyncedAt: new Date().toISOString(),
+        bindStores: "1 store",
+        syncEnabled: true
+      };
+
+      const nextAccounts = editingAccountId
+        ? accounts.map((item) => item.accountId === editingAccountId ? newAccount : item)
+        : [newAccount, ...accounts];
+
+      writeAccounts(nextAccounts);
+      renderAccounts();
+      showFlashMessage("success", editingAccountId ? "AppLovin account updated successfully." : "AppLovin account added and validated successfully.");
+
+      setTimeout(() => {
+        closeAccountModal();
+        saveAccountBtn.disabled = false;
+        saveAccountBtn.style.opacity = "1";
+      }, 500);
+    }
+
+    function handleRetest(accountId) {
+      const accounts = readAccounts();
+      const account = accounts.find((item) => item.accountId === accountId);
+      if (!account) {
+        return;
+      }
+
+      showFlashMessage("success", `Connection test passed again for account ${accountId}.`);
+      const nextAccounts = accounts.map((item) => item.accountId === accountId
+        ? { ...item, lastSyncedAt: new Date().toISOString() }
+        : item
+      );
+      writeAccounts(nextAccounts);
+      renderAccounts();
+    }
+
+    function handleDeleteConfirmed() {
+      if (!deletingAccountId) {
+        return;
+      }
+
+      const nextAccounts = readAccounts().filter((item) => item.accountId !== deletingAccountId);
+      writeAccounts(nextAccounts);
+      renderAccounts();
+      showFlashMessage("success", `Account ${deletingAccountId} has been deleted.`);
+      closeDeleteModal();
+    }
+
+    function handleDisconnectAll() {
+      const accounts = readAccounts();
+      if (!accounts.length) {
+        return;
+      }
+
+      deleteCopy.textContent = "Disconnect will remove all saved AppLovin accounts from this demo page. Are you sure you want to continue?";
+      deletingAccountId = "__ALL__";
+      deleteModalMask.classList.add("show");
+    }
+
+    accountTableBody.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const action = target.dataset.action;
+      const accountId = target.dataset.id;
+      if (!action || !accountId) {
+        return;
+      }
+
+      if (action === "edit") {
+        const account = readAccounts().find((item) => item.accountId === accountId);
+        if (account) {
+          openAccountModal("edit", account);
+        }
+      }
+
+      if (action === "test") {
+        handleRetest(accountId);
+      }
+
+      if (action === "delete") {
+        openDeleteModal(accountId);
+      }
+    });
+
+    addAccountBtn.addEventListener("click", () => openAccountModal("add"));
+    cancelAccountBtn.addEventListener("click", closeAccountModal);
+    saveAccountBtn.addEventListener("click", handleSaveAccount);
+    searchInput.addEventListener("input", renderAccounts);
+    disconnectBtn.addEventListener("click", handleDisconnectAll);
+    cancelDeleteBtn.addEventListener("click", closeDeleteModal);
+    confirmDeleteBtn.addEventListener("click", () => {
+      if (deletingAccountId === "__ALL__") {
+        writeAccounts([]);
+        renderAccounts();
+        showFlashMessage("success", "All AppLovin accounts have been disconnected.");
+        closeDeleteModal();
+        return;
+      }
+
+      handleDeleteConfirmed();
+    });
+
+    accountModalMask.addEventListener("click", (event) => {
+      if (event.target === accountModalMask) {
+        closeAccountModal();
+      }
+    });
+
+    deleteModalMask.addEventListener("click", (event) => {
+      if (event.target === deleteModalMask) {
+        closeDeleteModal();
+      }
+    });
+
+    renderAccounts();
+  </script>
+</body>
+</html>
