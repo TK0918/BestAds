@@ -489,6 +489,8 @@
       border-radius: 999px;
       background: #d8e2f0;
       vertical-align: middle;
+      border: 0;
+      cursor: pointer;
     }
 
     .sync-switch.on {
@@ -819,7 +821,6 @@
             </div>
             <div class="toolbar">
               <input class="search" id="searchInput" type="search" placeholder="Account name or ID...">
-              <button class="btn btn-danger" id="disconnectBtn" type="button">Disconnect</button>
             </div>
           </div>
 
@@ -829,7 +830,7 @@
               No active account
             </div>
             <div class="toolbar">
-              <button class="btn btn-primary" id="addAccountBtn" type="button">Share media account</button>
+              <button class="btn btn-primary" id="addAccountBtn" type="button">Add Account</button>
             </div>
           </div>
 
@@ -948,7 +949,6 @@
     const STORAGE_KEY = "bps_applovin_accounts";
 
     const searchInput = document.getElementById("searchInput");
-    const disconnectBtn = document.getElementById("disconnectBtn");
     const addAccountBtn = document.getElementById("addAccountBtn");
     const accountTableBody = document.getElementById("accountTableBody");
     const emptyState = document.getElementById("emptyState");
@@ -1059,8 +1059,6 @@
       accountTableBody.innerHTML = "";
       emptyState.classList.toggle("hidden", visibleAccounts.length > 0);
       setOverallStatus(accounts.length > 0);
-      disconnectBtn.disabled = accounts.length === 0;
-      disconnectBtn.style.opacity = accounts.length === 0 ? "0.5" : "1";
 
       if (!visibleAccounts.length) {
         return;
@@ -1069,7 +1067,16 @@
       visibleAccounts.forEach((account) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td><span class="sync-switch ${account.syncEnabled ? "on" : ""}" aria-hidden="true"></span></td>
+          <td>
+            <button
+              class="sync-switch ${account.syncEnabled ? "on" : ""}"
+              type="button"
+              data-action="toggle-sync"
+              data-id="${account.accountId}"
+              aria-label="${account.syncEnabled ? "Disable sync" : "Enable sync"}"
+              title="${account.syncEnabled ? "Disable sync" : "Enable sync"}"
+            ></button>
+          </td>
           <td><div style="font-weight:600;">${account.name}</div></td>
           <td>${account.accountId}</td>
           <td>${maskToken(account.token)}</td>
@@ -1079,8 +1086,6 @@
           <td>${account.bindStores}</td>
           <td>
             <div class="row-actions">
-              <button class="link-btn" type="button" data-action="edit" data-id="${account.accountId}">Edit</button>
-              <button class="link-btn" type="button" data-action="test" data-id="${account.accountId}">Retest</button>
               <button class="link-btn danger" type="button" data-action="delete" data-id="${account.accountId}">Delete</button>
             </div>
           </td>
@@ -1255,17 +1260,6 @@
       closeDeleteModal();
     }
 
-    function handleDisconnectAll() {
-      const accounts = readAccounts();
-      if (!accounts.length) {
-        return;
-      }
-
-      deleteCopy.textContent = "Disconnect will remove all saved AppLovin accounts from this demo page. Are you sure you want to continue?";
-      deletingAccountId = "__ALL__";
-      deleteModalMask.classList.add("show");
-    }
-
     accountTableBody.addEventListener("click", (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) {
@@ -1278,15 +1272,15 @@
         return;
       }
 
-      if (action === "edit") {
-        const account = readAccounts().find((item) => item.accountId === accountId);
-        if (account) {
-          openAccountModal("edit", account);
-        }
-      }
-
-      if (action === "test") {
-        handleRetest(accountId);
+      if (action === "toggle-sync") {
+        const nextAccounts = readAccounts().map((item) =>
+          item.accountId === accountId
+            ? { ...item, syncEnabled: !item.syncEnabled, lastSyncedAt: new Date().toISOString() }
+            : item
+        );
+        writeAccounts(nextAccounts);
+        renderAccounts();
+        return;
       }
 
       if (action === "delete") {
@@ -1298,17 +1292,8 @@
     cancelAccountBtn.addEventListener("click", closeAccountModal);
     saveAccountBtn.addEventListener("click", handleSaveAccount);
     searchInput.addEventListener("input", renderAccounts);
-    disconnectBtn.addEventListener("click", handleDisconnectAll);
     cancelDeleteBtn.addEventListener("click", closeDeleteModal);
     confirmDeleteBtn.addEventListener("click", () => {
-      if (deletingAccountId === "__ALL__") {
-        writeAccounts([]);
-        renderAccounts();
-        showFlashMessage("success", "All AppLovin accounts have been disconnected.");
-        closeDeleteModal();
-        return;
-      }
-
       handleDeleteConfirmed();
     });
 

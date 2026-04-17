@@ -727,7 +727,7 @@
                   </div>
                 </div>
                 <div class="channel-side">
-                  <div class="profile-count" id="applovinProfileCount">0/1 profile</div>
+                  <div class="profile-count" id="applovinProfileCount">0/0 Account</div>
                   <button class="action-btn btn-manage" type="button" id="applovinManageBtn">Manage</button>
                 </div>
               </article>
@@ -837,6 +837,8 @@
     function renderAppLovinStatus() {
       const accounts = getAppLovinAccounts();
       const connected = accounts.length > 0;
+      const authorizedAccountCount = accounts.length;
+      const enabledSyncAccountCount = accounts.filter((account) => account.syncEnabled !== false).length;
       const authorizedCount = 2 + (connected ? 1 : 0);
       const pendingCount = 5 - authorizedCount;
 
@@ -845,13 +847,13 @@
         <span class="status-dot"></span>
         ${connected ? "Connected" : "Not connected"}
       `;
-      applovinProfileCount.textContent = `${Math.min(accounts.length, 1)}/1 profile`;
+      applovinProfileCount.textContent = `${enabledSyncAccountCount}/${authorizedAccountCount} Account`;
       authorizedChannelsValue.textContent = String(authorizedCount);
       pendingConnectionsValue.textContent = String(pendingCount);
       profilesAvailableValue.textContent = `${2 + Math.min(accounts.length, 1)} / 5`;
       authorizedChannelsNote.textContent = connected
-        ? "Meta, Google, and AppLovin are syncing profile-level data."
-        : "Meta and Google are already syncing profile-level data.";
+        ? "Meta, Google, and AppLovin are syncing account-level data."
+        : "Meta and Google are already syncing account-level data.";
       profilesAvailableNote.textContent = connected
         ? "Three of the five available profiles have completed authorization."
         : "Two of the five available profiles have completed authorization.";
