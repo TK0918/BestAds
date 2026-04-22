@@ -319,7 +319,8 @@
     }
 
     .search:focus,
-    .field input:focus {
+    .field input:focus,
+    .field select:focus {
       border-color: #b9ccff;
       box-shadow: 0 0 0 3px rgba(47, 115, 255, 0.12);
     }
@@ -587,13 +588,15 @@
       color: #475569;
     }
 
-    .field input {
+    .field input,
+    .field select {
       width: 100%;
       padding: 11px 12px;
       border: 1px solid var(--border);
       border-radius: 10px;
       font-size: 14px;
       outline: none;
+      background: #fff;
     }
 
     .field-hint {
@@ -895,6 +898,22 @@
             <div class="error-text hidden" id="accountTokenError"></div>
           </div>
 
+          <div class="field">
+            <label for="accountCurrency">Currency</label>
+            <select id="accountCurrency" name="accountCurrency">
+              <option value="USD" selected>USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="HKD">HKD</option>
+              <option value="JPY">JPY</option>
+              <option value="CNY">CNY</option>
+              <option value="SGD">SGD</option>
+              <option value="AUD">AUD</option>
+              <option value="CAD">CAD</option>
+            </select>
+            <div class="field-hint">Default currency is USD. You can change it before saving.</div>
+          </div>
+
           <div class="guide-card" id="reportingKeyGuideCard">
             <div class="guide-topbar">
               <h3 class="guide-title">Where to find the Reporting Key</h3>
@@ -962,6 +981,7 @@
     const accountNameInput = document.getElementById("accountName");
     const accountIdInput = document.getElementById("accountId");
     const accountTokenInput = document.getElementById("accountToken");
+    const accountCurrencySelect = document.getElementById("accountCurrency");
     const accountIdError = document.getElementById("accountIdError");
     const accountTokenError = document.getElementById("accountTokenError");
     const connectResult = document.getElementById("connectResult");
@@ -1113,6 +1133,7 @@
       accountIdInput.value = account ? account.accountId : "";
       accountIdInput.disabled = mode === "edit";
       accountTokenInput.value = account ? account.token : "";
+      accountCurrencySelect.value = account?.currency || "USD";
       setGuideCollapsed(false);
       accountModalMask.classList.add("show");
     }
@@ -1176,6 +1197,7 @@
       const name = accountNameInput.value.trim();
       const accountId = accountIdInput.value.trim();
       const token = accountTokenInput.value.trim();
+      const currency = accountCurrencySelect.value || "USD";
 
       if (!validateForm(accountId, token)) {
         return;
@@ -1211,7 +1233,7 @@
         accountId,
         token,
         status: "Connected",
-        currency: "USD",
+        currency,
         lastSyncedAt: new Date().toISOString(),
         bindStores: "1 store",
         syncEnabled: true
