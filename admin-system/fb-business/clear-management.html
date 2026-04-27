@@ -6,6 +6,7 @@
   <title>账户清零 - BestAds Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -18,6 +19,7 @@
     .sort-icon.active { color: #00FFB0; }
     .mobile-menu-open { transform: translateX(0); }
     .mobile-menu-closed { transform: translateX(-100%); }
+    .sticky-table-header thead th { position: sticky; top: 0; z-index: 1; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -285,6 +287,9 @@
               <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-900">清零需求列表</h3>
                 <div class="flex items-center space-x-3">
+                  <button id="openSupplementUploadModal" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-file-upload mr-2"></i>补充清零数据
+                  </button>
                   <button id="openClearModal" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                     <i class="fas fa-eraser mr-2"></i>清零
                   </button>
@@ -506,6 +511,91 @@
     </div>
   </div>
 
+  <!-- 补充清零数据上传弹窗 -->
+  <div id="supplementUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 relative">
+      <button id="closeSupplementUploadModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-2">补充清零数据</h3>
+      <p class="text-sm text-gray-500 mb-4">请上传包含广告账户ID和清零金额的Excel文件, 系统将自动识别并校验数据。</p>
+
+      <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-4 text-sm text-blue-700">
+        <div class="font-medium mb-1">Excel字段要求</div>
+        <div>1. 广告账户ID</div>
+        <div>2. 清零金额</div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">选择Excel文件</label>
+        <input id="supplementFileInput" type="file" accept=".xlsx,.xls" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      </div>
+
+      <div id="supplementUploadFileInfo" class="hidden text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded p-3 mb-4"></div>
+
+      <div class="flex justify-end space-x-2">
+        <button type="button" id="cancelSupplementUpload" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+        <button type="button" id="submitSupplementUpload" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium">
+          上传并解析
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 补充清零数据预览弹窗 -->
+  <div id="supplementPreviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-7xl p-6 relative">
+      <button id="closeSupplementPreviewModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-2">补充清零数据预览</h3>
+      <p class="text-sm text-gray-500 mb-4">仅会写入有效数据。无效数据请修正后重新上传。</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+        <div class="rounded border border-gray-200 bg-gray-50 p-3 text-sm">
+          <div class="text-gray-500">总行数</div>
+          <div id="supplementTotalCount" class="text-xl font-semibold text-gray-900">0</div>
+        </div>
+        <div class="rounded border border-green-200 bg-green-50 p-3 text-sm">
+          <div class="text-green-700">有效数据</div>
+          <div id="supplementValidCount" class="text-xl font-semibold text-green-700">0</div>
+        </div>
+        <div class="rounded border border-red-200 bg-red-50 p-3 text-sm">
+          <div class="text-red-700">无效数据</div>
+          <div id="supplementInvalidCount" class="text-xl font-semibold text-red-700">0</div>
+        </div>
+        <div class="rounded border border-indigo-200 bg-indigo-50 p-3 text-sm">
+          <div class="text-indigo-700">媒体</div>
+          <div class="text-xl font-semibold text-indigo-700">Facebook</div>
+        </div>
+      </div>
+
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="overflow-auto max-h-[420px]">
+          <table class="min-w-full divide-y divide-gray-200 sticky-table-header" id="supplementPreviewTable">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商户ID</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">清零金额</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">是否有效</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">无效原因</th>
+              </tr>
+            </thead>
+            <tbody id="supplementPreviewBody" class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mt-4">
+        <div id="supplementPreviewHint" class="text-sm text-gray-500"></div>
+        <div class="flex items-center space-x-2">
+          <button type="button" id="backToSupplementUpload" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">返回修改</button>
+          <button type="button" id="confirmSupplementImport" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">确认写入系统</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 清零弹窗 -->
   <div id="clearModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
@@ -644,12 +734,285 @@
       }
     }
 
+    // 补充清零数据导入
+    let supplementParsedRows = [];
+    let supplementPreviewRows = [];
+
+    function normalizeExcelRow(row) {
+      const accountId = String(row['广告账户ID'] || row['广告账户Id'] || row['accountId'] || '').trim();
+      const clearAmountRaw = row['清零金额'] ?? row['金额'] ?? row['clearAmount'] ?? '';
+      return {
+        accountId,
+        clearAmountRaw
+      };
+    }
+
+    function parseAmount(rawValue) {
+      if (rawValue === null || rawValue === undefined) return { valid: false, value: 0 };
+      const cleaned = String(rawValue).replace(/,/g, '').trim();
+      if (!cleaned) return { valid: false, value: 0 };
+      const amount = Number(cleaned);
+      if (!Number.isFinite(amount) || amount <= 0) return { valid: false, value: 0 };
+      return { valid: true, value: amount };
+    }
+
+    function getAccountReferenceMap() {
+      const map = new Map();
+      const rows = Array.from(document.querySelectorAll('#clearTableBody tr'));
+      rows.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length < 14) return;
+        const customerId = tds[2].textContent.trim();
+        const customerName = tds[3].textContent.trim();
+        const accountId = tds[6].textContent.trim();
+        const accountName = tds[7].textContent.trim();
+        if (!accountId) return;
+        map.set(accountId, {
+          customerId,
+          customerName,
+          merchantId: customerId ? `M${customerId.replace(/^C/i, '')}` : '-',
+          accountName
+        });
+      });
+      return map;
+    }
+
+    function buildSupplementPreviewRows(parsedRows) {
+      const accountMap = getAccountReferenceMap();
+      return parsedRows.map(item => {
+        const matched = accountMap.get(item.accountId);
+        const amountInfo = parseAmount(item.clearAmountRaw);
+
+        let valid = true;
+        let invalidReason = '';
+
+        if (!item.accountId) {
+          valid = false;
+          invalidReason = '广告账户ID为空';
+        } else if (!matched) {
+          valid = false;
+          invalidReason = '无此账户';
+        } else if (!amountInfo.valid) {
+          valid = false;
+          invalidReason = '清零金额格式错误';
+        }
+
+        return {
+          merchantId: matched ? matched.merchantId : '-',
+          customerId: matched ? matched.customerId : '-',
+          customerName: matched ? matched.customerName : '-',
+          media: 'Facebook',
+          accountId: item.accountId || '-',
+          accountName: matched ? matched.accountName : '-',
+          clearAmount: amountInfo.valid ? amountInfo.value.toFixed(2) : String(item.clearAmountRaw || '-'),
+          valid,
+          invalidReason
+        };
+      });
+    }
+
+    function renderSupplementPreviewRows(rows) {
+      const tbody = document.getElementById('supplementPreviewBody');
+      tbody.innerHTML = '';
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-3 whitespace-nowrap">${row.merchantId}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.customerName}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.media}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.accountId}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.accountName}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.clearAmount}</td>
+          <td class="px-4 py-3 whitespace-nowrap ${row.valid ? 'text-green-600' : 'text-red-600'} font-medium">${row.valid ? '是' : '否'}</td>
+          <td class="px-4 py-3 whitespace-nowrap text-red-600">${row.invalidReason || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateSupplementPreviewSummary(rows) {
+      const total = rows.length;
+      const validCount = rows.filter(row => row.valid).length;
+      const invalidCount = total - validCount;
+      document.getElementById('supplementTotalCount').textContent = String(total);
+      document.getElementById('supplementValidCount').textContent = String(validCount);
+      document.getElementById('supplementInvalidCount').textContent = String(invalidCount);
+
+      const hint = document.getElementById('supplementPreviewHint');
+      if (validCount === 0) {
+        hint.textContent = '当前没有可写入的有效数据, 请返回修改Excel后重新上传。';
+      } else if (invalidCount === 0) {
+        hint.textContent = `本次将写入${validCount}条有效数据。`;
+      } else {
+        hint.textContent = `本次将写入${validCount}条有效数据, ${invalidCount}条无效数据将被忽略。`;
+      }
+      const confirmBtn = document.getElementById('confirmSupplementImport');
+      confirmBtn.disabled = validCount === 0;
+      confirmBtn.classList.toggle('opacity-50', validCount === 0);
+      confirmBtn.classList.toggle('cursor-not-allowed', validCount === 0);
+    }
+
+    function formatDateTimeForTable(date) {
+      const pad = n => String(n).padStart(2, '0');
+      const y = date.getFullYear();
+      const m = pad(date.getMonth() + 1);
+      const d = pad(date.getDate());
+      const h = pad(date.getHours());
+      const mm = pad(date.getMinutes());
+      return `${y}-${m}-${d} ${h}:${mm}`;
+    }
+
+    function appendSupplementRowsToMainTable(validRows) {
+      const tbody = document.getElementById('clearTableBody');
+      const now = new Date();
+      const dateTime = formatDateTimeForTable(now);
+      const operator = '管理员';
+      const sourceRemark = '来源: 补充清零数据';
+
+      const existingCount = tbody.querySelectorAll('tr').length;
+      validRows.forEach((row, index) => {
+        const clearId = `CL${String(existingCount + index + 1).padStart(3, '0')}`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
+          <td class="px-6 py-4 whitespace-nowrap">${clearId}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${row.customerId}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${row.customerName}</td>
+          <td class="px-6 py-4 whitespace-nowrap">-</td>
+          <td class="px-6 py-4 whitespace-nowrap" data-sort="${dateTime}">${dateTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${row.accountId}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${row.accountName}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${operator}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${Number(row.clearAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
+          <td class="px-6 py-4 whitespace-nowrap" data-sort="${dateTime}">${dateTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${sourceRemark}</td>
+          <td class="px-6 py-4 whitespace-nowrap">-</td>
+        `;
+        tbody.prepend(tr);
+      });
+
+      const totalDisplay = document.querySelector('.text-sm.text-gray-500 .font-medium.text-gray-900');
+      if (totalDisplay) {
+        totalDisplay.textContent = String(tbody.querySelectorAll('tr').length);
+      }
+      bindManualProcessEnable();
+    }
+
+    function setupSupplementUploadFlow() {
+      const uploadModal = document.getElementById('supplementUploadModal');
+      const previewModal = document.getElementById('supplementPreviewModal');
+      const openBtn = document.getElementById('openSupplementUploadModal');
+      const closeUploadBtn = document.getElementById('closeSupplementUploadModal');
+      const cancelUploadBtn = document.getElementById('cancelSupplementUpload');
+      const backBtn = document.getElementById('backToSupplementUpload');
+      const closePreviewBtn = document.getElementById('closeSupplementPreviewModal');
+      const uploadBtn = document.getElementById('submitSupplementUpload');
+      const confirmBtn = document.getElementById('confirmSupplementImport');
+      const fileInput = document.getElementById('supplementFileInput');
+      const fileInfo = document.getElementById('supplementUploadFileInfo');
+
+      const resetUploadState = () => {
+        fileInput.value = '';
+        fileInfo.classList.add('hidden');
+        fileInfo.textContent = '';
+        supplementParsedRows = [];
+      };
+
+      const closeUploadModal = () => {
+        uploadModal.classList.add('hidden');
+        resetUploadState();
+      };
+
+      const closePreviewModal = () => {
+        previewModal.classList.add('hidden');
+        document.getElementById('supplementPreviewBody').innerHTML = '';
+        supplementPreviewRows = [];
+      };
+
+      openBtn.addEventListener('click', () => {
+        uploadModal.classList.remove('hidden');
+      });
+
+      closeUploadBtn.addEventListener('click', closeUploadModal);
+      cancelUploadBtn.addEventListener('click', closeUploadModal);
+      closePreviewBtn.addEventListener('click', closePreviewModal);
+
+      backBtn.addEventListener('click', () => {
+        previewModal.classList.add('hidden');
+        uploadModal.classList.remove('hidden');
+      });
+
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+          fileInfo.classList.add('hidden');
+          fileInfo.textContent = '';
+          return;
+        }
+        fileInfo.classList.remove('hidden');
+        fileInfo.textContent = `已选择文件: ${file.name} (${Math.ceil(file.size / 1024)} KB)`;
+      });
+
+      uploadBtn.addEventListener('click', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+          alert('请先选择Excel文件');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = e => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            if (!firstSheetName) {
+              alert('Excel中未找到可读取的工作表');
+              return;
+            }
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+            if (!rawRows.length) {
+              alert('Excel内容为空, 请检查后重试');
+              return;
+            }
+
+            supplementParsedRows = rawRows.map(normalizeExcelRow);
+            supplementPreviewRows = buildSupplementPreviewRows(supplementParsedRows);
+            renderSupplementPreviewRows(supplementPreviewRows);
+            updateSupplementPreviewSummary(supplementPreviewRows);
+
+            uploadModal.classList.add('hidden');
+            previewModal.classList.remove('hidden');
+          } catch (error) {
+            alert('文件解析失败, 请确认Excel格式正确');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      confirmBtn.addEventListener('click', () => {
+        const validRows = supplementPreviewRows.filter(row => row.valid);
+        if (!validRows.length) {
+          alert('没有可写入的有效数据');
+          return;
+        }
+
+        appendSupplementRowsToMainTable(validRows);
+        closePreviewModal();
+        closeUploadModal();
+        alert(`写入成功: ${validRows.length}条有效数据已入系统, 已按补充清零数据来源记录。`);
+      });
+    }
+
     // 页面加载时默认按提交时间倒序排序，并绑定人工处理逻辑
     document.addEventListener('DOMContentLoaded', function() {
       updateSortIcons();
       bindManualProcessEnable();
       setupManualProcessSuccessModal();
       setupManualProcessFailModal();
+      setupSupplementUploadFlow();
     });
 
     // 模拟客户和广告账户数据
