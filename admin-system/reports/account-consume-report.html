@@ -140,6 +140,7 @@
               <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
               <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
               <li><a href="account-consume-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="manual-consume-upload.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-upload w-5 h-5 mr-3 text-gray-400"></i>人工上传媒体消耗</a></li>
               <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
               <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
               <li><a href="customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i>客户对账日报</a></li>
@@ -247,6 +248,7 @@
                 -
                 <input type="date" id="dateEnd" class="input-field border border-gray-300 rounded px-2 py-1">
               </div>
+              <button class="btn-primary bg-indigo-600 text-white h-10 px-4 rounded hover:bg-indigo-700" onclick="window.location.href='manual-consume-upload.html'"><i class="fas fa-file-upload mr-2"></i>人工上传媒体消耗</button>
               <button class="btn-primary bg-blue-600 text-white h-10 px-6 rounded hover:bg-blue-700" onclick="refreshCharts()"><i class="fas fa-search mr-2"></i>查询</button>
             </div>
             <!-- 图表区 -->
@@ -289,11 +291,13 @@
     </div>
   </div>
   <script>
-    // ========== 假数据池 ==========
-    const adPlatforms = ['Facebook', 'Google', 'TikTok'];
+    const MANUAL_CONSUME_STORAGE_KEY = 'manualConsumeRecordsV1';
+    const basePlatforms = ['Facebook', 'Google', 'TikTok'];
     const clientNames = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十'];
     const accountNames = ['FB123456', 'FB654321', 'GG987654', 'TK111222', 'TK333444', 'FB222333', 'GG555666', 'TK777888'];
-    // 生成日期数组
+    let clientTopRange = 'yesterday';
+    let accountTopRange = 'yesterday';
+
     function getDateArray(start, end) {
       const arr = [];
       let dt = new Date(start);
@@ -304,34 +308,73 @@
       }
       return arr;
     }
-    // 生成消耗趋势数据
+
+    function getNDaysAgo(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function getManualRecords() {
+      try {
+        const raw = localStorage.getItem(MANUAL_CONSUME_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
     function genSpendTrendData(platforms, days, minAmount, maxAmount) {
       const data = {};
-      platforms.forEach(p => {
-        data[p] = days.map(date => ({
+      platforms.forEach(platform => {
+        data[platform] = days.map(date => ({
           date,
           amount: +(Math.random() * (maxAmount - minAmount) + minAmount).toFixed(2)
         }));
       });
       return data;
     }
-    // 生成Top榜数据
-    function genTopData(names, minAmount, maxAmount) {
-      return names.map(name => ({
-        name,
-        amount: +(Math.random() * (maxAmount - minAmount) + minAmount).toFixed(2)
-      }));
+
+    function aggregateManualTrend(days) {
+      const records = getManualRecords();
+      const daySet = new Set(days);
+      const trend = {};
+      records.forEach(item => {
+        if (!daySet.has(item.consumeDate)) return;
+        if (!trend[item.media]) trend[item.media] = {};
+        trend[item.media][item.consumeDate] = (trend[item.media][item.consumeDate] || 0) + Number(item.consumeAmount || 0);
+      });
+      return trend;
     }
-    // ========== 卡片区数据和环比计算 ==========
+
+    function mergeTrend(baseTrend, manualTrend, days) {
+      const platformSet = new Set(Object.keys(baseTrend));
+      Object.keys(manualTrend).forEach(platform => platformSet.add(platform));
+      const platforms = Array.from(platformSet);
+      const merged = {};
+      platforms.forEach(platform => {
+        const baseMap = {};
+        (baseTrend[platform] || []).forEach(item => { baseMap[item.date] = item.amount; });
+        merged[platform] = days.map(date => ({
+          date,
+          amount: +(((baseMap[date] || 0) + ((manualTrend[platform] && manualTrend[platform][date]) || 0)).toFixed(2))
+        }));
+      });
+      return { platforms, trend: merged };
+    }
+
     function calcCardData(trendData, prevTrendData) {
-      // trendData/prevTrendData: {平台: [{date, amount}]}，只统计总和
-      let accounts = 0, amount = 0, prevAccounts = 0, prevAmount = 0;
+      let accounts = 0;
+      let amount = 0;
+      let prevAccounts = 0;
+      let prevAmount = 0;
       Object.values(trendData).forEach(arr => {
-        accounts += arr.length;
+        accounts += arr.filter(d => d.amount > 0).length;
         arr.forEach(d => { amount += d.amount; });
       });
       Object.values(prevTrendData).forEach(arr => {
-        prevAccounts += arr.length;
+        prevAccounts += arr.filter(d => d.amount > 0).length;
         arr.forEach(d => { prevAmount += d.amount; });
       });
       return {
@@ -341,27 +384,13 @@
         amountTrend: prevAmount === 0 ? null : ((amount - prevAmount) / prevAmount * 100).toFixed(1)
       };
     }
-    // ========== 图表渲染 ==========
-    let clientTopRange = 'yesterday';
-    let accountTopRange = 'yesterday';
-    function refreshCharts() {
-      const start = document.getElementById('dateStart').value;
-      const end = document.getElementById('dateEnd').value;
-      const days = getDateArray(start, end);
-      // 消耗趋势
-      const spendTrend = genSpendTrendData(adPlatforms, days, 100, 1000);
-      renderSpendTrendChart('spendTrendChart', days, adPlatforms, spendTrend);
-      // Top榜
-      renderClientTopChart();
-      renderAccountTopChart();
-    }
-    // 消耗趋势折线图
+
     function renderSpendTrendChart(domId, days, platforms, trendData) {
       const chart = echarts.init(document.getElementById(domId));
-      const series = platforms.map(p => ({
-        name: p,
+      const series = platforms.map(platform => ({
+        name: platform,
         type: 'line',
-        data: trendData[p].map(d => d.amount)
+        data: trendData[platform].map(item => item.amount)
       }));
       chart.setOption({
         tooltip: { trigger: 'axis' },
@@ -372,55 +401,94 @@
         series
       });
     }
-    // 客户Top5
+
+    function buildTopData(range) {
+      const records = getManualRecords();
+      let startDate = getNDaysAgo(1);
+      let endDate = getNDaysAgo(1);
+      if (range === '7d') startDate = getNDaysAgo(7);
+      if (range === '30d') startDate = getNDaysAgo(30);
+      const manual = records.filter(item => item.consumeDate >= startDate && item.consumeDate <= endDate);
+      const clientMap = new Map();
+      const accountMap = new Map();
+      manual.forEach(item => {
+        const clientName = item.customerName || '未知客户';
+        clientMap.set(clientName, (clientMap.get(clientName) || 0) + Number(item.consumeAmount || 0));
+        accountMap.set(item.accountId, (accountMap.get(item.accountId) || 0) + Number(item.consumeAmount || 0));
+      });
+
+      const randomClient = clientNames.slice(0, 5).map(name => ({ name, amount: +(Math.random() * 3000 + 500).toFixed(2) }));
+      const randomAccount = accountNames.slice(0, 5).map(name => ({ name, amount: +(Math.random() * 3000 + 500).toFixed(2) }));
+      const manualClient = Array.from(clientMap.entries()).map(([name, amount]) => ({ name, amount: +amount.toFixed(2) }));
+      const manualAccount = Array.from(accountMap.entries()).map(([name, amount]) => ({ name, amount: +amount.toFixed(2) }));
+
+      const mergeRank = items => {
+        const map = new Map();
+        items.forEach(item => map.set(item.name, (map.get(item.name) || 0) + item.amount));
+        return Array.from(map.entries())
+          .map(([name, amount]) => ({ name, amount: +amount.toFixed(2) }))
+          .sort((a, b) => b.amount - a.amount)
+          .slice(0, 5);
+      };
+      return {
+        clientData: mergeRank([...randomClient, ...manualClient]),
+        accountData: mergeRank([...randomAccount, ...manualAccount])
+      };
+    }
+
     function renderClientTopChart() {
-      let data;
-      if (clientTopRange === 'yesterday') {
-        data = genTopData(clientNames.slice(0,5), 500, 5000);
-      } else if (clientTopRange === '7d') {
-        data = genTopData(clientNames.slice(0,5), 2000, 20000);
-      } else {
-        data = genTopData(clientNames.slice(0,5), 8000, 80000);
-      }
+      const topData = buildTopData(clientTopRange).clientData;
       const chart = echarts.init(document.getElementById('clientTopChart'));
       chart.setOption({
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
         xAxis: { type: 'value', name: '消耗金额(USD)' },
-        yAxis: { type: 'category', data: data.map(d => d.name), inverse: true },
+        yAxis: { type: 'category', data: topData.map(item => item.name), inverse: true },
         series: [{
           name: '消耗金额',
           type: 'bar',
-          data: data.map(d => d.amount),
+          data: topData.map(item => item.amount),
           label: { show: true, position: 'right' }
         }]
       });
     }
-    // 账户Top5
+
     function renderAccountTopChart() {
-      let data;
-      if (accountTopRange === 'yesterday') {
-        data = genTopData(accountNames.slice(0,5), 500, 5000);
-      } else if (accountTopRange === '7d') {
-        data = genTopData(accountNames.slice(0,5), 2000, 20000);
-      } else {
-        data = genTopData(accountNames.slice(0,5), 8000, 80000);
-      }
+      const topData = buildTopData(accountTopRange).accountData;
       const chart = echarts.init(document.getElementById('accountTopChart'));
       chart.setOption({
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
         xAxis: { type: 'value', name: '消耗金额(USD)' },
-        yAxis: { type: 'category', data: data.map(d => d.name), inverse: true },
+        yAxis: { type: 'category', data: topData.map(item => item.name), inverse: true },
         series: [{
           name: '消耗金额',
           type: 'bar',
-          data: data.map(d => d.amount),
+          data: topData.map(item => item.amount),
           label: { show: true, position: 'right' }
         }]
       });
     }
-    // Top切换
+
+    function buildMergedTrendByRange(start, end, minAmount, maxAmount) {
+      const days = getDateArray(start, end);
+      const baseTrend = genSpendTrendData(basePlatforms, days, minAmount, maxAmount);
+      const manualTrend = aggregateManualTrend(days);
+      return mergeTrend(baseTrend, manualTrend, days);
+    }
+
+    function refreshCharts() {
+      const start = document.getElementById('dateStart').value;
+      const end = document.getElementById('dateEnd').value;
+      const days = getDateArray(start, end);
+      const baseTrend = genSpendTrendData(basePlatforms, days, 100, 1000);
+      const manualTrend = aggregateManualTrend(days);
+      const merged = mergeTrend(baseTrend, manualTrend, days);
+      renderSpendTrendChart('spendTrendChart', days, merged.platforms, merged.trend);
+      renderClientTopChart();
+      renderAccountTopChart();
+    }
+
     function setClientTopRange(range) {
       clientTopRange = range;
       document.getElementById('clientTopToggleYesterday').classList.toggle('active', range === 'yesterday');
@@ -428,6 +496,7 @@
       document.getElementById('clientTopToggle30d').classList.toggle('active', range === '30d');
       renderClientTopChart();
     }
+
     function setAccountTopRange(range) {
       accountTopRange = range;
       document.getElementById('accountTopToggleYesterday').classList.toggle('active', range === 'yesterday');
@@ -435,53 +504,7 @@
       document.getElementById('accountTopToggle30d').classList.toggle('active', range === '30d');
       renderAccountTopChart();
     }
-    // 页面初始化
-    document.addEventListener('DOMContentLoaded', function() {
-      // 卡片区数据（昨日、7天、30天）
-      const yesterday = getNDaysAgo(1);
-      const days7 = getDateArray(getNDaysAgo(7), getNDaysAgo(1));
-      const days30 = getDateArray(getNDaysAgo(30), getNDaysAgo(1));
-      const prevYesterday = getNDaysAgo(2);
-      const prev7Start = getNDaysAgo(14); const prev7End = getNDaysAgo(8);
-      const prev30Start = getNDaysAgo(60); const prev30End = getNDaysAgo(31);
-      // 用假数据生成账户数和金额（非零）
-      // 昨日
-      const spendTrendYesterday = genSpendTrendData(adPlatforms, [yesterday], 100, 1000);
-      const spendTrendPrevYesterday = genSpendTrendData(adPlatforms, [prevYesterday], 100, 1000);
-      // 7天
-      const spendTrend7 = genSpendTrendData(adPlatforms, days7, 200, 2000);
-      const spendTrendPrev7 = genSpendTrendData(adPlatforms, getDateArray(prev7Start, prev7End), 200, 2000);
-      // 30天
-      const spendTrend30 = genSpendTrendData(adPlatforms, days30, 500, 5000);
-      const spendTrendPrev30 = genSpendTrendData(adPlatforms, getDateArray(prev30Start, prev30End), 500, 5000);
-      const cardYesterday = calcCardData(spendTrendYesterday, spendTrendPrevYesterday);
-      const card7 = calcCardData(spendTrend7, spendTrendPrev7);
-      const card30 = calcCardData(spendTrend30, spendTrendPrev30);
-      document.getElementById('card-yesterday-accounts').textContent = cardYesterday.accounts;
-      document.getElementById('card-yesterday-amount').textContent = '$' + cardYesterday.amount.toLocaleString(undefined, {minimumFractionDigits:2});
-      setTrend('card-yesterday-accounts-trend', cardYesterday.accountsTrend);
-      setTrend('card-yesterday-amount-trend', cardYesterday.amountTrend);
-      document.getElementById('card-7d-accounts').textContent = card7.accounts;
-      document.getElementById('card-7d-amount').textContent = '$' + card7.amount.toLocaleString(undefined, {minimumFractionDigits:2});
-      setTrend('card-7d-accounts-trend', card7.accountsTrend);
-      setTrend('card-7d-amount-trend', card7.amountTrend);
-      document.getElementById('card-30d-accounts').textContent = card30.accounts;
-      document.getElementById('card-30d-amount').textContent = '$' + card30.amount.toLocaleString(undefined, {minimumFractionDigits:2});
-      setTrend('card-30d-accounts-trend', card30.accountsTrend);
-      setTrend('card-30d-amount-trend', card30.amountTrend);
-      // 默认日期范围为最近7天（不含当天）
-      const defaultEnd = getNDaysAgo(1);
-      const defaultStart = getNDaysAgo(7);
-      document.getElementById('dateStart').value = defaultStart;
-      document.getElementById('dateEnd').value = defaultEnd;
-      refreshCharts();
-    });
-    // 工具函数：获取N天前的日期字符串
-    function getNDaysAgo(n) {
-      const d = new Date();
-      d.setDate(d.getDate() - n);
-      return d.toISOString().slice(0,10);
-    }
+
     function setTrend(id, trend) {
       const el = document.getElementById(id);
       if (trend === null) {
@@ -492,7 +515,39 @@
         el.innerHTML = `<span class="trend-down"><i class="fas fa-arrow-down"></i> ${trend}%</span>`;
       }
     }
-    // 菜单项切换
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const yesterday = getNDaysAgo(1);
+      const prevYesterday = getNDaysAgo(2);
+      const range7 = buildMergedTrendByRange(getNDaysAgo(7), getNDaysAgo(1), 200, 2000);
+      const rangePrev7 = buildMergedTrendByRange(getNDaysAgo(14), getNDaysAgo(8), 200, 2000);
+      const range30 = buildMergedTrendByRange(getNDaysAgo(30), getNDaysAgo(1), 500, 5000);
+      const rangePrev30 = buildMergedTrendByRange(getNDaysAgo(60), getNDaysAgo(31), 500, 5000);
+      const yesterdayRange = buildMergedTrendByRange(yesterday, yesterday, 100, 1000);
+      const prevYesterdayRange = buildMergedTrendByRange(prevYesterday, prevYesterday, 100, 1000);
+
+      const cardYesterday = calcCardData(yesterdayRange.trend, prevYesterdayRange.trend);
+      const card7 = calcCardData(range7.trend, rangePrev7.trend);
+      const card30 = calcCardData(range30.trend, rangePrev30.trend);
+
+      document.getElementById('card-yesterday-accounts').textContent = cardYesterday.accounts;
+      document.getElementById('card-yesterday-amount').textContent = '$' + cardYesterday.amount.toLocaleString(undefined, { minimumFractionDigits: 2 });
+      document.getElementById('card-7d-accounts').textContent = card7.accounts;
+      document.getElementById('card-7d-amount').textContent = '$' + card7.amount.toLocaleString(undefined, { minimumFractionDigits: 2 });
+      document.getElementById('card-30d-accounts').textContent = card30.accounts;
+      document.getElementById('card-30d-amount').textContent = '$' + card30.amount.toLocaleString(undefined, { minimumFractionDigits: 2 });
+      setTrend('card-yesterday-accounts-trend', cardYesterday.accountsTrend);
+      setTrend('card-yesterday-amount-trend', cardYesterday.amountTrend);
+      setTrend('card-7d-accounts-trend', card7.accountsTrend);
+      setTrend('card-7d-amount-trend', card7.amountTrend);
+      setTrend('card-30d-accounts-trend', card30.accountsTrend);
+      setTrend('card-30d-amount-trend', card30.amountTrend);
+
+      document.getElementById('dateStart').value = getNDaysAgo(7);
+      document.getElementById('dateEnd').value = getNDaysAgo(1);
+      refreshCharts();
+    });
+
     document.querySelectorAll('.sidebar-item').forEach(item => {
       item.addEventListener('click', function(e) {
         if (this.getAttribute('href') === '#') {

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人工上传媒体消耗 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcdn.net/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg">
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+      </div>
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav class="mt-8">
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">主要功能</h3>
+            <ul class="space-y-1">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">FB业务管理</h3>
+            <ul class="space-y-1">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">广告治理</h3>
+            <ul class="space-y-1">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">系统设置</h3>
+            <ul class="space-y-1">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">客户流水</h3>
+            <ul class="space-y-1">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">报表</h3>
+            <ul class="space-y-1">
+              <li><a href="customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="manual-consume-upload.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-file-upload w-5 h-5 mr-3 text-gray-400"></i>人工上传媒体消耗</a></li>
+              <li><a href="negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+              <li><a href="customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i>客户对账日报</a></li>
+              <li><a href="data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i>数据报表</a></li>
+              <li><a href="consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i>消耗分析</a></li>
+              <li><a href="recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i>充值分布分析</a></li>
+              <li><a href="profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i>预计利润波动分析</a></li>
+              <li><a href="customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i>客户资金变动</a></li>
+              <li><a href="ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i>广告客户表现</a></li>
+              <li><a href="weekly-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-gray-400"></i>广告周数据</a></li>
+              <li><a href="account-card-reconciliation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-link w-5 h-5 mr-3 text-gray-400"></i>绑卡户数据核对</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+              <span class="text-gray-500">报表</span>
+              <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+              <span class="text-gray-900 font-medium">人工上传媒体消耗</span>
+            </nav>
+          </div>
+          <span class="text-sm text-gray-600">管理员</span>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h1 class="text-xl font-bold text-gray-900">人工上传媒体消耗</h1>
+                <div class="flex gap-2">
+                  <button id="downloadTemplateBtn" class="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-700">
+                    <i class="fas fa-download mr-2"></i>下载模板
+                  </button>
+                  <button id="openUploadModalBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700">
+                    <i class="fas fa-file-upload mr-2"></i>上传文件
+                  </button>
+                </div>
+              </div>
+              <div class="text-sm text-gray-600 space-y-1">
+                <p>模板字段固定为: 广告账户ID, 消耗日期, 消耗。</p>
+                <p>系统按广告账户自动回填币种, 并按 媒体 + 广告账户ID + 消耗日期 进行覆盖写入。</p>
+                <p>支持历史任意日期上传。</p>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-4">已上传记录</h2>
+              <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">媒体</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">广告账户ID</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">广告账户名称</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">消耗日期</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">币种</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">消耗</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">数据来源</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">更新人</th>
+                      <th class="px-4 py-3 text-left font-medium text-gray-600">更新时间</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyTableBody" class="divide-y divide-gray-100 bg-white"></tbody>
+                </table>
+              </div>
+              <p id="historyEmptyText" class="text-sm text-gray-500 mt-3 hidden">暂无人工上传记录。</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 relative">
+      <button id="closeUploadModalBtn" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-2">上传媒体消耗文件</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">媒体 <span class="text-red-500">*</span></label>
+          <select id="uploadMediaSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            <option value="">请选择媒体</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Google">Google</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Snapchat">Snapchat</option>
+            <option value="Taboola">Taboola</option>
+            <option value="Applovin">Applovin</option>
+            <option value="Pinterest">Pinterest</option>
+            <option value="Newsbreak">Newsbreak</option>
+            <option value="Bing">Bing</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">选择Excel文件</label>
+          <input id="consumeFileInput" type="file" accept=".xlsx,.xls" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        </div>
+      </div>
+      <div id="uploadFileInfo" class="hidden text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded p-3 mb-4"></div>
+      <div class="flex justify-end gap-2">
+        <button id="cancelUploadBtn" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+        <button id="parseUploadBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">上传并解析</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="previewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-7xl p-6 relative">
+      <button id="closePreviewModalBtn" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-2">上传预览</h3>
+      <p class="text-sm text-gray-500 mb-4">仅写入有效数据。重复数据会按覆盖策略更新。</p>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+        <div class="rounded border border-gray-200 bg-gray-50 p-3 text-sm">
+          <div class="text-gray-500">总行数</div>
+          <div id="previewTotalCount" class="text-xl font-semibold text-gray-900">0</div>
+        </div>
+        <div class="rounded border border-green-200 bg-green-50 p-3 text-sm">
+          <div class="text-green-700">可写入</div>
+          <div id="previewValidCount" class="text-xl font-semibold text-green-700">0</div>
+        </div>
+        <div class="rounded border border-red-200 bg-red-50 p-3 text-sm">
+          <div class="text-red-700">无效</div>
+          <div id="previewInvalidCount" class="text-xl font-semibold text-red-700">0</div>
+        </div>
+        <div class="rounded border border-indigo-200 bg-indigo-50 p-3 text-sm">
+          <div class="text-indigo-700">覆盖条数</div>
+          <div id="previewOverwriteCount" class="text-xl font-semibold text-indigo-700">0</div>
+        </div>
+      </div>
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="overflow-auto max-h-[420px]">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50 sticky top-0">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">消耗日期</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">币种</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">消耗</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">说明</th>
+              </tr>
+            </thead>
+            <tbody id="previewTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="flex justify-between items-center mt-4">
+        <div id="previewHint" class="text-sm text-gray-500"></div>
+        <div class="flex items-center gap-2">
+          <button id="backToUploadBtn" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">返回修改</button>
+          <button id="confirmImportBtn" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">确认写入系统</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MANUAL_CONSUME_STORAGE_KEY = 'manualConsumeRecordsV1';
+    const accountCatalog = [
+      { media: 'Facebook', accountId: 'FB123456', accountName: 'FB跨境A', currency: 'USD', customerName: '张三' },
+      { media: 'Facebook', accountId: 'FB654321', accountName: 'FB跨境B', currency: 'USD', customerName: '李四' },
+      { media: 'Google', accountId: 'GG987654', accountName: 'GG应用A', currency: 'USD', customerName: '王五' },
+      { media: 'Google', accountId: 'GG555666', accountName: 'GG电商B', currency: 'USD', customerName: '赵六' },
+      { media: 'TikTok', accountId: 'TK111222', accountName: 'TK品牌A', currency: 'USD', customerName: '钱七' },
+      { media: 'TikTok', accountId: 'TK333444', accountName: 'TK品牌B', currency: 'USD', customerName: '孙八' },
+      { media: 'Snapchat', accountId: 'SC123456', accountName: 'SC拉新A', currency: 'USD', customerName: '周九' },
+      { media: 'Taboola', accountId: 'TB123456', accountName: 'TB内容A', currency: 'USD', customerName: '吴十' },
+      { media: 'Applovin', accountId: 'AP123456', accountName: 'AP游戏A', currency: 'USD', customerName: '郑一' },
+      { media: 'Pinterest', accountId: 'PI123456', accountName: 'PI家居A', currency: 'USD', customerName: '王二' },
+      { media: 'Newsbreak', accountId: 'NB123456', accountName: 'NB新闻A', currency: 'USD', customerName: '李三' },
+      { media: 'Bing', accountId: 'BI123456', accountName: 'BI搜索A', currency: 'USD', customerName: '张四' }
+    ];
+
+    let previewRows = [];
+
+    function normalizeDateInput(raw) {
+      if (raw === null || raw === undefined) return '';
+      if (typeof raw === 'number') {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const date = new Date(excelEpoch.getTime() + raw * 86400000);
+        return date.toISOString().slice(0, 10);
+      }
+      const value = String(raw).trim().replace(/\//g, '-');
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      return date.toISOString().slice(0, 10);
+    }
+
+    function parseAmount(raw) {
+      const cleaned = String(raw ?? '').replace(/,/g, '').trim();
+      if (!cleaned) return { valid: false, value: 0 };
+      const num = Number(cleaned);
+      if (!Number.isFinite(num) || num <= 0) return { valid: false, value: 0 };
+      return { valid: true, value: num };
+    }
+
+    function getStoredRecords() {
+      try {
+        const value = localStorage.getItem(MANUAL_CONSUME_STORAGE_KEY);
+        const parsed = value ? JSON.parse(value) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function setStoredRecords(records) {
+      localStorage.setItem(MANUAL_CONSUME_STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function formatDateTime(date) {
+      const pad = n => String(n).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function buildPreviewRows(media, rows) {
+      const stored = getStoredRecords();
+      const storedKeys = new Set(stored.map(item => `${item.media}|${item.accountId}|${item.consumeDate}`));
+      const inFileKeys = new Set();
+      return rows.map(row => {
+        const accountId = String(row['广告账户ID'] ?? row['广告账户Id'] ?? row['accountId'] ?? '').trim();
+        const consumeDate = normalizeDateInput(row['消耗日期'] ?? row['日期'] ?? row['date']);
+        const amountInfo = parseAmount(row['消耗'] ?? row['消耗金额'] ?? row['amount']);
+        const account = accountCatalog.find(item => item.media === media && item.accountId === accountId);
+        let valid = true;
+        let reason = '';
+        let action = '新增';
+
+        if (!media) {
+          valid = false;
+          reason = '未选择媒体';
+        } else if (!accountId) {
+          valid = false;
+          reason = '广告账户ID为空';
+        } else if (!consumeDate) {
+          valid = false;
+          reason = '消耗日期格式错误';
+        } else if (!amountInfo.valid) {
+          valid = false;
+          reason = '消耗格式错误';
+        } else if (!account) {
+          valid = false;
+          reason = '账户不存在或媒体不匹配';
+        }
+
+        const key = `${media}|${accountId}|${consumeDate}`;
+        if (valid && inFileKeys.has(key)) {
+          valid = false;
+          reason = '文件内重复';
+        }
+        if (valid) {
+          inFileKeys.add(key);
+          if (storedKeys.has(key)) {
+            action = '覆盖';
+          }
+        }
+
+        return {
+          media,
+          accountId: accountId || '-',
+          accountName: account ? account.accountName : '-',
+          consumeDate: consumeDate || '-',
+          currency: account ? account.currency : '-',
+          consumeAmount: amountInfo.valid ? amountInfo.value : 0,
+          customerName: account ? account.customerName : '-',
+          valid,
+          action,
+          reason
+        };
+      });
+    }
+
+    function renderPreview(rows) {
+      const body = document.getElementById('previewTableBody');
+      body.innerHTML = '';
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        const status = row.valid ? (row.action === '覆盖' ? '可写入(覆盖)' : '可写入') : '无效';
+        tr.innerHTML = `
+          <td class="px-4 py-3 whitespace-nowrap">${row.media}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.accountId}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.accountName}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.consumeDate}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.currency}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.consumeAmount ? row.consumeAmount.toFixed(2) : '-'}</td>
+          <td class="px-4 py-3 whitespace-nowrap ${row.valid ? 'text-green-600' : 'text-red-600'} font-medium">${status}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.reason || '-'}</td>
+        `;
+        body.appendChild(tr);
+      });
+
+      const total = rows.length;
+      const validRows = rows.filter(item => item.valid);
+      const overwrite = validRows.filter(item => item.action === '覆盖').length;
+      const invalid = total - validRows.length;
+      document.getElementById('previewTotalCount').textContent = String(total);
+      document.getElementById('previewValidCount').textContent = String(validRows.length);
+      document.getElementById('previewInvalidCount').textContent = String(invalid);
+      document.getElementById('previewOverwriteCount').textContent = String(overwrite);
+      document.getElementById('previewHint').textContent = validRows.length === 0
+        ? '当前没有可写入的数据, 请返回修正后重试。'
+        : `本次将写入 ${validRows.length} 条数据, 其中覆盖 ${overwrite} 条。`;
+
+      const confirmBtn = document.getElementById('confirmImportBtn');
+      confirmBtn.disabled = validRows.length === 0;
+      confirmBtn.classList.toggle('opacity-50', validRows.length === 0);
+      confirmBtn.classList.toggle('cursor-not-allowed', validRows.length === 0);
+    }
+
+    function savePreviewRows() {
+      const validRows = previewRows.filter(item => item.valid);
+      const oldRecords = getStoredRecords();
+      const now = new Date();
+      const nowText = formatDateTime(now);
+      const map = new Map(oldRecords.map(item => [`${item.media}|${item.accountId}|${item.consumeDate}`, item]));
+      validRows.forEach(item => {
+        const key = `${item.media}|${item.accountId}|${item.consumeDate}`;
+        map.set(key, {
+          media: item.media,
+          accountId: item.accountId,
+          accountName: item.accountName,
+          consumeDate: item.consumeDate,
+          currency: item.currency,
+          consumeAmount: Number(item.consumeAmount.toFixed(2)),
+          customerName: item.customerName,
+          source: 'manual-upload',
+          operator: '管理员',
+          updatedAt: nowText
+        });
+      });
+      const merged = Array.from(map.values()).sort((a, b) => `${b.consumeDate} ${b.updatedAt}`.localeCompare(`${a.consumeDate} ${a.updatedAt}`));
+      setStoredRecords(merged);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const records = getStoredRecords();
+      const body = document.getElementById('historyTableBody');
+      const empty = document.getElementById('historyEmptyText');
+      body.innerHTML = '';
+      if (!records.length) {
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      records.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-3 whitespace-nowrap">${item.media}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${item.accountId}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${item.accountName}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${item.consumeDate}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${item.currency}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${Number(item.consumeAmount).toFixed(2)}</td>
+          <td class="px-4 py-3 whitespace-nowrap">人工上传</td>
+          <td class="px-4 py-3 whitespace-nowrap">${item.operator || '-'}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${item.updatedAt || '-'}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.add('hidden');
+      document.getElementById('consumeFileInput').value = '';
+      document.getElementById('uploadMediaSelect').value = '';
+      const info = document.getElementById('uploadFileInfo');
+      info.textContent = '';
+      info.classList.add('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
+      previewRows = [];
+      document.getElementById('previewTableBody').innerHTML = '';
+    }
+
+    function toggleMenuSection(menuId) {
+      const menu = document.getElementById(menuId);
+      const arrow = document.getElementById(`${menuId}Arrow`);
+      if (!menu || !arrow) return;
+      const isHidden = menu.classList.toggle('hidden');
+      arrow.classList.toggle('rotate-180', !isHidden);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHistory();
+
+      document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
+        const data = [
+          { 广告账户ID: 'FB123456', 消耗日期: '2026-04-25', 消耗: 123.45 },
+          { 广告账户ID: 'FB654321', 消耗日期: '2026-04-25', 消耗: 246.80 }
+        ];
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, '人工消耗模板');
+        XLSX.writeFile(wb, '人工上传媒体消耗模板.xlsx');
+      });
+
+      document.getElementById('openUploadModalBtn').addEventListener('click', () => {
+        document.getElementById('uploadModal').classList.remove('hidden');
+      });
+      document.getElementById('closeUploadModalBtn').addEventListener('click', closeUploadModal);
+      document.getElementById('cancelUploadBtn').addEventListener('click', closeUploadModal);
+
+      document.getElementById('consumeFileInput').addEventListener('change', event => {
+        const file = event.target.files && event.target.files[0];
+        const info = document.getElementById('uploadFileInfo');
+        if (!file) {
+          info.textContent = '';
+          info.classList.add('hidden');
+          return;
+        }
+        info.classList.remove('hidden');
+        info.textContent = `已选择文件: ${file.name} (${Math.ceil(file.size / 1024)} KB)`;
+      });
+
+      document.getElementById('parseUploadBtn').addEventListener('click', () => {
+        const fileInput = document.getElementById('consumeFileInput');
+        const media = document.getElementById('uploadMediaSelect').value;
+        const file = fileInput.files && fileInput.files[0];
+        if (!media) {
+          alert('请先选择媒体');
+          return;
+        }
+        if (!file) {
+          alert('请先选择Excel文件');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = event => {
+          try {
+            const data = new Uint8Array(event.target.result);
+            const wb = XLSX.read(data, { type: 'array' });
+            const firstSheet = wb.SheetNames[0];
+            if (!firstSheet) {
+              alert('Excel中未找到工作表');
+              return;
+            }
+            const ws = wb.Sheets[firstSheet];
+            const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+            if (!rows.length) {
+              alert('Excel内容为空');
+              return;
+            }
+            previewRows = buildPreviewRows(media, rows);
+            renderPreview(previewRows);
+            document.getElementById('uploadModal').classList.add('hidden');
+            document.getElementById('previewModal').classList.remove('hidden');
+          } catch (error) {
+            alert('文件解析失败, 请检查格式');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      document.getElementById('backToUploadBtn').addEventListener('click', () => {
+        document.getElementById('previewModal').classList.add('hidden');
+        document.getElementById('uploadModal').classList.remove('hidden');
+      });
+      document.getElementById('closePreviewModalBtn').addEventListener('click', closePreviewModal);
+
+      document.getElementById('confirmImportBtn').addEventListener('click', () => {
+        const validCount = previewRows.filter(item => item.valid).length;
+        if (!validCount) {
+          alert('没有可写入数据');
+          return;
+        }
+        savePreviewRows();
+        closePreviewModal();
+        closeUploadModal();
+        alert(`写入成功: ${validCount} 条数据已入系统`);
+      });
+    });
+  </script>
+</body>
+</html>
