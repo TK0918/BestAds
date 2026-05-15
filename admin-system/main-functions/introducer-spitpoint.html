@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>介绍人和吐点 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .sidebar-item {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar-item.active::before,
+    .sidebar-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    .mobile-menu-open {
+      transform: translateX(0);
+    }
+
+    .mobile-menu-closed {
+      transform: translateX(-100%);
+    }
+
+    .introducer-tab:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+
+    .introducer-tab[aria-selected="true"] {
+      cursor: default;
+    }
+
+    .toast-enter {
+      animation: toastIn 0.2s ease-out;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(4px);
+    }
+
+    .gantt-wrap {
+      overflow-x: auto;
+    }
+
+    .preview-q-shell {
+      font-size: 0.7rem;
+    }
+
+    .preview-q-range {
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .preview-q-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+      margin-top: 0.35rem;
+    }
+
+    .preview-q-label {
+      width: 7rem;
+      flex-shrink: 0;
+      font-family: ui-monospace, monospace;
+      font-size: 0.65rem;
+      color: #374151;
+      padding-top: 0.35rem;
+      word-break: break-all;
+    }
+
+    .preview-q-track {
+      flex: 1;
+      position: relative;
+      min-height: 2.35rem;
+      min-width: 12rem;
+      background: #e5e7eb;
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .preview-q-bar {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      border-radius: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 3px;
+      box-sizing: border-box;
+      color: #fff;
+      text-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      font-size: 0.55rem;
+      line-height: 1.15;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      min-width: 2px;
+    }
+
+    .preview-q-bar-muted {
+      color: #4b5563;
+      text-shadow: none;
+      border-color: rgba(0, 0, 0, 0.06);
+    }
+
+    .settle-th {
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            BestAds Admin
+          </span>
+        </div>
+      </div>
+
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+              <li><a href="introducer-spitpoint.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-500"></i>介绍人和吐点</a></li>
+              <li><a href="deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+              <li><a href="system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
+              <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="perfMenu" class="space-y-1 mb-2">
+              <li><a href="../performance/metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+              <li><a href="../performance/performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+              <li><a href="../performance/all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
+              <li><a href="../performance/my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
+              <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../system-settings/notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+            </ul>
+          </div>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button type="button" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">介绍人和吐点</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span id="introducer-breadcrumb-current" class="text-gray-900 font-medium">介绍人列表</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button type="button" class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-6">
+              <h2 class="text-2xl font-bold text-gray-900">介绍人和吐点</h2>
+              <p class="mt-1 text-sm text-gray-500">介绍人列表, 介绍人关系与吐点, 吐点结算 (示例 UI, 对接后端后替换为真实数据; PRD 6.2 将关系与基础/特殊吐点合并为同一模块)</p>
+            </div>
+
+            <div class="border-b border-gray-200 mb-6">
+              <nav id="tablist-introducer" class="-mb-px flex flex-wrap gap-2" role="tablist" aria-label="介绍人和吐点">
+                <button type="button" id="tab-btn-list" role="tab" aria-controls="panel-list" aria-selected="true" tabindex="0" class="introducer-tab whitespace-nowrap border-b-2 border-blue-600 px-4 py-3 text-sm font-medium text-blue-600 rounded-t-md">
+                  <i class="fas fa-handshake mr-2" aria-hidden="true"></i>介绍人列表
+                </button>
+                <button type="button" id="tab-btn-relations" role="tab" aria-controls="panel-relations" aria-selected="false" tabindex="-1" class="introducer-tab whitespace-nowrap border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 rounded-t-md">
+                  <i class="fas fa-link mr-2" aria-hidden="true"></i>介绍人关系与吐点
+                </button>
+                <button type="button" id="tab-btn-settlement" role="tab" aria-controls="panel-settlement" aria-selected="false" tabindex="-1" class="introducer-tab whitespace-nowrap border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 rounded-t-md">
+                  <i class="fas fa-file-invoice-dollar mr-2" aria-hidden="true"></i>吐点结算
+                </button>
+              </nav>
+              <p id="tab-hint" class="mt-2 text-xs text-gray-500 hidden" role="status"></p>
+            </div>
+
+            <div id="panel-list" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-list" tabindex="0">
+              <div class="mb-8 md:flex md:items-center md:justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">介绍人列表</h3>
+                  <p class="mt-1 text-sm text-gray-500">运营维护介绍人身份与客户端可见性</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                  <button type="button" id="btn-add-introducer" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    <i class="fas fa-plus mr-2"></i>新增介绍人
+                  </button>
+                </div>
+              </div>
+              <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6 p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">筛选 (PRD 6.1.5.1)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                  <div><label class="block text-sm text-gray-700 mb-1" for="list-filter-merchant-id">介绍人商户ID</label><input id="list-filter-merchant-id" type="text" class="w-full border rounded-md px-3 py-2 text-sm" placeholder="精确/前缀, 对接后按系统口径"></div>
+                  <div><label class="block text-sm text-gray-700 mb-1" for="list-filter-customer-name">介绍人客户名称</label><input id="list-filter-customer-name" type="text" class="w-full border rounded-md px-3 py-2 text-sm" placeholder="模糊搜索"></div>
+                  <div><label class="block text-sm text-gray-700 mb-1" for="filter-intro-state">状态</label><select id="filter-intro-state" class="w-full border rounded-md px-3 py-2 text-sm"><option value="">全部</option><option>启用</option><option>停用</option></select></div>
+                  <div><label class="block text-sm text-gray-700 mb-1" for="filter-intro-visible">客户端可见性</label><select id="filter-intro-visible" class="w-full border rounded-md px-3 py-2 text-sm"><option value="">全部</option><option>可见</option><option>不可见</option></select></div>
+                  <div class="md:col-span-2"><label class="block text-sm text-gray-700 mb-1" for="list-filter-became-at">成为介绍人时间</label><input id="list-filter-became-at" type="datetime-local" step="1" class="w-full border rounded-md px-3 py-2 text-sm" title="客户成为介绍人的时间, 如 2026-05-14 23:59:59"></div>
+                  <div class="md:col-span-2 xl:col-span-2"><label class="block text-sm text-gray-700 mb-1" for="list-filter-operators">操作人</label><select id="list-filter-operators" multiple size="3" class="w-full border rounded-md px-3 py-2 text-sm min-h-[5.5rem]" aria-describedby="list-filter-operators-hint"><option>欧伟权 (ouweiquan@bestfulfill.com)</option><option>系统 (system)</option></select><p id="list-filter-operators-hint" class="mt-1 text-xs text-gray-500">枚举多选, 按住 Cmd/Ctrl 多选</p></div>
+                </div>
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                  <button type="button" id="btn-list-filter" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm inline-flex items-center"><i class="fas fa-search mr-2"></i>筛选</button>
+                  <span id="list-filter-result" class="text-sm text-gray-500" aria-live="polite"></span>
+                </div>
+              </div>
+              <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                  <h3 class="text-lg font-medium text-gray-900">介绍人列表</h3>
+                  <p class="text-xs text-gray-500">排序: 支持按成为介绍人时间, 关联客户数 (PRD 6.1.5.3)</p>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50"><tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">介绍人商户ID</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">介绍人客户名称</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">客户端可见性</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><button type="button" class="sort-col text-left uppercase text-xs font-medium text-gray-500 hover:text-gray-800" data-sort="rel-count" title="点击切换排序 (原型)">关联客户数 <i class="fas fa-sort text-gray-400 ml-1" aria-hidden="true"></i></button></th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><button type="button" class="sort-col text-left uppercase text-xs font-medium text-gray-500 hover:text-gray-800" data-sort="became-at" title="点击切换排序 (原型)">成为介绍人时间 <i class="fas fa-sort text-gray-400 ml-1" aria-hidden="true"></i></button></th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作人</th>
+                    </tr></thead>
+                    <tbody id="tbody-introducer-list" class="divide-y divide-gray-200 text-sm">
+                      <tr id="row-intro-001" data-status="enabled" data-client-visible="false">
+                        <td class="px-6 py-4 font-mono text-xs">C-INT-001</td>
+                        <td class="px-6 py-4">示例客户 A</td>
+                        <td class="px-6 py-4">
+                          <button type="button" class="intro-client-toggle relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" role="switch" aria-checked="false" data-row="row-intro-001" title="与 7.1 客户端菜单联动, 立即生效, 无需二次确认 (PRD 6.1.5.4)">
+                            <span class="sr-only">客户端可见性</span>
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+                          </button>
+                          <span class="ml-2 text-xs text-gray-500 intro-client-label">关</span>
+                        </td>
+                        <td class="px-6 py-4">
+                          <button type="button" class="intro-status-toggle relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-blue-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" role="switch" aria-checked="true" data-row="row-intro-001" title="启用 / 停用介绍人 (停用需二次确认)">
+                            <span class="sr-only">介绍人状态</span>
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"></span>
+                          </button>
+                          <span class="ml-2 text-xs text-gray-600 intro-status-label">启用</span>
+                        </td>
+                        <td class="px-6 py-4 tabular-nums" data-rel-count>3</td>
+                        <td class="px-6 py-4 whitespace-nowrap tabular-nums" data-became-at>2026-01-10 09:30:00</td>
+                        <td class="px-6 py-4 text-xs text-gray-600">欧伟权 (ouweiquan@bestfulfill.com)</td>
+                      </tr>
+                      <tr id="row-intro-002" data-status="disabled" data-client-visible="false">
+                        <td class="px-6 py-4 font-mono text-xs">C-INT-002</td>
+                        <td class="px-6 py-4">示例客户 B</td>
+                        <td class="px-6 py-4">
+                          <button type="button" disabled class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-not-allowed rounded-full border-2 border-transparent bg-gray-100 opacity-50" role="switch" aria-checked="false" title="介绍人已停用, 不可切换客户端可见性 (PRD 6.1)">
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow translate-x-0"></span>
+                          </button>
+                          <span class="ml-2 text-xs text-gray-400">关</span>
+                        </td>
+                        <td class="px-6 py-4">
+                          <button type="button" class="intro-status-toggle relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" role="switch" aria-checked="false" data-row="row-intro-002" title="启用介绍人">
+                            <span class="sr-only">介绍人状态</span>
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+                          </button>
+                          <span class="ml-2 text-xs text-gray-500 intro-status-label">停用</span>
+                        </td>
+                        <td class="px-6 py-4 tabular-nums" data-rel-count>0</td>
+                        <td class="px-6 py-4 whitespace-nowrap tabular-nums" data-became-at>2025-11-02 14:00:00</td>
+                        <td class="px-6 py-4 text-xs text-gray-600">系统 (system)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div id="panel-relations" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-btn-relations" tabindex="0" hidden>
+              <div class="mb-6 md:flex md:items-center md:justify-between gap-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">介绍人关系与吐点</h3>
+                  <p class="mt-1 text-sm text-gray-500">关系列表中点击「吐点规则」进入基础吐点, 特殊吐点与生效预览子页; 返回键回到列表</p>
+                </div>
+                <button type="button" id="btn-relations-add" class="shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">新增关系</button>
+              </div>
+              <div class="bg-amber-50 border border-amber-200 text-amber-900 text-sm rounded-lg px-4 py-3 mb-4">编辑若影响已 Posted 季度应得金额, 强提示不回算; 多介绍人并存时在吐点规则区头部展示信息条 (PRD 6.2.5.7)</div>
+              <div id="relations-multi-hint" class="mb-4 rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                <span class="font-medium">同期其他介绍人</span>: 客户 C-002 当前还有介绍人 C-INT-002 (示例). 各自独立结算, 互不分润.
+              </div>
+              <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6 p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">筛选 — 关系列表 (PRD 6.2.5.1 / 6.2.4)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 text-sm">
+                  <div class="md:col-span-2">
+                    <label class="block text-gray-700 mb-1" for="relations-filter-intro-merchant-ids">介绍人商户ID</label>
+                    <textarea id="relations-filter-intro-merchant-ids" rows="2" class="w-full border rounded-md px-3 py-2 font-mono text-xs" placeholder="支持多选, 每行一个或英文逗号分隔, 如:&#10;C-INT-001,C-INT-002"></textarea>
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-gray-700 mb-1" for="relations-filter-intro-customer-name">介绍人客户名称</label>
+                    <input id="relations-filter-intro-customer-name" type="text" class="w-full border rounded-md px-3 py-2" placeholder="模糊搜索">
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-gray-700 mb-1" for="relations-filter-sub-merchant-ids">下级商户ID</label>
+                    <textarea id="relations-filter-sub-merchant-ids" rows="2" class="w-full border rounded-md px-3 py-2 font-mono text-xs" placeholder="支持多选, 每行一个或逗号分隔"></textarea>
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-gray-700 mb-1" for="relations-filter-sub-customer-name">下级客户名称</label>
+                    <input id="relations-filter-sub-customer-name" type="text" class="w-full border rounded-md px-3 py-2" placeholder="模糊搜索">
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 mb-1" for="relations-filter-bind-state">生效状态</label>
+                    <select id="relations-filter-bind-state" class="w-full border rounded-md px-3 py-2">
+                      <option value="">全部</option>
+                      <option>当前生效</option>
+                      <option>历史</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                  <button type="button" id="btn-relations-filter" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm">筛选</button>
+                  <span id="relations-filter-status" class="text-sm text-gray-500" aria-live="polite"></span>
+                </div>
+              </div>
+
+              <div id="relations-view-list" class="flex flex-col gap-6">
+                <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden flex-1 flex flex-col">
+                  <div class="px-4 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                    <h4 class="font-medium text-gray-900">关系列表 (PRD 6.2.5.2)</h4>
+                    <p class="text-xs text-gray-500">默认按生效开始降序; 点击「吐点规则」进入基础吐点 / 特殊吐点 / 生效预览</p>
+                  </div>
+                  <div class="overflow-x-auto flex-1">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead class="bg-gray-50"><tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">介绍人商户ID</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">介绍人客户名称</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">下级商户ID</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">下级客户名称</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">关系生效期</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">当前基础吐点</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">特殊吐点数</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">当前状态</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                      </tr></thead>
+                      <tbody id="tbody-relations" class="divide-y divide-gray-200">
+                        <tr class="relation-row" data-relation-id="RB-1" data-intro-merchant="C-INT-001" data-intro-disabled="false">
+                          <td class="px-4 py-3 font-mono text-xs">C-INT-001</td>
+                          <td class="px-4 py-3">示例客户 A</td>
+                          <td class="px-4 py-3 font-mono text-xs">C-002</td>
+                          <td class="px-4 py-3">客户 B</td>
+                          <td class="px-4 py-3 whitespace-nowrap text-xs">2026-02-03 ~ <span class="text-gray-500">长期</span></td>
+                          <td class="px-4 py-3 text-right tabular-nums text-blue-800 font-medium">1.00%</td>
+                          <td class="px-4 py-3 text-right tabular-nums">1</td>
+                          <td class="px-4 py-3 text-green-700 text-xs">生效中</td>
+                          <td class="px-4 py-3 whitespace-nowrap">
+                            <button type="button" class="btn-open-spit-rules rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">吐点规则</button>
+                          </td>
+                        </tr>
+                        <tr class="relation-row" data-relation-id="RB-2" data-intro-merchant="C-INT-001" data-intro-disabled="false">
+                          <td class="px-4 py-3 font-mono text-xs">C-INT-001</td>
+                          <td class="px-4 py-3">示例客户 A</td>
+                          <td class="px-4 py-3 font-mono text-xs">C-008</td>
+                          <td class="px-4 py-3">客户 H</td>
+                          <td class="px-4 py-3 whitespace-nowrap text-xs">2025-06-01 ~ 2025-12-31</td>
+                          <td class="px-4 py-3 text-right text-gray-400">—</td>
+                          <td class="px-4 py-3 text-right tabular-nums">0</td>
+                          <td class="px-4 py-3 text-gray-500 text-xs">已结束</td>
+                          <td class="px-4 py-3 whitespace-nowrap">
+                            <button type="button" class="btn-open-spit-rules rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">吐点规则</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="px-4 py-2 text-xs text-gray-500 border-t border-gray-100">同一客户被多个介绍人介绍时, 列表多行展示 (PRD 6.2.4).</p>
+                </div>
+              </div>
+
+              <div id="relations-view-spit" class="hidden flex flex-col gap-4">
+                <div class="flex flex-wrap items-center gap-3">
+                  <button type="button" id="btn-back-relations-spit" class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i> 返回关系列表
+                  </button>
+                  <span class="text-sm text-gray-500">当前: 吐点规则 (基础吐点 · 特殊吐点 · 生效预览)</span>
+                </div>
+                <div id="relation-detail" class="flex flex-col gap-4">
+                    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                      <div class="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p class="text-sm text-gray-500">关系信息</p>
+                          <p class="mt-1 text-lg font-semibold text-gray-900"><span class="font-mono text-base">C-INT-001</span> 示例客户 A <span class="text-gray-400 mx-1">→</span> <span class="font-mono text-base">C-002</span> 客户 B</p>
+                          <p class="mt-2 text-xs text-gray-600">关系生效期: 2026-02-03 ~ 长期 · <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-800">Bound 生效中</span></p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                          <button type="button" id="btn-edit-relation-period" class="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">修改关系</button>
+                          <button type="button" class="btn-unbind-binding rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100">解除关系</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <h4 class="font-medium text-gray-900">基础吐点 <span class="text-xs font-normal text-gray-500">(段间不可重叠; 结束可空表示长期)</span></h4>
+                        <button type="button" id="btn-base-segment-add" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">新增分段</button>
+                      </div>
+                      <p id="base-seg-hint" class="mb-2 hidden text-xs text-gray-500" role="status"></p>
+                      <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                          <thead class="bg-gray-50"><tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">基础吐点比例</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">生效区间</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">更新人</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">更新时间</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                          </tr></thead>
+                          <tbody id="tbody-base-segment" class="divide-y divide-gray-200"></tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <h4 class="font-medium text-gray-900">特殊吐点 <span class="text-xs font-normal text-gray-500">(从客户当前与历史绑定账户选择; 同账户分段不可重叠)</span></h4>
+                        <button type="button" id="btn-add-special-account" class="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-800 hover:bg-blue-100">新增账户特殊吐点</button>
+                      </div>
+                      <p id="special-seg-hint" class="mb-2 hidden text-xs text-red-600" role="alert"></p>
+                      <div id="special-accounts-root" class="space-y-4"></div>
+                    </div>
+
+                    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <h4 class="font-medium text-gray-900">生效预览 <span class="text-xs font-normal text-gray-500">(按季度时间轴; 无固定月表头; 色块内为区间与比例; 特殊 &gt; 基础 &gt; 空档)</span></h4>
+                        <div class="flex flex-wrap items-center gap-2 text-xs">
+                          <span class="text-gray-600">预览年:</span>
+                          <select id="preview-year" class="rounded border border-gray-300 px-2 py-1">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                          </select>
+                          <span class="text-gray-600">季度:</span>
+                          <select id="preview-quarter" class="rounded border border-gray-300 px-2 py-1">
+                            <option value="1">Q1</option>
+                            <option value="2">Q2</option>
+                            <option value="3">Q3</option>
+                            <option value="4">Q4</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div id="preview-legend" class="mb-2 flex flex-wrap gap-2 text-xs text-gray-600"></div>
+                      <div id="preview-gantt-root" class="gantt-wrap rounded-md border border-gray-100 bg-gray-50/80 p-3"></div>
+                      <p class="mt-2 text-xs text-gray-500">每行一个广告账户; 横轴为所选季度自然日范围; 色块按「逐日生效规则」合并连续区间, 宽度与区间长度成正比; 悬停可看完整说明.</p>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="panel-settlement" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-btn-settlement" tabindex="0" hidden>
+              <div class="mb-8 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">吐点结算</h3>
+                  <p class="mt-1 text-sm text-gray-500">支持列表筛选, 手动发起结算与审核流程 (示例 UI)</p>
+                </div>
+                <button type="button" id="btn-open-manual-settle" class="shrink-0 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">手动发起结算</button>
+              </div>
+              <div class="bg-white shadow rounded-lg border p-6 mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">筛选 (PRD 6.3.6.1)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                  <div><label class="block text-gray-700 mb-1" for="settle-batch">结算批次</label><input id="settle-batch" type="text" class="w-full border rounded-md px-3 py-2" placeholder="如 2026Q2-AUTO"></div>
+                  <div><label class="block text-gray-700 mb-1" for="settle-intro-merchant">介绍人商户ID</label><input id="settle-intro-merchant" class="w-full border rounded-md px-3 py-2" placeholder="文本"></div>
+                  <div><label class="block text-gray-700 mb-1" for="settle-intro-name">介绍人客户名称</label><input id="settle-intro-name" class="w-full border rounded-md px-3 py-2" placeholder="模糊"></div>
+                  <div><label class="block text-gray-700 mb-1" for="settle-status">状态</label><select id="settle-status" class="w-full border rounded-md px-3 py-2"><option value="">全部</option><option>待业务</option><option>待财务</option><option>已完结</option><option>已作废</option></select></div>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2 items-center">
+                  <button type="button" id="btn-settle-filter" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm">筛选</button>
+                  <button type="button" id="btn-settle-batch-biz" class="border border-gray-300 px-4 py-2 rounded-md text-sm hover:bg-gray-50">批量业务通过</button>
+                  <span id="settle-selection-hint" class="text-sm text-gray-500">已选 <strong id="settle-selected-count">0</strong> 条 · 批量仅对当前筛选可见且可操作行生效 (PRD 6.3.6.4)</span>
+                </div>
+              </div>
+              <div class="bg-white shadow rounded-lg border overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="settle-table min-w-max w-full divide-y text-sm">
+                    <thead class="bg-gray-50"><tr>
+                      <th class="settle-th px-4 py-3 w-10"><input type="checkbox" id="settle-check-all" class="rounded border-gray-300" title="当前列表全选"></th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">结算单ID</th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">介绍人商户ID</th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">介绍人客户名称</th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">结算批次</th>
+                      <th class="settle-th px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">涉及客户数</th>
+                      <th class="settle-th px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">涉及账户数</th>
+                      <th class="settle-th px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">实际消耗总额 (USD)</th>
+                      <th class="settle-th px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">佣金 (USD)</th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">触发方式</th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">备注</th>
+                      <th class="settle-th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                    </tr></thead>
+                    <tbody id="tbody-settlement" class="divide-y">
+                      <tr data-order-id="2026Q112345001" data-settle-biz="pending" data-settle-fin="wait" data-settle-intro="C-INT-001" data-settle-batch="2026Q1-BATCH-01">
+                        <td class="settle-td px-4 py-4"><input type="checkbox" class="settle-row-check rounded border-gray-300" aria-label="选择 2026Q112345001"></td>
+                        <td class="settle-td px-6 py-4 font-mono text-xs">2026Q112345001</td>
+                        <td class="settle-td px-6 py-4 font-mono text-xs">C-INT-001</td>
+                        <td class="settle-td px-6 py-4">示例客户 A</td>
+                        <td class="settle-td px-6 py-4">2026Q1-BATCH-01</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">3</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">5</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">123,456.78</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">1,234.56</td>
+                        <td class="settle-td px-6 py-4"><span class="settle-state text-amber-700">待业务</span></td>
+                        <td class="settle-td px-6 py-4"><span class="settle-trigger">自动</span></td>
+                        <td class="settle-remark-cell settle-td px-6 py-4 text-xs text-gray-500">—</td>
+                        <td class="settle-td settle-op-cell px-6 py-4 whitespace-nowrap"></td>
+                      </tr>
+                      <tr data-order-id="2026Q188888003" data-settle-biz="done" data-settle-fin="pending" data-settle-intro="C-INT-001" data-settle-batch="2026Q1-BATCH-02">
+                        <td class="settle-td px-4 py-4"><input type="checkbox" class="settle-row-check rounded border-gray-300" aria-label="选择 2026Q188888003"></td>
+                        <td class="settle-td px-6 py-4 font-mono text-xs">2026Q188888003</td>
+                        <td class="settle-td px-6 py-4 font-mono text-xs">C-INT-001</td>
+                        <td class="settle-td px-6 py-4">示例客户 A</td>
+                        <td class="settle-td px-6 py-4">2026Q1-BATCH-02</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">2</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">4</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">88,000.00</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">880.00</td>
+                        <td class="settle-td px-6 py-4"><span class="settle-state text-blue-700">待财务</span></td>
+                        <td class="settle-td px-6 py-4"><span class="settle-trigger">手动</span></td>
+                        <td class="settle-remark-cell settle-td px-6 py-4 text-xs text-gray-500">业务已通过</td>
+                        <td class="settle-td settle-op-cell px-6 py-4 whitespace-nowrap"></td>
+                      </tr>
+                      <tr data-order-id="2026Q199999002" data-settle-biz="done" data-settle-fin="done" data-settle-intro="C-INT-002" data-settle-batch="2026Q1-BATCH-ZZ">
+                        <td class="settle-td px-4 py-4"><input type="checkbox" class="settle-row-check rounded border-gray-300 opacity-40" disabled aria-label="已完结不可勾选"></td>
+                        <td class="settle-td px-6 py-4 font-mono text-xs">2026Q199999002</td>
+                        <td class="settle-td px-6 py-4 font-mono text-xs">C-INT-002</td>
+                        <td class="settle-td px-6 py-4">示例客户 B</td>
+                        <td class="settle-td px-6 py-4">2026Q1-BATCH-ZZ</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">1</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">2</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">9,000.00</td>
+                        <td class="settle-td px-6 py-4 text-right tabular-nums">90.00</td>
+                        <td class="settle-td px-6 py-4"><span class="settle-state text-green-800">已完结</span></td>
+                        <td class="settle-td px-6 py-4"><span class="settle-trigger">手动</span></td>
+                        <td class="settle-remark-cell settle-td px-6 py-4 text-xs text-gray-500">—</td>
+                        <td class="settle-td settle-op-cell px-6 py-4 whitespace-nowrap"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="px-6 py-2 text-xs text-gray-500 border-t border-gray-100">表头不换行; 列较多时可横向滚动. 吐点比例不在列表展示, 详情弹窗内可下载分段明细 CSV (原型).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-root" class="pointer-events-none fixed top-4 right-4 z-[70] flex w-80 max-w-[90vw] flex-col gap-2" aria-live="polite"></div>
+
+  <div id="modal-add-introducer" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-add-intro-title">
+    <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-add-intro-title" class="text-lg font-medium text-gray-900">新增介绍人</h3>
+      <p class="mt-2 text-sm text-gray-500">从现有客户中选择并启用介绍人身份 (PRD 6.1). 已是介绍人的客户不可重复添加.</p>
+      <label class="mt-4 block text-sm font-medium text-gray-700" for="add-intro-customer">选择客户</label>
+      <select id="add-intro-customer" class="mt-1 w-full rounded-md border px-3 py-2 text-sm">
+        <option value="">请选择</option>
+        <option value="C-NEW-01">C-NEW-01 潜在新介绍人</option>
+        <option value="C-INT-001">C-INT-001 (已存在, 用于演示校验)</option>
+      </select>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-add-introducer">取消</button>
+        <button type="button" id="add-intro-confirm" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-add-binding" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-binding-title">
+    <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-binding-title" class="text-lg font-medium text-gray-900">新增介绍人-客户绑定</h3>
+      <p class="mt-1 text-sm text-gray-500">同一介绍人对同一客户绑定时间段不可重叠; 不可与前一段结束日同日衔接新段; 结束日可空表示长期 (PRD 6.2). 须同时配置至少一段基础吐点, 比例允许 0.</p>
+      <div class="mt-4 grid gap-3 text-sm">
+        <div>
+          <label class="font-medium text-gray-700" for="add-binding-intro-merchant">介绍人商户ID</label>
+          <select id="add-binding-intro-merchant" class="mt-1 w-full rounded-md border px-3 py-2">
+            <option value="C-INT-001">C-INT-001 示例客户 A</option>
+            <option value="C-INT-002">C-INT-002 示例客户 B (已停用介绍人身份)</option>
+          </select>
+          <p class="mt-1 text-xs text-amber-700">若介绍人为停用状态, 保存将被拒绝 (PRD 6.1).</p>
+        </div>
+        <div><label class="font-medium text-gray-700" for="add-binding-customer">下级商户ID (被介绍客户)</label><input id="add-binding-customer" class="mt-1 w-full rounded-md border px-3 py-2 font-mono" placeholder="如 C-003"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="font-medium text-gray-700" for="add-binding-start">关系生效开始</label><input id="add-binding-start" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+          <div><label class="font-medium text-gray-700" for="add-binding-end">关系生效结束 (可空)</label><input id="add-binding-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        </div>
+        <div class="rounded-md border border-blue-100 bg-blue-50/60 p-3">
+          <p class="font-medium text-gray-800">基础吐点 (必填, PRD 6.2.2.1)</p>
+          <p class="mt-1 text-xs text-gray-600">第一段开始时间默认对齐关系开始; 段间不可重叠, 允许空档.</p>
+          <div class="mt-2 grid grid-cols-2 gap-2">
+            <div><label class="text-gray-700 text-xs" for="add-binding-base-rate">基础吐点比例 (%)</label><input id="add-binding-base-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2" placeholder="0 ~ 100, 可填 0"></div>
+            <div><label class="text-gray-700 text-xs" for="add-binding-base-end">本段结束 (可空=长期)</label><input id="add-binding-base-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-add-binding">取消</button>
+        <button type="button" id="add-binding-save" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-edit-binding" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true">
+    <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-edit-binding-title" class="text-lg font-medium text-gray-900">修改关系时间段</h3>
+      <p class="mt-2 rounded border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">若修改会影响已 Posted 季度归属, 系统不回算 (PRD 6.2 / 6.4).</p>
+      <label class="mt-4 flex items-start gap-2 text-sm text-gray-700"><input id="edit-binding-ack" type="checkbox" class="mt-1 rounded border-gray-300"> 我已知晓不回算风险</label>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-edit-binding">取消</button>
+        <button type="button" id="edit-binding-save" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-base-segment" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-base-seg-title">
+    <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-base-seg-title" class="text-lg font-medium text-gray-900">基础吐点分段</h3>
+      <p class="mt-1 text-xs text-gray-500">各段生效区间不可重叠 (含边界日); 比例 0~100%, 可填 0.</p>
+      <div class="mt-4 grid gap-3 text-sm">
+        <div><label class="text-gray-700" for="base-seg-rate">基础吐点比例 (%)</label><input id="base-seg-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div><label class="text-gray-700" for="base-seg-start">生效开始</label><input id="base-seg-start" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div class="flex items-center gap-2"><input id="base-seg-longterm" type="checkbox" class="rounded border-gray-300"><label for="base-seg-longterm" class="text-gray-700">长期有效 (无结束日)</label></div>
+        <div><label class="text-gray-700" for="base-seg-end">生效结束</label><input id="base-seg-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-base-segment">取消</button>
+        <button type="button" id="base-seg-save" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-special-segment" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-special-seg-title">
+    <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-special-seg-title" class="text-lg font-medium text-gray-900">特殊吐点分段</h3>
+      <p class="mt-1 text-xs text-gray-500">账户来自客户当前与历史绑定; 同账户下各分段时间段不可重叠.</p>
+      <div class="mt-4 grid gap-3 text-sm">
+        <div id="special-seg-account-wrap">
+          <label class="text-gray-700" for="special-seg-account">广告账户</label>
+          <select id="special-seg-account" class="mt-1 w-full rounded-md border px-3 py-2 font-mono text-xs"></select>
+        </div>
+        <div><label class="text-gray-700" for="special-seg-rate">特殊吐点比例 (%)</label><input id="special-seg-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="text-gray-700" for="special-seg-start">生效开始</label><input id="special-seg-start" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+          <div><label class="text-gray-700" for="special-seg-end">生效结束</label><input id="special-seg-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        </div>
+        <div class="flex items-center gap-2"><input id="special-seg-longterm" type="checkbox" class="rounded border-gray-300"><label for="special-seg-longterm" class="text-gray-700">长期有效</label></div>
+        <div>
+          <label class="text-gray-700" for="special-seg-status">配置状态</label>
+          <select id="special-seg-status" class="mt-1 w-full rounded-md border px-3 py-2">
+            <option value="enabled">启用</option>
+            <option value="disabled">停用</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-special-segment">取消</button>
+        <button type="button" id="special-seg-save" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-manual-settle" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-manual-settle-title">
+    <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-manual-settle-title" class="text-lg font-medium text-gray-900">手动发起结算</h3>
+      <p class="mt-1 text-xs text-gray-600">可多选介绍人商户ID, 并选择结算批次发起草案. 同一介绍人商户ID在同一结算批次下, 若已存在「待业务 / 待财务 / 已完结」任一状态的记录, 则不可再次发起; 「已作废」后可重新发起.</p>
+      <div class="mt-4 grid gap-3 text-sm">
+        <div>
+          <span class="mb-1 block font-medium text-gray-700">介绍人商户ID <span class="font-normal text-gray-500">(可多选)</span></span>
+          <div id="manual-settle-intro-list" class="max-h-36 space-y-2 overflow-y-auto rounded-md border border-gray-200 bg-gray-50/80 p-3 font-mono text-xs" role="group" aria-label="介绍人商户ID">
+            <label class="flex cursor-pointer items-center gap-2"><input type="checkbox" class="manual-settle-intro-cb rounded border-gray-300" value="C-INT-001"> C-INT-001</label>
+            <label class="flex cursor-pointer items-center gap-2"><input type="checkbox" class="manual-settle-intro-cb rounded border-gray-300" value="C-INT-002"> C-INT-002</label>
+          </div>
+        </div>
+        <div>
+          <label class="mb-1 block font-medium text-gray-700" for="manual-settle-batch">结算批次</label>
+          <select id="manual-settle-batch" class="w-full rounded-md border px-3 py-2 font-mono text-sm">
+            <option value="">请选择结算批次</option>
+            <option value="2026Q1-BATCH-01">2026Q1-BATCH-01</option>
+            <option value="2026Q1-BATCH-02">2026Q1-BATCH-02</option>
+            <option value="2026Q1-BATCH-ZZ">2026Q1-BATCH-ZZ</option>
+            <option value="2026Q2-AUTO">2026Q2-AUTO</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-manual-settle">取消</button>
+        <button type="button" id="btn-manual-settle-submit" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">发起结算</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-settle-audit" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-settle-audit-title">
+    <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-settle-audit-title" class="text-lg font-medium text-gray-900">审核</h3>
+      <p id="modal-settle-audit-desc" class="mt-1 text-sm text-gray-500">请选择审核结论; 驳回须填写备注.</p>
+      <fieldset class="mt-4 space-y-2 text-sm">
+        <legend class="sr-only">审核结论</legend>
+        <label class="flex cursor-pointer items-center gap-2"><input type="radio" name="settle-audit-result" value="pass" class="rounded-full border-gray-300" checked> 通过</label>
+        <label class="flex cursor-pointer items-center gap-2"><input type="radio" name="settle-audit-result" value="reject" class="rounded-full border-gray-300"> 驳回</label>
+      </fieldset>
+      <div id="settle-audit-remark-wrap" class="mt-3 hidden">
+        <label class="block text-sm font-medium text-gray-700" for="settle-audit-remark">驳回备注 <span class="text-red-500">*</span></label>
+        <textarea id="settle-audit-remark" rows="3" class="mt-1 w-full rounded-md border px-3 py-2 text-sm" placeholder="驳回时必填"></textarea>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-settle-audit">取消</button>
+        <button type="button" id="btn-settle-audit-submit" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-settlement-detail" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-settle-detail-title">
+    <div class="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl">
+      <div class="flex shrink-0 items-center justify-between border-b border-gray-200 px-6 py-4">
+        <h3 id="modal-settle-detail-title" class="text-lg font-medium text-gray-900">结算单详情</h3>
+        <button type="button" class="rounded p-2 text-gray-500 hover:bg-gray-100" data-close="modal-settlement-detail" aria-label="关闭">&times;</button>
+      </div>
+      <div id="modal-settle-detail-body" class="min-h-0 flex-1 overflow-y-auto p-6 text-sm text-gray-700"></div>
+      <div class="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-gray-200 bg-gray-50 px-6 py-4">
+        <button type="button" id="btn-settle-detail-download" class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-download" aria-hidden="true"></i> 下载明细 (CSV)
+        </button>
+        <button type="button" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-settlement-detail">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var INTRODUCER_TAB_IDS = ['list', 'relations', 'settlement'];
+    var INTRODUCER_TAB_LABELS = { list: '介绍人列表', relations: '介绍人关系与吐点', settlement: '吐点结算' };
+    var settlementDetailOrderId = null;
+    var settleAuditContext = { row: null, type: null };
+
+    function toggleMenuSection(id) {
+      var ul = document.getElementById(id);
+      var arrow = document.getElementById(id + 'Arrow');
+      if (!ul || !arrow) return;
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+
+    function toggleSidebar() {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(function () { overlay.classList.add('hidden'); }, 300);
+      }
+    }
+
+    function showToast(message, variant) {
+      var root = document.getElementById('toast-root');
+      if (!root) return;
+      var el = document.createElement('div');
+      el.className = 'toast-enter pointer-events-auto rounded-md border px-4 py-3 text-sm shadow-lg ' +
+        (variant === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-gray-200 bg-white text-gray-800');
+      el.textContent = message;
+      root.appendChild(el);
+      setTimeout(function () {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s';
+        setTimeout(function () { el.remove(); }, 280);
+      }, 3200);
+    }
+
+    function showTabHint(text) {
+      var h = document.getElementById('tab-hint');
+      if (!h) return;
+      h.textContent = text;
+      h.classList.remove('hidden');
+      clearTimeout(showTabHint._t);
+      showTabHint._t = setTimeout(function () { h.classList.add('hidden'); }, 2400);
+    }
+
+    function openModal(id) {
+      var m = document.getElementById(id);
+      if (m) {
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      }
+    }
+
+    function closeModal(id) {
+      var m = document.getElementById(id);
+      if (m) {
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      }
+    }
+
+    function tabFromHash() {
+      var raw = (location.hash || '#list').replace(/^#/, '');
+      if (raw === 'rules') return 'relations';
+      if (INTRODUCER_TAB_IDS.indexOf(raw) !== -1) return raw;
+      return 'list';
+    }
+
+    function setIntroducerTab(id, opts) {
+      opts = opts || {};
+      if (INTRODUCER_TAB_IDS.indexOf(id) === -1) id = 'list';
+      INTRODUCER_TAB_IDS.forEach(function (t) {
+        var panel = document.getElementById('panel-' + t);
+        var btn = document.getElementById('tab-btn-' + t);
+        if (panel) {
+          if (t === id) {
+            panel.classList.remove('hidden');
+            panel.removeAttribute('hidden');
+          } else {
+            panel.classList.add('hidden');
+            panel.setAttribute('hidden', '');
+          }
+        }
+        if (btn) {
+          if (t === id) {
+            btn.classList.add('border-blue-600', 'text-blue-600');
+            btn.classList.remove('border-transparent', 'text-gray-500');
+            btn.setAttribute('aria-selected', 'true');
+            btn.setAttribute('tabindex', '0');
+          } else {
+            btn.classList.remove('border-blue-600', 'text-blue-600');
+            btn.classList.add('border-transparent', 'text-gray-500');
+            btn.setAttribute('aria-selected', 'false');
+            btn.setAttribute('tabindex', '-1');
+          }
+        }
+      });
+      var bc = document.getElementById('introducer-breadcrumb-current');
+      if (bc) bc.textContent = INTRODUCER_TAB_LABELS[id] || INTRODUCER_TAB_LABELS.list;
+      if (id === 'relations') resetRelationsSubviews();
+      if (!opts.skipHash) {
+        var next = '#' + id;
+        if (location.hash !== next) history.replaceState(null, '', next);
+      }
+      var activeBtn = document.getElementById('tab-btn-' + id);
+      if (activeBtn && !opts.skipFocus) {
+        try { activeBtn.focus({ preventScroll: true }); } catch (e) { activeBtn.focus(); }
+      }
+      if (!opts.skipHint) {
+        showTabHint('已切换到「' + (INTRODUCER_TAB_LABELS[id] || '') + '」');
+      }
+    }
+
+    function focusTabByIndex(delta) {
+      var i = INTRODUCER_TAB_IDS.indexOf(tabFromHash());
+      if (i < 0) i = 0;
+      var n = (i + delta + INTRODUCER_TAB_IDS.length) % INTRODUCER_TAB_IDS.length;
+      setIntroducerTab(INTRODUCER_TAB_IDS[n]);
+    }
+
+    document.querySelectorAll('.modal-shell').forEach(function (shell) {
+      shell.addEventListener('click', function (e) {
+        if (e.target === shell) closeModal(shell.id);
+      });
+    });
+    document.querySelectorAll('[data-close]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        closeModal(btn.getAttribute('data-close'));
+      });
+    });
+
+    var tablist = document.getElementById('tablist-introducer');
+    if (tablist) {
+      tablist.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { e.preventDefault(); focusTabByIndex(1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); focusTabByIndex(-1); }
+        else if (e.key === 'Home') { e.preventDefault(); setIntroducerTab('list'); }
+        else if (e.key === 'End') { e.preventDefault(); setIntroducerTab('settlement'); }
+      });
+    }
+
+    INTRODUCER_TAB_IDS.forEach(function (t) {
+      var btn = document.getElementById('tab-btn-' + t);
+      if (btn) btn.addEventListener('click', function () { setIntroducerTab(t, { skipHint: true }); });
+    });
+
+    window.addEventListener('hashchange', function () {
+      setIntroducerTab(tabFromHash(), { skipHash: true, skipHint: true, skipFocus: true });
+    });
+
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+    window.addEventListener('resize', function () {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.add('hidden');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+      }
+    });
+
+    /* --- Tab: 介绍人列表 --- */
+    document.getElementById('btn-list-filter').addEventListener('click', function () {
+      var st = document.getElementById('list-filter-result');
+      if (st) st.textContent = '正在筛选…';
+      setTimeout(function () {
+        if (st) st.textContent = '已应用条件 (原型, 无真实请求)';
+        showToast('介绍人列表: 已按筛选条件刷新结果集');
+      }, 400);
+    });
+
+    document.getElementById('btn-add-introducer').addEventListener('click', function () {
+      openModal('modal-add-introducer');
+    });
+
+    document.getElementById('add-intro-confirm').addEventListener('click', function () {
+      var sel = document.getElementById('add-intro-customer');
+      var v = sel && sel.value;
+      if (!v) {
+        showToast('请选择客户', 'error');
+        return;
+      }
+      if (v === 'C-INT-001') {
+        showToast('该客户已是介绍人, 不可重复添加', 'error');
+        return;
+      }
+      closeModal('modal-add-introducer');
+      showToast('已创建介绍人身份 (原型), 默认客户端可见性为关');
+    });
+
+    function syncClientToggleUi(btn, on) {
+      var knob = btn.querySelector('span.pointer-events-none');
+      btn.setAttribute('aria-checked', on ? 'true' : 'false');
+      btn.classList.toggle('bg-blue-600', on);
+      btn.classList.toggle('bg-gray-200', !on);
+      if (knob) {
+        knob.classList.toggle('translate-x-5', on);
+        knob.classList.toggle('translate-x-0', !on);
+      }
+      var row = document.getElementById(btn.getAttribute('data-row'));
+      var label = row && row.querySelector('.intro-client-label');
+      if (label) label.textContent = on ? '开' : '关';
+      if (row) row.setAttribute('data-client-visible', on ? 'true' : 'false');
+    }
+
+    document.querySelectorAll('.intro-client-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var row = document.getElementById(btn.getAttribute('data-row'));
+        if (row && row.getAttribute('data-status') === 'disabled') {
+          showToast('介绍人已停用, 不可再改客户端可见性 (PRD 6.1)', 'error');
+          return;
+        }
+        var on = btn.getAttribute('aria-checked') !== 'true';
+        syncClientToggleUi(btn, on);
+        showToast(on ? '客户端可见性: 开 (立即生效, 无需二次确认)' : '客户端可见性: 关');
+      });
+    });
+
+    function syncIntroStatusToggleUi(btn, enabled) {
+      var knob = btn.querySelector('span.pointer-events-none');
+      btn.setAttribute('aria-checked', enabled ? 'true' : 'false');
+      btn.classList.toggle('bg-blue-600', enabled);
+      btn.classList.toggle('bg-gray-200', !enabled);
+      if (knob) {
+        knob.classList.toggle('translate-x-5', enabled);
+        knob.classList.toggle('translate-x-0', !enabled);
+      }
+      var row = document.getElementById(btn.getAttribute('data-row'));
+      var label = row && row.querySelector('.intro-status-label');
+      if (label) {
+        label.textContent = enabled ? '启用' : '停用';
+        label.className = 'ml-2 text-xs intro-status-label ' + (enabled ? 'text-gray-600' : 'text-gray-500');
+      }
+      if (row) {
+        row.setAttribute('data-status', enabled ? 'enabled' : 'disabled');
+        var clientBtn = row.querySelector('.intro-client-toggle');
+        if (!enabled && clientBtn) syncClientToggleUi(clientBtn, false);
+      }
+    }
+
+    document.querySelectorAll('.intro-status-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var row = document.getElementById(btn.getAttribute('data-row'));
+        if (!row) return;
+        var turningOn = btn.getAttribute('aria-checked') !== 'true';
+        if (!turningOn) {
+          if (!confirm('停用介绍人: 现有关系/基础吐点/特殊吐点仍然保留并参与结算, 仅是身份标记停用; 系统不允许再新建该介绍人的关系/吐点. 是否继续? (PRD 6.1.5.4)')) return;
+          syncIntroStatusToggleUi(btn, false);
+          showToast('已停用介绍人身份 (原型)');
+          return;
+        }
+        syncIntroStatusToggleUi(btn, true);
+        showToast('已启用介绍人身份 (原型)');
+      });
+    });
+
+    document.querySelectorAll('.sort-col').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showToast('排序: ' + (btn.getAttribute('data-sort') === 'rel-count' ? '关联客户数' : '成为介绍人时间') + ' (原型, 对接后升/降序切换)');
+      });
+    });
+
+    /* --- Tab: 介绍人关系与吐点 --- */
+    function resetRelationsSubviews() {
+      var list = document.getElementById('relations-view-list');
+      var spit = document.getElementById('relations-view-spit');
+      if (list) list.classList.remove('hidden');
+      if (spit) spit.classList.add('hidden');
+      document.querySelectorAll('.relation-row').forEach(function (r) {
+        r.classList.remove('bg-blue-50/80', 'ring-2', 'ring-inset', 'ring-blue-200');
+      });
+    }
+
+    function selectRelationRow(tr) {
+      document.querySelectorAll('.relation-row').forEach(function (r) {
+        r.classList.remove('bg-blue-50/80', 'ring-2', 'ring-inset', 'ring-blue-200');
+      });
+      if (tr) {
+        tr.classList.add('bg-blue-50/80', 'ring-2', 'ring-inset', 'ring-blue-200');
+      }
+    }
+
+    var tbodyRelations = document.getElementById('tbody-relations');
+    if (tbodyRelations) {
+      tbodyRelations.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-open-spit-rules');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var tr = btn.closest('tr');
+        selectRelationRow(tr);
+        var list = document.getElementById('relations-view-list');
+        var spit = document.getElementById('relations-view-spit');
+        if (list) list.classList.add('hidden');
+        if (spit) spit.classList.remove('hidden');
+        initSpitRulePage();
+        showToast('已进入吐点规则 (基础吐点 / 特殊吐点 / 生效预览)');
+      });
+    }
+
+    var btnBackSpit = document.getElementById('btn-back-relations-spit');
+    if (btnBackSpit) {
+      btnBackSpit.addEventListener('click', function () {
+        resetRelationsSubviews();
+      });
+    }
+
+    document.getElementById('btn-relations-filter').addEventListener('click', function () {
+      var st = document.getElementById('relations-filter-status');
+      if (st) st.textContent = '筛选中…';
+      setTimeout(function () {
+        if (st) st.textContent = '已应用条件 (原型)';
+        showToast('介绍人关系与吐点: 已按筛选项刷新关系列表');
+      }, 350);
+    });
+
+    document.getElementById('btn-relations-add').addEventListener('click', function () {
+      openModal('modal-add-binding');
+    });
+
+    document.getElementById('add-binding-save').addEventListener('click', function () {
+      var introSel = document.getElementById('add-binding-intro-merchant');
+      var c = document.getElementById('add-binding-customer');
+      var s = document.getElementById('add-binding-start');
+      var rate = document.getElementById('add-binding-base-rate');
+      if (introSel && introSel.value === 'C-INT-002') {
+        showToast('该介绍人已停用, 不可新建关系 (PRD 6.1)', 'error');
+        return;
+      }
+      if (!c.value.trim() || !s.value) {
+        showToast('请填写下级商户ID与关系生效开始日期', 'error');
+        return;
+      }
+      if (rate.value === '' || Number(rate.value) < 0 || Number(rate.value) > 100) {
+        showToast('基础吐点比例需在 0~100% 之间 (可填 0)', 'error');
+        return;
+      }
+      closeModal('modal-add-binding');
+      showToast('已保存关系 + 基础吐点 (原型); 生效预览将随保存刷新 (PRD 6.2)');
+    });
+
+    var btnEditRelation = document.getElementById('btn-edit-relation-period');
+    if (btnEditRelation) {
+      btnEditRelation.addEventListener('click', function () {
+        document.getElementById('edit-binding-ack').checked = false;
+        openModal('modal-edit-binding');
+      });
+    }
+
+    document.querySelectorAll('.btn-unbind-binding').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!confirm('解除关系将把当前生效段的结束日设为今日, 历史关系/基础吐点/特殊吐点永久保留供结算回溯. 是否继续? (PRD 6.2)')) return;
+        showToast('已解除关系 (原型), 结束日已设为今日');
+      });
+    });
+
+    document.getElementById('edit-binding-save').addEventListener('click', function () {
+      if (!document.getElementById('edit-binding-ack').checked) {
+        showToast('请勾选知晓不回算风险', 'error');
+        return;
+      }
+      closeModal('modal-edit-binding');
+      showToast('关系时间段已更新 (原型); 修改不回算已 Posted 季度 (PRD 6.2.5.7)');
+    });
+
+    /* --- 吐点规则子页: 基础分段 / 特殊吐点 / 生效预览 (原型数据) --- */
+    var spitDemoAccounts = [
+      { id: 'act-111', name: 'FB-US-111', label: '当前绑定', segments: [{ id: 's1', rate: 2.5, start: '2025-01-01', end: '', longterm: true, status: 'enabled' }] },
+      { id: 'act-222', name: 'GG-UK-222', label: '当前绑定', segments: [{ id: 's2', rate: 1.8, start: '2025-06-01', end: '2025-12-31', longterm: false, status: 'enabled' }] },
+      { id: 'act-333', name: 'TT-SG-333', label: '历史绑定', segments: [] },
+      { id: 'act-444', name: 'FB-EU-444', label: '历史绑定', segments: [] }
+    ];
+    var spitBaseSegments = [
+      { id: 'b1', rate: 1.5, start: '2024-01-01', end: '2024-12-31', longterm: false },
+      { id: 'b2', rate: 2.0, start: '2025-01-01', end: '', longterm: true }
+    ];
+    var spitBaseEditId = null;
+    var spitSpecialCtx = { mode: 'add-account', accountId: null, segId: null };
+    var _spitNow = new Date();
+    var spitCtx = { customerId: 'CUST-7788', year: _spitNow.getFullYear(), quarter: Math.floor(_spitNow.getMonth() / 3) + 1 };
+
+    function segEndDate(seg) {
+      if (seg.longterm) return null;
+      return seg.end || null;
+    }
+
+    function parseYmd(s) {
+      if (!s) return null;
+      var p = s.split('-');
+      if (p.length !== 3) return null;
+      var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function dayNum(d) {
+      return Math.floor(d.getTime() / 86400000);
+    }
+
+    function rangesOverlap(aStart, aEnd, bStart, bEnd) {
+      var as = dayNum(aStart);
+      var ae = aEnd ? dayNum(aEnd) : Infinity;
+      var bs = dayNum(bStart);
+      var be = bEnd ? dayNum(bEnd) : Infinity;
+      return as <= be && bs <= ae;
+    }
+
+    function validateBaseSegments(list) {
+      var arr = list.slice();
+      for (var i = 0; i < arr.length; i++) {
+        var s = arr[i];
+        var sd = parseYmd(s.start);
+        if (!sd) return '每段需填写生效开始日期';
+        var ed = s.longterm ? null : parseYmd(s.end);
+        if (!s.longterm && !ed) return '非长期分段需填写生效结束日期';
+        if (!s.longterm && ed && ed < sd) return '结束日不能早于开始日';
+        for (var j = i + 1; j < arr.length; j++) {
+          var t = arr[j];
+          var td = parseYmd(t.start);
+          var te = t.longterm ? null : parseYmd(t.end);
+          if (rangesOverlap(sd, ed, td, te)) return '基础吐点各分段时间不可重叠';
+        }
+      }
+      return null;
+    }
+
+    function validateAccountSegments(account, excludeSegId) {
+      var segs = account.segments.filter(function (x) { return x.id !== excludeSegId; });
+      for (var i = 0; i < segs.length; i++) {
+        var s = segs[i];
+        var sd = parseYmd(s.start);
+        if (!sd) return '每段需填写生效开始';
+        var ed = s.longterm ? null : parseYmd(s.end);
+        if (!s.longterm && !ed) return '非长期需填写结束日';
+        if (!s.longterm && ed && ed < sd) return '结束日不能早于开始日';
+        for (var j = i + 1; j < segs.length; j++) {
+          var t = segs[j];
+          if (rangesOverlap(sd, ed, parseYmd(t.start), t.longterm ? null : parseYmd(t.end))) return '同账户下特殊分段时间不可重叠';
+        }
+      }
+      return null;
+    }
+
+    function uid(prefix) {
+      return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    function formatSegRange(seg) {
+      var end = seg.longterm ? '长期' : (seg.end || '—');
+      return seg.start + ' ~ ' + end;
+    }
+
+    function renderBaseSegmentTable() {
+      var tb = document.getElementById('tbody-base-segment');
+      if (!tb) return;
+      var hint = document.getElementById('base-seg-hint');
+      if (hint) {
+        if (spitBaseSegments.length) {
+          hint.textContent = '';
+          hint.classList.add('hidden');
+        } else {
+          hint.textContent = '暂无基础分段, 请点击「新增分段」添加.';
+          hint.classList.remove('hidden');
+        }
+      }
+      tb.innerHTML = spitBaseSegments.map(function (seg) {
+        return '<tr class="border-t border-gray-100" data-base-id="' + escHtml(seg.id) + '">' +
+          '<td class="px-3 py-2 text-gray-800">' + escHtml(String(seg.rate)) + '%</td>' +
+          '<td class="px-3 py-2 text-gray-600">' + escHtml(formatSegRange(seg)) + '</td>' +
+          '<td class="px-3 py-2 text-gray-400 text-xs">—</td>' +
+          '<td class="px-3 py-2 text-gray-400 text-xs">—</td>' +
+          '<td class="px-3 py-2 text-right space-x-2">' +
+          '<button type="button" class="text-blue-600 hover:underline btn-base-seg-edit" data-base-id="' + escHtml(seg.id) + '">编辑</button>' +
+          '<button type="button" class="text-red-600 hover:underline btn-base-seg-del" data-base-id="' + escHtml(seg.id) + '">删除</button>' +
+          '</td></tr>';
+      }).join('');
+    }
+
+    function renderSpecialAccounts() {
+      var root = document.getElementById('special-accounts-root');
+      if (!root) return;
+      var hint = document.getElementById('special-seg-hint');
+      if (hint) hint.textContent = '';
+      root.innerHTML = spitDemoAccounts.map(function (acc) {
+        var rows = acc.segments.length ? acc.segments.map(function (seg) {
+          var st = seg.status === 'enabled';
+          return '<tr data-acc="' + escHtml(acc.id) + '" data-seg="' + escHtml(seg.id) + '">' +
+            '<td class="px-3 py-2 text-gray-800">' + escHtml(String(seg.rate)) + '%</td>' +
+            '<td class="px-3 py-2 text-gray-600">' + escHtml(formatSegRange(seg)) + '</td>' +
+            '<td class="px-3 py-2"><span class="' + (st ? 'text-green-700' : 'text-gray-500') + '">' + (st ? '启用' : '停用') + '</span></td>' +
+            '<td class="px-3 py-2 text-right space-x-2">' +
+            '<button type="button" class="text-blue-600 hover:underline btn-special-seg-edit" data-acc="' + escHtml(acc.id) + '" data-seg="' + escHtml(seg.id) + '">编辑分段</button>' +
+            '</td></tr>';
+        }).join('') : '<tr><td colspan="4" class="px-3 py-3 text-center text-gray-400 text-xs">该账户暂无特殊分段, 可「设为特殊吐点」或「新增分段」.</td></tr>';
+        return '<div class="rounded-lg border border-gray-200 bg-white overflow-hidden mb-4">' +
+          '<div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-3 py-2">' +
+          '<div><span class="font-mono text-xs text-gray-900">' + escHtml(acc.name) + '</span> <span class="text-xs text-gray-500">(' + escHtml(acc.id) + ')</span> ' +
+          '<span class="ml-1 rounded bg-blue-50 px-1.5 py-0.5 text-[10px] text-blue-700">' + escHtml(acc.label) + '</span></div>' +
+          '<div class="flex gap-2">' +
+          '<button type="button" class="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 btn-special-add-seg" data-acc="' + escHtml(acc.id) + '">新增分段</button>' +
+          (acc.segments.length ? '' : '<button type="button" class="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-900 hover:bg-amber-100 btn-special-make" data-acc="' + escHtml(acc.id) + '">设为特殊吐点</button>') +
+          '</div></div>' +
+          '<table class="min-w-full text-xs"><thead class="bg-gray-50 text-gray-600"><tr>' +
+          '<th class="px-3 py-2 text-left font-medium">比例</th><th class="px-3 py-2 text-left font-medium">时间段</th><th class="px-3 py-2 text-left font-medium">状态</th><th class="px-3 py-2 text-right font-medium">操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+      }).join('');
+    }
+
+    var PREVIEW_COLORS = { base: '#93c5fd', special: '#fbbf24', none: '#d1d5db' };
+
+    function quarterStartEnd(y, q) {
+      var m0 = (q - 1) * 3;
+      var s = new Date(y, m0, 1);
+      var e = new Date(y, m0 + 3, 0);
+      return { start: s, end: e };
+    }
+
+    function formatYmdIso(d) {
+      var m = d.getMonth() + 1;
+      var day = d.getDate();
+      return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+    }
+
+    function formatMdDot(d) {
+      var m = d.getMonth() + 1;
+      var day = d.getDate();
+      return (m < 10 ? '0' : '') + m + '.' + (day < 10 ? '0' : '') + day;
+    }
+
+    function effectiveForDay(account, d) {
+      var dn = dayNum(d);
+      for (var i = 0; i < account.segments.length; i++) {
+        var seg = account.segments[i];
+        if (seg.status !== 'enabled') continue;
+        var sd = parseYmd(seg.start);
+        var ed = seg.longterm ? null : parseYmd(seg.end);
+        if (!sd) continue;
+        var sdn = dayNum(sd);
+        var edn = ed ? dayNum(ed) : Infinity;
+        if (dn >= sdn && dn <= edn) {
+          return { type: 'special', rate: seg.rate, seg: seg };
+        }
+      }
+      for (var b = 0; b < spitBaseSegments.length; b++) {
+        var bg = spitBaseSegments[b];
+        var bsd = parseYmd(bg.start);
+        var bed = bg.longterm ? null : parseYmd(bg.end);
+        if (!bsd) continue;
+        var bsdn = dayNum(bsd);
+        var bedn = bed ? dayNum(bed) : Infinity;
+        if (dn >= bsdn && dn <= bedn) {
+          return { type: 'base', rate: bg.rate, seg: bg };
+        }
+      }
+      return { type: 'none', rate: 0, seg: null };
+    }
+
+    function sameEffSlice(a, b) {
+      if (a.type !== b.type) return false;
+      if (Number(a.rate) !== Number(b.rate)) return false;
+      var ida = a.seg ? a.seg.id : '';
+      var idb = b.seg ? b.seg.id : '';
+      return ida === idb;
+    }
+
+    function buildQuarterBarsForAccount(account, qs, qe) {
+      var bars = [];
+      var curStart = null;
+      var curEnd = null;
+      var curEff = null;
+      var d = new Date(qs.getFullYear(), qs.getMonth(), qs.getDate());
+      var qen = dayNum(qe);
+      while (dayNum(d) <= qen) {
+        var eff = effectiveForDay(account, d);
+        var dayNorm = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        if (!curEff) {
+          curEff = eff;
+          curStart = dayNorm;
+          curEnd = dayNorm;
+        } else if (sameEffSlice(curEff, eff)) {
+          curEnd = dayNorm;
+        } else {
+          bars.push({ start: curStart, end: curEnd, eff: curEff });
+          curEff = eff;
+          curStart = dayNorm;
+          curEnd = dayNorm;
+        }
+        d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+      }
+      if (curEff && curStart && curEnd) {
+        bars.push({ start: curStart, end: curEnd, eff: curEff });
+      }
+      return bars;
+    }
+
+    function barInnerLabel(start, end, eff) {
+      var r0 = formatMdDot(start);
+      var r1 = formatMdDot(end);
+      var typ = eff.type === 'special' ? '特殊' : (eff.type === 'base' ? '基础' : '无规则');
+      if (eff.type === 'none') {
+        return r0 + '~' + r1 + ' · ' + typ;
+      }
+      return r0 + '~' + r1 + ' · ' + eff.rate + '% · ' + typ;
+    }
+
+    function barTitleText(accName, start, end, eff) {
+      return accName + ' ' + formatYmdIso(start) + '~' + formatYmdIso(end) + ' · ' + (eff.type === 'none' ? '无规则' : (eff.type === 'special' ? '特殊吐点' : '基础吐点') + ' ' + eff.rate + '%' + (eff.seg && eff.seg.id ? ' · 段 ' + eff.seg.id : ''));
+    }
+
+    function renderPreviewGantt() {
+      var yearEl = document.getElementById('preview-year');
+      var quarterEl = document.getElementById('preview-quarter');
+      var y = spitCtx.year;
+      var q = spitCtx.quarter;
+      if (yearEl && yearEl.tagName === 'SELECT') {
+        var ys = String(y);
+        var hasOpt = Array.prototype.some.call(yearEl.options, function (o) { return o.value === ys; });
+        if (!hasOpt) {
+          var opt = document.createElement('option');
+          opt.value = ys;
+          opt.textContent = ys;
+          yearEl.insertBefore(opt, yearEl.firstChild);
+        }
+        yearEl.value = ys;
+      }
+      if (quarterEl && quarterEl.tagName === 'SELECT') {
+        quarterEl.value = String(q);
+      }
+      var leg = document.getElementById('preview-legend');
+      if (leg) {
+        leg.innerHTML = '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.special + '"></span>特殊吐点</span>' +
+          '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.base + '"></span>基础吐点</span>' +
+          '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.none + '"></span>无规则</span>';
+      }
+      var root = document.getElementById('preview-gantt-root');
+      if (!root) return;
+      var qb = quarterStartEnd(y, q);
+      var qsn = dayNum(qb.start);
+      var qen = dayNum(qb.end);
+      var spanDays = qen - qsn + 1;
+      var rangeLine = '<div class="preview-q-range">预览区间 · ' + y + ' 年第 ' + q + ' 季度 · ' + formatYmdIso(qb.start) + ' ~ ' + formatYmdIso(qb.end) + '</div>';
+      var body = spitDemoAccounts.map(function (acc) {
+        var bars = buildQuarterBarsForAccount(acc, qb.start, qb.end);
+        var inner = bars.map(function (bar) {
+          var sn = dayNum(bar.start);
+          var en = dayNum(bar.end);
+          var leftPct = ((sn - qsn) / spanDays) * 100;
+          var widthPct = ((en - sn + 1) / spanDays) * 100;
+          var col = bar.eff.type === 'special' ? PREVIEW_COLORS.special : (bar.eff.type === 'base' ? PREVIEW_COLORS.base : PREVIEW_COLORS.none);
+          var lbl = barInnerLabel(bar.start, bar.end, bar.eff);
+          var tit = barTitleText(acc.name, bar.start, bar.end, bar.eff);
+          var muted = bar.eff.type === 'none' ? ' preview-q-bar-muted' : '';
+          return '<div class="preview-q-bar' + muted + '" style="left:' + leftPct.toFixed(3) + '%;width:' + Math.max(widthPct, 0.35).toFixed(3) + '%;background:' + col + ';" title="' + escHtml(tit) + '">' + escHtml(lbl) + '</div>';
+        }).join('');
+        return '<div class="preview-q-row"><div class="preview-q-label truncate" title="' + escHtml(acc.name) + '">' + escHtml(acc.name) + '</div>' +
+          '<div class="preview-q-track">' + inner + '</div></div>';
+      }).join('');
+      root.innerHTML = '<div class="preview-q-shell">' + rangeLine + body + '</div>';
+    }
+
+    function openBaseSegmentModal(editId) {
+      spitBaseEditId = editId || null;
+      var rate = document.getElementById('base-seg-rate');
+      var st = document.getElementById('base-seg-start');
+      var en = document.getElementById('base-seg-end');
+      var lt = document.getElementById('base-seg-longterm');
+      if (editId) {
+        var seg = spitBaseSegments.find(function (x) { return x.id === editId; });
+        if (seg) {
+          if (rate) rate.value = seg.rate;
+          if (st) st.value = seg.start;
+          if (lt) lt.checked = !!seg.longterm;
+          if (en) { en.disabled = !!seg.longterm; en.value = seg.end || ''; }
+        }
+      } else {
+        if (rate) rate.value = '';
+        if (st) st.value = '';
+        if (en) { en.value = ''; en.disabled = false; }
+        if (lt) lt.checked = false;
+      }
+      if (lt && en) {
+        lt.onchange = function () { en.disabled = lt.checked; if (lt.checked) en.value = ''; };
+      }
+      openModal('modal-base-segment');
+    }
+
+    function fillSpecialAccountSelect(selectedId, fixedAccountId, onlyWithoutSegments) {
+      var sel = document.getElementById('special-seg-account');
+      var wrap = document.getElementById('special-seg-account-wrap');
+      if (!sel || !wrap) return;
+      if (fixedAccountId) {
+        wrap.classList.add('hidden');
+        sel.innerHTML = '';
+        return;
+      }
+      wrap.classList.remove('hidden');
+      var pool = spitDemoAccounts;
+      if (onlyWithoutSegments) pool = spitDemoAccounts.filter(function (a) { return !a.segments.length; });
+      if (!pool.length) {
+        sel.innerHTML = '<option value="">(当前无未配置特殊吐点的账户)</option>';
+        return;
+      }
+      sel.innerHTML = pool.map(function (a) {
+        return '<option value="' + escHtml(a.id) + '">' + escHtml(a.name + ' (' + a.label + ')') + '</option>';
+      }).join('');
+      if (selectedId) sel.value = selectedId;
+    }
+
+    function openSpecialModal(mode, accountId, segId) {
+      spitSpecialCtx = { mode: mode, accountId: accountId || null, segId: segId || null };
+      var rate = document.getElementById('special-seg-rate');
+      var st = document.getElementById('special-seg-start');
+      var en = document.getElementById('special-seg-end');
+      var lt = document.getElementById('special-seg-longterm');
+      var stat = document.getElementById('special-seg-status');
+      var acc = accountId ? spitDemoAccounts.find(function (x) { return x.id === accountId; }) : null;
+      if (mode === 'add-account') {
+        fillSpecialAccountSelect(null, null, true);
+        if (rate) rate.value = '';
+        if (st) st.value = '';
+        if (en) { en.value = ''; en.disabled = false; }
+        if (lt) lt.checked = false;
+        if (stat) stat.value = 'enabled';
+      } else if (mode === 'add-seg' && acc) {
+        fillSpecialAccountSelect(acc.id, acc.id, false);
+        if (rate) rate.value = '';
+        if (st) st.value = '';
+        if (en) { en.value = ''; en.disabled = false; }
+        if (lt) lt.checked = false;
+        if (stat) stat.value = 'enabled';
+      } else if (mode === 'edit-seg' && acc && segId) {
+        var seg = acc.segments.find(function (x) { return x.id === segId; });
+        fillSpecialAccountSelect(acc.id, acc.id, false);
+        if (seg) {
+          if (rate) rate.value = seg.rate;
+          if (st) st.value = seg.start;
+          if (lt) lt.checked = !!seg.longterm;
+          if (en) { en.disabled = !!seg.longterm; en.value = seg.end || ''; }
+          if (stat) stat.value = seg.status === 'disabled' ? 'disabled' : 'enabled';
+        }
+      }
+      if (lt && en) {
+        lt.onchange = function () { en.disabled = lt.checked; if (lt.checked) en.value = ''; };
+      }
+      openModal('modal-special-segment');
+    }
+
+    function initSpitRulePage() {
+      renderBaseSegmentTable();
+      renderSpecialAccounts();
+      renderPreviewGantt();
+    }
+
+    var btnBaseAdd = document.getElementById('btn-base-segment-add');
+    if (btnBaseAdd) {
+      btnBaseAdd.addEventListener('click', function () { openBaseSegmentModal(null); });
+    }
+
+    var baseSegSaveBtn = document.getElementById('base-seg-save');
+    if (baseSegSaveBtn) {
+      baseSegSaveBtn.addEventListener('click', function () {
+      var rate = Number(document.getElementById('base-seg-rate').value);
+      var start = document.getElementById('base-seg-start').value;
+      var longterm = document.getElementById('base-seg-longterm').checked;
+      var end = longterm ? '' : document.getElementById('base-seg-end').value;
+      if (rate === '' || isNaN(rate) || rate < 0 || rate > 100) {
+        showToast('比例需在 0~100% 之间', 'error');
+        return;
+      }
+      if (!start) {
+        showToast('请填写生效开始日期', 'error');
+        return;
+      }
+      if (!longterm && !end) {
+        showToast('非长期分段需填写结束日期', 'error');
+        return;
+      }
+      var draft = { id: spitBaseEditId || uid('base'), rate: rate, start: start, end: end, longterm: longterm };
+      var list = spitBaseSegments.filter(function (x) { return x.id !== spitBaseEditId; }).concat([draft]);
+      var err = validateBaseSegments(list);
+      if (err) {
+        showToast(err, 'error');
+        return;
+      }
+      if (spitBaseEditId) {
+        var idx = spitBaseSegments.findIndex(function (x) { return x.id === spitBaseEditId; });
+        if (idx >= 0) spitBaseSegments[idx] = draft;
+      } else {
+        spitBaseSegments.push(draft);
+      }
+      closeModal('modal-base-segment');
+      renderBaseSegmentTable();
+      renderPreviewGantt();
+      showToast('基础吐点分段已保存');
+    });
+    }
+
+    var specialSegSaveBtn = document.getElementById('special-seg-save');
+    if (specialSegSaveBtn) {
+      specialSegSaveBtn.addEventListener('click', function () {
+      var ctx = spitSpecialCtx;
+      var rate = Number(document.getElementById('special-seg-rate').value);
+      var start = document.getElementById('special-seg-start').value;
+      var longterm = document.getElementById('special-seg-longterm').checked;
+      var end = longterm ? '' : document.getElementById('special-seg-end').value;
+      var status = document.getElementById('special-seg-status').value === 'disabled' ? 'disabled' : 'enabled';
+      if (rate === '' || isNaN(rate) || rate < 0 || rate > 100) {
+        showToast('比例需在 0~100% 之间', 'error');
+        return;
+      }
+      if (!start) {
+        showToast('请填写生效开始', 'error');
+        return;
+      }
+      if (!longterm && !end) {
+        showToast('非长期需填写结束日', 'error');
+        return;
+      }
+      var accId = ctx.accountId;
+      if (ctx.mode === 'add-account') {
+        accId = document.getElementById('special-seg-account').value;
+      }
+      var acc = spitDemoAccounts.find(function (x) { return x.id === accId; });
+      if (!acc) {
+        showToast('请选择广告账户', 'error');
+        return;
+      }
+      if (ctx.mode === 'add-account' && acc.segments.length) {
+        showToast('该账户已有特殊吐点, 请用「新增分段」', 'error');
+        return;
+      }
+      var newSeg = { id: ctx.segId || uid('sp'), rate: rate, start: start, end: end, longterm: longterm, status: status };
+      var segs = acc.segments.filter(function (s) { return s.id !== ctx.segId; }).concat([newSeg]);
+      var testAcc = { id: acc.id, name: acc.name, label: acc.label, segments: segs };
+      var err = validateAccountSegments(testAcc, null);
+      if (err) {
+        showToast(err, 'error');
+        return;
+      }
+      acc.segments = segs;
+      closeModal('modal-special-segment');
+      renderSpecialAccounts();
+      renderPreviewGantt();
+      showToast('特殊吐点已保存');
+    });
+    }
+
+    var viewSpit = document.getElementById('relations-view-spit');
+    if (viewSpit) {
+      viewSpit.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t || !t.closest) return;
+        var editBase = t.closest('.btn-base-seg-edit');
+        if (editBase) {
+          openBaseSegmentModal(editBase.getAttribute('data-base-id'));
+          return;
+        }
+        var delBase = t.closest('.btn-base-seg-del');
+        if (delBase) {
+          var bid = delBase.getAttribute('data-base-id');
+          if (!confirm('删除该基础分段? (原型)')) return;
+          spitBaseSegments = spitBaseSegments.filter(function (x) { return x.id !== bid; });
+          renderBaseSegmentTable();
+          renderPreviewGantt();
+          showToast('已删除基础分段');
+          return;
+        }
+        var addSp = t.closest('.btn-special-add-seg');
+        if (addSp) {
+          openSpecialModal('add-seg', addSp.getAttribute('data-acc'), null);
+          return;
+        }
+        var makeSp = t.closest('.btn-special-make');
+        if (makeSp) {
+          openSpecialModal('add-seg', makeSp.getAttribute('data-acc'), null);
+          return;
+        }
+        var edSp = t.closest('.btn-special-seg-edit');
+        if (edSp) {
+          openSpecialModal('edit-seg', edSp.getAttribute('data-acc'), edSp.getAttribute('data-seg'));
+          return;
+        }
+      });
+    }
+
+    var btnAddSpecialAccount = document.getElementById('btn-add-special-account');
+    if (btnAddSpecialAccount) {
+      btnAddSpecialAccount.addEventListener('click', function () {
+        openSpecialModal('add-account', null, null);
+      });
+    }
+
+    var previewYearSel = document.getElementById('preview-year');
+    if (previewYearSel) {
+      previewYearSel.addEventListener('change', function () {
+        var n = Number(previewYearSel.value);
+        spitCtx.year = isNaN(n) ? new Date().getFullYear() : n;
+        renderPreviewGantt();
+      });
+    }
+    var previewQuarterSel = document.getElementById('preview-quarter');
+    if (previewQuarterSel) {
+      previewQuarterSel.addEventListener('change', function () {
+        var n = Number(previewQuarterSel.value);
+        spitCtx.quarter = isNaN(n) || n < 1 || n > 4 ? 1 : n;
+        renderPreviewGantt();
+      });
+    }
+
+    /* --- Tab: 吐点结算 --- */
+    function updateSettleSelectionCount() {
+      var n = document.querySelectorAll('.settle-row-check:checked').length;
+      var el = document.getElementById('settle-selected-count');
+      if (el) el.textContent = String(n);
+    }
+
+    function renderSettlementRowOps(tr) {
+      var cell = tr.querySelector('.settle-op-cell');
+      if (!cell) return;
+      var id = tr.getAttribute('data-order-id') || '';
+      var biz = tr.getAttribute('data-settle-biz') || '';
+      var fin = tr.getAttribute('data-settle-fin') || '';
+      var html = '<button type="button" class="text-blue-600 hover:underline btn-settle-detail" data-id="' + id + '">详情</button>';
+      if (biz === 'pending') {
+        html += ' <button type="button" class="text-green-700 hover:underline btn-settle-audit-biz">业务审核</button>';
+      }
+      if (biz === 'done' && fin === 'pending') {
+        html += ' <button type="button" class="text-green-700 hover:underline btn-settle-audit-fin">财务审核</button>';
+      }
+      cell.innerHTML = html;
+    }
+
+    function syncSettlementRowUi(tr) {
+      var biz = tr.getAttribute('data-settle-biz') || '';
+      var fin = tr.getAttribute('data-settle-fin') || '';
+      var stEl = tr.querySelector('.settle-state');
+      var chk = tr.querySelector('.settle-row-check');
+      if (stEl) {
+        if (biz === 'cancelled' || fin === 'cancelled') {
+          stEl.textContent = '已作废';
+          stEl.className = 'settle-state text-gray-500';
+        } else if (biz === 'done' && fin === 'done') {
+          stEl.textContent = '已完结';
+          stEl.className = 'settle-state text-green-800';
+        } else if (biz === 'done' && fin === 'pending') {
+          stEl.textContent = '待财务';
+          stEl.className = 'settle-state text-blue-700';
+        } else {
+          stEl.textContent = '待业务';
+          stEl.className = 'settle-state text-amber-700';
+        }
+      }
+      if (chk) {
+        var terminal = (biz === 'done' && fin === 'done') || biz === 'cancelled' || fin === 'cancelled';
+        chk.disabled = !!terminal;
+        chk.classList.toggle('opacity-40', !!terminal);
+        if (terminal) chk.checked = false;
+      }
+      renderSettlementRowOps(tr);
+    }
+
+    function initSettlementTable() {
+      document.querySelectorAll('#tbody-settlement tr').forEach(function (tr) {
+        syncSettlementRowUi(tr);
+      });
+      updateSettleSelectionCount();
+    }
+
+    function isBlockingIntroBatchPair(introId, batch) {
+      if (!introId || !batch) return false;
+      var rows = document.querySelectorAll('#tbody-settlement tr');
+      for (var i = 0; i < rows.length; i++) {
+        var tr = rows[i];
+        if (tr.getAttribute('data-settle-intro') !== introId) continue;
+        if (tr.getAttribute('data-settle-batch') !== batch) continue;
+        var el = tr.querySelector('.settle-state');
+        var t = el ? el.textContent.trim() : '';
+        if (t === '待业务' || t === '待财务' || t === '已完结') return true;
+      }
+      return false;
+    }
+
+    function getSelectedManualSettleIntros() {
+      var ids = [];
+      document.querySelectorAll('.manual-settle-intro-cb:checked').forEach(function (cb) {
+        if (cb.value) ids.push(cb.value);
+      });
+      return ids;
+    }
+
+    function resetManualSettleForm() {
+      document.querySelectorAll('.manual-settle-intro-cb').forEach(function (cb) { cb.checked = false; });
+      var batchSel = document.getElementById('manual-settle-batch');
+      if (batchSel) batchSel.value = '';
+    }
+
+    var btnOpenManualSettle = document.getElementById('btn-open-manual-settle');
+    if (btnOpenManualSettle) {
+      btnOpenManualSettle.addEventListener('click', function () {
+        resetManualSettleForm();
+        openModal('modal-manual-settle');
+      });
+    }
+
+    var btnManualSettleSubmit = document.getElementById('btn-manual-settle-submit');
+    if (btnManualSettleSubmit) {
+      btnManualSettleSubmit.addEventListener('click', function () {
+        var intros = getSelectedManualSettleIntros();
+        var batch = ((document.getElementById('manual-settle-batch') || {}).value || '').trim();
+        if (!intros.length) {
+          showToast('请至少选择一个介绍人商户ID', 'error');
+          return;
+        }
+        if (!batch) {
+          showToast('请选择结算批次', 'error');
+          return;
+        }
+        var blocked = [];
+        for (var i = 0; i < intros.length; i++) {
+          if (isBlockingIntroBatchPair(intros[i], batch)) blocked.push(intros[i]);
+        }
+        if (blocked.length) {
+          showToast('以下介绍人在该批次不可发起: ' + blocked.join(', ') + ' (作废后可重试)', 'error');
+          return;
+        }
+        closeModal('modal-manual-settle');
+        showToast('已为 ' + intros.length + ' 个介绍人提交手动发起结算 (原型), 草案生成后将出现在下方列表');
+      });
+    }
+
+    function buildSettlementDetailHtml(orderId) {
+      return '<p class="mb-2 text-gray-600">结算单 <span class="font-mono">' + orderId + '</span> · 按客户分组; 每行含账户, 命中比例, 比例来源, 时间段, 消耗与返还.</p>' +
+        '<table class="w-full border text-xs"><thead class="bg-gray-50"><tr><th class="border px-2 py-1">客户</th><th class="border px-2 py-1">账户</th><th class="border px-2 py-1">命中比例</th><th class="border px-2 py-1">比例来源</th><th class="border px-2 py-1">时间段</th><th class="border px-2 py-1">消耗 USD</th><th class="border px-2 py-1">返还 USD</th></tr></thead>' +
+        '<tbody><tr><td class="border px-2 py-1">C-002</td><td class="border px-2 py-1">act_123</td><td class="border px-2 py-1">3.00%</td><td class="border px-2 py-1">特殊</td><td class="border px-2 py-1">2026-01-01~2026-03-31</td><td class="border px-2 py-1">40,000.00</td><td class="border px-2 py-1">1,200.00</td></tr></tbody></table>';
+    }
+
+    function openSettlementDetailModal(orderId) {
+      settlementDetailOrderId = orderId;
+      var title = document.getElementById('modal-settle-detail-title');
+      var body = document.getElementById('modal-settle-detail-body');
+      if (title) title.textContent = '结算单详情 · ' + orderId;
+      if (body) body.innerHTML = buildSettlementDetailHtml(orderId);
+      openModal('modal-settlement-detail');
+    }
+
+    document.getElementById('btn-settle-detail-download').addEventListener('click', function () {
+      if (!settlementDetailOrderId) {
+        showToast('无当前结算单', 'error');
+        return;
+      }
+      var csv = '\uFEFF客户,账户,命中比例,比例来源,时间段,消耗USD,返还USD\nC-002,act_123,3.00%,特殊,2026-01-01~2026-03-31,40000,1200\n';
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'settlement-' + settlementDetailOrderId + '-detail.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('已开始下载 CSV (原型示例数据)');
+    });
+
+    document.getElementById('btn-settle-filter').addEventListener('click', function () {
+      showToast('结算列表: 已应用筛选 (原型)');
+    });
+
+    document.getElementById('settle-check-all').addEventListener('change', function () {
+      var on = this.checked;
+      document.querySelectorAll('.settle-row-check').forEach(function (c) {
+        if (!c.disabled) c.checked = on;
+      });
+      updateSettleSelectionCount();
+    });
+
+    document.getElementById('tbody-settlement').addEventListener('change', function (e) {
+      if (e.target.classList.contains('settle-row-check')) updateSettleSelectionCount();
+    });
+
+    document.getElementById('tbody-settlement').addEventListener('click', function (e) {
+      var detailBtn = e.target.closest('.btn-settle-detail');
+      if (detailBtn) {
+        openSettlementDetailModal(detailBtn.getAttribute('data-id'));
+        return;
+      }
+      var bizAudit = e.target.closest('.btn-settle-audit-biz');
+      if (bizAudit) {
+        openSettleAuditModal('biz', bizAudit.closest('tr'));
+        return;
+      }
+      var finAudit = e.target.closest('.btn-settle-audit-fin');
+      if (finAudit) {
+        openSettleAuditModal('fin', finAudit.closest('tr'));
+        return;
+      }
+    });
+
+    function settleAuditToggleRemark() {
+      var pass = document.querySelector('input[name="settle-audit-result"]:checked');
+      var wrap = document.getElementById('settle-audit-remark-wrap');
+      var ta = document.getElementById('settle-audit-remark');
+      var isReject = pass && pass.value === 'reject';
+      if (wrap) wrap.classList.toggle('hidden', !isReject);
+      if (ta && !isReject) ta.value = '';
+    }
+
+    document.querySelectorAll('input[name="settle-audit-result"]').forEach(function (r) {
+      r.addEventListener('change', settleAuditToggleRemark);
+    });
+
+    function openSettleAuditModal(type, tr) {
+      if (!tr) return;
+      settleAuditContext = { row: tr, type: type };
+      var title = document.getElementById('modal-settle-audit-title');
+      var desc = document.getElementById('modal-settle-audit-desc');
+      var oid = tr.getAttribute('data-order-id') || '';
+      if (title) title.textContent = type === 'fin' ? '财务审核' : '业务审核';
+      if (desc) desc.textContent = '结算单 ' + oid + ' · 请选择通过或驳回; 驳回须填写备注.';
+      var passR = document.querySelector('input[name="settle-audit-result"][value="pass"]');
+      if (passR) passR.checked = true;
+      var ta = document.getElementById('settle-audit-remark');
+      if (ta) ta.value = '';
+      settleAuditToggleRemark();
+      openModal('modal-settle-audit');
+    }
+
+    document.getElementById('btn-settle-audit-submit').addEventListener('click', function () {
+      var tr = settleAuditContext.row;
+      var type = settleAuditContext.type;
+      if (!tr || !type) return;
+      var resEl = document.querySelector('input[name="settle-audit-result"]:checked');
+      var result = resEl ? resEl.value : 'pass';
+      var remark = (document.getElementById('settle-audit-remark') || {}).value;
+      remark = remark ? String(remark).trim() : '';
+      if (result === 'reject' && !remark) {
+        showToast('驳回时请填写备注', 'error');
+        return;
+      }
+      if (type === 'biz') {
+        if (tr.getAttribute('data-settle-biz') !== 'pending') {
+          showToast('当前状态不可进行业务审核', 'error');
+          return;
+        }
+        if (result === 'pass') {
+          tr.setAttribute('data-settle-biz', 'done');
+          tr.setAttribute('data-settle-fin', 'pending');
+          var rm = tr.querySelector('.settle-remark-cell');
+          if (rm) rm.textContent = '业务已通过';
+          showToast('业务审核已通过 (原型)');
+        } else {
+          tr.setAttribute('data-settle-biz', 'cancelled');
+          tr.setAttribute('data-settle-fin', 'cancelled');
+          var rm2 = tr.querySelector('.settle-remark-cell');
+          if (rm2) rm2.textContent = '业务驳回: ' + remark;
+          showToast('业务已驳回, 单据传为已作废 (原型)');
+        }
+      } else if (type === 'fin') {
+        if (tr.getAttribute('data-settle-biz') !== 'done' || tr.getAttribute('data-settle-fin') !== 'pending') {
+          showToast('当前状态不可进行财务审核', 'error');
+          return;
+        }
+        if (result === 'pass') {
+          tr.setAttribute('data-settle-fin', 'done');
+          var rm3 = tr.querySelector('.settle-remark-cell');
+          if (rm3 && rm3.textContent.indexOf('财务') === -1) {
+            rm3.textContent = rm3.textContent === '—' ? '财务已通过' : rm3.textContent + '; 财务已通过';
+          }
+          showToast('财务审核已通过, 已完结 (原型)');
+        } else {
+          tr.setAttribute('data-settle-fin', 'cancelled');
+          var rm4 = tr.querySelector('.settle-remark-cell');
+          if (rm4) rm4.textContent = '财务驳回: ' + remark;
+          showToast('财务已驳回, 单据传为已作废 (原型)');
+        }
+      }
+      closeModal('modal-settle-audit');
+      settleAuditContext = { row: null, type: null };
+      syncSettlementRowUi(tr);
+      updateSettleSelectionCount();
+    });
+
+    document.getElementById('btn-settle-batch-biz').addEventListener('click', function () {
+      var n = document.querySelectorAll('.settle-row-check:checked').length;
+      if (n === 0) {
+        showToast('请先勾选待业务审核的结算单', 'error');
+        return;
+      }
+      if (!confirm('将对已选 ' + n + ' 条执行「业务通过」; 仅对当前筛选可见且当前角色可操作行生效; 操作前二次确认 (PRD 6.3.6.4). 同一账号不可自审自批 (兜底). 是否继续? (原型)')) return;
+      showToast('已批量业务通过 (原型)');
+    });
+
+    window.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var openModalEl = document.querySelector('.modal-shell.flex:not(.hidden)');
+      if (openModalEl) {
+        closeModal(openModalEl.id);
+        e.preventDefault();
+      }
+    });
+
+    initSettlementTable();
+
+    setIntroducerTab(tabFromHash(), { skipHash: true, skipHint: true, skipFocus: true });
+  </script>
+</body>
+</html>

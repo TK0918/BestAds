@@ -13,7 +13,8 @@ const PAGE_CONFIG = {
   'role-management': { title: '角色管理', description: '管理和配置系统角色及权限' },
   'role-create': { title: '创建角色', description: '配置新的系统角色及权限' },
   'role-edit': { title: '编辑角色', description: '修改系统角色及权限' },
-  'auto-recharge-rules': { title: '自动充值规则', description: '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值' }
+  'auto-recharge-rules': { title: '自动充值规则', description: '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值' },
+  'introducer-daily-consume': { title: '介绍人每日消耗', description: '查看被介绍客户的广告账户日消耗 (不含吐点比例与收益)' }
 };
 
 // 余额数据（统一管理）
@@ -73,6 +74,8 @@ async function initializePage() {
   
   // 设置当前页面激活状态
   setActiveMenuItem(currentPage);
+
+  applyIntroducerDailyNavVisibility();
   
   // 设置页面标题
   setPageTitle(currentPage);
@@ -87,6 +90,19 @@ function getCurrentPageName() {
   const filename = path.split('/').pop();
   const pageName = filename.replace('.html', '');
   return pageName === '' ? 'index' : pageName;
+}
+
+// PRD 7.1: 须同时具备 IntroducerEnabled 与运营后台「客户端可见性」为开. 静态原型用 localStorage 模拟.
+function applyIntroducerDailyNavVisibility() {
+  const li = document.getElementById('nav-introducer-daily');
+  if (!li) return;
+  const enabled = localStorage.getItem('bestadsMockIntroducerEnabled') === '1';
+  const clientOn = localStorage.getItem('bestadsMockIntroducerClientVisible') === '1';
+  if (enabled && clientOn) {
+    li.classList.remove('hidden');
+  } else {
+    li.classList.add('hidden');
+  }
 }
 
 // 设置激活的菜单项
@@ -350,6 +366,7 @@ window.CommonUtils = {
   getBalanceData,
   showNotification,
   setPageTitle,
+  applyIntroducerDailyNavVisibility,
   PAGE_CONFIG,
   BALANCE_DATA
 }; 

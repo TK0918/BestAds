@@ -51,6 +51,8 @@
     .sidebar-collapsed { width: 64px !important; }
     .sidebar-collapsed .sidebar-item span, .sidebar-collapsed h3 { display: none !important; }
     .sidebar-collapsed .sidebar-item i { margin-right: 0 !important; }
+    .dimension-option { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid #D1D5DB; border-radius: 9999px; padding: 0.35rem 0.75rem; font-size: 0.875rem; color: #374151; background: #fff; cursor: pointer; }
+    .dimension-option:has(input:checked) { border-color: #2563EB; background: #EFF6FF; color: #1D4ED8; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -80,6 +82,7 @@
               <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
               <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
               <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+              <li><a href="../main-functions/introducer-spitpoint.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-400"></i>介绍人和吐点</a></li>
             </ul>
           </div>
 
@@ -140,7 +143,7 @@
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h1 class="text-xl font-semibold text-gray-900">广告客户表现</h1>
-              <p class="text-sm text-gray-500 mt-1">支持客户与广告账户两个维度, 均为天级别消耗数据。</p>
+              <p class="text-sm text-gray-500 mt-1">支持客户，广告账户和自定义维度汇总，可按业务选择的维度动态展示列表字段.</p>
             </div>
 
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -189,9 +192,9 @@
                     </div>
                   </div>
                 </div>
-                <div id="accountOnlyFilters" class="hidden flex gap-4">
+                <div id="accountOnlyFilters" class="hidden flex flex-wrap gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">媒体</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">投放平台</label>
                     <div class="multi-select" id="mediaFilter">
                       <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('mediaFilter')">
                         <span class="multi-select-label">全部</span>
@@ -212,6 +215,118 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
                     <input id="adAccountName" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
                   </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">账户类型</label>
+                    <div class="multi-select" id="accountTypeFilter">
+                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('accountTypeFilter')">
+                        <span class="multi-select-label">全部</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                      </button>
+                      <div class="multi-select-panel">
+                        <label class="multi-select-option"><input type="checkbox" value="普通户">普通户</label>
+                        <label class="multi-select-option"><input type="checkbox" value="绑卡户">绑卡户</label>
+                        <label class="multi-select-option"><input type="checkbox" value="代理户">代理户</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="customOnlyFilters" class="hidden flex flex-wrap gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Campaign ID</label>
+                    <input id="campaignIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Campaign名称</label>
+                    <input id="campaignNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Adset ID</label>
+                    <input id="adsetIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Adset名称</label>
+                    <input id="adsetNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ad ID</label>
+                    <input id="adIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ad名称</label>
+                    <input id="adNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">国家</label>
+                    <div class="multi-select" id="countryFilter">
+                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('countryFilter')">
+                        <span class="multi-select-label">全部</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                      </button>
+                      <div class="multi-select-panel">
+                        <label class="multi-select-option"><input type="checkbox" value="US">US</label>
+                        <label class="multi-select-option"><input type="checkbox" value="UK">UK</label>
+                        <label class="multi-select-option"><input type="checkbox" value="JP">JP</label>
+                        <label class="multi-select-option"><input type="checkbox" value="BR">BR</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">行业</label>
+                    <div class="multi-select" id="industryFilter">
+                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('industryFilter')">
+                        <span class="multi-select-label">全部</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                      </button>
+                      <div class="multi-select-panel">
+                        <label class="multi-select-option"><input type="checkbox" value="电商">电商</label>
+                        <label class="multi-select-option"><input type="checkbox" value="游戏">游戏</label>
+                        <label class="multi-select-option"><input type="checkbox" value="工具">工具</label>
+                        <label class="multi-select-option"><input type="checkbox" value="品牌">品牌</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Campaign状态</label>
+                    <div class="multi-select" id="campaignStatusFilter">
+                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('campaignStatusFilter')">
+                        <span class="multi-select-label">全部</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                      </button>
+                      <div class="multi-select-panel">
+                        <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
+                        <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
+                        <label class="multi-select-option"><input type="checkbox" value="ARCHIVED">ARCHIVED</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Adset状态</label>
+                    <div class="multi-select" id="adsetStatusFilter">
+                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('adsetStatusFilter')">
+                        <span class="multi-select-label">全部</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                      </button>
+                      <div class="multi-select-panel">
+                        <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
+                        <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
+                        <label class="multi-select-option"><input type="checkbox" value="LEARNING">LEARNING</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ad状态</label>
+                    <div class="multi-select" id="adStatusFilter">
+                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('adStatusFilter')">
+                        <span class="multi-select-label">全部</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                      </button>
+                      <div class="multi-select-panel">
+                        <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
+                        <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
+                        <label class="multi-select-option"><input type="checkbox" value="REJECTED">REJECTED</label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
                   <i class="fas fa-search mr-2"></i>查询
@@ -224,9 +339,36 @@
                 <div class="inline-flex gap-2">
                   <button id="tabCustomer" class="tab-btn active border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('customer')">客户</button>
                   <button id="tabAccount" class="tab-btn border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('account')">广告账户</button>
+                  <button id="tabCustom" class="tab-btn border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('custom')">自定义维度</button>
                 </div>
               </div>
               <div class="p-6">
+                <div id="customDimensionPanel" class="hidden mb-6 space-y-4">
+                  <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                    <div class="flex items-start gap-3">
+                      <i class="fas fa-circle-info text-blue-500 mt-0.5"></i>
+                      <div>
+                        <p class="text-sm font-medium text-blue-900">自定义维度说明</p>
+                        <p class="text-sm text-blue-700 mt-1">勾选的维度会作为列表分组字段并展示对应列，未勾选的维度不会展示，指标会向上汇总. 例如未勾选客户时，列表不展示商户ID和客户名称.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium text-gray-700 mb-2">选择统计维度</div>
+                    <div id="dimensionOptions" class="flex flex-wrap gap-2">
+                      <label class="dimension-option"><input type="checkbox" value="date" onchange="applyFilters()">日期</label>
+                      <label class="dimension-option"><input type="checkbox" value="customer" checked onchange="applyFilters()">客户</label>
+                      <label class="dimension-option"><input type="checkbox" value="platform" onchange="applyFilters()">投放平台</label>
+                      <label class="dimension-option"><input type="checkbox" value="accountType" onchange="applyFilters()">账户类型</label>
+                      <label class="dimension-option"><input type="checkbox" value="account" onchange="applyFilters()">广告账户</label>
+                      <label class="dimension-option"><input type="checkbox" value="campaign" onchange="applyFilters()">Campaign</label>
+                      <label class="dimension-option"><input type="checkbox" value="adset" onchange="applyFilters()">Adset</label>
+                      <label class="dimension-option"><input type="checkbox" value="ad" onchange="applyFilters()">Ad</label>
+                      <label class="dimension-option"><input type="checkbox" value="country" onchange="applyFilters()">国家</label>
+                      <label class="dimension-option"><input type="checkbox" value="industry" onchange="applyFilters()">行业</label>
+                    </div>
+                  </div>
+                </div>
                 <div class="table-wrap overflow-x-auto">
                   <table class="min-w-full text-sm">
                     <thead class="table-head">
@@ -250,20 +392,28 @@
     let currentTab = 'customer';
 
     const customerProfiles = [
-      { merchantId: 'M10231', customerName: '晨星出海', bd: 'BD-A', am: 'AM-Luna' },
-      { merchantId: 'M39812', customerName: '北极光电商', bd: 'BD-B', am: 'AM-Sam' },
-      { merchantId: 'M55001', customerName: '云桥互动', bd: 'BD-C', am: 'AM-Ivy' },
-      { merchantId: 'M77420', customerName: '海豚品牌', bd: 'BD-A', am: 'AM-Sam' }
+      { merchantId: 'M10231', customerName: '晨星出海', bd: 'BD-A', am: 'AM-Luna', industry: '工具' },
+      { merchantId: 'M39812', customerName: '北极光电商', bd: 'BD-B', am: 'AM-Sam', industry: '电商' },
+      { merchantId: 'M55001', customerName: '云桥互动', bd: 'BD-C', am: 'AM-Ivy', industry: '游戏' },
+      { merchantId: 'M77420', customerName: '海豚品牌', bd: 'BD-A', am: 'AM-Sam', industry: '品牌' }
     ];
 
     const reportDates = ['2026-03-15', '2026-03-16'];
     const mediaCycle = ['Facebook', 'Google', 'TikTok', 'Facebook', 'Google', 'TikTok', 'Facebook', 'Google'];
+    const accountTypeCycle = ['普通户', '绑卡户', '代理户'];
+    const campaignStatusCycle = ['ACTIVE', 'PAUSED', 'ARCHIVED'];
+    const adsetStatusCycle = ['ACTIVE', 'PAUSED', 'LEARNING'];
+    const adStatusCycle = ['ACTIVE', 'PAUSED', 'REJECTED'];
+    const objectiveCycle = ['转化量', '应用安装', '商品销量', '线索收集'];
+    const bidStrategyCycle = ['最低成本', '成本上限', '竞价上限'];
+    const ctaCycle = ['立即购买', '了解更多', '下载', '注册'];
 
     function buildCustomerAccounts(profile, customerIndex) {
       const accountCount = customerIndex % 2 === 0 ? 8 : 7;
       const rows = [];
       for (let i = 0; i < accountCount; i += 1) {
         const media = mediaCycle[i];
+        const accountType = accountTypeCycle[(customerIndex + i) % accountTypeCycle.length];
         const originalCurrency = i % 3 === 0 ? 'USD' : 'EUR';
         const rate = originalCurrency === 'USD' ? 1 : 1.08;
         const accountSuffix = String(i + 1).padStart(2, '0');
@@ -278,6 +428,8 @@
             bd: profile.bd,
             am: profile.am,
             media,
+            platform: media,
+            accountType,
             adAccountId: `act_${profile.merchantId.slice(1)}${accountSuffix}`,
             adAccountName: `${profile.customerName}-${media}-${accountSuffix}`,
             originalCurrency,
@@ -291,6 +443,61 @@
     }
 
     const accountRows = customerProfiles.flatMap((profile, index) => buildCustomerAccounts(profile, index));
+
+    const countries = ['US', 'UK', 'JP', 'BR'];
+
+    function buildAdRows(accountRow, index) {
+      const profile = customerProfiles.find(item => item.merchantId === accountRow.merchantId);
+      return [0, 1].map(adIndex => {
+        const campaignNo = (index % 4) + 1;
+        const adsetNo = (index % 3) + adIndex + 1;
+        const adNo = (index % 9) + adIndex + 1;
+        const statusIndex = index + adIndex;
+        const weight = adIndex === 0 ? 0.58 : 0.42;
+        const spend = +(accountRow.usdConsume * weight).toFixed(2);
+        const impressions = Math.round(spend * (42 + adIndex * 8));
+        const clicks = Math.max(1, Math.round(impressions * (0.018 + adIndex * 0.004)));
+        const conversions = Math.max(1, Math.round(clicks * (0.08 + adIndex * 0.01)));
+        const revenue = +(spend * (1.15 + (index % 3) * 0.12 + adIndex * 0.08)).toFixed(2);
+        return {
+          date: accountRow.date,
+          merchantId: accountRow.merchantId,
+          customerName: accountRow.customerName,
+          bd: accountRow.bd,
+          am: accountRow.am,
+          industry: profile ? profile.industry : '-',
+          media: accountRow.media,
+          platform: accountRow.platform,
+          accountType: accountRow.accountType,
+          adAccountId: accountRow.adAccountId,
+          adAccountName: accountRow.adAccountName,
+          campaignId: `cmp_${accountRow.merchantId.slice(1)}_${campaignNo}`,
+          campaignName: `${accountRow.customerName}-Campaign-${campaignNo}`,
+          campaignStatus: campaignStatusCycle[statusIndex % campaignStatusCycle.length],
+          objective: objectiveCycle[statusIndex % objectiveCycle.length],
+          adsetId: `set_${accountRow.merchantId.slice(1)}_${adsetNo}`,
+          adsetName: `${accountRow.media}-Adset-${adsetNo}`,
+          adsetStatus: adsetStatusCycle[statusIndex % adsetStatusCycle.length],
+          bidStrategy: bidStrategyCycle[statusIndex % bidStrategyCycle.length],
+          adId: `ad_${accountRow.merchantId.slice(1)}_${adNo}`,
+          adName: `${accountRow.customerName}-素材-${adNo}`,
+          adStatus: adStatusCycle[statusIndex % adStatusCycle.length],
+          headline: `${accountRow.customerName} 限时活动 ${adNo}`,
+          description: `${accountRow.media} 渠道高转化素材描述`,
+          callToAction: ctaCycle[statusIndex % ctaCycle.length],
+          creativePreview: ['🟦', '🟩', '🟨', '🟪'][index % 4],
+          landingUrl: `https://example.com/${accountRow.merchantId.toLowerCase()}/${adNo}`,
+          country: countries[(index + adIndex) % countries.length],
+          spend,
+          impressions,
+          clicks,
+          conversions,
+          revenue
+        };
+      });
+    }
+
+    const adRows = accountRows.flatMap((row, index) => buildAdRows(row, index));
 
     const customerRows = reportDates.flatMap(date => {
       return customerProfiles.map(profile => {
@@ -321,6 +528,14 @@
 
     function formatMoney(v) {
       return Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatPercent(v) {
+      return v === null || Number.isNaN(v) ? '-' : (v * 100).toFixed(2) + '%';
+    }
+
+    function formatNumber(v) {
+      return Number(v).toLocaleString();
     }
 
     function getSelectedValues(id) {
@@ -368,7 +583,10 @@
       currentTab = tab;
       document.getElementById('tabCustomer').classList.toggle('active', tab === 'customer');
       document.getElementById('tabAccount').classList.toggle('active', tab === 'account');
-      document.getElementById('accountOnlyFilters').classList.toggle('hidden', tab !== 'account');
+      document.getElementById('tabCustom').classList.toggle('active', tab === 'custom');
+      document.getElementById('accountOnlyFilters').classList.toggle('hidden', tab !== 'account' && tab !== 'custom');
+      document.getElementById('customOnlyFilters').classList.toggle('hidden', tab !== 'custom');
+      document.getElementById('customDimensionPanel').classList.toggle('hidden', tab !== 'custom');
       applyFilters();
     }
 
@@ -380,10 +598,22 @@
       const bdSelected = getSelectedValues('bdFilter');
       const amSelected = getSelectedValues('amFilter');
       const mediaSelected = getSelectedValues('mediaFilter');
+      const accountTypeSelected = getSelectedValues('accountTypeFilter');
       const adAccountId = document.getElementById('adAccountId').value.trim().toLowerCase();
       const adAccountName = document.getElementById('adAccountName').value.trim().toLowerCase();
+      const campaignIdKeyword = document.getElementById('campaignIdKeyword').value.trim().toLowerCase();
+      const campaignNameKeyword = document.getElementById('campaignNameKeyword').value.trim().toLowerCase();
+      const adsetIdKeyword = document.getElementById('adsetIdKeyword').value.trim().toLowerCase();
+      const adsetNameKeyword = document.getElementById('adsetNameKeyword').value.trim().toLowerCase();
+      const adIdKeyword = document.getElementById('adIdKeyword').value.trim().toLowerCase();
+      const adNameKeyword = document.getElementById('adNameKeyword').value.trim().toLowerCase();
+      const countrySelected = getSelectedValues('countryFilter');
+      const industrySelected = getSelectedValues('industryFilter');
+      const campaignStatusSelected = getSelectedValues('campaignStatusFilter');
+      const adsetStatusSelected = getSelectedValues('adsetStatusFilter');
+      const adStatusSelected = getSelectedValues('adStatusFilter');
 
-      let rows = currentTab === 'customer' ? customerRows : accountRows;
+      let rows = currentTab === 'customer' ? customerRows : currentTab === 'account' ? accountRows : adRows;
       rows = rows.filter(row => {
         const okDate = (!startDate || row.date >= startDate) && (!endDate || row.date <= endDate);
         const okMerchant = !merchantId || row.merchantId.toLowerCase().includes(merchantId);
@@ -395,12 +625,218 @@
           return okDate && okMerchant && okCustomer && okBD && okAM;
         }
         const okMedia = mediaSelected.length === 0 || mediaSelected.includes(row.media);
+        const okAccountType = accountTypeSelected.length === 0 || accountTypeSelected.includes(row.accountType);
         const okAccountId = !adAccountId || row.adAccountId.toLowerCase().includes(adAccountId);
         const okAccountName = !adAccountName || row.adAccountName.toLowerCase().includes(adAccountName);
-        return okDate && okMerchant && okCustomer && okBD && okAM && okMedia && okAccountId && okAccountName;
+        if (currentTab === 'account') {
+          return okDate && okMerchant && okCustomer && okBD && okAM && okMedia && okAccountType && okAccountId && okAccountName;
+        }
+        const okCampaignId = !campaignIdKeyword || row.campaignId.toLowerCase().includes(campaignIdKeyword);
+        const okCampaignName = !campaignNameKeyword || row.campaignName.toLowerCase().includes(campaignNameKeyword);
+        const okAdsetId = !adsetIdKeyword || row.adsetId.toLowerCase().includes(adsetIdKeyword);
+        const okAdsetName = !adsetNameKeyword || row.adsetName.toLowerCase().includes(adsetNameKeyword);
+        const okAdId = !adIdKeyword || row.adId.toLowerCase().includes(adIdKeyword);
+        const okAdName = !adNameKeyword || row.adName.toLowerCase().includes(adNameKeyword);
+        const okCountry = countrySelected.length === 0 || countrySelected.includes(row.country);
+        const okIndustry = industrySelected.length === 0 || industrySelected.includes(row.industry);
+        const okCampaignStatus = campaignStatusSelected.length === 0 || campaignStatusSelected.includes(row.campaignStatus);
+        const okAdsetStatus = adsetStatusSelected.length === 0 || adsetStatusSelected.includes(row.adsetStatus);
+        const okAdStatus = adStatusSelected.length === 0 || adStatusSelected.includes(row.adStatus);
+        return okDate && okMerchant && okCustomer && okBD && okAM && okMedia && okAccountType && okAccountId && okAccountName && okCampaignId && okCampaignName && okAdsetId && okAdsetName && okAdId && okAdName && okCountry && okIndustry && okCampaignStatus && okAdsetStatus && okAdStatus;
       });
 
       renderTable(rows);
+    }
+
+    const dimensionDefinitions = {
+      date: {
+        groupFields: ['date'],
+        columns: [{ key: 'date', label: '日期', type: 'text' }]
+      },
+      customer: {
+        groupFields: ['merchantId'],
+        columns: [
+          { key: 'merchantId', label: '商户ID', type: 'text' },
+          { key: 'customerName', label: '客户名称', type: 'text' }
+        ]
+      },
+      platform: {
+        groupFields: ['platform'],
+        columns: [{ key: 'platform', label: '投放平台', type: 'text' }]
+      },
+      accountType: {
+        groupFields: ['accountType'],
+        columns: [{ key: 'accountType', label: '账户类型', type: 'text' }]
+      },
+      account: {
+        groupFields: ['adAccountId'],
+        columns: [
+          { key: 'adAccountId', label: '广告账户ID', type: 'text' },
+          { key: 'adAccountName', label: '广告账户名称', type: 'text' }
+        ]
+      },
+      campaign: {
+        groupFields: ['campaignId'],
+        columns: [
+          { key: 'campaignId', label: 'Campaign ID', type: 'text' },
+          { key: 'campaignName', label: 'Campaign名称', type: 'text' },
+          { key: 'campaignStatus', label: 'Campaign状态', type: 'text' },
+          { key: 'objective', label: '推广目标', type: 'text' }
+        ]
+      },
+      adset: {
+        groupFields: ['adsetId'],
+        columns: [
+          { key: 'adsetId', label: 'Adset ID', type: 'text' },
+          { key: 'adsetName', label: 'Adset名称', type: 'text' },
+          { key: 'adsetStatus', label: 'Adset状态', type: 'text' },
+          { key: 'bidStrategy', label: '竞价策略', type: 'text' }
+        ]
+      },
+      ad: {
+        groupFields: ['adId'],
+        columns: [
+          { key: 'adId', label: 'Ad ID', type: 'text' },
+          { key: 'adName', label: 'Ad名称', type: 'text' },
+          { key: 'adStatus', label: 'Ad状态', type: 'text' },
+          { key: 'headline', label: '标题', type: 'text' },
+          { key: 'description', label: '描述', type: 'text' },
+          { key: 'callToAction', label: '行动按钮', type: 'text' },
+          { key: 'landingUrl', label: 'URL', type: 'url' },
+          { key: 'creativePreview', label: '素材预览', type: 'creative' }
+        ]
+      },
+      country: {
+        groupFields: ['country'],
+        columns: [{ key: 'country', label: '国家', type: 'text' }]
+      },
+      industry: {
+        groupFields: ['industry'],
+        columns: [{ key: 'industry', label: '行业', type: 'text' }]
+      }
+    };
+
+    const metricColumns = [
+      { key: 'spend', label: '消耗', type: 'money' },
+      { key: 'impressions', label: '展示', type: 'number' },
+      { key: 'clicks', label: '点击', type: 'number' },
+      { key: 'conversions', label: '转化', type: 'number' },
+      { key: 'ctr', label: 'CTR', type: 'percent' },
+      { key: 'cpc', label: 'CPC', type: 'money' },
+      { key: 'cpm', label: 'CPM', type: 'money' },
+      { key: 'cpa', label: 'CPA', type: 'money' },
+      { key: 'roas', label: 'ROAS', type: 'decimal' }
+    ];
+
+    function getSelectedDimensions() {
+      return Array.from(document.querySelectorAll('#dimensionOptions input[type="checkbox"]:checked')).map(input => input.value);
+    }
+
+    function calculateDerivedMetrics(row) {
+      return {
+        ...row,
+        ctr: row.impressions ? row.clicks / row.impressions : null,
+        cpc: row.clicks ? row.spend / row.clicks : null,
+        cpm: row.impressions ? row.spend / row.impressions * 1000 : null,
+        cpa: row.conversions ? row.spend / row.conversions : null,
+        roas: row.spend ? row.revenue / row.spend : null
+      };
+    }
+
+    function aggregateCustomRows(rows, selectedDimensions) {
+      const groups = new Map();
+      rows.forEach(row => {
+        const groupKey = selectedDimensions
+          .flatMap(dimension => dimensionDefinitions[dimension].groupFields.map(field => row[field]))
+          .join('|');
+        if (!groups.has(groupKey)) {
+          const base = {
+            spend: 0,
+            impressions: 0,
+            clicks: 0,
+            conversions: 0,
+            revenue: 0
+          };
+          selectedDimensions.forEach(dimension => {
+            dimensionDefinitions[dimension].columns.forEach(column => {
+              base[column.key] = row[column.key];
+            });
+          });
+          groups.set(groupKey, base);
+        }
+        const target = groups.get(groupKey);
+        target.spend += row.spend;
+        target.impressions += row.impressions;
+        target.clicks += row.clicks;
+        target.conversions += row.conversions;
+        target.revenue += row.revenue;
+      });
+
+      return Array.from(groups.values())
+        .map(row => calculateDerivedMetrics({
+          ...row,
+          spend: +row.spend.toFixed(2),
+          revenue: +row.revenue.toFixed(2)
+        }))
+        .sort((a, b) => b.spend - a.spend);
+    }
+
+    function renderCell(row, column) {
+      const value = row[column.key];
+      if (column.type === 'money') return formatMoney(value || 0);
+      if (column.type === 'number') return formatNumber(value || 0);
+      if (column.type === 'percent') return formatPercent(value);
+      if (column.type === 'decimal') return value === null || Number.isNaN(value) ? '-' : value.toFixed(2);
+      if (column.type === 'creative') return `<span class="inline-flex w-10 h-8 items-center justify-center rounded border border-gray-200 bg-gray-50 text-lg">${value}</span>`;
+      if (column.type === 'url') return `<a class="text-blue-600 hover:underline" href="${value}" target="_blank">查看链接</a>`;
+      return value || '-';
+    }
+
+    function renderCustomTable(rows) {
+      const header = document.getElementById('tableHeader');
+      const body = document.getElementById('tableBody');
+      const summary = document.getElementById('tableSummary');
+      const selectedDimensions = getSelectedDimensions();
+
+      if (selectedDimensions.length === 0) {
+        header.innerHTML = '<th class="px-4 py-3 text-left text-gray-700 font-semibold">提示</th>';
+        body.innerHTML = '<tr><td class="px-4 py-8 text-center text-gray-500">请至少选择一个维度</td></tr>';
+        summary.innerHTML = '';
+        return;
+      }
+
+      const dimensionColumns = selectedDimensions.flatMap(dimension => dimensionDefinitions[dimension].columns);
+      const columns = [...dimensionColumns, ...metricColumns];
+      const aggregatedRows = aggregateCustomRows(rows, selectedDimensions);
+
+      header.innerHTML = columns.map(column => `<th class="px-4 py-3 text-left text-gray-700 font-semibold whitespace-nowrap">${column.label}</th>`).join('');
+
+      if (aggregatedRows.length === 0) {
+        body.innerHTML = `<tr><td class="px-4 py-8 text-center text-gray-500" colspan="${columns.length}">暂无数据, 请调整筛选条件后重试</td></tr>`;
+        summary.innerHTML = '';
+        return;
+      }
+
+      body.innerHTML = '';
+      aggregatedRows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = columns.map(column => `<td class="px-4 py-3 whitespace-nowrap">${renderCell(row, column)}</td>`).join('');
+        body.appendChild(tr);
+      });
+
+      const totals = calculateDerivedMetrics(rows.reduce((sum, row) => {
+        sum.spend += row.spend;
+        sum.impressions += row.impressions;
+        sum.clicks += row.clicks;
+        sum.conversions += row.conversions;
+        sum.revenue += row.revenue;
+        return sum;
+      }, { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 }));
+
+      summary.innerHTML = `
+        <td class="px-4 py-3" colspan="${dimensionColumns.length}">当前数据汇总</td>
+        ${metricColumns.map(column => `<td class="px-4 py-3 whitespace-nowrap">${renderCell(totals, column)}</td>`).join('')}
+      `;
     }
 
     function renderTable(rows) {
@@ -410,6 +846,11 @@
       header.innerHTML = '';
       body.innerHTML = '';
       summary.innerHTML = '';
+
+      if (currentTab === 'custom') {
+        renderCustomTable(rows);
+        return;
+      }
 
       if (currentTab === 'customer') {
         const cols = ['日期', '商户ID', '客户名称', 'BD', 'AM', '欧元币种', '欧元消耗金额', '欧元汇率', '美元币种', '美元消耗金额', '美元汇率', '美元消耗'];
@@ -449,7 +890,7 @@
         return;
       }
 
-      const cols = ['日期', '商户ID', '客户名称', 'BD', 'AM', '媒体', '广告账户ID', '广告账户名称', '原币种', '消耗金额', '汇率', '美元消耗'];
+      const cols = ['日期', '商户ID', '客户名称', 'BD', 'AM', '投放平台', '账户类型', '广告账户ID', '广告账户名称', '原币种', '消耗金额', '汇率', '美元消耗'];
       header.innerHTML = cols.map(c => `<th class="px-4 py-3 text-left text-gray-700 font-semibold">${c}</th>`).join('');
 
       let totalConsumeAmount = 0;
@@ -464,7 +905,8 @@
           <td class="px-4 py-3">${row.customerName}</td>
           <td class="px-4 py-3">${row.bd}</td>
           <td class="px-4 py-3">${row.am}</td>
-          <td class="px-4 py-3">${row.media}</td>
+          <td class="px-4 py-3">${row.platform}</td>
+          <td class="px-4 py-3">${row.accountType}</td>
           <td class="px-4 py-3">${row.adAccountId}</td>
           <td class="px-4 py-3">${row.adAccountName}</td>
           <td class="px-4 py-3">${row.originalCurrency}</td>
@@ -476,7 +918,7 @@
       });
 
       summary.innerHTML = `
-        <td class="px-4 py-3" colspan="9">当前数据汇总</td>
+        <td class="px-4 py-3" colspan="10">当前数据汇总</td>
         <td class="px-4 py-3">${formatMoney(totalConsumeAmount)}</td>
         <td class="px-4 py-3">-</td>
         <td class="px-4 py-3">${formatMoney(totalUsdConsume)}</td>
