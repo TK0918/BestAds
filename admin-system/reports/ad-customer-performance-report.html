@@ -6,6 +6,7 @@
   <title>广告客户表现 - BestAds运营管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     .sidebar-item { position: relative; transition: all 0.2s ease; }
@@ -15,7 +16,10 @@
     .mobile-menu-closed { transform: translateX(-100%); }
     .table-wrap { border: 1px solid #E5E7EB; border-radius: 0.5rem; overflow: hidden; }
     .table-head { background: #F9FAFB; }
-    .tab-btn.active { color: #2563EB; border-color: #2563EB; background: #EFF6FF; }
+    .tab-button { transition: all 0.2s ease; }
+    .tab-button.active { border-bottom-color: #667eea; color: #667eea; }
+    .breakdown-module { border: 1px solid #E5E7EB; border-radius: 0.5rem; padding: 1.25rem; background: #fff; }
+    .breakdown-module-title { font-size: 1rem; font-weight: 600; color: #111827; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #F3F4F6; }
     .summary-row { background: #F3F4F6; font-weight: 600; }
     .multi-select { position: relative; width: 9rem; }
     .multi-select-btn {
@@ -141,209 +145,257 @@
       <main class="flex-1 overflow-y-auto bg-gray-50">
         <div class="py-6">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h1 class="text-xl font-semibold text-gray-900">广告客户表现</h1>
-              <p class="text-sm text-gray-500 mt-1">支持客户，广告账户和自定义维度汇总，可按业务选择的维度动态展示列表字段.</p>
+            <div class="mb-6">
+              <h2 class="text-2xl font-bold text-gray-900">广告客户表现</h2>
+              <p class="mt-1 text-sm text-gray-500">自定义维度汇总与 Meta 多维度投放拆解看板（版位/年龄/性别等 Insights Breakdown，演示数据）。</p>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div class="flex flex-wrap gap-4 items-end">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">日期范围</label>
-                  <div class="flex items-center gap-2">
-                    <input id="startDate" type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
-                    <span class="text-gray-500">至</span>
-                    <input id="endDate" type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">商户ID</label>
-                  <input id="merchantId" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">客户名称</label>
-                  <input id="customerName" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">BD</label>
-                  <div class="multi-select" id="bdFilter">
-                    <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('bdFilter')">
-                      <span class="multi-select-label">全部</span>
-                      <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                    </button>
-                    <div class="multi-select-panel">
-                      <label class="multi-select-option"><input type="checkbox" value="BD-A">BD-A</label>
-                      <label class="multi-select-option"><input type="checkbox" value="BD-B">BD-B</label>
-                      <label class="multi-select-option"><input type="checkbox" value="BD-C">BD-C</label>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">AM</label>
-                  <div class="multi-select" id="amFilter">
-                    <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('amFilter')">
-                      <span class="multi-select-label">全部</span>
-                      <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                    </button>
-                    <div class="multi-select-panel">
-                      <label class="multi-select-option"><input type="checkbox" value="AM-Luna">AM-Luna</label>
-                      <label class="multi-select-option"><input type="checkbox" value="AM-Sam">AM-Sam</label>
-                      <label class="multi-select-option"><input type="checkbox" value="AM-Ivy">AM-Ivy</label>
-                    </div>
-                  </div>
-                </div>
-                <div id="accountOnlyFilters" class="hidden flex flex-wrap gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">投放平台</label>
-                    <div class="multi-select" id="mediaFilter">
-                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('mediaFilter')">
-                        <span class="multi-select-label">全部</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                      </button>
-                      <div class="multi-select-panel">
-                        <label class="multi-select-option"><input type="checkbox" value="Facebook">Facebook</label>
-                        <label class="multi-select-option"><input type="checkbox" value="Google">Google</label>
-                        <label class="multi-select-option"><input type="checkbox" value="TikTok">TikTok</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户ID</label>
-                    <input id="adAccountId" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
-                    <input id="adAccountName" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">账户类型</label>
-                    <div class="multi-select" id="accountTypeFilter">
-                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('accountTypeFilter')">
-                        <span class="multi-select-label">全部</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                      </button>
-                      <div class="multi-select-panel">
-                        <label class="multi-select-option"><input type="checkbox" value="普通户">普通户</label>
-                        <label class="multi-select-option"><input type="checkbox" value="绑卡户">绑卡户</label>
-                        <label class="multi-select-option"><input type="checkbox" value="代理户">代理户</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div id="customOnlyFilters" class="hidden flex flex-wrap gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Campaign ID</label>
-                    <input id="campaignIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Campaign名称</label>
-                    <input id="campaignNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Adset ID</label>
-                    <input id="adsetIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Adset名称</label>
-                    <input id="adsetNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Ad ID</label>
-                    <input id="adIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Ad名称</label>
-                    <input id="adNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">国家</label>
-                    <div class="multi-select" id="countryFilter">
-                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('countryFilter')">
-                        <span class="multi-select-label">全部</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                      </button>
-                      <div class="multi-select-panel">
-                        <label class="multi-select-option"><input type="checkbox" value="US">US</label>
-                        <label class="multi-select-option"><input type="checkbox" value="UK">UK</label>
-                        <label class="multi-select-option"><input type="checkbox" value="JP">JP</label>
-                        <label class="multi-select-option"><input type="checkbox" value="BR">BR</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">行业</label>
-                    <div class="multi-select" id="industryFilter">
-                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('industryFilter')">
-                        <span class="multi-select-label">全部</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                      </button>
-                      <div class="multi-select-panel">
-                        <label class="multi-select-option"><input type="checkbox" value="电商">电商</label>
-                        <label class="multi-select-option"><input type="checkbox" value="游戏">游戏</label>
-                        <label class="multi-select-option"><input type="checkbox" value="工具">工具</label>
-                        <label class="multi-select-option"><input type="checkbox" value="品牌">品牌</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Campaign状态</label>
-                    <div class="multi-select" id="campaignStatusFilter">
-                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('campaignStatusFilter')">
-                        <span class="multi-select-label">全部</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                      </button>
-                      <div class="multi-select-panel">
-                        <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
-                        <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
-                        <label class="multi-select-option"><input type="checkbox" value="ARCHIVED">ARCHIVED</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Adset状态</label>
-                    <div class="multi-select" id="adsetStatusFilter">
-                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('adsetStatusFilter')">
-                        <span class="multi-select-label">全部</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                      </button>
-                      <div class="multi-select-panel">
-                        <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
-                        <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
-                        <label class="multi-select-option"><input type="checkbox" value="LEARNING">LEARNING</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Ad状态</label>
-                    <div class="multi-select" id="adStatusFilter">
-                      <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('adStatusFilter')">
-                        <span class="multi-select-label">全部</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                      </button>
-                      <div class="multi-select-panel">
-                        <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
-                        <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
-                        <label class="multi-select-option"><input type="checkbox" value="REJECTED">REJECTED</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
-                  <i class="fas fa-search mr-2"></i>查询
-                </button>
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+              <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                  <button type="button" id="tabCustom" class="tab-button active py-4 px-6 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300" onclick="switchTab('custom')">自定义维度</button>
+                  <button type="button" id="tabBreakdown" class="tab-button py-4 px-6 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300" onclick="switchTab('breakdown')">Meta多维度看板</button>
+                </nav>
               </div>
-            </div>
+              <div id="tabFilterArea" class="p-6 border-b border-gray-200">
+                <div class="flex flex-col gap-4">
+                  <div id="filterCore" class="flex flex-wrap gap-4 items-end">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">日期范围</label>
+                      <div class="flex items-center gap-2">
+                        <input id="startDate" type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <span class="text-gray-500">至</span>
+                        <input id="endDate" type="date" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">商户ID</label>
+                      <input id="merchantId" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">客户名称</label>
+                      <input id="customerName" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">BD</label>
+                      <div class="multi-select" id="bdFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('bdFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="BD-A">BD-A</label>
+                          <label class="multi-select-option"><input type="checkbox" value="BD-B">BD-B</label>
+                          <label class="multi-select-option"><input type="checkbox" value="BD-C">BD-C</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">AM</label>
+                      <div class="multi-select" id="amFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('amFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="AM-Luna">AM-Luna</label>
+                          <label class="multi-select-option"><input type="checkbox" value="AM-Sam">AM-Sam</label>
+                          <label class="multi-select-option"><input type="checkbox" value="AM-Ivy">AM-Ivy</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div class="border-b border-gray-200 px-6 py-3">
-                <div class="inline-flex gap-2">
-                  <button id="tabCustomer" class="tab-btn active border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('customer')">客户</button>
-                  <button id="tabAccount" class="tab-btn border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('account')">广告账户</button>
-                  <button id="tabCustom" class="tab-btn border px-4 py-2 rounded-md text-sm font-medium" onclick="switchTab('custom')">自定义维度</button>
+                  <div id="filterBreakdownPanel" class="hidden space-y-3">
+                    <div class="flex flex-wrap gap-4 items-end">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">广告账户ID</label>
+                        <input id="adAccountId" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
+                        <input id="adAccountName" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                      </div>
+                    </div>
+                    <div>
+                      <button type="button" id="breakdownMoreToggle" class="text-sm text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1" onclick="toggleBreakdownMoreFilters()">
+                        <span>更多筛选</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                      </button>
+                      <div id="filterBreakdownMore" class="hidden mt-3 flex flex-wrap gap-4 items-end">
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Campaign ID</label>
+                          <input id="campaignIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Campaign名称</label>
+                          <input id="campaignNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Adset ID</label>
+                          <input id="adsetIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Adset名称</label>
+                          <input id="adsetNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Ad ID</label>
+                          <input id="adIdKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Ad名称</label>
+                          <input id="adNameKeyword" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="filterCustomPanel" class="hidden flex flex-wrap gap-4 items-end">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">投放平台</label>
+                      <div class="multi-select" id="mediaFilterCustom">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('mediaFilterCustom')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="Facebook">Facebook</label>
+                          <label class="multi-select-option"><input type="checkbox" value="Google">Google</label>
+                          <label class="multi-select-option"><input type="checkbox" value="TikTok">TikTok</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">广告账户ID</label>
+                      <input id="adAccountIdCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
+                      <input id="adAccountNameCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">账户类型</label>
+                      <div class="multi-select" id="accountTypeFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('accountTypeFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="普通户">普通户</label>
+                          <label class="multi-select-option"><input type="checkbox" value="绑卡户">绑卡户</label>
+                          <label class="multi-select-option"><input type="checkbox" value="代理户">代理户</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Campaign ID</label>
+                      <input id="campaignIdKeywordCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Campaign名称</label>
+                      <input id="campaignNameKeywordCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Adset ID</label>
+                      <input id="adsetIdKeywordCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Adset名称</label>
+                      <input id="adsetNameKeywordCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Ad ID</label>
+                      <input id="adIdKeywordCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Ad名称</label>
+                      <input id="adNameKeywordCustom" type="text" placeholder="支持模糊" class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">国家</label>
+                      <div class="multi-select" id="countryFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('countryFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="US">US</label>
+                          <label class="multi-select-option"><input type="checkbox" value="UK">UK</label>
+                          <label class="multi-select-option"><input type="checkbox" value="JP">JP</label>
+                          <label class="multi-select-option"><input type="checkbox" value="BR">BR</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">行业</label>
+                      <div class="multi-select" id="industryFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('industryFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="电商">电商</label>
+                          <label class="multi-select-option"><input type="checkbox" value="游戏">游戏</label>
+                          <label class="multi-select-option"><input type="checkbox" value="工具">工具</label>
+                          <label class="multi-select-option"><input type="checkbox" value="品牌">品牌</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Campaign状态</label>
+                      <div class="multi-select" id="campaignStatusFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('campaignStatusFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
+                          <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
+                          <label class="multi-select-option"><input type="checkbox" value="ARCHIVED">ARCHIVED</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Adset状态</label>
+                      <div class="multi-select" id="adsetStatusFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('adsetStatusFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
+                          <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
+                          <label class="multi-select-option"><input type="checkbox" value="LEARNING">LEARNING</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Ad状态</label>
+                      <div class="multi-select" id="adStatusFilter">
+                        <button type="button" class="multi-select-btn" onclick="toggleMultiSelect('adStatusFilter')">
+                          <span class="multi-select-label">全部</span>
+                          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <div class="multi-select-panel">
+                          <label class="multi-select-option"><input type="checkbox" value="ACTIVE">ACTIVE</label>
+                          <label class="multi-select-option"><input type="checkbox" value="PAUSED">PAUSED</label>
+                          <label class="multi-select-option"><input type="checkbox" value="REJECTED">REJECTED</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-end">
+                    <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                      <i class="fas fa-search mr-2"></i>查询
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div class="p-6">
-                <div id="customDimensionPanel" class="hidden mb-6 space-y-4">
+
+              <div id="customTabContent" class="p-6">
+                <div id="customDimensionPanel" class="mb-6 space-y-4">
                   <div class="rounded-lg border border-blue-100 bg-blue-50 p-4">
                     <div class="flex items-start gap-3">
                       <i class="fas fa-circle-info text-blue-500 mt-0.5"></i>
@@ -371,15 +423,82 @@
                 </div>
                 <div class="table-wrap overflow-x-auto">
                   <table class="min-w-full text-sm">
-                    <thead class="table-head">
-                      <tr id="tableHeader"></tr>
-                    </thead>
+                    <thead class="table-head"><tr id="tableHeader"></tr></thead>
                     <tbody id="tableBody" class="divide-y divide-gray-100"></tbody>
-                    <tfoot>
-                      <tr id="tableSummary" class="summary-row"></tr>
-                    </tfoot>
+                    <tfoot><tr id="tableSummary" class="summary-row"></tr></tfoot>
                   </table>
                 </div>
+              </div>
+
+              <div id="breakdownTabContent" class="p-6 hidden space-y-8">
+                <div class="rounded-lg border border-amber-100 bg-amber-50 p-4">
+                  <div class="flex items-start gap-3">
+                    <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+                    <div>
+                      <p class="text-sm font-medium text-amber-900">Meta 看板说明</p>
+                      <p class="text-sm text-amber-800 mt-1">本 Tab 仅展示 Meta(Facebook) 投放的 Insights Breakdown(版位/年龄/性别/竞价策略等). 版位/年龄/性别为按 Ad 行模拟分布; 竞价策略按广告行字段汇总. 接入接口后替换.</p>
+                    </div>
+                  </div>
+                </div>
+                <div id="breakdownGlobalKpi" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+
+                <section id="breakdownSectionOverview" class="breakdown-module">
+                  <h3 class="breakdown-module-title">概览</h3>
+                  <p class="text-sm text-gray-600 mb-3">展示当前筛选下的整体规模, 以及版位/年龄/性别/竞价策略各维度<strong>内部</strong>花费最高的枚举值. 占比仅在同一维度内有效, 不可跨维度比较或排序.</p>
+                  <div id="overviewJumpLinks" class="flex flex-wrap gap-2 mb-4"></div>
+                  <div id="breakdownTableOverview" class="table-wrap overflow-x-auto"></div>
+                </section>
+
+                                <section id="breakdownSectionPlacement" class="breakdown-module">
+                  <h3 class="breakdown-module-title">版位</h3>
+                  <div class="rounded-lg border border-gray-200 p-4 mb-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">组合指标对比（横向分组条形）</p>
+                    <p class="text-xs text-gray-500 mb-2">勾选多个指标后, 每个版位下并排展示对应柱子. 花费/展示/点击/转化会在柱旁标注占比(该指标在全部版位间的占比).</p>
+                    <div id="placementMetricOptions" class="flex flex-wrap gap-2 mb-3"></div>
+                    <p id="placementChartAxisHint" class="text-xs text-amber-700 mb-2 hidden"></p>
+                    <div class="relative h-96"><canvas id="chartPlacementBar"></canvas></div>
+                  </div>
+                  <div id="breakdownTablePlacement" class="table-wrap overflow-x-auto"></div>
+                </section>
+
+                <section id="breakdownSectionAge" class="breakdown-module">
+                  <h3 class="breakdown-module-title">年龄</h3>
+                  <div class="rounded-lg border border-gray-200 p-4 mb-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">组合指标对比（横向分组条形）</p>
+                    <p class="text-xs text-gray-500 mb-2">勾选多个指标后, 每个年龄段下并排展示对应柱子. 花费/展示/点击/转化会在柱旁标注占比(该指标在本维度全部枚举值间的占比).</p>
+                    <div id="ageMetricOptions" class="flex flex-wrap gap-2 mb-3"></div>
+                    <p id="ageChartAxisHint" class="text-xs text-amber-700 mb-2 hidden"></p>
+                    <div class="relative h-96"><canvas id="chartAgeBar"></canvas></div>
+                  </div>
+                  <div id="breakdownTableAge" class="table-wrap overflow-x-auto"></div>
+                </section>
+
+                <section id="breakdownSectionGender" class="breakdown-module">
+                  <h3 class="breakdown-module-title">性别</h3>
+                  <div class="rounded-lg border border-gray-200 p-4 mb-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">组合指标对比（横向分组条形）</p>
+                    <p class="text-xs text-gray-500 mb-2">勾选多个指标后, 每个性别下并排展示对应柱子. 花费/展示/点击/转化会在柱旁标注占比(该指标在本维度全部枚举值间的占比).</p>
+                    <div id="genderMetricOptions" class="flex flex-wrap gap-2 mb-3"></div>
+                    <p id="genderChartAxisHint" class="text-xs text-amber-700 mb-2 hidden"></p>
+                    <div class="relative h-96"><canvas id="chartGenderBar"></canvas></div>
+                  </div>
+                  <div id="breakdownTableGender" class="table-wrap overflow-x-auto"></div>
+                </section>
+
+                <section id="breakdownSectionBidStrategy" class="breakdown-module">
+                  <h3 class="breakdown-module-title">竞价策略</h3>
+                  <div class="rounded-lg border border-gray-200 p-4 mb-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">组合指标对比（横向分组条形）</p>
+                    <p class="text-xs text-gray-500 mb-2">勾选多个指标后, 每种竞价策略下并排展示对应柱子. 花费/展示/点击/转化会在柱旁标注占比(该指标在本维度全部枚举值间的占比).</p>
+                    <div id="bidStrategyMetricOptions" class="flex flex-wrap gap-2 mb-3"></div>
+                    <p id="bidStrategyChartAxisHint" class="text-xs text-amber-700 mb-2 hidden"></p>
+                    <div class="relative h-96"><canvas id="chartBidStrategyBar"></canvas></div>
+                  </div>
+                  <div id="breakdownTableBidStrategy" class="table-wrap overflow-x-auto"></div>
+                </section>
+
+
+                <p class="text-xs text-gray-500">转化与 ROAS 与「自定义维度」同源 mock；Breakdown 合计与账户总消耗可能存在口径差异.</p>
               </div>
             </div>
           </div>
@@ -389,7 +508,13 @@
   </div>
 
   <script>
-    let currentTab = 'customer';
+    let currentTab = 'custom';
+    let breakdownFilteredCache = [];
+    const breakdownChartRefs = {};
+
+    const BREAKDOWN_PLACEMENT_LABELS = ['Instagram / Reels', 'Instagram / Feed', 'Facebook / Feed', 'Facebook / Reels', 'Audience Network', 'Messenger / Inbox', 'Other'];
+    const BREAKDOWN_AGE_LABELS = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'Unknown'];
+    const BREAKDOWN_GENDER_LABELS = ['男', '女', '未知'];
 
     const customerProfiles = [
       { merchantId: 'M10231', customerName: '晨星出海', bd: 'BD-A', am: 'AM-Luna', industry: '工具' },
@@ -579,73 +704,104 @@
       });
     }
 
+    function toggleBreakdownMoreFilters() {
+      const panel = document.getElementById('filterBreakdownMore');
+      const icon = document.querySelector('#breakdownMoreToggle i');
+      panel.classList.toggle('hidden');
+      icon.classList.toggle('fa-chevron-down');
+      icon.classList.toggle('fa-chevron-up');
+    }
+
+    function filterInputValue(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim().toLowerCase() : '';
+    }
+
+    function getFilterContext() {
+      const isBreakdown = currentTab === 'breakdown';
+      return {
+        isBreakdown,
+        mediaSelected: isBreakdown ? ['Facebook'] : getSelectedValues('mediaFilterCustom'),
+        adAccountId: filterInputValue(isBreakdown ? 'adAccountId' : 'adAccountIdCustom'),
+        adAccountName: filterInputValue(isBreakdown ? 'adAccountName' : 'adAccountNameCustom'),
+        campaignIdKeyword: filterInputValue(isBreakdown ? 'campaignIdKeyword' : 'campaignIdKeywordCustom'),
+        campaignNameKeyword: filterInputValue(isBreakdown ? 'campaignNameKeyword' : 'campaignNameKeywordCustom'),
+        adsetIdKeyword: filterInputValue(isBreakdown ? 'adsetIdKeyword' : 'adsetIdKeywordCustom'),
+        adsetNameKeyword: filterInputValue(isBreakdown ? 'adsetNameKeyword' : 'adsetNameKeywordCustom'),
+        adIdKeyword: filterInputValue(isBreakdown ? 'adIdKeyword' : 'adIdKeywordCustom'),
+        adNameKeyword: filterInputValue(isBreakdown ? 'adNameKeyword' : 'adNameKeywordCustom'),
+        accountTypeSelected: isBreakdown ? [] : getSelectedValues('accountTypeFilter'),
+        countrySelected: isBreakdown ? [] : getSelectedValues('countryFilter'),
+        industrySelected: isBreakdown ? [] : getSelectedValues('industryFilter'),
+        campaignStatusSelected: isBreakdown ? [] : getSelectedValues('campaignStatusFilter'),
+        adsetStatusSelected: isBreakdown ? [] : getSelectedValues('adsetStatusFilter'),
+        adStatusSelected: isBreakdown ? [] : getSelectedValues('adStatusFilter')
+      };
+    }
+
     function switchTab(tab) {
       currentTab = tab;
-      document.getElementById('tabCustomer').classList.toggle('active', tab === 'customer');
-      document.getElementById('tabAccount').classList.toggle('active', tab === 'account');
+      const isBreakdown = tab === 'breakdown';
       document.getElementById('tabCustom').classList.toggle('active', tab === 'custom');
-      document.getElementById('accountOnlyFilters').classList.toggle('hidden', tab !== 'account' && tab !== 'custom');
-      document.getElementById('customOnlyFilters').classList.toggle('hidden', tab !== 'custom');
-      document.getElementById('customDimensionPanel').classList.toggle('hidden', tab !== 'custom');
+      document.getElementById('tabBreakdown').classList.toggle('active', isBreakdown);
+      document.getElementById('customTabContent').classList.toggle('hidden', tab !== 'custom');
+      document.getElementById('breakdownTabContent').classList.toggle('hidden', !isBreakdown);
+      document.getElementById('filterBreakdownPanel').classList.toggle('hidden', !isBreakdown);
+      document.getElementById('filterCustomPanel').classList.toggle('hidden', isBreakdown);
+      if (isBreakdown) {
+        document.getElementById('filterBreakdownMore').classList.add('hidden');
+        const icon = document.querySelector('#breakdownMoreToggle i');
+        if (icon) {
+          icon.classList.add('fa-chevron-down');
+          icon.classList.remove('fa-chevron-up');
+        }
+      }
       applyFilters();
     }
 
-    function applyFilters() {
+    function filterAdRows() {
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
-      const merchantId = document.getElementById('merchantId').value.trim().toLowerCase();
-      const customerName = document.getElementById('customerName').value.trim().toLowerCase();
+      const merchantId = filterInputValue('merchantId');
+      const customerName = filterInputValue('customerName');
       const bdSelected = getSelectedValues('bdFilter');
       const amSelected = getSelectedValues('amFilter');
-      const mediaSelected = getSelectedValues('mediaFilter');
-      const accountTypeSelected = getSelectedValues('accountTypeFilter');
-      const adAccountId = document.getElementById('adAccountId').value.trim().toLowerCase();
-      const adAccountName = document.getElementById('adAccountName').value.trim().toLowerCase();
-      const campaignIdKeyword = document.getElementById('campaignIdKeyword').value.trim().toLowerCase();
-      const campaignNameKeyword = document.getElementById('campaignNameKeyword').value.trim().toLowerCase();
-      const adsetIdKeyword = document.getElementById('adsetIdKeyword').value.trim().toLowerCase();
-      const adsetNameKeyword = document.getElementById('adsetNameKeyword').value.trim().toLowerCase();
-      const adIdKeyword = document.getElementById('adIdKeyword').value.trim().toLowerCase();
-      const adNameKeyword = document.getElementById('adNameKeyword').value.trim().toLowerCase();
-      const countrySelected = getSelectedValues('countryFilter');
-      const industrySelected = getSelectedValues('industryFilter');
-      const campaignStatusSelected = getSelectedValues('campaignStatusFilter');
-      const adsetStatusSelected = getSelectedValues('adsetStatusFilter');
-      const adStatusSelected = getSelectedValues('adStatusFilter');
+      const ctx = getFilterContext();
 
-      let rows = currentTab === 'customer' ? customerRows : currentTab === 'account' ? accountRows : adRows;
-      rows = rows.filter(row => {
+      return adRows.filter(row => {
         const okDate = (!startDate || row.date >= startDate) && (!endDate || row.date <= endDate);
         const okMerchant = !merchantId || row.merchantId.toLowerCase().includes(merchantId);
         const okCustomer = !customerName || row.customerName.toLowerCase().includes(customerName);
         const okBD = bdSelected.length === 0 || bdSelected.includes(row.bd);
         const okAM = amSelected.length === 0 || amSelected.includes(row.am);
-
-        if (currentTab === 'customer') {
-          return okDate && okMerchant && okCustomer && okBD && okAM;
-        }
-        const okMedia = mediaSelected.length === 0 || mediaSelected.includes(row.media);
-        const okAccountType = accountTypeSelected.length === 0 || accountTypeSelected.includes(row.accountType);
-        const okAccountId = !adAccountId || row.adAccountId.toLowerCase().includes(adAccountId);
-        const okAccountName = !adAccountName || row.adAccountName.toLowerCase().includes(adAccountName);
-        if (currentTab === 'account') {
-          return okDate && okMerchant && okCustomer && okBD && okAM && okMedia && okAccountType && okAccountId && okAccountName;
-        }
-        const okCampaignId = !campaignIdKeyword || row.campaignId.toLowerCase().includes(campaignIdKeyword);
-        const okCampaignName = !campaignNameKeyword || row.campaignName.toLowerCase().includes(campaignNameKeyword);
-        const okAdsetId = !adsetIdKeyword || row.adsetId.toLowerCase().includes(adsetIdKeyword);
-        const okAdsetName = !adsetNameKeyword || row.adsetName.toLowerCase().includes(adsetNameKeyword);
-        const okAdId = !adIdKeyword || row.adId.toLowerCase().includes(adIdKeyword);
-        const okAdName = !adNameKeyword || row.adName.toLowerCase().includes(adNameKeyword);
-        const okCountry = countrySelected.length === 0 || countrySelected.includes(row.country);
-        const okIndustry = industrySelected.length === 0 || industrySelected.includes(row.industry);
-        const okCampaignStatus = campaignStatusSelected.length === 0 || campaignStatusSelected.includes(row.campaignStatus);
-        const okAdsetStatus = adsetStatusSelected.length === 0 || adsetStatusSelected.includes(row.adsetStatus);
-        const okAdStatus = adStatusSelected.length === 0 || adStatusSelected.includes(row.adStatus);
-        return okDate && okMerchant && okCustomer && okBD && okAM && okMedia && okAccountType && okAccountId && okAccountName && okCampaignId && okCampaignName && okAdsetId && okAdsetName && okAdId && okAdName && okCountry && okIndustry && okCampaignStatus && okAdsetStatus && okAdStatus;
+        const okMedia = ctx.mediaSelected.length === 0 || ctx.mediaSelected.includes(row.media);
+        const okAccountType = ctx.accountTypeSelected.length === 0 || ctx.accountTypeSelected.includes(row.accountType);
+        const okAccountId = !ctx.adAccountId || row.adAccountId.toLowerCase().includes(ctx.adAccountId);
+        const okAccountName = !ctx.adAccountName || row.adAccountName.toLowerCase().includes(ctx.adAccountName);
+        const okCampaignId = !ctx.campaignIdKeyword || row.campaignId.toLowerCase().includes(ctx.campaignIdKeyword);
+        const okCampaignName = !ctx.campaignNameKeyword || row.campaignName.toLowerCase().includes(ctx.campaignNameKeyword);
+        const okAdsetId = !ctx.adsetIdKeyword || row.adsetId.toLowerCase().includes(ctx.adsetIdKeyword);
+        const okAdsetName = !ctx.adsetNameKeyword || row.adsetName.toLowerCase().includes(ctx.adsetNameKeyword);
+        const okAdId = !ctx.adIdKeyword || row.adId.toLowerCase().includes(ctx.adIdKeyword);
+        const okAdName = !ctx.adNameKeyword || row.adName.toLowerCase().includes(ctx.adNameKeyword);
+        const okCountry = ctx.countrySelected.length === 0 || ctx.countrySelected.includes(row.country);
+        const okIndustry = ctx.industrySelected.length === 0 || ctx.industrySelected.includes(row.industry);
+        const okCampaignStatus = ctx.campaignStatusSelected.length === 0 || ctx.campaignStatusSelected.includes(row.campaignStatus);
+        const okAdsetStatus = ctx.adsetStatusSelected.length === 0 || ctx.adsetStatusSelected.includes(row.adsetStatus);
+        const okAdStatus = ctx.adStatusSelected.length === 0 || ctx.adStatusSelected.includes(row.adStatus);
+        return okDate && okMerchant && okCustomer && okBD && okAM && okMedia && okAccountType && okAccountId && okAccountName
+          && okCampaignId && okCampaignName && okAdsetId && okAdsetName && okAdId && okAdName
+          && okCountry && okIndustry && okCampaignStatus && okAdsetStatus && okAdStatus;
       });
+    }
 
-      renderTable(rows);
+    function applyFilters() {
+      if (currentTab === 'breakdown') {
+        breakdownFilteredCache = filterAdRows();
+        renderBreakdownDashboard(breakdownFilteredCache);
+        return;
+      }
+      renderCustomTable(filterAdRows());
     }
 
     const dimensionDefinitions = {
@@ -839,90 +995,484 @@
       `;
     }
 
-    function renderTable(rows) {
-      const header = document.getElementById('tableHeader');
-      const body = document.getElementById('tableBody');
-      const summary = document.getElementById('tableSummary');
-      header.innerHTML = '';
-      body.innerHTML = '';
-      summary.innerHTML = '';
-
-      if (currentTab === 'custom') {
-        renderCustomTable(rows);
-        return;
+    function hashStringStable(s) {
+      let h = 0;
+      for (let i = 0; i < s.length; i += 1) {
+        h = ((h << 5) - h) + s.charCodeAt(i);
+        h |= 0;
       }
+      return Math.abs(h);
+    }
 
-      if (currentTab === 'customer') {
-        const cols = ['日期', '商户ID', '客户名称', 'BD', 'AM', '欧元币种', '欧元消耗金额', '欧元汇率', '美元币种', '美元消耗金额', '美元汇率', '美元消耗'];
-        header.innerHTML = cols.map(c => `<th class="px-4 py-3 text-left text-gray-700 font-semibold">${c}</th>`).join('');
-
-        let totalEurAmount = 0;
-        let totalUsdConsume = 0;
-        rows.forEach(row => {
-          totalEurAmount += row.eurAmount;
-          totalUsdConsume += row.usdConsume;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="px-4 py-3">${row.date}</td>
-            <td class="px-4 py-3">${row.merchantId}</td>
-            <td class="px-4 py-3">${row.customerName}</td>
-            <td class="px-4 py-3">${row.bd}</td>
-            <td class="px-4 py-3">${row.am}</td>
-            <td class="px-4 py-3">${row.eurCurrency}</td>
-            <td class="px-4 py-3">${formatMoney(row.eurAmount)}</td>
-            <td class="px-4 py-3">${row.eurRate}</td>
-            <td class="px-4 py-3">${row.usdCurrency}</td>
-            <td class="px-4 py-3">${formatMoney(row.usdAmount)}</td>
-            <td class="px-4 py-3">${row.usdRate}</td>
-            <td class="px-4 py-3">${formatMoney(row.usdConsume)}</td>
-          `;
-          body.appendChild(tr);
-        });
-        summary.innerHTML = `
-          <td class="px-4 py-3" colspan="6">当前数据汇总</td>
-          <td class="px-4 py-3">${formatMoney(totalEurAmount)}</td>
-          <td class="px-4 py-3">-</td>
-          <td class="px-4 py-3">-</td>
-          <td class="px-4 py-3">-</td>
-          <td class="px-4 py-3">-</td>
-          <td class="px-4 py-3">${formatMoney(totalUsdConsume)}</td>
-        `;
-        return;
+    function distributeRowToLabels(row, labels) {
+      const h = hashStringStable(row.adId + '|' + row.date);
+      const n = labels.length;
+      const weights = [];
+      let sum = 0;
+      for (let i = 0; i < n; i += 1) {
+        const w = 1 + ((h >> ((i % 8) * 3)) % 50) / 100;
+        weights.push(w);
+        sum += w;
       }
+      return labels.map((label, i) => ({
+        breakdownLabel: label,
+        spend: row.spend * weights[i] / sum,
+        impressions: row.impressions * weights[i] / sum,
+        clicks: row.clicks * weights[i] / sum,
+        conversions: row.conversions * weights[i] / sum,
+        revenue: row.revenue * weights[i] / sum
+      }));
+    }
 
-      const cols = ['日期', '商户ID', '客户名称', 'BD', 'AM', '投放平台', '账户类型', '广告账户ID', '广告账户名称', '原币种', '消耗金额', '汇率', '美元消耗'];
-      header.innerHTML = cols.map(c => `<th class="px-4 py-3 text-left text-gray-700 font-semibold">${c}</th>`).join('');
-
-      let totalConsumeAmount = 0;
-      let totalUsdConsume = 0;
+    function aggregateBreakdownRows(rows, labels) {
+      const map = new Map();
+      labels.forEach(l => map.set(l, { breakdownLabel: l, spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 }));
       rows.forEach(row => {
-        totalConsumeAmount += row.consumeAmount;
-        totalUsdConsume += row.usdConsume;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="px-4 py-3">${row.date}</td>
-          <td class="px-4 py-3">${row.merchantId}</td>
-          <td class="px-4 py-3">${row.customerName}</td>
-          <td class="px-4 py-3">${row.bd}</td>
-          <td class="px-4 py-3">${row.am}</td>
-          <td class="px-4 py-3">${row.platform}</td>
-          <td class="px-4 py-3">${row.accountType}</td>
-          <td class="px-4 py-3">${row.adAccountId}</td>
-          <td class="px-4 py-3">${row.adAccountName}</td>
-          <td class="px-4 py-3">${row.originalCurrency}</td>
-          <td class="px-4 py-3">${formatMoney(row.consumeAmount)}</td>
-          <td class="px-4 py-3">${row.rate}</td>
-          <td class="px-4 py-3">${formatMoney(row.usdConsume)}</td>
-        `;
-        body.appendChild(tr);
+        distributeRowToLabels(row, labels).forEach(p => {
+          const t = map.get(p.breakdownLabel);
+          t.spend += p.spend;
+          t.impressions += p.impressions;
+          t.clicks += p.clicks;
+          t.conversions += p.conversions;
+          t.revenue += p.revenue;
+        });
+      });
+      return labels.map(l => {
+        const r = map.get(l);
+        return calculateDerivedMetrics({
+          breakdownLabel: r.breakdownLabel,
+          spend: +r.spend.toFixed(2),
+          impressions: Math.max(0, Math.round(r.impressions)),
+          clicks: Math.max(0, Math.round(r.clicks)),
+          conversions: Math.max(0, Math.round(r.conversions)),
+          revenue: +r.revenue.toFixed(2)
+        });
+      }).sort((a, b) => b.spend - a.spend);
+    }
+
+    function aggregateBreakdownByField(rows, field, labels) {
+      const map = new Map();
+      labels.forEach(l => map.set(l, { breakdownLabel: l, spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 }));
+      rows.forEach(row => {
+        const label = labels.includes(row[field]) ? row[field] : labels[labels.length - 1];
+        const bucket = map.get(label);
+        if (!bucket) return;
+        bucket.spend += row.spend;
+        bucket.impressions += row.impressions;
+        bucket.clicks += row.clicks;
+        bucket.conversions += row.conversions;
+        bucket.revenue += row.revenue;
+      });
+      return labels.map(l => {
+        const r = map.get(l);
+        return calculateDerivedMetrics({
+          breakdownLabel: r.breakdownLabel,
+          spend: +r.spend.toFixed(2),
+          impressions: Math.max(0, Math.round(r.impressions)),
+          clicks: Math.max(0, Math.round(r.clicks)),
+          conversions: Math.max(0, Math.round(r.conversions)),
+          revenue: +r.revenue.toFixed(2)
+        });
+      }).sort((a, b) => b.spend - a.spend);
+    }
+
+    function addSpendShare(rows) {
+      const totalSpend = rows.reduce((s, r) => s + r.spend, 0);
+      return rows.map(r => ({ ...r, spendShare: totalSpend ? r.spend / totalSpend : 0 }));
+    }
+
+
+    const BREAKDOWN_DETAIL_COLS = [
+      { key: 'breakdownLabel', label: '维度值' },
+      { key: 'spend', label: '花费' },
+      { key: 'spendShare', label: '花费占比' },
+      { key: 'impressions', label: '展示' },
+      { key: 'clicks', label: '点击' },
+      { key: 'conversions', label: '转化' },
+      { key: 'cpm', label: 'CPM' },
+      { key: 'ctr', label: 'CTR' },
+      { key: 'cpc', label: 'CPC' },
+      { key: 'cpa', label: 'CPA' },
+      { key: 'roas', label: 'ROAS' }
+    ];
+
+    const BREAKDOWN_CHART_METRICS = [
+      { key: 'spend', label: '花费', group: 'money', color: '#3B82F6' },
+      { key: 'roas', label: 'ROAS', group: 'ratio', color: '#10B981' },
+      { key: 'cpa', label: 'CPA', group: 'money', color: '#F97316' },
+      { key: 'cpc', label: 'CPC', group: 'money', color: '#8B5CF6' },
+      { key: 'ctr', label: 'CTR', group: 'ratio', color: '#EC4899' },
+      { key: 'impressions', label: '展示', group: 'count', color: '#6366F1' },
+      { key: 'clicks', label: '点击', group: 'count', color: '#14B8A6' },
+      { key: 'conversions', label: '转化', group: 'count', color: '#F59E0B' }
+    ];
+
+    const BREAKDOWN_AXIS_GROUPS = [
+      { id: 'x', group: 'money', title: '金额 (USD)' },
+      { id: 'x1', group: 'count', title: '数量' },
+      { id: 'x2', group: 'ratio', title: '比率 / %' }
+    ];
+
+    const BREAKDOWN_METRICS_WITH_SHARE = new Set(['spend', 'impressions', 'clicks', 'conversions']);
+
+    const BREAKDOWN_COMBO_MODULES = {
+      placement: { chartRef: 'placementBar', canvasId: 'chartPlacementBar', optionsId: 'placementMetricOptions', hintId: 'placementChartAxisHint' },
+      age: { chartRef: 'ageBar', canvasId: 'chartAgeBar', optionsId: 'ageMetricOptions', hintId: 'ageChartAxisHint' },
+      gender: { chartRef: 'genderBar', canvasId: 'chartGenderBar', optionsId: 'genderMetricOptions', hintId: 'genderChartAxisHint' },
+      bidStrategy: { chartRef: 'bidStrategyBar', canvasId: 'chartBidStrategyBar', optionsId: 'bidStrategyMetricOptions', hintId: 'bidStrategyChartAxisHint' }
+    };
+
+    const breakdownRowsCache = { placement: [], age: [], gender: [], bidStrategy: [] };
+
+    function destroyBreakdownCharts() {
+      Object.keys(breakdownChartRefs).forEach(key => {
+        if (breakdownChartRefs[key]) {
+          breakdownChartRefs[key].destroy();
+          breakdownChartRefs[key] = null;
+        }
+      });
+    }
+
+    function renderBreakdownKpis(totals) {
+      const el = document.getElementById('breakdownGlobalKpi');
+      const roasTxt = totals.spend ? (totals.revenue / totals.spend).toFixed(2) : '-';
+      const cpaTxt = totals.conversions ? formatMoney(totals.spend / totals.conversions) : '-';
+      const cards = [
+        { t: '总花费', v: formatMoney(totals.spend || 0), s: 'USD' },
+        { t: '总转化', v: formatNumber(totals.conversions || 0), s: '' },
+        { t: '整体 ROAS', v: roasTxt, s: '' },
+        { t: '整体 CPA', v: cpaTxt, s: '' }
+      ];
+      el.innerHTML = cards.map(c => `
+        <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <p class="text-xs text-gray-500">${c.t}</p>
+          <p class="text-lg font-semibold text-gray-900 mt-1">${c.v}</p>
+          ${c.s ? `<p class="text-xs text-gray-500 mt-0.5">${c.s}</p>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function buildTotals(rows) {
+      if (!rows.length) {
+        return calculateDerivedMetrics({ spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 });
+      }
+      const base = rows.reduce((sum, row) => {
+        sum.spend += row.spend;
+        sum.impressions += row.impressions;
+        sum.clicks += row.clicks;
+        sum.conversions += row.conversions;
+        sum.revenue += row.revenue;
+        return sum;
+      }, { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 });
+      return calculateDerivedMetrics(base);
+    }
+
+    function formatBreakdownCell(key, row) {
+      if (key === 'breakdownLabel') return row.breakdownLabel || '-';
+      if (key === 'spend') return formatMoney(row.spend || 0);
+      if (key === 'spendShare') return formatPercent(row.spendShare == null ? null : row.spendShare);
+      if (key === 'impressions') return formatNumber(row.impressions || 0);
+      if (key === 'clicks') return formatNumber(row.clicks || 0);
+      if (key === 'conversions') return formatNumber(row.conversions || 0);
+      if (key === 'cpm') return renderCell(row, { key: 'cpm', type: 'money' });
+      if (key === 'ctr') return renderCell(row, { key: 'ctr', type: 'percent' });
+      if (key === 'cpc') return renderCell(row, { key: 'cpc', type: 'money' });
+      if (key === 'cpa') return renderCell(row, { key: 'cpa', type: 'money' });
+      if (key === 'roas') return renderCell(row, { key: 'roas', type: 'decimal' });
+      return '-';
+    }
+
+    function renderBreakdownTable(containerId, rows, columns) {
+      const section = document.getElementById(containerId);
+      if (!rows.length) {
+        section.innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据，请调整筛选条件后重试</p>';
+        return;
+      }
+      const head = columns.map(c => `<th class="px-4 py-3 text-left text-gray-700 font-semibold whitespace-nowrap">${c.label}</th>`).join('');
+      const body = rows.map(row => `
+        <tr>
+          ${columns.map(c => `<td class="px-4 py-3 whitespace-nowrap">${formatBreakdownCell(c.key, row)}</td>`).join('')}
+        </tr>
+      `).join('');
+      const total = buildTotals(rows);
+      const totalRow = {
+        breakdownLabel: '合计',
+        spend: total.spend,
+        spendShare: 1,
+        impressions: total.impressions,
+        clicks: total.clicks,
+        conversions: total.conversions,
+        cpm: total.cpm,
+        ctr: total.ctr,
+        cpc: total.cpc,
+        cpa: total.cpa,
+        roas: total.roas
+      };
+      const foot = `
+        <tr class="summary-row">
+          ${columns.map(c => `<td class="px-4 py-3 whitespace-nowrap font-semibold">${formatBreakdownCell(c.key, totalRow)}</td>`).join('')}
+        </tr>
+      `;
+      section.innerHTML = `<table class="min-w-full text-sm"><thead class="table-head"><tr>${head}</tr></thead><tbody class="divide-y divide-gray-100">${body}</tbody><tfoot>${foot}</tfoot></table>`;
+    }
+
+    const OVERVIEW_JUMP_TARGETS = [
+      { dimension: '版位', anchor: '#breakdownSectionPlacement' },
+      { dimension: '年龄', anchor: '#breakdownSectionAge' },
+      { dimension: '性别', anchor: '#breakdownSectionGender' },
+      { dimension: '竞价策略', anchor: '#breakdownSectionBidStrategy' }
+    ];
+
+    function renderOverviewJumpLinks() {
+      const el = document.getElementById('overviewJumpLinks');
+      if (!el) return;
+      el.innerHTML = OVERVIEW_JUMP_TARGETS.map(t => `
+        <a href="${t.anchor}" class="inline-flex items-center px-3 py-1.5 rounded-full text-sm border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+          下钻 ${t.dimension} <i class="fas fa-arrow-down ml-1 text-xs"></i>
+        </a>
+      `).join('');
+    }
+
+    function renderBreakdownOverviewTable(overviewTable) {
+      const section = document.getElementById('breakdownTableOverview');
+      if (!overviewTable.length) {
+        section.innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据</p>';
+        return;
+      }
+      const head = ['维度', 'Top1 标签', 'Top1 花费占比(维度内)', '操作'].map(l => `<th class="px-4 py-3 text-left text-gray-700 font-semibold">${l}</th>`).join('');
+      const body = overviewTable.map(row => {
+        const jump = OVERVIEW_JUMP_TARGETS.find(t => t.dimension === row.dimension);
+        const action = jump
+          ? `<a href="${jump.anchor}" class="text-blue-600 hover:text-blue-800 text-sm">查看 ${row.dimension}</a>`
+          : '-';
+        return `
+        <tr>
+          <td class="px-4 py-3 font-medium text-gray-800">${row.dimension}</td>
+          <td class="px-4 py-3">${row.topLabel}</td>
+          <td class="px-4 py-3">${formatPercent(row.topShare)}</td>
+          <td class="px-4 py-3">${action}</td>
+        </tr>`;
+      }).join('');
+      section.innerHTML = `
+        <table class="min-w-full text-sm">
+          <thead class="table-head"><tr>${head}</tr></thead>
+          <tbody class="divide-y divide-gray-100">${body}</tbody>
+        </table>
+        <p class="text-xs text-gray-500 mt-3 px-1">说明: 「Top1 花费占比」= 该维度下花费最高枚举值占本维度总花费的比例, 不可与另一维度的占比直接比较.</p>`;
+    }
+
+    function initBreakdownMetricOptions(moduleKey) {
+      const cfg = BREAKDOWN_COMBO_MODULES[moduleKey];
+      const el = document.getElementById(cfg.optionsId);
+      if (!el || el.dataset.inited === '1') return;
+      el.innerHTML = BREAKDOWN_CHART_METRICS.map(m => `
+        <label class="dimension-option">
+          <input type="checkbox" value="${m.key}" ${m.key === 'spend' ? 'checked' : ''} onchange="onBreakdownMetricsChange('${moduleKey}')">${m.label}
+        </label>
+      `).join('');
+      el.dataset.inited = '1';
+    }
+
+    function getBreakdownSelectedMetricKeys(optionsId) {
+      return Array.from(document.querySelectorAll('#' + optionsId + ' input[type="checkbox"]:checked')).map(input => input.value);
+    }
+
+    function onBreakdownMetricsChange(moduleKey) {
+      const cfg = BREAKDOWN_COMBO_MODULES[moduleKey];
+      let keys = getBreakdownSelectedMetricKeys(cfg.optionsId);
+      if (keys.length === 0) {
+        const spendInput = document.querySelector('#' + cfg.optionsId + ' input[value="spend"]');
+        if (spendInput) spendInput.checked = true;
+        keys = ['spend'];
+      }
+      renderBreakdownComboChart(moduleKey, breakdownRowsCache[moduleKey]);
+    }
+
+    function getBreakdownMetricChartValue(row, key) {
+      if (key === 'spend' || key === 'cpa' || key === 'cpc') return row[key] != null ? row[key] : 0;
+      if (key === 'roas') return row.roas != null ? row.roas : 0;
+      if (key === 'ctr') return row.ctr != null ? row.ctr * 100 : 0;
+      if (key === 'impressions' || key === 'clicks' || key === 'conversions') return row[key] || 0;
+      return 0;
+    }
+
+    function formatBreakdownMetricTooltip(value, key) {
+      if (key === 'spend' || key === 'cpa' || key === 'cpc') return formatMoney(value);
+      if (key === 'roas') return value.toFixed(2);
+      if (key === 'ctr') return value.toFixed(2) + '%';
+      return formatNumber(value);
+    }
+
+    function getBreakdownMetricShare(row, key, rows) {
+      if (!BREAKDOWN_METRICS_WITH_SHARE.has(key)) return null;
+      const total = rows.reduce((sum, r) => sum + (Number(r[key]) || 0), 0);
+      if (!total) return null;
+      return (Number(row[key]) || 0) / total;
+    }
+
+    function formatBreakdownMetricLabel(value, key, row, rows) {
+      const base = formatBreakdownMetricTooltip(value, key);
+      const share = getBreakdownMetricShare(row, key, rows);
+      if (share == null) return base;
+      return `${base} (${formatPercent(share)})`;
+    }
+
+    function renderBreakdownComboChart(moduleKey, rows) {
+      const cfg = BREAKDOWN_COMBO_MODULES[moduleKey];
+      if (breakdownChartRefs[cfg.chartRef]) {
+        breakdownChartRefs[cfg.chartRef].destroy();
+        breakdownChartRefs[cfg.chartRef] = null;
+      }
+      const canvas = document.getElementById(cfg.canvasId);
+      const hintEl = document.getElementById(cfg.hintId);
+      if (!canvas) return;
+
+      const keys = getBreakdownSelectedMetricKeys(cfg.optionsId);
+      if (!keys.length || !rows.length) {
+        if (hintEl) hintEl.classList.add('hidden');
+        return;
+      }
+
+      const sorted = rows.filter(r => r.spend > 0).length ? rows.filter(r => r.spend > 0) : rows;
+      const topN = sorted.slice(0, 12);
+      const activeGroups = new Set(keys.map(k => BREAKDOWN_CHART_METRICS.find(m => m.key === k).group));
+      const scales = {};
+      BREAKDOWN_AXIS_GROUPS.forEach(axis => {
+        if (activeGroups.has(axis.group)) {
+          scales[axis.id] = {
+            type: 'linear',
+            position: axis.id === 'x' ? 'bottom' : 'top',
+            title: { display: true, text: axis.title },
+            grid: { drawOnChartArea: axis.id === 'x' }
+          };
+        }
       });
 
-      summary.innerHTML = `
-        <td class="px-4 py-3" colspan="10">当前数据汇总</td>
-        <td class="px-4 py-3">${formatMoney(totalConsumeAmount)}</td>
-        <td class="px-4 py-3">-</td>
-        <td class="px-4 py-3">${formatMoney(totalUsdConsume)}</td>
-      `;
+      if (hintEl) {
+        if (activeGroups.size > 1) {
+          hintEl.textContent = '提示: 金额、数量、比率使用不同横轴刻度, 请勿跨类型直接比较柱长.';
+          hintEl.classList.remove('hidden');
+        } else {
+          hintEl.classList.add('hidden');
+        }
+      }
+
+      const datasets = keys.map(key => {
+        const meta = BREAKDOWN_CHART_METRICS.find(m => m.key === key);
+        const axis = BREAKDOWN_AXIS_GROUPS.find(a => a.group === meta.group);
+        return {
+          label: meta.label,
+          data: topN.map(r => getBreakdownMetricChartValue(r, key)),
+          backgroundColor: meta.color,
+          xAxisID: axis.id,
+          barPercentage: 0.85,
+          categoryPercentage: keys.length > 3 ? 0.65 : 0.8
+        };
+      });
+
+      const barLabelPlugin = {
+        id: 'breakdownBarValueLabels_' + moduleKey,
+        afterDatasetsDraw(chart) {
+          const { ctx, chartArea } = chart;
+          chart.data.datasets.forEach((dataset, datasetIndex) => {
+            const key = keys[datasetIndex];
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (meta.hidden) return;
+            meta.data.forEach((bar, index) => {
+              const row = topN[index];
+              const value = dataset.data[index];
+              const label = formatBreakdownMetricLabel(value, key, row, topN);
+              const pos = bar.tooltipPosition();
+              ctx.save();
+              ctx.font = '11px Inter, system-ui, sans-serif';
+              ctx.fillStyle = '#374151';
+              ctx.textBaseline = 'middle';
+              const textWidth = ctx.measureText(label).width;
+              let textX = pos.x + 6;
+              if (textX + textWidth > chartArea.right - 4) {
+                textX = Math.max(chartArea.left + 4, chartArea.right - textWidth - 4);
+              }
+              ctx.fillText(label, textX, pos.y);
+              ctx.restore();
+            });
+          });
+        }
+      };
+
+      breakdownChartRefs[cfg.chartRef] = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: topN.map(r => r.breakdownLabel),
+          datasets
+        },
+        plugins: [barLabelPlugin],
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 28 } },
+          plugins: {
+            legend: { display: keys.length > 1, position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const key = keys[ctx.datasetIndex];
+                  const row = topN[ctx.dataIndex];
+                  return `${ctx.dataset.label}: ${formatBreakdownMetricLabel(ctx.parsed.x, key, row, topN)}`;
+                }
+              }
+            }
+          },
+          scales
+        }
+      });
+    }
+
+    function renderBreakdownModule(moduleKey, rows, tableId) {
+      breakdownRowsCache[moduleKey] = rows;
+      initBreakdownMetricOptions(moduleKey);
+      renderBreakdownComboChart(moduleKey, rows);
+      renderBreakdownTable(tableId, rows, BREAKDOWN_DETAIL_COLS);
+    }
+
+    function renderBreakdownDashboard(filteredAdRows) {
+      destroyBreakdownCharts();
+      const totals = buildTotals(filteredAdRows);
+
+      const emptyTableIds = ['breakdownTablePlacement', 'breakdownTableAge', 'breakdownTableGender', 'breakdownTableBidStrategy'];
+      if (!filteredAdRows.length) {
+        renderBreakdownKpis(buildTotals([]));
+        renderOverviewJumpLinks();
+        document.getElementById('breakdownTableOverview').innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据，请调整筛选条件后重试</p>';
+        emptyTableIds.forEach(id => {
+          document.getElementById(id).innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据，请调整筛选条件后重试</p>';
+        });
+        return;
+      }
+
+      const placementRows = addSpendShare(aggregateBreakdownRows(filteredAdRows, BREAKDOWN_PLACEMENT_LABELS));
+      const ageRows = addSpendShare(aggregateBreakdownRows(filteredAdRows, BREAKDOWN_AGE_LABELS));
+      const genderRows = addSpendShare(aggregateBreakdownRows(filteredAdRows, BREAKDOWN_GENDER_LABELS));
+      const bidStrategyRows = addSpendShare(aggregateBreakdownByField(filteredAdRows, 'bidStrategy', bidStrategyCycle));
+
+      const topP = placementRows[0];
+      const topA = ageRows[0];
+      const topG = genderRows[0];
+      const topB = bidStrategyRows[0];
+
+      renderBreakdownKpis(totals);
+      renderOverviewJumpLinks();
+      renderBreakdownOverviewTable([
+        { dimension: '版位', topLabel: topP ? topP.breakdownLabel : '-', topShare: topP ? topP.spendShare : 0 },
+        { dimension: '年龄', topLabel: topA ? topA.breakdownLabel : '-', topShare: topA ? topA.spendShare : 0 },
+        { dimension: '性别', topLabel: topG ? topG.breakdownLabel : '-', topShare: topG ? topG.spendShare : 0 },
+        { dimension: '竞价策略', topLabel: topB ? topB.breakdownLabel : '-', topShare: topB ? topB.spendShare : 0 }
+      ]);
+
+      renderBreakdownModule('placement', placementRows, 'breakdownTablePlacement');
+      renderBreakdownModule('age', ageRows, 'breakdownTableAge');
+      renderBreakdownModule('gender', genderRows, 'breakdownTableGender');
+      renderBreakdownModule('bidStrategy', bidStrategyRows, 'breakdownTableBidStrategy');
     }
 
     function setupDefaultDate() {
@@ -975,7 +1525,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       setupMultiSelect();
       setupDefaultDate();
-      applyFilters();
+      switchTab('custom');
     });
   </script>
 </body>
