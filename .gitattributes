@@ -1,0 +1,2 @@
+PRD/**/*.md filter=git-crypt diff=git-crypt
+README.md filter=git-crypt diff=git-crypt
