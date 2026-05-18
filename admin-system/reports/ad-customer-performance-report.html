@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     .sidebar-item { position: relative; transition: all 0.2s ease; }
@@ -1123,6 +1124,15 @@
     };
 
     const breakdownRowsCache = { placement: [], age: [], gender: [], bidStrategy: [] };
+    let breakdownOverviewCache = [];
+
+    const BREAKDOWN_MODULE_LABELS = {
+      overview: '概览',
+      placement: '版位',
+      age: '年龄',
+      gender: '性别',
+      bidStrategy: '竞价策略'
+    };
 
     function destroyBreakdownCharts() {
       Object.keys(breakdownChartRefs).forEach(key => {
@@ -1182,20 +1192,9 @@
       return '-';
     }
 
-    function renderBreakdownTable(containerId, rows, columns) {
-      const section = document.getElementById(containerId);
-      if (!rows.length) {
-        section.innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据，请调整筛选条件后重试</p>';
-        return;
-      }
-      const head = columns.map(c => `<th class="px-4 py-3 text-left text-gray-700 font-semibold whitespace-nowrap">${c.label}</th>`).join('');
-      const body = rows.map(row => `
-        <tr>
-          ${columns.map(c => `<td class="px-4 py-3 whitespace-nowrap">${formatBreakdownCell(c.key, row)}</td>`).join('')}
-        </tr>
-      `).join('');
+    function buildBreakdownTotalRow(rows) {
       const total = buildTotals(rows);
-      const totalRow = {
+      return {
         breakdownLabel: '合计',
         spend: total.spend,
         spendShare: 1,
@@ -1208,12 +1207,96 @@
         cpa: total.cpa,
         roas: total.roas
       };
+    }
+
+    function formatBreakdownExportValue(key, row) {
+      if (key === 'breakdownLabel') return row.breakdownLabel || '-';
+      if (key === 'spend' || key === 'cpc' || key === 'cpa' || key === 'cpm') {
+        return row[key] == null ? '' : Number(row[key]);
+      }
+      if (key === 'spendShare') return row.spendShare == null ? '' : formatPercent(row.spendShare);
+      if (key === 'impressions' || key === 'clicks' || key === 'conversions') return row[key] ?? 0;
+      if (key === 'ctr') return row.ctr == null ? '' : formatPercent(row.ctr);
+      if (key === 'roas') return row.roas == null ? '' : Number(row.roas.toFixed(2));
+      return '';
+    }
+
+    function getBreakdownExportFileName(moduleLabel) {
+      const start = document.getElementById('startDate').value || 'start';
+      const end = document.getElementById('endDate').value || 'end';
+      return `Meta多维度看板_${moduleLabel}_${start}_${end}.xlsx`;
+    }
+
+    function breakdownExportToolbar(exportHandler) {
+      return `
+        <div class="flex justify-end mb-2">
+          <button type="button" onclick="${exportHandler}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50">
+            <i class="fas fa-download mr-1.5 text-gray-500"></i>导出 Excel
+          </button>
+        </div>
+      `;
+    }
+
+    function writeBreakdownWorkbook(moduleLabel, sheetRows) {
+      if (typeof XLSX === 'undefined') {
+        alert('导出组件加载失败, 请刷新页面后重试');
+        return;
+      }
+      const ws = XLSX.utils.aoa_to_sheet(sheetRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, moduleLabel.slice(0, 31));
+      XLSX.writeFile(wb, getBreakdownExportFileName(moduleLabel));
+    }
+
+    function exportBreakdownDetail(moduleKey) {
+      const rows = breakdownRowsCache[moduleKey];
+      if (!rows || !rows.length) {
+        alert('暂无数据可导出, 请先查询');
+        return;
+      }
+      const moduleLabel = BREAKDOWN_MODULE_LABELS[moduleKey] || moduleKey;
+      const headers = BREAKDOWN_DETAIL_COLS.map(c => c.label);
+      const body = rows.map(row => BREAKDOWN_DETAIL_COLS.map(c => formatBreakdownExportValue(c.key, row)));
+      body.push(BREAKDOWN_DETAIL_COLS.map(c => formatBreakdownExportValue(c.key, buildBreakdownTotalRow(rows))));
+      writeBreakdownWorkbook(moduleLabel, [headers, ...body]);
+    }
+
+    function exportBreakdownOverview() {
+      if (!breakdownOverviewCache.length) {
+        alert('暂无数据可导出, 请先查询');
+        return;
+      }
+      const headers = ['维度', 'Top1 标签', 'Top1 花费占比(维度内)'];
+      const body = breakdownOverviewCache.map(row => [
+        row.dimension,
+        row.topLabel,
+        formatPercent(row.topShare)
+      ]);
+      writeBreakdownWorkbook(BREAKDOWN_MODULE_LABELS.overview, [headers, ...body]);
+    }
+
+    function renderBreakdownTable(containerId, rows, columns, moduleKey) {
+      const section = document.getElementById(containerId);
+      if (!rows.length) {
+        section.innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据，请调整筛选条件后重试</p>';
+        return;
+      }
+      const head = columns.map(c => `<th class="px-4 py-3 text-left text-gray-700 font-semibold whitespace-nowrap">${c.label}</th>`).join('');
+      const body = rows.map(row => `
+        <tr>
+          ${columns.map(c => `<td class="px-4 py-3 whitespace-nowrap">${formatBreakdownCell(c.key, row)}</td>`).join('')}
+        </tr>
+      `).join('');
+      const totalRow = buildBreakdownTotalRow(rows);
       const foot = `
         <tr class="summary-row">
           ${columns.map(c => `<td class="px-4 py-3 whitespace-nowrap font-semibold">${formatBreakdownCell(c.key, totalRow)}</td>`).join('')}
         </tr>
       `;
-      section.innerHTML = `<table class="min-w-full text-sm"><thead class="table-head"><tr>${head}</tr></thead><tbody class="divide-y divide-gray-100">${body}</tbody><tfoot>${foot}</tfoot></table>`;
+      const toolbar = moduleKey
+        ? breakdownExportToolbar(`exportBreakdownDetail('${moduleKey}')`)
+        : '';
+      section.innerHTML = `${toolbar}<table class="min-w-full text-sm"><thead class="table-head"><tr>${head}</tr></thead><tbody class="divide-y divide-gray-100">${body}</tbody><tfoot>${foot}</tfoot></table>`;
     }
 
     const OVERVIEW_JUMP_TARGETS = [
@@ -1234,6 +1317,7 @@
     }
 
     function renderBreakdownOverviewTable(overviewTable) {
+      breakdownOverviewCache = overviewTable;
       const section = document.getElementById('breakdownTableOverview');
       if (!overviewTable.length) {
         section.innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据</p>';
@@ -1254,6 +1338,7 @@
         </tr>`;
       }).join('');
       section.innerHTML = `
+        ${breakdownExportToolbar('exportBreakdownOverview()')}
         <table class="min-w-full text-sm">
           <thead class="table-head"><tr>${head}</tr></thead>
           <tbody class="divide-y divide-gray-100">${body}</tbody>
@@ -1432,7 +1517,7 @@
       breakdownRowsCache[moduleKey] = rows;
       initBreakdownMetricOptions(moduleKey);
       renderBreakdownComboChart(moduleKey, rows);
-      renderBreakdownTable(tableId, rows, BREAKDOWN_DETAIL_COLS);
+      renderBreakdownTable(tableId, rows, BREAKDOWN_DETAIL_COLS, moduleKey);
     }
 
     function renderBreakdownDashboard(filteredAdRows) {
@@ -1441,6 +1526,8 @@
 
       const emptyTableIds = ['breakdownTablePlacement', 'breakdownTableAge', 'breakdownTableGender', 'breakdownTableBidStrategy'];
       if (!filteredAdRows.length) {
+        breakdownOverviewCache = [];
+        Object.keys(breakdownRowsCache).forEach(key => { breakdownRowsCache[key] = []; });
         renderBreakdownKpis(buildTotals([]));
         renderOverviewJumpLinks();
         document.getElementById('breakdownTableOverview').innerHTML = '<p class="p-8 text-center text-gray-500">暂无数据，请调整筛选条件后重试</p>';
