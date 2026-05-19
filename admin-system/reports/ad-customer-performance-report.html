@@ -437,7 +437,7 @@
                     <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5"></i>
                     <div>
                       <p class="text-sm font-medium text-amber-900">Meta 看板说明</p>
-                      <p class="text-sm text-amber-800 mt-1">本 Tab 仅展示 Meta(Facebook) 投放的 Insights Breakdown(版位/年龄/性别/竞价策略等). 版位/年龄/性别为按 Ad 行模拟分布; 竞价策略按广告行字段汇总.</p>
+                      <p class="text-sm text-amber-800 mt-1">本 Tab 仅展示 Meta(Facebook) 投放的 Insights Breakdown(版位/国家/年龄/性别/竞价策略等). 版位/年龄/性别为按 Ad 行模拟分布; 竞价策略按广告行字段汇总.</p>
                     </div>
                   </div>
                 </div>
@@ -445,7 +445,7 @@
 
                 <section id="breakdownSectionOverview" class="breakdown-module">
                   <h3 class="breakdown-module-title">概览</h3>
-                  <p class="text-sm text-gray-600 mb-3">展示当前筛选下的整体规模, 以及版位/年龄/性别/竞价策略各维度<strong>内部</strong>花费最高的枚举值. 占比仅在同一维度内有效, 不可跨维度比较或排序.</p>
+                  <p class="text-sm text-gray-600 mb-3">展示当前筛选下的整体规模, 以及版位/国家/年龄/性别/竞价策略各维度<strong>内部</strong>花费最高的枚举值. 占比仅在同一维度内有效, 不可跨维度比较或排序.</p>
                   <div id="overviewJumpLinks" class="flex flex-wrap gap-2 mb-4"></div>
                   <div id="breakdownTableOverview" class="table-wrap overflow-x-auto"></div>
                 </section>
@@ -460,6 +460,18 @@
                     <div class="relative h-96"><canvas id="chartPlacementBar"></canvas></div>
                   </div>
                   <div id="breakdownTablePlacement" class="table-wrap overflow-x-auto"></div>
+                </section>
+
+                <section id="breakdownSectionCountry" class="breakdown-module">
+                  <h3 class="breakdown-module-title">国家</h3>
+                  <div class="rounded-lg border border-gray-200 p-4 mb-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">组合指标对比（横向分组条形）</p>
+                    <p class="text-xs text-gray-500 mb-2">勾选多个指标后, 每个国家下并排展示对应柱子. 花费/展示/点击/转化会在柱旁标注占比(该指标在全部国家间的占比).</p>
+                    <div id="countryMetricOptions" class="flex flex-wrap gap-2 mb-3"></div>
+                    <p id="countryChartAxisHint" class="text-xs text-amber-700 mb-2 hidden"></p>
+                    <div class="relative h-96"><canvas id="chartCountryBar"></canvas></div>
+                  </div>
+                  <div id="breakdownTableCountry" class="table-wrap overflow-x-auto"></div>
                 </section>
 
                 <section id="breakdownSectionAge" class="breakdown-module">
@@ -515,6 +527,7 @@
 
     const BREAKDOWN_PLACEMENT_LABELS = ['Instagram / Reels', 'Instagram / Feed', 'Facebook / Feed', 'Facebook / Reels', 'Audience Network', 'Messenger / Inbox', 'Other'];
     const BREAKDOWN_AGE_LABELS = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'Unknown'];
+    const BREAKDOWN_COUNTRY_LABELS = ['US', 'UK', 'JP', 'BR'];
     const BREAKDOWN_GENDER_LABELS = ['男', '女', '未知'];
 
     const customerProfiles = [
@@ -1120,15 +1133,17 @@
       placement: { chartRef: 'placementBar', canvasId: 'chartPlacementBar', optionsId: 'placementMetricOptions', hintId: 'placementChartAxisHint' },
       age: { chartRef: 'ageBar', canvasId: 'chartAgeBar', optionsId: 'ageMetricOptions', hintId: 'ageChartAxisHint' },
       gender: { chartRef: 'genderBar', canvasId: 'chartGenderBar', optionsId: 'genderMetricOptions', hintId: 'genderChartAxisHint' },
+      country: { chartRef: 'countryBar', canvasId: 'chartCountryBar', optionsId: 'countryMetricOptions', hintId: 'countryChartAxisHint' },
       bidStrategy: { chartRef: 'bidStrategyBar', canvasId: 'chartBidStrategyBar', optionsId: 'bidStrategyMetricOptions', hintId: 'bidStrategyChartAxisHint' }
     };
 
-    const breakdownRowsCache = { placement: [], age: [], gender: [], bidStrategy: [] };
+    const breakdownRowsCache = { placement: [], country: [], age: [], gender: [], bidStrategy: [] };
     let breakdownOverviewCache = [];
 
     const BREAKDOWN_MODULE_LABELS = {
       overview: '概览',
       placement: '版位',
+      country: '国家',
       age: '年龄',
       gender: '性别',
       bidStrategy: '竞价策略'
@@ -1301,6 +1316,7 @@
 
     const OVERVIEW_JUMP_TARGETS = [
       { dimension: '版位', anchor: '#breakdownSectionPlacement' },
+      { dimension: '国家', anchor: '#breakdownSectionCountry' },
       { dimension: '年龄', anchor: '#breakdownSectionAge' },
       { dimension: '性别', anchor: '#breakdownSectionGender' },
       { dimension: '竞价策略', anchor: '#breakdownSectionBidStrategy' }
@@ -1524,7 +1540,7 @@
       destroyBreakdownCharts();
       const totals = buildTotals(filteredAdRows);
 
-      const emptyTableIds = ['breakdownTablePlacement', 'breakdownTableAge', 'breakdownTableGender', 'breakdownTableBidStrategy'];
+      const emptyTableIds = ['breakdownTablePlacement', 'breakdownTableCountry', 'breakdownTableAge', 'breakdownTableGender', 'breakdownTableBidStrategy'];
       if (!filteredAdRows.length) {
         breakdownOverviewCache = [];
         Object.keys(breakdownRowsCache).forEach(key => { breakdownRowsCache[key] = []; });
@@ -1538,11 +1554,13 @@
       }
 
       const placementRows = addSpendShare(aggregateBreakdownRows(filteredAdRows, BREAKDOWN_PLACEMENT_LABELS));
+      const countryRows = addSpendShare(aggregateBreakdownByField(filteredAdRows, 'country', BREAKDOWN_COUNTRY_LABELS));
       const ageRows = addSpendShare(aggregateBreakdownRows(filteredAdRows, BREAKDOWN_AGE_LABELS));
       const genderRows = addSpendShare(aggregateBreakdownRows(filteredAdRows, BREAKDOWN_GENDER_LABELS));
       const bidStrategyRows = addSpendShare(aggregateBreakdownByField(filteredAdRows, 'bidStrategy', bidStrategyCycle));
 
       const topP = placementRows[0];
+      const topC = countryRows[0];
       const topA = ageRows[0];
       const topG = genderRows[0];
       const topB = bidStrategyRows[0];
@@ -1551,12 +1569,14 @@
       renderOverviewJumpLinks();
       renderBreakdownOverviewTable([
         { dimension: '版位', topLabel: topP ? topP.breakdownLabel : '-', topShare: topP ? topP.spendShare : 0 },
+        { dimension: '国家', topLabel: topC ? topC.breakdownLabel : '-', topShare: topC ? topC.spendShare : 0 },
         { dimension: '年龄', topLabel: topA ? topA.breakdownLabel : '-', topShare: topA ? topA.spendShare : 0 },
         { dimension: '性别', topLabel: topG ? topG.breakdownLabel : '-', topShare: topG ? topG.spendShare : 0 },
         { dimension: '竞价策略', topLabel: topB ? topB.breakdownLabel : '-', topShare: topB ? topB.spendShare : 0 }
       ]);
 
       renderBreakdownModule('placement', placementRows, 'breakdownTablePlacement');
+      renderBreakdownModule('country', countryRows, 'breakdownTableCountry');
       renderBreakdownModule('age', ageRows, 'breakdownTableAge');
       renderBreakdownModule('gender', genderRows, 'breakdownTableGender');
       renderBreakdownModule('bidStrategy', bidStrategyRows, 'breakdownTableBidStrategy');
