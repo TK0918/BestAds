@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>介绍人每日消耗 - BestAds</title>
+  <title data-i18n="page_title">介绍人季度消耗 - BestAds</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./css/common.css">
@@ -15,7 +15,7 @@
     <div class="flex-1 flex flex-col" style="margin-left: 220px; background-color: #1A1F2B;">
       <header class="flex items-center justify-between px-6" style="height: 56px; background-color: #1A1F2B; border-bottom: 1px solid #2E333F;">
         <div class="flex items-center space-x-4">
-          <h2 class="text-xl font-semibold text-white" id="page-title">介绍人每日消耗</h2>
+          <h2 class="text-xl font-semibold text-white" id="page-title" data-i18n="main_title">介绍人季度消耗</h2>
         </div>
         <div class="flex items-center space-x-4">
           <div class="relative group">
@@ -24,9 +24,9 @@
               <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
             </button>
           </div>
-          <select class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
-            <option>中文</option>
-            <option>English</option>
+          <select id="lang-selector" class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none" onchange="switchLanguage(this.value)">
+            <option value="zh-CN">中文</option>
+            <option value="en-US">English</option>
           </select>
           <div class="relative group flex items-center">
             <button type="button" onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
@@ -38,103 +38,232 @@
             <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
               <span class="text-white text-sm font-medium">A</span>
             </div>
-            <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
+            <span class="hidden md:block text-sm font-medium text-gray-300" data-i18n="user_role">客户</span>
           </div>
         </div>
       </header>
 
       <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
         <div class="rounded-md px-4 py-3 mb-4 text-sm" style="background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35); color: #fcd34d;">
-          <strong>重要提示:</strong> 本页仅展示被介绍客户的广告账户日消耗 (媒体侧口径, USD), 不代表吐点比例或收益. 具体结算金额请以官方对账为准 (PRD 7.1).
+          <strong data-i18n="notice_label">重要提示:</strong>
+          <span data-i18n="notice_body">本页按季度展示被介绍客户的广告消耗 (媒体侧口径, USD), 不代表吐点比例或收益. 具体结算金额请以官方对账为准.</span>
         </div>
 
         <p class="text-xs mb-6" style="color: #6b7280;">
-          本地演示侧栏入口: 控制台执行
+          <span data-i18n="mock_hint_prefix">本地演示侧栏入口: 控制台执行</span>
           <code class="text-gray-300">localStorage.setItem('bestadsMockIntroducerEnabled','1'); localStorage.setItem('bestadsMockIntroducerClientVisible','1'); location.reload()</code>
-          后刷新任意页, 即显示「介绍人每日消耗」菜单 (模拟 PRD 7.1 双条件).
+          <span data-i18n="mock_hint_suffix">后刷新任意页, 即显示「介绍人季度消耗」菜单 (模拟 PRD 7.1 双条件).</span>
         </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
-            <p class="text-sm" style="color: #B0B5C0;">总消耗 (USD)</p>
-            <p class="text-2xl font-bold mt-1" style="color: #00FFB0;">12,458.20</p>
+            <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_total_spend">总消耗 (USD)</p>
+            <p class="text-2xl font-bold mt-1 tabular-nums" style="color: #00FFB0;" id="metric-total-spend">12,458.20</p>
           </div>
           <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
-            <p class="text-sm" style="color: #B0B5C0;">客户数</p>
-            <p class="text-2xl font-bold mt-1 text-white">3</p>
-          </div>
-          <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
-            <p class="text-sm" style="color: #B0B5C0;">广告账户数</p>
-            <p class="text-2xl font-bold mt-1 text-white">8</p>
+            <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_customer_count">客户数</p>
+            <p class="text-2xl font-bold mt-1 text-white tabular-nums" id="metric-customer-count">2</p>
           </div>
         </div>
 
         <div class="rounded-md p-4 mb-6" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
           <div class="flex flex-wrap gap-4 items-end">
             <div>
-              <label class="block text-sm mb-2" style="color: #B0B5C0;">开始日期</label>
-              <input type="date" class="input-field">
+              <label class="block text-sm mb-2" style="color: #B0B5C0;" data-i18n="filter_year">年度</label>
+              <select id="filter-year" class="input-field" style="min-width: 120px;">
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+              </select>
             </div>
             <div>
-              <label class="block text-sm mb-2" style="color: #B0B5C0;">结束日期</label>
-              <input type="date" class="input-field">
+              <label class="block text-sm mb-2" style="color: #B0B5C0;" data-i18n="filter_quarter">季度</label>
+              <select id="filter-quarter" class="input-field" style="min-width: 100px;">
+                <option value="Q1">Q1</option>
+                <option value="Q2">Q2</option>
+                <option value="Q3">Q3</option>
+                <option value="Q4">Q4</option>
+              </select>
             </div>
             <div>
-              <label class="block text-sm mb-2" style="color: #B0B5C0;">被介绍客户</label>
-              <input type="text" class="input-field" placeholder="模糊, 多选由后端支持" style="min-width: 180px;">
+              <label class="block text-sm mb-2" style="color: #B0B5C0;" data-i18n="filter_customer">被介绍客户</label>
+              <input id="filter-customer" type="text" class="input-field" data-i18n-placeholder="filter_customer_placeholder" placeholder="模糊搜索, 多选由后端支持" style="min-width: 200px;">
             </div>
-            <div>
-              <label class="block text-sm mb-2" style="color: #B0B5C0;">广告账户</label>
-              <input type="text" class="input-field" placeholder="模糊" style="min-width: 160px;">
-            </div>
-            <button type="button" class="btn-primary px-4 py-2 font-medium flex items-center space-x-2">
-              <i class="fas fa-search"></i><span>查询</span>
+            <button type="button" id="btn-search" class="btn-primary px-4 py-2 font-medium flex items-center space-x-2">
+              <i class="fas fa-search"></i><span data-i18n="btn_search">查询</span>
             </button>
-            <button type="button" class="btn-secondary px-4 py-2 font-medium">重置</button>
+            <button type="button" id="btn-reset" class="btn-secondary px-4 py-2 font-medium" data-i18n="btn_reset">重置</button>
           </div>
         </div>
 
-        <div class="rounded-md mb-6 overflow-hidden" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
+        <div class="rounded-md overflow-hidden" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-700 table-hover">
               <thead style="background-color: #2A2F3D;">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;">日期</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;">被介绍客户</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;">媒体</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;">广告账户</th>
-                  <th class="px-4 py-3 text-right text-xs font-medium uppercase" style="color: #B0B5C0;">每日消耗 (USD)</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_quarter">结算季度</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_customer_id">被介绍客户 ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_customer_name">被介绍客户名称</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_consume">消耗 (USD)</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-700 text-sm">
-                <tr>
-                  <td class="px-4 py-3 text-white">2026-05-12</td>
-                  <td class="px-4 py-3 text-white">C-002 客户 B</td>
-                  <td class="px-4 py-3" style="color: #B0B5C0;">Meta</td>
-                  <td class="px-4 py-3 font-mono text-xs" style="color: #B0B5C0;">act_123456</td>
-                  <td class="px-4 py-3 text-right text-white">4,580.20</td>
+              <tbody id="consume-tbody" class="divide-y divide-gray-700 text-sm">
+                <tr data-year="2026" data-quarter="Q1" data-customer="C-002">
+                  <td class="px-4 py-3 text-white">2026Q1</td>
+                  <td class="px-4 py-3 font-mono text-xs text-white">C-002</td>
+                  <td class="px-4 py-3 text-white" data-i18n-sample="customer_b">客户 B</td>
+                  <td class="px-4 py-3 text-right text-white tabular-nums">7,682.20</td>
                 </tr>
-                <tr>
-                  <td class="px-4 py-3 text-white">2026-05-11</td>
-                  <td class="px-4 py-3 text-white">C-002 客户 B</td>
-                  <td class="px-4 py-3" style="color: #B0B5C0;">Meta</td>
-                  <td class="px-4 py-3 font-mono text-xs" style="color: #B0B5C0;">act_123456</td>
-                  <td class="px-4 py-3 text-right text-white">3,102.00</td>
+                <tr data-year="2026" data-quarter="Q1" data-customer="C-003">
+                  <td class="px-4 py-3 text-white">2026Q1</td>
+                  <td class="px-4 py-3 font-mono text-xs text-white">C-003</td>
+                  <td class="px-4 py-3 text-white" data-i18n-sample="customer_c">客户 C</td>
+                  <td class="px-4 py-3 text-right text-white tabular-nums">4,776.00</td>
                 </tr>
               </tbody>
             </table>
           </div>
-        </div>
-
-        <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F; min-height: 200px;">
-          <p class="text-sm mb-2" style="color: #B0B5C0;">趋势图 (占位)</p>
-          <div class="h-40 rounded flex items-center justify-center text-sm" style="background: linear-gradient(180deg, #242A3A 0%, #1A1F2B 100%); color: #6b7280;">
-            接入图表库后展示按日消耗曲线 (V1.0 静态原型省略)
-          </div>
+          <p id="empty-state" class="hidden px-4 py-8 text-center text-sm" style="color: #6b7280;" data-i18n="empty_state">暂无数据, 请调整筛选条件后重试.</p>
         </div>
       </main>
     </div>
   </div>
+
   <script src="./js/common.js"></script>
+  <script>
+    var LANG_KEY = 'bestadsClientLang';
+    var currentLanguage = localStorage.getItem(LANG_KEY) || 'zh-CN';
+
+    var translations = {
+      'zh-CN': {
+        page_title: '介绍人季度消耗 - BestAds',
+        main_title: '介绍人季度消耗',
+        user_role: '客户',
+        notice_label: '重要提示:',
+        notice_body: '本页按季度展示被介绍客户的广告消耗 (媒体侧口径, USD), 不代表吐点比例或收益. 具体结算金额请以官方对账为准.',
+        mock_hint_prefix: '本地演示侧栏入口: 控制台执行',
+        mock_hint_suffix: '后刷新任意页, 即显示「介绍人季度消耗」菜单 (模拟 PRD 7.1 双条件).',
+        card_total_spend: '总消耗 (USD)',
+        card_customer_count: '客户数',
+        filter_year: '年度',
+        filter_quarter: '季度',
+        filter_customer: '被介绍客户',
+        filter_customer_placeholder: '模糊搜索, 多选由后端支持',
+        btn_search: '查询',
+        btn_reset: '重置',
+        col_quarter: '结算季度',
+        col_customer_id: '被介绍客户 ID',
+        col_customer_name: '被介绍客户名称',
+        col_consume: '消耗 (USD)',
+        empty_state: '暂无数据, 请调整筛选条件后重试.',
+        customer_b: '客户 B',
+        customer_c: '客户 C',
+        nav_introducer_quarterly: '介绍人季度消耗'
+      },
+      'en-US': {
+        page_title: 'Introducer Quarterly Spend - BestAds',
+        main_title: 'Introducer Quarterly Spend',
+        user_role: 'Customer',
+        notice_label: 'Important:',
+        notice_body: 'This page shows referred clients\' ad spend by quarter (media-side, USD). It does not show spit rates or earnings. Settlement amounts are subject to official reconciliation.',
+        mock_hint_prefix: 'Demo sidebar: run in console',
+        mock_hint_suffix: 'then reload any page to show the menu (PRD 7.1 dual gate mock).',
+        card_total_spend: 'Total Spend (USD)',
+        card_customer_count: 'Clients',
+        filter_year: 'Year',
+        filter_quarter: 'Quarter',
+        filter_customer: 'Referred Client',
+        filter_customer_placeholder: 'Fuzzy search; multi-select via API',
+        btn_search: 'Search',
+        btn_reset: 'Reset',
+        col_quarter: 'Quarter',
+        col_customer_id: 'Referred Client ID',
+        col_customer_name: 'Referred Client Name',
+        col_consume: 'Spend (USD)',
+        empty_state: 'No data. Adjust filters and try again.',
+        customer_b: 'Client B',
+        customer_c: 'Client C',
+        nav_introducer_quarterly: 'Introducer Quarterly Spend'
+      }
+    };
+
+    function t(key) {
+      return (translations[currentLanguage] && translations[currentLanguage][key]) || key;
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLanguage === 'en-US' ? 'en' : 'zh-CN';
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n');
+        if (key) el.textContent = t(key);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n-placeholder');
+        if (key) el.placeholder = t(key);
+      });
+      document.querySelectorAll('[data-i18n-sample]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n-sample');
+        if (key) el.textContent = t(key);
+      });
+      document.querySelectorAll('[data-i18n-nav]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n-nav');
+        if (key) el.textContent = t(key);
+      });
+      document.title = t('page_title');
+      var sel = document.getElementById('lang-selector');
+      if (sel) sel.value = currentLanguage;
+    }
+
+    function switchLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem(LANG_KEY, lang);
+      applyLanguage();
+      refreshMetrics();
+    }
+
+    function getFilteredRows() {
+      var year = document.getElementById('filter-year').value;
+      var quarter = document.getElementById('filter-quarter').value;
+      var kw = (document.getElementById('filter-customer').value || '').trim().toLowerCase();
+      return Array.prototype.slice.call(document.querySelectorAll('#consume-tbody tr')).filter(function (tr) {
+        if (tr.getAttribute('data-year') !== year) return false;
+        if (tr.getAttribute('data-quarter') !== quarter) return false;
+        if (kw && tr.textContent.toLowerCase().indexOf(kw) === -1) return false;
+        return true;
+      });
+    }
+
+    function refreshMetrics() {
+      var visible = getFilteredRows();
+      var total = 0;
+      var customers = {};
+      visible.forEach(function (tr) {
+        var n = parseFloat((tr.cells[3] && tr.cells[3].textContent || '').replace(/,/g, ''));
+        if (!isNaN(n)) total += n;
+        var cid = tr.getAttribute('data-customer');
+        if (cid) customers[cid] = true;
+      });
+      document.getElementById('metric-total-spend').textContent = total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('metric-customer-count').textContent = String(Object.keys(customers).length);
+      document.querySelectorAll('#consume-tbody tr').forEach(function (tr) {
+        tr.classList.toggle('hidden', visible.indexOf(tr) === -1);
+      });
+      var empty = document.getElementById('empty-state');
+      if (empty) empty.classList.toggle('hidden', visible.length > 0);
+    }
+
+    document.getElementById('btn-search').addEventListener('click', refreshMetrics);
+    document.getElementById('btn-reset').addEventListener('click', function () {
+      document.getElementById('filter-year').value = '2026';
+      document.getElementById('filter-quarter').value = 'Q1';
+      document.getElementById('filter-customer').value = '';
+      refreshMetrics();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      applyLanguage();
+      refreshMetrics();
+      setTimeout(applyLanguage, 800);
+    });
+  </script>
 </body>
 </html>
