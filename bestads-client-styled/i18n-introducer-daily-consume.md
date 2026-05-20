@@ -44,12 +44,11 @@
 | 键值 (Key) | 中文 (zh-CN) | 英文 (en-US) |
 |------------|-------------|-------------|
 | col_quarter | 结算季度 | Quarter |
-| col_customer_id | 被介绍客户 ID | Referred Client ID |
 | col_customer_name | 被介绍客户名称 | Referred Client Name |
 | col_consume | 消耗 (USD) | Spend (USD) |
 | empty_state | 暂无数据, 请调整筛选条件后重试. | No data. Adjust filters and try again. |
 
-> 列表维度: **季度 × 被介绍客户**; 指标为 **消耗 (USD)**. 不展示日期、媒体、广告账户列.
+> 列表维度: **季度 × 被介绍客户**; 指标为 **消耗 (USD)**. 不展示客户 ID、日期、媒体、广告账户列 (介绍人侧仅展示客户名称).
 
 ### 5. 侧栏菜单 (可选扩展)
 

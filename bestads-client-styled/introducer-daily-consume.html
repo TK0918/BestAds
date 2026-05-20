@@ -101,7 +101,6 @@
               <thead style="background-color: #2A2F3D;">
                 <tr>
                   <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_quarter">结算季度</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_customer_id">被介绍客户 ID</th>
                   <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_customer_name">被介绍客户名称</th>
                   <th class="px-4 py-3 text-right text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_consume">消耗 (USD)</th>
                 </tr>
@@ -109,13 +108,11 @@
               <tbody id="consume-tbody" class="divide-y divide-gray-700 text-sm">
                 <tr data-year="2026" data-quarter="Q1" data-customer="C-002">
                   <td class="px-4 py-3 text-white">2026Q1</td>
-                  <td class="px-4 py-3 font-mono text-xs text-white">C-002</td>
                   <td class="px-4 py-3 text-white" data-i18n-sample="customer_b">客户 B</td>
                   <td class="px-4 py-3 text-right text-white tabular-nums">7,682.20</td>
                 </tr>
                 <tr data-year="2026" data-quarter="Q1" data-customer="C-003">
                   <td class="px-4 py-3 text-white">2026Q1</td>
-                  <td class="px-4 py-3 font-mono text-xs text-white">C-003</td>
                   <td class="px-4 py-3 text-white" data-i18n-sample="customer_c">客户 C</td>
                   <td class="px-4 py-3 text-right text-white tabular-nums">4,776.00</td>
                 </tr>
@@ -151,7 +148,6 @@
         btn_search: '查询',
         btn_reset: '重置',
         col_quarter: '结算季度',
-        col_customer_id: '被介绍客户 ID',
         col_customer_name: '被介绍客户名称',
         col_consume: '消耗 (USD)',
         empty_state: '暂无数据, 请调整筛选条件后重试.',
@@ -176,7 +172,6 @@
         btn_search: 'Search',
         btn_reset: 'Reset',
         col_quarter: 'Quarter',
-        col_customer_id: 'Referred Client ID',
         col_customer_name: 'Referred Client Name',
         col_consume: 'Spend (USD)',
         empty_state: 'No data. Adjust filters and try again.',
@@ -237,7 +232,7 @@
       var total = 0;
       var customers = {};
       visible.forEach(function (tr) {
-        var n = parseFloat((tr.cells[3] && tr.cells[3].textContent || '').replace(/,/g, ''));
+        var n = parseFloat((tr.cells[2] && tr.cells[2].textContent || '').replace(/,/g, ''));
         if (!isNaN(n)) total += n;
         var cid = tr.getAttribute('data-customer');
         if (cid) customers[cid] = true;
