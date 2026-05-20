@@ -44,17 +44,6 @@
       </header>
 
       <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
-        <div class="rounded-md px-4 py-3 mb-4 text-sm" style="background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35); color: #fcd34d;">
-          <strong data-i18n="notice_label">重要提示:</strong>
-          <span data-i18n="notice_body">本页按季度展示被介绍客户的广告消耗 (媒体侧口径, USD), 不代表吐点比例或收益. 具体结算金额请以官方对账为准.</span>
-        </div>
-
-        <p class="text-xs mb-6" style="color: #6b7280;">
-          <span data-i18n="mock_hint_prefix">本地演示侧栏入口: 控制台执行</span>
-          <code class="text-gray-300">localStorage.setItem('bestadsMockIntroducerEnabled','1'); localStorage.setItem('bestadsMockIntroducerClientVisible','1'); location.reload()</code>
-          <span data-i18n="mock_hint_suffix">后刷新任意页, 即显示「介绍人季度消耗」菜单 (模拟 PRD 7.1 双条件).</span>
-        </p>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
             <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_total_spend">总消耗 (USD)</p>
@@ -137,8 +126,6 @@
         user_role: '客户',
         notice_label: '重要提示:',
         notice_body: '本页按季度展示被介绍客户的广告消耗 (媒体侧口径, USD), 不代表吐点比例或收益. 具体结算金额请以官方对账为准.',
-        mock_hint_prefix: '本地演示侧栏入口: 控制台执行',
-        mock_hint_suffix: '后刷新任意页, 即显示「介绍人季度消耗」菜单 (模拟 PRD 7.1 双条件).',
         card_total_spend: '总消耗 (USD)',
         card_customer_count: '客户数',
         filter_year: '年度',
