@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>绑卡户数据核对 - BestAds运营管理系统</title>
+  <title>绑卡户管理 - BestAds运营管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -27,6 +28,43 @@
     .multi-select-panel { position: absolute; top: calc(100% + 6px); left: 0; width: 100%; background: #fff; border: 1px solid #E5E7EB; border-radius: 0.5rem; box-shadow: 0 10px 24px rgba(0,0,0,0.08); z-index: 30; max-height: 220px; overflow: auto; }
     .multi-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; color: #374151; }
     .multi-option:hover { background: #F9FAFB; }
+
+    .account-row { cursor: pointer; background: #FAFBFD; }
+    .account-row:hover { background: #F1F5F9; }
+    .account-row td { font-weight: 500; color: #1F2937; }
+    .expand-icon { display: inline-block; width: 14px; text-align: center; color: #6B7280; transition: transform 0.15s ease; }
+    .expand-icon.open { transform: rotate(90deg); color: #2563eb; }
+    .subtable th, .subtable td { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
+    .subtable th { background: #F3F4F6; color: #6B7280; font-weight: 500; }
+    .subtable { background: #fff; border: 1px solid #E5E7EB; border-radius: 0.5rem; }
+    .card-id-mono { font-family: 'SFMono-Regular', Menlo, Consolas, monospace; color: #6B7280; }
+    .text-right { text-align: right; }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.1rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-normal { background: #D1FAE5; color: #065F46; }
+    .badge-frozen { background: #FFEDD5; color: #9A3412; }
+    .badge-closed { background: #E5E7EB; color: #4B5563; }
+    .badge-creating { background: #E0E7FF; color: #4338CA; }
+    .badge-active { background: #DCFCE7; color: #166534; }
+    .badge-bind { background: #DBEAFE; color: #1E40AF; }
+    .role-select { background: #fff; border: 1px solid #E5E7EB; }
+
+    .toast-wrap { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast { min-width: 240px; padding: 10px 16px; border-radius: 8px; font-size: 0.875rem; box-shadow: 0 8px 24px rgba(0,0,0,0.12); pointer-events: auto; }
+    .toast-info { background: #1F2937; color: #fff; }
+    .toast-success { background: #047857; color: #fff; }
+    .toast-warn { background: #B45309; color: #fff; }
+    .toast-error { background: #B91C1C; color: #fff; }
+
+    .qr-box { width: 200px; height: 200px; padding: 6px; border: 1px solid #E5E7EB; border-radius: 8px; background: #fff; }
+
+    .sensitive-cell { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; font-family: 'SFMono-Regular', Menlo, Consolas, monospace; letter-spacing: 0.5px; }
+    .warn-banner { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; border-radius: 6px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+
+    .watermark-layer { position: absolute; inset: 0; pointer-events: none; background-repeat: repeat; mix-blend-mode: multiply; }
+
+    @media print {
+      #cardInfoModal { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -159,7 +197,7 @@
               <li><a href="customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i><span>客户资金变动</span></a></li>
               <li><a href="ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i><span>广告客户表现</span></a></li>
               <li><a href="weekly-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-gray-400"></i><span>广告周数据</span></a></li>
-              <li><a href="account-card-reconciliation-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-link w-5 h-5 mr-3 text-blue-500"></i><span>绑卡户数据核对</span></a></li>
+              <li><a href="account-card-reconciliation-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-link w-5 h-5 mr-3 text-blue-500"></i><span>绑卡户管理</span></a></li>
             </ul>
           </div>
         </nav>
@@ -180,15 +218,24 @@
                 <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
                 <span class="text-gray-500">报表</span>
                 <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
-                <span class="text-gray-900 font-medium">绑卡户数据核对</span>
+                <span class="text-gray-900 font-medium">绑卡户管理</span>
               </nav>
             </div>
           </div>
           <div class="flex items-center space-x-3">
+            <div class="flex items-center gap-2">
+              <span class="hidden md:inline text-xs text-gray-500">当前角色:</span>
+              <select id="roleSwitch" onchange="onRoleChanged()" class="role-select rounded-md px-2 py-1 text-sm">
+                <option value="bind">广告业务-绑卡角色</option>
+                <option value="ads">广告业务-普通</option>
+                <option value="finance">财务</option>
+                <option value="admin">管理员</option>
+              </select>
+            </div>
             <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
               <span class="text-white text-sm font-medium">A</span>
             </div>
-            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            <span class="hidden md:block text-sm font-medium text-gray-700">飞书人A</span>
           </div>
         </div>
       </header>
@@ -197,12 +244,13 @@
         <div class="py-6">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
             <div class="space-y-3">
-              <h1 class="text-2xl font-bold text-gray-900">绑卡户数据核对</h1>
+              <h1 class="text-2xl font-bold text-gray-900">绑卡户管理</h1>
               <div class="bg-white rounded-t-lg border border-gray-200 border-b-0">
                 <div class="border-b border-gray-200">
                   <nav class="-mb-px flex space-x-6 px-6">
                     <button onclick="switchTab('config')" id="tab-config-btn" class="tab-button active py-3 px-1 border-b-2 font-medium text-sm text-blue-600 border-blue-500 whitespace-nowrap">广告账户和银行卡配置</button>
                     <button onclick="switchTab('reconcile')" id="tab-reconcile-btn" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">数据核对</button>
+                    <button onclick="switchTab('audit')" id="tab-audit-btn" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">查看审计</button>
                   </nav>
                 </div>
               </div>
@@ -210,12 +258,10 @@
 
             <section id="tab-config" class="space-y-4">
               <div class="card-box p-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">媒体</label>
-                    <select id="cfgMedia" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                      <option value="">全部媒体</option>
-                    </select>
+                    <select id="cfgMedia" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">广告账户ID</label>
@@ -229,23 +275,56 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">卡ID</label>
                     <input id="cfgCardId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
                   </div>
-                  <div class="flex gap-2">
-                    <button onclick="renderConfigTable()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-search mr-1"></i>查询</button>
-                    <button onclick="openAddModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700"><i class="fas fa-plus mr-1"></i>新增</button>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">卡后四位</label>
+                    <input id="cfgCardLast4" type="text" maxlength="4" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="如 1234">
                   </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">卡状态</label>
+                    <select id="cfgCardStatus" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                      <option value="">全部</option>
+                      <option value="normal">正常</option>
+                      <option value="frozen">冻结</option>
+                      <option value="closed">关闭</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">是否使用卡</label>
+                    <select id="cfgIsActiveCard" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                      <option value="">全部</option>
+                      <option value="yes">是</option>
+                      <option value="no">否</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-end mt-4 pt-4 border-t border-gray-100">
+                  <button onclick="resetConfigFilter()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm"><i class="fas fa-undo mr-1"></i>重置</button>
+                  <button onclick="renderConfigTable()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"><i class="fas fa-search mr-1"></i>查询</button>
                 </div>
               </div>
               <div class="card-box p-4">
-                <div class="overflow-auto" style="max-height:520px;">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="text-sm text-gray-500">点击账户行展开关联卡明细</div>
+                  <div class="flex flex-wrap gap-2 justify-end">
+                    <button onclick="syncAllCardLimits()" id="syncLimitsBtn" class="bg-violet-600 text-white px-4 py-2 rounded-md hover:bg-violet-700 text-sm"><i class="fas fa-sync-alt mr-1"></i>更新信用卡额度</button>
+                    <button onclick="exportConfigTab()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm"><i class="fas fa-download mr-1"></i>导出</button>
+                    <button onclick="openBindModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 text-sm"><i class="fas fa-link mr-1"></i>绑定可用卡</button>
+                    <button onclick="openCreateCardModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"><i class="fas fa-plus mr-1"></i>新增子信用卡</button>
+                  </div>
+                </div>
+                <div class="overflow-auto" style="max-height:560px;">
                   <table class="min-w-full table-simple" id="configTable">
                     <thead>
                       <tr>
+                        <th style="width:32px;"></th>
                         <th>媒体</th>
                         <th>广告账户ID</th>
                         <th>广告账户名称</th>
-                        <th>卡ID</th>
-                        <th>更新时间</th>
-                        <th>更新人</th>
+                        <th>关联卡数</th>
+                        <th>使用卡 ID</th>
+                        <th class="text-right">使用卡可用额度</th>
+                        <th>最后操作人</th>
+                        <th>操作</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -256,7 +335,7 @@
 
             <section id="tab-reconcile" class="space-y-4 hidden">
               <div class="card-box p-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
                     <input id="rcStartDate" type="date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
@@ -283,16 +362,21 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">广告账户名称</label>
                     <input id="rcAccountName" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
                   </div>
-                  <div class="space-y-2">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">卡ID</label>
-                      <input id="rcCardId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
-                    </div>
-                    <button onclick="renderReconcileTable()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-search mr-1"></i>查询</button>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">卡ID</label>
+                    <input id="rcCardId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
                   </div>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-end mt-4 pt-4 border-t border-gray-100">
+                  <button onclick="resetReconcileFilter()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm"><i class="fas fa-undo mr-1"></i>重置</button>
+                  <button onclick="renderReconcileTable()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"><i class="fas fa-search mr-1"></i>查询</button>
                 </div>
               </div>
               <div class="card-box p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="text-sm text-gray-500">按当前筛选条件导出对账明细</div>
+                  <button onclick="exportReconcileTab()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm"><i class="fas fa-download mr-1"></i>导出</button>
+                </div>
                 <div class="overflow-auto" style="max-height:520px;">
                   <table class="min-w-full table-simple" id="reconcileTable">
                     <thead>
@@ -304,7 +388,9 @@
                         <th>账户币种</th>
                         <th>账户消耗</th>
                         <th>卡ID</th>
+                        <th>卡后四位</th>
                         <th>卡币种</th>
+                        <th>卡状态</th>
                         <th>卡消耗</th>
                       </tr>
                     </thead>
@@ -313,10 +399,74 @@
                       <tr class="bg-gray-50 font-semibold">
                         <td colspan="5">当前数据汇总</td>
                         <td id="sumAccountConsume">0.00</td>
-                        <td colspan="2"></td>
+                        <td colspan="4"></td>
                         <td id="sumCardConsume">0.00</td>
                       </tr>
                     </tfoot>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <section id="tab-audit" class="space-y-4 hidden">
+              <div class="card-box p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                    <input id="auStartDate" type="date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                    <input id="auEndDate" type="date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">操作人</label>
+                    <input id="auOperator" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="姓名/邮箱/工号 模糊搜索">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">卡 ID</label>
+                    <input id="auCardId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="支持模糊搜索">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">卡后四位</label>
+                    <input id="auCardLast4" type="text" maxlength="4" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="如 1234">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">结果</label>
+                    <select id="auResult" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                      <option value="">全部</option>
+                      <option value="success">成功</option>
+                      <option value="fail">失败</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-end mt-4 pt-4 border-t border-gray-100">
+                  <button onclick="resetAuditFilter()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm"><i class="fas fa-undo mr-1"></i>重置</button>
+                  <button onclick="renderAuditTable()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"><i class="fas fa-search mr-1"></i>查询</button>
+                </div>
+              </div>
+              <div class="card-box p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="text-sm text-gray-500">展示「查看完整卡信息」的全量审计记录, 列表字段与 PRD「审计日志字段表」对应, 同步落地到现有「权限审计日志」页面</div>
+                  <button onclick="exportAuditTab()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm shrink-0"><i class="fas fa-download mr-1"></i>导出</button>
+                </div>
+                <div class="overflow-auto" style="max-height:520px;">
+                  <table class="min-w-full table-simple" id="auditTable">
+                    <thead>
+                      <tr>
+                        <th>时间</th>
+                        <th>操作人</th>
+                        <th>卡 ID</th>
+                        <th>卡后四位</th>
+                        <th>设备</th>
+                        <th>IP</th>
+                        <th>核验方式</th>
+                        <th>核验人员</th>
+                        <th>结果</th>
+                        <th>失败原因</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
                   </table>
                 </div>
               </div>
@@ -327,68 +477,285 @@
     </div>
   </div>
 
-  <div id="addModal" class="fixed inset-0 hidden items-center justify-center z-40">
-    <div class="absolute inset-0 modal-mask"></div>
+  <div id="bindModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeBindModal()"></div>
     <div class="relative bg-white rounded-xl shadow-lg w-full max-w-lg mx-4">
       <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-900">新增账户卡映射</h3>
-        <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        <h3 class="text-lg font-semibold text-gray-900">绑定可用卡</h3>
+        <button onclick="closeBindModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
       </div>
       <div class="p-5 space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">媒体 <span class="text-red-500">*</span></label>
-          <select id="addMedia" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="onAddMediaChanged()"></select>
+          <select id="bindMedia" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="onBindMediaChanged()"></select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">账户 <span class="text-red-500">*</span></label>
-          <select id="addAccount" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
+          <label class="block text-sm font-medium text-gray-700 mb-1">广告账户 <span class="text-red-500">*</span></label>
+          <select id="bindAccountId" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">卡ID <span class="text-red-500">*</span></label>
-          <select id="addCardId" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
+          <label class="block text-sm font-medium text-gray-700 mb-1">子卡 <span class="text-red-500">*</span></label>
+          <select id="bindCardId" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
+          <p class="text-xs text-gray-500 mt-1">下拉优先展示卡后四位; 仅展示未被任何账户绑定且卡状态为「正常」的子卡</p>
         </div>
       </div>
       <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
-        <button onclick="closeAddModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
-        <button onclick="saveMapping()" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">保存</button>
+        <button onclick="closeBindModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="saveBindMapping()" class="px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">保存</button>
       </div>
     </div>
   </div>
 
+  <div id="createCardModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeCreateCardModal()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-lg mx-4">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">新增子信用卡</h3>
+        <button onclick="closeCreateCardModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">币种 <span class="text-red-500">*</span></label>
+          <div class="flex items-center gap-3">
+            <input type="text" value="USD" readonly class="w-32 border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500">
+            <span class="text-xs text-gray-500">本期仅支持 USD</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">初始额度 <span class="text-red-500">*</span></label>
+          <div class="flex items-center gap-3">
+            <input type="text" value="1" readonly class="w-32 border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-100 text-gray-500">
+            <span class="text-xs text-gray-500">初始额度固定为 1, 后续通过充值流程调整</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="applyRemark" maxlength="200" rows="3" oninput="onApplyRemarkInput()" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="选填, 不超过 200 字"></textarea>
+          <p class="text-xs text-gray-400 mt-1 text-right">剩余 <span id="applyRemarkCount">200</span> 字</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">预绑账户</label>
+          <select id="applyPreBindAccountId" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+            <option value="">(可空) 不预绑账户</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-1">选中后, 审批通过且创卡成功将自动绑定为该账户的使用卡</p>
+        </div>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
+        <button onclick="closeCreateCardModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="submitCreateCard()" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">提交审批</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="switchCardModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeSwitchCardModal()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-2xl mx-4">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">选择使用卡</h3>
+        <button onclick="closeSwitchCardModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5">
+        <div id="switchCardCtx" class="text-sm text-gray-600 mb-3"></div>
+        <div class="overflow-auto" style="max-height:320px;">
+          <table class="min-w-full table-simple subtable">
+            <thead>
+              <tr>
+                <th>卡 ID</th>
+                <th>卡后四位</th>
+                <th>币种</th>
+                <th class="text-right">可用额度</th>
+                <th>卡状态</th>
+                <th>选择</th>
+              </tr>
+            </thead>
+            <tbody id="switchCardTbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
+        <button onclick="closeSwitchCardModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="goToSwitchConfirm()" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="switchConfirmModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeSwitchConfirmModal()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">请同步到媒体后台</h3>
+        <button onclick="closeSwitchConfirmModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="warn-banner">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="switchConfirmText"></span>
+        </div>
+        <p class="text-xs text-gray-500">否则该卡消耗无法与广告账户关联.</p>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
+        <button onclick="closeSwitchConfirmModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="confirmSwitchCard()" class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700">确认切换</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cardVerifyModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeCardVerifyModal()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">身份核验</h3>
+          <p class="text-xs text-gray-500 mt-0.5">为保障卡信息安全, 请先完成飞书扫码核验</p>
+        </div>
+        <button onclick="closeCardVerifyModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-5">
+        <div class="flex flex-col items-center gap-2">
+          <div class="qr-box" id="verifyQrBox"></div>
+          <p class="text-xs text-gray-500">请使用本人飞书 App 扫码</p>
+        </div>
+        <p class="text-xs text-gray-500">系统会校验扫码身份是否在「卡信息查看白名单」, 命中后才放行展示完整卡信息. 全部查看行为(成功/失败)都会写入审计.</p>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
+        <button onclick="closeCardVerifyModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="simulateScanDone()" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">我已扫码, 继续</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cardInfoModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-xl mx-4 overflow-hidden">
+      <div id="cardInfoWatermark" class="watermark-layer"></div>
+      <div class="relative">
+        <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-900">子信用卡完整信息</h3>
+          <button onclick="closeCardInfoModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="px-5 pt-4">
+          <div class="text-sm text-red-600 flex items-center gap-2 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span>本窗口将在 <span id="cardCountdown" class="font-semibold">120</span> 秒后自动关闭</span>
+          </div>
+        </div>
+        <div class="p-5 space-y-3" id="cardInfoBody"></div>
+        <div class="px-5 py-4 border-t border-gray-200 flex justify-end">
+          <button onclick="closeCardInfoModal()" class="px-4 py-2 rounded-md bg-gray-800 text-white hover:bg-gray-900">我已记下, 关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="freezeCardModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeFreezeCardModal()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">冻结卡</h3>
+        <button onclick="closeFreezeCardModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="warn-banner">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="freezeCardText">冻结后该卡将无法继续消费. 此操作通常用于已泄露或异常的卡. 是否确认?</span>
+        </div>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
+        <button onclick="closeFreezeCardModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="confirmFreezeCard()" class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700">确认冻结</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
   <script>
     const mediaList = ['Facebook', 'Google', 'Tiktok', 'AppLovin'];
     const accountPool = [
-      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', currency: 'USD' },
-      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', currency: 'USD' },
-      { media: 'Google', accountId: '223123', accountName: '账户名称CCC', currency: 'USD' },
-      { media: 'Tiktok', accountId: '323123', accountName: '账户名称DDD', currency: 'USD' },
-      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', currency: 'USD' }
+      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', currency: 'USD', lastOperator: '李雷, lilei@bestads.com' },
+      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', currency: 'USD', lastOperator: '韩梅梅, hanmeimei@bestads.com' },
+      { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', currency: 'USD', lastOperator: '王芳, wangfang@bestads.com' },
+      { media: 'Tiktok',   accountId: '323123', accountName: '账户名称DDD', currency: 'USD', lastOperator: '赵敏, zhaomin@bestads.com' },
+      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', currency: 'USD', lastOperator: '-' }
     ];
-    const cardPool = ['卡AAAA', '卡BBBB', '卡CCCC', '卡DDDD', '卡EEEE', '卡FFFF'];
-    const operator = '飞书人A, a@example.com';
 
-    let mappingRows = [
-      { media: 'AppLovin', accountId: '123123', accountName: '账户名称AAA', cardId: '卡AAAA', updatedAt: '2026-03-20 16:42:01', updatedBy: operator },
-      { media: 'AppLovin', accountId: '123123', accountName: '账户名称AAA', cardId: '卡BBBB', updatedAt: '2026-03-20 16:43:02', updatedBy: operator },
-      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', cardId: '卡CCCC', updatedAt: '2026-03-19 11:20:13', updatedBy: operator }
+    // 子卡台账; secret 只用于「查看完整卡信息」, 不参与列表渲染
+    let cardPool = [
+      { cardId: 'c_3bpoltc2u7sf1', last4: '1234', currency: 'USD', totalLimit: 5000.00, usedLimit: 1230.50, status: 'normal',   createdAt: '2026-02-12 10:21:09', secret: { full: '4111 1111 1234 1234', cvv: '821', expiry: '08/2028', password: 'a8K2x9' } },
+      { cardId: 'c_w9x8y7z6v5u4t3', last4: '5678', currency: 'USD', totalLimit: 3000.00, usedLimit:    0.00, status: 'normal',   createdAt: '2026-03-04 14:02:48', secret: { full: '4111 2222 3333 5678', cvv: '402', expiry: '11/2027', password: 'b9L3y2' } },
+      { cardId: 'c_m1n2o3p4q5r6s7', last4: '9001', currency: 'USD', totalLimit: 2000.00, usedLimit:  450.00, status: 'frozen',   createdAt: '2026-03-09 09:18:22', secret: { full: '4111 3333 4444 9001', cvv: '170', expiry: '01/2029', password: 'c1M4z5' } },
+      { cardId: 'c_h7j8k9l0m1n2o3', last4: '2210', currency: 'USD', totalLimit: 4000.00, usedLimit: 2200.10, status: 'normal',   createdAt: '2026-01-22 08:30:11', secret: { full: '4111 4444 5555 2210', cvv: '563', expiry: '06/2028', password: 'd7N9q1' } },
+      { cardId: 'c_p3q4r5s6t7u8v9', last4: '7842', currency: 'USD', totalLimit: 6000.00, usedLimit: 3812.30, status: 'normal',   createdAt: '2025-12-30 18:42:55', secret: { full: '4111 5555 6666 7842', cvv: '935', expiry: '03/2029', password: 'e2P8r4' } },
+      { cardId: 'c_x9y0z1a2b3c4d5', last4: '3349', currency: 'USD', totalLimit: 2500.00, usedLimit: 2500.00, status: 'closed',   createdAt: '2025-11-18 11:15:43', secret: { full: '4111 6666 7777 3349', cvv: '481', expiry: '12/2027', password: 'f5Q3s7' } },
+      { cardId: 'c_e5f6g7h8i9j0k1', last4: '6655', currency: 'USD', totalLimit: 1000.00, usedLimit:    0.00, status: 'normal',   createdAt: '2026-04-21 16:08:00', secret: { full: '4111 7777 8888 6655', cvv: '276', expiry: '09/2028', password: 'g6R1t8' } },
+      { cardId: 'c_l1m2n3o4p5q6r7', last4: '0419', currency: 'USD', totalLimit: 1000.00, usedLimit:    0.00, status: 'normal',   createdAt: '2026-04-23 09:55:14', secret: { full: '4111 8888 9999 0419', cvv: '349', expiry: '07/2028', password: 'h2S0u9' } },
+      { cardId: 'c_s7t8u9v0w1x2y3', last4: '7331', currency: 'USD', totalLimit: 1000.00, usedLimit:    0.00, status: 'normal',   createdAt: '2026-05-02 13:11:05', secret: { full: '4111 9999 0000 7331', cvv: '624', expiry: '04/2029', password: 'i4T2v3' } },
+      { cardId: 'PENDING-202605290001', last4: null, currency: 'USD', totalLimit: null, usedLimit: null, status: 'creating', createdAt: '2026-05-29 10:12:33' },
+      { cardId: 'PENDING-202605290002', last4: null, currency: 'USD', totalLimit: null, usedLimit: null, status: 'creating', createdAt: '2026-05-29 11:48:19' }
     ];
+
+    // 账户-卡 关系; isActiveCard 用于使用卡
+    let mappingRows = [
+      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', cardId: 'c_3bpoltc2u7sf1', isActiveCard: true,  updatedAt: '2026-04-10 16:42:01' },
+      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', cardId: 'c_w9x8y7z6v5u4t3', isActiveCard: false, updatedAt: '2026-04-12 09:08:21' },
+      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', cardId: 'c_m1n2o3p4q5r6s7', isActiveCard: false, updatedAt: '2026-04-15 11:30:50' },
+      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', cardId: 'c_h7j8k9l0m1n2o3', isActiveCard: true,  updatedAt: '2026-03-19 11:20:13' },
+      { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', cardId: 'c_p3q4r5s6t7u8v9', isActiveCard: true,  updatedAt: '2026-03-26 18:00:00' },
+      { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', cardId: 'PENDING-202605290001', isActiveCard: false, updatedAt: '2026-05-29 10:12:33' },
+      { media: 'Tiktok',   accountId: '323123', accountName: '账户名称DDD', cardId: 'c_x9y0z1a2b3c4d5', isActiveCard: true,  updatedAt: '2026-02-20 09:30:11' }
+    ];
+
+    const operator = { name: '飞书人A', empId: 'EMP001', ip: '10.0.0.123' };
+
+    const currentOperator = '张三, zhangsan@bestads.com';
+    const currentOperatorInfo = {
+      name: '张三',
+      empId: 'EMP001',
+      email: 'zhangsan@bestads.com',
+      openId: 'ou_a1b2c3d4e5f6g7h8',
+      device: 'macOS / Chrome 122',
+      ip: '10.0.0.123'
+    };
+
+    let viewAuditLogs = [
+      { time: '2026-05-28 10:14:32', operatorName: '张三', operatorEmpId: 'EMP001', operatorEmail: 'zhangsan@bestads.com', verifyPersonName: '张三', verifyPersonEmpId: 'EMP001', cardId: 'c_3bpoltc2u7sf1', last4: '1234', device: 'macOS / Chrome 122', ip: '10.0.0.123', verifyMethod: '飞书扫码确认', result: 'success', failReason: '-' },
+      { time: '2026-05-28 11:02:18', operatorName: '李四', operatorEmpId: 'EMP008', operatorEmail: 'lisi@bestads.com', verifyPersonName: '李四', verifyPersonEmpId: 'EMP008', cardId: 'c_h7j8k9l0m1n2o3', last4: '2210', device: 'Windows / Edge 120', ip: '10.0.0.205', verifyMethod: '飞书扫码确认', result: 'success', failReason: '-' },
+      { time: '2026-05-28 14:25:50', operatorName: '王五', operatorEmpId: 'EMP015', operatorEmail: 'wangwu@bestads.com', verifyPersonName: '王五', verifyPersonEmpId: 'EMP015', cardId: 'c_w9x8y7z6v5u4t3', last4: '5678', device: 'macOS / Safari 17', ip: '10.0.0.144', verifyMethod: '飞书扫码确认', result: 'fail', failReason: '不在白名单' },
+      { time: '2026-05-28 16:48:01', operatorName: '赵六', operatorEmpId: 'EMP022', operatorEmail: 'zhaoliu@bestads.com', verifyPersonName: '赵六', verifyPersonEmpId: 'EMP022', cardId: 'c_p3q4r5s6t7u8v9', last4: '7842', device: 'Windows / Chrome 122', ip: '10.0.1.18', verifyMethod: '飞书扫码确认', result: 'success', failReason: '-' },
+      { time: '2026-05-29 09:11:09', operatorName: '钱七', operatorEmpId: 'EMP030', operatorEmail: 'qianqi@bestads.com', verifyPersonName: '钱七', verifyPersonEmpId: 'EMP030', cardId: 'c_3bpoltc2u7sf1', last4: '1234', device: 'macOS / Chrome 122', ip: '10.0.0.123', verifyMethod: '飞书扫码确认', result: 'fail', failReason: '用户拒绝' },
+      { time: '2026-05-29 10:33:44', operatorName: '孙八', operatorEmpId: 'EMP037', operatorEmail: 'sunba@bestads.com', verifyPersonName: '孙八', verifyPersonEmpId: 'EMP037', cardId: 'c_h7j8k9l0m1n2o3', last4: '2210', device: 'iPad / Safari 17', ip: '10.0.0.88', verifyMethod: '飞书扫码确认', result: 'success', failReason: '-' },
+      { time: '2026-05-29 13:20:55', operatorName: '张三', operatorEmpId: 'EMP001', operatorEmail: 'zhangsan@bestads.com', verifyPersonName: '周九', verifyPersonEmpId: 'EMP099', cardId: 'c_x9y0z1a2b3c4d5', last4: '3349', device: 'macOS / Chrome 122', ip: '10.0.0.123', verifyMethod: '飞书扫码确认', result: 'success', failReason: '-' }
+    ];
+
+    let currentRole = 'bind';
+    const roleLabelMap = { bind: '广告业务-绑卡角色', ads: '广告业务-普通', finance: '财务', admin: '管理员' };
+    const cardInfoWhitelistRoles = new Set(['bind', 'admin']);
+
+    let expandedAccounts = new Set();
+    let switchCtx = null;
+    let freezeCtx = null;
+    let pendingCardView = null;
+    let cardInfoTimer = null;
 
     function switchTab(tab) {
-      document.getElementById('tab-config').classList.toggle('hidden', tab !== 'config');
-      document.getElementById('tab-reconcile').classList.toggle('hidden', tab !== 'reconcile');
-      document.getElementById('tab-config-btn').classList.toggle('active', tab === 'config');
-      document.getElementById('tab-config-btn').classList.toggle('text-blue-600', tab === 'config');
-      document.getElementById('tab-config-btn').classList.toggle('border-blue-500', tab === 'config');
-      document.getElementById('tab-config-btn').classList.toggle('text-gray-500', tab !== 'config');
-      document.getElementById('tab-config-btn').classList.toggle('border-transparent', tab !== 'config');
-      document.getElementById('tab-reconcile-btn').classList.toggle('active', tab === 'reconcile');
-      document.getElementById('tab-reconcile-btn').classList.toggle('text-blue-600', tab === 'reconcile');
-      document.getElementById('tab-reconcile-btn').classList.toggle('border-blue-500', tab === 'reconcile');
-      document.getElementById('tab-reconcile-btn').classList.toggle('text-gray-500', tab !== 'reconcile');
-      document.getElementById('tab-reconcile-btn').classList.toggle('border-transparent', tab !== 'reconcile');
+      const tabs = ['config', 'reconcile', 'audit'];
+      tabs.forEach(t => {
+        const section = document.getElementById('tab-' + t);
+        if (section) section.classList.toggle('hidden', tab !== t);
+        const btn = document.getElementById('tab-' + t + '-btn');
+        if (!btn) return;
+        btn.classList.toggle('active', tab === t);
+        btn.classList.toggle('text-blue-600', tab === t);
+        btn.classList.toggle('border-blue-500', tab === t);
+        btn.classList.toggle('text-gray-500', tab !== t);
+        btn.classList.toggle('border-transparent', tab !== t);
+      });
+      if (tab === 'audit') renderAuditTable();
     }
 
     function formatMoney(v) {
+      if (v === null || v === undefined) return '-';
       return Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
@@ -410,37 +777,234 @@
       });
     }
 
+    function getCardById(cardId) {
+      return cardPool.find(c => c.cardId === cardId);
+    }
+
+    function cardLast4Text(card) {
+      if (!card || card.status === 'creating' || !card.last4) return '-';
+      return card.last4;
+    }
+
+    function cardDisplayLabel(card) {
+      if (!card) return '-';
+      if (card.last4) return card.last4;
+      return card.cardId || '-';
+    }
+
+    function cardHasChargeRecord(card) {
+      if (!card) return false;
+      if (card.hasChargeRecord != null) return !!card.hasChargeRecord;
+      return (card.usedLimit || 0) > 0;
+    }
+
+    function statusBadge(status) {
+      switch (status) {
+        case 'normal':   return '<span class="status-badge badge-normal">正常</span>';
+        case 'frozen':   return '<span class="status-badge badge-frozen">冻结</span>';
+        case 'closed':   return '<span class="status-badge badge-closed">关闭</span>';
+        case 'creating': return '<span class="status-badge badge-creating">创建中</span>';
+        default: return '-';
+      }
+    }
+
+    function activeBadge() {
+      return '<span class="status-badge badge-active">使用中</span>';
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+    }
+
+    function resetConfigFilter() {
+      document.getElementById('cfgMedia').value = '';
+      document.getElementById('cfgAccountId').value = '';
+      document.getElementById('cfgAccountName').value = '';
+      document.getElementById('cfgCardId').value = '';
+      document.getElementById('cfgCardLast4').value = '';
+      document.getElementById('cfgCardStatus').value = '';
+      document.getElementById('cfgIsActiveCard').value = '';
+      renderConfigTable();
+    }
+
+    function buildAccountGroups() {
+      const map = new Map();
+      accountPool.forEach(acc => {
+        map.set(acc.accountId, { ...acc, cards: [] });
+      });
+      mappingRows.forEach(m => {
+        if (!map.has(m.accountId)) {
+          map.set(m.accountId, { media: m.media, accountId: m.accountId, accountName: m.accountName, currency: 'USD', lastOperator: '-', cards: [] });
+        }
+        const card = getCardById(m.cardId);
+        map.get(m.accountId).cards.push({ ...m, card });
+      });
+      const groups = Array.from(map.values());
+      groups.forEach(g => {
+        g.cards.sort((a, b) => (b.isActiveCard - a.isActiveCard) || (a.cardId.localeCompare(b.cardId)));
+        const active = g.cards.find(c => c.isActiveCard);
+        g.activeCardId = active ? active.cardId : null;
+        g.cardCount = g.cards.length;
+        g.updatedAt = g.cards.reduce((acc, c) => c.updatedAt > acc ? c.updatedAt : acc, '0');
+        const activeCard = g.activeCardId ? getCardById(g.activeCardId) : null;
+        if (activeCard && activeCard.totalLimit != null && activeCard.usedLimit != null) {
+          g.activeAvailableText = formatMoney(activeCard.totalLimit - activeCard.usedLimit) + ' ' + activeCard.currency;
+        } else {
+          g.activeAvailableText = '-';
+        }
+        if (!g.lastOperator) g.lastOperator = '-';
+      });
+      groups.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+      return groups;
+    }
+
+    function cardStatusText(status) {
+      switch (status) {
+        case 'normal': return '正常';
+        case 'frozen': return '冻结';
+        case 'closed': return '关闭';
+        case 'creating': return '创建中';
+        default: return '-';
+      }
+    }
+
+    function getConfigFilterValues() {
+      return {
+        media: document.getElementById('cfgMedia').value,
+        accountIdLike: document.getElementById('cfgAccountId').value.trim().toLowerCase(),
+        accountNameLike: document.getElementById('cfgAccountName').value.trim().toLowerCase(),
+        cardIdLike: document.getElementById('cfgCardId').value.trim().toLowerCase(),
+        cardLast4Like: document.getElementById('cfgCardLast4').value.trim(),
+        cardStatus: document.getElementById('cfgCardStatus').value,
+        isActiveCard: document.getElementById('cfgIsActiveCard').value
+      };
+    }
+
+    function getFilteredConfigGroups() {
+      const f = getConfigFilterValues();
+      const groups = buildAccountGroups();
+      return groups.filter(g => {
+        if (f.media && g.media !== f.media) return false;
+        if (f.accountIdLike && !g.accountId.toLowerCase().includes(f.accountIdLike)) return false;
+        if (f.accountNameLike && !g.accountName.toLowerCase().includes(f.accountNameLike)) return false;
+        if (f.cardIdLike || f.cardLast4Like || f.cardStatus || f.isActiveCard) {
+          const cards = g.cards.filter(c => {
+            if (f.cardIdLike && !c.cardId.toLowerCase().includes(f.cardIdLike)) return false;
+            if (f.cardLast4Like && !(c.card?.last4 || '').includes(f.cardLast4Like)) return false;
+            if (f.cardStatus && (c.card?.status || '') !== f.cardStatus) return false;
+            if (f.isActiveCard === 'yes' && !c.isActiveCard) return false;
+            if (f.isActiveCard === 'no' && c.isActiveCard) return false;
+            return true;
+          });
+          if (!cards.length) return false;
+          g._filteredCards = cards;
+        } else {
+          g._filteredCards = g.cards;
+        }
+        return true;
+      });
+    }
+
     function renderConfigTable() {
-      const media = document.getElementById('cfgMedia').value.trim().toLowerCase();
-      const accountId = document.getElementById('cfgAccountId').value.trim().toLowerCase();
-      const accountName = document.getElementById('cfgAccountName').value.trim().toLowerCase();
-      const cardId = document.getElementById('cfgCardId').value.trim().toLowerCase();
       const tbody = document.querySelector('#configTable tbody');
       tbody.innerHTML = '';
 
-      const rows = mappingRows.filter(row => {
-        return (!media || row.media.toLowerCase().includes(media)) &&
-          (!accountId || row.accountId.toLowerCase().includes(accountId)) &&
-          (!accountName || row.accountName.toLowerCase().includes(accountName)) &&
-          (!cardId || row.cardId.toLowerCase().includes(cardId));
-      });
+      const filtered = getFilteredConfigGroups();
 
-      if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
         return;
       }
 
-      rows.forEach(row => {
+      filtered.forEach(g => {
+        const isOpen = expandedAccounts.has(g.accountId);
+        const canSwitch = g.cardCount >= 2;
+        const switchBtn = canSwitch
+          ? '<button onclick="openSwitchCardModal(event, \'' + g.accountId + '\')" class="text-blue-600 hover:underline text-sm"><i class="fas fa-exchange-alt mr-1"></i>修改使用卡</button>'
+          : '<button class="text-gray-300 cursor-not-allowed text-sm" disabled title="需至少 2 张关联卡"><i class="fas fa-exchange-alt mr-1"></i>修改使用卡</button>';
+
         const tr = document.createElement('tr');
+        tr.className = 'account-row';
+        tr.onclick = () => toggleExpand(g.accountId);
         tr.innerHTML =
-          '<td>' + row.media + '</td>' +
-          '<td>' + row.accountId + '</td>' +
-          '<td>' + row.accountName + '</td>' +
-          '<td>' + row.cardId + '</td>' +
-          '<td>' + row.updatedAt + '</td>' +
-          '<td>' + row.updatedBy + '</td>';
+          '<td><i class="fas fa-chevron-right expand-icon' + (isOpen ? ' open' : '') + '"></i></td>' +
+          '<td>' + escapeHtml(g.media) + '</td>' +
+          '<td>' + escapeHtml(g.accountId) + '</td>' +
+          '<td>' + escapeHtml(g.accountName) + '</td>' +
+          '<td>' + g.cardCount + '</td>' +
+          '<td><span class="card-id-mono">' + (g.activeCardId || '-') + '</span></td>' +
+          '<td class="text-right">' + escapeHtml(g.activeAvailableText) + '</td>' +
+          '<td>' + escapeHtml(g.lastOperator || '-') + '</td>' +
+          '<td onclick="event.stopPropagation()">' + switchBtn + '</td>';
         tbody.appendChild(tr);
+
+        if (isOpen) {
+          const subTr = document.createElement('tr');
+          subTr.innerHTML = '<td colspan="9" style="background:#F9FAFB; padding:0.75rem 0.75rem 0.75rem 2.5rem;">' + renderCardSubtable(g._filteredCards) + '</td>';
+          tbody.appendChild(subTr);
+        }
       });
+    }
+
+    function renderCardSubtable(cards) {
+      if (!cards.length) {
+        return '<div class="text-sm text-gray-400 py-2">该账户暂无关联卡</div>';
+      }
+      const rows = cards.map(item => {
+        const card = item.card;
+        const isCreating = !card || card.status === 'creating';
+        const cardIdCell = isCreating
+          ? '<span class="status-badge badge-creating">创建中</span>'
+          : '<span class="card-id-mono">' + escapeHtml(item.cardId) + '</span>';
+        const last4Cell = card ? cardLast4Text(card) : '-';
+        const currencyCell = card ? card.currency : 'USD';
+        const totalCell = card && card.totalLimit != null ? formatMoney(card.totalLimit) : '-';
+        const usedCell = card && card.usedLimit != null ? formatMoney(card.usedLimit) : '-';
+        const availCell = card && card.totalLimit != null ? formatMoney(card.totalLimit - card.usedLimit) : '-';
+        const statusCell = card ? statusBadge(card.status) : '-';
+        const activeCell = item.isActiveCard ? activeBadge() : '-';
+        const createdCell = card ? card.createdAt : '-';
+
+        let opsCell = '-';
+        if (!isCreating) {
+          const viewBtn = '<button onclick="openCardVerify(\'' + item.cardId + '\')" class="text-blue-600 hover:underline text-xs mr-3"><i class="fas fa-eye mr-1"></i>查看完整卡信息</button>';
+          const unbindDisabled = cardHasChargeRecord(card);
+          const unbindBtn = unbindDisabled
+            ? '<button class="text-gray-300 cursor-not-allowed text-xs mr-3" disabled title="该卡已有扣费记录, 不允许解绑"><i class="fas fa-unlink mr-1"></i>解绑子卡</button>'
+            : '<button onclick="unbindCard(\'' + item.accountId + '\', \'' + item.cardId + '\')" class="text-rose-600 hover:underline text-xs mr-3"><i class="fas fa-unlink mr-1"></i>解绑子卡</button>';
+          const freezeHidden = currentRole === 'admin' ? '' : ' hidden';
+          const freezeDisabled = card.status !== 'normal';
+          const freezeBtn = '<button onclick="openFreezeCardModal(\'' + item.cardId + '\')" class="role-freeze text-xs ' + (freezeDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-amber-600 hover:underline') + freezeHidden + '" ' + (freezeDisabled ? 'disabled' : '') + '><i class="fas fa-snowflake mr-1"></i>冻结卡</button>';
+          opsCell = viewBtn + unbindBtn + freezeBtn;
+        }
+
+        return '<tr>' +
+          '<td>' + cardIdCell + '</td>' +
+          '<td><span class="card-id-mono">' + last4Cell + '</span></td>' +
+          '<td>' + currencyCell + '</td>' +
+          '<td class="text-right">' + totalCell + '</td>' +
+          '<td class="text-right">' + usedCell + '</td>' +
+          '<td class="text-right">' + availCell + '</td>' +
+          '<td>' + statusCell + '</td>' +
+          '<td>' + activeCell + '</td>' +
+          '<td>' + createdCell + '</td>' +
+          '<td>' + opsCell + '</td>' +
+          '</tr>';
+      }).join('');
+
+      return '<table class="min-w-full table-simple subtable">' +
+        '<thead><tr>' +
+          '<th>卡 ID</th><th>卡后四位</th><th>卡币种</th>' +
+          '<th class="text-right">总额度</th><th class="text-right">已用额度</th><th class="text-right">可用额度</th>' +
+          '<th>卡状态</th><th>是否使用卡</th><th>创建时间</th><th>操作</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>';
+    }
+
+    function toggleExpand(accountId) {
+      if (expandedAccounts.has(accountId)) expandedAccounts.delete(accountId);
+      else expandedAccounts.add(accountId);
+      renderConfigTable();
     }
 
     let rcMediaSelected = new Set();
@@ -449,32 +1013,24 @@
       const panel = document.getElementById('rcMediaPanel');
       if (!panel) return;
       panel.innerHTML = '';
-
       const allRow = document.createElement('label');
       allRow.className = 'multi-option border-b border-gray-100 sticky top-0 bg-white';
       allRow.innerHTML = '<input type="checkbox" id="rcMediaAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"><span>全部媒体</span>';
       panel.appendChild(allRow);
-
       mediaList.forEach(media => {
         const row = document.createElement('label');
         row.className = 'multi-option';
         row.innerHTML = '<input type="checkbox" class="rc-media-item rounded border-gray-300 text-blue-600 focus:ring-blue-500" value="' + media + '"><span>' + media + '</span>';
         panel.appendChild(row);
       });
-
       panel.querySelectorAll('.rc-media-item').forEach(input => {
         input.checked = rcMediaSelected.has(input.value);
         input.addEventListener('change', function() {
-          if (this.checked) {
-            rcMediaSelected.add(this.value);
-          } else {
-            rcMediaSelected.delete(this.value);
-          }
+          if (this.checked) rcMediaSelected.add(this.value); else rcMediaSelected.delete(this.value);
           syncRcMediaAllCheckbox();
           updateRcMediaText();
         });
       });
-
       const allInput = document.getElementById('rcMediaAll');
       allInput.checked = rcMediaSelected.size === mediaList.length;
       allInput.addEventListener('change', function() {
@@ -494,16 +1050,9 @@
     function updateRcMediaText() {
       const textEl = document.getElementById('rcMediaText');
       if (!textEl) return;
-      if (rcMediaSelected.size === 0) {
-        textEl.textContent = '请选择媒体';
-        textEl.className = 'text-gray-500';
-        return;
-      }
-      if (rcMediaSelected.size === mediaList.length) {
-        textEl.textContent = '全部媒体';
-      } else {
-        textEl.textContent = '已选择 ' + rcMediaSelected.size + ' 项';
-      }
+      if (rcMediaSelected.size === 0) { textEl.textContent = '请选择媒体'; textEl.className = 'text-gray-500'; return; }
+      if (rcMediaSelected.size === mediaList.length) textEl.textContent = '全部媒体';
+      else textEl.textContent = '已选择 ' + rcMediaSelected.size + ' 项';
       textEl.className = 'text-gray-900';
     }
 
@@ -541,6 +1090,8 @@
       const rows = [];
       days.forEach((day, dIdx) => {
         mappingRows.forEach((map, mIdx) => {
+          const card = getCardById(map.cardId);
+          if (!card || card.status === 'creating') return;
           const accountMeta = accountPool.find(a => a.accountId === map.accountId) || { currency: 'USD' };
           if (mediaValues.length && !mediaValues.includes(map.media)) return;
           if (accountIdLike && !map.accountId.toLowerCase().includes(accountIdLike)) return;
@@ -557,12 +1108,36 @@
             accountCurrency: accountMeta.currency,
             accountConsume,
             cardId: map.cardId,
-            cardCurrency: 'USD',
+            cardLast4: card.last4 || '-',
+            cardCurrency: card.currency,
+            cardStatus: card.status,
             cardConsume
           });
         });
       });
       return rows;
+    }
+
+    function getDefaultReconcileDates() {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const weekAgo = new Date(today);
+      weekAgo.setDate(today.getDate() - 7);
+      const toDate = d => d.toISOString().slice(0, 10);
+      return { start: toDate(weekAgo), end: toDate(yesterday) };
+    }
+
+    function resetReconcileFilter() {
+      const defaults = getDefaultReconcileDates();
+      document.getElementById('rcStartDate').value = defaults.start;
+      document.getElementById('rcEndDate').value = defaults.end;
+      rcMediaSelected = new Set();
+      renderRcMediaPanel();
+      document.getElementById('rcAccountId').value = '';
+      document.getElementById('rcAccountName').value = '';
+      document.getElementById('rcCardId').value = '';
+      renderReconcileTable();
     }
 
     function renderReconcileTable() {
@@ -573,7 +1148,7 @@
       let sumCard = 0;
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
         document.getElementById('sumAccountConsume').textContent = '0.00';
         document.getElementById('sumCardConsume').textContent = '0.00';
         return;
@@ -590,8 +1165,10 @@
           '<td>' + row.accountName + '</td>' +
           '<td>' + row.accountCurrency + '</td>' +
           '<td>' + formatMoney(row.accountConsume) + '</td>' +
-          '<td>' + row.cardId + '</td>' +
+          '<td><span class="card-id-mono">' + row.cardId + '</span></td>' +
+          '<td><span class="card-id-mono">' + (row.cardLast4 !== '-' ? row.cardLast4 : '-') + '</span></td>' +
           '<td>' + row.cardCurrency + '</td>' +
+          '<td>' + statusBadge(row.cardStatus) + '</td>' +
           '<td>' + formatMoney(row.cardConsume) + '</td>';
         tbody.appendChild(tr);
       });
@@ -600,60 +1177,621 @@
       document.getElementById('sumCardConsume').textContent = formatMoney(sumCard);
     }
 
-    function openAddModal() {
-      document.getElementById('addModal').classList.remove('hidden');
-      document.getElementById('addModal').classList.add('flex');
+    function openBindModal() {
+      document.getElementById('bindModal').classList.remove('hidden');
+      document.getElementById('bindModal').classList.add('flex');
+      const bindMedia = document.getElementById('bindMedia');
+      bindMedia.value = mediaList[0];
+      onBindMediaChanged();
     }
-
-    function closeAddModal() {
-      document.getElementById('addModal').classList.add('hidden');
-      document.getElementById('addModal').classList.remove('flex');
+    function closeBindModal() {
+      document.getElementById('bindModal').classList.add('hidden');
+      document.getElementById('bindModal').classList.remove('flex');
     }
-
-    function onAddMediaChanged() {
-      const media = document.getElementById('addMedia').value;
+    function onBindMediaChanged() {
+      const media = document.getElementById('bindMedia').value;
       const accounts = accountPool.filter(item => item.media === media);
-      const addAccount = document.getElementById('addAccount');
-      addAccount.innerHTML = '';
+      const bindAccount = document.getElementById('bindAccountId');
+      bindAccount.innerHTML = '';
       accounts.forEach(item => {
         const op = document.createElement('option');
         op.value = item.accountId;
         op.textContent = item.accountId + ' - ' + item.accountName;
-        addAccount.appendChild(op);
+        bindAccount.appendChild(op);
+      });
+      refreshBindCardOptions();
+    }
+    function refreshBindCardOptions() {
+      const bindCard = document.getElementById('bindCardId');
+      bindCard.innerHTML = '';
+      const usedCardIds = new Set(mappingRows.map(m => m.cardId));
+      const candidates = cardPool.filter(c => c.status === 'normal' && !usedCardIds.has(c.cardId));
+      if (!candidates.length) {
+        const op = document.createElement('option');
+        op.value = '';
+        op.textContent = '当前无可用卡';
+        bindCard.appendChild(op);
+        return;
+      }
+      candidates.forEach(c => {
+        const op = document.createElement('option');
+        op.value = c.cardId;
+        const avail = formatMoney(c.totalLimit - c.usedLimit);
+        op.textContent = c.last4 + ' (' + c.cardId + ' ' + c.currency + ' 可用 ' + avail + ')';
+        bindCard.appendChild(op);
       });
     }
-
-    function saveMapping() {
-      const media = document.getElementById('addMedia').value;
-      const accountId = document.getElementById('addAccount').value;
-      const cardId = document.getElementById('addCardId').value;
-      if (!media || !accountId || !cardId) {
-        alert('请填写必填项');
-        return;
-      }
-
-      const cardUsed = mappingRows.find(item => item.cardId === cardId);
-      if (cardUsed) {
-        alert('该卡ID已绑定其他账户, 请更换');
-        return;
-      }
-
+    function saveBindMapping() {
+      const media = document.getElementById('bindMedia').value;
+      const accountId = document.getElementById('bindAccountId').value;
+      const cardId = document.getElementById('bindCardId').value;
+      if (!media || !accountId || !cardId) { showToast('请填写必填项', 'warn'); return; }
       const accountMeta = accountPool.find(a => a.accountId === accountId);
-      const now = new Date();
-      const pad = n => String(n).padStart(2, '0');
-      const timestamp = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      const existing = mappingRows.filter(m => m.accountId === accountId);
+      const hasActive = existing.some(m => m.isActiveCard);
+      const now = nowStamp();
       mappingRows.unshift({
         media,
         accountId,
         accountName: accountMeta ? accountMeta.accountName : '-',
         cardId,
-        updatedAt: timestamp,
-        updatedBy: operator
+        isActiveCard: !hasActive,
+        updatedAt: now
+      });
+      const card = getCardById(cardId);
+      setAccountLastOperator(accountId);
+      expandedAccounts.add(accountId);
+      const cardLabel = cardDisplayLabel(card);
+      showToast('已绑定子卡 ' + cardLabel + (hasActive ? '' : ' 并自动设为使用卡'), 'success');
+      closeBindModal();
+      renderConfigTable();
+    }
+
+    function unbindCard(accountId, cardId) {
+      const card = getCardById(cardId);
+      if (cardHasChargeRecord(card)) {
+        showToast('该卡已有扣费记录, 不允许解绑', 'error');
+        return;
+      }
+      if (!confirm('解绑后该卡将回到可用卡池, 是否确认?')) return;
+      const mapping = mappingRows.find(m => m.accountId === accountId && m.cardId === cardId);
+      const wasActive = mapping && mapping.isActiveCard;
+      const remaining = mappingRows.filter(m => m.accountId === accountId && m.cardId !== cardId);
+      mappingRows = mappingRows.filter(m => !(m.accountId === accountId && m.cardId === cardId));
+      setAccountLastOperator(accountId);
+      if (wasActive && remaining.length) {
+        showToast('已解绑子卡 ' + cardDisplayLabel(card) + '. 该账户仍有其他关联卡, 请另行指定使用卡', 'warn');
+      } else {
+        showToast('已解绑子卡 ' + cardDisplayLabel(card), 'success');
+      }
+      renderConfigTable();
+    }
+
+    function openCreateCardModal() {
+      document.getElementById('createCardModal').classList.remove('hidden');
+      document.getElementById('createCardModal').classList.add('flex');
+      document.getElementById('applyRemark').value = '';
+      document.getElementById('applyRemarkCount').textContent = '200';
+      const sel = document.getElementById('applyPreBindAccountId');
+      sel.innerHTML = '<option value="">(可空) 不预绑账户</option>';
+      accountPool.forEach(a => {
+        const op = document.createElement('option');
+        op.value = a.accountId;
+        op.textContent = a.media + ' - ' + a.accountId + ' - ' + a.accountName;
+        sel.appendChild(op);
+      });
+    }
+    function closeCreateCardModal() {
+      document.getElementById('createCardModal').classList.add('hidden');
+      document.getElementById('createCardModal').classList.remove('flex');
+    }
+    function onApplyRemarkInput() {
+      const v = document.getElementById('applyRemark').value;
+      document.getElementById('applyRemarkCount').textContent = Math.max(0, 200 - v.length);
+    }
+    function submitCreateCard() {
+      closeCreateCardModal();
+      showToast('已发起飞书审批, 审批通过后将自动创建子卡', 'success');
+    }
+
+    function openSwitchCardModal(ev, accountId) {
+      if (ev) ev.stopPropagation();
+      const groups = buildAccountGroups();
+      const g = groups.find(x => x.accountId === accountId);
+      if (!g) return;
+      const candidates = g.cards.filter(c => !c.isActiveCard);
+      switchCtx = { accountId, accountName: g.accountName, currentCardId: g.activeCardId, targetCardId: null, candidates };
+      document.getElementById('switchCardCtx').textContent = '账户 ' + g.accountId + ' (' + g.accountName + '), 当前使用卡 ' + (g.activeCardId || '-');
+      const tbody = document.getElementById('switchCardTbody');
+      tbody.innerHTML = candidates.map(item => {
+        const card = item.card;
+        const isNormal = card && card.status === 'normal';
+        const isCreating = !card || card.status === 'creating';
+        const avail = card && card.totalLimit != null ? formatMoney(card.totalLimit - card.usedLimit) : '-';
+        const cardIdCell = isCreating ? '<span class="status-badge badge-creating">创建中</span>' : '<span class="card-id-mono">' + item.cardId + '</span>';
+        const last4 = card && card.last4 ? card.last4 : '-';
+        return '<tr>' +
+          '<td>' + cardIdCell + '</td>' +
+          '<td><span class="card-id-mono">' + last4 + '</span></td>' +
+          '<td>' + (card ? card.currency : 'USD') + '</td>' +
+          '<td class="text-right">' + avail + '</td>' +
+          '<td>' + (card ? statusBadge(card.status) : '-') + '</td>' +
+          '<td>' + (isNormal
+            ? '<input type="radio" name="switchTarget" value="' + item.cardId + '" onchange="onSwitchTargetChosen(\'' + item.cardId + '\')">'
+            : '<input type="radio" name="switchTarget" disabled title="仅状态为正常的卡可选">') +
+          '</td>' +
+          '</tr>';
+      }).join('') || '<tr><td colspan="6" class="text-center text-gray-400 py-6">该账户暂无其他可切换的关联卡</td></tr>';
+      document.getElementById('switchCardModal').classList.remove('hidden');
+      document.getElementById('switchCardModal').classList.add('flex');
+    }
+    function onSwitchTargetChosen(cardId) {
+      if (!switchCtx) return;
+      switchCtx.targetCardId = cardId;
+    }
+    function closeSwitchCardModal() {
+      document.getElementById('switchCardModal').classList.add('hidden');
+      document.getElementById('switchCardModal').classList.remove('flex');
+    }
+    function goToSwitchConfirm() {
+      if (!switchCtx || !switchCtx.targetCardId) { showToast('请选择目标使用卡', 'warn'); return; }
+      const text = '您正在将广告账户 ' + switchCtx.accountId + ' 的使用卡切换为 ' + cardDisplayLabel(getCardById(switchCtx.targetCardId)) + '. 请同步到媒体后台改绑此卡, 否则该卡消耗无法与广告账户关联.';
+      document.getElementById('switchConfirmText').textContent = text;
+      document.getElementById('switchConfirmModal').classList.remove('hidden');
+      document.getElementById('switchConfirmModal').classList.add('flex');
+    }
+    function closeSwitchConfirmModal() {
+      document.getElementById('switchConfirmModal').classList.add('hidden');
+      document.getElementById('switchConfirmModal').classList.remove('flex');
+    }
+    function confirmSwitchCard() {
+      if (!switchCtx || !switchCtx.targetCardId) return;
+      const now = nowStamp();
+      mappingRows.forEach(m => {
+        if (m.accountId === switchCtx.accountId) {
+          if (m.cardId === switchCtx.targetCardId) { m.isActiveCard = true;  m.updatedAt = now; }
+          else if (m.isActiveCard)                  { m.isActiveCard = false; m.updatedAt = now; }
+        }
+      });
+      showToast('使用卡已切换为 ' + cardDisplayLabel(getCardById(switchCtx.targetCardId)), 'success');
+      closeSwitchConfirmModal();
+      closeSwitchCardModal();
+      renderConfigTable();
+      switchCtx = null;
+    }
+
+    function openCardVerify(cardId) {
+      pendingCardView = cardId;
+      const qrBox = document.getElementById('verifyQrBox');
+      qrBox.innerHTML = buildQrSvg(188);
+      document.getElementById('cardVerifyModal').classList.remove('hidden');
+      document.getElementById('cardVerifyModal').classList.add('flex');
+    }
+    function closeCardVerifyModal() {
+      document.getElementById('cardVerifyModal').classList.add('hidden');
+      document.getElementById('cardVerifyModal').classList.remove('flex');
+    }
+    function simulateScanDone() {
+      closeCardVerifyModal();
+      const cardId = pendingCardView;
+      if (!cardInfoWhitelistRoles.has(currentRole)) {
+        appendViewAuditLog({ cardId, result: 'fail', failReason: '不在白名单' });
+        showToast('您不在卡信息查看白名单, 请联系管理员', 'error');
+        pendingCardView = null;
+        return;
+      }
+      appendViewAuditLog({ cardId, result: 'success' });
+      openCardInfoModal(cardId);
+    }
+
+    function buildQrSvg(size) {
+      const grid = 21;
+      const cell = size / grid;
+      const matrix = Array.from({ length: grid }, () => Array(grid).fill(0));
+      function drawFinder(r, c) {
+        for (let i = 0; i < 7; i++)
+          for (let j = 0; j < 7; j++) {
+            const onEdge = i === 0 || i === 6 || j === 0 || j === 6;
+            const onInner = i >= 2 && i <= 4 && j >= 2 && j <= 4;
+            matrix[r + i][c + j] = (onEdge || onInner) ? 1 : 0;
+          }
+      }
+      drawFinder(0, 0);
+      drawFinder(0, grid - 7);
+      drawFinder(grid - 7, 0);
+      for (let r = 0; r < grid; r++) {
+        for (let c = 0; c < grid; c++) {
+          const inFinder = (r < 7 && c < 7) || (r < 7 && c >= grid - 7) || (r >= grid - 7 && c < 7);
+          if (inFinder) continue;
+          matrix[r][c] = ((r * 31 + c * 17 + r * c + 3) % 7) < 3 ? 1 : 0;
+        }
+      }
+      let rects = '';
+      for (let r = 0; r < grid; r++)
+        for (let c = 0; c < grid; c++)
+          if (matrix[r][c]) rects += '<rect x="' + (c * cell) + '" y="' + (r * cell) + '" width="' + cell + '" height="' + cell + '" fill="#111827"/>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '"><rect width="' + size + '" height="' + size + '" fill="#fff"/>' + rects + '</svg>';
+    }
+
+    function openCardInfoModal(cardId) {
+      const card = getCardById(cardId);
+      if (!card || !card.secret) { showToast('未找到卡敏感信息', 'error'); return; }
+      const body = document.getElementById('cardInfoBody');
+      const rows = [
+        { label: '卡 ID',     value: card.cardId, copy: false },
+        { label: '完整卡号', value: card.secret.full, copy: 'card-number' },
+        { label: 'CVV',       value: card.secret.cvv,  copy: 'cvv' },
+        { label: '有效期',   value: card.secret.expiry, copy: false },
+        { label: '密码',     value: card.secret.password, copy: 'password' }
+      ];
+      body.innerHTML = rows.map(r => {
+        const copyBtn = r.copy
+          ? '<button onclick="copySensitive(\'' + r.copy + '\', \'' + encodeURIComponent(r.value) + '\')" class="ml-2 text-xs text-blue-600 hover:underline"><i class="fas fa-copy mr-1"></i>复制</button>'
+          : '';
+        return '<div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md px-3 py-2">' +
+          '<div class="text-xs text-gray-500 w-20">' + r.label + '</div>' +
+          '<div class="flex-1 sensitive-cell text-gray-900">' + escapeHtml(r.value) + '</div>' +
+          copyBtn +
+        '</div>';
+      }).join('');
+
+      applyWatermark();
+
+      document.getElementById('cardInfoModal').classList.remove('hidden');
+      document.getElementById('cardInfoModal').classList.add('flex');
+      startCardCountdown(120);
+    }
+
+    function applyWatermark() {
+      const layer = document.getElementById('cardInfoWatermark');
+      const now = nowStamp();
+      const text = operator.name + ' ' + operator.empId + ' ' + operator.ip + ' ' + now;
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="380" height="160" viewBox="0 0 380 160">' +
+        '<text x="0" y="90" fill="rgba(127,29,29,0.08)" font-size="13" font-family="Inter, sans-serif" transform="rotate(-25 190 90)">' +
+        text + '</text></svg>';
+      layer.style.backgroundImage = 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg) + '")';
+    }
+
+    function startCardCountdown(seconds) {
+      let remain = seconds;
+      const el = document.getElementById('cardCountdown');
+      el.textContent = remain;
+      if (cardInfoTimer) clearInterval(cardInfoTimer);
+      cardInfoTimer = setInterval(() => {
+        remain -= 1;
+        if (el) el.textContent = remain;
+        if (remain <= 0) {
+          clearInterval(cardInfoTimer);
+          cardInfoTimer = null;
+          closeCardInfoModal();
+        }
+      }, 1000);
+    }
+
+    function closeCardInfoModal() {
+      const modal = document.getElementById('cardInfoModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      const body = document.getElementById('cardInfoBody');
+      if (body) body.innerHTML = '';
+      const layer = document.getElementById('cardInfoWatermark');
+      if (layer) layer.style.backgroundImage = '';
+      if (cardInfoTimer) { clearInterval(cardInfoTimer); cardInfoTimer = null; }
+      pendingCardView = null;
+    }
+
+    function copySensitive(kind, encodedValue) {
+      const value = decodeURIComponent(encodedValue);
+      const label = kind === 'card-number' ? '完整卡号' : (kind === 'cvv' ? 'CVV' : '密码');
+      navigator.clipboard?.writeText(value).then(
+        () => showToast('已复制' + label + '到剪贴板, 请尽快使用并清空剪贴板', 'warn'),
+        () => showToast('复制失败, 请手动复制', 'error')
+      );
+    }
+
+    function openFreezeCardModal(cardId) {
+      freezeCtx = { cardId };
+      document.getElementById('freezeCardText').textContent = '冻结后卡 ' + cardId + ' 将无法继续消费. 此操作通常用于已泄露或异常的卡. 是否确认?';
+      document.getElementById('freezeCardModal').classList.remove('hidden');
+      document.getElementById('freezeCardModal').classList.add('flex');
+    }
+    function closeFreezeCardModal() {
+      document.getElementById('freezeCardModal').classList.add('hidden');
+      document.getElementById('freezeCardModal').classList.remove('flex');
+    }
+    function confirmFreezeCard() {
+      if (!freezeCtx) return;
+      const card = getCardById(freezeCtx.cardId);
+      if (card) card.status = 'frozen';
+      showToast('卡 ' + freezeCtx.cardId + ' 已冻结', 'success');
+      closeFreezeCardModal();
+      freezeCtx = null;
+      renderConfigTable();
+    }
+
+    function setAccountLastOperator(accountId) {
+      const acc = accountPool.find(a => a.accountId === accountId);
+      if (acc) {
+        acc.lastOperator = currentOperator;
+      } else {
+        const ref = mappingRows.find(m => m.accountId === accountId);
+        accountPool.push({
+          media: ref ? ref.media : '-',
+          accountId: accountId,
+          accountName: ref ? ref.accountName : '-',
+          currency: 'USD',
+          lastOperator: currentOperator
+        });
+      }
+    }
+
+    function formatAuditPerson(name, empId) {
+      if (!name) return '-';
+      return empId ? name + ' (' + empId + ')' : name;
+    }
+
+    function appendViewAuditLog(opts) {
+      const card = getCardById(opts.cardId);
+      const last4 = card && card.last4 ? card.last4 : '-';
+      viewAuditLogs.unshift({
+        time: nowStamp(),
+        operatorName: currentOperatorInfo.name,
+        operatorEmpId: currentOperatorInfo.empId,
+        operatorEmail: currentOperatorInfo.email,
+        verifyPersonName: opts.verifyPersonName || currentOperatorInfo.name,
+        verifyPersonEmpId: opts.verifyPersonEmpId || currentOperatorInfo.empId,
+        cardId: opts.cardId,
+        last4: last4,
+        device: currentOperatorInfo.device,
+        ip: currentOperatorInfo.ip,
+        verifyMethod: '飞书扫码确认',
+        result: opts.result,
+        failReason: opts.failReason || '-'
+      });
+      const auditSection = document.getElementById('tab-audit');
+      if (auditSection && !auditSection.classList.contains('hidden')) {
+        renderAuditTable();
+      }
+    }
+
+    function resetAuditFilter() {
+      document.getElementById('auStartDate').value = '';
+      document.getElementById('auEndDate').value = '';
+      document.getElementById('auOperator').value = '';
+      document.getElementById('auCardId').value = '';
+      document.getElementById('auCardLast4').value = '';
+      document.getElementById('auResult').value = '';
+      renderAuditTable();
+    }
+
+    function renderAuditTable() {
+      const tbody = document.querySelector('#auditTable tbody');
+      if (!tbody) return;
+      const rows = getFilteredAuditRows();
+
+      tbody.innerHTML = '';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
+        return;
+      }
+
+      rows.forEach(log => {
+        const last4Text = log.last4 && log.last4 !== '-' ? log.last4 : '-';
+        const resultBadge = log.result === 'success'
+          ? '<span class="status-badge badge-normal">成功</span>'
+          : '<span class="status-badge" style="background:#FEE2E2; color:#991B1B;">失败</span>';
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + escapeHtml(log.time) + '</td>' +
+          '<td>' + escapeHtml(formatAuditPerson(log.operatorName, log.operatorEmpId)) + '</td>' +
+          '<td><span class="card-id-mono">' + escapeHtml(log.cardId) + '</span></td>' +
+          '<td><span class="card-id-mono">' + escapeHtml(last4Text) + '</span></td>' +
+          '<td>' + escapeHtml(log.device) + '</td>' +
+          '<td>' + escapeHtml(log.ip) + '</td>' +
+          '<td>' + escapeHtml(log.verifyMethod) + '</td>' +
+          '<td>' + escapeHtml(formatAuditPerson(log.verifyPersonName, log.verifyPersonEmpId)) + '</td>' +
+          '<td>' + resultBadge + '</td>' +
+          '<td>' + escapeHtml(log.failReason || '-') + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function onRoleChanged() {
+      currentRole = document.getElementById('roleSwitch').value;
+      renderConfigTable();
+    }
+
+    function showToast(msg, type) {
+      const wrap = document.getElementById('toastWrap');
+      const div = document.createElement('div');
+      const cls = type === 'success' ? 'toast-success' : (type === 'warn' ? 'toast-warn' : (type === 'error' ? 'toast-error' : 'toast-info'));
+      div.className = 'toast ' + cls;
+      div.textContent = msg;
+      wrap.appendChild(div);
+      setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity .25s'; }, 2600);
+      setTimeout(() => { wrap.removeChild(div); }, 2950);
+    }
+
+    function nowStamp() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    }
+
+    let syncLimitsInProgress = false;
+
+    function syncAllCardLimits() {
+      if (syncLimitsInProgress) return;
+      const btn = document.getElementById('syncLimitsBtn');
+      syncLimitsInProgress = true;
+      if (btn) btn.disabled = true;
+      showToast('正在调用 Fund 同步 Slash 全部子卡额度与状态...', 'info');
+      setTimeout(() => {
+        cardPool.forEach(c => {
+          if (!c || c.status === 'creating' || String(c.cardId || '').startsWith('PENDING')) return;
+          if (c.totalLimit != null && c.usedLimit != null) {
+            const available = Math.max(0, c.totalLimit - c.usedLimit);
+            c.availableLimit = available;
+          }
+          c.lastSyncedAt = nowStamp();
+        });
+        syncLimitsInProgress = false;
+        if (btn) btn.disabled = false;
+        showToast('已全部子卡总额度、可用额度、剩余额度与状态同步完成', 'success');
+        renderConfigTable();
+      }, 1200);
+    }
+
+    function ensureXlsxReady() {
+      if (typeof XLSX === 'undefined') {
+        showToast('导出组件加载失败, 请刷新页面后重试', 'error');
+        return false;
+      }
+      return true;
+    }
+
+    function exportStamp() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes());
+    }
+
+    function writeWorkbookSheet(filename, aoa, merges) {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      if (merges && merges.length) ws['!merges'] = merges;
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, filename);
+    }
+
+    function exportConfigTab() {
+      if (!ensureXlsxReady()) return;
+      const groups = getFilteredConfigGroups();
+      const header = ['媒体', '广告账户ID', '广告账户名称', '关联卡数', '使用卡 ID', '使用卡可用额度', '最后操作人', '卡 ID', '卡后四位', '卡币种', '总额度', '已用额度', '可用额度', '卡状态', '是否使用卡', '创建时间'];
+      const aoa = [header];
+      const merges = [];
+      let rowIdx = 1;
+
+      groups.forEach(g => {
+        const cards = g._filteredCards || g.cards;
+        if (!cards.length) return;
+        const startRow = rowIdx;
+        cards.forEach((item, idx) => {
+          const card = item.card;
+          const isCreating = !card || card.status === 'creating';
+          const total = card && card.totalLimit != null ? formatMoney(card.totalLimit) : '-';
+          const used = card && card.usedLimit != null ? formatMoney(card.usedLimit) : '-';
+          const avail = card && card.totalLimit != null ? formatMoney(card.totalLimit - card.usedLimit) : '-';
+          aoa.push([
+            idx === 0 ? g.media : '',
+            idx === 0 ? g.accountId : '',
+            idx === 0 ? g.accountName : '',
+            idx === 0 ? g.cardCount : '',
+            idx === 0 ? (g.activeCardId || '-') : '',
+            idx === 0 ? (g.activeAvailableText || '-') : '',
+            idx === 0 ? (g.lastOperator || '-') : '',
+            isCreating ? '创建中' : item.cardId,
+            card ? cardLast4Text(card) : '-',
+            card ? card.currency : 'USD',
+            total,
+            used,
+            avail,
+            card ? cardStatusText(card.status) : '-',
+            item.isActiveCard ? '是' : '否',
+            card ? card.createdAt : '-'
+          ]);
+          rowIdx += 1;
+        });
+        if (cards.length > 1) {
+          for (let col = 0; col < 7; col += 1) {
+            merges.push({ s: { r: startRow, c: col }, e: { r: rowIdx - 1, c: col } });
+          }
+        }
       });
 
-      renderConfigTable();
-      closeAddModal();
-      switchTab('config');
+      if (aoa.length <= 1) {
+        showToast('暂无数据可导出, 请先查询', 'warn');
+        return;
+      }
+      writeWorkbookSheet('绑卡户管理-广告账户和银行卡配置-' + exportStamp() + '.xlsx', aoa, merges);
+      showToast('导出成功', 'success');
+    }
+
+    function exportReconcileTab() {
+      if (!ensureXlsxReady()) return;
+      const rows = buildReconcileRows();
+      if (!rows.length) {
+        showToast('暂无数据可导出, 请先查询', 'warn');
+        return;
+      }
+      const header = ['日期', '媒体', '广告账户ID', '广告账户名称', '账户币种', '账户消耗', '卡ID', '卡后四位', '卡币种', '卡状态', '卡消耗'];
+      const aoa = [header];
+      rows.forEach(row => {
+        aoa.push([
+          row.date,
+          row.media,
+          row.accountId,
+          row.accountName,
+          row.accountCurrency,
+          formatMoney(row.accountConsume),
+          row.cardId,
+          row.cardLast4 !== '-' ? row.cardLast4 : '-',
+          row.cardCurrency,
+          cardStatusText(row.cardStatus),
+          formatMoney(row.cardConsume)
+        ]);
+      });
+      writeWorkbookSheet('绑卡户管理-数据核对-' + exportStamp() + '.xlsx', aoa);
+      showToast('导出成功', 'success');
+    }
+
+    function getFilteredAuditRows() {
+      const startDate = (document.getElementById('auStartDate')?.value || '').trim();
+      const endDate = (document.getElementById('auEndDate')?.value || '').trim();
+      const operatorLike = (document.getElementById('auOperator')?.value || '').trim().toLowerCase();
+      const cardIdLike = (document.getElementById('auCardId')?.value || '').trim().toLowerCase();
+      const cardLast4Like = (document.getElementById('auCardLast4')?.value || '').trim();
+      const resultFilter = (document.getElementById('auResult')?.value || '').trim();
+      return viewAuditLogs.filter(log => {
+        const day = log.time.slice(0, 10);
+        if (startDate && day < startDate) return false;
+        if (endDate && day > endDate) return false;
+        if (operatorLike) {
+          const hay = (log.operatorName + ' ' + log.operatorEmail + ' ' + log.operatorEmpId).toLowerCase();
+          if (!hay.includes(operatorLike)) return false;
+        }
+        if (cardIdLike && !log.cardId.toLowerCase().includes(cardIdLike)) return false;
+        if (cardLast4Like && !(log.last4 || '').includes(cardLast4Like)) return false;
+        if (resultFilter && log.result !== resultFilter) return false;
+        return true;
+      });
+    }
+
+    function exportAuditTab() {
+      if (!ensureXlsxReady()) return;
+      const rows = getFilteredAuditRows();
+      if (!rows.length) {
+        showToast('暂无数据可导出, 请先查询', 'warn');
+        return;
+      }
+      const header = ['时间', '操作人', '卡 ID', '卡后四位', '设备', 'IP', '核验方式', '核验人员', '结果', '失败原因'];
+      const aoa = [header];
+      rows.forEach(log => {
+        aoa.push([
+          log.time,
+          formatAuditPerson(log.operatorName, log.operatorEmpId),
+          log.cardId,
+          log.last4 && log.last4 !== '-' ? log.last4 : '-',
+          log.device,
+          log.ip,
+          log.verifyMethod,
+          formatAuditPerson(log.verifyPersonName, log.verifyPersonEmpId),
+          log.result === 'success' ? '成功' : '失败',
+          log.failReason || '-'
+        ]);
+      });
+      writeWorkbookSheet('绑卡户管理-查看审计-' + exportStamp() + '.xlsx', aoa);
+      showToast('导出成功', 'success');
     }
 
     function toggleSidebar() {
@@ -703,19 +1841,15 @@
 
     document.addEventListener('DOMContentLoaded', function() {
       fillSelect('cfgMedia', mediaList, true, '全部媒体');
-      fillSelect('addMedia', mediaList, false);
-      fillSelect('addCardId', cardPool, false);
+      fillSelect('bindMedia', mediaList, false);
       renderRcMediaPanel();
-      onAddMediaChanged();
 
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      const weekAgo = new Date(today);
-      weekAgo.setDate(today.getDate() - 7);
-      const toDate = d => d.toISOString().slice(0, 10);
-      document.getElementById('rcStartDate').value = toDate(weekAgo);
-      document.getElementById('rcEndDate').value = toDate(yesterday);
+      const rcDefaults = getDefaultReconcileDates();
+      document.getElementById('rcStartDate').value = rcDefaults.start;
+      document.getElementById('rcEndDate').value = rcDefaults.end;
+
+      // 默认展开第一个账户用于演示
+      expandedAccounts.add('123123');
 
       renderConfigTable();
       renderReconcileTable();

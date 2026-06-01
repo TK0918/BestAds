@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google账户清零 - BestAds Admin</title>
+  <title>账户清零 - BestAds Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -18,6 +19,7 @@
     .sort-icon.active { color: #00FFB0; }
     .mobile-menu-open { transform: translateX(0); }
     .mobile-menu-closed { transform: translateX(-100%); }
+    .sticky-table-header thead th { position: sticky; top: 0; z-index: 1; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -66,6 +68,35 @@
               <li><a href="deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
               <li><a href="clear-management.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-500"></i>账户清零</a></li>
               <li><a href="service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- Google业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 其他媒体业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
             </ul>
           </div>
           <!-- 广告治理 -->
@@ -236,19 +267,27 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
-                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="bcStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                       <option value="">全部</option>
                       <option value="清零中">清零中</option>
                       <option value="待人工处理">待人工处理</option>
+                      <option value="待 Fund 降额">待 Fund 降额</option>
+                      <option value="Fund 失败">Fund 失败</option>
                       <option value="完成">完成</option>
                       <option value="失败">失败</option>
                     </select>
                   </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">是否绑卡户</label>
+                    <select id="bcIsBindCardAccount" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部</option>
+                      <option value="是">是</option>
+                      <option value="否">否</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="flex justify-between items-center mt-4">
-                  <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
-                    <i class="fas fa-search mr-2"></i>筛选
-                  </button>
+                  <button type="button" onclick="renderTable()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200"><i class="fas fa-search mr-2"></i>筛选</button>
                 </div>
               </div>
             </div>
@@ -257,6 +296,9 @@
               <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-900">清零需求列表</h3>
                 <div class="flex items-center space-x-3">
+                  <button id="openSupplementUploadModal" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                    <i class="fas fa-file-upload mr-2"></i>补充清零数据
+                  </button>
                   <button id="openClearModal" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                     <i class="fas fa-eraser mr-2"></i>清零
                   </button>
@@ -266,7 +308,7 @@
                   <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200">
                     <i class="fas fa-download mr-2"></i>导出
                   </button>
-                  <div class="text-sm text-gray-500">共 <span class="font-medium text-gray-900">10</span> 条</div>
+                  <div class="text-sm text-gray-500">共 <span id="listCount" class="font-medium text-gray-900">0</span> 条</div>
                 </div>
               </div>
               <div class="overflow-x-auto">
@@ -286,6 +328,10 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">一代</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">清零金额</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">是否绑卡户</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">使用卡(快照)</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">实际减少总额度</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund 单号</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('completeTime')">
                         完成时间
@@ -295,186 +341,98 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200" id="clearTableBody">
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL001</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1001</td>
-                      <td class="px-6 py-4 whitespace-nowrap">张三</td>
-                      <td class="px-6 py-4 whitespace-nowrap">zhangsan@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-09 10:30">2024-06-09 10:30</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB001234567</td>
-                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户01</td>
-                      <td class="px-6 py-4 whitespace-nowrap">王一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">1,000.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-09 11:00">2024-06-09 11:00</td>
-                      <td class="px-6 py-4 whitespace-nowrap">清零完成</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL002</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1002</td>
-                      <td class="px-6 py-4 whitespace-nowrap">李四</td>
-                      <td class="px-6 py-4 whitespace-nowrap">lisi@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-08 09:20">2024-06-08 09:20</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB001234568</td>
-                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户02</td>
-                      <td class="px-6 py-4 whitespace-nowrap">李一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">500.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-yellow-600">清零中</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">等待一代确认</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL003</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1003</td>
-                      <td class="px-6 py-4 whitespace-nowrap">王五</td>
-                      <td class="px-6 py-4 whitespace-nowrap">wangwu@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-07 12:10">2024-06-07 12:10</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB009876543</td>
-                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户03</td>
-                      <td class="px-6 py-4 whitespace-nowrap">赵一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">800.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200" onclick="openSuccessModal('CL003', 'FB009876543', '品牌推广账户03', 'USD', '800.00')">
-                          <i class="fas fa-check mr-1"></i>处理成功
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL004</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1004</td>
-                      <td class="px-6 py-4 whitespace-nowrap">赵六</td>
-                      <td class="px-6 py-4 whitespace-nowrap">zhaoliu@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-07 09:45">2024-06-07 09:45</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB001111222</td>
-                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户04</td>
-                      <td class="px-6 py-4 whitespace-nowrap">钱一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">1,200.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200" onclick="openSuccessModal('CL004', 'FB001111222', '跨境电商账户04', 'USD', '1200.00')">
-                          <i class="fas fa-check mr-1"></i>处理成功
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select"></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL005</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1005</td>
-                      <td class="px-6 py-4 whitespace-nowrap">钱七</td>
-                      <td class="px-6 py-4 whitespace-nowrap">qianqi@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 15:20">2024-06-06 15:20</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB003333444</td>
-                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户05</td>
-                      <td class="px-6 py-4 whitespace-nowrap">孙一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">300.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-indigo-600">待人工处理</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200" onclick="openSuccessModal('CL005', 'FB003333444', '移动应用账户05', 'USD', '300.00')">
-                          <i class="fas fa-check mr-1"></i>处理成功
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL006</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1006</td>
-                      <td class="px-6 py-4 whitespace-nowrap">孙八</td>
-                      <td class="px-6 py-4 whitespace-nowrap">sunba@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 08:00">2024-06-06 08:00</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB005555666</td>
-                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户06</td>
-                      <td class="px-6 py-4 whitespace-nowrap">周一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">900.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-red-600">失败</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-06 09:10">2024-06-06 09:10</td>
-                      <td class="px-6 py-4 whitespace-nowrap">账户状态异常</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL007</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1007</td>
-                      <td class="px-6 py-4 whitespace-nowrap">周九</td>
-                      <td class="px-6 py-4 whitespace-nowrap">zhoujiu@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-05 18:40">2024-06-05 18:40</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB007777888</td>
-                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户07</td>
-                      <td class="px-6 py-4 whitespace-nowrap">吴一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">2,500.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-05 19:00">2024-06-05 19:00</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL008</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1008</td>
-                      <td class="px-6 py-4 whitespace-nowrap">吴十</td>
-                      <td class="px-6 py-4 whitespace-nowrap">wushi@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-04 14:15">2024-06-04 14:15</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB009999000</td>
-                      <td class="px-6 py-4 whitespace-nowrap">移动应用账户08</td>
-                      <td class="px-6 py-4 whitespace-nowrap">郑一代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">700.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-yellow-600">清零中</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL009</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1009</td>
-                      <td class="px-6 py-4 whitespace-nowrap">郑十一</td>
-                      <td class="px-6 py-4 whitespace-nowrap">zheng11@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-03 10:05">2024-06-03 10:05</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB001212121</td>
-                      <td class="px-6 py-4 whitespace-nowrap">品牌推广账户09</td>
-                      <td class="px-6 py-4 whitespace-nowrap">王二代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">1,800.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-red-600">失败</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-03 10:45">2024-06-03 10:45</td>
-                      <td class="px-6 py-4 whitespace-nowrap">风控拒绝</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                    </tr>
-                    <tr>
-                      <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="row-select opacity-40 cursor-not-allowed" disabled></td>
-                      <td class="px-6 py-4 whitespace-nowrap">CL010</td>
-                      <td class="px-6 py-4 whitespace-nowrap">C1010</td>
-                      <td class="px-6 py-4 whitespace-nowrap">钱十二</td>
-                      <td class="px-6 py-4 whitespace-nowrap">qian12@bestads.com</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-02 16:55">2024-06-02 16:55</td>
-                      <td class="px-6 py-4 whitespace-nowrap">FB004545454</td>
-                      <td class="px-6 py-4 whitespace-nowrap">跨境电商账户10</td>
-                      <td class="px-6 py-4 whitespace-nowrap">李二代</td>
-                      <td class="px-6 py-4 whitespace-nowrap">950.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-green-600">成功</td>
-                      <td class="px-6 py-4 whitespace-nowrap" data-sort="2024-06-02 17:25">2024-06-02 17:25</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                      <td class="px-6 py-4 whitespace-nowrap">-</td>
-                    </tr>
-                  </tbody>
+                  <tbody class="bg-white divide-y divide-gray-200" id="listTableBody"></tbody>
                 </table>
               </div>
             </div>
           </div>
         </div>
       </main>
+    </div>
+  </div>
+
+  <!-- 补充清零数据上传弹窗 -->
+  <div id="supplementUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 relative">
+      <button id="closeSupplementUploadModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-2">补充清零数据</h3>
+      <p class="text-sm text-gray-500 mb-4">请上传包含广告账户ID和清零金额的Excel文件, 系统将自动识别并校验数据。</p>
+
+      <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-4 text-sm text-blue-700">
+        <div class="font-medium mb-1">Excel字段要求</div>
+        <div>1. 广告账户ID</div>
+        <div>2. 清零金额</div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">选择Excel文件</label>
+        <input id="supplementFileInput" type="file" accept=".xlsx,.xls" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      </div>
+
+      <div id="supplementUploadFileInfo" class="hidden text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded p-3 mb-4"></div>
+
+      <div class="flex justify-end space-x-2">
+        <button type="button" id="cancelSupplementUpload" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+        <button type="button" id="submitSupplementUpload" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium">
+          上传并解析
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 补充清零数据预览弹窗 -->
+  <div id="supplementPreviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-7xl p-6 relative">
+      <button id="closeSupplementPreviewModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-2">补充清零数据预览</h3>
+      <p class="text-sm text-gray-500 mb-4">仅会写入有效数据。无效数据请修正后重新上传。</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+        <div class="rounded border border-gray-200 bg-gray-50 p-3 text-sm">
+          <div class="text-gray-500">总行数</div>
+          <div id="supplementTotalCount" class="text-xl font-semibold text-gray-900">0</div>
+        </div>
+        <div class="rounded border border-green-200 bg-green-50 p-3 text-sm">
+          <div class="text-green-700">有效数据</div>
+          <div id="supplementValidCount" class="text-xl font-semibold text-green-700">0</div>
+        </div>
+        <div class="rounded border border-red-200 bg-red-50 p-3 text-sm">
+          <div class="text-red-700">无效数据</div>
+          <div id="supplementInvalidCount" class="text-xl font-semibold text-red-700">0</div>
+        </div>
+        <div class="rounded border border-indigo-200 bg-indigo-50 p-3 text-sm">
+          <div class="text-indigo-700">媒体</div>
+          <div class="text-xl font-semibold text-indigo-700">Google</div>
+        </div>
+      </div>
+
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="overflow-auto max-h-[420px]">
+          <table class="min-w-full divide-y divide-gray-200 sticky-table-header" id="supplementPreviewTable">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商户ID</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户ID</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">清零金额</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">是否有效</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">无效原因</th>
+              </tr>
+            </thead>
+            <tbody id="supplementPreviewBody" class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mt-4">
+        <div id="supplementPreviewHint" class="text-sm text-gray-500"></div>
+        <div class="flex items-center space-x-2">
+          <button type="button" id="backToSupplementUpload" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">返回修改</button>
+          <button type="button" id="confirmSupplementImport" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">确认写入系统</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -562,243 +520,730 @@
     </div>
   </div>
 
+  
+  <!-- 媒体已完成 -->
+  <div id="mediaCompleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button type="button" onclick="closeMediaCompleteModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4">媒体已完成</h3>
+      <div id="mediaCompleteWarnings" class="mb-4 space-y-2"></div>
+      <form id="mediaCompleteForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">实际减少总额度 <span class="text-red-500">*</span></label>
+          <input type="number" id="actualReduceAmount" min="0.01" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="须大于 0, 最小 0.01">
+          <p class="text-xs text-gray-500 mt-1">以媒体后台实际降额结果为准, 系统不做计算提示</p>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeMediaCompleteModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+          <button type="submit" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">确认并调 Fund</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 标记媒体失败 -->
+  <div id="mediaFailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button type="button" onclick="closeMediaFailModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4 text-red-600">标记媒体失败</h3>
+      <form id="mediaFailForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">备注 <span class="text-red-500">*</span></label>
+          <p class="text-xs text-gray-500 mb-1">备注内容会展示给客户</p>
+          <textarea id="mediaFailRemark" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="请说明媒体侧失败原因"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeMediaFailModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+          <button type="submit" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">确认</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 忽略并完成 -->
+  <div id="ignoreCompleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button type="button" onclick="closeIgnoreCompleteModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4">忽略并完成</h3>
+      <div class="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-3 mb-4">
+        确认后将不再重试降卡, 仅按实际减少总额度增加客户钱包。账户侧总额度已降低即可限制投放。
+      </div>
+      <form id="ignoreCompleteForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">备注(选填)</label>
+          <textarea id="ignoreCompleteRemark" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeIgnoreCompleteModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+          <button type="submit" class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700">确认</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 详情抽屉 -->
+  <div id="detailDrawer" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-40" onclick="closeDetailDrawer()"></div>
+    <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col">
+      <div class="px-6 py-4 border-b flex items-center justify-between">
+        <h3 class="text-lg font-semibold">清零详情</h3>
+        <button type="button" onclick="closeDetailDrawer()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="detailDrawerContent" class="flex-1 overflow-y-auto px-6 py-4 space-y-6"></div>
+    </div>
+  </div>
+
+  <!-- 通用二次确认 -->
+  <div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-40">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6">
+      <h3 id="confirmModalTitle" class="text-lg font-semibold text-gray-900 mb-3">确认操作</h3>
+      <p id="confirmModalMessage" class="text-sm text-gray-600 mb-6 whitespace-pre-line">确认要执行该操作?</p>
+      <div class="flex justify-end space-x-2">
+        <button type="button" id="confirmCancelBtn" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button type="button" id="confirmOkBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="fixed top-6 right-6 z-[100] space-y-2"></div>
+
+  <!-- 人工处理弹窗(非绑卡户) -->
+  <div id="manualProcessModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button id="closeManualProcessModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4">人工处理</h3>
+      <div class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+        请确认已经在代理的系统中完成减款处理再使用此功能。
+      </div>
+      <form id="manualProcessForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">处理结果（必选）</label>
+          <select id="manualResult" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">请选择</option>
+            <option value="成功">成功</option>
+            <option value="失败">失败</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">备注（选填）</label>
+          <textarea id="manualRemark" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="填写备注（可选）"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancelManualProcess" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+          <button type="submit" id="confirmManualProcess" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">确定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
   <script>
-    let currentSort = {
-      column: 'submitTime',
-      direction: 'desc'
+    const PAGE_KIND = 'clear'; // deduction | clear
+    const INITIAL_BIND_STATUS = PAGE_KIND === 'deduction' ? '减款中' : '清零中';
+    const AMOUNT_LABEL = PAGE_KIND === 'deduction' ? '减款金额' : '清零金额';
+
+    let currentSort = { column: 'submitTime', direction: 'desc' };
+    let activeItemId = null;
+    let _confirmCallback = null;
+
+    const accountCurrentCards = {
+      'FB001234568': { cardId: 'c_w9x8y7z6v5u4t3', last4: '5678', status: 'normal' },
+      'FB009876543': { cardId: 'c_3bpoltc2u7sf1', last4: '1234', status: 'normal' },
+      'FB001111222': { cardId: 'c_h7j8k9l0m1n2o3', last4: '2210', status: 'frozen' },
+      'FB003333444': { cardId: 'c_p3q4r5s6t7u8v9', last4: '7842', status: 'normal' }
     };
 
-    function sortTable(column) {
-      const table = document.getElementById('clearTableBody');
-      const rows = Array.from(table.rows);
-      // 确定排序方向
-      if (currentSort.column === column) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-      } else {
-        currentSort.direction = 'asc';
+    const STATUS_BADGE = {
+      '减款中': 'bg-yellow-100 text-yellow-800', '清零中': 'bg-yellow-100 text-yellow-800',
+      '待人工处理': 'bg-orange-100 text-orange-700', '成功': 'bg-green-100 text-green-700',
+      '完成': 'bg-green-100 text-green-700', '失败': 'bg-red-100 text-red-700',
+      '待 Fund 降额': 'bg-gray-100 text-gray-700', 'Fund 失败': 'bg-red-100 text-red-700'
+    };
+
+    let listData = [
+      { id:'CL001', customerId:'C1001', customerName:'张三', customerEmail:'zhangsan@bestads.com', submitTime:'2024-06-09 10:30', accountId:'FB001234567', accountName:'跨境电商账户01', agent:'王一代', amount:1000, customerApplyAmount:1000, status:'成功', completeTime:'2024-06-09 11:00', remark:'清零完成', isBindCardAccount:false, snapshotCardId:null, snapshotCardLast4:null, actualReduceAmount:null, fundOrderNo:null, statusTimeline:[] },
+      { id:'CL002', customerId:'C1002', customerName:'李四', customerEmail:'lisi@bestads.com', submitTime:'2024-06-08 09:20', accountId:'FB001234568', accountName:'移动应用账户02', agent:'李一代', amount:500, customerApplyAmount:500, status:'清零中', completeTime:'', remark:'等待一代', isBindCardAccount:false, snapshotCardId:null, snapshotCardLast4:null, actualReduceAmount:null, fundOrderNo:null, statusTimeline:[] },
+      { id:'CL003', customerId:'C1003', customerName:'王五', customerEmail:'wangwu@bestads.com', submitTime:'2024-06-07 12:10', accountId:'FB009876543', accountName:'品牌推广账户03', agent:'赵一代', amount:800, customerApplyAmount:800, status:'待人工处理', completeTime:'', remark:'-', isBindCardAccount:false, snapshotCardId:null, snapshotCardLast4:null, actualReduceAmount:null, fundOrderNo:null, statusTimeline:[] },
+      { id:'CL004', customerId:'C1004', customerName:'赵六', customerEmail:'zhaoliu@bestads.com', submitTime:'2024-06-07 09:45', accountId:'FB001111222', accountName:'跨境电商账户04', agent:'钱一代', amount:1200, customerApplyAmount:1200, status:'清零中', completeTime:'', remark:'绑卡户待媒体', isBindCardAccount:true, snapshotCardId:'c_h7j8k9l0m1n2o3', snapshotCardLast4:'2210', actualReduceAmount:null, fundOrderNo:null, statusTimeline:[{status:'清零中',time:'2024-06-07 09:45:00',operator:'系统'}] },
+      { id:'CL005', customerId:'C1005', customerName:'钱七', customerEmail:'qianqi@bestads.com', submitTime:'2024-06-06 15:20', accountId:'FB003333444', accountName:'移动应用账户05', agent:'孙一代', amount:300, customerApplyAmount:300, status:'待 Fund 降额', completeTime:'', remark:'-', isBindCardAccount:true, snapshotCardId:'c_p3q4r5s6t7u8v9', snapshotCardLast4:'7842', actualReduceAmount:299.99, fundOrderNo:'FUND20240606152031', statusTimeline:[{status:'清零中',time:'2024-06-06 15:20:02',operator:'系统'},{status:'待 Fund 降额',time:'2024-06-06 16:05:00',operator:'管理员'}] },
+      { id:'CL006', customerId:'C1006', customerName:'孙八', customerEmail:'sunba@bestads.com', submitTime:'2024-06-06 08:00', accountId:'FB001234568', accountName:'移动应用账户02', agent:'周一代', amount:900, customerApplyAmount:900, status:'Fund 失败', completeTime:'', remark:'卡侧拒绝', isBindCardAccount:true, snapshotCardId:'c_3bpoltc2u7sf1', snapshotCardLast4:'1234', actualReduceAmount:899.99, fundOrderNo:'FUND20240606080011', statusTimeline:[{status:'清零中',time:'2024-06-06 08:00:10',operator:'系统'},{status:'Fund 失败',time:'2024-06-06 09:00:45',operator:'系统'}] },
+      { id:'CL007', customerId:'C1007', customerName:'周九', customerEmail:'zhoujiu@bestads.com', submitTime:'2024-06-05 18:40', accountId:'FB009876543', accountName:'品牌推广账户03', agent:'吴一代', amount:2500, customerApplyAmount:2500, status:'完成', completeTime:'2024-06-05 19:00', remark:'-', isBindCardAccount:true, snapshotCardId:'c_3bpoltc2u7sf1', snapshotCardLast4:'1234', actualReduceAmount:2499.99, fundOrderNo:'FUND20240605184021', statusTimeline:[{status:'完成',time:'2024-06-05 19:00:30',operator:'系统'}] }
+    ];
+
+    function nowStr() {
+      const d = new Date(), p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }
+    function formatAmount(n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function statusBadge(s) { return `<span class="inline-block px-2 py-1 text-xs rounded ${STATUS_BADGE[s]||'bg-gray-100 text-gray-700'}">${s}</span>`; }
+    function bindCardBadge(v) { return v ? '<span class="inline-block px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">绑卡户</span>' : '-'; }
+    function snapshotCardText(it) {
+      if (!it.isBindCardAccount || !it.snapshotCardId) return '-';
+      return `${it.snapshotCardLast4} (${it.snapshotCardId})`;
+    }
+    function getCurrentCard(accountId) { return accountCurrentCards[accountId] || null; }
+
+    function cardWarningsHtml(it, compact) {
+      if (!it.isBindCardAccount) return '';
+      const cur = getCurrentCard(it.accountId);
+      const parts = [];
+      if (cur && it.snapshotCardId && cur.cardId !== it.snapshotCardId) {
+        parts.push(`提交时使用卡为 ${it.snapshotCardLast4} (${it.snapshotCardId}), 当前使用卡已变更为 ${cur.last4} (${cur.cardId})。Fund 降额仍按提交时使用卡执行。`);
       }
-      currentSort.column = column;
-      // 获取列索引
-      let columnIndex;
-      if (column === 'submitTime') {
-        columnIndex = 5;
-      } else if (column === 'completeTime') {
-        columnIndex = 11;
+      if (cur && it.snapshotCardId === cur.cardId && cur.status !== 'normal') {
+        parts.push(`提交时使用卡 ${it.snapshotCardLast4} 当前状态为 ${cur.status === 'frozen' ? '冻结' : cur.status}, 降额可能失败, 请知悉。`);
       }
-      // 排序
-      rows.sort((a, b) => {
-        const aValue = a.cells[columnIndex].getAttribute('data-sort') || '';
-        const bValue = b.cells[columnIndex].getAttribute('data-sort') || '';
-        // 处理空值，空值总是排在最后
-        if (aValue === '' && bValue === '') return 0;
-        if (aValue === '') return 1;
-        if (bValue === '') return -1;
-        const result = aValue.localeCompare(bValue);
-        return currentSort.direction === 'asc' ? result : -result;
+      if (!parts.length) return '';
+      const cls = compact ? 'text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2' : 'text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mb-2';
+      return parts.map(t => `<div class="${cls}"><i class="fas fa-exclamation-triangle mr-1"></i>${t}</div>`).join('');
+    }
+
+    function rowActions(it) {
+      const detail = `<button onclick="openDetailDrawer('${it.id}')" class="text-blue-600 hover:text-blue-800 mr-2" title="详情"><i class="fas fa-eye"></i></button>`;
+      let btns = '';
+      if (it.isBindCardAccount) {
+        const initSt = INITIAL_BIND_STATUS;
+        if (it.status === initSt) {
+          btns = `<button onclick="openMediaCompleteModal('${it.id}')" class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mr-1">媒体已完成</button>` +
+                 `<button onclick="openMediaFailModal('${it.id}')" class="text-xs px-2 py-1 border border-red-300 text-red-600 rounded hover:bg-red-50">标记媒体失败</button>`;
+        } else if (it.status === 'Fund 失败') {
+          btns = `<button onclick="onFundRetry('${it.id}')" class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mr-1">重试</button>` +
+                 `<button onclick="openIgnoreCompleteModal('${it.id}')" class="text-xs px-2 py-1 bg-amber-600 text-white rounded hover:bg-amber-700">忽略并完成</button>`;
+        }
+      } else if (it.status === '待人工处理') {
+        const applyAmt = it.customerApplyAmount != null ? it.customerApplyAmount : it.amount;
+        btns = `<button onclick="openSuccessModal('${it.id}','${it.accountId}','${it.accountName}','USD','${formatAmount(applyAmt)}')" class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"><i class="fas fa-check mr-1"></i>处理成功</button>`;
+      }
+      return detail + btns;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('listTableBody');
+      const fs = (document.getElementById('bcStatus') || {}).value || '';
+      const fb = (document.getElementById('bcIsBindCardAccount') || {}).value || '';
+      const filtered = listData.filter(it => {
+        if (fs && it.status !== fs) return false;
+        if (fb === '是' && !it.isBindCardAccount) return false;
+        if (fb === '否' && it.isBindCardAccount) return false;
+        return true;
       });
-      // 重新插入排序后的行
-      rows.forEach(row => table.appendChild(row));
-      // 更新排序图标
-      updateSortIcons();
-    }
-
-    function updateSortIcons() {
-      // 重置所有图标
-      document.getElementById('submitTimeIcon').className = 'fas fa-sort sort-icon ml-1';
-      document.getElementById('completeTimeIcon').className = 'fas fa-sort sort-icon ml-1';
-      // 设置当前排序列的图标
-      const iconId = currentSort.column + 'Icon';
-      const icon = document.getElementById(iconId);
-      if (currentSort.direction === 'asc') {
-        icon.className = 'fas fa-sort-up sort-icon active ml-1';
-      } else {
-        icon.className = 'fas fa-sort-down sort-icon active ml-1';
-      }
-    }
-
-    // 页面加载时默认按提交时间倒序排序，并绑定人工处理逻辑
-    document.addEventListener('DOMContentLoaded', function() {
-      updateSortIcons();
+      tbody.innerHTML = '';
+      filtered.forEach(it => {
+        const checkable = !it.isBindCardAccount && it.status === '待人工处理';
+        const tr = document.createElement('tr');
+        const warn = cardWarningsHtml(it, true);
+        const idLink = `<a href="javascript:void(0)" onclick="openDetailDrawer('${it.id}')" class="text-blue-600 hover:underline">${it.id}</a>`;
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="${checkable ? 'row-select' : 'row-select opacity-40 cursor-not-allowed'}" ${checkable ? '' : 'disabled'} data-id="${it.id}"></td>
+          <td class="px-6 py-4 whitespace-nowrap">${idLink}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.customerId}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.customerName}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.customerEmail}</td>
+          <td class="px-6 py-4 whitespace-nowrap" data-sort="${it.submitTime}">${it.submitTime}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.accountId}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.accountName}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.agent}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${formatAmount(it.customerApplyAmount != null ? it.customerApplyAmount : it.amount)}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${bindCardBadge(it.isBindCardAccount)}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${snapshotCardText(it)}${warn ? '<div class="mt-1">'+warn+'</div>' : ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.actualReduceAmount != null ? formatAmount(it.actualReduceAmount) : '-'}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.isBindCardAccount && it.fundOrderNo ? it.fundOrderNo : '-'}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${statusBadge(it.status)}</td>
+          <td class="px-6 py-4 whitespace-nowrap" data-sort="${it.completeTime || ''}">${it.completeTime || '-'}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${it.remark || '-'}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${rowActions(it)}</td>`;
+        tbody.appendChild(tr);
+      });
+      const cnt = document.getElementById('listCount');
+      if (cnt) cnt.textContent = filtered.length;
       bindManualProcessEnable();
+    }
+
+    function sortTable(column) {
+      const table = document.getElementById('listTableBody');
+      const rows = Array.from(table.rows);
+      if (currentSort.column === column) currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      else { currentSort.column = column; currentSort.direction = 'asc'; }
+      const idx = column === 'submitTime' ? 5 : 15;
+      rows.sort((a,b) => {
+        const av = a.cells[idx].getAttribute('data-sort') || '';
+        const bv = b.cells[idx].getAttribute('data-sort') || '';
+        if (!av && !bv) return 0; if (!av) return 1; if (!bv) return -1;
+        const r = av.localeCompare(bv);
+        return currentSort.direction === 'asc' ? r : -r;
+      });
+      rows.forEach(r => table.appendChild(r));
+      updateSortIcons();
+    }
+    function updateSortIcons() {
+      ['submitTime','completeTime'].forEach(c => {
+        const el = document.getElementById(c+'Icon');
+        if (!el) return;
+        el.className = 'fas fa-sort sort-icon ml-1' + (currentSort.column === c ? ' active' : '');
+        if (currentSort.column === c) el.classList.add(currentSort.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+      });
+    }
+
+    function showToast(msg, type) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      const m = { success:'bg-green-600', error:'bg-red-600', info:'bg-gray-700' };
+      t.className = (m[type]||m.success) + ' text-white px-4 py-2 rounded shadow-lg text-sm';
+      t.textContent = msg; c.appendChild(t);
+      setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 1700);
+    }
+    function openConfirm(title, msg, ok) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = msg;
+      _confirmCallback = ok;
+      document.getElementById('confirmModal').classList.remove('hidden');
+    }
+    function closeConfirm() { document.getElementById('confirmModal').classList.add('hidden'); _confirmCallback = null; }
+
+    function findItem(id) { return listData.find(x => x.id === id); }
+    function pushTimeline(it, status) {
+      if (!it.statusTimeline) it.statusTimeline = [];
+      it.statusTimeline.push({ status, time: nowStr(), operator: '管理员' });
+    }
+
+    function openMediaCompleteModal(id) {
+      activeItemId = id;
+      const it = findItem(id);
+      document.getElementById('mediaCompleteWarnings').innerHTML = cardWarningsHtml(it, false);
+      document.getElementById('actualReduceAmount').value = '';
+      document.getElementById('mediaCompleteModal').classList.remove('hidden');
+    }
+    function closeMediaCompleteModal() { document.getElementById('mediaCompleteModal').classList.add('hidden'); activeItemId = null; }
+
+    function openMediaFailModal(id) { activeItemId = id; document.getElementById('mediaFailRemark').value = ''; document.getElementById('mediaFailModal').classList.remove('hidden'); }
+    function closeMediaFailModal() { document.getElementById('mediaFailModal').classList.add('hidden'); activeItemId = null; }
+
+    function openIgnoreCompleteModal(id) { activeItemId = id; document.getElementById('ignoreCompleteRemark').value = ''; document.getElementById('ignoreCompleteModal').classList.remove('hidden'); }
+    function closeIgnoreCompleteModal() { document.getElementById('ignoreCompleteModal').classList.add('hidden'); activeItemId = null; }
+
+    function openDetailDrawer(id) {
+      const it = findItem(id); if (!it) return;
+      const row = (l,v) => `<div class="flex text-sm"><span class="text-gray-500 w-36 shrink-0">${l}</span><span class="text-gray-900 break-all">${v}</span></div>`;
+      const tl = (it.statusTimeline||[]).map(s => `<div class="text-sm py-1 border-b"><span class="font-medium">${s.status}</span><span class="text-gray-500 ml-2">${s.time} · ${s.operator}</span></div>`).join('') || '<div class="text-sm text-gray-500">暂无</div>';
+      document.getElementById('detailDrawerContent').innerHTML = `
+        <div class="space-y-2">${cardWarningsHtml(it,false)}
+          ${row('单号', it.id)}${row('是否绑卡户', it.isBindCardAccount?'是':'否')}
+          ${row('客户申请金额', formatAmount(it.customerApplyAmount != null ? it.customerApplyAmount : it.amount))}
+          ${row('实际减少总额度', it.actualReduceAmount != null ? formatAmount(it.actualReduceAmount) : '-')}
+          ${row('快照使用卡', snapshotCardText(it))}${row('Fund 单号', it.fundOrderNo || '-')}
+          ${row('状态', it.status)}</div>
+        <div><h4 class="text-sm font-semibold mb-2">状态时间线</h4>${tl}</div>`;
+      document.getElementById('detailDrawer').classList.remove('hidden');
+    }
+    function closeDetailDrawer() { document.getElementById('detailDrawer').classList.add('hidden'); }
+
+    function triggerFundReduce(it) {
+      it.fundOrderNo = 'FUND' + Date.now();
+      it.status = '待 Fund 降额';
+      pushTimeline(it, '待 Fund 降额');
+      renderTable();
+      setTimeout(() => simulateFundCallback(it.id), 4000);
+    }
+
+    function simulateFundCallback(id) {
+      const it = findItem(id);
+      if (!it || it.status !== '待 Fund 降额') return;
+      if (it.id === 'DC006' || it.id === 'CL006') {
+        it.status = 'Fund 失败';
+        it.remark = '卡侧安全底线拒绝降额';
+        pushTimeline(it, 'Fund 失败');
+      } else {
+        it.status = '完成';
+        it.completeTime = nowStr();
+        pushTimeline(it, '完成');
+        showToast('Fund 降卡成功并已加钱包', 'success');
+      }
+      renderTable();
+    }
+
+    function onFundRetry(id) {
+      const it = findItem(id); if (!it) return;
+      openConfirm('重试 Fund 降额', `将按提交时使用卡 ${it.snapshotCardLast4} (${it.snapshotCardId}) 重新发起降额 ${formatAmount(it.actualReduceAmount)}, 是否继续?`, () => {
+        closeConfirm();
+        triggerFundReduce(it);
+        showToast('已重新发起 Fund 降额', 'info');
+      });
+    }
+
+    function bindManualProcessEnable() {
+      const failBtn = document.getElementById('manualProcessFailBtn');
+      const update = () => {
+        const any = Array.from(document.querySelectorAll('#listTableBody .row-select')).some(cb => cb.checked && !cb.disabled);
+        if (failBtn) {
+          failBtn.classList.toggle('opacity-50', !any);
+          failBtn.classList.toggle('cursor-not-allowed', !any);
+          if (any) failBtn.removeAttribute('disabled'); else failBtn.setAttribute('disabled', 'true');
+        }
+      };
+      document.querySelectorAll('#listTableBody .row-select').forEach(cb => cb.addEventListener('change', update));
+      update();
+    }
+
+    function setupModals() {
+      document.getElementById('confirmCancelBtn').addEventListener('click', closeConfirm);
+      document.getElementById('confirmOkBtn').addEventListener('click', () => { if (_confirmCallback) _confirmCallback(); });
+
+      document.getElementById('mediaCompleteForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const it = findItem(activeItemId); if (!it) return;
+        const amt = parseFloat(document.getElementById('actualReduceAmount').value);
+        if (!(amt > 0)) { showToast('实际减少总额度须大于 0', 'error'); return; }
+        const apply = it.customerApplyAmount != null ? it.customerApplyAmount : it.amount;
+        const submit = () => {
+          it.actualReduceAmount = amt;
+          closeMediaCompleteModal();
+          triggerFundReduce(it);
+        };
+        if (Math.abs(amt - apply) > 0.001) {
+          openConfirm('确认实际减少总额度', `客户申请 ${formatAmount(apply)}, 您录入 ${formatAmount(amt)}, 将以 ${formatAmount(amt)} 为准通知 Fund 并加钱包。`, () => { closeConfirm(); submit(); });
+        } else submit();
+      });
+
+      document.getElementById('mediaFailForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const it = findItem(activeItemId); if (!it) return;
+        const remark = document.getElementById('mediaFailRemark').value.trim();
+        if (!remark) { showToast('请填写备注', 'error'); return; }
+        it.status = '失败'; it.remark = remark; it.completeTime = nowStr();
+        pushTimeline(it, '失败');
+        closeMediaFailModal();
+        renderTable();
+        showToast('已标记媒体失败', 'info');
+      });
+
+      document.getElementById('ignoreCompleteForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const it = findItem(activeItemId); if (!it) return;
+        openConfirm('忽略并完成', `确认忽略子卡降额失败? 将不再重试降卡, 仅按 ${formatAmount(it.actualReduceAmount)} 增加客户钱包。`, () => {
+          closeConfirm();
+          it.status = '完成'; it.completeTime = nowStr();
+          it.remark = (document.getElementById('ignoreCompleteRemark').value.trim() || it.remark || '') + ' [忽略并完成]';
+          pushTimeline(it, '完成');
+          closeIgnoreCompleteModal();
+          renderTable();
+          showToast('已忽略并完成, Fund 仅加钱包', 'success');
+        });
+      });
+
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateSortIcons();
+      renderTable();
+      setupModals();
+      setupSupplementUploadFlow();
+      setupClearModal();
       setupManualProcessSuccessModal();
       setupManualProcessFailModal();
     });
 
-    // 模拟客户和广告账户数据
-    const customers = [
-      { id: 'C1001', name: '张三', balance: 5000, accounts: [
-        { id: 'FB001234567', name: '跨境电商账户01', balance: 200 },
-        { id: 'FB001234569', name: '品牌推广账户03', balance: 150 }
-      ] },
-      { id: 'C1002', name: '李四', balance: 1200, accounts: [
-        { id: 'FB001234568', name: '移动应用账户02', balance: 300 }
-      ] }
-    ];
-
-    // 打开弹窗
-    const openBtn = document.getElementById('openClearModal');
-    const modal = document.getElementById('clearModal');
-    const closeBtn = document.getElementById('closeClearModal');
-    openBtn.addEventListener('click', () => { modal.classList.remove('hidden'); });
-    closeBtn.addEventListener('click', () => { modal.classList.add('hidden'); });
-
-    // 客户下拉和余额展示
-    const customerSelect = document.getElementById('customerSelect');
-    const customerBalance = document.getElementById('customerBalance');
-    customers.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.textContent = `${c.name}（${c.id}）`;
-      customerSelect.appendChild(opt);
-    });
-    customerSelect.addEventListener('change', function() {
-      const selected = customers.find(c => c.id === this.value);
-      customerBalance.textContent = selected ? `可用余额：¥${selected.balance}` : '';
-      renderAccountList(selected ? selected.accounts : []);
-    });
-
-    // 广告账户搜索与多选
-    const accountSearch = document.getElementById('accountSearch');
-    const accountList = document.getElementById('accountList');
-    let currentAccounts = [];
-    let selectedCustomer = null;
-
-    function renderAccountList(accounts) {
-      currentAccounts = accounts;
-      accountList.innerHTML = '';
-      accounts.forEach(acc => {
-        const label = document.createElement('label');
-        label.className = 'flex items-center mb-1 cursor-pointer';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = acc.id;
-        checkbox.className = 'mr-2';
-        checkbox.addEventListener('change', function() {
-          // 简单的选择逻辑，不需要金额设置
-        });
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(`${acc.name}（${acc.id}）- 当前余额：¥${acc.balance}`));
-        accountList.appendChild(label);
-      });
-    }
-
-
-    accountSearch.addEventListener('input', function() {
-      const val = this.value.trim().toLowerCase();
-      const selected = customers.find(c => c.id === customerSelect.value);
-      if (!selected) return;
-      const filtered = selected.accounts.filter(acc =>
-        acc.name.toLowerCase().includes(val) || acc.id.toLowerCase().includes(val)
-      );
-      renderAccountList(filtered);
-    });
-
-    // 提交清零
-    const submitBtn = document.getElementById('submitClear');
-    submitBtn.addEventListener('click', function() {
-      const customerId = customerSelect.value;
-      const customer = customers.find(c => c.id === customerId);
-      if (!customer) return alert('请选择客户');
-      
-      const checked = Array.from(accountList.querySelectorAll('input[type=checkbox]:checked'));
-      if (checked.length === 0) return alert('请选择广告账户');
-      
-      const selectedAccounts = checked.map(checkbox => {
-        const account = currentAccounts.find(acc => acc.id === checkbox.value);
-        return {
-          id: account.id,
-          name: account.name,
-          balance: account.balance
-        };
-      });
-      
-      // 模拟提交
-      alert(`为客户${customer.name}的${selectedAccounts.length}个广告账户发起清零申请`);
-      modal.classList.add('hidden');
-      document.getElementById('clearForm').reset();
-      customerBalance.textContent = '';
-      accountList.innerHTML = '';
-    });
-
-    customerSelect.addEventListener('change', function() {
-      selectedCustomer = customers.find(c => c.id === this.value);
-      customerBalance.textContent = selectedCustomer ? `可用余额：¥${selectedCustomer.balance}` : '';
-      renderAccountList(selectedCustomer ? selectedCustomer.accounts : []);
-    });
-
-    // 侧边栏切换
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
       if (sidebar.classList.contains('mobile-menu-closed')) {
-        sidebar.classList.remove('mobile-menu-closed');
-        sidebar.classList.add('mobile-menu-open');
-        overlay.classList.remove('hidden');
-        overlay.classList.remove('opacity-0');
-        overlay.classList.add('opacity-50');
+        sidebar.classList.remove('mobile-menu-closed'); sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden','opacity-0'); overlay.classList.add('opacity-50');
       } else {
-        sidebar.classList.remove('mobile-menu-open');
-        sidebar.classList.add('mobile-menu-closed');
-        overlay.classList.add('opacity-0');
-        overlay.classList.remove('opacity-50');
-        setTimeout(() => {
-          overlay.classList.add('hidden');
-        }, 300);
+        sidebar.classList.remove('mobile-menu-open'); sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0'); overlay.classList.remove('opacity-50');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
       }
     }
-
-    // 点击遮罩层关闭侧边栏
-    document.getElementById('sidebar-overlay').addEventListener('click', function() {
-      toggleSidebar();
-    });
-
-    // 菜单项切换
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-      item.addEventListener('click', function(e) {
-        if (this.getAttribute('href') === '#') {
-          e.preventDefault();
-        }
-        document.querySelectorAll('.sidebar-item').forEach(menu => menu.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-
-    // 响应式处理
-    window.addEventListener('resize', function() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+    window.addEventListener('resize', () => {
       if (window.innerWidth >= 1024) {
-        sidebar.classList.remove('mobile-menu-closed');
-        sidebar.classList.add('mobile-menu-open');
-        overlay.classList.add('hidden');
-        overlay.classList.add('opacity-0');
-        overlay.classList.remove('opacity-50');
+        document.getElementById('sidebar').classList.remove('mobile-menu-closed');
+        document.getElementById('sidebar').classList.add('mobile-menu-open');
+        const o = document.getElementById('sidebar-overlay');
+        o.classList.add('hidden','opacity-0'); o.classList.remove('opacity-50');
       }
     });
-    // 根据复选框选择，切换处理失败按钮可用状态
-    function bindManualProcessEnable() {
-      const failBtn = document.getElementById('manualProcessFailBtn');
-      
-      const update = () => {
-        const anyChecked = Array.from(document.querySelectorAll('#clearTableBody .row-select'))
-          .some(cb => cb.checked);
-        
-        if (anyChecked) {
-          failBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-          failBtn.removeAttribute('disabled');
-        } else {
-          failBtn.classList.add('opacity-50', 'cursor-not-allowed');
-          failBtn.setAttribute('disabled', 'true');
-        }
-      };
-      
-      document.querySelectorAll('#clearTableBody .row-select').forEach(cb => {
-        cb.addEventListener('change', update);
-      });
-      update();
+
+
+    let supplementParsedRows = [];
+    let supplementPreviewRows = [];
+    const SUPPLEMENT_MEDIA = 'Google';
+
+    function normalizeExcelRow(row) {
+      const accountId = String(row['广告账户ID'] || row['广告账户Id'] || row['accountId'] || '').trim();
+      const clearAmountRaw = row['清零金额'] ?? row['金额'] ?? row['clearAmount'] ?? '';
+      return { accountId, clearAmountRaw };
     }
 
-    // 打开处理成功弹窗
+    function parseAmount(rawValue) {
+      if (rawValue === null || rawValue === undefined) return { valid: false, value: 0 };
+      const cleaned = String(rawValue).replace(/,/g, '').trim();
+      if (!cleaned) return { valid: false, value: 0 };
+      const amount = Number(cleaned);
+      if (!Number.isFinite(amount) || amount <= 0) return { valid: false, value: 0 };
+      return { valid: true, value: amount };
+    }
+
+    function getAccountReferenceMap() {
+      const map = new Map();
+      listData.forEach(it => {
+        map.set(it.accountId, {
+          customerId: it.customerId,
+          customerName: it.customerName,
+          merchantId: it.customerId ? `M${it.customerId.replace(/^C/i, '')}` : '-',
+          accountName: it.accountName
+        });
+      });
+      return map;
+    }
+
+    function buildSupplementPreviewRows(parsedRows) {
+      const accountMap = getAccountReferenceMap();
+      return parsedRows.map(item => {
+        const matched = accountMap.get(item.accountId);
+        const amountInfo = parseAmount(item.clearAmountRaw);
+        let valid = true;
+        let invalidReason = '';
+        if (!item.accountId) { valid = false; invalidReason = '广告账户ID为空'; }
+        else if (!matched) { valid = false; invalidReason = '无此账户'; }
+        else if (!amountInfo.valid) { valid = false; invalidReason = '清零金额格式错误'; }
+        return {
+          merchantId: matched ? matched.merchantId : '-',
+          customerId: matched ? matched.customerId : '-',
+          customerName: matched ? matched.customerName : '-',
+          media: SUPPLEMENT_MEDIA,
+          accountId: item.accountId || '-',
+          accountName: matched ? matched.accountName : '-',
+          clearAmount: amountInfo.valid ? amountInfo.value.toFixed(2) : String(item.clearAmountRaw || '-'),
+          valid,
+          invalidReason
+        };
+      });
+    }
+
+    function renderSupplementPreviewRows(rows) {
+      const tbody = document.getElementById('supplementPreviewBody');
+      tbody.innerHTML = '';
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-3 whitespace-nowrap">${row.merchantId}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.customerName}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.media}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.accountId}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.accountName}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${row.clearAmount}</td>
+          <td class="px-4 py-3 whitespace-nowrap ${row.valid ? 'text-green-600' : 'text-red-600'} font-medium">${row.valid ? '是' : '否'}</td>
+          <td class="px-4 py-3 whitespace-nowrap text-red-600">${row.invalidReason || '-'}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateSupplementPreviewSummary(rows) {
+      const total = rows.length;
+      const validCount = rows.filter(row => row.valid).length;
+      const invalidCount = total - validCount;
+      document.getElementById('supplementTotalCount').textContent = String(total);
+      document.getElementById('supplementValidCount').textContent = String(validCount);
+      document.getElementById('supplementInvalidCount').textContent = String(invalidCount);
+      const hint = document.getElementById('supplementPreviewHint');
+      if (validCount === 0) hint.textContent = '当前没有可写入的有效数据, 请返回修改Excel后重新上传。';
+      else if (invalidCount === 0) hint.textContent = `本次将写入${validCount}条有效数据。`;
+      else hint.textContent = `本次将写入${validCount}条有效数据, ${invalidCount}条无效数据将被忽略。`;
+      const confirmBtn = document.getElementById('confirmSupplementImport');
+      confirmBtn.disabled = validCount === 0;
+      confirmBtn.classList.toggle('opacity-50', validCount === 0);
+      confirmBtn.classList.toggle('cursor-not-allowed', validCount === 0);
+    }
+
+    function formatDateTimeForTable(date) {
+      const pad = n => String(n).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function appendSupplementRowsToMainTable(validRows) {
+      const now = new Date();
+      const dateTime = formatDateTimeForTable(now);
+      const sourceRemark = '来源: 补充清零数据';
+      const base = listData.length;
+      validRows.forEach((row, index) => {
+        const clearId = `CL${String(base + index + 1).padStart(3, '0')}`;
+        listData.unshift({
+          id: clearId,
+          customerId: row.customerId,
+          customerName: row.customerName,
+          customerEmail: '-',
+          submitTime: dateTime,
+          accountId: row.accountId,
+          accountName: row.accountName,
+          agent: '管理员',
+          amount: Number(row.clearAmount),
+          customerApplyAmount: Number(row.clearAmount),
+          status: '成功',
+          completeTime: dateTime,
+          remark: sourceRemark,
+          isBindCardAccount: false,
+          snapshotCardId: null,
+          snapshotCardLast4: null,
+          actualReduceAmount: null,
+          fundOrderNo: null,
+          statusTimeline: []
+        });
+      });
+      renderTable();
+    }
+
+    function setupSupplementUploadFlow() {
+      const uploadModal = document.getElementById('supplementUploadModal');
+      const previewModal = document.getElementById('supplementPreviewModal');
+      const openBtn = document.getElementById('openSupplementUploadModal');
+      if (!openBtn) return;
+      const closeUploadBtn = document.getElementById('closeSupplementUploadModal');
+      const cancelUploadBtn = document.getElementById('cancelSupplementUpload');
+      const backBtn = document.getElementById('backToSupplementUpload');
+      const closePreviewBtn = document.getElementById('closeSupplementPreviewModal');
+      const uploadBtn = document.getElementById('submitSupplementUpload');
+      const confirmBtn = document.getElementById('confirmSupplementImport');
+      const fileInput = document.getElementById('supplementFileInput');
+      const fileInfo = document.getElementById('supplementUploadFileInfo');
+
+      const resetUploadState = () => {
+        fileInput.value = '';
+        fileInfo.classList.add('hidden');
+        fileInfo.textContent = '';
+        supplementParsedRows = [];
+      };
+      const closeUploadModal = () => { uploadModal.classList.add('hidden'); resetUploadState(); };
+      const closePreviewModal = () => {
+        previewModal.classList.add('hidden');
+        document.getElementById('supplementPreviewBody').innerHTML = '';
+        supplementPreviewRows = [];
+      };
+
+      openBtn.addEventListener('click', () => uploadModal.classList.remove('hidden'));
+      closeUploadBtn.addEventListener('click', closeUploadModal);
+      cancelUploadBtn.addEventListener('click', closeUploadModal);
+      closePreviewBtn.addEventListener('click', closePreviewModal);
+      backBtn.addEventListener('click', () => { previewModal.classList.add('hidden'); uploadModal.classList.remove('hidden'); });
+
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) { fileInfo.classList.add('hidden'); fileInfo.textContent = ''; return; }
+        fileInfo.classList.remove('hidden');
+        fileInfo.textContent = `已选择文件: ${file.name} (${Math.ceil(file.size / 1024)} KB)`;
+      });
+
+      uploadBtn.addEventListener('click', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) { showToast('请先选择Excel文件', 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            if (!firstSheetName) { showToast('Excel中未找到可读取的工作表', 'error'); return; }
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+            if (!rawRows.length) { showToast('Excel内容为空', 'error'); return; }
+            supplementParsedRows = rawRows.map(normalizeExcelRow);
+            supplementPreviewRows = buildSupplementPreviewRows(supplementParsedRows);
+            renderSupplementPreviewRows(supplementPreviewRows);
+            updateSupplementPreviewSummary(supplementPreviewRows);
+            uploadModal.classList.add('hidden');
+            previewModal.classList.remove('hidden');
+          } catch (err) {
+            showToast('文件解析失败, 请确认Excel格式正确', 'error');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      confirmBtn.addEventListener('click', () => {
+        const validRows = supplementPreviewRows.filter(row => row.valid);
+        if (!validRows.length) { showToast('没有可写入的有效数据', 'error'); return; }
+        appendSupplementRowsToMainTable(validRows);
+        closePreviewModal();
+        closeUploadModal();
+        showToast(`写入成功: ${validRows.length}条有效数据已入系统`, 'success');
+      });
+    }
+
+    const clearCustomers = [
+      { id: 'C1001', name: '张三', balance: 5000, accounts: [
+        { id: 'FB001234567', name: '跨境电商账户01', balance: 200 },
+        { id: 'FB001234569', name: '品牌推广账户03', balance: 150 }
+      ]},
+      { id: 'C1002', name: '李四', balance: 1200, accounts: [
+        { id: 'FB001234568', name: '移动应用账户02', balance: 300 }
+      ]}
+    ];
+
+    function setupClearModal() {
+      const openBtn = document.getElementById('openClearModal');
+      const modal = document.getElementById('clearModal');
+      const closeBtn = document.getElementById('closeClearModal');
+      if (!openBtn) return;
+      openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+      closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+      const customerSelect = document.getElementById('customerSelect');
+      const customerBalance = document.getElementById('customerBalance');
+      const accountSearch = document.getElementById('accountSearch');
+      const accountList = document.getElementById('accountList');
+      let currentAccounts = [];
+
+      clearCustomers.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.name}（${c.id}）`;
+        customerSelect.appendChild(opt);
+      });
+
+      function renderAccountList(accounts) {
+        currentAccounts = accounts;
+        accountList.innerHTML = '';
+        accounts.forEach(acc => {
+          const label = document.createElement('label');
+          label.className = 'flex items-center mb-1 cursor-pointer';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = acc.id;
+          checkbox.className = 'mr-2';
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(`${acc.name}（${acc.id}）- 当前余额：¥${acc.balance}`));
+          accountList.appendChild(label);
+        });
+      }
+
+      customerSelect.addEventListener('change', function() {
+        const selected = clearCustomers.find(c => c.id === this.value);
+        customerBalance.textContent = selected ? `可用余额：¥${selected.balance}` : '';
+        renderAccountList(selected ? selected.accounts : []);
+      });
+
+      accountSearch.addEventListener('input', function() {
+        const val = this.value.trim().toLowerCase();
+        const selected = clearCustomers.find(c => c.id === customerSelect.value);
+        if (!selected) return;
+        renderAccountList(selected.accounts.filter(acc =>
+          acc.name.toLowerCase().includes(val) || acc.id.toLowerCase().includes(val)
+        ));
+      });
+
+      document.getElementById('submitClear').addEventListener('click', () => {
+        const customer = clearCustomers.find(c => c.id === customerSelect.value);
+        if (!customer) { showToast('请选择客户', 'error'); return; }
+        const checked = Array.from(accountList.querySelectorAll('input[type=checkbox]:checked'));
+        if (!checked.length) { showToast('请选择广告账户', 'error'); return; }
+        showToast(`已为客户 ${customer.name} 的 ${checked.length} 个账户发起清零(原型)`, 'success');
+        modal.classList.add('hidden');
+        document.getElementById('clearForm').reset();
+        customerBalance.textContent = '';
+        accountList.innerHTML = '';
+      });
+    }
+
     function openSuccessModal(clearId, accountId, accountName, currency, originalBalance) {
       document.getElementById('successClearId').textContent = clearId;
       document.getElementById('successAccountId').textContent = accountId;
@@ -808,69 +1253,65 @@
       document.getElementById('manualProcessSuccessModal').classList.remove('hidden');
     }
 
-    // 处理成功弹窗
     function setupManualProcessSuccessModal() {
       const modal = document.getElementById('manualProcessSuccessModal');
       const closeBtn = document.getElementById('closeManualProcessSuccessModal');
       const cancelBtn = document.getElementById('cancelManualProcessSuccess');
       const form = document.getElementById('manualProcessSuccessForm');
-      
-      const closeModal = () => {
-        modal.classList.add('hidden');
-        form.reset();
-      };
-      
+      const closeModal = () => { modal.classList.add('hidden'); form.reset(); };
       closeBtn.addEventListener('click', closeModal);
       cancelBtn.addEventListener('click', closeModal);
-      
-      form.addEventListener('submit', (e) => {
+      form.addEventListener('submit', e => {
         e.preventDefault();
         const clearAmount = document.getElementById('successClearAmount').value;
-        if (!clearAmount || parseFloat(clearAmount) <= 0) {
-          alert('请输入有效的清零金额');
-          return;
+        const clearId = document.getElementById('successClearId').textContent;
+        if (!clearAmount || parseFloat(clearAmount) <= 0) { showToast('请输入有效的清零金额', 'error'); return; }
+        const it = findItem(clearId);
+        if (it) {
+          it.status = '成功';
+          it.completeTime = nowStr();
+          it.amount = parseFloat(clearAmount);
+          const remark = document.getElementById('successRemark').value.trim();
+          if (remark) it.remark = remark;
+          pushTimeline(it, '成功');
         }
-        
-        // 简单刷新：关闭弹窗并刷新页面
         closeModal();
-        location.reload();
+        renderTable();
+        showToast('处理成功', 'success');
       });
     }
 
-    // 处理失败弹窗
     function setupManualProcessFailModal() {
       const openBtn = document.getElementById('manualProcessFailBtn');
       const modal = document.getElementById('manualProcessFailModal');
+      if (!openBtn) return;
       const closeBtn = document.getElementById('closeManualProcessFailModal');
       const cancelBtn = document.getElementById('cancelManualProcessFail');
       const form = document.getElementById('manualProcessFailForm');
-      
-      openBtn.addEventListener('click', () => {
-        if (openBtn.hasAttribute('disabled')) return;
-        modal.classList.remove('hidden');
-      });
-      
-      const closeModal = () => {
-        modal.classList.add('hidden');
-        form.reset();
-      };
-      
+      openBtn.addEventListener('click', () => { if (!openBtn.hasAttribute('disabled')) modal.classList.remove('hidden'); });
+      const closeModal = () => { modal.classList.add('hidden'); form.reset(); };
       closeBtn.addEventListener('click', closeModal);
       cancelBtn.addEventListener('click', closeModal);
-      
-      form.addEventListener('submit', (e) => {
+      form.addEventListener('submit', e => {
         e.preventDefault();
-        const failRemark = document.getElementById('failRemark').value;
-        if (!failRemark.trim()) {
-          alert('请输入备注');
-          return;
-        }
-        
-        // 简单刷新：关闭弹窗并刷新页面
+        const failRemark = document.getElementById('failRemark').value.trim();
+        if (!failRemark) { showToast('请输入备注', 'error'); return; }
+        Array.from(document.querySelectorAll('#listTableBody .row-select:checked')).forEach(cb => {
+          const it = findItem(cb.dataset.id);
+          if (it && !it.isBindCardAccount && it.status === '待人工处理') {
+            it.status = '失败';
+            it.remark = failRemark;
+            it.completeTime = nowStr();
+            pushTimeline(it, '失败');
+          }
+        });
         closeModal();
-        location.reload();
+        renderTable();
+        showToast('已标记处理失败', 'info');
       });
     }
+
+
   </script>
 </body>
 </html>
