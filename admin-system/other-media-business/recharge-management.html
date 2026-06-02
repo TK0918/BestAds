@@ -285,7 +285,7 @@
                       <option value="完成">完成</option>
                       <option value="失败">失败</option>
                       <option value="待 Fund 调额">待 Fund 调额</option>
-                      <option value="Fund 调额成功">Fund 调额成功</option>
+                      <option value="Fund 调信用卡失败">Fund 调信用卡失败</option>
                       <option value="待媒体后台调整">待媒体后台调整</option>
                       <option value="已完成">已完成</option>
                       <option value="已取消">已取消</option>
@@ -464,7 +464,7 @@
     // ========== 充值单 mock 数据 (含绑卡户字段) ==========
     // 状态枚举:
     //   非绑卡户: 充值中 / 待人工处理 / 成功 / 失败
-    //   绑卡户:   待 Fund 调额 / Fund 调额成功 / 待媒体后台调整 / 已完成 / 失败 / 已取消
+    //   绑卡户:   待 Fund 调额 / Fund 调信用卡失败 / 待媒体后台调整 / 已完成 / 已取消
     const rechargeData = [
       { id:'RC001', customerId:'C1001', customerName:'张三', customerEmail:'zhangsan@bestads.com',
         submitTime:'2024-06-09 10:30', accountId:'SC001234567', accountName:'跨境电商账户01',
@@ -486,12 +486,13 @@
         cardAvailableLimit:null, statusTimeline:[] },
       { id:'RC004', customerId:'C1004', customerName:'赵六', customerEmail:'zhaoliu@bestads.com',
         submitTime:'2024-06-07 09:45', accountId:'SC001111222', accountName:'跨境电商账户04',
-        agent:'钱一代', amount:1200, status:'Fund 调额成功', completeTime:'', remark:'-',
+        agent:'钱一代', amount:1200, status:'待媒体后台调整', completeTime:'', remark:'等待业务到媒体后台调整',
         isBindCardAccount:true, activeCardId:'c_w9x8y7z6v5u4t3', activeCardLast4:'5678',
         fundOrderNo:'FUND20240607094520', cardAvailableLimit:1500,
         statusTimeline:[
           { status:'待 Fund 调额', time:'2024-06-07 09:45:01', operator:'系统' },
-          { status:'Fund 调额成功', time:'2024-06-07 09:45:38', operator:'系统' }
+          { status:'Fund 调信用卡成功', time:'2024-06-07 09:45:38', operator:'系统' },
+          { status:'待媒体后台调整', time:'2024-06-07 09:45:38', operator:'系统' }
         ] },
       { id:'RC005', customerId:'C1005', customerName:'钱七', customerEmail:'qianqi@bestads.com',
         submitTime:'2024-06-06 15:20', accountId:'SC003333444', accountName:'移动应用账户05',
@@ -500,17 +501,17 @@
         fundOrderNo:'FUND20240606152030', cardAvailableLimit:800,
         statusTimeline:[
           { status:'待 Fund 调额', time:'2024-06-06 15:20:02', operator:'系统' },
-          { status:'Fund 调额成功', time:'2024-06-06 15:20:42', operator:'系统' },
+          { status:'Fund 调信用卡成功', time:'2024-06-06 15:20:42', operator:'系统' },
           { status:'待媒体后台调整', time:'2024-06-06 15:20:42', operator:'系统' }
         ] },
       { id:'RC006', customerId:'C1006', customerName:'孙八', customerEmail:'sunba@bestads.com',
         submitTime:'2024-06-06 08:00', accountId:'SC005555666', accountName:'品牌推广账户06',
-        agent:'周一代', amount:900, status:'失败', completeTime:'', remark:'Fund 回调超时',
+        agent:'周一代', amount:900, status:'Fund 调信用卡失败', completeTime:'', remark:'Fund 回调超时',
         isBindCardAccount:true, activeCardId:'c_h7j8k9l0m1n2o3', activeCardLast4:'3456',
         fundOrderNo:'FUND20240606080010', cardAvailableLimit:200,
         statusTimeline:[
           { status:'待 Fund 调额', time:'2024-06-06 08:00:10', operator:'系统' },
-          { status:'失败', time:'2024-06-06 08:05:11', operator:'系统' }
+          { status:'Fund 调信用卡失败', time:'2024-06-06 08:05:11', operator:'系统' }
         ] },
       { id:'RC007', customerId:'C1007', customerName:'周九', customerEmail:'zhoujiu@bestads.com',
         submitTime:'2024-06-05 18:40', accountId:'SC007777888', accountName:'跨境电商账户07',
@@ -524,18 +525,18 @@
         fundOrderNo:'FUND20240604141520', cardAvailableLimit:1200,
         statusTimeline:[
           { status:'待 Fund 调额', time:'2024-06-04 14:15:20', operator:'系统' },
-          { status:'Fund 调额成功', time:'2024-06-04 14:15:55', operator:'系统' },
+          { status:'Fund 调信用卡成功', time:'2024-06-04 14:15:55', operator:'系统' },
           { status:'待媒体后台调整', time:'2024-06-04 14:15:55', operator:'系统' },
           { status:'已完成', time:'2024-06-04 14:42:15', operator:'张三' }
         ] },
       { id:'RC009', customerId:'C1009', customerName:'郑十一', customerEmail:'zheng11@bestads.com',
         submitTime:'2024-06-03 10:05', accountId:'SC001212121', accountName:'品牌推广账户09',
-        agent:'王二代', amount:1800, status:'已取消', completeTime:'2024-06-03 10:45', remark:'多次 Fund 调额失败, 业务取消',
+        agent:'王二代', amount:1800, status:'已取消', completeTime:'2024-06-03 10:45', remark:'多次 Fund 调信用卡失败, 业务取消',
         isBindCardAccount:true, activeCardId:'c_x9y0z1a2b3c4d5', activeCardLast4:'2345',
         fundOrderNo:'FUND20240603100530', cardAvailableLimit:0,
         statusTimeline:[
           { status:'待 Fund 调额', time:'2024-06-03 10:05:30', operator:'系统' },
-          { status:'失败', time:'2024-06-03 10:10:10', operator:'系统' },
+          { status:'Fund 调信用卡失败', time:'2024-06-03 10:10:10', operator:'系统' },
           { status:'已取消', time:'2024-06-03 10:45:00', operator:'郑十一' }
         ] },
       { id:'RC010', customerId:'C1010', customerName:'钱十二', customerEmail:'qian12@bestads.com',
@@ -553,7 +554,7 @@
       '完成': 'bg-green-100 text-green-700',
       '失败': 'bg-red-100 text-red-700',
       '待 Fund 调额': 'bg-gray-100 text-gray-700',
-      'Fund 调额成功': 'bg-gray-100 text-gray-700',
+      'Fund 调信用卡失败': 'bg-red-100 text-red-700',
       '待媒体后台调整': 'bg-gray-100 text-gray-700',
       '已完成': 'bg-green-100 text-green-700',
       '已取消': 'bg-red-100 text-red-700'
@@ -580,7 +581,7 @@
       if (item.isBindCardAccount) {
         if (item.status === '待媒体后台调整') {
           actionBtns = `<button onclick="onMarkComplete('${item.id}')" class="inline-block text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">标记完成</button>`;
-        } else if (item.status === '失败') {
+        } else if (item.status === 'Fund 调信用卡失败') {
           actionBtns =
             `<button onclick="onRetry('${item.id}')" class="inline-block text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mr-1">重试</button>` +
             `<button onclick="onManualCancel('${item.id}')" class="inline-block text-xs px-2 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-100">人工取消</button>`;
@@ -786,25 +787,19 @@
     }
 
     function onRetry(id) {
-      openConfirm('重试 Fund 调额', '将重新触发 Fund 调额, 是否继续?', () => {
+      openConfirm('重试 Fund 调信用卡', '将重新触发 Fund 调信用卡, 是否继续?', () => {
         const item = rechargeData.find(x => x.id === id);
         if (!item) return;
         item.status = '待 Fund 调额';
         item.statusTimeline.push({ status:'待 Fund 调额', time:nowStr(), operator:currentOperator() });
         renderTable();
-        showToast('已重新发起 Fund 调额', 'success');
-        // 模拟 3 秒后 Fund 回调成功 -> Fund 调额成功 -> 待媒体后台调整
+        showToast('已重新发起 Fund 调信用卡', 'success');
         setTimeout(() => {
           if (item.status !== '待 Fund 调额') return;
-          item.status = 'Fund 调额成功';
-          item.statusTimeline.push({ status:'Fund 调额成功', time:nowStr(), operator:'系统' });
+          item.statusTimeline.push({ status:'Fund 调信用卡成功', time:nowStr(), operator:'系统' });
+          item.status = '待媒体后台调整';
+          item.statusTimeline.push({ status:'待媒体后台调整', time:nowStr(), operator:'系统' });
           renderTable();
-          setTimeout(() => {
-            if (item.status !== 'Fund 调额成功') return;
-            item.status = '待媒体后台调整';
-            item.statusTimeline.push({ status:'待媒体后台调整', time:nowStr(), operator:'系统' });
-            renderTable();
-          }, 100);
         }, 3000);
       });
     }

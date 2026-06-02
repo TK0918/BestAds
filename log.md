@@ -1,3 +1,19 @@
+#### 2026-05-30 - Fund 调信用卡失败状态统一 (PRD v0.9 + HTML)
+
+修订 `PRD/V 2.21 绑卡户调用Slash卡接口完成充值.md` (v0.9):
+- 新增专业名词「Fund 调信用卡失败」: Fund 调整子信用卡额度(拔高/降低)失败的可重试态, 区别于媒体终态「失败」及钱包操作。
+- 充值: 去掉列表态「Fund 调额成功」, Fund 回调成功直进「待媒体后台调整」; Fund 失败态改为「Fund 调信用卡失败」。
+- 减款/清零: 「Fund 失败」统一更名为「Fund 调信用卡失败」; 状态机、链路 E/F、页面说明、Fund 回调口径同步。
+- 充值详情: 状态时间线可记录「Fund 调信用卡成功」等系统事件, 不作为列表主状态。
+
+同步 HTML 原型:
+- `fb/google/other-media-business/recharge-management.html`: 筛选/列表/mock/重试/回调模拟对齐新枚举。
+- `fb/google-business/deduction-management.html` + 三份 `clear-management.html`: 「Fund 失败」→「Fund 调信用卡失败」。
+
+辅助脚本: `admin-system/reports/_patch_fund_card_status.py`.
+
+---
+
 #### 2026-05-30 - 绑卡户减款/清零 HTML 原型 (v0.8)
 
 对齐 PRD v0.8, 改造减款/清零管理页原型:

@@ -272,7 +272,7 @@
                       <option value="成功">成功</option>
                       <option value="失败">失败</option>
                       <option value="待 Fund 降额">待 Fund 降额</option>
-                      <option value="Fund 失败">Fund 失败</option>
+                      <option value="Fund 调信用卡失败">Fund 调信用卡失败</option>
                       <option value="完成">完成</option>
                     </select>
                   </div>
@@ -518,7 +518,7 @@
       '减款中': 'bg-yellow-100 text-yellow-800', '清零中': 'bg-yellow-100 text-yellow-800',
       '待人工处理': 'bg-orange-100 text-orange-700', '成功': 'bg-green-100 text-green-700',
       '完成': 'bg-green-100 text-green-700', '失败': 'bg-red-100 text-red-700',
-      '待 Fund 降额': 'bg-gray-100 text-gray-700', 'Fund 失败': 'bg-red-100 text-red-700'
+      '待 Fund 降额': 'bg-gray-100 text-gray-700', 'Fund 调信用卡失败': 'bg-red-100 text-red-700'
     };
 
     let listData = [
@@ -527,7 +527,7 @@
       { id:'DC003', customerId:'C1003', customerName:'王五', customerEmail:'wangwu@bestads.com', submitTime:'2024-06-07 12:10', accountId:'FB009876543', accountName:'品牌推广账户03', agent:'赵一代', amount:800, customerApplyAmount:800, status:'待人工处理', completeTime:'', remark:'-', isBindCardAccount:false, snapshotCardId:null, snapshotCardLast4:null, actualReduceAmount:null, fundOrderNo:null, statusTimeline:[] },
       { id:'DC004', customerId:'C1004', customerName:'赵六', customerEmail:'zhaoliu@bestads.com', submitTime:'2024-06-07 09:45', accountId:'FB001111222', accountName:'跨境电商账户04', agent:'钱一代', amount:1200, customerApplyAmount:1200, status:'减款中', completeTime:'', remark:'绑卡户, 待媒体降额', isBindCardAccount:true, snapshotCardId:'c_h7j8k9l0m1n2o3', snapshotCardLast4:'2210', actualReduceAmount:null, fundOrderNo:null, statusTimeline:[{status:'减款中',time:'2024-06-07 09:45:00',operator:'系统'}] },
       { id:'DC005', customerId:'C1005', customerName:'钱七', customerEmail:'qianqi@bestads.com', submitTime:'2024-06-06 15:20', accountId:'FB003333444', accountName:'移动应用账户05', agent:'孙一代', amount:300, customerApplyAmount:300, status:'待 Fund 降额', completeTime:'', remark:'-', isBindCardAccount:true, snapshotCardId:'c_p3q4r5s6t7u8v9', snapshotCardLast4:'7842', actualReduceAmount:280, fundOrderNo:'FUND20240606152030', statusTimeline:[{status:'减款中',time:'2024-06-06 15:20:02',operator:'系统'},{status:'待 Fund 降额',time:'2024-06-06 16:05:00',operator:'管理员'}] },
-      { id:'DC006', customerId:'C1006', customerName:'孙八', customerEmail:'sunba@bestads.com', submitTime:'2024-06-06 08:00', accountId:'FB001234568', accountName:'移动应用账户02', agent:'周一代', amount:900, customerApplyAmount:900, status:'Fund 失败', completeTime:'', remark:'卡侧安全底线拒绝', isBindCardAccount:true, snapshotCardId:'c_3bpoltc2u7sf1', snapshotCardLast4:'1234', actualReduceAmount:500, fundOrderNo:'FUND20240606080010', statusTimeline:[{status:'减款中',time:'2024-06-06 08:00:10',operator:'系统'},{status:'待 Fund 降额',time:'2024-06-06 09:00:00',operator:'管理员'},{status:'Fund 失败',time:'2024-06-06 09:00:45',operator:'系统'}] },
+      { id:'DC006', customerId:'C1006', customerName:'孙八', customerEmail:'sunba@bestads.com', submitTime:'2024-06-06 08:00', accountId:'FB001234568', accountName:'移动应用账户02', agent:'周一代', amount:900, customerApplyAmount:900, status:'Fund 调信用卡失败', completeTime:'', remark:'卡侧安全底线拒绝', isBindCardAccount:true, snapshotCardId:'c_3bpoltc2u7sf1', snapshotCardLast4:'1234', actualReduceAmount:500, fundOrderNo:'FUND20240606080010', statusTimeline:[{status:'减款中',time:'2024-06-06 08:00:10',operator:'系统'},{status:'待 Fund 降额',time:'2024-06-06 09:00:00',operator:'管理员'},{status:'Fund 调信用卡失败',time:'2024-06-06 09:00:45',operator:'系统'}] },
       { id:'DC007', customerId:'C1007', customerName:'周九', customerEmail:'zhoujiu@bestads.com', submitTime:'2024-06-05 18:40', accountId:'FB009876543', accountName:'品牌推广账户03', agent:'吴一代', amount:2500, customerApplyAmount:2500, status:'完成', completeTime:'2024-06-05 19:00', remark:'-', isBindCardAccount:true, snapshotCardId:'c_3bpoltc2u7sf1', snapshotCardLast4:'1234', actualReduceAmount:2500, fundOrderNo:'FUND20240605184020', statusTimeline:[{status:'减款中',time:'2024-06-05 18:40:00',operator:'系统'},{status:'待 Fund 降额',time:'2024-06-05 19:00:00',operator:'管理员'},{status:'完成',time:'2024-06-05 19:00:30',operator:'系统'}] }
     ];
 
@@ -567,7 +567,7 @@
         if (it.status === initSt) {
           btns = `<button onclick="openMediaCompleteModal('${it.id}')" class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mr-1">媒体已完成</button>` +
                  `<button onclick="openMediaFailModal('${it.id}')" class="text-xs px-2 py-1 border border-red-300 text-red-600 rounded hover:bg-red-50">标记媒体失败</button>`;
-        } else if (it.status === 'Fund 失败') {
+        } else if (it.status === 'Fund 调信用卡失败') {
           btns = `<button onclick="onFundRetry('${it.id}')" class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mr-1">重试</button>` +
                  `<button onclick="openIgnoreCompleteModal('${it.id}')" class="text-xs px-2 py-1 bg-amber-600 text-white rounded hover:bg-amber-700">忽略并完成</button>`;
         }
@@ -707,9 +707,9 @@
       const it = findItem(id);
       if (!it || it.status !== '待 Fund 降额') return;
       if (it.id === 'DC006' || it.id === 'CL006') {
-        it.status = 'Fund 失败';
+        it.status = 'Fund 调信用卡失败';
         it.remark = '卡侧安全底线拒绝降额';
-        pushTimeline(it, 'Fund 失败');
+        pushTimeline(it, 'Fund 调信用卡失败');
       } else {
         it.status = '完成';
         it.completeTime = nowStr();
