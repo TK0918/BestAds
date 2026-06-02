@@ -304,7 +304,6 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值金额</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">是否绑卡户</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">使用卡</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund 单号</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('completeTime')">
                         完成时间
@@ -585,7 +584,6 @@
           <td class="px-6 py-4 whitespace-nowrap">${formatAmount(item.amount)}</td>
           <td class="px-6 py-4 whitespace-nowrap">${bindCardBadge(item.isBindCardAccount)}</td>
           <td class="px-6 py-4 whitespace-nowrap">${activeCardText(item)}</td>
-          <td class="px-6 py-4 whitespace-nowrap">${item.isBindCardAccount && item.fundOrderNo ? item.fundOrderNo : '-'}</td>
           <td class="px-6 py-4 whitespace-nowrap">${statusBadge(item.status)}</td>
           <td class="px-6 py-4 whitespace-nowrap" data-sort="${item.completeTime || ''}">${item.completeTime || '-'}</td>
           <td class="px-6 py-4 whitespace-nowrap">${item.remark || '-'}</td>
@@ -712,7 +710,7 @@
           ${fieldRow('充值金额', `${formatAmount(item.amount)} USD`)}
           ${fieldRow('是否绑卡户', item.isBindCardAccount ? '是' : '否')}
           ${fieldRow('使用卡', activeCardText(item))}
-          ${fieldRow('Fund 单号', item.isBindCardAccount && item.fundOrderNo ? item.fundOrderNo : '-')}
+          
           ${cardLimitRow}
           ${fieldRow('当前状态', item.status)}
         </div>

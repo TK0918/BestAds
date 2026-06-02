@@ -331,7 +331,6 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">是否绑卡户</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">使用卡(快照)</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">实际减少总额度</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund 单号</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('completeTime')">
                         完成时间
@@ -747,7 +746,6 @@
           <td class="px-6 py-4 whitespace-nowrap">${bindCardBadge(it.isBindCardAccount)}</td>
           <td class="px-6 py-4 whitespace-nowrap">${snapshotCardText(it)}${warn ? '<div class="mt-1">'+warn+'</div>' : ''}</td>
           <td class="px-6 py-4 whitespace-nowrap">${it.actualReduceAmount != null ? formatAmount(it.actualReduceAmount) : '-'}</td>
-          <td class="px-6 py-4 whitespace-nowrap">${it.isBindCardAccount && it.fundOrderNo ? it.fundOrderNo : '-'}</td>
           <td class="px-6 py-4 whitespace-nowrap">${statusBadge(it.status)}</td>
           <td class="px-6 py-4 whitespace-nowrap" data-sort="${it.completeTime || ''}">${it.completeTime || '-'}</td>
           <td class="px-6 py-4 whitespace-nowrap">${it.remark || '-'}</td>
@@ -830,7 +828,7 @@
           ${row('单号', it.id)}${row('是否绑卡户', it.isBindCardAccount?'是':'否')}
           ${row('客户申请金额', formatAmount(it.customerApplyAmount != null ? it.customerApplyAmount : it.amount))}
           ${row('实际减少总额度', it.actualReduceAmount != null ? formatAmount(it.actualReduceAmount) : '-')}
-          ${row('快照使用卡', snapshotCardText(it))}${row('Fund 单号', it.fundOrderNo || '-')}
+          ${row('快照使用卡', snapshotCardText(it))}
           ${row('状态', it.status)}</div>
         <div><h4 class="text-sm font-semibold mb-2">状态时间线</h4>${tl}</div>`;
       document.getElementById('detailDrawer').classList.remove('hidden');
