@@ -327,7 +327,7 @@
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
               <h2 class="text-2xl font-bold text-gray-900">介绍人和吐点</h2>
-              <p class="mt-1 text-sm text-gray-500">介绍人列表, 介绍人关系与吐点, 吐点结算 (示例 UI, 对接后端后替换为真实数据; PRD 6.2 将关系与基础/特殊吐点合并为同一模块)</p>
+              <p class="mt-1 text-sm text-gray-500">介绍人列表, 介绍人关系与吐点, 吐点结算 (V2.23: 介绍人吐点规则 / 客户吐点规则 / 特殊吐点)</p>
             </div>
 
             <div class="border-b border-gray-200 mb-6">
@@ -346,10 +346,10 @@
             </div>
 
             <div id="panel-list" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-list" tabindex="0">
-              <div class="mb-8 md:flex md:items-center md:justify-between">
+              <div id="introducer-list-main" class="mb-8 md:flex md:items-center md:justify-between">
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900">介绍人列表</h3>
-                  <p class="mt-1 text-sm text-gray-500">运营维护介绍人身份与客户端可见性</p>
+                  <p class="mt-1 text-sm text-gray-500">运营维护介绍人身份与客户端可见性; 行内「介绍人吐点」维护介绍人吐点规则 (媒体 × 账户类型)</p>
                 </div>
                 <div class="mt-4 md:mt-0">
                   <button type="button" id="btn-add-introducer" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
@@ -357,7 +357,7 @@
                   </button>
                 </div>
               </div>
-              <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6 p-6">
+              <div id="introducer-list-filter" class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6 p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">筛选 (PRD 6.1.5.1)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                   <div><label class="block text-sm text-gray-700 mb-1" for="list-filter-merchant-id">介绍人商户ID</label><input id="list-filter-merchant-id" type="text" class="w-full border rounded-md px-3 py-2 text-sm" placeholder="精确/前缀, 对接后按系统口径"></div>
@@ -372,7 +372,7 @@
                   <span id="list-filter-result" class="text-sm text-gray-500" aria-live="polite"></span>
                 </div>
               </div>
-              <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div id="introducer-list-table" class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
                   <h3 class="text-lg font-medium text-gray-900">介绍人列表</h3>
                   <p class="text-xs text-gray-500">排序: 支持按成为介绍人时间, 关联客户数 (PRD 6.1.5.3)</p>
@@ -385,8 +385,10 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">客户端可见性</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><button type="button" class="sort-col text-left uppercase text-xs font-medium text-gray-500 hover:text-gray-800" data-sort="rel-count" title="点击切换排序 (原型)">关联客户数 <i class="fas fa-sort text-gray-400 ml-1" aria-hidden="true"></i></button></th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">介绍人吐点规则条数</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><button type="button" class="sort-col text-left uppercase text-xs font-medium text-gray-500 hover:text-gray-800" data-sort="became-at" title="点击切换排序 (原型)">成为介绍人时间 <i class="fas fa-sort text-gray-400 ml-1" aria-hidden="true"></i></button></th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作人</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
                     </tr></thead>
                     <tbody id="tbody-introducer-list" class="divide-y divide-gray-200 text-sm">
                       <tr id="row-intro-001" data-status="enabled" data-client-visible="false">
@@ -407,8 +409,12 @@
                           <span class="ml-2 text-xs text-gray-600 intro-status-label">启用</span>
                         </td>
                         <td class="px-6 py-4 tabular-nums" data-rel-count>3</td>
+                        <td class="px-6 py-4 tabular-nums" data-l3-count>4</td>
                         <td class="px-6 py-4 whitespace-nowrap tabular-nums" data-became-at>2026-01-10 09:30:00</td>
                         <td class="px-6 py-4 text-xs text-gray-600">欧伟权 (ouweiquan@bestfulfill.com)</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <button type="button" class="btn-open-l3-matrix rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100" data-intro-id="C-INT-001">介绍人吐点</button>
+                        </td>
                       </tr>
                       <tr id="row-intro-002" data-status="disabled" data-client-visible="false">
                         <td class="px-6 py-4 font-mono text-xs">C-INT-002</td>
@@ -427,11 +433,43 @@
                           <span class="ml-2 text-xs text-gray-500 intro-status-label">停用</span>
                         </td>
                         <td class="px-6 py-4 tabular-nums" data-rel-count>0</td>
+                        <td class="px-6 py-4 tabular-nums" data-l3-count>0</td>
                         <td class="px-6 py-4 whitespace-nowrap tabular-nums" data-became-at>2025-11-02 14:00:00</td>
                         <td class="px-6 py-4 text-xs text-gray-600">系统 (system)</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <button type="button" class="btn-open-l3-matrix rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100" data-intro-id="C-INT-002">介绍人吐点</button>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              <div id="introducer-view-l3" class="hidden flex flex-col gap-4">
+                <div class="flex flex-wrap items-center gap-3">
+                  <button type="button" id="btn-back-introducer-list" class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i> 返回介绍人列表
+                  </button>
+                  <span class="text-sm text-gray-500">当前: 介绍人吐点 (L3) · <span id="l3-intro-label" class="font-medium text-gray-900">—</span></span>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <h4 class="font-medium text-gray-900">介绍人吐点规则</h4>
+                    <button type="button" id="btn-l3-segment-add" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">新增分段</button>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead class="bg-gray-50"><tr>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">媒体</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">账户类型</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">吐点比例</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">生效区间</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                      </tr></thead>
+                      <tbody id="tbody-l3-segment" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -440,7 +478,7 @@
               <div class="mb-6 md:flex md:items-center md:justify-between gap-4">
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900">介绍人关系与吐点</h3>
-                  <p class="mt-1 text-sm text-gray-500">关系列表中点击「吐点规则」进入基础吐点, 特殊吐点与生效预览子页; 返回键回到列表</p>
+                  <p class="mt-1 text-sm text-gray-500">关系列表点击「吐点规则」配置客户吐点规则、特殊吐点与生效预览; 返回键回到列表</p>
                 </div>
                 <button type="button" id="btn-relations-add" class="shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">新增关系</button>
               </div>
@@ -468,6 +506,14 @@
                     <input id="relations-filter-sub-customer-name" type="text" class="w-full border rounded-md px-3 py-2" placeholder="模糊搜索">
                   </div>
                   <div>
+                    <label class="block text-gray-700 mb-1" for="relations-filter-l2-mode">规则类型</label>
+                    <select id="relations-filter-l2-mode" class="w-full border rounded-md px-3 py-2">
+                      <option value="">全部</option>
+                      <option value="use_introducer">使用介绍人吐点</option>
+                      <option value="customer_base">客户基础吐点</option>
+                    </select>
+                  </div>
+                  <div>
                     <label class="block text-gray-700 mb-1" for="relations-filter-bind-state">生效状态</label>
                     <select id="relations-filter-bind-state" class="w-full border rounded-md px-3 py-2">
                       <option value="">全部</option>
@@ -486,7 +532,7 @@
                 <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden flex-1 flex flex-col">
                   <div class="px-4 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
                     <h4 class="font-medium text-gray-900">关系列表 (PRD 6.2.5.2)</h4>
-                    <p class="text-xs text-gray-500">默认按生效开始降序; 点击「吐点规则」进入基础吐点 / 特殊吐点 / 生效预览</p>
+                    <p class="text-xs text-gray-500">默认按生效开始降序; 点击「吐点规则」配置关系吐点</p>
                   </div>
                   <div class="overflow-x-auto flex-1">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
@@ -496,34 +542,44 @@
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">下级商户ID</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">下级客户名称</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">关系生效期</th>
-                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">当前基础吐点</th>
-                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">特殊吐点数</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">规则类型</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">当前状态</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
                       </tr></thead>
                       <tbody id="tbody-relations" class="divide-y divide-gray-200">
-                        <tr class="relation-row" data-relation-id="RB-1" data-intro-merchant="C-INT-001" data-intro-disabled="false">
+                        <tr class="relation-row" data-relation-id="RB-1" data-l2-mode="mixed" data-intro-merchant="C-INT-001" data-intro-disabled="false">
                           <td class="px-4 py-3 font-mono text-xs">C-INT-001</td>
                           <td class="px-4 py-3">示例客户 A</td>
                           <td class="px-4 py-3 font-mono text-xs">C-002</td>
                           <td class="px-4 py-3">客户 B</td>
                           <td class="px-4 py-3 whitespace-nowrap text-xs">2026-02-03 ~ <span class="text-gray-500">长期</span></td>
-                          <td class="px-4 py-3 text-right tabular-nums text-blue-800 font-medium">1.00%</td>
-                          <td class="px-4 py-3 text-right tabular-nums">1</td>
+                          <td class="px-4 py-3 text-xs" data-rule-type-summary>Q1 介绍人吐点 → Q2 客户基础</td>
                           <td class="px-4 py-3 text-green-700 text-xs">生效中</td>
                           <td class="px-4 py-3 whitespace-nowrap">
                             <button type="button" class="btn-open-spit-rules rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">吐点规则</button>
                           </td>
                         </tr>
-                        <tr class="relation-row" data-relation-id="RB-2" data-intro-merchant="C-INT-001" data-intro-disabled="false">
+                        <tr class="relation-row" data-relation-id="RB-2" data-l2-mode="customer_base" data-intro-merchant="C-INT-001" data-intro-disabled="false">
                           <td class="px-4 py-3 font-mono text-xs">C-INT-001</td>
                           <td class="px-4 py-3">示例客户 A</td>
                           <td class="px-4 py-3 font-mono text-xs">C-008</td>
                           <td class="px-4 py-3">客户 H</td>
                           <td class="px-4 py-3 whitespace-nowrap text-xs">2025-06-01 ~ 2025-12-31</td>
-                          <td class="px-4 py-3 text-right text-gray-400">—</td>
-                          <td class="px-4 py-3 text-right tabular-nums">0</td>
+                          <td class="px-4 py-3 text-xs" data-rule-type-summary><span class="rounded-full bg-indigo-100 px-2 py-0.5 text-indigo-800">客户基础吐点</span></td>
                           <td class="px-4 py-3 text-gray-500 text-xs">已结束</td>
+                          <td class="px-4 py-3 whitespace-nowrap">
+                            <button type="button" class="btn-open-spit-rules rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">吐点规则</button>
+                          </td>
+                        </tr>
+
+                        <tr class="relation-row" data-relation-id="RB-3" data-l2-mode="mixed" data-intro-merchant="C-INT-001" data-intro-disabled="false">
+                          <td class="px-4 py-3 font-mono text-xs">C-INT-001</td>
+                          <td class="px-4 py-3">示例客户 A</td>
+                          <td class="px-4 py-3 font-mono text-xs">C-010</td>
+                          <td class="px-4 py-3">客户 J</td>
+                          <td class="px-4 py-3 whitespace-nowrap text-xs">2026-01-01 ~ <span class="text-gray-500">长期</span></td>
+                          <td class="px-4 py-3 text-xs" data-rule-type-summary>Q1 介绍人吐点 → Q2 客户基础</td>
+                          <td class="px-4 py-3 text-green-700 text-xs">生效中</td>
                           <td class="px-4 py-3 whitespace-nowrap">
                             <button type="button" class="btn-open-spit-rules rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">吐点规则</button>
                           </td>
@@ -540,15 +596,15 @@
                   <button type="button" id="btn-back-relations-spit" class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                     <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i> 返回关系列表
                   </button>
-                  <span class="text-sm text-gray-500">当前: 吐点规则 (基础吐点 · 特殊吐点 · 生效预览)</span>
+                  <span class="text-sm text-gray-500">当前: 吐点规则 (客户吐点规则 · 特殊吐点 · 生效预览)</span>
                 </div>
                 <div id="relation-detail" class="flex flex-col gap-4">
                     <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                       <div class="flex flex-wrap items-start justify-between gap-2">
                         <div>
                           <p class="text-sm text-gray-500">关系信息</p>
-                          <p class="mt-1 text-lg font-semibold text-gray-900"><span class="font-mono text-base">C-INT-001</span> 示例客户 A <span class="text-gray-400 mx-1">→</span> <span class="font-mono text-base">C-002</span> 客户 B</p>
-                          <p class="mt-2 text-xs text-gray-600">关系生效期: 2026-02-03 ~ 长期 · <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-800">Bound 生效中</span></p>
+                          <p id="relation-detail-title" class="mt-1 text-lg font-semibold text-gray-900"><span class="font-mono text-base">C-INT-001</span> 示例客户 A <span class="text-gray-400 mx-1">→</span> <span class="font-mono text-base">C-002</span> 客户 B</p>
+                          <p class="mt-2 text-xs text-gray-600">关系生效期: <span id="relation-binding-period">2026-02-03 ~ 长期</span> · 规则类型: <span id="relation-rule-type-summary" class="font-medium text-blue-800">—</span> · <span id="relation-binding-status" class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-800">生效中</span></p>
                         </div>
                         <div class="flex flex-wrap gap-2">
                           <button type="button" id="btn-edit-relation-period" class="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">修改关系</button>
@@ -557,30 +613,31 @@
                       </div>
                     </div>
 
-                    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+
+                    <div id="l2-period-section" class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                       <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                        <h4 class="font-medium text-gray-900">基础吐点 <span class="text-xs font-normal text-gray-500">(段间不可重叠; 结束可空表示长期)</span></h4>
-                        <button type="button" id="btn-base-segment-add" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">新增分段</button>
+                        <h4 class="font-medium text-gray-900">客户吐点规则 <span class="text-xs font-normal text-gray-500">(按时间段配置规则类型; 客户基础吐点须设置规则)</span></h4>
+                        <button type="button" id="btn-l2-period-add" class="rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">新增时间段</button>
                       </div>
-                      <p id="base-seg-hint" class="mb-2 hidden text-xs text-gray-500" role="status"></p>
+                      <p id="l2-period-hint" class="mb-2 text-xs text-amber-800 hidden" role="status"></p>
                       <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                           <thead class="bg-gray-50"><tr>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">基础吐点比例</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">规则类型</th>
                             <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">生效区间</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">更新人</th>
-                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">更新时间</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
                             <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
                           </tr></thead>
-                          <tbody id="tbody-base-segment" class="divide-y divide-gray-200"></tbody>
+                          <tbody id="tbody-l2-period" class="divide-y divide-gray-200"></tbody>
                         </table>
                       </div>
+                      <p class="mt-2 text-xs text-gray-500">「使用介绍人吐点」时段沿用介绍人吐点规则； 「客户基础吐点」时段请点击「设置规则」配置该段时间内的媒体×账户类型吐点比例.</p>
                     </div>
 
                     <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                       <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-                        <h4 class="font-medium text-gray-900">特殊吐点 <span class="text-xs font-normal text-gray-500">(从客户当前与历史绑定账户选择; 同账户分段不可重叠)</span></h4>
-                        <button type="button" id="btn-add-special-account" class="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-800 hover:bg-blue-100">新增账户特殊吐点</button>
+                        <h4 class="font-medium text-gray-900">特殊吐点 (L1) <span class="text-xs font-normal text-gray-500">(单账户例外; 优先级最高)</span></h4>
+                        <button type="button" id="btn-add-special-account" class="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-800 hover:bg-blue-100">新增特殊吐点</button>
                       </div>
                       <p id="special-seg-hint" class="mb-2 hidden text-xs text-red-600" role="alert"></p>
                       <div id="special-accounts-root" class="space-y-4"></div>
@@ -588,7 +645,7 @@
 
                     <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                       <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-                        <h4 class="font-medium text-gray-900">生效预览 <span class="text-xs font-normal text-gray-500">(按季度时间轴; 无固定月表头; 色块内为区间与比例; 特殊 &gt; 基础 &gt; 空档)</span></h4>
+                        <h4 class="font-medium text-gray-900">生效预览 <span class="text-xs font-normal text-gray-500">(按季度时间轴; L1 特殊 &gt; L2 客户基础 / L3 介绍人吐点 &gt; 无规则)</span></h4>
                         <div class="flex flex-wrap items-center gap-2 text-xs">
                           <span class="text-gray-600">预览年:</span>
                           <select id="preview-year" class="rounded border border-gray-300 px-2 py-1">
@@ -733,7 +790,7 @@
   <div id="modal-add-binding" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-binding-title">
     <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
       <h3 id="modal-binding-title" class="text-lg font-medium text-gray-900">新增介绍人-客户绑定</h3>
-      <p class="mt-1 text-sm text-gray-500">同一介绍人对同一客户绑定时间段不可重叠; 不可与前一段结束日同日衔接新段; 结束日可空表示长期 (PRD 6.2). 须同时配置至少一段基础吐点, 比例允许 0.</p>
+      <p class="mt-1 text-sm text-gray-500">同一介绍人对同一客户绑定时间段不可重叠; 结束日可空表示长期. 须选择首段规则类型; 选「客户基础吐点」保存后须在吐点规则中「设置规则」.</p>
       <div class="mt-4 grid gap-3 text-sm">
         <div>
           <label class="font-medium text-gray-700" for="add-binding-intro-merchant">介绍人商户ID</label>
@@ -748,13 +805,11 @@
           <div><label class="font-medium text-gray-700" for="add-binding-start">关系生效开始</label><input id="add-binding-start" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
           <div><label class="font-medium text-gray-700" for="add-binding-end">关系生效结束 (可空)</label><input id="add-binding-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
         </div>
-        <div class="rounded-md border border-blue-100 bg-blue-50/60 p-3">
-          <p class="font-medium text-gray-800">基础吐点 (必填, PRD 6.2.2.1)</p>
-          <p class="mt-1 text-xs text-gray-600">第一段开始时间默认对齐关系开始; 段间不可重叠, 允许空档.</p>
-          <div class="mt-2 grid grid-cols-2 gap-2">
-            <div><label class="text-gray-700 text-xs" for="add-binding-base-rate">基础吐点比例 (%)</label><input id="add-binding-base-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2" placeholder="0 ~ 100, 可填 0"></div>
-            <div><label class="text-gray-700 text-xs" for="add-binding-base-end">本段结束 (可空=长期)</label><input id="add-binding-base-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
-          </div>
+        <div>
+          <span class="block font-medium text-gray-700 mb-2">首段规则类型</span>
+          <label class="mr-4 inline-flex items-center gap-2"><input type="radio" name="add-binding-l2-mode" value="use_introducer" checked class="rounded border-gray-300"> 使用介绍人吐点</label>
+          <label class="inline-flex items-center gap-2"><input type="radio" name="add-binding-l2-mode" value="customer_base" class="rounded border-gray-300"> 客户基础吐点</label>
+          <p class="mt-1 text-xs text-gray-600">使用介绍人吐点: 该段时间沿用介绍人吐点规则; 客户基础吐点: 保存后进入吐点规则点击「设置规则」.</p>
         </div>
       </div>
       <div class="mt-6 flex justify-end gap-2">
@@ -776,12 +831,63 @@
     </div>
   </div>
 
+
+  <div id="modal-l2-period" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true">
+    <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+      <h3 id="modal-l2-period-title" class="text-lg font-medium text-gray-900">新增/编辑时间段</h3>
+      <p class="mt-1 text-xs text-gray-500">同一关系下启用中的分段时间不可重叠.</p>
+      <div class="mt-4 grid gap-3 text-sm">
+        <div>
+          <span class="block font-medium text-gray-700 mb-2">规则类型</span>
+          <label class="mr-4 inline-flex items-center gap-2"><input type="radio" name="l2-period-mode" value="use_introducer" checked class="rounded border-gray-300"> 使用介绍人吐点</label>
+          <label class="inline-flex items-center gap-2"><input type="radio" name="l2-period-mode" value="customer_base" class="rounded border-gray-300"> 客户基础吐点</label>
+        </div>
+        <div><label class="text-gray-700" for="l2-period-start">生效开始</label><input id="l2-period-start" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div class="flex items-center gap-2"><input id="l2-period-longterm" type="checkbox" class="rounded border-gray-300"><label for="l2-period-longterm" class="text-gray-700">长期有效</label></div>
+        <div><label class="text-gray-700" for="l2-period-end">生效结束</label><input id="l2-period-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div><label class="text-gray-700" for="l2-period-status">配置状态</label><select id="l2-period-status" class="mt-1 w-full rounded-md border px-3 py-2"><option value="enabled">启用</option><option value="disabled">停用</option></select></div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-l2-period">取消</button>
+        <button type="button" id="l2-period-save" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="modal-l2-period-rules" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true">
+    <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+      <h3 class="text-lg font-medium text-gray-900">设置客户基础吐点规则</h3>
+      <p id="l2-period-rules-subtitle" class="mt-1 text-xs text-gray-500">—</p>
+      <div class="mt-4 overflow-x-auto rounded-md border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50"><tr>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">媒体</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">账户类型</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">吐点比例</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">生效区间</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+          </tr></thead>
+          <tbody id="tbody-l2-period-rules" class="divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+      <button type="button" id="btn-l2-period-rule-add" class="mt-3 rounded-md bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-800 hover:bg-indigo-100">新增规则</button>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-close="modal-l2-period-rules">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-base-segment" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-base-seg-title">
     <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
-      <h3 id="modal-base-seg-title" class="text-lg font-medium text-gray-900">基础吐点分段</h3>
-      <p class="mt-1 text-xs text-gray-500">各段生效区间不可重叠 (含边界日); 比例 0~100%, 可填 0.</p>
+      <h3 id="modal-base-seg-title" class="text-lg font-medium text-gray-900">吐点规则</h3>
+      <p class="mt-1 text-xs text-gray-500">媒体 × 账户类型 × 时间段 (吐点规则); Enabled 段不可重叠.</p>
       <div class="mt-4 grid gap-3 text-sm">
-        <div><label class="text-gray-700" for="base-seg-rate">基础吐点比例 (%)</label><input id="base-seg-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div><label class="text-gray-700" for="matrix-seg-media">媒体</label><select id="matrix-seg-media" class="mt-1 w-full rounded-md border px-3 py-2"><option>Meta</option><option>TikTok</option><option>Google</option><option>AppLovin</option><option>Snapchat</option></select></div>
+        <div><label class="text-gray-700" for="matrix-seg-account-type">账户类型</label><select id="matrix-seg-account-type" class="mt-1 w-full rounded-md border px-3 py-2"><option>企业户</option><option>三不限</option><option>绿通户</option></select></div>
+        <div><label class="text-gray-700" for="base-seg-rate">吐点比例 (%)</label><input id="base-seg-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div><label class="text-gray-700" for="matrix-seg-status">配置状态</label><select id="matrix-seg-status" class="mt-1 w-full rounded-md border px-3 py-2"><option value="enabled">启用</option><option value="disabled">停用</option></select></div>
         <div><label class="text-gray-700" for="base-seg-start">生效开始</label><input id="base-seg-start" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
         <div class="flex items-center gap-2"><input id="base-seg-longterm" type="checkbox" class="rounded border-gray-300"><label for="base-seg-longterm" class="text-gray-700">长期有效 (无结束日)</label></div>
         <div><label class="text-gray-700" for="base-seg-end">生效结束</label><input id="base-seg-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
@@ -795,14 +901,14 @@
 
   <div id="modal-special-segment" class="modal-shell fixed inset-0 z-[60] hidden items-center justify-center bg-black bg-opacity-40 p-4 modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-special-seg-title">
     <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
-      <h3 id="modal-special-seg-title" class="text-lg font-medium text-gray-900">特殊吐点分段</h3>
+      <h3 id="modal-special-seg-title" class="text-lg font-medium text-gray-900">特殊吐点分段 (L1)</h3>
       <p class="mt-1 text-xs text-gray-500">账户来自客户当前与历史绑定; 同账户下各分段时间段不可重叠.</p>
       <div class="mt-4 grid gap-3 text-sm">
         <div id="special-seg-account-wrap">
           <label class="text-gray-700" for="special-seg-account">广告账户</label>
           <select id="special-seg-account" class="mt-1 w-full rounded-md border px-3 py-2 font-mono text-xs"></select>
         </div>
-        <div><label class="text-gray-700" for="special-seg-rate">特殊吐点比例 (%)</label><input id="special-seg-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2"></div>
+        <div><label class="text-gray-700" for="special-seg-rate">吐点比例 (%)</label><input id="special-seg-rate" type="number" step="0.01" min="0" max="100" class="mt-1 w-full rounded-md border px-3 py-2"></div>
         <div class="grid grid-cols-2 gap-2">
           <div><label class="text-gray-700" for="special-seg-start">生效开始</label><input id="special-seg-start" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
           <div><label class="text-gray-700" for="special-seg-end">生效结束</label><input id="special-seg-end" type="date" class="mt-1 w-full rounded-md border px-3 py-2"></div>
@@ -1155,7 +1261,7 @@
         if (!row) return;
         var turningOn = btn.getAttribute('aria-checked') !== 'true';
         if (!turningOn) {
-          if (!confirm('停用介绍人: 现有关系/基础吐点/特殊吐点仍然保留并参与结算, 仅是身份标记停用; 系统不允许再新建该介绍人的关系/吐点. 是否继续? (PRD 6.1.5.4)')) return;
+          if (!confirm('停用介绍人: 现有关系/介绍人吐点/关系吐点/特殊吐点吐点仍然保留并参与结算, 仅是身份标记停用; 系统不允许再新建该介绍人的关系/吐点. 是否继续? (PRD 6.1.5.4)')) return;
           syncIntroStatusToggleUi(btn, false);
           showToast('已停用介绍人身份 (原型)');
           return;
@@ -1182,12 +1288,41 @@
       });
     }
 
+    var currentRelationId = null;
+
     function selectRelationRow(tr) {
       document.querySelectorAll('.relation-row').forEach(function (r) {
         r.classList.remove('bg-blue-50/80', 'ring-2', 'ring-inset', 'ring-blue-200');
       });
       if (tr) {
         tr.classList.add('bg-blue-50/80', 'ring-2', 'ring-inset', 'ring-blue-200');
+        currentRelationId = tr.getAttribute('data-relation-id');
+      } else {
+        currentRelationId = null;
+      }
+    }
+
+    function updateRelationDetailFromRow(tr) {
+      if (!tr) return;
+      var cells = tr.querySelectorAll('td');
+      var title = document.getElementById('relation-detail-title');
+      if (title && cells.length >= 4) {
+        title.innerHTML = '<span class="font-mono text-base">' + escHtml(cells[0].textContent.trim()) + '</span> ' +
+          escHtml(cells[1].textContent.trim()) + ' <span class="text-gray-400 mx-1">→</span> ' +
+          '<span class="font-mono text-base">' + escHtml(cells[2].textContent.trim()) + '</span> ' +
+          escHtml(cells[3].textContent.trim());
+      }
+      var period = document.getElementById('relation-binding-period');
+      if (period && cells[4]) period.textContent = cells[4].textContent.trim();
+      var lab = document.getElementById('relation-rule-type-summary');
+      var rid = tr.getAttribute('data-relation-id');
+      if (lab && rid) lab.textContent = relationL2Summary(rid);
+      var statusEl = document.getElementById('relation-binding-status');
+      if (statusEl && cells[6]) {
+        var st = cells[6].textContent.trim();
+        statusEl.textContent = st;
+        statusEl.className = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs ' +
+          (st.indexOf('生效') >= 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600');
       }
     }
 
@@ -1200,12 +1335,15 @@
         e.stopPropagation();
         var tr = btn.closest('tr');
         selectRelationRow(tr);
+        currentIntroducerMerchant = tr.getAttribute('data-intro-merchant') || 'C-INT-001';
+        updateRelationDetailFromRow(tr);
         var list = document.getElementById('relations-view-list');
         var spit = document.getElementById('relations-view-spit');
         if (list) list.classList.add('hidden');
         if (spit) spit.classList.remove('hidden');
         initSpitRulePage();
-        showToast('已进入吐点规则 (基础吐点 / 特殊吐点 / 生效预览)');
+        syncRelationSpitUi();
+        showToast('已进入吐点规则 (客户吐点规则 · 特殊吐点 · 生效预览)');
       });
     }
 
@@ -1229,27 +1367,6 @@
       openModal('modal-add-binding');
     });
 
-    document.getElementById('add-binding-save').addEventListener('click', function () {
-      var introSel = document.getElementById('add-binding-intro-merchant');
-      var c = document.getElementById('add-binding-customer');
-      var s = document.getElementById('add-binding-start');
-      var rate = document.getElementById('add-binding-base-rate');
-      if (introSel && introSel.value === 'C-INT-002') {
-        showToast('该介绍人已停用, 不可新建关系 (PRD 6.1)', 'error');
-        return;
-      }
-      if (!c.value.trim() || !s.value) {
-        showToast('请填写下级商户ID与关系生效开始日期', 'error');
-        return;
-      }
-      if (rate.value === '' || Number(rate.value) < 0 || Number(rate.value) > 100) {
-        showToast('基础吐点比例需在 0~100% 之间 (可填 0)', 'error');
-        return;
-      }
-      closeModal('modal-add-binding');
-      showToast('已保存关系 + 基础吐点 (原型); 生效预览将随保存刷新 (PRD 6.2)');
-    });
-
     var btnEditRelation = document.getElementById('btn-edit-relation-period');
     if (btnEditRelation) {
       btnEditRelation.addEventListener('click', function () {
@@ -1260,7 +1377,7 @@
 
     document.querySelectorAll('.btn-unbind-binding').forEach(function (b) {
       b.addEventListener('click', function () {
-        if (!confirm('解除关系将把当前生效段的结束日设为今日, 历史关系/基础吐点/特殊吐点永久保留供结算回溯. 是否继续? (PRD 6.2)')) return;
+        if (!confirm('解除关系将把当前生效段的结束日设为今日, 历史关系/吐点规则/特殊吐点永久保留供结算回溯. 是否继续? (PRD 6.2)')) return;
         showToast('已解除关系 (原型), 结束日已设为今日');
       });
     });
@@ -1274,18 +1391,13 @@
       showToast('关系时间段已更新 (原型); 修改不回算已 Posted 季度 (PRD 6.2.5.7)');
     });
 
-    /* --- 吐点规则子页: 基础分段 / 特殊吐点 / 生效预览 (原型数据) --- */
+    /* --- 吐点规则子页: 客户吐点规则 / 特殊吐点 / 生效预览 (原型数据) --- */
     var spitDemoAccounts = [
-      { id: 'act-111', name: 'FB-US-111', label: '当前绑定', segments: [{ id: 's1', rate: 2.5, start: '2025-01-01', end: '', longterm: true, status: 'enabled' }] },
-      { id: 'act-222', name: 'GG-UK-222', label: '当前绑定', segments: [{ id: 's2', rate: 1.8, start: '2025-06-01', end: '2025-12-31', longterm: false, status: 'enabled' }] },
-      { id: 'act-333', name: 'TT-SG-333', label: '历史绑定', segments: [] },
+      { id: 'act-111', name: 'FB-US-111', media: 'Meta', accountType: '企业户', label: '当前绑定', segments: [{ id: 's1', rate: 2.5, start: '2025-01-01', end: '', longterm: true, status: 'enabled' }] },
+      { id: 'act-222', name: 'GG-UK-222', media: 'Google', accountType: '企业户', label: '当前绑定', segments: [{ id: 's2', rate: 1.8, start: '2025-06-01', end: '2025-12-31', longterm: false, status: 'enabled' }] },
+      { id: 'act-333', name: 'TT-SG-333', media: 'TikTok', accountType: '三不限', label: '历史绑定', segments: [] },
       { id: 'act-444', name: 'FB-EU-444', label: '历史绑定', segments: [] }
     ];
-    var spitBaseSegments = [
-      { id: 'b1', rate: 1.5, start: '2024-01-01', end: '2024-12-31', longterm: false },
-      { id: 'b2', rate: 2.0, start: '2025-01-01', end: '', longterm: true }
-    ];
-    var spitBaseEditId = null;
     var spitSpecialCtx = { mode: 'add-account', accountId: null, segId: null };
     var _spitNow = new Date();
     var spitCtx = { customerId: 'CUST-7788', year: _spitNow.getFullYear(), quarter: Math.floor(_spitNow.getMonth() / 3) + 1 };
@@ -1328,7 +1440,29 @@
           var t = arr[j];
           var td = parseYmd(t.start);
           var te = t.longterm ? null : parseYmd(t.end);
-          if (rangesOverlap(sd, ed, td, te)) return '基础吐点各分段时间不可重叠';
+          if (rangesOverlap(sd, ed, td, te)) return '各分段时间不可重叠';
+        }
+      }
+      return null;
+    }
+
+    function validateMatrixSegments(list, excludeId) {
+      var arr = list.filter(function (x) { return x.id !== excludeId; });
+      for (var i = 0; i < arr.length; i++) {
+        var s = arr[i];
+        if (s.status === 'disabled') continue;
+        var sd = parseYmd(s.start);
+        if (!sd) return '每段需填写生效开始日期';
+        var ed = s.longterm ? null : parseYmd(s.end);
+        if (!s.longterm && !ed) return '非长期分段需填写生效结束日期';
+        if (!s.longterm && ed && ed < sd) return '结束日不能早于开始日';
+        for (var j = i + 1; j < arr.length; j++) {
+          var t = arr[j];
+          if (t.status === 'disabled') continue;
+          if (s.media !== t.media || s.accountType !== t.accountType) continue;
+          var td = parseYmd(t.start);
+          var te = t.longterm ? null : parseYmd(t.end);
+          if (rangesOverlap(sd, ed, td, te)) return '同媒体+账户类型下, 启用分段时间不可重叠';
         }
       }
       return null;
@@ -1355,6 +1489,311 @@
       return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
     }
 
+
+    /* --- V2.23 v0.4: L3 介绍人吐点 / L2 客户基础 / L1 特殊 --- */
+    var introducerL3Store = {
+      'C-INT-001': [
+        { id: 'l1-1', media: 'Meta', accountType: '企业户', rate: 1.5, start: '2025-01-01', end: '', longterm: true, status: 'enabled' },
+        { id: 'l1-2', media: 'Meta', accountType: '三不限', rate: 2.0, start: '2025-01-01', end: '', longterm: true, status: 'enabled' },
+        { id: 'l1-3', media: 'TikTok', accountType: '企业户', rate: 1.2, start: '2025-06-01', end: '', longterm: true, status: 'enabled' },
+        { id: 'l1-4', media: 'Google', accountType: '绿通户', rate: 0.8, start: '2026-01-01', end: '2026-12-31', longterm: false, status: 'enabled' }
+      ],
+      'C-INT-002': []
+    };
+
+    var customerBasePeriodStore = {
+      'RB-1': [
+        { id: 'p1', mode: 'use_introducer', start: '2026-02-03', end: '2026-03-31', longterm: false, status: 'enabled' },
+        { id: 'p2', mode: 'customer_base', start: '2026-04-01', end: '', longterm: true, status: 'enabled' }
+      ],
+      'RB-2': [
+        { id: 'p2b', mode: 'customer_base', start: '2025-06-01', end: '2025-12-31', longterm: false, status: 'enabled' }
+      ],
+      'RB-3': [
+        { id: 'p3a', mode: 'use_introducer', start: '2026-01-01', end: '2026-03-31', longterm: false, status: 'enabled' },
+        { id: 'p3b', mode: 'customer_base', start: '2026-04-01', end: '', longterm: true, status: 'enabled' }
+      ]
+    };
+    var customerBaseRuleStore = {
+      'RB-1': {
+        'p2': [
+          { id: 'm1', media: 'Meta', accountType: '企业户', rate: 2.2, start: '2026-04-01', end: '', longterm: true, status: 'enabled' }
+        ]
+      },
+      'RB-2': {
+        'p2b': [
+          { id: 'm2-1', media: 'Meta', accountType: '企业户', rate: 2.5, start: '2025-06-01', end: '', longterm: true, status: 'enabled' },
+          { id: 'm2-2', media: 'TikTok', accountType: '三不限', rate: 3.0, start: '2025-06-01', end: '', longterm: true, status: 'enabled' },
+          { id: 'm2-3', media: 'Google', accountType: '企业户', rate: 1.0, start: '2025-06-01', end: '2025-12-31', longterm: false, status: 'enabled' }
+        ]
+      },
+      'RB-3': {
+        'p3b': [
+          { id: 'm3-1', media: 'Meta', accountType: '企业户', rate: 2.8, start: '2026-04-01', end: '', longterm: true, status: 'enabled' },
+          { id: 'm3-2', media: 'TikTok', accountType: '企业户', rate: 2.0, start: '2026-04-01', end: '', longterm: true, status: 'enabled' }
+        ]
+      }
+    };
+    var currentL2PeriodId = null;
+    var currentIntroducerMerchant = 'C-INT-001';
+    var l2PeriodEditId = null;
+    var currentL3IntroId = null;
+    var matrixEditContext = { target: 'l3', editId: null };
+
+    function countEnabledMatrixSegs(list) {
+      return list.filter(function (s) { return s.status !== 'disabled'; }).length;
+    }
+
+    function renderMatrixTable(tbodyId, segments, btnClass, delClass) {
+      var tb = document.getElementById(tbodyId);
+      if (!tb) return;
+      tb.innerHTML = segments.map(function (seg) {
+        var st = seg.status !== 'disabled';
+        return '<tr data-seg-id="' + escHtml(seg.id) + '">' +
+          '<td class="px-3 py-2">' + escHtml(seg.media) + '</td>' +
+          '<td class="px-3 py-2">' + escHtml(seg.accountType) + '</td>' +
+          '<td class="px-3 py-2">' + escHtml(String(seg.rate)) + '%</td>' +
+          '<td class="px-3 py-2 text-gray-600">' + escHtml(formatSegRange(seg)) + '</td>' +
+          '<td class="px-3 py-2"><span class="' + (st ? 'text-green-700' : 'text-gray-500') + '">' + (st ? '启用' : '停用') + '</span></td>' +
+          '<td class="px-3 py-2 text-right space-x-2">' +
+          '<button type="button" class="text-blue-600 hover:underline ' + btnClass + '" data-seg-id="' + escHtml(seg.id) + '">编辑</button>' +
+          '<button type="button" class="text-red-600 hover:underline ' + delClass + '" data-seg-id="' + escHtml(seg.id) + '">删除</button>' +
+          '</td></tr>';
+      }).join('');
+    }
+
+    function openIntroducerL3View(introId) {
+      currentL3IntroId = introId;
+      ['introducer-list-main', 'introducer-list-filter', 'introducer-list-table'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      var l1View = document.getElementById('introducer-view-l3');
+      if (l1View) l1View.classList.remove('hidden');
+      var label = document.getElementById('l3-intro-label');
+      if (label) label.textContent = introId;
+      renderMatrixTable('tbody-l3-segment', introducerL3Store[introId] || [], 'btn-l3-seg-edit', 'btn-l3-seg-del');
+    }
+
+    function closeIntroducerL3View() {
+      ['introducer-list-main', 'introducer-list-filter', 'introducer-list-table'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+      });
+      var l1View = document.getElementById('introducer-view-l3');
+      if (l1View) l1View.classList.add('hidden');
+      currentL3IntroId = null;
+    }
+
+    document.querySelectorAll('.btn-open-l3-matrix').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        openIntroducerL3View(btn.getAttribute('data-intro-id'));
+      });
+    });
+    var btnBackL1 = document.getElementById('btn-back-introducer-list');
+    if (btnBackL1) btnBackL1.addEventListener('click', closeIntroducerL3View);
+
+    function periodSegMatchesDay(seg, d) {
+      if (seg.status === 'disabled') return false;
+      var sd = parseYmd(seg.start);
+      var ed = seg.longterm ? null : parseYmd(seg.end);
+      if (!sd) return false;
+      var dn = dayNum(d);
+      return dn >= dayNum(sd) && dn <= (ed ? dayNum(ed) : Infinity);
+    }
+
+    function l2PeriodForDay(relId, d) {
+      var list = (customerBasePeriodStore[relId] || []).filter(function (s) { return s.status !== 'disabled'; });
+      for (var i = 0; i < list.length; i++) {
+        if (periodSegMatchesDay(list[i], d)) return list[i];
+      }
+      return null;
+    }
+
+    function validateL2Periods(list, excludeId) {
+      var arr = list.filter(function (x) { return x.id !== excludeId; });
+      for (var i = 0; i < arr.length; i++) {
+        var s = arr[i];
+        if (s.status === 'disabled') continue;
+        var sd = parseYmd(s.start);
+        if (!sd) return '每段需填写生效开始日期';
+        var ed = s.longterm ? null : parseYmd(s.end);
+        if (!s.longterm && !ed) return '非长期分段需填写结束日期';
+        if (!s.longterm && ed && ed < sd) return '结束日不能早于开始日';
+        for (var j = i + 1; j < arr.length; j++) {
+          var t = arr[j];
+          if (t.status === 'disabled') continue;
+          if (rangesOverlap(sd, ed, parseYmd(t.start), t.longterm ? null : parseYmd(t.end))) {
+            return 'L2 客户基础时间分段不可重叠';
+          }
+        }
+      }
+      return null;
+    }
+
+    function l2ModeLabel(mode) {
+      return mode === 'customer_base' ? '客户基础吐点' : '使用介绍人吐点';
+    }
+
+function rulesForPeriod(relId, periodId) {
+      var byRel = customerBaseRuleStore[relId] || {};
+      return byRel[periodId] || [];
+    }
+
+    function countRulesForPeriod(relId, periodId) {
+      return countEnabledMatrixSegs(rulesForPeriod(relId, periodId));
+    }
+
+    function relationRuleTypeSummary(relId) {
+      var segs = (customerBasePeriodStore[relId] || []).filter(function (s) { return s.status !== 'disabled'; });
+      if (!segs.length) return '未配置';
+      var hasIntro = segs.some(function (s) { return s.mode === 'use_introducer'; });
+      var hasBase = segs.some(function (s) { return s.mode === 'customer_base'; });
+      var pending = segs.some(function (s) {
+        return s.mode === 'customer_base' && countRulesForPeriod(relId, s.id) === 0;
+      });
+      var base = hasIntro && hasBase ? '介绍人吐点 → 客户基础' : (hasBase ? '客户基础吐点' : '介绍人吐点');
+      return pending ? base + ' · 待设置规则' : base;
+    }
+
+    function renderL2PeriodTable() {
+      var relId = currentRelationId || 'RB-1';
+      var tb = document.getElementById('tbody-l2-period');
+      if (!tb) return;
+      var segs = customerBasePeriodStore[relId] || [];
+      tb.innerHTML = segs.map(function (seg) {
+        var st = seg.status !== 'disabled';
+        var badge = seg.mode === 'customer_base'
+          ? 'rounded-full bg-indigo-100 px-2 py-0.5 text-indigo-800'
+          : 'rounded-full bg-sky-100 px-2 py-0.5 text-sky-800';
+        var ruleCnt = seg.mode === 'customer_base' ? countRulesForPeriod(relId, seg.id) : null;
+        var ruleHint = ruleCnt === 0 ? ' <span class="text-amber-700 text-[10px]">待设置</span>' : (ruleCnt ? ' <span class="text-gray-500 text-[10px]">(' + ruleCnt + '条)</span>' : '');
+        var setBtn = seg.mode === 'customer_base'
+          ? '<button type="button" class="text-indigo-700 hover:underline btn-l2-period-set-rules" data-period-id="' + escHtml(seg.id) + '">设置规则</button> '
+          : '';
+        return '<tr data-period-id="' + escHtml(seg.id) + '">' +
+          '<td class="px-3 py-2"><span class="' + badge + '">' + escHtml(l2ModeLabel(seg.mode)) + '</span>' + ruleHint + '</td>' +
+          '<td class="px-3 py-2 text-gray-600">' + escHtml(formatSegRange(seg)) + '</td>' +
+          '<td class="px-3 py-2"><span class="' + (st ? 'text-green-700' : 'text-gray-500') + '">' + (st ? '启用' : '停用') + '</span></td>' +
+          '<td class="px-3 py-2 text-right space-x-2">' + setBtn +
+          '<button type="button" class="text-blue-600 hover:underline btn-l2-period-edit" data-period-id="' + escHtml(seg.id) + '">编辑</button>' +
+          '<button type="button" class="text-red-600 hover:underline btn-l2-period-del" data-period-id="' + escHtml(seg.id) + '">删除</button>' +
+          '</td></tr>';
+      }).join('');
+      var hint = document.getElementById('l2-period-hint');
+      if (hint) {
+        if (!segs.length) {
+          hint.textContent = '暂无时间段, 关系有效期内将尝试走介绍人吐点规则; 建议至少配置一段.';
+          hint.classList.remove('hidden');
+        } else {
+          hint.classList.add('hidden');
+        }
+      }
+    }
+
+    function relationL2Summary(relId) {
+      return relationRuleTypeSummary(relId);
+    }
+
+    function syncRelationListMeta() {
+      document.querySelectorAll('.relation-row').forEach(function (tr) {
+        var rid = tr.getAttribute('data-relation-id');
+        if (!rid) return;
+        var sum = tr.querySelector('[data-rule-type-summary]');
+        if (sum) sum.textContent = relationRuleTypeSummary(rid);
+      });
+    }
+
+    function syncRelationSpitUi() {
+      var relId = currentRelationId || 'RB-1';
+      renderL2PeriodTable();
+      var lab = document.getElementById('relation-rule-type-summary');
+      if (lab) lab.textContent = relationRuleTypeSummary(relId);
+      syncRelationListMeta();
+    }
+
+    function openL2PeriodRulesModal(periodId) {
+      currentL2PeriodId = periodId;
+      var relId = currentRelationId || 'RB-1';
+      var seg = (customerBasePeriodStore[relId] || []).find(function (x) { return x.id === periodId; });
+      var sub = document.getElementById('l2-period-rules-subtitle');
+      if (sub && seg) {
+        sub.textContent = '时间段: ' + formatSegRange(seg) + ' · 规则类型: ' + l2ModeLabel(seg.mode);
+      }
+      renderMatrixTable('tbody-l2-period-rules', rulesForPeriod(relId, periodId), 'btn-l2-period-rule-edit', 'btn-l2-period-rule-del');
+      openModal('modal-l2-period-rules');
+    }
+
+    function getMatrixStore() {
+      if (matrixEditContext.target === 'l3') {
+        if (!currentL3IntroId) currentL3IntroId = 'C-INT-001';
+        if (!introducerL3Store[currentL3IntroId]) introducerL3Store[currentL3IntroId] = [];
+        return introducerL3Store[currentL3IntroId];
+      }
+      var relId = currentRelationId || 'RB-2';
+      var pid = currentL2PeriodId;
+      if (!pid) return [];
+      if (!customerBaseRuleStore[relId]) customerBaseRuleStore[relId] = {};
+      if (!customerBaseRuleStore[relId][pid]) customerBaseRuleStore[relId][pid] = [];
+      return customerBaseRuleStore[relId][pid];
+    }
+
+
+
+
+    function openMatrixSegmentModal(target, editId) {
+      matrixEditContext = { target: target, editId: editId || null };
+      var list = getMatrixStore();
+      var seg = editId ? list.find(function (x) { return x.id === editId; }) : null;
+      var title = document.getElementById('modal-base-seg-title');
+      if (title) title.textContent = target === 'l3' ? '介绍人吐点规则' : '客户基础吐点规则';
+      var rate = document.getElementById('base-seg-rate');
+      var st = document.getElementById('base-seg-start');
+      var en = document.getElementById('base-seg-end');
+      var lt = document.getElementById('base-seg-longterm');
+      var media = document.getElementById('matrix-seg-media');
+      var atype = document.getElementById('matrix-seg-account-type');
+      var mstat = document.getElementById('matrix-seg-status');
+      if (seg) {
+        if (rate) rate.value = seg.rate;
+        if (st) st.value = seg.start;
+        if (lt) lt.checked = !!seg.longterm;
+        if (en) { en.disabled = !!seg.longterm; en.value = seg.end || ''; }
+        if (media) media.value = seg.media;
+        if (atype) atype.value = seg.accountType;
+        if (mstat) mstat.value = seg.status === 'disabled' ? 'disabled' : 'enabled';
+      } else {
+        if (rate) rate.value = '';
+        if (st) st.value = '';
+        if (en) { en.value = ''; en.disabled = false; }
+        if (lt) lt.checked = false;
+        if (mstat) mstat.value = 'enabled';
+      }
+      if (lt && en) lt.onchange = function () { en.disabled = lt.checked; if (lt.checked) en.value = ''; };
+      openModal('modal-base-segment');
+    }
+
+    function refreshMatrixViews() {
+      if (currentL3IntroId) {
+        renderMatrixTable('tbody-l3-segment', introducerL3Store[currentL3IntroId] || [], 'btn-l3-seg-edit', 'btn-l3-seg-del');
+        var row = document.querySelector('[data-intro-id="' + currentL3IntroId + '"]');
+        if (row) {
+          var tr = row.closest('tr');
+          var cnt = tr && tr.querySelector('[data-l3-count]');
+          if (cnt) cnt.textContent = String(countEnabledMatrixSegs(introducerL3Store[currentL3IntroId] || []));
+        }
+      }
+      syncRelationSpitUi();
+      renderPreviewGantt();
+      if (currentL2PeriodId) {
+        var modalRules = document.getElementById('modal-l2-period-rules');
+        if (modalRules && !modalRules.classList.contains('hidden')) {
+          openL2PeriodRulesModal(currentL2PeriodId);
+        }
+      }
+    }
+
+
     function escHtml(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     }
@@ -1362,32 +1801,6 @@
     function formatSegRange(seg) {
       var end = seg.longterm ? '长期' : (seg.end || '—');
       return seg.start + ' ~ ' + end;
-    }
-
-    function renderBaseSegmentTable() {
-      var tb = document.getElementById('tbody-base-segment');
-      if (!tb) return;
-      var hint = document.getElementById('base-seg-hint');
-      if (hint) {
-        if (spitBaseSegments.length) {
-          hint.textContent = '';
-          hint.classList.add('hidden');
-        } else {
-          hint.textContent = '暂无基础分段, 请点击「新增分段」添加.';
-          hint.classList.remove('hidden');
-        }
-      }
-      tb.innerHTML = spitBaseSegments.map(function (seg) {
-        return '<tr class="border-t border-gray-100" data-base-id="' + escHtml(seg.id) + '">' +
-          '<td class="px-3 py-2 text-gray-800">' + escHtml(String(seg.rate)) + '%</td>' +
-          '<td class="px-3 py-2 text-gray-600">' + escHtml(formatSegRange(seg)) + '</td>' +
-          '<td class="px-3 py-2 text-gray-400 text-xs">—</td>' +
-          '<td class="px-3 py-2 text-gray-400 text-xs">—</td>' +
-          '<td class="px-3 py-2 text-right space-x-2">' +
-          '<button type="button" class="text-blue-600 hover:underline btn-base-seg-edit" data-base-id="' + escHtml(seg.id) + '">编辑</button>' +
-          '<button type="button" class="text-red-600 hover:underline btn-base-seg-del" data-base-id="' + escHtml(seg.id) + '">删除</button>' +
-          '</td></tr>';
-      }).join('');
     }
 
     function renderSpecialAccounts() {
@@ -1405,21 +1818,77 @@
             '<td class="px-3 py-2 text-right space-x-2">' +
             '<button type="button" class="text-blue-600 hover:underline btn-special-seg-edit" data-acc="' + escHtml(acc.id) + '" data-seg="' + escHtml(seg.id) + '">编辑分段</button>' +
             '</td></tr>';
-        }).join('') : '<tr><td colspan="4" class="px-3 py-3 text-center text-gray-400 text-xs">该账户暂无特殊分段, 可「设为特殊吐点」或「新增分段」.</td></tr>';
+        }).join('') : '<tr><td colspan="4" class="px-3 py-3 text-center text-gray-400 text-xs">该账户暂无 L1 分段, 可「配置特殊吐点」或「新增分段」.</td></tr>';
         return '<div class="rounded-lg border border-gray-200 bg-white overflow-hidden mb-4">' +
           '<div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-3 py-2">' +
           '<div><span class="font-mono text-xs text-gray-900">' + escHtml(acc.name) + '</span> <span class="text-xs text-gray-500">(' + escHtml(acc.id) + ')</span> ' +
           '<span class="ml-1 rounded bg-blue-50 px-1.5 py-0.5 text-[10px] text-blue-700">' + escHtml(acc.label) + '</span></div>' +
           '<div class="flex gap-2">' +
           '<button type="button" class="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 btn-special-add-seg" data-acc="' + escHtml(acc.id) + '">新增分段</button>' +
-          (acc.segments.length ? '' : '<button type="button" class="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-900 hover:bg-amber-100 btn-special-make" data-acc="' + escHtml(acc.id) + '">设为特殊吐点</button>') +
+          (acc.segments.length ? '' : '<button type="button" class="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-900 hover:bg-amber-100 btn-special-make" data-acc="' + escHtml(acc.id) + '">配置特殊吐点</button>') +
           '</div></div>' +
           '<table class="min-w-full text-xs"><thead class="bg-gray-50 text-gray-600"><tr>' +
           '<th class="px-3 py-2 text-left font-medium">比例</th><th class="px-3 py-2 text-left font-medium">时间段</th><th class="px-3 py-2 text-left font-medium">状态</th><th class="px-3 py-2 text-right font-medium">操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
       }).join('');
     }
 
-    var PREVIEW_COLORS = { base: '#93c5fd', special: '#fbbf24', none: '#d1d5db' };
+    var PREVIEW_COLORS = { l1: '#fbbf24', l2: '#a78bfa', l3: '#93c5fd', none: '#d1d5db' };
+
+    function accountMediaType(acc) {
+      return { media: acc.media || 'Meta', accountType: acc.accountType || '企业户' };
+    }
+
+    function matrixSegMatchesDay(seg, media, accountType, d) {
+      if (seg.status === 'disabled') return false;
+      if (seg.media !== media || seg.accountType !== accountType) return false;
+      var sd = parseYmd(seg.start);
+      var ed = seg.longterm ? null : parseYmd(seg.end);
+      if (!sd) return false;
+      var dn = dayNum(d);
+      var sdn = dayNum(sd);
+      var edn = ed ? dayNum(ed) : Infinity;
+      return dn >= sdn && dn <= edn;
+    }
+
+    function effectiveForDayV223(account, d) {
+      for (var i = 0; i < account.segments.length; i++) {
+        var seg = account.segments[i];
+        if (seg.status !== 'enabled') continue;
+        var sd = parseYmd(seg.start);
+        var ed = seg.longterm ? null : parseYmd(seg.end);
+        if (!sd) continue;
+        var dn = dayNum(d);
+        if (dn >= dayNum(sd) && dn <= (ed ? dayNum(ed) : Infinity)) {
+          return { type: 'l1', rate: seg.rate, seg: seg, label: '特殊吐点' };
+        }
+      }
+      var relId = currentRelationId || 'RB-1';
+      var introId = currentIntroducerMerchant || 'C-INT-001';
+      var period = l2PeriodForDay(relId, d);
+      var mt = accountMediaType(account);
+      if (period && period.mode === 'customer_base') {
+        var mlist = rulesForPeriod(relId, period.id);
+        for (var j = 0; j < mlist.length; j++) {
+          if (matrixSegMatchesDay(mlist[j], mt.media, mt.accountType, d)) {
+            return { type: 'l2', rate: mlist[j].rate, seg: mlist[j], label: '客户基础' };
+          }
+        }
+        if (!account.media || !account.accountType) {
+          return { type: 'none', rate: 0, seg: null, label: '无规则', warn: true };
+        }
+        return { type: 'none', rate: 0, seg: null, label: '无规则' };
+      }
+      var l3list = introducerL3Store[introId] || [];
+      for (var k = 0; k < l3list.length; k++) {
+        if (matrixSegMatchesDay(l3list[k], mt.media, mt.accountType, d)) {
+          return { type: 'l3', rate: l3list[k].rate, seg: l3list[k], label: '介绍人吐点' };
+        }
+      }
+      if (!account.media || !account.accountType) {
+        return { type: 'none', rate: 0, seg: null, label: '无规则', warn: true };
+      }
+      return { type: 'none', rate: 0, seg: null, label: '无规则' };
+    }
 
     function quarterStartEnd(y, q) {
       var m0 = (q - 1) * 3;
@@ -1440,34 +1909,6 @@
       return (m < 10 ? '0' : '') + m + '.' + (day < 10 ? '0' : '') + day;
     }
 
-    function effectiveForDay(account, d) {
-      var dn = dayNum(d);
-      for (var i = 0; i < account.segments.length; i++) {
-        var seg = account.segments[i];
-        if (seg.status !== 'enabled') continue;
-        var sd = parseYmd(seg.start);
-        var ed = seg.longterm ? null : parseYmd(seg.end);
-        if (!sd) continue;
-        var sdn = dayNum(sd);
-        var edn = ed ? dayNum(ed) : Infinity;
-        if (dn >= sdn && dn <= edn) {
-          return { type: 'special', rate: seg.rate, seg: seg };
-        }
-      }
-      for (var b = 0; b < spitBaseSegments.length; b++) {
-        var bg = spitBaseSegments[b];
-        var bsd = parseYmd(bg.start);
-        var bed = bg.longterm ? null : parseYmd(bg.end);
-        if (!bsd) continue;
-        var bsdn = dayNum(bsd);
-        var bedn = bed ? dayNum(bed) : Infinity;
-        if (dn >= bsdn && dn <= bedn) {
-          return { type: 'base', rate: bg.rate, seg: bg };
-        }
-      }
-      return { type: 'none', rate: 0, seg: null };
-    }
-
     function sameEffSlice(a, b) {
       if (a.type !== b.type) return false;
       if (Number(a.rate) !== Number(b.rate)) return false;
@@ -1484,7 +1925,7 @@
       var d = new Date(qs.getFullYear(), qs.getMonth(), qs.getDate());
       var qen = dayNum(qe);
       while (dayNum(d) <= qen) {
-        var eff = effectiveForDay(account, d);
+        var eff = effectiveForDayV223(account, d);
         var dayNorm = new Date(d.getFullYear(), d.getMonth(), d.getDate());
         if (!curEff) {
           curEff = eff;
@@ -1509,7 +1950,7 @@
     function barInnerLabel(start, end, eff) {
       var r0 = formatMdDot(start);
       var r1 = formatMdDot(end);
-      var typ = eff.type === 'special' ? '特殊' : (eff.type === 'base' ? '基础' : '无规则');
+      var typ = eff.label || '无规则';
       if (eff.type === 'none') {
         return r0 + '~' + r1 + ' · ' + typ;
       }
@@ -1517,7 +1958,7 @@
     }
 
     function barTitleText(accName, start, end, eff) {
-      return accName + ' ' + formatYmdIso(start) + '~' + formatYmdIso(end) + ' · ' + (eff.type === 'none' ? '无规则' : (eff.type === 'special' ? '特殊吐点' : '基础吐点') + ' ' + eff.rate + '%' + (eff.seg && eff.seg.id ? ' · 段 ' + eff.seg.id : ''));
+      return accName + ' ' + formatYmdIso(start) + '~' + formatYmdIso(end) + ' · ' + (eff.type === 'none' ? (eff.warn ? '缺少账户属性' : '无规则') : (eff.label || '') + ' ' + eff.rate + '%');
     }
 
     function renderPreviewGantt() {
@@ -1541,8 +1982,9 @@
       }
       var leg = document.getElementById('preview-legend');
       if (leg) {
-        leg.innerHTML = '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.special + '"></span>特殊吐点</span>' +
-          '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.base + '"></span>基础吐点</span>' +
+        leg.innerHTML = '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.l1 + '"></span>特殊吐点 (L1)</span>' +
+          '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.l2 + '"></span>客户基础 (L2)</span>' +
+          '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.l3 + '"></span>介绍人吐点 (L3)</span>' +
           '<span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-4 rounded" style="background:' + PREVIEW_COLORS.none + '"></span>无规则</span>';
       }
       var root = document.getElementById('preview-gantt-root');
@@ -1559,7 +2001,7 @@
           var en = dayNum(bar.end);
           var leftPct = ((sn - qsn) / spanDays) * 100;
           var widthPct = ((en - sn + 1) / spanDays) * 100;
-          var col = bar.eff.type === 'special' ? PREVIEW_COLORS.special : (bar.eff.type === 'base' ? PREVIEW_COLORS.base : PREVIEW_COLORS.none);
+          var col = bar.eff.type === 'l1' ? PREVIEW_COLORS.l1 : (bar.eff.type === 'l2' ? PREVIEW_COLORS.l2 : (bar.eff.type === 'l3' ? PREVIEW_COLORS.l3 : PREVIEW_COLORS.none));
           var lbl = barInnerLabel(bar.start, bar.end, bar.eff);
           var tit = barTitleText(acc.name, bar.start, bar.end, bar.eff);
           var muted = bar.eff.type === 'none' ? ' preview-q-bar-muted' : '';
@@ -1569,32 +2011,6 @@
           '<div class="preview-q-track">' + inner + '</div></div>';
       }).join('');
       root.innerHTML = '<div class="preview-q-shell">' + rangeLine + body + '</div>';
-    }
-
-    function openBaseSegmentModal(editId) {
-      spitBaseEditId = editId || null;
-      var rate = document.getElementById('base-seg-rate');
-      var st = document.getElementById('base-seg-start');
-      var en = document.getElementById('base-seg-end');
-      var lt = document.getElementById('base-seg-longterm');
-      if (editId) {
-        var seg = spitBaseSegments.find(function (x) { return x.id === editId; });
-        if (seg) {
-          if (rate) rate.value = seg.rate;
-          if (st) st.value = seg.start;
-          if (lt) lt.checked = !!seg.longterm;
-          if (en) { en.disabled = !!seg.longterm; en.value = seg.end || ''; }
-        }
-      } else {
-        if (rate) rate.value = '';
-        if (st) st.value = '';
-        if (en) { en.value = ''; en.disabled = false; }
-        if (lt) lt.checked = false;
-      }
-      if (lt && en) {
-        lt.onchange = function () { en.disabled = lt.checked; if (lt.checked) en.value = ''; };
-      }
-      openModal('modal-base-segment');
     }
 
     function fillSpecialAccountSelect(selectedId, fixedAccountId, onlyWithoutSegments) {
@@ -1659,53 +2075,148 @@
     }
 
     function initSpitRulePage() {
-      renderBaseSegmentTable();
+      syncRelationSpitUi();
       renderSpecialAccounts();
       renderPreviewGantt();
     }
 
-    var btnBaseAdd = document.getElementById('btn-base-segment-add');
-    if (btnBaseAdd) {
-      btnBaseAdd.addEventListener('click', function () { openBaseSegmentModal(null); });
+
+    function openL2PeriodModal(editId) {
+      l2PeriodEditId = editId || null;
+      var relId = currentRelationId || 'RB-1';
+      var seg = editId ? (customerBasePeriodStore[relId] || []).find(function (x) { return x.id === editId; }) : null;
+      var radios = document.querySelectorAll('input[name="l2-period-mode"]');
+      var st = document.getElementById('l2-period-start');
+      var en = document.getElementById('l2-period-end');
+      var lt = document.getElementById('l2-period-longterm');
+      var stat = document.getElementById('l2-period-status');
+      var modeVal = seg ? seg.mode : 'use_introducer';
+      radios.forEach(function (r) { r.checked = r.value === modeVal; });
+      if (seg) {
+        if (st) st.value = seg.start;
+        if (lt) lt.checked = !!seg.longterm;
+        if (en) { en.disabled = !!seg.longterm; en.value = seg.end || ''; }
+        if (stat) stat.value = seg.status === 'disabled' ? 'disabled' : 'enabled';
+      } else {
+        if (st) st.value = '';
+        if (lt) lt.checked = false;
+        if (en) { en.value = ''; en.disabled = false; }
+        if (stat) stat.value = 'enabled';
+      }
+      if (lt && en) lt.onchange = function () { en.disabled = lt.checked; if (lt.checked) en.value = ''; };
+      openModal('modal-l2-period');
+    }
+
+    var btnSchemeAdd = document.getElementById('btn-l2-period-add');
+    if (btnSchemeAdd) btnSchemeAdd.addEventListener('click', function () { openL2PeriodModal(null); });
+
+    var schemeSegSave = document.getElementById('l2-period-save');
+    if (schemeSegSave) {
+      schemeSegSave.addEventListener('click', function () {
+        var relId = currentRelationId || 'RB-1';
+        var typeEl = document.querySelector('input[name="l2-period-mode"]:checked');
+        var mode = typeEl ? typeEl.value : 'use_introducer';
+        var start = document.getElementById('l2-period-start').value;
+        var longterm = document.getElementById('l2-period-longterm').checked;
+        var end = longterm ? '' : document.getElementById('l2-period-end').value;
+        var status = document.getElementById('l2-period-status').value === 'disabled' ? 'disabled' : 'enabled';
+        if (!start) { showToast('请填写生效开始', 'error'); return; }
+        if (!longterm && !end) { showToast('非长期须填写结束日', 'error'); return; }
+        var draft = { id: l2PeriodEditId || uid('per'), mode: mode, start: start, end: end, longterm: longterm, status: status };
+        if (!customerBasePeriodStore[relId]) customerBasePeriodStore[relId] = [];
+        var list = customerBasePeriodStore[relId].filter(function (x) { return x.id !== l2PeriodEditId; }).concat([draft]);
+        var err = validateL2Periods(list, null);
+        if (err) { showToast(err, 'error'); return; }
+        if (l2PeriodEditId) {
+          var idx = customerBasePeriodStore[relId].findIndex(function (x) { return x.id === l2PeriodEditId; });
+          if (idx >= 0) customerBasePeriodStore[relId][idx] = draft;
+        } else {
+          customerBasePeriodStore[relId].push(draft);
+        }
+        if (draft.mode === 'customer_base') {
+          if (!customerBaseRuleStore[relId]) customerBaseRuleStore[relId] = {};
+          if (!customerBaseRuleStore[relId][draft.id]) customerBaseRuleStore[relId][draft.id] = [];
+        }
+        closeModal('modal-l2-period');
+        l2PeriodEditId = null;
+        syncRelationSpitUi();
+        renderPreviewGantt();
+        showToast('时间段已保存');
+      });
+    }
+
+    var btnL2PeriodRuleAdd = document.getElementById('btn-l2-period-rule-add');
+    if (btnL2PeriodRuleAdd) {
+      btnL2PeriodRuleAdd.addEventListener('click', function () {
+        if (!currentL2PeriodId) {
+          showToast('请先选择时间段', 'error');
+          return;
+        }
+        openMatrixSegmentModal('l2m', null);
+      });
+    }
+
+    var btnL1Add = document.getElementById('btn-l3-segment-add');
+    if (btnL1Add) {
+      btnL1Add.addEventListener('click', function () { openMatrixSegmentModal('l3', null); });
     }
 
     var baseSegSaveBtn = document.getElementById('base-seg-save');
     if (baseSegSaveBtn) {
       baseSegSaveBtn.addEventListener('click', function () {
-      var rate = Number(document.getElementById('base-seg-rate').value);
-      var start = document.getElementById('base-seg-start').value;
-      var longterm = document.getElementById('base-seg-longterm').checked;
-      var end = longterm ? '' : document.getElementById('base-seg-end').value;
-      if (rate === '' || isNaN(rate) || rate < 0 || rate > 100) {
-        showToast('比例需在 0~100% 之间', 'error');
-        return;
-      }
-      if (!start) {
-        showToast('请填写生效开始日期', 'error');
-        return;
-      }
-      if (!longterm && !end) {
-        showToast('非长期分段需填写结束日期', 'error');
-        return;
-      }
-      var draft = { id: spitBaseEditId || uid('base'), rate: rate, start: start, end: end, longterm: longterm };
-      var list = spitBaseSegments.filter(function (x) { return x.id !== spitBaseEditId; }).concat([draft]);
-      var err = validateBaseSegments(list);
-      if (err) {
-        showToast(err, 'error');
-        return;
-      }
-      if (spitBaseEditId) {
-        var idx = spitBaseSegments.findIndex(function (x) { return x.id === spitBaseEditId; });
-        if (idx >= 0) spitBaseSegments[idx] = draft;
-      } else {
-        spitBaseSegments.push(draft);
-      }
-      closeModal('modal-base-segment');
-      renderBaseSegmentTable();
-      renderPreviewGantt();
-      showToast('基础吐点分段已保存');
-    });
+        var rate = Number(document.getElementById('base-seg-rate').value);
+        var start = document.getElementById('base-seg-start').value;
+        var longterm = document.getElementById('base-seg-longterm').checked;
+        var end = longterm ? '' : document.getElementById('base-seg-end').value;
+        var mediaEl = document.getElementById('matrix-seg-media');
+        var atypeEl = document.getElementById('matrix-seg-account-type');
+        var statusEl = document.getElementById('matrix-seg-status');
+        var media = mediaEl ? mediaEl.value : 'Meta';
+        var accountType = atypeEl ? atypeEl.value : '企业户';
+        var status = statusEl && statusEl.value === 'disabled' ? 'disabled' : 'enabled';
+        if (isNaN(rate) || rate < 0 || rate > 100) {
+          showToast('比例需在 0~100% 之间', 'error');
+          return;
+        }
+        if (!start) {
+          showToast('请填写生效开始日期', 'error');
+          return;
+        }
+        if (!longterm && !end) {
+          showToast('非长期分段需填写结束日期', 'error');
+          return;
+        }
+        var tgt = matrixEditContext.target;
+        var editId = matrixEditContext.editId;
+        var prefix = tgt === 'l3' ? 'l3' : 'l2m';
+        var draft = {
+          id: editId || uid(prefix),
+          media: media,
+          accountType: accountType,
+          rate: rate,
+          start: start,
+          end: end,
+          longterm: longterm,
+          status: status
+        };
+        var store = getMatrixStore();
+        var list = store.filter(function (x) { return x.id !== editId; }).concat([draft]);
+        var err = validateMatrixSegments(list, null);
+        if (err) {
+          showToast(err, 'error');
+          return;
+        }
+        if (editId) {
+          var idx = store.findIndex(function (x) { return x.id === editId; });
+          if (idx >= 0) store[idx] = draft;
+        } else {
+          store.push(draft);
+        }
+        closeModal('modal-base-segment');
+        matrixEditContext.editId = null;
+        refreshMatrixViews();
+        showToast((tgt === 'l3' ? '介绍人吐点' : '客户基础吐点') + '规则已保存');
+      });
     }
 
     var specialSegSaveBtn = document.getElementById('special-seg-save');
@@ -1758,26 +2269,53 @@
     });
     }
 
+    var modalL2Rules = document.getElementById('modal-l2-period-rules');
+    if (modalL2Rules) {
+      modalL2Rules.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t || !t.closest) return;
+        var ed = t.closest('.btn-l2-period-rule-edit');
+        if (ed) { openMatrixSegmentModal('l2m', ed.getAttribute('data-seg-id')); return; }
+        var dl = t.closest('.btn-l2-period-rule-del');
+        if (dl) {
+          var rid = dl.getAttribute('data-seg-id');
+          if (!confirm('删除该规则? (原型)')) return;
+          var relId = currentRelationId || 'RB-1';
+          var pid = currentL2PeriodId;
+          if (pid && customerBaseRuleStore[relId] && customerBaseRuleStore[relId][pid]) {
+            customerBaseRuleStore[relId][pid] = customerBaseRuleStore[relId][pid].filter(function (x) { return x.id !== rid; });
+          }
+          openL2PeriodRulesModal(pid);
+          syncRelationSpitUi();
+          renderPreviewGantt();
+          showToast('已删除规则');
+        }
+      });
+    }
+
     var viewSpit = document.getElementById('relations-view-spit');
     if (viewSpit) {
       viewSpit.addEventListener('click', function (e) {
         var t = e.target;
         if (!t || !t.closest) return;
-        var editBase = t.closest('.btn-base-seg-edit');
-        if (editBase) {
-          openBaseSegmentModal(editBase.getAttribute('data-base-id'));
-          return;
-        }
-        var delBase = t.closest('.btn-base-seg-del');
-        if (delBase) {
-          var bid = delBase.getAttribute('data-base-id');
-          if (!confirm('删除该基础分段? (原型)')) return;
-          spitBaseSegments = spitBaseSegments.filter(function (x) { return x.id !== bid; });
-          renderBaseSegmentTable();
+        var editSch = t.closest('.btn-l2-period-edit');
+        if (editSch) { openL2PeriodModal(editSch.getAttribute('data-period-id')); return; }
+        var delSch = t.closest('.btn-l2-period-del');
+        if (delSch) {
+          var sid = delSch.getAttribute('data-period-id');
+          if (!confirm('删除该时间段? (原型)')) return;
+          var relId = currentRelationId || 'RB-1';
+          customerBasePeriodStore[relId] = (customerBasePeriodStore[relId] || []).filter(function (x) { return x.id !== sid; });
+          if (customerBaseRuleStore[relId] && customerBaseRuleStore[relId][sid]) {
+            delete customerBaseRuleStore[relId][sid];
+          }
+          syncRelationSpitUi();
           renderPreviewGantt();
-          showToast('已删除基础分段');
+          showToast('已删除时间段');
           return;
         }
+        var setRules = t.closest('.btn-l2-period-set-rules');
+        if (setRules) { openL2PeriodRulesModal(setRules.getAttribute('data-period-id')); return; }
         var addSp = t.closest('.btn-special-add-seg');
         if (addSp) {
           openSpecialModal('add-seg', addSp.getAttribute('data-acc'), null);
@@ -1796,6 +2334,28 @@
       });
     }
 
+
+    var l1ViewEl = document.getElementById('introducer-view-l3');
+    if (l1ViewEl) {
+      l1ViewEl.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t || !t.closest) return;
+        var editL1 = t.closest('.btn-l3-seg-edit');
+        if (editL1) {
+          openMatrixSegmentModal('l3', editL1.getAttribute('data-seg-id'));
+          return;
+        }
+        var delL1 = t.closest('.btn-l3-seg-del');
+        if (delL1) {
+          var sid = delL1.getAttribute('data-seg-id');
+          if (!currentL3IntroId || !confirm('删除该 L3 吐点规则? (原型)')) return;
+          var list = introducerL3Store[currentL3IntroId] || [];
+          introducerL3Store[currentL3IntroId] = list.filter(function (x) { return x.id !== sid; });
+          refreshMatrixViews();
+          showToast('已删除 L3 吐点规则');
+        }
+      });
+    }
     var btnAddSpecialAccount = document.getElementById('btn-add-special-account');
     if (btnAddSpecialAccount) {
       btnAddSpecialAccount.addEventListener('click', function () {
@@ -1944,7 +2504,9 @@
     function buildSettlementDetailHtml(orderId) {
       return '<p class="mb-2 text-gray-600">结算单 <span class="font-mono">' + orderId + '</span> · 按客户分组; 每行含账户, 命中比例, 比例来源, 时间段, 消耗与返还.</p>' +
         '<table class="w-full border text-xs"><thead class="bg-gray-50"><tr><th class="border px-2 py-1">客户</th><th class="border px-2 py-1">账户</th><th class="border px-2 py-1">命中比例</th><th class="border px-2 py-1">比例来源</th><th class="border px-2 py-1">时间段</th><th class="border px-2 py-1">消耗 USD</th><th class="border px-2 py-1">返还 USD</th></tr></thead>' +
-        '<tbody><tr><td class="border px-2 py-1">C-002</td><td class="border px-2 py-1">act_123</td><td class="border px-2 py-1">3.00%</td><td class="border px-2 py-1">特殊</td><td class="border px-2 py-1">2026-01-01~2026-03-31</td><td class="border px-2 py-1">40,000.00</td><td class="border px-2 py-1">1,200.00</td></tr></tbody></table>';
+        '<tbody><tr><td class="border px-2 py-1">C-002</td><td class="border px-2 py-1">act_123</td><td class="border px-2 py-1">3.00%</td><td class="border px-2 py-1">特殊吐点</td><td class="border px-2 py-1">2026-01-01~2026-03-31</td><td class="border px-2 py-1">40,000.00</td><td class="border px-2 py-1">1,200.00</td></tr>' +
+        '<tr><td class="border px-2 py-1">C-002</td><td class="border px-2 py-1">act_111</td><td class="border px-2 py-1">2.20%</td><td class="border px-2 py-1">客户基础</td><td class="border px-2 py-1">2026-04-01~2026-06-30</td><td class="border px-2 py-1">28,000.00</td><td class="border px-2 py-1">616.00</td></tr>' +
+        '<tr><td class="border px-2 py-1">C-002</td><td class="border px-2 py-1">act_222</td><td class="border px-2 py-1">2.00%</td><td class="border px-2 py-1">介绍人吐点</td><td class="border px-2 py-1">2026-01-01~2026-03-31</td><td class="border px-2 py-1">12,000.00</td><td class="border px-2 py-1">240.00</td></tr></tbody></table>';
     }
 
     function openSettlementDetailModal(orderId) {
@@ -1961,7 +2523,7 @@
         showToast('无当前结算单', 'error');
         return;
       }
-      var csv = '\uFEFF客户,账户,命中比例,比例来源,时间段,消耗USD,返还USD\nC-002,act_123,3.00%,特殊,2026-01-01~2026-03-31,40000,1200\n';
+      var csv = '\uFEFF客户,账户,命中比例,比例来源,时间段,消耗USD,返还USD\nC-002,act_123,3.00%,特殊吐点,2026-01-01~2026-03-31,40000,1200\nC-002,act_111,2.20%,客户基础,2026-04-01~2026-06-30,28000,616\nC-002,act_222,2.00%,介绍人吐点,2026-01-01~2026-03-31,12000,240\n';
       var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -2108,7 +2670,61 @@
       }
     });
 
+    document.getElementById('add-binding-save').addEventListener('click', function () {
+      var introSel = document.getElementById('add-binding-intro-merchant');
+      var c = document.getElementById('add-binding-customer');
+      var s = document.getElementById('add-binding-start');
+      if (introSel && introSel.value === 'C-INT-002') {
+        showToast('该介绍人已停用, 不可新建关系 (PRD 6.1)', 'error');
+        return;
+      }
+      if (!c.value.trim() || !s.value) {
+        showToast('请填写下级商户ID与关系生效开始日期', 'error');
+        return;
+      }
+      var modeEl = document.querySelector('input[name="add-binding-l2-mode"]:checked');
+      var mode = modeEl ? modeEl.value : 'use_introducer';
+      var start = s.value;
+      var custId = c.value.trim();
+      var newRelId = 'RB-' + Date.now().toString().slice(-6);
+      customerBasePeriodStore[newRelId] = [
+        { id: uid('per'), mode: mode, start: start, end: '', longterm: true, status: 'enabled' }
+      ];
+      if (mode === 'customer_base') {
+        var perId = customerBasePeriodStore[newRelId][0].id;
+        customerBaseRuleStore[newRelId] = {};
+        customerBaseRuleStore[newRelId][perId] = [];
+      }
+      var tbody = document.getElementById('tbody-relations');
+      if (tbody) {
+        var modeBadge = mode === 'customer_base'
+          ? '<span class="rounded-full bg-indigo-100 px-2 py-0.5 text-indigo-800">客户基础吐点</span>'
+          : '<span class="rounded-full bg-sky-100 px-2 py-0.5 text-sky-800">使用介绍人吐点</span>';
+        var row = document.createElement('tr');
+        row.className = 'relation-row';
+        row.setAttribute('data-relation-id', newRelId);
+        row.setAttribute('data-l2-mode', mode);
+        row.setAttribute('data-intro-merchant', introSel ? introSel.value : 'C-INT-001');
+        row.setAttribute('data-intro-disabled', 'false');
+        row.innerHTML =
+          '<td class="px-4 py-3 font-mono text-xs">' + escHtml(introSel ? introSel.value : 'C-INT-001') + '</td>' +
+          '<td class="px-4 py-3">—</td>' +
+          '<td class="px-4 py-3 font-mono text-xs">' + escHtml(custId) + '</td>' +
+          '<td class="px-4 py-3">—</td>' +
+          '<td class="px-4 py-3 whitespace-nowrap text-xs">' + escHtml(start) + ' ~ <span class="text-gray-500">长期</span></td>' +
+          '<td class="px-4 py-3 text-xs" data-rule-type-summary>' + modeBadge + '</td>' +
+          '<td class="px-4 py-3 text-green-700 text-xs">生效中</td>' +
+          '<td class="px-4 py-3 whitespace-nowrap">' +
+          '<button type="button" class="btn-open-spit-rules rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100">吐点规则</button></td>';
+        tbody.insertBefore(row, tbody.firstChild);
+      }
+      closeModal('modal-add-binding');
+      syncRelationListMeta();
+      showToast('已保存关系并创建首段时间段 (原型); 可点击「吐点规则」继续配置');
+    });
+
     initSettlementTable();
+    syncRelationListMeta();
 
     setIntroducerTab(tabFromHash(), { skipHash: true, skipHint: true, skipFocus: true });
   </script>
