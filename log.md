@@ -1,3 +1,22 @@
+#### 2026-06-03 - 推荐返佣页：表头样式与列表导出
+
+**HTML** `bestads-client-styled/introducer-daily-consume.html`：列表表头去掉 `uppercase`，改为 `text-sm` 正常大小写；筛选区增加「导出」，按当前筛选可见行导出 CSV（9 列，UTF-8 BOM）。
+**PRD** `PRD/V 2.23 介绍人和吐点（第二版）.md`：客户端 7.1 补充表头与导出说明。
+**Doc** `bestads-client-styled/i18n-introducer-daily-consume.md`：增加 `btn_export`、`export_empty`、`export_filename`。
+
+---
+
+#### 2026-06-03 - V2.23 客户端「推荐返佣」v0.48
+
+**PRD** `PRD/V 2.23 介绍人和吐点（第二版）.md` (v0.48):
+- 客户端 7.1 由「介绍人季度消耗」升级为「推荐返佣」：季度×账户粒度；展示吐点比例与佣金；筛选项增媒体、广告账户 ID；常驻 Disclaimer；修订「客户端」整章与变更对照。
+
+**HTML** `bestads-client-styled/introducer-daily-consume.html`：筛选→指标卡（含佣金）→Disclaimer→9 列列表；中英文 `translations`。
+**HTML** `bestads-client-styled/components/sidebar.html`、`index.html`、`js/common.js`：侧栏/首页入口「推荐返佣」、`applyClientNavI18n`、双开关可见性；`loadFallbackSidebar` 同步推荐返佣菜单项。
+**Doc** `bestads-client-styled/i18n-introducer-daily-consume.md`：按 v0.48 键值表更新。
+
+---
+
 #### 2026-06-03 - V2.23 介绍人和吐点 v0.47（原型交互三项）
 
 **PRD** `PRD/V 2.23 介绍人和吐点（第二版）.md` (v0.47):

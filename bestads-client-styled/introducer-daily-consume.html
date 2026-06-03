@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="page_title">介绍人季度消耗 - BestAds</title>
+  <title data-i18n="page_title">推荐返佣 - BestAds</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./css/common.css">
@@ -15,7 +15,7 @@
     <div class="flex-1 flex flex-col" style="margin-left: 220px; background-color: #1A1F2B;">
       <header class="flex items-center justify-between px-6" style="height: 56px; background-color: #1A1F2B; border-bottom: 1px solid #2E333F;">
         <div class="flex items-center space-x-4">
-          <h2 class="text-xl font-semibold text-white" id="page-title" data-i18n="main_title">介绍人季度消耗</h2>
+          <h2 class="text-xl font-semibold text-white" id="page-title" data-i18n="main_title">推荐返佣</h2>
         </div>
         <div class="flex items-center space-x-4">
           <div class="relative group">
@@ -44,17 +44,7 @@
       </header>
 
       <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
-            <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_total_spend">总消耗 (USD)</p>
-            <p class="text-2xl font-bold mt-1 tabular-nums" style="color: #00FFB0;" id="metric-total-spend">12,458.20</p>
-          </div>
-          <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
-            <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_customer_count">客户数</p>
-            <p class="text-2xl font-bold mt-1 text-white tabular-nums" id="metric-customer-count">2</p>
-          </div>
-        </div>
-
+        <!-- 1. 筛选区 -->
         <div class="rounded-md p-4 mb-6" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
           <div class="flex flex-wrap gap-4 items-end">
             <div>
@@ -75,35 +65,113 @@
             </div>
             <div>
               <label class="block text-sm mb-2" style="color: #B0B5C0;" data-i18n="filter_customer">被介绍客户</label>
-              <input id="filter-customer" type="text" class="input-field" data-i18n-placeholder="filter_customer_placeholder" placeholder="模糊搜索, 多选由后端支持" style="min-width: 200px;">
+              <input id="filter-customer" type="text" class="input-field" data-i18n-placeholder="filter_customer_placeholder" placeholder="模糊搜索" style="min-width: 180px;">
+            </div>
+            <div>
+              <label class="block text-sm mb-2" style="color: #B0B5C0;" data-i18n="filter_media">媒体</label>
+              <select id="filter-media" class="input-field" style="min-width: 140px;">
+                <option value="" data-i18n="filter_media_all">全部</option>
+                <option value="Meta">Meta</option>
+                <option value="Google">Google</option>
+                <option value="TikTok">TikTok</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-2" style="color: #B0B5C0;" data-i18n="filter_account_id">广告账户ID</label>
+              <input id="filter-account-id" type="text" class="input-field font-mono text-xs" data-i18n-placeholder="filter_account_id_placeholder" placeholder="精确或模糊" style="min-width: 160px;">
             </div>
             <button type="button" id="btn-search" class="btn-primary px-4 py-2 font-medium flex items-center space-x-2">
               <i class="fas fa-search"></i><span data-i18n="btn_search">查询</span>
             </button>
             <button type="button" id="btn-reset" class="btn-secondary px-4 py-2 font-medium" data-i18n="btn_reset">重置</button>
+            <button type="button" id="btn-export" class="btn-secondary px-4 py-2 font-medium flex items-center space-x-2">
+              <i class="fas fa-download"></i><span data-i18n="btn_export">导出</span>
+            </button>
           </div>
         </div>
 
+        <!-- 2. 卡片区 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
+            <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_total_spend">总消耗 (USD)</p>
+            <p class="text-2xl font-bold mt-1 tabular-nums" style="color: #00FFB0;" id="metric-total-spend">0.00</p>
+          </div>
+          <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
+            <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_customer_count">客户数</p>
+            <p class="text-2xl font-bold mt-1 text-white tabular-nums" id="metric-customer-count">0</p>
+          </div>
+          <div class="rounded-md p-4" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
+            <p class="text-sm" style="color: #B0B5C0;" data-i18n="card_commission">佣金 (USD)</p>
+            <p class="text-2xl font-bold mt-1 tabular-nums" style="color: #FBBF24;" id="metric-commission">0.00</p>
+          </div>
+        </div>
+
+        <!-- 常驻 Disclaimer -->
+        <p id="page-disclaimer" class="mb-6 text-xs leading-relaxed rounded-md px-4 py-3" style="color: #9CA3AF; background-color: #141820; border: 1px solid #2E333F;" data-i18n="disclaimer">
+          Disclaimer: The consumption data is for reference only and may be affected by reporting delays and tracking stability. Actual spend and commission settlement shall be based on the data provided by our financial department.
+        </p>
+
+        <!-- 3. 列表区 -->
         <div class="rounded-md overflow-hidden" style="background-color: #1A1F2B; border: 1px solid #2E333F;">
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-700 table-hover">
+            <table id="rebate-table" class="min-w-full divide-y divide-gray-700 table-hover text-sm">
               <thead style="background-color: #2A2F3D;">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_quarter">结算季度</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_customer_name">被介绍客户名称</th>
-                  <th class="px-4 py-3 text-right text-xs font-medium uppercase" style="color: #B0B5C0;" data-i18n="col_consume">消耗 (USD)</th>
+                  <th class="px-3 py-3 text-left text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_quarter">计算季度</th>
+                  <th class="px-3 py-3 text-left text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_customer_name">客户名称</th>
+                  <th class="px-3 py-3 text-left text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_media">媒体</th>
+                  <th class="px-3 py-3 text-left text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_account_name">广告账户名称</th>
+                  <th class="px-3 py-3 text-left text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_account_id">广告账户ID</th>
+                  <th class="px-3 py-3 text-left text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_spend_range">消耗范围</th>
+                  <th class="px-3 py-3 text-right text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_consume">消耗 (USD)</th>
+                  <th class="px-3 py-3 text-right text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_spit_rate">吐点比例</th>
+                  <th class="px-3 py-3 text-right text-sm font-medium whitespace-nowrap" style="color: #B0B5C0;" data-i18n="col_commission">佣金 (USD)</th>
                 </tr>
               </thead>
-              <tbody id="consume-tbody" class="divide-y divide-gray-700 text-sm">
-                <tr data-year="2026" data-quarter="Q1" data-customer="C-002">
-                  <td class="px-4 py-3 text-white">2026Q1</td>
-                  <td class="px-4 py-3 text-white" data-i18n-sample="customer_b">客户 B</td>
-                  <td class="px-4 py-3 text-right text-white tabular-nums">7,682.20</td>
+              <tbody id="consume-tbody" class="divide-y divide-gray-700">
+                <tr data-year="2026" data-quarter="Q1" data-customer="C-002" data-media="Meta" data-account-id="act_111" data-spend="3200.50" data-commission="70.41">
+                  <td class="px-3 py-3 text-white whitespace-nowrap">2026Q1</td>
+                  <td class="px-3 py-3 text-white" data-i18n-sample="customer_b">客户 B</td>
+                  <td class="px-3 py-3 text-white">Meta</td>
+                  <td class="px-3 py-3 text-white">FB-US-111</td>
+                  <td class="px-3 py-3 font-mono text-xs text-gray-300">act_111</td>
+                  <td class="px-3 py-3 text-gray-400 text-xs whitespace-nowrap">2026-01-01 ~ 2026-03-31</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">3,200.50</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">2.20%</td>
+                  <td class="px-3 py-3 text-right tabular-nums" style="color: #FBBF24;">70.41</td>
                 </tr>
-                <tr data-year="2026" data-quarter="Q1" data-customer="C-003">
-                  <td class="px-4 py-3 text-white">2026Q1</td>
-                  <td class="px-4 py-3 text-white" data-i18n-sample="customer_c">客户 C</td>
-                  <td class="px-4 py-3 text-right text-white tabular-nums">4,776.00</td>
+                <tr data-year="2026" data-quarter="Q1" data-customer="C-002" data-media="Google" data-account-id="act_222" data-spend="2481.70" data-commission="49.63">
+                  <td class="px-3 py-3 text-white whitespace-nowrap">2026Q1</td>
+                  <td class="px-3 py-3 text-white" data-i18n-sample="customer_b">客户 B</td>
+                  <td class="px-3 py-3 text-white">Google</td>
+                  <td class="px-3 py-3 text-white">GG-UK-222</td>
+                  <td class="px-3 py-3 font-mono text-xs text-gray-300">act_222</td>
+                  <td class="px-3 py-3 text-gray-400 text-xs whitespace-nowrap">2026-01-15 ~ 2026-03-31</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">2,481.70</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">2.00%</td>
+                  <td class="px-3 py-3 text-right tabular-nums" style="color: #FBBF24;">49.63</td>
+                </tr>
+                <tr data-year="2026" data-quarter="Q1" data-customer="C-003" data-media="TikTok" data-account-id="act_333" data-spend="4776.00" data-commission="143.28">
+                  <td class="px-3 py-3 text-white whitespace-nowrap">2026Q1</td>
+                  <td class="px-3 py-3 text-white" data-i18n-sample="customer_c">客户 C</td>
+                  <td class="px-3 py-3 text-white">TikTok</td>
+                  <td class="px-3 py-3 text-white">TT-SG-333</td>
+                  <td class="px-3 py-3 font-mono text-xs text-gray-300">act_333</td>
+                  <td class="px-3 py-3 text-gray-400 text-xs whitespace-nowrap">2026-02-01 ~ 2026-03-31</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">4,776.00</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">3.00%</td>
+                  <td class="px-3 py-3 text-right tabular-nums" style="color: #FBBF24;">143.28</td>
+                </tr>
+                <tr data-year="2026" data-quarter="Q2" data-customer="C-002" data-media="Meta" data-account-id="act_111" data-spend="1500.00" data-commission="33.00">
+                  <td class="px-3 py-3 text-white whitespace-nowrap">2026Q2</td>
+                  <td class="px-3 py-3 text-white" data-i18n-sample="customer_b">客户 B</td>
+                  <td class="px-3 py-3 text-white">Meta</td>
+                  <td class="px-3 py-3 text-white">FB-US-111</td>
+                  <td class="px-3 py-3 font-mono text-xs text-gray-300">act_111</td>
+                  <td class="px-3 py-3 text-gray-400 text-xs whitespace-nowrap">2026-04-01 ~ 2026-06-30</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">1,500.00</td>
+                  <td class="px-3 py-3 text-right text-white tabular-nums">2.20%</td>
+                  <td class="px-3 py-3 text-right tabular-nums" style="color: #FBBF24;">33.00</td>
                 </tr>
               </tbody>
             </table>
@@ -121,50 +189,74 @@
 
     var translations = {
       'zh-CN': {
-        page_title: '介绍人季度消耗 - BestAds',
-        main_title: '介绍人季度消耗',
+        page_title: '推荐返佣 - BestAds',
+        main_title: '推荐返佣',
         user_role: '客户',
-        notice_label: '重要提示:',
-        notice_body: '本页按季度展示被介绍客户的广告消耗 (媒体侧口径, USD), 不代表吐点比例或收益. 具体结算金额请以官方对账为准.',
         card_total_spend: '总消耗 (USD)',
         card_customer_count: '客户数',
+        card_commission: '佣金 (USD)',
         filter_year: '年度',
         filter_quarter: '季度',
         filter_customer: '被介绍客户',
         filter_customer_placeholder: '模糊搜索, 多选由后端支持',
+        filter_media: '媒体',
+        filter_media_all: '全部',
+        filter_account_id: '广告账户ID',
+        filter_account_id_placeholder: '精确或模糊搜索',
         btn_search: '查询',
         btn_reset: '重置',
-        col_quarter: '结算季度',
-        col_customer_name: '被介绍客户名称',
+        btn_export: '导出',
+        export_empty: '当前筛选下暂无列表数据，无法导出。',
+        export_filename: '推荐返佣列表',
+        col_quarter: '计算季度',
+        col_customer_name: '客户名称',
+        col_media: '媒体',
+        col_account_name: '广告账户名称',
+        col_account_id: '广告账户ID',
+        col_spend_range: '消耗范围',
         col_consume: '消耗 (USD)',
+        col_spit_rate: '吐点比例',
+        col_commission: '佣金 (USD)',
         empty_state: '暂无数据, 请调整筛选条件后重试.',
+        disclaimer: '免责声明：本页消耗与佣金数据仅供参考，可能受媒体报表延迟与追踪稳定性影响；实际消耗与佣金结算以财务部门提供的数据为准。',
         customer_b: '客户 B',
         customer_c: '客户 C',
-        nav_introducer_quarterly: '介绍人季度消耗'
+        nav_referral_rebate: '推荐返佣'
       },
       'en-US': {
-        page_title: 'Introducer Quarterly Spend - BestAds',
-        main_title: 'Introducer Quarterly Spend',
+        page_title: 'Referral Rebate - BestAds',
+        main_title: 'Referral Rebate',
         user_role: 'Customer',
-        notice_label: 'Important:',
-        notice_body: 'This page shows referred clients\' ad spend by quarter (media-side, USD). It does not show spit rates or earnings. Settlement amounts are subject to official reconciliation.',
-        mock_hint_prefix: 'Demo sidebar: run in console',
-        mock_hint_suffix: 'then reload any page to show the menu (PRD 7.1 dual gate mock).',
         card_total_spend: 'Total Spend (USD)',
         card_customer_count: 'Clients',
+        card_commission: 'Commission (USD)',
         filter_year: 'Year',
         filter_quarter: 'Quarter',
         filter_customer: 'Referred Client',
         filter_customer_placeholder: 'Fuzzy search; multi-select via API',
+        filter_media: 'Media',
+        filter_media_all: 'All',
+        filter_account_id: 'Ad Account ID',
+        filter_account_id_placeholder: 'Exact or fuzzy search',
         btn_search: 'Search',
         btn_reset: 'Reset',
-        col_quarter: 'Quarter',
-        col_customer_name: 'Referred Client Name',
+        btn_export: 'Export',
+        export_empty: 'No list data for current filters. Export cancelled.',
+        export_filename: 'referral-rebate-list',
+        col_quarter: 'Calculation Quarter',
+        col_customer_name: 'Client Name',
+        col_media: 'Media',
+        col_account_name: 'Ad Account Name',
+        col_account_id: 'Ad Account ID',
+        col_spend_range: 'Spend Range',
         col_consume: 'Spend (USD)',
+        col_spit_rate: 'Rebate Rate',
+        col_commission: 'Commission (USD)',
         empty_state: 'No data. Adjust filters and try again.',
+        disclaimer: 'Disclaimer: The consumption data is for reference only and may be affected by reporting delays and tracking stability. Actual spend and commission settlement shall be based on the data provided by our financial department.',
         customer_b: 'Client B',
         customer_c: 'Client C',
-        nav_introducer_quarterly: 'Introducer Quarterly Spend'
+        nav_referral_rebate: 'Referral Rebate'
       }
     };
 
@@ -190,9 +282,12 @@
         var key = el.getAttribute('data-i18n-nav');
         if (key) el.textContent = t(key);
       });
+      var mediaAll = document.querySelector('#filter-media option[value=""]');
+      if (mediaAll) mediaAll.textContent = t('filter_media_all');
       document.title = t('page_title');
       var sel = document.getElementById('lang-selector');
       if (sel) sel.value = currentLanguage;
+      if (typeof applyClientNavI18n === 'function') applyClientNavI18n();
     }
 
     function switchLanguage(lang) {
@@ -202,13 +297,24 @@
       refreshMetrics();
     }
 
+    function parseNum(val) {
+      return parseFloat(String(val || '').replace(/,/g, '')) || 0;
+    }
+
     function getFilteredRows() {
       var year = document.getElementById('filter-year').value;
       var quarter = document.getElementById('filter-quarter').value;
       var kw = (document.getElementById('filter-customer').value || '').trim().toLowerCase();
+      var media = document.getElementById('filter-media').value;
+      var accKw = (document.getElementById('filter-account-id').value || '').trim().toLowerCase();
       return Array.prototype.slice.call(document.querySelectorAll('#consume-tbody tr')).filter(function (tr) {
         if (tr.getAttribute('data-year') !== year) return false;
         if (tr.getAttribute('data-quarter') !== quarter) return false;
+        if (media && tr.getAttribute('data-media') !== media) return false;
+        if (accKw) {
+          var aid = (tr.getAttribute('data-account-id') || '').toLowerCase();
+          if (aid.indexOf(accKw) === -1) return false;
+        }
         if (kw && tr.textContent.toLowerCase().indexOf(kw) === -1) return false;
         return true;
       });
@@ -217,14 +323,16 @@
     function refreshMetrics() {
       var visible = getFilteredRows();
       var total = 0;
+      var commission = 0;
       var customers = {};
       visible.forEach(function (tr) {
-        var n = parseFloat((tr.cells[2] && tr.cells[2].textContent || '').replace(/,/g, ''));
-        if (!isNaN(n)) total += n;
+        total += parseNum(tr.getAttribute('data-spend'));
+        commission += parseNum(tr.getAttribute('data-commission'));
         var cid = tr.getAttribute('data-customer');
         if (cid) customers[cid] = true;
       });
       document.getElementById('metric-total-spend').textContent = total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('metric-commission').textContent = commission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       document.getElementById('metric-customer-count').textContent = String(Object.keys(customers).length);
       document.querySelectorAll('#consume-tbody tr').forEach(function (tr) {
         tr.classList.toggle('hidden', visible.indexOf(tr) === -1);
@@ -233,18 +341,53 @@
       if (empty) empty.classList.toggle('hidden', visible.length > 0);
     }
 
+    function csvEscape(cell) {
+      var s = String(cell == null ? '' : cell).replace(/"/g, '""');
+      return /[",\n\r]/.test(s) ? '"' + s + '"' : s;
+    }
+
+    function exportListCsv() {
+      var rows = getFilteredRows();
+      if (!rows.length) {
+        alert(t('export_empty'));
+        return;
+      }
+      var headerKeys = ['col_quarter', 'col_customer_name', 'col_media', 'col_account_name', 'col_account_id', 'col_spend_range', 'col_consume', 'col_spit_rate', 'col_commission'];
+      var lines = [headerKeys.map(function (k) { return csvEscape(t(k)); }).join(',')];
+      rows.forEach(function (tr) {
+        var cells = Array.prototype.slice.call(tr.querySelectorAll('td'));
+        lines.push(cells.map(function (td) { return csvEscape(td.textContent.trim()); }).join(','));
+      });
+      var year = document.getElementById('filter-year').value;
+      var quarter = document.getElementById('filter-quarter').value;
+      var blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = t('export_filename') + '-' + year + quarter + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    }
+
     document.getElementById('btn-search').addEventListener('click', refreshMetrics);
+    document.getElementById('btn-export').addEventListener('click', exportListCsv);
     document.getElementById('btn-reset').addEventListener('click', function () {
       document.getElementById('filter-year').value = '2026';
       document.getElementById('filter-quarter').value = 'Q1';
       document.getElementById('filter-customer').value = '';
+      document.getElementById('filter-media').value = '';
+      document.getElementById('filter-account-id').value = '';
       refreshMetrics();
     });
 
     document.addEventListener('DOMContentLoaded', function () {
       applyLanguage();
       refreshMetrics();
-      setTimeout(applyLanguage, 800);
+      setTimeout(function () {
+        applyLanguage();
+        refreshMetrics();
+      }, 800);
     });
   </script>
 </body>

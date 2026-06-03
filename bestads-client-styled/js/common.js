@@ -14,8 +14,21 @@ const PAGE_CONFIG = {
   'role-create': { title: '创建角色', description: '配置新的系统角色及权限' },
   'role-edit': { title: '编辑角色', description: '修改系统角色及权限' },
   'auto-recharge-rules': { title: '自动充值规则', description: '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值' },
-  'introducer-daily-consume': { title: '介绍人季度消耗', description: '按季度查看被介绍客户的广告消耗 (不含吐点比例与收益)' }
+  'introducer-daily-consume': { title: '推荐返佣', description: '按季度查看被介绍客户广告账户消耗、吐点比例与佣金' }
 };
+
+var CLIENT_NAV_I18N = {
+  'zh-CN': { nav_referral_rebate: '推荐返佣' },
+  'en-US': { nav_referral_rebate: 'Referral Rebate' }
+};
+
+function applyClientNavI18n() {
+  var lang = localStorage.getItem('bestadsClientLang') || 'zh-CN';
+  var pack = CLIENT_NAV_I18N[lang] || CLIENT_NAV_I18N['zh-CN'];
+  document.querySelectorAll('[data-i18n-nav="nav_referral_rebate"]').forEach(function (el) {
+    if (pack.nav_referral_rebate) el.textContent = pack.nav_referral_rebate;
+  });
+}
 
 // 余额数据（统一管理）
 const BALANCE_DATA = {
@@ -76,6 +89,7 @@ async function initializePage() {
   setActiveMenuItem(currentPage);
 
   applyIntroducerDailyNavVisibility();
+  applyClientNavI18n();
   
   // 设置页面标题
   setPageTitle(currentPage);
@@ -95,13 +109,22 @@ function getCurrentPageName() {
 // PRD 7.1: 须同时具备 IntroducerEnabled 与运营后台「客户端可见性」为开. 静态原型用 localStorage 模拟.
 function applyIntroducerDailyNavVisibility() {
   const li = document.getElementById('nav-introducer-daily');
-  if (!li) return;
+  const homeModule = document.getElementById('home-referral-rebate-module');
+  const homeQuick = document.getElementById('home-referral-rebate-quick');
   const enabled = localStorage.getItem('bestadsMockIntroducerEnabled') === '1';
   const clientOn = localStorage.getItem('bestadsMockIntroducerClientVisible') === '1';
-  if (enabled && clientOn) {
-    li.classList.remove('hidden');
-  } else {
-    li.classList.add('hidden');
+  const show = enabled && clientOn;
+  if (li) {
+    if (show) li.classList.remove('hidden');
+    else li.classList.add('hidden');
+  }
+  if (homeModule) {
+    if (show) homeModule.classList.remove('hidden');
+    else homeModule.classList.add('hidden');
+  }
+  if (homeQuick) {
+    if (show) homeQuick.classList.remove('hidden');
+    else homeQuick.classList.add('hidden');
   }
 }
 
@@ -284,6 +307,12 @@ function loadFallbackSidebar() {
         <a href="auto-recharge-rules.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="auto-recharge-rules">
           <i class="fas fa-sync-alt mr-3" style="color: #B0B5C0;"></i>
           <span>自动充值规则</span>
+        </a>
+      </li>
+      <li id="nav-introducer-daily" class="hidden">
+        <a href="introducer-daily-consume.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="introducer-daily-consume">
+          <i class="fas fa-hand-holding-usd mr-3" style="color: #B0B5C0;"></i>
+          <span data-i18n-nav="nav_referral_rebate">推荐返佣</span>
         </a>
       </li>
       <li>
