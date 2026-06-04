@@ -1,3 +1,22 @@
+#### 2026-06-04 - V2.21 新增子卡媒体/账户必填 (v1.2)
+
+**PRD** `PRD/V 2.21 绑卡户调用Slash卡接口完成充值.md` (v1.2)：新增子卡表单「媒体」「广告账户」改为必填；链路 B 创卡成功固定预绑为使用卡，去掉入池分支。
+
+**HTML** `admin-system/reports/account-card-reconciliation-report.html`：弹窗必填标识与提交校验；字段 id 对齐 `applyMedia` / `applyAccountId`。
+
+---
+
+#### 2026-06-04 - V2.21 新增子卡预绑与飞书审批 (v1.1)
+
+**PRD** `PRD/V 2.21 绑卡户调用Slash卡接口完成充值.md` (v1.1):
+- 飞书审批改由 Fund 创建；审批单展示字段（商户 ID、客户名称、媒体、广告账户 ID/名称、发起方）由广告侧随申请提供。
+- 链路 B 与「新增子信用卡」：预绑改为先选媒体、再选广告账户，选中后只读回显商户 ID、客户名称。
+
+**HTML** `admin-system/reports/account-card-reconciliation-report.html`:
+- 「新增子信用卡」弹窗对齐 PRD 预绑交互与 Fund 创建飞书审批提示；`accountPool` mock 补充 `merchantId`、`customerName`。
+
+---
+
 #### 2026-06-03 - 推荐返佣页：表头样式与列表导出
 
 **HTML** `bestads-client-styled/introducer-daily-consume.html`：列表表头去掉 `uppercase`，改为 `text-sm` 正常大小写；筛选区增加「导出」，按当前筛选可见行导出 CSV（9 列，UTF-8 BOM）。

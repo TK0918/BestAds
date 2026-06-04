@@ -533,12 +533,31 @@
           <textarea id="applyRemark" maxlength="200" rows="3" oninput="onApplyRemarkInput()" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="选填, 不超过 200 字"></textarea>
           <p class="text-xs text-gray-400 mt-1 text-right">剩余 <span id="applyRemarkCount">200</span> 字</p>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">预绑账户</label>
-          <select id="applyPreBindAccountId" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-            <option value="">(可空) 不预绑账户</option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1">选中后, 审批通过且创卡成功将自动绑定为该账户的使用卡</p>
+        <div class="border-t border-gray-100 pt-4 space-y-4">
+          <p class="text-sm font-medium text-gray-800">预绑账户</p>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">媒体 <span class="text-red-500">*</span></label>
+            <select id="applyMedia" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="onApplyMediaChanged()">
+              <option value="">请选择媒体</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">广告账户 <span class="text-red-500">*</span></label>
+            <select id="applyAccountId" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="onApplyAccountChanged()" disabled>
+              <option value="">请先选择媒体</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">商户 ID</label>
+              <input type="text" id="applyMerchantId" readonly placeholder="选择广告账户后回显" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">客户名称</label>
+              <input type="text" id="applyCustomerName" readonly placeholder="选择广告账户后回显" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-500">
+            </div>
+          </div>
+          <p class="text-xs text-gray-500">提交后由 Fund 创建飞书审批；审批通过且创卡成功后将自动绑定为所选广告账户的使用卡</p>
         </div>
       </div>
       <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
@@ -673,11 +692,11 @@
   <script>
     const mediaList = ['Facebook', 'Google', 'Tiktok', 'AppLovin'];
     const accountPool = [
-      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', currency: 'USD', lastOperator: '李雷, lilei@bestads.com' },
-      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', currency: 'USD', lastOperator: '韩梅梅, hanmeimei@bestads.com' },
-      { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', currency: 'USD', lastOperator: '王芳, wangfang@bestads.com' },
-      { media: 'Tiktok',   accountId: '323123', accountName: '账户名称DDD', currency: 'USD', lastOperator: '赵敏, zhaomin@bestads.com' },
-      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', currency: 'USD', lastOperator: '-' }
+      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', merchantId: 'M10001', customerName: '星河科技', currency: 'USD', lastOperator: '李雷, lilei@bestads.com' },
+      { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', merchantId: 'M10002', customerName: '蓝海互动', currency: 'USD', lastOperator: '韩梅梅, hanmeimei@bestads.com' },
+      { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', merchantId: 'M10003', customerName: '极光传媒', currency: 'USD', lastOperator: '王芳, wangfang@bestads.com' },
+      { media: 'Tiktok',   accountId: '323123', accountName: '账户名称DDD', merchantId: 'M10004', customerName: '跃动游戏', currency: 'USD', lastOperator: '赵敏, zhaomin@bestads.com' },
+      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', merchantId: 'M10005', customerName: '蜂巢电商', currency: 'USD', lastOperator: '-' }
     ];
 
     // 子卡台账; secret 只用于「查看完整卡信息」, 不参与列表渲染
@@ -1267,19 +1286,58 @@
       renderConfigTable();
     }
 
+    function resetApplyPreBindEcho() {
+      document.getElementById('applyMerchantId').value = '';
+      document.getElementById('applyCustomerName').value = '';
+    }
+    function onApplyMediaChanged() {
+      const media = document.getElementById('applyMedia').value;
+      const accSel = document.getElementById('applyAccountId');
+      resetApplyPreBindEcho();
+      if (!media) {
+        accSel.disabled = true;
+        accSel.innerHTML = '<option value="">请先选择媒体</option>';
+        return;
+      }
+      accSel.disabled = false;
+      const accounts = accountPool.filter(a => a.media === media);
+      accSel.innerHTML = '<option value="">请选择广告账户</option>';
+      accounts.forEach(a => {
+        const op = document.createElement('option');
+        op.value = a.accountId;
+        op.textContent = a.accountId + ' - ' + a.accountName;
+        accSel.appendChild(op);
+      });
+      if (accounts.length === 1) {
+        accSel.value = accounts[0].accountId;
+        onApplyAccountChanged();
+      }
+    }
+    function onApplyAccountChanged() {
+      const accountId = document.getElementById('applyAccountId').value;
+      if (!accountId) {
+        resetApplyPreBindEcho();
+        return;
+      }
+      const acc = accountPool.find(a => a.accountId === accountId);
+      document.getElementById('applyMerchantId').value = acc ? (acc.merchantId || '') : '';
+      document.getElementById('applyCustomerName').value = acc ? (acc.customerName || '') : '';
+    }
     function openCreateCardModal() {
       document.getElementById('createCardModal').classList.remove('hidden');
       document.getElementById('createCardModal').classList.add('flex');
       document.getElementById('applyRemark').value = '';
       document.getElementById('applyRemarkCount').textContent = '200';
-      const sel = document.getElementById('applyPreBindAccountId');
-      sel.innerHTML = '<option value="">(可空) 不预绑账户</option>';
-      accountPool.forEach(a => {
+      const mediaSel = document.getElementById('applyMedia');
+      mediaSel.innerHTML = '<option value="">请选择媒体</option>';
+      mediaList.forEach(m => {
         const op = document.createElement('option');
-        op.value = a.accountId;
-        op.textContent = a.media + ' - ' + a.accountId + ' - ' + a.accountName;
-        sel.appendChild(op);
+        op.value = m;
+        op.textContent = m;
+        mediaSel.appendChild(op);
       });
+      mediaSel.value = mediaList[0] || '';
+      onApplyMediaChanged();
     }
     function closeCreateCardModal() {
       document.getElementById('createCardModal').classList.add('hidden');
@@ -1290,8 +1348,18 @@
       document.getElementById('applyRemarkCount').textContent = Math.max(0, 200 - v.length);
     }
     function submitCreateCard() {
+      const media = document.getElementById('applyMedia').value;
+      const accountId = document.getElementById('applyAccountId').value;
+      if (!media) {
+        showToast('请选择媒体', 'warn');
+        return;
+      }
+      if (!accountId) {
+        showToast('请选择广告账户', 'warn');
+        return;
+      }
       closeCreateCardModal();
-      showToast('已发起飞书审批, 审批通过后将自动创建子卡', 'success');
+      showToast('已提交 Fund, 由 Fund 创建飞书审批; 审批通过后将自动创建子卡', 'success');
     }
 
     function openSwitchCardModal(ev, accountId) {
@@ -1519,6 +1587,8 @@
           media: ref ? ref.media : '-',
           accountId: accountId,
           accountName: ref ? ref.accountName : '-',
+          merchantId: ref ? (ref.merchantId || '-') : '-',
+          customerName: ref ? (ref.customerName || '-') : '-',
           currency: 'USD',
           lastOperator: currentOperator
         });
