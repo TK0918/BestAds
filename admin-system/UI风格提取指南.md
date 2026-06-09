@@ -561,6 +561,111 @@ function setupMultiSelect() {
 
 统一要求: 只要是多选筛选项, 一律按本规范实现.
 
+### 紧凑 Tab 列表页
+
+适用于运营端多 Tab 列表页（如「余额监控&自动充值」），字段较多、需横向滚动的场景。参考实现：`admin-system/auto-recharge/notifications.html`。
+
+#### 设计原则
+
+| 区域 | 规范 | 避免 |
+| --- | --- | --- |
+| 筛选区 | `filter-bar` + `filter-grid`，无「筛选条件」大标题 | `px-6 py-4` + `h3 text-lg` 标题块 |
+| 标签 | `filter-label`（12px） | `text-sm mb-2` |
+| 输入/下拉 | `filter-input` / `filter-select`（`6px 8px`，13px 字号） | `px-3 py-2` |
+| 时间范围 | `datetime-range` + `filter-col-span-2` 占两列 | 单独大栅格 + 松散间距 |
+| 操作按钮 | `btn-filter-search` / `btn-filter-reset`（`6px 12px`，13px） | `px-4 py-2` 大按钮 |
+| 工具栏 | `tab-toolbar`（`8px 16px`）+ `tab-toolbar-title`（16px） | `px-6 py-4` + `text-lg` |
+| 主操作 | `btn-toolbar-primary` / `btn-toolbar-secondary` | 圆角 `rounded-lg` 大块按钮 |
+| 数据表 | `table-wrap` + `data-table`，表头/单元格由 CSS 控制间距 | 行内 `px-6 py-3` / `px-6 py-4` |
+
+#### 响应式栅格
+
+- 默认 2 列；`≥768px` 3 列；`≥1024px` 6 列
+- 时间范围等宽字段使用 `filter-col-span-2`
+- 搜索/重置按钮放在 `filter-actions`，与末行筛选项底对齐
+
+#### CSS（写入 `components.css` 或页面 `<style>`）
+
+```css
+/* 紧凑 Tab 页：筛选区 + 工具栏 + 数据表 */
+.filter-bar { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+.filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: end; }
+@media (min-width: 768px) { .filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .filter-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.filter-col-span-2 { grid-column: span 2; }
+.filter-label { display: block; font-size: 12px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+.filter-input, .filter-select { width: 100%; padding: 6px 8px; font-size: 13px; line-height: 1.4; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; color: #374151; }
+.filter-input:focus, .filter-select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+.datetime-range { display: flex; align-items: center; gap: 8px; }
+.datetime-range .filter-input { flex: 1; min-width: 0; }
+.datetime-sep { color: #9ca3af; font-size: 12px; white-space: nowrap; }
+.filter-actions { display: flex; gap: 8px; }
+.btn-filter-search { flex: 1; padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #2563eb; border: none; border-radius: 6px; cursor: pointer; }
+.btn-filter-search:hover { background: #1d4ed8; }
+.btn-filter-reset { flex: 1; padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #6b7280; border: none; border-radius: 6px; cursor: pointer; }
+.btn-filter-reset:hover { background: #4b5563; }
+.tab-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid #e5e7eb; }
+.tab-toolbar-title { font-size: 16px; font-weight: 500; color: #111827; margin: 0; }
+.btn-toolbar-primary { padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #2563eb; border: none; border-radius: 6px; cursor: pointer; }
+.btn-toolbar-primary:hover { background: #1d4ed8; }
+.btn-toolbar-secondary { padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #6b7280; border: none; border-radius: 6px; cursor: pointer; }
+.btn-toolbar-secondary:hover { background: #4b5563; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.data-table { min-width: max-content; width: 100%; border-collapse: collapse; }
+.data-table thead th { padding: 8px 12px !important; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+.data-table tbody td { padding: 6px 12px !important; font-size: 13px; line-height: 1.35; color: #374151; white-space: nowrap; border-bottom: 1px solid #f3f4f6; }
+.data-table tbody tr:hover { background-color: #f9fafb; }
+.status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; line-height: 1.4; }
+.tab-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+```
+
+#### HTML 结构模板
+
+```html
+<!-- Tab 内容区 -->
+<div id="content-example" class="tab-content bg-white shadow-sm rounded-b-lg border border-gray-200">
+  <!-- 筛选区：无大标题，直接铺字段 -->
+  <div class="filter-bar">
+    <div class="filter-grid">
+      <div class="filter-col-span-2">
+        <label class="filter-label">判断时间</label>
+        <div class="datetime-range">
+          <input type="datetime-local" class="filter-input">
+          <span class="datetime-sep">至</span>
+          <input type="datetime-local" class="filter-input">
+        </div>
+      </div>
+      <div>
+        <label class="filter-label">状态</label>
+        <select class="filter-select"><option value="">全部</option></select>
+      </div>
+      <div class="filter-actions">
+        <button type="button" class="btn-filter-search"><i class="fas fa-search mr-1"></i>搜索</button>
+        <button type="button" class="btn-filter-reset">重置</button>
+      </div>
+    </div>
+  </div>
+  <!-- 列表工具栏 -->
+  <div class="tab-toolbar">
+    <h3 class="tab-toolbar-title">列表示题</h3>
+    <button type="button" class="btn-toolbar-primary"><i class="fas fa-plus mr-1"></i>新增</button>
+  </div>
+  <!-- 数据表 -->
+  <div class="table-wrap">
+    <table class="data-table table-hover">
+      <thead><tr><th>字段 A</th><th>字段 B</th></tr></thead>
+      <tbody><tr><td>值</td><td>值</td></tr></tbody>
+    </table>
+  </div>
+</div>
+```
+
+#### 适用范围
+
+- 运营端多 Tab 列表页（筛选 + 工具栏 + 表格）
+- 字段 ≥ 6 列、需横向滚动的日志/配置列表
+- 新建或改版列表页时，**优先**采用本紧凑规范，勿混用旧版 `px-6 py-4` + `text-lg` 筛选样式
+
 ### 自定义样式
 
 如果需要修改主题色，在 `base.css` 中修改：
@@ -641,6 +746,7 @@ A: 在 `base.css` 中添加或修改：
 
 ## 📅 更新日志
 
+- **2026-06-07**: 新增「紧凑 Tab 列表页」规范（筛选区 `filter-bar`、工具栏 `tab-toolbar`、紧凑 `data-table`）；参考 `admin-system/auto-recharge/notifications.html`
 - **2024-03-XX**: 创建 UI 风格提取指南
 
 ---

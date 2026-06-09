@@ -39,6 +39,16 @@ alwaysApply: false
 -按钮和表单样式
 -图标和视觉元素
 
+### 运营端紧凑 Tab 列表页（admin-system）
+
+多 Tab 列表页（筛选 + 工具栏 + 表格）须采用紧凑规范，详见 `admin-system/UI风格提取指南.md` 中「紧凑 Tab 列表页」章节。要点：
+
+- 筛选区使用 `filter-bar` / `filter-grid`，**不写**「筛选条件」大标题
+- 标签 `filter-label`（12px），输入 `filter-input` / `filter-select`（`6px 8px`，13px 字号）
+- 工具栏 `tab-toolbar`（`8px 16px`），标题 16px；主操作用 `btn-toolbar-primary`
+- 表格 `table-wrap` + `data-table`，表头/单元格间距由 CSS 类控制，勿在行内写 `px-6 py-3`
+- 参考实现：`admin-system/auto-recharge/notifications.html`
+
 ## 模板结构
 生成的HTML应包含以下基本结构:
 

@@ -214,6 +214,10 @@
       filter: invert(1);
       cursor: pointer;
     }
+
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table th { padding: 8px 12px; font-size: 11px; white-space: nowrap; }
+    .data-table td { padding: 6px 12px; font-size: 13px; line-height: 1.35; white-space: nowrap; }
   </style>
 </head>
 <body class="bg-gray-900 min-h-screen text-white">
@@ -228,7 +232,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-2xl font-bold text-white mb-2" data-i18n="page.title">自动充值规则</h2>
-          <p class="text-sm" style="color: #B0B5C0;" data-i18n="page.description">管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值</p>
+          <p class="text-sm" style="color: #B0B5C0;" data-i18n="page.description">管理广告账户的自动充值规则，当账户余额低于设定阈值时自动充值；支持配置自动充值冷却期与单日充值次数上限</p>
         </div>
         <div class="flex items-center space-x-4">
           <!-- 语言切换 -->
@@ -283,16 +287,18 @@
         <div class="px-6 py-4 border-b" style="border-color: #2E333F;">
           <h3 class="text-lg font-medium text-white" data-i18n="table.title">规则列表</h3>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full table-hover">
+        <div class="table-wrap">
+          <table class="w-full table-hover data-table">
             <thead style="background-color: #1E2230;">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.ruleName">规则名称</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.accountCount">账户数</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.status">状态</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.effectiveTime">生效时间</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.updateTime">更新时间</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.actions">操作</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.ruleName">规则名称</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.accountCount">账户数</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.status">状态</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.effectiveTime">生效时间</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.cooldownHours">自动充值冷却期</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.dailyLimit">单日充值次数上限</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.updateTime">更新时间</th>
+                <th class="text-left text-xs font-medium uppercase tracking-wider" style="color: #B0B5C0;" data-i18n="table.actions">操作</th>
               </tr>
             </thead>
             <tbody id="rulesTableBody" class="divide-y" style="border-color: #2E333F;">
@@ -342,18 +348,16 @@
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">余额阈值类型 *</label>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">判断关系 *</label>
               <select id="thresholdType" required class="input-field w-full">
-                <option value="below">低于</option>
-                <option value="equal">等于</option>
-                <option value="above">高于</option>
+                <option value="below">小于</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">余额阈值金额 *</label>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">阈值数值 *</label>
               <div class="flex">
                 <span class="input-field rounded-r-none" style="border-right: none; color: #B0B5C0;">$</span>
-                <input type="number" id="thresholdAmount" required step="0.01" min="0" class="input-field w-full rounded-l-none" placeholder="0.00">
+                <input type="number" id="thresholdAmount" required step="0.01" min="0.01" class="input-field w-full rounded-l-none" placeholder="0.00">
               </div>
             </div>
           </div>
@@ -361,19 +365,70 @@
             <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">充值金额 *</label>
             <div class="flex">
               <span class="input-field rounded-r-none" style="border-right: none; color: #B0B5C0;">$</span>
-              <input type="number" id="rechargeAmount" required step="0.01" min="0" class="input-field w-full rounded-l-none" placeholder="0.00">
+              <input type="number" id="rechargeAmount" required step="0.01" min="0.01" class="input-field w-full rounded-l-none" placeholder="0.00">
             </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">自动充值冷却期 *</label>
+            <div class="flex flex-wrap gap-2" id="cooldownHoursGroup">
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="cooldownHours" value="unlimited" class="mr-2">不限
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="cooldownHours" value="1" class="mr-2">1 小时
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="cooldownHours" value="3" class="mr-2" checked>3 小时
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="cooldownHours" value="6" class="mr-2">6 小时
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="cooldownHours" value="12" class="mr-2">12 小时
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="cooldownHours" value="24" class="mr-2">24 小时
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">单日充值次数上限 *</label>
+            <div class="flex flex-wrap gap-2" id="dailyLimitGroup">
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="dailyLimit" value="unlimited" class="mr-2">不限
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="dailyLimit" value="1" class="mr-2">1 次/日
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="dailyLimit" value="3" class="mr-2" checked>3 次/日
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="dailyLimit" value="5" class="mr-2">5 次/日
+              </label>
+              <label class="flex items-center px-3 py-2 rounded cursor-pointer" style="background-color: #1E2230; border: 1px solid #3C404B;">
+                <input type="radio" name="dailyLimit" value="10" class="mr-2">10 次/日
+              </label>
+            </div>
+          </div>
+          <div class="p-4 rounded-lg text-xs leading-relaxed" style="background-color: #1E2230; border: 1px solid #2E333F; color: #B0B5C0;">
+            <div class="font-medium text-white mb-2">配置说明</div>
+            <ul class="space-y-1 list-disc list-inside">
+              <li><strong>自动充值冷却期</strong>：两次自动充值成功发起之间须间隔所选时长；选「不限」表示不限制；手动充值不受此限制</li>
+              <li><strong>单日上限</strong>：每个账户每天最多自动充值成功发起所选次数；选「不限」表示不限制单日次数</li>
+              <li><strong>时区</strong>：生效时间与单日统计以广告账户时区为准</li>
+            </ul>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">有效开始时间</label>
-              <input type="datetime-local" id="startTime" class="input-field w-full" placeholder="请输入0时区的时间">
-              <p class="text-xs mt-1" style="color: #888888;">请输入0时区的时间</p>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">有效开始时间 *</label>
+              <input type="datetime-local" id="startTime" required class="input-field w-full">
+              <p class="text-xs mt-1" style="color: #888888;">按广告账户时区填写</p>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">有效结束时间</label>
-              <input type="datetime-local" id="endTime" class="input-field w-full" placeholder="请输入0时区的时间">
-              <p class="text-xs mt-1" style="color: #888888;">请输入0时区的时间</p>
+              <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">有效结束时间 *</label>
+              <input type="datetime-local" id="endTime" required class="input-field w-full">
+              <p class="text-xs mt-1" style="color: #888888;">按广告账户时区填写</p>
             </div>
           </div>
           <div>
@@ -400,7 +455,7 @@
     const i18n = {
       'zh-CN': {
         'page.title': '自动充值规则',
-        'page.description': '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值',
+        'page.description': '管理广告账户的自动充值规则，当账户余额低于设定阈值时自动充值；支持配置自动充值冷却期与单日充值次数上限',
         'btn.addRule': '新增规则',
         'btn.search': '搜索',
         'btn.reset': '重置',
@@ -414,6 +469,8 @@
         'table.accountCount': '账户数',
         'table.status': '状态',
         'table.effectiveTime': '生效时间',
+        'table.cooldownHours': '自动充值冷却期',
+        'table.dailyLimit': '单日充值次数上限',
         'table.updateTime': '更新时间',
         'table.actions': '操作',
         'status.enabled': '启用',
@@ -428,7 +485,7 @@
       },
       'en-US': {
         'page.title': 'Auto Recharge Rules',
-        'page.description': 'Manage automatic recharge rules for ad accounts. Automatically recharge when account balance falls below the threshold',
+        'page.description': 'Manage auto recharge rules with cooldown and daily limit settings when balance falls below threshold',
         'btn.addRule': 'Add Rule',
         'btn.search': 'Search',
         'btn.reset': 'Reset',
@@ -442,6 +499,8 @@
         'table.accountCount': 'Account Count',
         'table.status': 'Status',
         'table.effectiveTime': 'Effective Time',
+        'table.cooldownHours': 'Cooldown',
+        'table.dailyLimit': 'Daily Limit',
         'table.updateTime': 'Update Time',
         'table.actions': 'Actions',
         'status.enabled': 'Enabled',
@@ -483,6 +542,10 @@
         accountCount: 3,
         status: 'active',
         effectiveTime: '2024-01-01 00:00:00 ~ 2024-12-31 23:59:59',
+        cooldownHours: '3 小时',
+        dailyLimit: '3 次/日',
+        cooldownValue: '3',
+        dailyLimitValue: '3',
         updateTime: '2024-01-15 10:30:00'
       },
       {
@@ -491,9 +554,31 @@
         accountCount: 2,
         status: 'inactive',
         effectiveTime: '2024-02-01 00:00:00 ~ 2024-12-31 23:59:59',
+        cooldownHours: '6 小时',
+        dailyLimit: '5 次/日',
+        cooldownValue: '6',
+        dailyLimitValue: '5',
         updateTime: '2024-01-10 14:20:00'
       }
     ];
+
+    function getRadioValue(name, defaultValue) {
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      return checked ? checked.value : defaultValue;
+    }
+
+    function setRadioValue(name, value) {
+      const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
+      if (radio) radio.checked = true;
+    }
+
+    function formatCooldownLabel(value) {
+      return value === 'unlimited' ? '不限' : `${value} 小时`;
+    }
+
+    function formatDailyLimitLabel(value) {
+      return value === 'unlimited' ? '不限' : `${value} 次/日`;
+    }
 
     // 初始化账户列表
     function initAccountList() {
@@ -610,7 +695,7 @@
       if (filteredRules.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="px-6 py-8 text-center text-sm" style="color: #B0B5C0;">
+            <td colspan="8" class="px-6 py-8 text-center text-sm" style="color: #B0B5C0;">
               ${getText('table.noData') || '暂无数据'}
             </td>
           </tr>
@@ -620,16 +705,18 @@
       
       tbody.innerHTML = filteredRules.map(rule => `
         <tr>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${rule.ruleName}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${rule.accountCount}</td>
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-white">${rule.ruleName}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-white">${rule.accountCount}</td>
+          <td class="px-4 py-2 whitespace-nowrap">
             <span class="${rule.status === 'active' ? 'status-active' : 'status-inactive'}">
               ${rule.status === 'active' ? getText('status.enabled') : getText('status.disabled')}
             </span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.effectiveTime}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.updateTime}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm">
+          <td class="px-4 py-2 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.effectiveTime}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.cooldownHours || '—'}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.dailyLimit || '—'}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm" style="color: #B0B5C0;">${rule.updateTime}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm">
             <div class="flex items-center space-x-2">
               <button onclick="editRule(${rule.id})" class="text-blue-400 hover:text-blue-300" title="${getText('btn.edit')}">
                 <i class="fas fa-edit"></i>
@@ -651,9 +738,11 @@
       document.getElementById('ruleForm').reset();
       selectedAccounts = [];
       document.getElementById('accountSearch').value = '';
-      document.getElementById('ruleStatus').value = 'active'; // 默认启用
+      document.getElementById('ruleStatus').value = 'active';
       document.getElementById('startTime').value = '';
       document.getElementById('endTime').value = '';
+      setRadioValue('cooldownHours', '3');
+      setRadioValue('dailyLimit', '3');
       initAccountList();
       document.getElementById('ruleModal').classList.remove('hidden');
     }
@@ -668,6 +757,8 @@
       if (rule) {
         document.getElementById('ruleName').value = rule.ruleName;
         document.getElementById('ruleStatus').value = rule.status;
+        setRadioValue('cooldownHours', rule.cooldownValue || '3');
+        setRadioValue('dailyLimit', rule.dailyLimitValue || '3');
       } else {
         // 默认示例数据
         document.getElementById('ruleName').value = '规则001';
@@ -698,6 +789,8 @@
       document.getElementById('startTime').value = '';
       document.getElementById('endTime').value = '';
       document.getElementById('ruleStatus').value = 'active';
+      setRadioValue('cooldownHours', '3');
+      setRadioValue('dailyLimit', '3');
     }
 
     // 切换规则状态
@@ -739,12 +832,16 @@
         return;
       }
       
+      const cooldownValue = getRadioValue('cooldownHours', '3');
+      const dailyLimitValue = getRadioValue('dailyLimit', '3');
       const formData = {
         ruleName: document.getElementById('ruleName').value,
         accountIds: selectedAccounts.map(a => a.id),
         thresholdType: document.getElementById('thresholdType').value,
         thresholdAmount: document.getElementById('thresholdAmount').value,
         rechargeAmount: document.getElementById('rechargeAmount').value,
+        cooldownHours: cooldownValue,
+        dailyLimit: dailyLimitValue,
         startTime: startTime || null,
         endTime: endTime || null,
         status: document.getElementById('ruleStatus').value
@@ -762,6 +859,10 @@
           rule.status = formData.status;
           rule.effectiveTime = startTime && endTime ? 
             `${formatDateTime(startTime)} ~ ${formatDateTime(endTime)}` : '';
+          rule.cooldownHours = formatCooldownLabel(cooldownValue);
+          rule.dailyLimit = formatDailyLimitLabel(dailyLimitValue);
+          rule.cooldownValue = cooldownValue;
+          rule.dailyLimitValue = dailyLimitValue;
           rule.updateTime = formatDateTime(new Date());
         }
         alert(getText('alert.ruleUpdated'));
@@ -773,6 +874,10 @@
           status: formData.status,
           effectiveTime: startTime && endTime ? 
             `${formatDateTime(startTime)} ~ ${formatDateTime(endTime)}` : '',
+          cooldownHours: formatCooldownLabel(cooldownValue),
+          dailyLimit: formatDailyLimitLabel(dailyLimitValue),
+          cooldownValue: cooldownValue,
+          dailyLimitValue: dailyLimitValue,
           updateTime: formatDateTime(new Date())
         };
         rulesData.push(newRule);
