@@ -334,6 +334,7 @@
                     <tr>
                       <th>规则名称</th>
                       <th>条件</th>
+                      <th>状态</th>
                       <th>最短通知间隔</th>
                       <th>账户数</th>
                       <th>最后更新人</th>
@@ -351,6 +352,7 @@
                     <tr>
                       <td>规则001</td>
                       <td>低于 $100</td>
+                      <td><span class="status-badge ok">启用</span></td>
                       <td>24 小时</td>
                       <td>3</td>
                       <td>欧伟权(ouweiquan@bestfulfill.com)</td>
@@ -364,6 +366,7 @@
                     <tr>
                       <td>规则002</td>
                       <td>低于 $200</td>
+                      <td><span class="status-badge muted">停用</span></td>
                       <td>12 小时</td>
                       <td>2</td>
                       <td>张三(zhangsan@bestfulfill.com)</td>
@@ -423,7 +426,7 @@
                 <table class="data-table table-hover">
                   <thead>
                     <tr>
-                      <th>判断时间</th>
+                      <th>判断时间(+8)</th>
                       <th>规则名称</th>
                       <th>媒体平台</th>
                       <th>代理</th>
@@ -558,7 +561,7 @@
                 <table class="data-table table-hover">
                   <thead>
                     <tr>
-                      <th>判断时间</th>
+                      <th>判断时间(+8)</th>
                       <th>商户ID</th>
                       <th>客户名称</th>
                       <th>规则名称</th>
@@ -844,8 +847,8 @@
               <label class="flex items-center px-2 py-1 border rounded cursor-pointer text-xs"><input type="radio" name="clientDailyLimit" value="10" class="mr-1">10次</label>
             </div></div>
           <div class="grid grid-cols-2 gap-3">
-            <div><label class="block text-xs font-medium text-gray-700 mb-1">生效开始 *</label><input type="datetime-local" id="clientStartTime" required class="w-full px-2 py-1.5 border rounded-md"></div>
-            <div><label class="block text-xs font-medium text-gray-700 mb-1">生效结束 *</label><input type="datetime-local" id="clientEndTime" required class="w-full px-2 py-1.5 border rounded-md"></div>
+            <div><label class="block text-xs font-medium text-gray-700 mb-1">生效开始 *</label><input type="datetime-local" id="clientStartTime" required class="w-full px-2 py-1.5 border rounded-md"><p class="text-[11px] text-gray-400 mt-0.5">按所选广告账户时区</p></div>
+            <div><label class="block text-xs font-medium text-gray-700 mb-1">生效结束 *</label><input type="datetime-local" id="clientEndTime" required class="w-full px-2 py-1.5 border rounded-md"><p class="text-[11px] text-gray-400 mt-0.5">按所选广告账户时区</p></div>
           </div>
           <div><label class="block text-xs font-medium text-gray-700 mb-1">状态</label><select id="clientRuleStatus" class="w-full px-2 py-1.5 border rounded-md"><option value="active">启用</option><option value="inactive">停用</option></select></div>
           <div><label class="block text-xs font-medium text-gray-700 mb-1">广告账户 *</label>
@@ -868,36 +871,6 @@
   </div>
 
 
-  <!-- 备注模态框 -->
-  <div id="remarkModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">添加备注</h3>
-            <button onclick="closeRemarkModal()" class="text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-        <div class="px-6 py-4">
-          <input type="hidden" id="remarkNotificationId" value="">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">备注内容</label>
-            <textarea id="remarkContent" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入备注内容"></textarea>
-          </div>
-        </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-          <button onclick="closeRemarkModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
-            取消
-          </button>
-          <button onclick="saveRemark()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
-            保存
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script>
     // 所有广告账户数据（示例数据，实际应该从API获取）
@@ -1171,37 +1144,6 @@
       }
     });
 
-    // 添加备注
-    function addRemark(notificationId) {
-      document.getElementById('remarkNotificationId').value = notificationId;
-      document.getElementById('remarkContent').value = '';
-      document.getElementById('remarkModal').classList.remove('hidden');
-    }
-
-    // 关闭备注模态框
-    function closeRemarkModal() {
-      document.getElementById('remarkModal').classList.add('hidden');
-    }
-
-    // 保存备注
-    function saveRemark() {
-      const notificationId = document.getElementById('remarkNotificationId').value;
-      const content = document.getElementById('remarkContent').value;
-      
-      if (!content.trim()) {
-        alert('请输入备注内容');
-        return;
-      }
-      
-      // 这里应该调用API保存备注
-      console.log('保存备注:', { notificationId, content });
-      alert('备注已保存');
-      closeRemarkModal();
-      // 刷新余额监控日志（如果当前在监控日志Tab）
-      if (document.getElementById('content-monitor-logs').classList.contains('active')) {
-        refreshMonitorLogs();
-      }
-    }
 
     // Tab切换
     function switchTab(tabName) {
@@ -1408,25 +1350,19 @@
       alert('客户自动充值日志已刷新');
     }
 
-    // 点击模态框外部关闭
-    document.getElementById('remarkModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeRemarkModal();
-      }
-    });
 
     // 页面加载完成后的初始化
     
     // ===== 自动充值设置 & 变更日志 =====
     const clientAllAccounts = [
       { id: 'FB001234567', name: '科技公司广告账户', platform: 'Facebook' },
-      { id: 'FB001234568', name: '营销策划广告账户', platform: 'Facebook' },
+      { id: 'FB001234568', name: '营销策划广告账户', platform: 'Facebook', occupied: true, occupiedBy: '规则002' },
       { id: 'GG001234570', name: '创新科技广告账户', platform: 'Google' }
     ];
     let clientSelectedAccounts = [];
     const clientRulesData = [
-      { id: 'R001', merchantId: 'M001', customerName: '科技有限公司', ruleName: '规则001', conditionLabel: '低于 $100', rechargeAmount: '$500', cooldownHours: '3 小时', dailyLimit: '3 次/日', cooldownValue: '3', dailyLimitValue: '3', status: 'active', effectiveTime: '2024-01-01 ~ 2024-12-31', accountCount: 2, createdBy: 'tech@example.com', lastOperator: '欧伟权(ouweiquan@bestfulfill.com)', updatedAt: '2024-01-15 10:30', accountIds: ['FB001234567','FB001234568'] },
-      { id: 'R002', merchantId: 'M002', customerName: '创新科技公司', ruleName: '规则002', conditionLabel: '低于 $200', rechargeAmount: '$1000', cooldownHours: '不限', dailyLimit: '不限', cooldownValue: 'unlimited', dailyLimitValue: 'unlimited', status: 'inactive', effectiveTime: '2024-02-01 ~ 2024-12-31', accountCount: 1, createdBy: 'innovate@example.com', lastOperator: '张三(zhangsan@bestfulfill.com)', updatedAt: '2024-01-14 14:20', accountIds: ['GG001234570'] }
+      { id: 'R001', merchantId: 'M001', customerName: '科技有限公司', ruleName: '规则001', conditionLabel: '低于 $100', rechargeAmount: '$500', cooldownHours: '3 小时', dailyLimit: '3 次/日', cooldownValue: '3', dailyLimitValue: '3', status: 'active', effectiveTime: '2024-01-01 00:00:00 ~ 2024-12-31 23:59:59 (账户时区 UTC-8)', accountCount: 2, createdBy: 'tech@example.com', lastOperator: '欧伟权(ouweiquan@bestfulfill.com)', updatedAt: '2024-01-15 10:30', accountIds: ['FB001234567','FB001234568'] },
+      { id: 'R002', merchantId: 'M002', customerName: '创新科技公司', ruleName: '规则002', conditionLabel: '低于 $200', rechargeAmount: '$1000', cooldownHours: '不限', dailyLimit: '不限', cooldownValue: 'unlimited', dailyLimitValue: 'unlimited', status: 'inactive', effectiveTime: '2024-02-01 00:00:00 ~ 2024-12-31 23:59:59 (账户时区 UTC-8)', accountCount: 1, createdBy: 'innovate@example.com', lastOperator: '张三(zhangsan@bestfulfill.com)', updatedAt: '2024-01-14 14:20', accountIds: ['GG001234570'] }
     ];
     const changelogData = [
       { operatedAt: '2024-01-15 10:30', operator: '欧伟权(ouweiquan@bestfulfill.com)', merchantId: 'M001', customerName: '科技有限公司', ruleId: 'R001', ruleName: '规则001', opType: '编辑', changeSummary: '冷却期: 1小时 → 3小时', opSource: '运营端', remark: '-' },
@@ -1462,12 +1398,16 @@
     function renderClientAccountList() {
       document.getElementById('clientAccountList').innerHTML = clientAllAccounts.map(a => {
         const on = clientSelectedAccounts.some(s => s.id === a.id);
+        if (a.occupied) {
+          return `<div class="p-1.5 rounded text-xs bg-gray-100 text-gray-400 cursor-not-allowed" title="该账户已关联其他规则（${a.occupiedBy}）；同一广告账户同一时间仅可关联一条自动充值规则">${a.name} · ${a.platform} · ${a.id} <span class="text-red-400">· 已被占用</span></div>`;
+        }
         return `<div class="p-1.5 rounded text-xs cursor-pointer hover:bg-gray-100 ${on?'bg-blue-50':''}" onclick="toggleClientAccount('${a.id}')">${a.name} · ${a.platform} · ${a.id}</div>`;
       }).join('');
       document.getElementById('clientSelectedAccounts').innerHTML = clientSelectedAccounts.length ? clientSelectedAccounts.map(a => a.name).join(', ') : '暂未选择';
     }
     function toggleClientAccount(id) {
       const acc = clientAllAccounts.find(a => a.id === id);
+      if (!acc || acc.occupied) return;
       const i = clientSelectedAccounts.findIndex(a => a.id === id);
       if (i > -1) clientSelectedAccounts.splice(i, 1); else clientSelectedAccounts.push(acc);
       renderClientAccountList();

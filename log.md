@@ -40,6 +40,16 @@
 
 ---
 
+#### 2026-06-09 - V 2.24 PRD v0.3 与 HTML 原型对齐
+
+**PRD** `PRD/V 2.24 自动充值功能优化.md` (v0.3)：章节编号调整；冷却期/单日上限补「不限」；余额监控列表增「状态」；日志时区与代客时区口径；一账户一规则说明。
+
+**HTML** `admin-system/auto-recharge/notifications.html`：监控规则列表增状态列；日志列标注 +8；代客生效时间提示账户时区；移除监控日志备注弹窗残留。
+
+**HTML** `bestads-client-styled/auto-recharge-rules.html`：账户选择支持已占用置灰；生效时间展示账户时区。
+
+---
+
 #### 2026-06-07 - gitignore 排除 PRD/飞书同步
 
 **Git** `.gitignore`：新增 `PRD/飞书同步/`，该目录及子文件不纳入版本库。

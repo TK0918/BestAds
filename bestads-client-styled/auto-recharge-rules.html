@@ -524,9 +524,9 @@
     const allAccounts = [
       { id: 'FB001234567', name: '测试广告账户01', platform: 'Facebook' },
       { id: 'FB001234568', name: '测试广告账户02', platform: 'Facebook' },
-      { id: 'FB001234569', name: '营销广告账户', platform: 'Facebook' },
+      { id: 'FB001234569', name: '营销广告账户', platform: 'Facebook', occupied: true, occupiedBy: '规则001' },
       { id: 'GG001234570', name: 'Google广告账户01', platform: 'Google' },
-      { id: 'GG001234571', name: 'Google广告账户02', platform: 'Google' },
+      { id: 'GG001234571', name: 'Google广告账户02', platform: 'Google', occupied: true, occupiedBy: '规则002' },
       { id: 'SC001234572', name: 'Snapchat广告账户', platform: 'Snapchat' },
       { id: 'TT001234573', name: 'TikTok广告账户', platform: 'TikTok' }
     ];
@@ -541,7 +541,7 @@
         ruleName: '规则001',
         accountCount: 3,
         status: 'active',
-        effectiveTime: '2024-01-01 00:00:00 ~ 2024-12-31 23:59:59',
+        effectiveTime: '2024-01-01 00:00:00 ~ 2024-12-31 23:59:59 (账户时区 UTC-8)',
         cooldownHours: '3 小时',
         dailyLimit: '3 次/日',
         cooldownValue: '3',
@@ -553,7 +553,7 @@
         ruleName: '规则002',
         accountCount: 2,
         status: 'inactive',
-        effectiveTime: '2024-02-01 00:00:00 ~ 2024-12-31 23:59:59',
+        effectiveTime: '2024-02-01 00:00:00 ~ 2024-12-31 23:59:59 (账户时区 UTC-8)',
         cooldownHours: '6 小时',
         dailyLimit: '5 次/日',
         cooldownValue: '6',
@@ -596,6 +596,23 @@
       
         container.innerHTML = accounts.map(account => {
         const isSelected = selectedAccounts.some(a => a.id === account.id);
+        if (account.occupied) {
+          return `
+          <div class="account-item p-2 rounded cursor-not-allowed opacity-50" title="该账户已关联其他规则（${account.occupiedBy}）；同一广告账户同一时间仅可关联一条自动充值规则">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="text-sm font-medium" style="color: #888888;">${account.name}</div>
+                <div class="text-xs mt-1" style="color: #6B7280;">
+                  <span class="mr-3">${account.platform}</span>
+                  <span>${account.id}</span>
+                  <span class="ml-2" style="color:#F87171;">· 已被占用</span>
+                </div>
+              </div>
+              <div class="ml-3"><i class="fas fa-ban text-gray-500"></i></div>
+            </div>
+          </div>
+        `;
+        }
         return `
           <div class="account-item p-2 rounded cursor-pointer ${isSelected ? 'bg-gray-700' : ''}" onclick="toggleAccount('${account.id}')">
             <div class="flex items-center justify-between">
@@ -642,7 +659,7 @@
     // 切换账户选择状态
     function toggleAccount(accountId) {
       const account = allAccounts.find(a => a.id === accountId);
-      if (!account) return;
+      if (!account || account.occupied) return;
 
       const index = selectedAccounts.findIndex(a => a.id === accountId);
       if (index > -1) {
