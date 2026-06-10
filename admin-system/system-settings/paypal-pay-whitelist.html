@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在线支付白名单 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .modal-backdrop { backdrop-filter: blur(4px); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .tab-button { transition: all 0.2s ease; border-bottom: 2px solid transparent; color: #6b7280; }
+    .tab-button.active { border-bottom-color: #2563eb; color: #2563eb; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table { min-width: max-content; width: 100%; border-collapse: collapse; }
+    .data-table thead th { padding: 8px 12px !important; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    .data-table tbody td { padding: 6px 12px !important; font-size: 13px; line-height: 1.35; color: #374151; white-space: nowrap; border-bottom: 1px solid #f3f4f6; }
+    .data-table tbody tr:hover { background-color: #f9fafb; }
+    .filter-bar { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+    .filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: end; }
+    @media (min-width: 768px) { .filter-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .filter-label { display: block; font-size: 12px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+    .filter-input, .filter-select { width: 100%; padding: 6px 8px; font-size: 13px; line-height: 1.4; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; color: #374151; }
+    .filter-input:focus, .filter-select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+    .filter-actions { display: flex; gap: 8px; }
+    .btn-filter-search { flex: 1; padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #2563eb; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-filter-search:hover { background: #1d4ed8; }
+    .btn-filter-reset { flex: 1; padding: 6px 12px; font-size: 13px; font-weight: 500; color: #374151; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; }
+    .btn-filter-reset:hover { background: #f9fafb; }
+    .tab-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid #e5e7eb; }
+    .tab-toolbar-title { font-size: 16px; font-weight: 500; color: #111827; margin: 0; }
+    .btn-toolbar-primary { padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #2563eb; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-toolbar-primary:hover { background: #1d4ed8; }
+    .btn-link-danger { color: #dc2626; font-size: 13px; font-weight: 500; cursor: pointer; background: none; border: none; padding: 0; }
+    .btn-link-danger:hover { color: #b91c1c; text-decoration: underline; }
+    .op-badge-add { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; background: #dcfce7; color: #166534; }
+    .op-badge-remove { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; background: #fef2f2; color: #dc2626; }
+    .customer-option { padding: 8px 12px; cursor: pointer; font-size: 13px; }
+    .customer-option:hover, .customer-option.selected { background: #eff6ff; }
+    .toast-enter { animation: toastIn 0.3s ease-out; }
+    @keyframes toastIn { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body class="bg-gray-50">
+<div class="flex h-screen overflow-hidden">
+  <!-- 侧边栏（完整菜单，与 index.html 对齐） -->
+  <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+    <div class="flex items-center justify-center h-16 border-b border-gray-200">
+      <div class="flex items-center">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-line text-white text-sm"></i>
+        </div>
+        <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+      </div>
+    </div>
+    <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+      <nav>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+            <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="mainMenu" class="space-y-1 mb-2">
+            <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+            <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+            <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+            <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+            <li><a href="../main-functions/introducer-spitpoint.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-400"></i>介绍人和吐点</a></li>
+            <li><a href="../main-functions/deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+            <li><a href="../main-functions/system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
+            <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="perfMenu" class="space-y-1 mb-2">
+            <li><a href="../performance/metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+            <li><a href="../performance/performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+            <li><a href="../performance/all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
+            <li><a href="../performance/my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
+            <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+            <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="fbMenu" class="space-y-1 mb-2">
+            <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+            <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+            <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+            <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="adMenu" class="space-y-1 mb-2">
+            <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+            <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="googleMenu" class="space-y-1 mb-2">
+            <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+            <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+            <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="otherMediaMenu" class="space-y-1 mb-2">
+            <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+            <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+            <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+            <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+            <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+            <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="sysMenu" class="space-y-1 mb-2">
+            <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+            <li><a href="notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+            <li><a href="ad-consumption-decline-reminder.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>消耗下降提醒配置</a></li>
+            <li><a href="paypal-pay-whitelist.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fab fa-paypal w-5 h-5 mr-3 text-blue-600"></i>在线支付白名单</a></li>
+            <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+            <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="flowMenu" class="space-y-1 mb-2">
+            <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+            <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+            <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+            <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+            <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控&自动充值</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+            <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+          </div>
+          <ul id="reportMenu" class="space-y-1 mb-2">
+            <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+            <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+            <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+            <li><a href="../reports/manual-consume-upload.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-upload w-5 h-5 mr-3 text-gray-400"></i>人工上传媒体消耗</a></li>
+            <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+            <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+            <li><a href="../reports/ad-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-signal w-5 h-5 mr-3 text-gray-400"></i>广告日报</a></li>
+            <li><a href="../reports/customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i>客户对账日报</a></li>
+            <li><a href="../reports/data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i>数据报表</a></li>
+            <li><a href="../reports/consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i>消耗分析</a></li>
+            <li><a href="../reports/recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i>充值分布分析</a></li>
+            <li><a href="../reports/profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i>预计利润波动分析</a></li>
+            <li><a href="../reports/customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i>客户资金变动</a></li>
+            <li><a href="../reports/ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i>广告客户表现</a></li>
+            <li><a href="../reports/customer-lifecycle-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hourglass-half w-5 h-5 mr-3 text-gray-400"></i>客户生命周期报表</a></li>
+            <li><a href="../reports/weekly-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-gray-400"></i>广告周数据</a></li>
+            <li><a href="../reports/multi-tab-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-table w-5 h-5 mr-3 text-gray-400"></i>客户广告表现(新)</a></li>
+            <li><a href="../reports/account-card-reconciliation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-link w-5 h-5 mr-3 text-gray-400"></i>绑卡户数据核对</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </aside>
+
+  <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+  <!-- 主内容 -->
+  <div class="flex flex-col flex-1 overflow-hidden">
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+            <i class="fas fa-bars text-lg"></i>
+          </button>
+          <div class="ml-4 lg:ml-0">
+            <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+              <span class="text-gray-500">主页</span>
+              <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+              <span class="text-gray-500">系统设置</span>
+              <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+              <span class="text-gray-900 font-medium">在线支付白名单</span>
+            </nav>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-medium">A</span>
+          </div>
+          <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+      <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">在线支付白名单</h2>
+            <p class="mt-1 text-sm text-gray-500">配置允许在 Fund 收银台展示 PayPal 在线支付的客户；默认全员关闭，仅白名单客户可见 PayPal</p>
+          </div>
+
+          <!-- Tab 导航 -->
+          <div class="border-b border-gray-200 mb-6">
+            <nav class="flex space-x-8">
+              <button id="tabWhitelist" onclick="switchTab('whitelist')" class="tab-button active py-3 px-1 text-sm font-medium flex items-center gap-2">
+                <i class="fas fa-list-check"></i>白名单配置
+              </button>
+              <button id="tabAudit" onclick="switchTab('audit')" class="tab-button py-3 px-1 text-sm font-medium flex items-center gap-2">
+                <i class="fas fa-history"></i>操作审计
+              </button>
+            </nav>
+          </div>
+
+          <!-- Tab 1: 白名单配置 -->
+          <div id="paneWhitelist" class="tab-content active">
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="filter-bar">
+                <div class="filter-grid">
+                  <div>
+                    <label class="filter-label">商户 ID</label>
+                    <input id="filterMerchantId" type="text" class="filter-input" placeholder="精确匹配">
+                  </div>
+                  <div>
+                    <label class="filter-label">客户名称</label>
+                    <input id="filterCustomerName" type="text" class="filter-input" placeholder="模糊搜索">
+                  </div>
+                  <div class="filter-actions">
+                    <button class="btn-filter-search" onclick="filterWhitelist()"><i class="fas fa-search mr-1"></i>查询</button>
+                    <button class="btn-filter-reset" onclick="resetWhitelistFilter()">重置</button>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-toolbar">
+                <h3 class="tab-toolbar-title">白名单客户 <span id="whitelistCount" class="text-sm font-normal text-gray-500 ml-2">共 3 条</span></h3>
+                <button class="btn-toolbar-primary" onclick="openAddModal()"><i class="fas fa-plus mr-1"></i>添加客户</button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>商户 ID</th>
+                      <th>客户名称</th>
+                      <th>备注</th>
+                      <th>添加人</th>
+                      <th>添加时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="whitelistBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: 操作审计 -->
+          <div id="paneAudit" class="tab-content">
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="filter-bar">
+                <div class="filter-grid">
+                  <div>
+                    <label class="filter-label">操作时间</label>
+                    <div class="flex gap-2 items-center">
+                      <input id="auditStartDate" type="date" class="filter-input" value="2026-06-03">
+                      <span class="text-gray-400 text-xs">至</span>
+                      <input id="auditEndDate" type="date" class="filter-input" value="2026-06-10">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="filter-label">操作人</label>
+                    <input id="filterOperator" type="text" class="filter-input" placeholder="姓名或邮箱">
+                  </div>
+                  <div>
+                    <label class="filter-label">商户 ID</label>
+                    <input id="auditFilterMerchantId" type="text" class="filter-input" placeholder="精确匹配">
+                  </div>
+                  <div>
+                    <label class="filter-label">客户名称</label>
+                    <input id="auditFilterCustomerName" type="text" class="filter-input" placeholder="模糊搜索">
+                  </div>
+                  <div>
+                    <label class="filter-label">操作类型</label>
+                    <select id="filterOpType" class="filter-select">
+                      <option value="">全部</option>
+                      <option value="ADD">添加</option>
+                      <option value="REMOVE">移除</option>
+                    </select>
+                  </div>
+                  <div class="filter-actions">
+                    <button class="btn-filter-search" onclick="filterAudit()"><i class="fas fa-search mr-1"></i>查询</button>
+                    <button class="btn-filter-reset" onclick="resetAuditFilter()">重置</button>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-toolbar">
+                <h3 class="tab-toolbar-title">操作审计记录</h3>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>操作时间</th>
+                      <th>操作人</th>
+                      <th>商户 ID</th>
+                      <th>客户名称</th>
+                      <th>操作类型</th>
+                      <th>备注</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 添加客户弹窗 -->
+<div id="addModal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0 bg-gray-900 bg-opacity-50" onclick="closeAddModal()"></div>
+  <div class="relative min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">添加客户到白名单</h3>
+        <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="px-6 py-4 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">客户 <span class="text-red-500">*</span></label>
+          <input id="customerSearch" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="输入商户 ID 或名称搜索" oninput="searchCustomers(this.value)">
+          <div id="customerDropdown" class="mt-1 border border-gray-200 rounded-md max-h-40 overflow-y-auto hidden"></div>
+          <div id="selectedCustomer" class="mt-2 text-sm text-gray-600 hidden"></div>
+          <p id="customerError" class="text-red-500 text-xs mt-1 hidden">请选择客户</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="addRemark" rows="3" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="建议填写加白原因，如「老客户、有在线支付需求」"></textarea>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button onclick="closeAddModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+        <button onclick="submitAdd()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">确认添加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 移除确认弹窗 -->
+<div id="removeModal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0 bg-gray-900 bg-opacity-50" onclick="closeRemoveModal()"></div>
+  <div class="relative min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">确认移除</h3>
+      </div>
+      <div class="px-6 py-4 space-y-4">
+        <div>
+          <p class="text-sm text-gray-600">确认将客户 <strong id="removeCustomerLabel"></strong> 移出 PayPal 在线支付白名单？</p>
+          <p class="text-sm text-gray-500 mt-2">移除后，该客户下次在线充值时将不再展示 PayPal 支付方式。</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea id="removeRemark" rows="3" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="选填，建议填写移除原因"></textarea>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button onclick="closeRemoveModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+        <button onclick="confirmRemove()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">确认移除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-4 right-4 z-[60] hidden">
+  <div class="toast-enter bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2">
+    <i class="fas fa-check-circle"></i><span id="toastMsg">操作成功</span>
+  </div>
+</div>
+
+<script>
+  const MOCK_CUSTOMERS = [
+    { id: 10086, name: '星辰跨境电商有限公司' },
+    { id: 10087, name: '蓝海科技（深圳）' },
+    { id: 10088, name: '优品出海贸易' },
+    { id: 10089, name: 'Nova Digital HK' },
+    { id: 10090, name: '智选电商运营中心' },
+  ];
+
+  let whitelist = [
+    { id: 10086, name: '星辰跨境电商有限公司', remark: '合作 2 年，付款记录良好', createdBy: '张三 zhangsan@bestfulfill.com', createdTime: '2026-06-08 14:30:00' },
+    { id: 10087, name: '蓝海科技（深圳）', remark: '老客户，有 PayPal 在线支付需求', createdBy: '李四 lisi@bestfulfill.com', createdTime: '2026-06-09 10:15:00' },
+    { id: 10088, name: '优品出海贸易', remark: '-', createdBy: '张三 zhangsan@bestfulfill.com', createdTime: '2026-06-09 16:42:00' },
+  ];
+
+  let auditLogs = [
+    { operatedAt: '2026-06-09 16:42:00', operator: '张三 zhangsan@bestfulfill.com', merchantId: 10088, customerName: '优品出海贸易', opType: 'ADD', remark: '-' },
+    { operatedAt: '2026-06-09 10:15:00', operator: '李四 lisi@bestfulfill.com', merchantId: 10087, customerName: '蓝海科技（深圳）', opType: 'ADD', remark: '老客户，有 PayPal 在线支付需求' },
+    { operatedAt: '2026-06-08 14:30:00', operator: '张三 zhangsan@bestfulfill.com', merchantId: 10086, customerName: '星辰跨境电商有限公司', opType: 'ADD', remark: '合作 2 年，付款记录良好' },
+    { operatedAt: '2026-06-07 11:20:00', operator: '王五 wangwu@bestfulfill.com', merchantId: 10055, customerName: '测试客户 A', opType: 'REMOVE', remark: '-' },
+  ];
+
+  let selectedCustomerId = null;
+  let removeTargetId = null;
+  let filteredWhitelist = [...whitelist];
+  let filteredAudit = [...auditLogs];
+
+  function toggleMenuSection(id) {
+    const ul = document.getElementById(id);
+    const arrow = document.getElementById(id + 'Arrow');
+    if (!ul || !arrow) return;
+    if (ul.style.display === 'none') {
+      ul.style.display = '';
+      arrow.classList.remove('fa-chevron-right');
+      arrow.classList.add('fa-chevron-down');
+    } else {
+      ul.style.display = 'none';
+      arrow.classList.remove('fa-chevron-down');
+      arrow.classList.add('fa-chevron-right');
+    }
+  }
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar.classList.contains('mobile-menu-closed')) {
+      sidebar.classList.remove('mobile-menu-closed');
+      sidebar.classList.add('mobile-menu-open');
+      overlay.classList.remove('hidden', 'opacity-0');
+      overlay.classList.add('opacity-50');
+    } else {
+      sidebar.classList.remove('mobile-menu-open');
+      sidebar.classList.add('mobile-menu-closed');
+      overlay.classList.add('opacity-0');
+      overlay.classList.remove('opacity-50');
+      setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
+  }
+
+  document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+    if (tab === 'whitelist') {
+      document.getElementById('tabWhitelist').classList.add('active');
+      document.getElementById('paneWhitelist').classList.add('active');
+    } else {
+      document.getElementById('tabAudit').classList.add('active');
+      document.getElementById('paneAudit').classList.add('active');
+    }
+  }
+
+  function renderWhitelist() {
+    const tbody = document.getElementById('whitelistBody');
+    document.getElementById('whitelistCount').textContent = `共 ${filteredWhitelist.length} 条`;
+    if (filteredWhitelist.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">暂无白名单客户</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filteredWhitelist.map(row => `
+      <tr>
+        <td>${row.id}</td>
+        <td>${row.name}</td>
+        <td>${row.remark || '-'}</td>
+        <td>${row.createdBy}</td>
+        <td>${row.createdTime}</td>
+        <td><button class="btn-link-danger" onclick="openRemoveModal(${row.id})">移除</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderAudit() {
+    const tbody = document.getElementById('auditBody');
+    if (filteredAudit.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">暂无操作记录</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filteredAudit.map(row => `
+      <tr>
+        <td>${row.operatedAt}</td>
+        <td>${row.operator}</td>
+        <td>${row.merchantId}</td>
+        <td>${row.customerName}</td>
+        <td><span class="${row.opType === 'ADD' ? 'op-badge-add' : 'op-badge-remove'}">${row.opType === 'ADD' ? '添加' : '移除'}</span></td>
+        <td>${row.remark || '-'}</td>
+      </tr>
+    `).join('');
+  }
+
+  function filterWhitelist() {
+    const id = document.getElementById('filterMerchantId').value.trim();
+    const name = document.getElementById('filterCustomerName').value.trim().toLowerCase();
+    filteredWhitelist = whitelist.filter(row => {
+      if (id && String(row.id) !== id) return false;
+      if (name && !row.name.toLowerCase().includes(name)) return false;
+      return true;
+    });
+    renderWhitelist();
+  }
+
+  function resetWhitelistFilter() {
+    document.getElementById('filterMerchantId').value = '';
+    document.getElementById('filterCustomerName').value = '';
+    filteredWhitelist = [...whitelist];
+    renderWhitelist();
+  }
+
+  function filterAudit() {
+    const op = document.getElementById('filterOperator').value.trim().toLowerCase();
+    const cid = document.getElementById('auditFilterMerchantId').value.trim();
+    const cname = document.getElementById('auditFilterCustomerName').value.trim().toLowerCase();
+    const opType = document.getElementById('filterOpType').value;
+    filteredAudit = auditLogs.filter(row => {
+      if (op && !row.operator.toLowerCase().includes(op)) return false;
+      if (cid && String(row.merchantId) !== cid) return false;
+      if (cname && !row.customerName.toLowerCase().includes(cname)) return false;
+      if (opType && row.opType !== opType) return false;
+      return true;
+    });
+    renderAudit();
+  }
+
+  function resetAuditFilter() {
+    document.getElementById('filterOperator').value = '';
+    document.getElementById('auditFilterMerchantId').value = '';
+    document.getElementById('auditFilterCustomerName').value = '';
+    document.getElementById('filterOpType').value = '';
+    filteredAudit = [...auditLogs];
+    renderAudit();
+  }
+
+  function openAddModal() {
+    selectedCustomerId = null;
+    document.getElementById('customerSearch').value = '';
+    document.getElementById('addRemark').value = '';
+    document.getElementById('selectedCustomer').classList.add('hidden');
+    document.getElementById('customerDropdown').classList.add('hidden');
+    document.getElementById('customerError').classList.add('hidden');
+    document.getElementById('addModal').classList.remove('hidden');
+  }
+
+  function closeAddModal() {
+    document.getElementById('addModal').classList.add('hidden');
+  }
+
+  function searchCustomers(keyword) {
+    const dropdown = document.getElementById('customerDropdown');
+    if (!keyword.trim()) {
+      dropdown.classList.add('hidden');
+      return;
+    }
+    const kw = keyword.trim().toLowerCase();
+    const inWhitelist = new Set(whitelist.map(w => w.id));
+    const results = MOCK_CUSTOMERS.filter(c =>
+      (String(c.id).includes(kw) || c.name.toLowerCase().includes(kw)) && !inWhitelist.has(c.id)
+    );
+    if (results.length === 0) {
+      dropdown.innerHTML = '<div class="customer-option text-gray-400">无匹配客户或已在白名单</div>';
+    } else {
+      dropdown.innerHTML = results.map(c =>
+        `<div class="customer-option" onclick="selectCustomer(${c.id}, '${c.name.replace(/'/g, "\\'")}')">${c.id} - ${c.name}</div>`
+      ).join('');
+    }
+    dropdown.classList.remove('hidden');
+  }
+
+  function selectCustomer(id, name) {
+    selectedCustomerId = id;
+    document.getElementById('customerSearch').value = `${id} - ${name}`;
+    document.getElementById('selectedCustomer').textContent = `已选：${name}（商户 ID: ${id}）`;
+    document.getElementById('selectedCustomer').classList.remove('hidden');
+    document.getElementById('customerDropdown').classList.add('hidden');
+    document.getElementById('customerError').classList.add('hidden');
+  }
+
+  function submitAdd() {
+    if (!selectedCustomerId) {
+      document.getElementById('customerError').classList.remove('hidden');
+      return;
+    }
+    if (whitelist.some(w => w.id === selectedCustomerId)) {
+      showToast('该客户已在白名单中', true);
+      return;
+    }
+    const customer = MOCK_CUSTOMERS.find(c => c.id === selectedCustomerId);
+    const remark = document.getElementById('addRemark').value.trim() || '-';
+    const now = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
+    whitelist.unshift({
+      id: selectedCustomerId,
+      name: customer.name,
+      remark,
+      createdBy: '管理员 admin@bestfulfill.com',
+      createdTime: now,
+    });
+    auditLogs.unshift({
+      operatedAt: now,
+      operator: '管理员 admin@bestfulfill.com',
+      merchantId: selectedCustomerId,
+      customerName: customer.name,
+      opType: 'ADD',
+      remark,
+    });
+    filteredWhitelist = [...whitelist];
+    filteredAudit = [...auditLogs];
+    renderWhitelist();
+    renderAudit();
+    closeAddModal();
+    showToast('添加成功');
+  }
+
+  function openRemoveModal(id) {
+    removeTargetId = id;
+    const row = whitelist.find(w => w.id === id);
+    document.getElementById('removeCustomerLabel').textContent = `${row.name}（商户 ID: ${id}）`;
+    document.getElementById('removeRemark').value = '';
+    document.getElementById('removeModal').classList.remove('hidden');
+  }
+
+  function closeRemoveModal() {
+    document.getElementById('removeModal').classList.add('hidden');
+    document.getElementById('removeRemark').value = '';
+    removeTargetId = null;
+  }
+
+  function confirmRemove() {
+    const row = whitelist.find(w => w.id === removeTargetId);
+    if (!row) return;
+    const remark = document.getElementById('removeRemark').value.trim() || '-';
+    const now = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
+    whitelist = whitelist.filter(w => w.id !== removeTargetId);
+    auditLogs.unshift({
+      operatedAt: now,
+      operator: '管理员 admin@bestfulfill.com',
+      merchantId: row.id,
+      customerName: row.name,
+      opType: 'REMOVE',
+      remark,
+    });
+    filteredWhitelist = [...whitelist];
+    filteredAudit = [...auditLogs];
+    renderWhitelist();
+    renderAudit();
+    closeRemoveModal();
+    showToast('移除成功');
+  }
+
+  function showToast(msg, isError) {
+    const toast = document.getElementById('toast');
+    const inner = toast.querySelector('div');
+    document.getElementById('toastMsg').textContent = msg;
+    inner.className = isError
+      ? 'toast-enter bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2'
+      : 'toast-enter bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2';
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 2500);
+  }
+
+  renderWhitelist();
+  renderAudit();
+</script>
+</body>
+</html>

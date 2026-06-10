@@ -1,3 +1,45 @@
+#### 2026-06-10 - V 2.25 移除操作支持备注
+
+**PRD** `PRD/V 2.25 PayPal在线支付白名单.md` (v0.3)：移除客户弹窗新增「备注」字段（非必填）；审计记录备注口径覆盖添加/移除。
+
+**HTML** `admin-system/system-settings/paypal-pay-whitelist.html`：移除确认弹窗增加备注输入框，提交后写入操作审计。
+
+---
+
+#### 2026-06-10 - V 2.25 商户 ID 口径与审计字段调整
+
+**PRD** `PRD/V 2.25 PayPal在线支付白名单.md` (v0.2)：
+- 页面展示字段「客户 ID」统一更名为「商户 ID」（field key `merchantId`）；后端存储字段仍为 `customer_id`。
+- 操作审计 Tab 列表与审计表设计去掉「操作来源」字段。
+
+**HTML** `admin-system/system-settings/paypal-pay-whitelist.html`：同步上述字段更名与审计列删减。
+
+---
+
+#### 2026-06-10 - V 2.25 在线支付白名单 HTML 原型
+
+**HTML** `admin-system/system-settings/paypal-pay-whitelist.html`：
+- 新增双 Tab 原型页（白名单配置 + 操作审计），含筛选、列表、添加/移除弹窗、Mock 数据交互。
+- 侧栏菜单与 `index.html` 对齐（主要功能、绩效、各媒体业务、系统设置、客户流水、余额监控、报表全量可跳转）。
+
+**HTML** `admin-system/main-functions/index.html`：
+- 系统设置侧栏新增「在线支付白名单」入口。
+- 快速操作区新增「在线支付白名单」卡片跳转。
+
+**PRD** `PRD/V 2.25 PayPal在线支付白名单.md`：设计稿章节更新为已补充原型。
+
+---
+
+#### 2026-06-10 - V 2.25 PayPal 在线支付白名单 PRD 首版
+
+**PRD** `PRD/V 2.25 PayPal在线支付白名单.md` (v0.1)：
+- 新增运营端「在线支付白名单」双 Tab 页面方案（白名单配置 + 操作审计）。
+- 后端改造 `wallet/onlineRecharge`：按 `customer_id` 查白名单向 Fund 传 `supportPaypalPay`；查询异常降级 `false`。
+- 确认口径：无审批、逐个录入、客户静默、不复用权限审计日志页。
+- 新增表设计摘要：`ads_paypal_pay_whitelist`、`ads_paypal_pay_whitelist_log`。
+
+---
+
 #### 2026-06-07 - gitignore 排除 PRD/飞书同步
 
 **Git** `.gitignore`：新增 `PRD/飞书同步/`，该目录及子文件不纳入版本库。
