@@ -291,8 +291,8 @@
               <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">客户ID</label>
-                    <input type="text" id="filterCustomerId" placeholder="请输入客户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+                    <input type="text" id="filterMerchantId" placeholder="请输入商户ID（5位数字）" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
@@ -348,7 +348,7 @@
                       <th class="px-6 py-3 text-left">
                         <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">客户ID</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 120px;">商户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">客户名称</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 180px;">广告账户ID</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="width: 200px;">广告账户名称</th>
@@ -361,7 +361,7 @@
                       <td class="px-6 py-4 whitespace-nowrap">
                         <input type="checkbox" class="row-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value="1">
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C001</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">10076</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">科技有限公司</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_123456789</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">科技公司广告账户</td>
@@ -372,7 +372,7 @@
                       <td class="px-6 py-4 whitespace-nowrap">
                         <input type="checkbox" class="row-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value="2">
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C002</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">10081</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">创新科技公司</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_987654321</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">创新科技广告账户</td>
@@ -383,7 +383,7 @@
                       <td class="px-6 py-4 whitespace-nowrap">
                         <input type="checkbox" class="row-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value="3">
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">C003</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">10092</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划公司</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">AD_ACT_456789123</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">营销策划广告账户</td>
@@ -418,30 +418,30 @@
             <div>
               <h4 class="text-md font-medium text-gray-900 mb-4">选择客户（单选）</h4>
               <div class="border rounded-lg max-h-80 overflow-y-auto">
-                <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="selectCustomer('C001', '科技有限公司')">
+                <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="selectCustomer('10076', '科技有限公司')">
                   <div class="flex items-center">
-                    <input type="radio" name="customer" value="C001" class="mr-3">
+                    <input type="radio" name="customer" value="10076" class="mr-3">
                     <div>
                       <div class="font-medium">科技有限公司</div>
-                      <div class="text-sm text-gray-500">C001</div>
+                      <div class="text-sm text-gray-500">10076</div>
                     </div>
                   </div>
                 </div>
-                <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="selectCustomer('C002', '创新科技公司')">
+                <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="selectCustomer('10081', '创新科技公司')">
                   <div class="flex items-center">
-                    <input type="radio" name="customer" value="C002" class="mr-3">
+                    <input type="radio" name="customer" value="10081" class="mr-3">
                     <div>
                       <div class="font-medium">创新科技公司</div>
-                      <div class="text-sm text-gray-500">C002</div>
+                      <div class="text-sm text-gray-500">10081</div>
                     </div>
                   </div>
                 </div>
-                <div class="p-3 hover:bg-gray-50 cursor-pointer" onclick="selectCustomer('C004', '电商运营公司')">
+                <div class="p-3 hover:bg-gray-50 cursor-pointer" onclick="selectCustomer('10105', '电商运营公司')">
                   <div class="flex items-center">
-                    <input type="radio" name="customer" value="C004" class="mr-3">
+                    <input type="radio" name="customer" value="10105" class="mr-3">
                     <div>
                       <div class="font-medium">电商运营公司</div>
-                      <div class="text-sm text-gray-500">C004</div>
+                      <div class="text-sm text-gray-500">10105</div>
                     </div>
                   </div>
                 </div>
@@ -488,7 +488,7 @@
                     <div>
                       <div class="font-medium">已分配账户1</div>
                       <div class="text-sm text-gray-500">AD_ACT_444444444</div>
-                      <div class="text-xs text-red-600">已被客户C005占用</div>
+                      <div class="text-xs text-red-600">已被商户10118占用</div>
                     </div>
                   </div>
                 </div>
@@ -639,7 +639,7 @@
 
     // 筛选功能
     function filterData() {
-      const customerId = document.getElementById('filterCustomerId').value;
+      const customerId = document.getElementById('filterMerchantId').value;
       const customerName = document.getElementById('filterCustomerName').value;
       const accountId = document.getElementById('filterAccountId').value;
       const accountName = document.getElementById('filterAccountName').value;
@@ -649,7 +649,7 @@
     }
 
     function resetFilter() {
-      document.getElementById('filterCustomerId').value = '';
+      document.getElementById('filterMerchantId').value = '';
       document.getElementById('filterCustomerName').value = '';
       document.getElementById('filterAccountId').value = '';
       document.getElementById('filterAccountName').value = '';

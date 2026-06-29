@@ -1,4 +1,96 @@
-#### 2026-06-10 - V 2.25 移除操作支持备注
+#### 2026-06-29 - 重写 Meta 资产管理 PRD
+
+**PRD** `PRD/meta-asset-management-prd.md`：
+- 按 `PRD/_template.md` 与 `V 2.23 介绍人和吐点（第二版）.md` 规范全文重写 v1.0。
+- 与当前原型 5 页字段/交互对齐：同步结果与上次结果分列、Meta待分配反向核对、商户ID 5 位数字、BM 不可删除等。
+
+---
+
+#### 2026-06-29 - BM 配置列表拆分「同步结果」与「上次结果」
+
+**BM 配置** `admin-system/meta-asset-management/bm-config.html`：
+- 列表拆为「同步结果」（正常 / Token 失效 / 同步失败 / 从未同步）与「上次结果」（仅同步结果为正常时展示新增 · 移除）。
+- 筛选增加「同步结果」；新增 mock「待首次同步 BM」演示从未同步状态。
+
+---
+
+**账户分配** `admin-system/fb-business/account-allocation.html`：
+- 列表/筛选「客户ID」更名为「商户ID」；mock 改为 5 位数字（10076、10081、10092 等）。
+
+**资产分配核对** `admin-system/meta-asset-management/assignment-audit.html`：
+- 新增独立匹配结果「Meta待分配」+ 顶部统计卡片；原因固定为「Meta待分配/已分配但User未指向商户ID」。
+- 反向核对：系统有归属但 Meta 无对应商户 User（含 act_555666777 仅系统侧、act_998877665 仅内部人员等 mock）。
+- 商户ID 改为 5 位纯数字；列表增加「上次同步」列。
+
+**资产** `admin-system/meta-asset-management/assets.html`：
+- 筛选增加「已分配成员：有/无」；三 Tab 列表增加「上次同步」。
+- 分配弹窗展示当前 BM，成员列表按 BM 过滤；批量分配限制同一 BM。
+- 商户绑定展示改为 5 位商户ID。
+
+**成员** `admin-system/meta-asset-management/members.html`：
+- BM 成员 Tab「未设定」增加「去设定身份」跳转 email-商户绑定 Tab。
+- email-商户绑定 Tab 增加 email 小写归一提示；商户选项改为 5 位 ID + 名称。
+
+**BM 配置** `admin-system/meta-asset-management/bm-config.html`：
+- 上次结果展示 Token 失效 / 同步失败状态。
+- 编辑 BM 支持 Token 留空不修改、单独「重新校验 Token」。
+
+**操作日志** `admin-system/meta-asset-management/operation-log.html`：
+- 移除「删除BM」操作类型（BM 仅支持停用同步）。
+
+---
+
+
+**脚本** `scripts/generate_supplement_agreements.py`：对 `裕泽外包员工资料.xlsx` 全部 124 条记录批量生成 Word，输出至 `/Users/jianzhikaorou/Downloads/zz中/`。
+
+---
+
+#### 2026-06-10 - 切换 Excel 数据源（裕泽外包员工资料）试跑 2 份
+
+**脚本** `scripts/generate_supplement_agreements.py`：
+- 新数据源：`/Users/jianzhikaorou/Downloads/裕泽外包员工资料.xlsx`
+- 列映射：C「姓名」、F「身份证号码」、Z「在南粤劳动合同开始时间」
+- 支持 Z 列 `datetime` 及 `2026年7月1日` 等中文日期字符串
+- 试跑生成：`補充協議（一式三份）-李春燕.docx`、`補充協議（一式三份）-郭智筠.docx`
+
+---
+
+#### 2026-06-10 - 批量生成补充协议 Word（11 份）
+
+**脚本** `scripts/generate_supplement_agreements.py`：对 Excel 全部 11 条记录批量生成 Word，输出至 `/Users/jianzhikaorou/Downloads/zz中/`。
+
+---
+
+#### 2026-06-10 - 修复工作年限日期替换（w:ins 修订内容）
+
+**脚本** `scripts/generate_supplement_agreements.py`：
+- **根因**：模板中第一个日期 `2025  年 10 月 13 日` 位于 Word 修订标记 `<w:ins>` 内，`python-docx` 的 `paragraph.text` 读不到，误当作空白占位「至 年 月 日」整段替换。
+- **修复**：在 XML 层读取段落全部 `w:t` 节点，仅替换第一个日期的年/月/日数值，保留空格格式与第二个日期 `2026  年    6月 30 日` 不变。
+- **目标段落**：含「丙方在甲方的工作年限」的第二大点（P11）。
+- 重新生成试跑：`補充協議（一式三份）-谈子嘉.docx` → `（  2026  年 4 月 20 日至  2026  年    6月 30 日）`。
+
+---
+
+#### 2026-06-10 - 补充协议 Word 生成规则调整（2.2）
+
+**脚本** `scripts/generate_supplement_agreements.py`：
+- 2.2 日期改为只处理 **第二大点**（`乙方同意于…` 段落）。
+- 若模板已有样例日期如 `2025  年 10 月 13 日`，仅替换年/月/日三个数值，保留 Word 原有空格格式。
+- 若模板为空白占位 `  年 月  日`，按样例格式填入 Excel L 列入职日期。
+- 删除旧试跑文件后重新生成：`補充協議（一式三份）-谈子嘉.docx`。
+
+---
+
+#### 2026-06-10 - 批量生成补充协议 Word 试跑
+
+**脚本** `scripts/generate_supplement_agreements.py`：
+- 读取 Excel `6.15RSRETB名单（CICI 32).xlsx` 的 C/G/L 列（法定姓名、证件号码、入职日期）。
+- 复制 Word 模板 `補充協議（一式三份）-final.docx`，文件名 `final` 替换为法定姓名。
+- 填充 P6「丙方 / 身份证」与 P11 工作年限起始日期（格式：`2026 年 4 月 20 日`）。
+- 试跑生成 1 份：`/Users/jianzhikaorou/Downloads/zz中/補充協議（一式三份）-谈子嘉.docx`。
+
+---
+
 
 **PRD** `PRD/V 2.25 PayPal在线支付白名单.md` (v0.3)：移除客户弹窗新增「备注」字段（非必填）；审计记录备注口径覆盖添加/移除。
 
