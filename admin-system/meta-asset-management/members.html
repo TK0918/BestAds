@@ -28,6 +28,8 @@
     .chip-unset { background: #fffbeb; color: #b45309; }
     .tab-btn { padding: 8px 16px; font-size: 14px; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; cursor: pointer; background: none; }
     .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .th-label { padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 500; color: #6b7280; letter-spacing: 0.02em; white-space: nowrap; }
+    .td-nowrap { padding: 12px 24px; white-space: nowrap; vertical-align: middle; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -178,24 +180,26 @@
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
               <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">成员</h2>
-              <p class="mt-1 text-sm text-gray-500">「BM 成员信息」按 email × BM 展示成员；「email-商户绑定」为每个 email 设定身份（内部人员 / 单个商户）并留痕，作为资产分配核对的依据</p>
+              <p class="mt-1 text-sm text-gray-500">「BM 成员信息」按 email × BM 展示成员；「内部人员标记」本期仅将 email 标记为内部人员，供核对时跳过（商户绑定后续迭代）</p>
             </div>
 
             <div class="bg-white rounded-t-lg border border-gray-200 border-b-0 px-4 pt-2">
               <nav class="flex space-x-2">
                 <button id="tab-bm" onclick="switchTab('bm')" class="tab-btn active"><i class="fas fa-id-badge mr-1"></i>BM 成员信息</button>
-                <button id="tab-mc" onclick="switchTab('mc')" class="tab-btn"><i class="fas fa-link mr-1"></i>email-商户绑定</button>
+                <button id="tab-mc" onclick="switchTab('mc')" class="tab-btn"><i class="fas fa-user-shield mr-1"></i>内部人员标记</button>
               </nav>
             </div>
 
             <!-- Tab 1: BM 成员信息 -->
             <div id="section-bm" class="bg-white border border-gray-200">
               <div class="px-6 py-4 border-b border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">关键词</label><input id="bm_fKw" type="text" placeholder="姓名 / email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">所属 BM</label><select id="bm_fBm" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option>电商集团 BM</option><option>游戏出海 BM</option><option>品牌广告 BM</option></select></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">BM名称</label><select id="bm_fBmName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option>电商集团 BM</option><option>游戏出海 BM</option><option>品牌广告 BM</option></select></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">BM ID</label><input id="bm_fBmId" type="text" placeholder="BM ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mono"></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">User名称</label><input id="bm_fUserName" type="text" placeholder="User名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">User Email</label><input id="bm_fUserEmail" type="text" placeholder="User Email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mono"></div>
                   <div><label class="block text-sm font-medium text-gray-700 mb-2">角色</label><select id="bm_fRole" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option>ADMIN</option><option>EMPLOYEE</option></select></div>
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">身份</label><select id="bm_fType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option value="merchant">商户</option><option value="internal">内部人员</option><option value="unset">未设定</option></select></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">是否内部</label><select id="bm_fInternal" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option value="yes">内部人员</option><option value="no">非内部</option></select></div>
                   <div class="flex items-end space-x-2"><button onclick="renderBm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"><i class="fas fa-search mr-1"></i>搜索</button><button onclick="resetBm()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium">重置</button></div>
                 </div>
               </div>
@@ -203,12 +207,13 @@
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 table-hover">
                   <thead class="bg-gray-50"><tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BM</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User 名称</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User email</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">角色</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">对应商户 / 身份</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    <th class="th-label">BM名称</th>
+                    <th class="th-label">BM ID</th>
+                    <th class="th-label">User名称</th>
+                    <th class="th-label">User Email</th>
+                    <th class="th-label">角色</th>
+                    <th class="th-label">是否内部</th>
+                    <th class="th-label">操作</th>
                   </tr></thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="bmBody"></tbody>
                 </table>
@@ -216,28 +221,27 @@
               <div class="bg-gray-50 px-6 py-3 border-t border-gray-200"><p class="text-sm text-gray-700">显示 <span class="font-medium" id="bmShow">0</span> 条</p></div>
             </div>
 
-            <!-- Tab 2: email-商户绑定 -->
+            <!-- Tab 2: 内部人员标记 -->
             <div id="section-mc" class="bg-white border border-gray-200 hidden">
               <div class="px-6 py-4 border-b border-gray-200">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">关键词</label><input id="mc_fKw" type="text" placeholder="姓名 / email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">身份类型</label><select id="mc_fType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option value="merchant">商户</option><option value="internal">内部人员</option><option value="unset">未设定</option></select></div>
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">商户</label><input id="mc_fMc" type="text" placeholder="商户 ID / 名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">User名称</label><input id="mc_fUserName" type="text" placeholder="User名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">User Email</label><input id="mc_fUserEmail" type="text" placeholder="User Email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mono"></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">是否内部</label><select id="mc_fInternal" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option value="yes">内部人员</option><option value="no">非内部</option></select></div>
                   <div class="flex items-end space-x-2"><button onclick="renderMc()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"><i class="fas fa-search mr-1"></i>搜索</button><button onclick="resetMc()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium">重置</button></div>
                 </div>
               </div>
-              <div class="px-6 py-3 border-b border-gray-200 flex justify-between items-center"><h3 class="text-base font-medium text-gray-900">email-商户绑定（按 email）</h3><div class="text-sm text-gray-500">共 <span id="mcCount" class="font-medium text-gray-900">0</span> 人</div></div>
-              <div class="px-6 py-3 bg-amber-50 border-b border-amber-100 text-xs text-amber-800"><i class="fas fa-circle-info mr-1"></i>email 绑定按小写归一处理；以 Meta 同步的成员 email 为准，请勿手工改写大小写或别名。</div>
+              <div class="px-6 py-3 border-b border-gray-200 flex justify-between items-center"><h3 class="text-base font-medium text-gray-900">内部人员标记（按 email）</h3><div class="text-sm text-gray-500">共 <span id="mcCount" class="font-medium text-gray-900">0</span> 人</div></div>
+              <div class="px-6 py-3 bg-blue-50 border-b border-blue-100 text-xs text-blue-800"><i class="fas fa-circle-info mr-1"></i>email 按小写归一处理；以 Meta 同步的成员 email 为准。本期仅支持标记内部人员；后续可能支持 user 与商户ID 关联。</div>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 table-hover">
                   <thead class="bg-gray-50"><tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User 名称</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">email</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">身份类型</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">绑定商户</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">绑定时间</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">绑定人</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    <th class="th-label">User名称</th>
+                    <th class="th-label">User Email</th>
+                    <th class="th-label">是否内部</th>
+                    <th class="th-label">标记时间</th>
+                    <th class="th-label">标记人</th>
+                    <th class="th-label">操作</th>
                   </tr></thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="mcBody"></tbody>
                 </table>
@@ -250,22 +254,14 @@
     </div>
   </div>
 
-  <!-- 设定绑定 -->
+  <!-- 标记内部人员 -->
   <div id="mcModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
       <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between"><h3 class="text-lg font-medium text-gray-900">设定身份 · <span id="mcPerson" class="text-blue-600"></span></h3><button onclick="closeModal('mcModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between"><h3 class="text-lg font-medium text-gray-900">内部人员标记 · <span id="mcPerson" class="text-blue-600"></span></h3><button onclick="closeModal('mcModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
         <div class="px-6 py-4">
-          <p class="text-xs text-amber-600 mb-3"><i class="fas fa-circle-info mr-1"></i>该 email 要么是内部人员，要么对应 1 个真实客户的商户ID；保存将记录绑定时间与操作人，对其全部 BM 身份生效</p>
-          <label class="block text-sm font-medium text-gray-700 mb-2">身份类型</label>
-          <div class="flex gap-6 mb-4">
-            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="radio" name="idType" value="merchant" onchange="onIdType()" checked>商户（绑 1 个商户ID）</label>
-            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="radio" name="idType" value="internal" onchange="onIdType()">内部人员</label>
-          </div>
-          <div id="merchantPick">
-            <label class="block text-sm font-medium text-gray-700 mb-2">商户</label>
-            <select id="mcMerchant" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
-          </div>
+          <p class="text-xs text-gray-500 mb-4"><i class="fas fa-circle-info mr-1"></i>标记后对该 email 在所有 BM 的成员行生效；取消标记后恢复为「非内部」。保存将记录标记时间与操作人。</p>
+          <label class="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" id="mcInternalCheck">标记为内部人员</label>
         </div>
         <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3"><button onclick="closeModal('mcModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button><button onclick="saveMc()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">保存</button></div>
       </div>
@@ -300,29 +296,18 @@
   </div>
 
   <script>
-    const merchantPool = [
-      { id: '10086', name: '安克' }, { id: '10090', name: '绿联' }, { id: '10120', name: '佳沃' },
-      { id: '10150', name: '海尔' }, { id: '10200', name: '大疆' }, { id: '10233', name: '石头科技' },
-      { id: '10250', name: '追觅' }, { id: '10301', name: '倍思' }
-    ];
+    const BM_IDS = { '电商集团 BM': '102938475610293', '游戏出海 BM': '209384756102938', '品牌广告 BM': '384756102938475' };
+    const internalByEmail = {
+      'zhang.wei@corp.com': { internal: true, markTime: '2026-05-20 14:30', markBy: 'admin' },
+      'li.ming@corp.com': { internal: true, markTime: '2026-04-10 10:00', markBy: 'admin' }
+    };
+    const internalOf = email => internalByEmail[email] || { internal: false, markTime: '', markBy: '' };
+    function internalChip(email) { return internalOf(email).internal ? '<span class="chip chip-internal">内部人员</span>' : '<span class="chip chip-unset">非内部</span>'; }
     const assetsByBm = {
       '电商集团 BM': ['EC-US-01 广告账户', 'EC-EU-02 广告账户', 'Anker Official (Page)', 'EC Global Pixel'],
       '游戏出海 BM': ['GAME-SEA 广告账户', 'StarQuest Game (Page)'],
       '品牌广告 BM': ['BRAND-CN 广告账户', '佳沃食品旗舰 (Page)', 'Brand Pixel CN']
     };
-    // email 身份：type = merchant(绑 1 个商户) / internal(内部人员) / unset(未设定)
-    let idByEmail = {
-      'zhang.wei@corp.com': { type: 'merchant', merchant: '10086', bindTime: '2026-05-20 14:30', bindBy: 'admin' },
-      'li.ming@corp.com': { type: 'internal', merchant: null, bindTime: '2026-04-10 10:00', bindBy: 'admin' },
-      'wang.fang@corp.com': { type: 'merchant', merchant: '10090', bindTime: '2026-04-18 09:12', bindBy: 'zhao.lei' },
-      'john.lee@corp.com': { type: 'merchant', merchant: '10120', bindTime: '2026-06-01 16:40', bindBy: 'admin' },
-      'chen.jing@corp.com': { type: 'unset', merchant: null, bindTime: '', bindBy: '' }
-    };
-    const idOf = email => idByEmail[email] || { type: 'unset', merchant: null, bindTime: '', bindBy: '' };
-    function typeChip(email) { const x = idOf(email); if (x.type === 'internal') return '<span class="chip chip-internal">内部人员</span>'; if (x.type === 'merchant') return '<span class="chip chip-merchant">商户</span>'; return '<span class="chip chip-unset">未设定</span>'; }
-    function ownerChip(email) { const x = idOf(email); if (x.type === 'internal') return '<span class="chip chip-internal">内部人员</span>'; if (x.type === 'merchant') return `<span class="chip chip-mc">${x.merchant}</span>`; return '<span class="chip chip-unset">未设定</span>'; }
-    function merchantLabel(id) { const m = merchantPool.find(p => p.id === id); return m ? `${id} ${m.name}` : id; }
-
     const emailList = [
       { name: '张伟', email: 'zhang.wei@corp.com' }, { name: '李明', email: 'li.ming@corp.com' },
       { name: '王芳', email: 'wang.fang@corp.com' }, { name: 'John Lee', email: 'john.lee@corp.com' }, { name: '陈静', email: 'chen.jing@corp.com' }
@@ -346,33 +331,47 @@
       document.getElementById('section-mc').classList.toggle('hidden', t !== 'mc');
       t === 'bm' ? renderBm() : renderMc();
     }
-    function goSetIdentity(email) { switchTab('mc'); setTimeout(() => openMc(email), 50); }
+    function goMarkInternal(email) { switchTab('mc'); setTimeout(() => openMc(email), 50); }
 
     // ===== Tab 1 =====
     function renderBm() {
-      const kw = document.getElementById('bm_fKw').value.toLowerCase(), bm = document.getElementById('bm_fBm').value, role = document.getElementById('bm_fRole').value, type = document.getElementById('bm_fType').value;
-      const rows = userRows.filter(r => (!kw || r.name.toLowerCase().includes(kw) || r.email.toLowerCase().includes(kw)) && (!bm || r.bm === bm) && (!role || r.role === role) && (!type || idOf(r.email).type === type));
+      const bmName = document.getElementById('bm_fBmName').value;
+      const bmId = document.getElementById('bm_fBmId').value.toLowerCase();
+      const userName = document.getElementById('bm_fUserName').value.toLowerCase();
+      const userEmail = document.getElementById('bm_fUserEmail').value.toLowerCase();
+      const role = document.getElementById('bm_fRole').value;
+      const internal = document.getElementById('bm_fInternal').value;
+      const rows = userRows.filter(r => {
+        const rowBmId = BM_IDS[r.bm] || '';
+        return (!bmName || r.bm === bmName) &&
+          (!bmId || rowBmId.toLowerCase().includes(bmId)) &&
+          (!userName || r.name.toLowerCase().includes(userName)) &&
+          (!userEmail || r.email.toLowerCase().includes(userEmail)) &&
+          (!role || r.role === role) &&
+          (!internal || (internal === 'yes' ? internalOf(r.email).internal : !internalOf(r.email).internal));
+      });
       const tb = document.getElementById('bmBody'); tb.innerHTML = '';
       rows.forEach(r => {
         const i = userRows.indexOf(r);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap"><span class="chip chip-bm">${r.bm}</span></td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${r.name}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-500 mono">${r.email}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-700">${r.role}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap">${ownerChip(r.email)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
+          <td class="td-nowrap"><span class="chip chip-bm">${r.bm}</span></td>
+          <td class="td-nowrap text-sm text-gray-500 mono">${BM_IDS[r.bm] || '—'}</td>
+          <td class="td-nowrap text-sm font-medium text-gray-900">${r.name}</td>
+          <td class="td-nowrap text-sm text-gray-500 mono">${r.email}</td>
+          <td class="td-nowrap text-sm text-gray-700">${r.role}</td>
+          <td class="td-nowrap">${internalChip(r.email)}</td>
+          <td class="td-nowrap text-sm space-x-3">
             <button onclick="openAssets(${i})" class="text-gray-600 hover:text-gray-800">查看资产</button>
             <button onclick="openAssign(${i})" class="text-blue-600 hover:text-blue-800">分配</button>
-            ${idOf(r.email).type === 'unset' ? `<button onclick="goSetIdentity('${r.email}')" class="text-amber-600 hover:text-amber-800">去设定身份</button>` : ''}
+            <button onclick="goMarkInternal('${r.email}')" class="text-amber-600 hover:text-amber-800">${internalOf(r.email).internal ? '编辑标记' : '标记内部'}</button>
           </td>`;
         tb.appendChild(tr);
       });
       document.getElementById('bmCount').textContent = rows.length;
       document.getElementById('bmShow').textContent = rows.length;
     }
-    function resetBm() { ['bm_fKw', 'bm_fBm', 'bm_fRole', 'bm_fType'].forEach(id => document.getElementById(id).value = ''); renderBm(); }
+    function resetBm() { ['bm_fBmName', 'bm_fBmId', 'bm_fUserName', 'bm_fUserEmail', 'bm_fRole', 'bm_fInternal'].forEach(id => document.getElementById(id).value = ''); renderBm(); }
 
     function openAssets(i) {
       const r = userRows[i]; document.getElementById('assetPerson').textContent = `${r.name} · ${r.bm}`;
@@ -401,41 +400,45 @@
 
     // ===== Tab 2 =====
     function renderMc() {
-      const kw = document.getElementById('mc_fKw').value.toLowerCase(), type = document.getElementById('mc_fType').value, mc = document.getElementById('mc_fMc').value.toLowerCase();
-      const rows = emailList.filter(p => { const x = idOf(p.email); const mLabel = x.merchant ? merchantLabel(x.merchant) : ''; return (!kw || p.name.toLowerCase().includes(kw) || p.email.toLowerCase().includes(kw)) && (!type || x.type === type) && (!mc || mLabel.toLowerCase().includes(mc) || (x.merchant || '').includes(mc)); });
+      const userName = document.getElementById('mc_fUserName').value.toLowerCase();
+      const userEmail = document.getElementById('mc_fUserEmail').value.toLowerCase();
+      const internal = document.getElementById('mc_fInternal').value;
+      const rows = emailList.filter(p =>
+        (!userName || p.name.toLowerCase().includes(userName)) &&
+        (!userEmail || p.email.toLowerCase().includes(userEmail)) &&
+        (!internal || (internal === 'yes' ? internalOf(p.email).internal : !internalOf(p.email).internal))
+      );
       const tb = document.getElementById('mcBody'); tb.innerHTML = '';
       rows.forEach(p => {
-        const x = idOf(p.email);
+        const x = internalOf(p.email);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${p.name}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-500 mono">${p.email}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap">${typeChip(p.email)}</td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-700">${x.type === 'merchant' ? `<span class="mono">${x.merchant}</span> <span class="text-gray-500">${(merchantPool.find(p => p.id === x.merchant) || {}).name || ''}</span>` : '—'}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-500">${x.bindTime || '-'}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-700">${x.bindBy || '-'}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm"><button onclick="openMc('${p.email}')" class="text-blue-600 hover:text-blue-800">${x.type === 'unset' ? '设定身份' : '编辑'}</button></td>`;
+          <td class="td-nowrap text-sm font-medium text-gray-900">${p.name}</td>
+          <td class="td-nowrap text-sm text-gray-500 mono">${p.email}</td>
+          <td class="td-nowrap">${internalChip(p.email)}</td>
+          <td class="td-nowrap text-sm text-gray-500">${x.internal ? (x.markTime || '—') : '—'}</td>
+          <td class="td-nowrap text-sm text-gray-700">${x.internal ? (x.markBy || '—') : '—'}</td>
+          <td class="td-nowrap text-sm"><button onclick="openMc('${p.email}')" class="text-blue-600 hover:text-blue-800">${x.internal ? '编辑' : '标记'}</button></td>`;
         tb.appendChild(tr);
       });
       document.getElementById('mcCount').textContent = rows.length;
       document.getElementById('mcShow').textContent = rows.length;
     }
-    function resetMc() { ['mc_fKw', 'mc_fType', 'mc_fMc'].forEach(id => document.getElementById(id).value = ''); renderMc(); }
+    function resetMc() { ['mc_fUserName', 'mc_fUserEmail', 'mc_fInternal'].forEach(id => document.getElementById(id).value = ''); renderMc(); }
 
     let mcEmail = '';
     function openMc(email) {
-      mcEmail = email; const name = emailList.find(p => p.email === email).name; const x = idOf(email);
+      mcEmail = email; const name = emailList.find(p => p.email === email).name;
       document.getElementById('mcPerson').textContent = `${name}（${email}）`;
-      document.querySelector(`input[name=idType][value=${x.type === 'internal' ? 'internal' : 'merchant'}]`).checked = true;
-      document.getElementById('mcMerchant').innerHTML = merchantPool.map(m => `<option value="${m.id}" ${x.merchant === m.id ? 'selected' : ''}>${m.id} ${m.name}</option>`).join('');
-      onIdType();
+      document.getElementById('mcInternalCheck').checked = internalOf(email).internal;
       document.getElementById('mcModal').classList.remove('hidden');
     }
-    function onIdType() { const t = document.querySelector('input[name=idType]:checked').value; document.getElementById('merchantPick').style.display = t === 'merchant' ? '' : 'none'; }
     function saveMc() {
-      const t = document.querySelector('input[name=idType]:checked').value;
-      idByEmail[mcEmail] = { type: t, merchant: t === 'merchant' ? document.getElementById('mcMerchant').value : null, bindTime: now(), bindBy: 'admin' };
-      renderMc(); closeModal('mcModal'); showNotification('身份已保存，已记录绑定时间与操作人', 'success');
+      const checked = document.getElementById('mcInternalCheck').checked;
+      if (checked) internalByEmail[mcEmail] = { internal: true, markTime: now(), markBy: 'admin' };
+      else delete internalByEmail[mcEmail];
+      renderMc(); renderBm(); closeModal('mcModal');
+      showNotification(checked ? '已标记为内部人员' : '已取消内部人员标记', 'success');
     }
 
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }

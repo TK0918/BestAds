@@ -22,6 +22,20 @@
     .tab-btn { padding: 8px 16px; font-size: 14px; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; cursor: pointer; background: none; }
     .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
     .task-chip { display: inline-block; padding: 1px 7px; margin: 1px; border-radius: 9999px; font-size: 11px; background: #eef2ff; color: #4338ca; }
+    .member-block { border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; background: #fafafa; }
+    .member-block:last-child { margin-bottom: 0; }
+    .chip-internal { display: inline-block; padding: 1px 8px; border-radius: 9999px; font-size: 11px; background: #f3e8ff; color: #7e22ce; }
+    .chip-external { display: inline-block; padding: 1px 8px; border-radius: 9999px; font-size: 11px; background: #f3f4f6; color: #6b7280; }
+    .email-link { color: #2563eb; font-size: 13px; }
+    .email-link:hover { text-decoration: underline; }
+    .ad-account-group td { border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+    .asset-group tr:last-child td { border-bottom: 1px solid #e5e7eb; }
+    .group-sep td { border-bottom: 2px solid #d1d5db !important; }
+    .op-account-btns { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; align-items: center; white-space: nowrap; }
+    .th-label { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 500; color: #6b7280; letter-spacing: 0.02em; white-space: nowrap; }
+    .td-nowrap { padding: 12px 16px; white-space: nowrap; vertical-align: middle; }
+    .asset-table-wrap { overflow-x: auto; }
+    .asset-table { min-width: max-content; }
     .flabel { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
     .finput { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
     .finput:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,.2); }
@@ -175,7 +189,7 @@
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-6">
               <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">资产</h2>
-              <p class="mt-1 text-sm text-gray-500">查看 BM 内 Ad Account / Page / Pixel 及其已分配成员，按资产发起分配 / 移出 BM（管理到 task 粒度）</p>
+              <p class="mt-1 text-sm text-gray-500">查看 BM 内 Ad Account / Page / Pixel 及其已分配成员；Ad Account 展示系统归属商户并内联成员明细，按资产发起分配 / 移出 BM</p>
             </div>
 
             <div class="bg-white rounded-t-lg border border-gray-200 border-b-0 px-4 pt-2">
@@ -199,8 +213,8 @@
                   <button onclick="batchUnassign()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-1.5 rounded-md text-sm font-medium"><i class="fas fa-user-minus mr-1"></i>批量解除</button>
                 </div>
               </div>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 table-hover">
+              <div class="overflow-x-auto asset-table-wrap">
+                <table class="min-w-full divide-y divide-gray-200 table-hover asset-table">
                   <thead class="bg-gray-50" id="thead"></thead>
                   <tbody class="bg-white divide-y divide-gray-200" id="tbody"></tbody>
                 </table>
@@ -217,24 +231,6 @@
           </div>
         </div>
       </main>
-    </div>
-  </div>
-
-  <!-- 查看分配 -->
-  <div id="viewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full animate-fadeIn">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between"><h3 class="text-lg font-medium text-gray-900">已分配成员 · <span id="viewAssetName" class="text-blue-600"></span></h3><button onclick="closeModal('viewModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
-        <div class="px-6 py-4">
-          <div class="border border-gray-200 rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-              <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">成员</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">绑定商户</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">tasks</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th></tr></thead>
-              <tbody id="viewBody" class="divide-y divide-gray-200"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end"><button onclick="closeModal('viewModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">关闭</button></div>
-      </div>
     </div>
   </div>
 
@@ -259,6 +255,13 @@
     const TASKS = { AD_ACCOUNT: ['ANALYZE', 'ADVERTISE', 'MANAGE'], PAGE: ['ANALYZE', 'ADVERTISE', 'MODERATE', 'MESSAGING', 'CREATE_CONTENT', 'MANAGE'], PIXEL: ['VIEW', 'EDIT'] };
     const TAB_NAME = { AD_ACCOUNT: 'Ad Account', PAGE: 'Page', PIXEL: 'Pixel' };
     const SYNC_AT = '2026-06-18 03:00';
+    const internalEmails = new Set(['li.ming@corp.com', 'li.si@corp.com', 'zhang.wei@corp.com']);
+    const allocationByActId = {
+      'act_102938475': { merchantId: '10086', customerName: '安克' },
+      'act_102938476': { merchantId: '10090', customerName: '绿联' },
+      'act_209384756': { merchantId: '', customerName: '' },
+      'act_384756102': { merchantId: '10120', customerName: '佳沃' }
+    };
     const membersByBm = {
       '电商集团 BM': [
         { name: '张伟', email: 'zhang.wei@corp.com' }, { name: '李明', email: 'li.ming@corp.com' },
@@ -274,25 +277,29 @@
     const BMS = { '电商集团 BM': '102938475610293', '游戏出海 BM': '209384756102938', '品牌广告 BM': '384756102938475' };
     const data = {
       AD_ACCOUNT: [
-        { bm: '电商集团 BM', bmId: '102938475610293', name: 'EC-US-01 广告账户', id: 'act_102938475', status: 'active', tz: 'America/New_York', currency: 'USD', balance: 15680.50, lastSyncAt: SYNC_AT, assigned: [{ name: '张伟', email: 'zhang.wei@corp.com', merchant: '10086', tasks: ['ADVERTISE', 'ANALYZE'] }, { name: '李明', email: 'li.ming@corp.com', merchant: '—', tasks: ['ANALYZE'] }] },
-        { bm: '电商集团 BM', bmId: '102938475610293', name: 'EC-EU-02 广告账户', id: 'act_102938476', status: 'active', tz: 'Europe/London', currency: 'EUR', balance: 2350.75, lastSyncAt: SYNC_AT, assigned: [{ name: '王芳', email: 'wang.fang@corp.com', merchant: '10090', tasks: ['MANAGE'] }] },
+        { bm: '电商集团 BM', bmId: '102938475610293', name: 'EC-US-01 广告账户', id: 'act_102938475', status: 'active', tz: 'America/New_York', currency: 'USD', balance: 15680.50, lastSyncAt: SYNC_AT, assigned: [{ name: '张三', email: 'zhang.san@corp.com', tasks: ['ADVERTISE'] }, { name: '李四', email: 'li.si@corp.com', tasks: ['ANALYZE'] }] },
+        { bm: '电商集团 BM', bmId: '102938475610293', name: 'EC-EU-02 广告账户', id: 'act_102938476', status: 'active', tz: 'Europe/London', currency: 'EUR', balance: 2350.75, lastSyncAt: SYNC_AT, assigned: [{ name: '王芳', email: 'wang.fang@corp.com', tasks: ['MANAGE'] }] },
         { bm: '游戏出海 BM', bmId: '209384756102938', name: 'GAME-SEA 广告账户', id: 'act_209384756', status: 'limited', tz: 'Asia/Singapore', currency: 'USD', balance: 8925.40, lastSyncAt: SYNC_AT, assigned: [] },
-        { bm: '品牌广告 BM', bmId: '384756102938475', name: 'BRAND-CN 广告账户', id: 'act_384756102', status: 'active', tz: 'Asia/Shanghai', currency: 'CNY', balance: 50000.00, lastSyncAt: SYNC_AT, assigned: [{ name: 'John Lee', email: 'john.lee@corp.com', merchant: '10120', tasks: ['ADVERTISE'] }] }
+        { bm: '品牌广告 BM', bmId: '384756102938475', name: 'BRAND-CN 广告账户', id: 'act_384756102', status: 'active', tz: 'Asia/Shanghai', currency: 'CNY', balance: 50000.00, lastSyncAt: SYNC_AT, assigned: [{ name: 'John Lee', email: 'john.lee@corp.com', tasks: ['ADVERTISE'] }] }
       ],
       PAGE: [
-        { bm: '电商集团 BM', bmId: '102938475610293', name: 'Anker Official', id: '178293847561029', url: 'https://facebook.com/AnkerOfficial', lastSyncAt: SYNC_AT, assigned: [{ name: '张伟', email: 'zhang.wei@corp.com', merchant: '10086', tasks: ['CREATE_CONTENT', 'ADVERTISE'] }] },
-        { bm: '品牌广告 BM', bmId: '384756102938475', name: '佳沃食品旗舰', id: '283746510293847', url: 'https://facebook.com/JoywoodFood', lastSyncAt: SYNC_AT, assigned: [{ name: '陈静', email: 'chen.jing@corp.com', merchant: '未绑定', tasks: ['MODERATE'] }] },
+        { bm: '电商集团 BM', bmId: '102938475610293', name: 'Anker Official', id: '178293847561029', url: 'https://facebook.com/AnkerOfficial', lastSyncAt: SYNC_AT, assigned: [{ name: '张伟', email: 'zhang.wei@corp.com', tasks: ['CREATE_CONTENT', 'ADVERTISE'] }, { name: '李四', email: 'li.si@corp.com', tasks: ['MODERATE'] }] },
+        { bm: '品牌广告 BM', bmId: '384756102938475', name: '佳沃食品旗舰', id: '283746510293847', url: 'https://facebook.com/JoywoodFood', lastSyncAt: SYNC_AT, assigned: [{ name: '陈静', email: 'chen.jing@corp.com', tasks: ['MODERATE'] }] },
         { bm: '游戏出海 BM', bmId: '209384756102938', name: 'StarQuest Game', id: '394857610293847', url: 'https://facebook.com/StarQuestGame', lastSyncAt: SYNC_AT, assigned: [] }
       ],
       PIXEL: [
-        { bm: '电商集团 BM', bmId: '102938475610293', name: 'EC Global Pixel', id: '561029384756102', lastSyncAt: SYNC_AT, assigned: [{ name: '李明', email: 'li.ming@corp.com', merchant: '—', tasks: ['VIEW', 'EDIT'] }] },
+        { bm: '电商集团 BM', bmId: '102938475610293', name: 'EC Global Pixel', id: '561029384756102', lastSyncAt: SYNC_AT, assigned: [{ name: '李明', email: 'li.ming@corp.com', tasks: ['VIEW', 'EDIT'] }] },
         { bm: '品牌广告 BM', bmId: '384756102938475', name: 'Brand Pixel CN', id: '672938475610293', lastSyncAt: SYNC_AT, assigned: [] }
       ]
     };
+    const MEMBER_HEADERS = ['User', 'User Email', '权限', '是否内部'];
+    const TH = 'th-label';
+    const TD = 'td-nowrap';
+    const TD_BG = 'td-nowrap bg-gray-50';
     const cols = {
-      AD_ACCOUNT: [['bm', 'BM名称'], ['bmId', 'BM ID'], ['name', '广告账户名称'], ['id', '广告账户ID'], ['status', '广告账户状态'], ['tz', '时区'], ['currency', '币种'], ['balance', '余额'], ['assigned', '已分配成员'], ['lastSyncAt', '上次同步']],
-      PAGE: [['bm', 'BM名称'], ['bmId', 'BM ID'], ['name', 'Page名称'], ['id', 'Page ID'], ['url', 'Page URL'], ['assigned', '成员'], ['lastSyncAt', '上次同步']],
-      PIXEL: [['bm', 'BM名称'], ['bmId', 'BM ID'], ['name', 'Pixel名称'], ['id', 'Pixel ID'], ['assigned', '成员'], ['lastSyncAt', '上次同步']]
+      AD_ACCOUNT: null,
+      PAGE: null,
+      PIXEL: null
     };
     const bmOptions = '<option value="">全部</option>' + Object.keys(BMS).map(b => `<option>${b}</option>`).join('');
     const filterDefs = {
@@ -302,6 +309,8 @@
         <div><label class="flabel">广告账户名称</label><input id="f_name" class="finput" placeholder="账户名称"></div>
         <div><label class="flabel">广告账户ID</label><input id="f_id" class="finput mono" placeholder="act_..."></div>
         <div><label class="flabel">广告账户状态</label><select id="f_status" class="finput"><option value="">全部</option><option value="active">活跃</option><option value="limited">受限</option><option value="banned">被封</option></select></div>
+        <div><label class="flabel">商户ID</label><input id="f_merchantId" class="finput mono" placeholder="5位数字"></div>
+        <div><label class="flabel">客户名称</label><input id="f_customerName" class="finput" placeholder="客户名称"></div>
         <div><label class="flabel">成员</label><input id="f_member" class="finput" placeholder="姓名 / email"></div>
         <div><label class="flabel">已分配成员</label><select id="f_assigned" class="finput"><option value="">全部</option><option value="yes">有成员</option><option value="no">无成员</option></select></div>`,
       PAGE: `
@@ -332,71 +341,144 @@
       document.getElementById('filterGrid').innerHTML = filterDefs[t];
       renderAssets();
     }
+    function allocOf(actId) { return allocationByActId[actId] || { merchantId: '', customerName: '' }; }
+    function isInternal(email) { return internalEmails.has(email); }
     function filteredData() {
-      const bm = getVal('f_bmName'), bmId = getVal('f_bmId').toLowerCase(), name = getVal('f_name').toLowerCase(), id = getVal('f_id').toLowerCase(), status = getVal('f_status'), url = getVal('f_url').toLowerCase(), member = getVal('f_member').toLowerCase(), assigned = getVal('f_assigned');
-      return data[currentTab].filter(r =>
-        (!bm || r.bm === bm) && (!bmId || r.bmId.toLowerCase().includes(bmId)) &&
+      const bm = getVal('f_bmName'), bmId = getVal('f_bmId').toLowerCase(), name = getVal('f_name').toLowerCase(), id = getVal('f_id').toLowerCase(), status = getVal('f_status'), url = getVal('f_url').toLowerCase(), member = getVal('f_member').toLowerCase(), assigned = getVal('f_assigned'), merchantId = getVal('f_merchantId'), customerName = getVal('f_customerName').toLowerCase();
+      return data[currentTab].filter(r => {
+        const alloc = currentTab === 'AD_ACCOUNT' ? allocOf(r.id) : null;
+        return (!bm || r.bm === bm) && (!bmId || r.bmId.toLowerCase().includes(bmId)) &&
         (!name || r.name.toLowerCase().includes(name)) && (!id || r.id.toLowerCase().includes(id)) &&
         (!status || r.status === status) && (!url || (r.url || '').toLowerCase().includes(url)) &&
         (!member || r.assigned.some(a => a.name.toLowerCase().includes(member) || a.email.toLowerCase().includes(member))) &&
-        (!assigned || (assigned === 'yes' ? r.assigned.length > 0 : r.assigned.length === 0))
-      );
+        (!assigned || (assigned === 'yes' ? r.assigned.length > 0 : r.assigned.length === 0)) &&
+        (!merchantId || (alloc && alloc.merchantId.includes(merchantId))) &&
+        (!customerName || (alloc && alloc.customerName.toLowerCase().includes(customerName)));
+      });
     }
-    function statusBadge(s) { const m = { active: 'bg-green-100 text-green-800', limited: 'bg-yellow-100 text-yellow-800', banned: 'bg-red-100 text-red-800' }; const t = { active: '活跃', limited: '受限', banned: '被封' }; return `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${m[s] || 'bg-gray-100 text-gray-700'}">${t[s] || s}</span>`; }
+    function renderGroupedHeader(accountLabels) {
+      let h = `<tr><th class="${TH} w-10"><input type="checkbox" onchange="toggleAll(this)"></th>`;
+      accountLabels.forEach(l => h += `<th class="${TH}">${l}</th>`);
+      MEMBER_HEADERS.forEach(l => h += `<th class="${TH}">${l}</th>`);
+      h += `<th class="${TH}" colspan="2">操作</th></tr>`;
+      document.getElementById('thead').innerHTML = h;
+    }
+    function renderMemberCells(m, gid) {
+      if (!m) return `<td class="${TD} text-sm text-gray-400">—</td><td class="${TD} text-sm text-gray-400">—</td><td class="${TD} text-sm text-gray-400">—</td><td class="${TD} text-sm text-gray-400">—</td><td class="${TD} text-sm text-gray-400">—</td>`;
+      return `<td class="${TD} text-sm text-gray-900">${m.name}</td>
+        <td class="${TD}"><a href="mailto:${m.email}" class="email-link mono">${m.email}</a></td>
+        <td class="${TD} text-sm text-gray-700">${m.tasks.join(', ')}</td>
+        <td class="${TD}">${isInternal(m.email) ? '<span class="chip-internal">内部</span>' : '<span class="chip-external">非内部</span>'}</td>
+        <td class="${TD} text-sm"><button onclick="unassignUser('${gid}','${m.email}')" class="text-red-600 hover:text-red-800 whitespace-nowrap">解除</button></td>`;
+    }
+    function renderAdAccountAccountCells(r, alloc, rowSpan) {
+      const rs = `rowspan="${rowSpan}"`;
+      return `
+        <td class="${TD_BG} text-sm text-gray-700" ${rs}>${r.bm}</td>
+        <td class="${TD_BG} text-sm text-gray-500 mono" ${rs}>${r.bmId}</td>
+        <td class="${TD_BG} text-sm font-medium text-gray-900" ${rs}>${r.name}</td>
+        <td class="${TD_BG} text-sm text-gray-500 mono" ${rs}>${r.id}</td>
+        <td class="${TD_BG} text-sm mono ${alloc.merchantId ? 'text-gray-900' : 'text-gray-400'}" ${rs}>${alloc.merchantId || '—'}</td>
+        <td class="${TD_BG} text-sm ${alloc.customerName ? 'text-gray-700' : 'text-gray-400'}" ${rs}>${alloc.customerName || '—'}</td>
+        <td class="${TD_BG}" ${rs}>${statusBadge(r.status)}</td>
+        <td class="${TD_BG} text-sm text-gray-700" ${rs}>${r.tz}</td>
+        <td class="${TD_BG} text-sm text-gray-700" ${rs}>${r.currency}</td>
+        <td class="${TD_BG} text-sm mono ${r.balance > 0 ? 'text-gray-900' : 'text-red-600'}" ${rs}>${fmtMoney(r.balance)}</td>
+        <td class="${TD_BG} text-sm text-gray-500" ${rs}>${r.lastSyncAt || '—'}</td>`;
+    }
+    function renderPageAccountCells(r, rowSpan) {
+      const rs = `rowspan="${rowSpan}"`;
+      return `
+        <td class="${TD_BG} text-sm text-gray-700" ${rs}>${r.bm}</td>
+        <td class="${TD_BG} text-sm text-gray-500 mono" ${rs}>${r.bmId}</td>
+        <td class="${TD_BG} text-sm font-medium text-gray-900" ${rs}>${r.name}</td>
+        <td class="${TD_BG} text-sm text-gray-500 mono" ${rs}>${r.id}</td>
+        <td class="${TD_BG}" ${rs}><a href="${r.url}" target="_blank" class="email-link mono">${r.url}</a></td>
+        <td class="${TD_BG} text-sm text-gray-500" ${rs}>${r.lastSyncAt || '—'}</td>`;
+    }
+    function renderPixelAccountCells(r, rowSpan) {
+      const rs = `rowspan="${rowSpan}"`;
+      return `
+        <td class="${TD_BG} text-sm text-gray-700" ${rs}>${r.bm}</td>
+        <td class="${TD_BG} text-sm text-gray-500 mono" ${rs}>${r.bmId}</td>
+        <td class="${TD_BG} text-sm font-medium text-gray-900" ${rs}>${r.name}</td>
+        <td class="${TD_BG} text-sm text-gray-500 mono" ${rs}>${r.id}</td>
+        <td class="${TD_BG} text-sm text-gray-500" ${rs}>${r.lastSyncAt || '—'}</td>`;
+    }
+    function renderGroupedBody(tab, rows, accountCellsFn) {
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      rows.forEach((r, ri) => {
+        const gid = tab + '|' + r.id;
+        const members = r.assigned.length ? r.assigned : [null];
+        const rowSpan = members.length;
+        const isLastGroup = ri === rows.length - 1;
+        const extra = tab === 'AD_ACCOUNT' ? allocOf(r.id) : null;
+        members.forEach((m, mi) => {
+          const tr = document.createElement('tr');
+          tr.className = 'asset-group' + (mi === rowSpan - 1 && !isLastGroup ? ' group-sep' : '');
+          let html = '';
+          if (mi === 0) {
+            html += `<td class="${TD} bg-white" rowspan="${rowSpan}"><input type="checkbox" class="rowck" ${selected.has(gid) ? 'checked' : ''} onchange="toggleRow('${gid}', this)"></td>`;
+            html += accountCellsFn(r, extra, rowSpan);
+          }
+          html += renderMemberCells(m, gid);
+          if (mi === 0) {
+            html += `<td class="${TD_BG} text-sm" rowspan="${rowSpan}"><div class="op-account-btns"><button onclick="openAssign(['${gid}'])" class="text-blue-600 hover:text-blue-800 whitespace-nowrap">分配</button><button onclick="removeFromBm('${gid}')" class="text-red-600 hover:text-red-800 whitespace-nowrap">移出BM</button></div></td>`;
+          }
+          tr.innerHTML = html;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+    function renderAdAccountHeader() {
+      renderGroupedHeader(['BM名称', 'BM ID', '广告账户名称', '广告账户ID', '商户ID', '客户名称', '广告账户状态', '时区', '币种', '余额', '上次同步']);
+    }
+    function renderPageHeader() {
+      renderGroupedHeader(['BM名称', 'BM ID', 'Page名称', 'Page ID', 'Page URL', '上次同步']);
+    }
+    function renderPixelHeader() {
+      renderGroupedHeader(['BM名称', 'BM ID', 'Pixel名称', 'Pixel ID', '上次同步']);
+    }
+    function renderAdAccountBody(rows) {
+      renderGroupedBody('AD_ACCOUNT', rows, (r, alloc, rs) => renderAdAccountAccountCells(r, alloc, rs));
+    }
+    function renderPageBody(rows) {
+      renderGroupedBody('PAGE', rows, (r, _a, rs) => renderPageAccountCells(r, rs));
+    }
+    function renderPixelBody(rows) {
+      renderGroupedBody('PIXEL', rows, (r, _a, rs) => renderPixelAccountCells(r, rs));
+    }
+    function statusBadge(s) { const m = { active: 'bg-green-100 text-green-800', limited: 'bg-yellow-100 text-yellow-800', banned: 'bg-red-100 text-red-800' }; const t = { active: '活跃', limited: '受限', banned: '被封' }; return `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${m[s] || 'bg-gray-100 text-gray-700'}">${t[s] || s}</span>`; }
 
+    function countDisplayRows(rows) {
+      return rows.reduce((n, r) => n + Math.max(r.assigned.length, 1), 0);
+    }
     function renderAssets() {
       const rows = filteredData();
-      let h = '<tr><th class="px-4 py-3"><input type="checkbox" onchange="toggleAll(this)"></th>';
-      cols[currentTab].forEach(c => h += `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${c[1]}</th>`);
-      h += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th></tr>';
-      document.getElementById('thead').innerHTML = h;
 
-      const tbody = document.getElementById('tbody'); tbody.innerHTML = '';
-      rows.forEach(r => {
-        const gid = currentTab + '|' + r.id;
-        const tr = document.createElement('tr');
-        let cells = `<td class="px-4 py-4"><input type="checkbox" class="rowck" ${selected.has(gid) ? 'checked' : ''} onchange="toggleRow('${gid}', this)"></td>`;
-        cols[currentTab].forEach(c => {
-          const k = c[0]; let v = '';
-          if (k === 'name') v = `<div class="text-sm font-medium text-gray-900">${r.name}</div>`;
-          else if (k === 'id' || k === 'bmId') v = `<div class="text-sm text-gray-500 mono">${r[k]}</div>`;
-          else if (k === 'status') v = statusBadge(r.status);
-          else if (k === 'balance') v = `<div class="text-sm mono ${r.balance > 0 ? 'text-gray-900' : 'text-red-600'}">${fmtMoney(r.balance)}</div>`;
-          else if (k === 'url') v = `<a href="${r.url}" target="_blank" class="text-sm text-blue-600 hover:underline mono">${r.url}</a>`;
-          else if (k === 'assigned') v = `<button onclick="openView('${gid}')" class="text-sm ${r.assigned.length ? 'text-blue-600 hover:text-blue-800' : 'text-gray-400'}">${r.assigned.length} 人</button>`;
-          else if (k === 'lastSyncAt') v = `<div class="text-sm text-gray-500">${r.lastSyncAt || '—'}</div>`;
-          else v = `<div class="text-sm text-gray-700">${r[k] || ''}</div>`;
-          cells += `<td class="px-6 py-4 whitespace-nowrap">${v}</td>`;
-        });
-        cells += `<td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
-          <button onclick="openAssign(['${gid}'])" class="text-blue-600 hover:text-blue-800">分配</button>
-          <button onclick="removeFromBm('${gid}')" class="text-red-600 hover:text-red-800">移出BM</button></td>`;
-        tr.innerHTML = cells;
-        tbody.appendChild(tr);
-      });
+      if (currentTab === 'AD_ACCOUNT') {
+        renderAdAccountHeader();
+        renderAdAccountBody(rows);
+      } else if (currentTab === 'PAGE') {
+        renderPageHeader();
+        renderPageBody(rows);
+      } else if (currentTab === 'PIXEL') {
+        renderPixelHeader();
+        renderPixelBody(rows);
+      }
+
       document.getElementById('totalCount').textContent = rows.length;
-      document.getElementById('showCount').textContent = rows.length;
+      document.getElementById('showCount').textContent = countDisplayRows(rows);
       updateSel();
     }
-    function findRow(gid) { const id = gid.split('|')[1]; return data[currentTab].find(r => r.id === id); }
+    function findRow(gid) {
+      const [tab, id] = gid.split('|');
+      return data[tab].find(r => r.id === id);
+    }
     function toggleAll(cb) { filteredData().forEach(r => { const gid = currentTab + '|' + r.id; cb.checked ? selected.add(gid) : selected.delete(gid); }); renderAssets(); }
     function toggleRow(gid, cb) { cb.checked ? selected.add(gid) : selected.delete(gid); updateSel(); }
     function updateSel() { document.getElementById('selCount').textContent = selected.size; }
-
-    function openView(gid) {
-      const r = findRow(gid); document.getElementById('viewAssetName').textContent = r.name;
-      const tb = document.getElementById('viewBody');
-      tb.innerHTML = r.assigned.length ? '' : '<tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">暂无分配</td></tr>';
-      r.assigned.forEach(a => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="px-4 py-2"><div class="text-gray-900">${a.name}</div><div class="text-xs text-gray-400">${a.email}</div></td>
-          <td class="px-4 py-2 ${a.merchant === '未绑定' || a.merchant === '—' ? 'text-amber-600' : 'text-gray-600 mono'}">${a.merchant}</td>
-          <td class="px-4 py-2">${a.tasks.map(t => `<span class="task-chip">${t}</span>`).join('')}</td>
-          <td class="px-4 py-2"><button onclick="showNotification('已解除 ${a.name} 对该资产的分配','success')" class="text-red-600 hover:text-red-800 text-sm">解除</button></td>`;
-        tb.appendChild(tr);
-      });
-      document.getElementById('viewModal').classList.remove('hidden');
-    }
 
     let assignTargets = [];
     function openAssign(gids) {
@@ -423,6 +505,14 @@
       closeModal('assignModal');
       showNotification(`正在为 ${assignTargets.length} 个资产 × ${mem.length} 个成员实时调用 Meta…`, 'info');
       setTimeout(() => showNotification(`分配完成：成功 ${assignTargets.length * mem.length} 条，已写操作日志`, 'success'), 1500);
+    }
+    function unassignUser(gid, email) {
+      const r = findRow(gid); const u = r.assigned.find(a => a.email === email);
+      if (!u) return;
+      if (confirm(`确认解除 ${u.name}（${email}）对该资产的分配？`)) {
+        showNotification(`已提交解除 ${u.name}，实时调用 Meta 中…`, 'info');
+        setTimeout(() => showNotification('解除成功，已写操作日志', 'success'), 1200);
+      }
     }
     function removeFromBm(gid) { if (confirm('确认将该资产移出 BM？移出后该资产及其分配关系将从本 BM 解除。')) { showNotification('已提交「移出BM」，实时调用 Meta 中…', 'info'); setTimeout(() => showNotification('该资产已移出 BM', 'success'), 1200); } }
     function batchAssign() { if (!selected.size) { showNotification('请先勾选资产', 'warning'); return; } openAssign(Array.from(selected)); }

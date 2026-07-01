@@ -1,3 +1,48 @@
+#### 2026-06-29 - 成员页双 Tab 筛选/列表字段调整
+
+**成员** `members.html` / **PRD** v1.4：
+- BM 成员信息：筛选项 BM名称、BM ID、User名称、User Email、角色、是否内部；列表增 BM ID 列。
+- 内部人员标记：筛选项 User名称、User Email、是否内部；列表 User Email 列名统一。
+
+---
+
+#### 2026-06-29 - 资产页三 Tab 列表样式统一
+
+**资产** `assets.html`：
+- 单元格 `white-space: nowrap`，表格横向滚动，减少换行占高。
+- Page / Pixel Tab 成员展示与 Ad Account 一致（User / User Email / 权限 / 是否内部，分组平铺，无弹窗）。
+- 表头移除 `uppercase`，英文列名词首大写（如 User Email）。
+
+**PRD** `V 2.27 Meta 资产管理.md` v1.3：补修订记录；页面概述与列表展示规则同步三 Tab 统一交互。
+
+---
+
+#### 2026-06-29 - Ad Account 列表补回全部字段
+
+**资产** `assets.html` / **PRD**：在分组平铺布局下恢复客户名称、状态、时区、币种、余额、上次同步等账户级字段（rowspan），成员字段紧随其后。
+
+---
+
+#### 2026-06-29 - Ad Account 列表改为分组平铺（对齐截图）
+
+**资产** `assets.html`：Ad Account Tab 列表改为账户字段 rowspan + 每成员一行（User / email / 权限 / 是否内部）；操作列分成员「解除」与账户「分配」「移出BM」。
+
+---
+
+#### 2026-06-29 - V2.27 Meta 资产管理范围收口（PRD v1.1）
+
+**PRD** 重命名为 `PRD/V 2.27 Meta 资产管理.md`（v1.1）：
+- 资产分配核对 **本期不实现**（因暂未支持 user ↔ 商户ID 绑定）。
+- 成员 Tab2 收窄为 **内部人员标记**；补充后续 user-商户关联扩展提醒。
+- Ad Account Tab 增加商户ID/客户名称（账户分配只读）、内联成员、操作列账户级/成员级拆分。
+- 新增 **Meta Graph API 对照**（分配 / 解除 / 移出BM 等）。
+
+**成员** `members.html`：Tab「email-商户绑定」→「内部人员标记」；仅勾选内部人员，移除商户绑定 UI。
+
+**资产** `assets.html`：Ad Account 新增商户ID/客户名称列；已分配成员内联展示；解除移至操作列（成员级）。
+
+---
+
 #### 2026-06-29 - 重写 Meta 资产管理 PRD
 
 **PRD** `PRD/meta-asset-management-prd.md`：
