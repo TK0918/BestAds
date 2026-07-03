@@ -89,6 +89,7 @@
             <ul id="mainMenu" class="space-y-1 mb-2">
               <li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
               <li><a href="customer-management.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-users w-5 h-5 mr-3 text-gray-500"></i>客户管理</a></li>
+              <li><a href="customer-sub-account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-friends w-5 h-5 mr-3 text-gray-400"></i>客户子账号管理</a></li>
               <li><a href="agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
               <li><a href="rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
               <li><a href="introducer-spitpoint.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-400"></i>介绍人和吐点</a></li>
@@ -296,6 +297,10 @@
                   <button onclick="openBulkPermissionModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-toggle-on"></i>
                     <span>全量客户功能开关</span>
+                  </button>
+                  <button onclick="openBatchPermissionModal()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-users-cog"></i>
+                    <span>批量功能开关</span>
                   </button>
                   <button onclick="openModal('add')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
                     <i class="fas fa-plus"></i>
@@ -1140,6 +1145,102 @@
     </div>
   </div>
 
+  <!-- 批量客户功能开关模态框 -->
+  <div id="batchPermissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">批量客户功能开关</h3>
+            <button onclick="closeModal('batchPermissionModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="handleBatchPermissionsSubmit(event)">
+          <div class="mb-4">
+            <div class="bg-teal-50 border border-teal-200 rounded-lg p-3">
+              <p class="text-sm font-medium text-teal-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                执行对象：已勾选的 <span id="batchSelectedCount" class="font-bold">0</span> 位客户
+              </p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <h4 class="text-md font-medium text-gray-900 mb-3">选择功能项</h4>
+              <div id="batchPermissionTreeContainer" class="border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto"></div>
+            </div>
+            <div>
+              <h4 class="text-md font-medium text-gray-900 mb-3">选择操作</h4>
+              <div class="grid grid-cols-2 gap-4 border border-gray-200 rounded-lg p-4">
+                <div>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="radio" name="batchAction" value="enable" class="rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <div>
+                      <span class="text-sm font-medium text-green-700">开启功能</span>
+                      <p class="text-xs text-gray-500 mt-1">赋予客户权限</p>
+                    </div>
+                  </label>
+                </div>
+                <div>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="radio" name="batchAction" value="disable" class="rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <div>
+                      <span class="text-sm font-medium text-red-700">关闭功能</span>
+                      <p class="text-xs text-gray-500 mt-1">回收客户权限</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" onclick="closeModal('batchPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+              取消
+            </button>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-teal-600 border border-transparent rounded-md hover:bg-teal-700 transition-colors duration-200">
+              确认设置
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量客户二次确认弹窗 -->
+  <div id="confirmBatchPermissionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">确认批量设置</h3>
+            <button onclick="closeModal('confirmBatchPermissionModal')" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p class="text-sm text-yellow-800">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              将对已勾选客户批量调整功能权限，请确认后再执行。
+            </p>
+          </div>
+          <div id="batchConfirmContent" class="text-sm text-gray-600 mb-4"></div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <button onclick="closeModal('confirmBatchPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+            取消
+          </button>
+          <button onclick="confirmBatchPermissions()" class="px-4 py-2 text-sm font-medium text-white bg-teal-600 border border-transparent rounded-md hover:bg-teal-700 transition-colors duration-200">
+            确认执行
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 客户权限管理模态框 -->
   <div id="permissionManagementModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
@@ -1304,11 +1405,11 @@
       { key: 'remainingCredit', label: '剩余额度', width: '120px' },
       { key: 'registerTime', label: '注册时间', width: '150px' },
       { key: 'lastLoginTime', label: '最近登录', width: '150px' },
-      { key: 'actions', label: '操作', width: '200px' }
+      { key: 'actions', label: '操作', width: '320px' }
     ];
 
     // 默认显示的字段
-    let defaultFields = ['customerId', 'customerLevel', 'email', 'customerStatus', 'am', 'bd', 'defaultCurrency', 'currentBalance', 'availableBalance', 'realAmount', 'frozenAmount', 'registerTime', 'lastLoginTime', 'actions'];
+    let defaultFields = ['customerId', 'customerLevel', 'email', 'customerStatus', 'am', 'bd', 'defaultCurrency', 'currentBalance', 'registerTime', 'lastLoginTime', 'actions'];
     
     // 当前显示的字段
     let currentFields = [...defaultFields];
@@ -1642,7 +1743,7 @@
             case 'actions':
               td.style.cssText = 'position: sticky; right: 0; background: white; z-index: 10;';
               td.innerHTML = `
-                <div class="text-sm font-medium space-x-2">
+                <div class="text-sm font-medium space-x-1 flex flex-wrap gap-1">
                   <button onclick="editCustomer('${customer.customerId}')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded text-xs transition-colors duration-200">
                     编辑
                   </button>
@@ -1652,6 +1753,9 @@
                   <button onclick="managePermissions('${customer.customerId}')" class="text-purple-600 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded text-xs transition-colors duration-200">
                     <i class="fas fa-user-shield"></i> 权限管理
                   </button>
+                  <a href="customer-sub-account-management.html?merchantId=${customer.merchantId}" class="text-teal-600 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 px-2 py-1 rounded text-xs transition-colors duration-200 inline-block">
+                    <i class="fas fa-user-friends"></i> 子账号管理
+                  </a>
                   <button onclick="adjustQuota('${customer.customerId}')" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-2 py-1 rounded text-xs transition-colors duration-200">
                     调整额度
                   </button>
@@ -2223,90 +2327,7 @@
     // 渲染权限树
     function renderPermissionTree(currentPermissions) {
       const container = document.getElementById('permissionTreeContainer');
-      container.innerHTML = '';
-      
-      const permissionTree = [
-        {
-          page: { key: 'page:advertisement', label: '广告管理' },
-          buttons: [
-            { key: 'button:advertisement:create', label: '创建广告' },
-            { key: 'button:advertisement:edit', label: '编辑广告' },
-            { key: 'button:advertisement:delete', label: '删除广告' }
-          ]
-        },
-        {
-          page: { key: 'page:campaign', label: '广告系列管理' },
-          buttons: [
-            { key: 'button:campaign:create', label: '创建系列' },
-            { key: 'button:campaign:edit', label: '编辑系列' },
-            { key: 'button:campaign:delete', label: '删除系列' }
-          ]
-        },
-        {
-          page: { key: 'page:adset', label: '广告组管理' },
-          buttons: [
-            { key: 'button:adset:create', label: '创建广告组' },
-            { key: 'button:adset:edit', label: '编辑广告组' },
-            { key: 'button:adset:delete', label: '删除广告组' }
-          ]
-        },
-        {
-          page: { key: 'page:account', label: '账户管理' },
-          buttons: [
-            { key: 'button:account:recharge', label: '充值功能' },
-            { key: 'button:account:withdraw', label: '提现功能' }
-          ]
-        },
-        {
-          page: { key: 'page:wallet', label: '钱包管理' },
-          buttons: [
-            { key: 'button:wallet:export', label: '导出流水' }
-          ]
-        },
-        {
-          page: { key: 'page:report', label: '报表查看' },
-          buttons: [
-            { key: 'button:report:export', label: '导出报表' }
-          ]
-        }
-      ];
-      
-      permissionTree.forEach(item => {
-        const isPageChecked = currentPermissions.includes(item.page.key);
-        const pageGroupDiv = document.createElement('div');
-        pageGroupDiv.className = 'permission-group';
-        
-        // 页面权限复选框
-        const pageLabel = document.createElement('label');
-        pageLabel.className = 'flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded';
-        pageLabel.innerHTML = `
-          <input type="checkbox" name="permissions" value="${item.page.key}" 
-                 ${isPageChecked ? 'checked' : ''} 
-                 class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-          <span class="text-sm font-medium text-gray-900">${item.page.label}</span>
-        `;
-        
-        // 按钮权限复选框
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = 'ml-6 mt-1 space-y-1';
-        
-        item.buttons.forEach(button => {
-          const isButtonChecked = currentPermissions.includes(button.key);
-          const buttonLabel = document.createElement('label');
-          buttonLabel.className = 'flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm';
-          buttonLabel.innerHTML = `
-            <input type="checkbox" name="permissions" value="${button.key}" 
-                   ${isButtonChecked ? 'checked' : ''} 
-                   class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-            <span class="text-gray-700">${button.label}</span>
-          `;
-          buttonsDiv.appendChild(buttonLabel);
-        });
-        
-        pageGroupDiv.appendChild(pageLabel);
-        pageGroupDiv.appendChild(buttonsDiv);
-        container.appendChild(pageGroupDiv);
-      });
+      container.innerHTML = buildPermissionTreeHtml(CLIENT_PERMISSION_TREE, 'permissions', currentPermissions || [], 'single');
     }
 
     // 全局变量：存储待确认的权限数据
@@ -2497,6 +2518,123 @@
         closeModal('permissionManagementModal');
         pendingCustomerPermissions = null;
         pendingCustomerId = null;
+      }
+    }
+
+    // 权限树定义（与客户端 Web 路由对齐）
+    const CLIENT_PERMISSION_TREE = [
+      { page: { key: 'page:adMange_meta', label: 'Meta 广告管理' }, buttons: [
+        { key: 'button:adMange_meta:create', label: '创建广告' },
+        { key: 'button:adMange_meta:edit', label: '编辑广告' },
+        { key: 'button:adMange_meta:delete', label: '删除广告' }
+      ]},
+      { page: { key: 'page:adMange_meta_bulk-create-ad', label: '批量创建广告' }, buttons: [] },
+      { page: { key: 'page:analyze_ad', label: '数据分析' }, buttons: [
+        { key: 'button:analyze_ad:export', label: '导出报表' }
+      ]},
+      { page: { key: 'page:assets_account', label: '媒体账户' }, buttons: [
+        { key: 'button:assets_account:auth', label: '授权账户' }
+      ]},
+      { page: { key: 'page:assets_creative', label: '素材库' }, buttons: [
+        { key: 'button:assets_creative:upload', label: '上传素材' }
+      ]},
+      { page: { key: 'page:asset-management_account-management', label: '账户管理' }, buttons: [
+        { key: 'button:asset-management_account-management:recharge', label: '充值' },
+        { key: 'button:asset-management_account-management:deduct', label: '减款' },
+        { key: 'button:asset-management_account-management:clear', label: '清零' }
+      ]},
+      { page: { key: 'page:asset-management_balance-management', label: '余额管理' }, buttons: [
+        { key: 'button:asset-management_balance-management:online', label: '在线充值' },
+        { key: 'button:asset-management_balance-management:offline', label: '线下转账' }
+      ]},
+      { page: { key: 'page:asset-management_operation-record', label: '操作记录' }, buttons: [] },
+      { page: { key: 'page:setting_auto-recharge-setting', label: '自动充值设置' }, buttons: [
+        { key: 'button:setting_auto-recharge-setting:edit', label: '编辑规则' }
+      ]},
+      { page: { key: 'page:user-management_sub-account-management', label: '子账号管理' }, buttons: [
+        { key: 'button:user-management_sub-account-management:create', label: '创建子账号' }
+      ]},
+      { page: { key: 'page:user-management_role-management', label: '角色管理' }, buttons: [
+        { key: 'button:user-management_role-management:create', label: '创建角色' }
+      ]},
+      { page: { key: 'page:service_task', label: '任务中心' }, buttons: [] },
+      { page: { key: 'page:h5_account-management', label: 'H5-账户管理' }, buttons: [
+        { key: 'button:h5_account-management:recharge', label: '批量充值' }
+      ]},
+      { page: { key: 'page:h5_balance-management', label: 'H5-钱包' }, buttons: [] },
+      { page: { key: 'page:h5_operation-record', label: 'H5-操作记录' }, buttons: [] },
+      { page: { key: 'page:h5_report-center', label: 'H5-报告中心' }, buttons: [] }
+    ];
+
+    function buildPermissionTreeHtml(tree, checkboxName, currentPermissions, prefix) {
+      let html = '';
+      tree.forEach(item => {
+        const isPageChecked = currentPermissions && currentPermissions.includes(item.page.key);
+        html += `<div class="permission-group mb-2">`;
+        html += `<label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">`;
+        html += `<input type="checkbox" name="${checkboxName}" value="${item.page.key}" ${isPageChecked ? 'checked' : ''} class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">`;
+        html += `<span class="text-sm font-medium text-gray-900">${item.page.label}</span></label>`;
+        if (item.buttons.length) {
+          html += `<div class="ml-6 mt-1 space-y-1">`;
+          item.buttons.forEach(btn => {
+            const isBtnChecked = currentPermissions && currentPermissions.includes(btn.key);
+            html += `<label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">`;
+            html += `<input type="checkbox" name="${checkboxName}" value="${btn.key}" ${isBtnChecked ? 'checked' : ''} class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">`;
+            html += `<span class="text-gray-700">${btn.label}</span></label>`;
+          });
+          html += `</div>`;
+        }
+        html += `</div>`;
+      });
+      return html;
+    }
+
+    let pendingBatchPermissions = null;
+    let pendingBatchAction = null;
+
+    function openBatchPermissionModal() {
+      if (selectedCustomerIds.size === 0) {
+        showNotification('请先勾选要批量调整的客户', 'warning');
+        return;
+      }
+      document.getElementById('batchSelectedCount').textContent = selectedCustomerIds.size;
+      document.getElementById('batchPermissionTreeContainer').innerHTML = buildPermissionTreeHtml(CLIENT_PERMISSION_TREE, 'batchPermissions', [], 'batch');
+      document.getElementById('batchPermissionModal').classList.remove('hidden');
+    }
+
+    function handleBatchPermissionsSubmit(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const action = formData.get('batchAction');
+      const permissions = formData.getAll('batchPermissions');
+      if (!action) {
+        showNotification('请选择操作类型（开启或关闭）！', 'warning');
+        return;
+      }
+      if (permissions.length === 0) {
+        showNotification('请至少选择一个功能项！', 'warning');
+        return;
+      }
+      pendingBatchAction = action;
+      pendingBatchPermissions = permissions;
+      const actionText = action === 'enable' ? '开启' : '关闭';
+      const formatted = permissions.map(p => p.replace(/^page:|^button:/, '').replace(/:/g, ' '));
+      document.getElementById('batchConfirmContent').innerHTML = `
+        <p><strong>影响客户数：</strong>${selectedCustomerIds.size} 位</p>
+        <p><strong>操作类型：</strong>${actionText}</p>
+        <p><strong>涉及功能：</strong>${formatted.join('、')}</p>
+      `;
+      document.getElementById('confirmBatchPermissionModal').classList.remove('hidden');
+    }
+
+    function confirmBatchPermissions() {
+      if (pendingBatchPermissions && pendingBatchAction) {
+        const actionDesc = pendingBatchAction === 'enable' ? '赋予' : '回收';
+        showNotification(`批量功能${actionDesc}已应用！影响 ${selectedCustomerIds.size} 位客户`, 'success');
+        closeModal('confirmBatchPermissionModal');
+        closeModal('batchPermissionModal');
+        pendingBatchPermissions = null;
+        pendingBatchAction = null;
       }
     }
   </script>

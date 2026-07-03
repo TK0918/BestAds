@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户子账号管理 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .modal-backdrop { backdrop-filter: blur(8px); }
+    .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    tr.row-highlight { background-color: #fef3c7 !important; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+      </div>
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="customer-sub-account-management.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-user-friends w-5 h-5 mr-3 text-gray-500"></i>客户子账号管理</a></li>
+              <li><a href="agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+              <li><a href="introducer-spitpoint.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-400"></i>介绍人和吐点</a></li>
+              <li><a href="deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+              <li><a href="system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('metaAssetMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Meta资产管理</h3>
+              <i id="metaAssetMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="metaAssetMenu" class="space-y-1 mb-2">
+              <li><a href="../meta-asset-management/bm-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>BM 配置</a></li>
+              <li><a href="../meta-asset-management/assets.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cubes w-5 h-5 mr-3 text-gray-400"></i>资产</a></li>
+              <li><a href="../meta-asset-management/members.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>成员</a></li>
+              <li><a href="../meta-asset-management/assignment-audit.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-check w-5 h-5 mr-3 text-gray-400"></i>资产分配核对</a></li>
+              <li><a href="../meta-asset-management/operation-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>操作日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
+              <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="perfMenu" class="space-y-1 mb-2">
+              <li><a href="../performance/metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+              <li><a href="../performance/performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+              <li><a href="../performance/all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
+              <li><a href="../performance/my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
+              <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="../system-settings/notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+              <li><a href="../system-settings/ad-consumption-decline-reminder.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>消耗下降提醒配置</a></li>
+              <li><a href="../system-settings/paypal-pay-whitelist.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fab fa-paypal w-5 h-5 mr-3 text-gray-400"></i>在线支付白名单</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+            </ul>
+          </div>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="../reports/manual-consume-upload.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-upload w-5 h-5 mr-3 text-gray-400"></i>人工上传媒体消耗</a></li>
+              <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+              <li><a href="../reports/ad-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-signal w-5 h-5 mr-3 text-gray-400"></i>广告日报</a></li>
+              <li><a href="../reports/customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i>客户对账日报</a></li>
+              <li><a href="../reports/data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i>数据报表</a></li>
+              <li><a href="../reports/consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i>消耗分析</a></li>
+              <li><a href="../reports/recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i>充值分布分析</a></li>
+              <li><a href="../reports/profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i>预计利润波动分析</a></li>
+              <li><a href="../reports/customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i>客户资金变动</a></li>
+              <li><a href="../reports/ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i>广告客户表现</a></li>
+              <li><a href="../reports/customer-lifecycle-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hourglass-half w-5 h-5 mr-3 text-gray-400"></i>客户生命周期报表</a></li>
+              <li><a href="../reports/weekly-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-gray-400"></i>广告周数据</a></li>
+              <li><a href="../reports/multi-tab-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-table w-5 h-5 mr-3 text-gray-400"></i>客户广告表现(新)</a></li>
+              <li><a href="../reports/account-card-reconciliation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-link w-5 h-5 mr-3 text-gray-400"></i>绑卡户数据核对</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-6">
+        <button onclick="toggleSidebar()" class="lg:hidden mr-3 text-gray-400"><i class="fas fa-bars"></i></button>
+        <nav class="text-sm text-gray-500">
+          <a href="customer-management.html" class="hover:text-gray-700">客户管理</a>
+          <span class="mx-2">/</span>
+          <span class="text-gray-900 font-medium">客户子账号管理</span>
+        </nav>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">客户子账号管理</h2>
+            <p class="mt-1 text-sm text-gray-500">默认展示全部商户的角色与子账号；商户功能权限请在「客户管理 → 权限管理」配置</p>
+          </div>
+
+          <div class="border-b border-gray-200 mb-6">
+            <nav class="flex space-x-8">
+              <button onclick="switchTab('roles')" id="tab-btn-roles" class="tab-btn active py-3 px-1 text-sm text-gray-500">角色管理</button>
+              <button onclick="switchTab('subaccounts')" id="tab-btn-subaccounts" class="tab-btn py-3 px-1 text-sm text-gray-500">子账号管理</button>
+            </nav>
+          </div>
+
+          <!-- Tab: 角色管理 -->
+          <div id="tab-roles" class="tab-panel active">
+            <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">商户ID</label>
+                  <input type="text" id="roleFilterMerchantId" placeholder="如 M001" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">客户名称</label>
+                  <input type="text" id="roleFilterMerchantName" placeholder="模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">角色名</label>
+                  <input type="text" id="roleFilterName" placeholder="模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="searchRoles()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">搜索</button>
+                  <button onclick="resetRoleFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">重置</button>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-sm text-gray-500">共 <strong id="roleTotalCount">0</strong> 条</span>
+              <button onclick="openRoleModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm"><i class="fas fa-plus mr-1"></i>创建角色</button>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 table-hover">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">商户ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">客户名称</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">角色名</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">绑定用户数</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">更新时间</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="roleTableBody" class="divide-y divide-gray-200"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tab: 子账号管理 -->
+          <div id="tab-subaccounts" class="tab-panel">
+            <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">登录账号</label>
+                  <input type="text" id="subFilterLogin" placeholder="子账号名" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">商户ID</label>
+                  <input type="text" id="subFilterMerchantId" placeholder="如 M001" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">客户名称</label>
+                  <input type="text" id="subFilterMerchantName" placeholder="模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                  <select id="subFilterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <option value="">全部</option>
+                    <option value="启用">启用</option>
+                    <option value="停用">停用</option>
+                  </select>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="searchSubAccounts()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">搜索</button>
+                  <button onclick="resetSubFilters()" class="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">重置</button>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-sm text-gray-500">共 <strong id="subTotalCount">0</strong> 条</span>
+              <button onclick="openSubAccountModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm"><i class="fas fa-plus mr-1"></i>创建子账号</button>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 table-hover">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">商户ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">客户名称</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">登录账号</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">姓名</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">绑定角色</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">管理余额账户</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">管理广告账户</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">最近登录</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="subAccountTableBody" class="divide-y divide-gray-200"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 角色弹窗 -->
+  <div id="roleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b flex justify-between sticky top-0 bg-white">
+          <h3 class="text-lg font-medium" id="roleModalTitle">创建角色</h3>
+          <button onclick="closeRoleModal()" class="text-gray-400"><i class="fas fa-times"></i></button>
+        </div>
+        <form class="px-6 py-4" onsubmit="saveRole(event)">
+          <div id="roleCustomerField" class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">所属客户 *</label>
+            <select id="roleCustomerId" required class="w-full px-3 py-2 border border-gray-300 rounded-md" onchange="onRoleCustomerChange()"></select>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">角色名 *</label><input type="text" id="roleName" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">状态 *</label><select id="roleStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md"><option value="enabled">启用</option><option value="disabled">停用</option></select></div>
+          </div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">描述</label><textarea id="roleDescription" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">权限分配 *</label><div id="rolePermissionTree" class="border rounded-lg p-4 max-h-64 overflow-y-auto"></div></div>
+          <div class="flex justify-end gap-3 pb-4">
+            <button type="button" onclick="closeRoleModal()" class="px-4 py-2 border rounded-md text-sm">取消</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm">确定</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 子账号弹窗 -->
+  <div id="subAccountModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b flex justify-between sticky top-0 bg-white">
+          <h3 class="text-lg font-medium" id="subAccountModalTitle">创建子账号</h3>
+          <button onclick="closeSubAccountModal()" class="text-gray-400"><i class="fas fa-times"></i></button>
+        </div>
+        <form class="px-6 py-4" onsubmit="saveSubAccount(event)">
+          <div id="subCustomerField" class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">所属客户 *</label>
+            <select id="subCustomerId" required class="w-full px-3 py-2 border border-gray-300 rounded-md" onchange="onSubCustomerChange()"></select>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">登录账号 *</label><input type="text" id="subUsername" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">姓名 *</label><input type="text" id="subRealName" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+            <div id="subPasswordFields"><label class="block text-sm font-medium text-gray-700 mb-2">初始密码 *</label><input type="password" id="subPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">绑定角色 *</label><select id="subRole" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></select></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">状态 *</label><select id="subStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md"><option value="enabled">启用</option><option value="disabled">停用</option></select></div>
+          </div>
+          <div class="mb-4 border-t pt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">可管理的广告账户 *</label>
+            <p class="text-xs text-gray-500 mb-2">余额广告账户</p>
+            <div id="subBalanceAccounts" class="border rounded-lg p-3 max-h-32 overflow-y-auto mb-3"></div>
+            <p class="text-xs text-gray-500 mb-2">普通广告账户</p>
+            <div id="subNormalAccounts" class="border rounded-lg p-3 max-h-32 overflow-y-auto"></div>
+          </div>
+          <div class="flex justify-end gap-3 pb-4">
+            <button type="button" onclick="closeSubAccountModal()" class="px-4 py-2 border rounded-md text-sm">取消</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm">确定</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 重置密码 -->
+  <div id="resetPasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-medium mb-4">重置密码</h3>
+        <form onsubmit="confirmResetPassword(event)">
+          <p class="text-sm text-gray-600 mb-4">为子账号 <strong id="resetTargetName"></strong> 设置新密码（请线下同步客户）。</p>
+          <input type="password" id="newPassword" required placeholder="新密码" class="w-full px-3 py-2 border rounded-md mb-3">
+          <input type="password" id="confirmNewPassword" required placeholder="确认密码" class="w-full px-3 py-2 border rounded-md mb-4">
+          <div class="flex justify-end gap-3">
+            <button type="button" onclick="closeResetPasswordModal()" class="px-4 py-2 border rounded-md text-sm">取消</button>
+            <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-md text-sm">确认重置</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CUSTOMERS = [
+      { customerId: 'C001', merchantId: 'M001', merchantName: 'ABC科技有限公司', email: 'contact@abctech.com',
+        permissions: ['page:adMange_meta', 'page:asset-management_account-management'],
+        roles: [
+          { id: 1, name: '管理员', userCount: 2, status: '启用', updateTime: '2024-03-01 10:00', permissions: ['page:adMange_meta'] },
+          { id: 2, name: '操作员', userCount: 3, status: '启用', updateTime: '2024-02-28 15:00', permissions: ['page:asset-management_account-management'] },
+          { id: 3, name: '财务', userCount: 0, status: '停用', updateTime: '2024-01-20 11:00', permissions: [] }
+        ],
+        subAccounts: [
+          { id: 1, username: 'zhangsan', realName: '张三', role: '管理员', status: '启用', lastLogin: '2024-03-01 09:00', balanceAccounts: ['act_10001'], normalAccounts: ['act_20001'] },
+          { id: 2, username: 'lisi', realName: '李四', role: '操作员', status: '启用', lastLogin: '2024-02-28 18:00', balanceAccounts: ['act_10001'], normalAccounts: [] },
+          { id: 3, username: 'wangwu', realName: '王五', role: '操作员', status: '停用', lastLogin: '2024-01-15 10:00', balanceAccounts: [], normalAccounts: [] }
+        ]
+      },
+      { customerId: 'C002', merchantId: 'M002', merchantName: 'XYZ数字营销', email: 'admin@xyzdigital.com',
+        permissions: ['page:asset-management_balance-management'],
+        roles: [{ id: 1, name: '默认角色', userCount: 1, status: '启用', updateTime: '2024-02-01 10:00', permissions: [] }],
+        subAccounts: [{ id: 1, username: 'ops01', realName: '运营一号', role: '默认角色', status: '启用', lastLogin: '2024-02-20 14:00', balanceAccounts: [], normalAccounts: [] }]
+      }
+    ];
+
+    const BALANCE_ACCOUNTS = [{ id: 'act_10001', name: 'act_10001 - 账户A' }, { id: 'act_10002', name: 'act_10002 - 账户B' }];
+    const NORMAL_ACCOUNTS = [{ id: 'act_20001', name: 'act_20001 - 账户X' }, { id: 'act_20002', name: 'act_20002 - 账户Y' }];
+    const PERMISSION_TREE = [
+      { page: { key: 'page:adMange_meta', label: 'Meta 广告管理' }, buttons: [{ key: 'button:adMange_meta:create', label: '创建广告' }] },
+      { page: { key: 'page:asset-management_account-management', label: '账户管理' }, buttons: [{ key: 'button:asset-management_account-management:recharge', label: '充值' }] },
+      { page: { key: 'page:asset-management_balance-management', label: '余额管理' }, buttons: [] }
+    ];
+
+    let filteredRoles = [];
+    let filteredSubs = [];
+    let editingRoleCtx = null;
+    let editingSubCtx = null;
+    let resettingSubCtx = null;
+    let highlightSubKey = null;
+
+    function flattenRoles() {
+      const rows = [];
+      CUSTOMERS.forEach(c => c.roles.forEach(r => rows.push({
+        ...r, customerId: c.customerId, merchantId: c.merchantId, merchantName: c.merchantName, permissionsCap: c.permissions
+      })));
+      return rows;
+    }
+
+    function flattenSubs() {
+      const rows = [];
+      CUSTOMERS.forEach(c => c.subAccounts.forEach(s => rows.push({
+        ...s, customerId: c.customerId, merchantId: c.merchantId, merchantName: c.merchantName
+      })));
+      return rows;
+    }
+
+    function getCustomer(customerId) { return CUSTOMERS.find(c => c.customerId === customerId); }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      filteredRoles = flattenRoles();
+      filteredSubs = flattenSubs();
+      renderRoles();
+      renderSubAccounts();
+      fillCustomerSelects();
+      const params = new URLSearchParams(location.search);
+      const login = params.get('login');
+      const merchantId = params.get('merchantId');
+      if (login) {
+        document.getElementById('subFilterLogin').value = login;
+        switchTab('subaccounts');
+        searchSubAccounts();
+      } else if (merchantId) {
+        document.getElementById('subFilterMerchantId').value = merchantId;
+        document.getElementById('roleFilterMerchantId').value = merchantId;
+        switchTab('subaccounts');
+        searchSubAccounts();
+        searchRoles();
+      }
+    });
+
+    function toggleMenuSection(id) {
+      const ul = document.getElementById(id);
+      const arrow = document.getElementById(id + 'Arrow');
+      if (!ul || !arrow) return;
+      if (ul.style.display === 'none') {
+        ul.style.display = '';
+        arrow.classList.remove('fa-chevron-right');
+        arrow.classList.add('fa-chevron-down');
+      } else {
+        ul.style.display = 'none';
+        arrow.classList.remove('fa-chevron-down');
+        arrow.classList.add('fa-chevron-right');
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+    }
+
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      document.getElementById('tab-btn-' + name).classList.add('active');
+    }
+
+    function fillCustomerSelects() {
+      const opts = CUSTOMERS.map(c => `<option value="${c.customerId}">${c.merchantId} - ${c.merchantName}</option>`).join('');
+      document.getElementById('roleCustomerId').innerHTML = '<option value="">请选择</option>' + opts;
+      document.getElementById('subCustomerId').innerHTML = '<option value="">请选择</option>' + opts;
+    }
+
+    function searchRoles() {
+      const mid = document.getElementById('roleFilterMerchantId').value.trim().toUpperCase();
+      const mname = document.getElementById('roleFilterMerchantName').value.trim().toLowerCase();
+      const rname = document.getElementById('roleFilterName').value.trim().toLowerCase();
+      filteredRoles = flattenRoles().filter(r => {
+        if (mid && !r.merchantId.toUpperCase().includes(mid)) return false;
+        if (mname && !r.merchantName.toLowerCase().includes(mname)) return false;
+        if (rname && !r.name.toLowerCase().includes(rname)) return false;
+        return true;
+      });
+      renderRoles();
+    }
+
+    function resetRoleFilters() {
+      document.getElementById('roleFilterMerchantId').value = '';
+      document.getElementById('roleFilterMerchantName').value = '';
+      document.getElementById('roleFilterName').value = '';
+      filteredRoles = flattenRoles();
+      renderRoles();
+    }
+
+    function searchSubAccounts() {
+      const login = document.getElementById('subFilterLogin').value.trim().toLowerCase();
+      const mid = document.getElementById('subFilterMerchantId').value.trim().toUpperCase();
+      const mname = document.getElementById('subFilterMerchantName').value.trim().toLowerCase();
+      const status = document.getElementById('subFilterStatus').value;
+      filteredSubs = flattenSubs().filter(s => {
+        if (login && !s.username.toLowerCase().includes(login)) return false;
+        if (mid && !s.merchantId.toUpperCase().includes(mid)) return false;
+        if (mname && !s.merchantName.toLowerCase().includes(mname)) return false;
+        if (status && s.status !== status) return false;
+        return true;
+      });
+      if (login && filteredSubs.length === 1) highlightSubKey = filteredSubs[0].customerId + '-' + filteredSubs[0].id;
+      renderSubAccounts();
+    }
+
+    function resetSubFilters() {
+      ['subFilterLogin','subFilterMerchantId','subFilterMerchantName'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('subFilterStatus').value = '';
+      highlightSubKey = null;
+      filteredSubs = flattenSubs();
+      renderSubAccounts();
+    }
+
+    function statusBadge(s) {
+      return `<span class="px-2 py-0.5 text-xs rounded-full ${s === '启用' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${s}</span>`;
+    }
+
+    function renderRoles() {
+      document.getElementById('roleTotalCount').textContent = filteredRoles.length;
+      document.getElementById('roleTableBody').innerHTML = filteredRoles.map(r => `
+        <tr>
+          <td class="px-4 py-3 text-sm text-gray-900">${r.merchantId}</td>
+          <td class="px-4 py-3 text-sm text-gray-900">${r.merchantName}</td>
+          <td class="px-4 py-3 text-sm font-medium">${r.name}</td>
+          <td class="px-4 py-3 text-sm">${r.userCount}</td>
+          <td class="px-4 py-3 text-sm">${statusBadge(r.status)}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">${r.updateTime}</td>
+          <td class="px-4 py-3 text-sm space-x-1">
+            <button onclick="editRole('${r.customerId}',${r.id})" class="text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded">编辑</button>
+            <button onclick="toggleRoleStatus('${r.customerId}',${r.id})" class="text-gray-600 text-xs bg-gray-50 px-2 py-1 rounded">${r.status === '启用' ? '停用' : '启用'}</button>
+            ${r.userCount === 0 ? `<button onclick="deleteRole('${r.customerId}',${r.id})" class="text-red-600 text-xs bg-red-50 px-2 py-1 rounded">删除</button>` : ''}
+          </td>
+        </tr>`).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">暂无数据</td></tr>';
+    }
+
+    function renderSubAccounts() {
+      document.getElementById('subTotalCount').textContent = filteredSubs.length;
+      document.getElementById('subAccountTableBody').innerHTML = filteredSubs.map(s => {
+        const key = s.customerId + '-' + s.id;
+        return `<tr id="sub-row-${key}" class="${highlightSubKey === key ? 'row-highlight' : ''}">
+          <td class="px-4 py-3 text-sm">${s.merchantId}</td>
+          <td class="px-4 py-3 text-sm">${s.merchantName}</td>
+          <td class="px-4 py-3 text-sm font-medium">${s.username}</td>
+          <td class="px-4 py-3 text-sm">${s.realName}</td>
+          <td class="px-4 py-3 text-sm">${s.role}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${(s.balanceAccounts||[]).length} 个</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${(s.normalAccounts||[]).length} 个</td>
+          <td class="px-4 py-3 text-sm">${statusBadge(s.status)}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">${s.lastLogin}</td>
+          <td class="px-4 py-3 text-sm space-x-1">
+            <button onclick="editSubAccount('${s.customerId}',${s.id})" class="text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded">编辑</button>
+            <button onclick="openResetPassword('${s.customerId}',${s.id})" class="text-orange-600 text-xs bg-orange-50 px-2 py-1 rounded">重置密码</button>
+          </td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="10" class="px-4 py-8 text-center text-gray-400">暂无数据</td></tr>';
+      if (highlightSubKey) {
+        setTimeout(() => document.getElementById('sub-row-' + highlightSubKey)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+      }
+    }
+
+    function buildPermHtml(tree, name, selected, cap) {
+      return tree.map(item => {
+        const dis = cap && !cap.includes(item.page.key);
+        let h = `<label class="flex items-center gap-2 p-2 text-sm ${dis?'opacity-40':''}"><input type="checkbox" name="${name}" value="${item.page.key}" ${selected.includes(item.page.key)?'checked':''} ${dis?'disabled':''} class="rounded">${item.page.label}</label>`;
+        item.buttons.forEach(b => {
+          const bd = cap && !cap.includes(b.key);
+          h += `<label class="flex items-center gap-2 p-2 pl-6 text-sm ${bd?'opacity-40':''}"><input type="checkbox" name="${name}" value="${b.key}" ${selected.includes(b.key)?'checked':''} ${bd?'disabled':''} class="rounded">${b.label}</label>`;
+        });
+        return h;
+      }).join('');
+    }
+
+    function buildAccountHtml(list, name, sel) {
+      return list.map(a => `<label class="flex items-center gap-2 p-2 text-sm"><input type="checkbox" name="${name}" value="${a.id}" ${sel.includes(a.id)?'checked':''} class="rounded">${a.name}</label>`).join('');
+    }
+
+    function openRoleModal() {
+      editingRoleCtx = null;
+      document.getElementById('roleModalTitle').textContent = '创建角色';
+      document.getElementById('roleCustomerField').style.display = 'block';
+      document.getElementById('roleCustomerId').disabled = false;
+      document.getElementById('roleName').value = '';
+      document.getElementById('rolePermissionTree').innerHTML = '';
+      document.getElementById('roleModal').classList.remove('hidden');
+    }
+
+    function onRoleCustomerChange() {
+      const c = getCustomer(document.getElementById('roleCustomerId').value);
+      document.getElementById('rolePermissionTree').innerHTML = c ? buildPermHtml(PERMISSION_TREE, 'rolePerm', [], c.permissions) : '';
+    }
+
+    function editRole(customerId, roleId) {
+      const c = getCustomer(customerId);
+      const r = c.roles.find(x => x.id === roleId);
+      editingRoleCtx = { customerId, roleId };
+      document.getElementById('roleModalTitle').textContent = '编辑角色';
+      document.getElementById('roleCustomerId').value = customerId;
+      document.getElementById('roleCustomerId').disabled = true;
+      document.getElementById('roleName').value = r.name;
+      document.getElementById('roleStatus').value = r.status === '启用' ? 'enabled' : 'disabled';
+      document.getElementById('rolePermissionTree').innerHTML = buildPermHtml(PERMISSION_TREE, 'rolePerm', r.permissions || [], c.permissions);
+      document.getElementById('roleModal').classList.remove('hidden');
+    }
+
+    function closeRoleModal() { document.getElementById('roleModal').classList.add('hidden'); }
+    function saveRole(e) { e.preventDefault(); alert('已保存（原型）'); closeRoleModal(); searchRoles(); }
+    function toggleRoleStatus(cid, id) { alert('状态已切换（原型）'); }
+    function deleteRole(cid, id) { if (confirm('确认删除？')) alert('已删除（原型）'); }
+
+    function onSubCustomerChange() {
+      const c = getCustomer(document.getElementById('subCustomerId').value);
+      document.getElementById('subRole').innerHTML = c ? c.roles.filter(r => r.status === '启用').map(r => `<option value="${r.name}">${r.name}</option>`).join('') : '';
+      fillSubAccountAdAccounts([], []);
+    }
+
+    function fillSubAccountAdAccounts(b, n) {
+      document.getElementById('subBalanceAccounts').innerHTML = buildAccountHtml(BALANCE_ACCOUNTS, 'subBalance', b || []);
+      document.getElementById('subNormalAccounts').innerHTML = buildAccountHtml(NORMAL_ACCOUNTS, 'subNormal', n || []);
+    }
+
+    function openSubAccountModal() {
+      editingSubCtx = null;
+      document.getElementById('subAccountModalTitle').textContent = '创建子账号';
+      document.getElementById('subCustomerId').disabled = false;
+      document.getElementById('subPasswordFields').style.display = 'block';
+      document.getElementById('subUsername').value = '';
+      document.getElementById('subRealName').value = '';
+      document.getElementById('subRole').innerHTML = '';
+      fillSubAccountAdAccounts([], []);
+      document.getElementById('subAccountModal').classList.remove('hidden');
+    }
+
+    function editSubAccount(customerId, subId) {
+      const c = getCustomer(customerId);
+      const s = c.subAccounts.find(x => x.id === subId);
+      editingSubCtx = { customerId, subId };
+      document.getElementById('subAccountModalTitle').textContent = '编辑子账号';
+      document.getElementById('subCustomerId').value = customerId;
+      document.getElementById('subCustomerId').disabled = true;
+      document.getElementById('subPasswordFields').style.display = 'none';
+      document.getElementById('subUsername').value = s.username;
+      document.getElementById('subRealName').value = s.realName;
+      document.getElementById('subStatus').value = s.status === '启用' ? 'enabled' : 'disabled';
+      document.getElementById('subRole').innerHTML = c.roles.filter(r => r.status === '启用').map(r => `<option ${r.name===s.role?'selected':''}>${r.name}</option>`).join('');
+      fillSubAccountAdAccounts(s.balanceAccounts, s.normalAccounts);
+      document.getElementById('subAccountModal').classList.remove('hidden');
+    }
+
+    function closeSubAccountModal() { document.getElementById('subAccountModal').classList.add('hidden'); }
+    function saveSubAccount(e) { e.preventDefault(); alert('已保存（原型）'); closeSubAccountModal(); searchSubAccounts(); }
+
+    function openResetPassword(customerId, subId) {
+      resettingSubCtx = { customerId, subId };
+      const s = getCustomer(customerId).subAccounts.find(x => x.id === subId);
+      document.getElementById('resetTargetName').textContent = s.username;
+      document.getElementById('resetPasswordModal').classList.remove('hidden');
+    }
+    function closeResetPasswordModal() { document.getElementById('resetPasswordModal').classList.add('hidden'); }
+    function confirmResetPassword(e) {
+      e.preventDefault();
+      if (document.getElementById('newPassword').value !== document.getElementById('confirmNewPassword').value) { alert('两次密码不一致'); return; }
+      alert('密码已重置（原型）');
+      closeResetPasswordModal();
+    }
+  </script>
+</body>
+</html>
