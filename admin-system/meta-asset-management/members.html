@@ -279,22 +279,6 @@
     </div>
   </div>
 
-  <!-- 按 user 分配 -->
-  <div id="assignModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full animate-fadeIn">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between"><h3 class="text-lg font-medium text-gray-900">分配资产 · <span id="assignPerson" class="text-blue-600"></span></h3><button onclick="closeModal('assignModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
-        <div class="px-6 py-4 space-y-4">
-          <div class="text-sm text-gray-600">BM 身份：<span id="assignBmLabel" class="chip chip-bm"></span></div>
-          <div><label class="block text-sm font-medium text-gray-700 mb-1">选择资产</label><div id="assignAssets" class="border border-gray-200 rounded-md p-2 max-h-40 overflow-y-auto space-y-1"></div></div>
-          <div><label class="block text-sm font-medium text-gray-700 mb-1">授予 task</label><div class="flex flex-wrap gap-3"><label class="flex items-center gap-1.5 text-sm text-gray-700"><input type="checkbox" value="ANALYZE">ANALYZE</label><label class="flex items-center gap-1.5 text-sm text-gray-700"><input type="checkbox" value="ADVERTISE">ADVERTISE</label><label class="flex items-center gap-1.5 text-sm text-gray-700"><input type="checkbox" value="MANAGE">MANAGE</label></div></div>
-          <p class="text-xs text-gray-400"><i class="fas fa-circle-info mr-1"></i>分配作用于该 email 在此 BM 的 user 身份，实时调用 Meta，失败自动重试</p>
-        </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3"><button onclick="closeModal('assignModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button><button onclick="submitAssign()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">确认分配</button></div>
-      </div>
-    </div>
-  </div>
-
   <script>
     const BM_IDS = { '电商集团 BM': '102938475610293', '游戏出海 BM': '209384756102938', '品牌广告 BM': '384756102938475' };
     const internalByEmail = {
@@ -303,11 +287,6 @@
     };
     const internalOf = email => internalByEmail[email] || { internal: false, markTime: '', markBy: '' };
     function internalChip(email) { return internalOf(email).internal ? '<span class="chip chip-internal">内部人员</span>' : '<span class="chip chip-unset">非内部</span>'; }
-    const assetsByBm = {
-      '电商集团 BM': ['EC-US-01 广告账户', 'EC-EU-02 广告账户', 'Anker Official (Page)', 'EC Global Pixel'],
-      '游戏出海 BM': ['GAME-SEA 广告账户', 'StarQuest Game (Page)'],
-      '品牌广告 BM': ['BRAND-CN 广告账户', '佳沃食品旗舰 (Page)', 'Brand Pixel CN']
-    };
     const emailList = [
       { name: '张伟', email: 'zhang.wei@corp.com' }, { name: '李明', email: 'li.ming@corp.com' },
       { name: '王芳', email: 'wang.fang@corp.com' }, { name: 'John Lee', email: 'john.lee@corp.com' }, { name: '陈静', email: 'chen.jing@corp.com' }
@@ -363,7 +342,6 @@
           <td class="td-nowrap">${internalChip(r.email)}</td>
           <td class="td-nowrap text-sm space-x-3">
             <button onclick="openAssets(${i})" class="text-gray-600 hover:text-gray-800">查看资产</button>
-            <button onclick="openAssign(${i})" class="text-blue-600 hover:text-blue-800">分配</button>
             <button onclick="goMarkInternal('${r.email}')" class="text-amber-600 hover:text-amber-800">${internalOf(r.email).internal ? '编辑标记' : '标记内部'}</button>
           </td>`;
         tb.appendChild(tr);
@@ -379,23 +357,6 @@
       if (!r.assets.length) body.innerHTML = '<div class="text-sm text-gray-400">该 BM 下暂无分配</div>';
       else body.innerHTML = '<div class="border border-gray-200 rounded-md divide-y divide-gray-100">' + r.assets.map(a => `<div class="flex items-center justify-between px-3 py-2"><div class="text-sm text-gray-700"><span class="text-gray-400 mr-2">${a.t}</span>${a.n}</div><div>${a.tasks.map(t => `<span class="chip chip-task">${t}</span>`).join('')}</div></div>`).join('') + '</div>';
       document.getElementById('assetModal').classList.remove('hidden');
-    }
-    let assignIdx = -1;
-    function openAssign(i) {
-      assignIdx = i; const r = userRows[i];
-      document.getElementById('assignPerson').textContent = `${r.name}（${r.email}）`;
-      document.getElementById('assignBmLabel').textContent = r.bm;
-      document.getElementById('assignAssets').innerHTML = (assetsByBm[r.bm] || []).map(a => `<label class="flex items-center gap-2 text-sm text-gray-700 py-0.5"><input type="checkbox" value="${a}"><span>${a}</span></label>`).join('');
-      document.querySelectorAll('#assignModal input[type=checkbox]').forEach(c => c.checked = false);
-      document.getElementById('assignModal').classList.remove('hidden');
-    }
-    function submitAssign() {
-      const assets = Array.from(document.querySelectorAll('#assignAssets input:checked')).map(i => i.value);
-      const tasks = Array.from(document.querySelectorAll('#assignModal .flex-wrap input:checked')).map(i => i.value);
-      if (!assets.length || !tasks.length) { showNotification('请选择资产与 task', 'warning'); return; }
-      const r = userRows[assignIdx]; closeModal('assignModal');
-      showNotification(`正在为 ${r.name} @ ${r.bm} 实时分配 ${assets.length} 个资产…`, 'info');
-      setTimeout(() => showNotification('分配完成，已写操作日志', 'success'), 1400);
     }
 
     // ===== Tab 2 =====

@@ -25,6 +25,10 @@
     .slider:before { position: absolute; content: ''; height: 16px; width: 16px; left: 2px; bottom: 2px; background: #fff; transition: .2s; border-radius: 50%; }
     input:checked + .slider { background: #2563eb; }
     input:checked + .slider:before { transform: translateX(18px); }
+    .sync-link { cursor: pointer; }
+    .sync-link:hover { text-decoration: underline; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fa-spin-slow { animation: spin 1.2s linear infinite; display: inline-block; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -179,7 +183,6 @@
                 <p class="mt-1 text-sm text-gray-500">接入与管理 Meta Business Manager，配置 System User Token 并定时全量同步资产数据</p>
               </div>
               <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-                <button onclick="syncAll()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2"><i class="fas fa-sync-alt"></i><span>全部同步</span></button>
                 <button onclick="openBmModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2"><i class="fas fa-plus"></i><span>新增 BM</span></button>
               </div>
             </div>
@@ -191,7 +194,7 @@
                   <div><label class="block text-sm font-medium text-gray-700 mb-2">BM 名称</label><input id="fName" type="text" placeholder="输入 BM 名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
                   <div><label class="block text-sm font-medium text-gray-700 mb-2">BM ID</label><input id="fBmId" type="text" placeholder="输入 BM ID" class="w-full px-3 py-2 border border-gray-300 rounded-md mono focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
                   <div><label class="block text-sm font-medium text-gray-700 mb-2">启用</label><select id="fStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option value="1">启用</option><option value="0">停用</option></select></div>
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">同步结果</label><select id="fSyncState" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option value="ok">正常</option><option value="token_invalid">Token 失效</option><option value="failed">同步失败</option><option value="never">从未同步</option></select></div>
+                  <div><label class="block text-sm font-medium text-gray-700 mb-2">同步结果</label><select id="fSyncState" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">全部</option><option value="running">同步中</option><option value="ok">正常</option><option value="token_invalid">Token 失效</option><option value="failed">同步失败</option><option value="never">从未同步</option></select></div>
                   <div class="flex items-end space-x-2"><button onclick="search()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"><i class="fas fa-search mr-2"></i>搜索</button><button onclick="resetFilters()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium"><i class="fas fa-redo mr-2"></i>重置</button></div>
                 </div>
               </div>
@@ -291,26 +294,31 @@
 
   <script>
     let bmData = [
-      { name: '电商集团 BM', bmId: '102938475610293', enabled: true, lastSyncAt: '2026-06-18 03:00', syncState: 'ok', added: 3, removed: 1, createdAt: '2026-01-12 10:22', updatedAt: '2026-05-20 14:30', updatedBy: 'admin' },
-      { name: '游戏出海 BM', bmId: '209384756102938', enabled: true, lastSyncAt: '2026-06-18 03:00', syncState: 'ok', added: 0, removed: 0, createdAt: '2026-01-15 09:10', updatedAt: '2026-04-02 11:05', updatedBy: 'zhao.lei' },
-      { name: '品牌广告 BM', bmId: '384756102938475', enabled: true, lastSyncAt: '2026-06-18 03:01', syncState: 'ok', added: 1, removed: 2, createdAt: '2026-02-01 16:40', updatedAt: '2026-06-10 09:55', updatedBy: 'admin' },
-      { name: '工具应用 BM', bmId: '475610293847561', enabled: true, lastSyncAt: '2026-06-18 03:01', syncState: 'ok', added: 2, removed: 0, createdAt: '2026-02-18 13:20', updatedAt: '2026-03-22 10:00', updatedBy: 'admin' },
-      { name: '金融服务 BM', bmId: '561029384756102', enabled: true, lastSyncAt: '2026-06-18 03:00', syncState: 'failed', added: 0, removed: 0, syncError: 'API 限流', createdAt: '2026-03-05 08:30', updatedAt: '2026-06-18 03:00', updatedBy: 'system' },
-      { name: '本地生活 BM', bmId: '629384756102938', enabled: true, lastSyncAt: '2026-06-18 03:02', syncState: 'ok', added: 0, removed: 1, createdAt: '2026-03-19 15:12', updatedAt: '2026-05-30 17:45', updatedBy: 'zhao.lei' },
-      { name: '测试沙盒 BM', bmId: '738475610293847', enabled: false, lastSyncAt: '2026-06-10 03:00', syncState: 'token_invalid', added: 0, removed: 0, syncError: 'Token 失效', createdAt: '2026-04-08 11:00', updatedAt: '2026-06-10 09:00', updatedBy: 'admin' },
-      { name: '新接入 BM', bmId: '847561029384756', enabled: true, lastSyncAt: '2026-06-18 11:20', syncState: 'ok', added: 5, removed: 0, createdAt: '2026-06-17 18:30', updatedAt: '2026-06-17 18:30', updatedBy: 'admin' },
-      { name: '待首次同步 BM', bmId: '912345678901234', enabled: true, lastSyncAt: '-', syncState: 'never', added: 0, removed: 0, createdAt: '2026-06-28 10:00', updatedAt: '2026-06-28 10:00', updatedBy: 'admin' }
+      { name: '电商集团 BM', bmId: '102938475610293', enabled: true, lastSyncAt: '2026-06-18 03:00', lastSyncResult: 'ok', syncRunning: false, added: 3, removed: 1, createdAt: '2026-01-12 10:22', updatedAt: '2026-05-20 14:30', updatedBy: 'admin' },
+      { name: '游戏出海 BM', bmId: '209384756102938', enabled: true, lastSyncAt: '2026-06-18 03:00', lastSyncResult: 'ok', syncRunning: true, added: 0, removed: 0, createdAt: '2026-01-15 09:10', updatedAt: '2026-07-03 15:10', updatedBy: 'admin' },
+      { name: '品牌广告 BM', bmId: '384756102938475', enabled: true, lastSyncAt: '2026-06-18 03:01', lastSyncResult: 'ok', syncRunning: false, added: 1, removed: 2, createdAt: '2026-02-01 16:40', updatedAt: '2026-06-10 09:55', updatedBy: 'admin' },
+      { name: '工具应用 BM', bmId: '475610293847561', enabled: true, lastSyncAt: '2026-06-18 03:01', lastSyncResult: 'ok', syncRunning: false, added: 2, removed: 0, createdAt: '2026-02-18 13:20', updatedAt: '2026-03-22 10:00', updatedBy: 'admin' },
+      { name: '金融服务 BM', bmId: '561029384756102', enabled: true, lastSyncAt: '2026-06-18 03:00', lastSyncResult: 'failed', syncRunning: false, added: 0, removed: 0, syncError: 'API 限流', createdAt: '2026-03-05 08:30', updatedAt: '2026-06-18 03:00', updatedBy: 'system' },
+      { name: '本地生活 BM', bmId: '629384756102938', enabled: true, lastSyncAt: '2026-06-18 03:02', lastSyncResult: 'ok', syncRunning: false, added: 0, removed: 1, createdAt: '2026-03-19 15:12', updatedAt: '2026-05-30 17:45', updatedBy: 'zhao.lei' },
+      { name: '测试沙盒 BM', bmId: '738475610293847', enabled: false, lastSyncAt: '2026-06-10 03:00', lastSyncResult: 'token_invalid', syncRunning: false, added: 0, removed: 0, syncError: 'Token 失效', createdAt: '2026-04-08 11:00', updatedAt: '2026-06-10 09:00', updatedBy: 'admin' },
+      { name: '新接入 BM', bmId: '847561029384756', enabled: true, lastSyncAt: '2026-06-18 11:20', lastSyncResult: 'ok', syncRunning: false, added: 5, removed: 0, createdAt: '2026-06-17 18:30', updatedAt: '2026-06-17 18:30', updatedBy: 'admin' },
+      { name: '待首次同步 BM', bmId: '912345678901234', enabled: true, lastSyncAt: '-', lastSyncResult: 'never', syncRunning: false, added: 0, removed: 0, createdAt: '2026-06-28 10:00', updatedAt: '2026-06-28 10:00', updatedBy: 'admin' }
     ];
 
     function syncStatusHtml(b) {
-      if (b.syncState === 'ok') return '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>';
-      if (b.syncState === 'token_invalid') return `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Token 失效</span>${b.syncError ? `<div class="text-xs text-red-500 mt-1">${b.syncError}</div>` : ''}`;
-      if (b.syncState === 'failed') return `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">同步失败</span>${b.syncError ? `<div class="text-xs text-red-500 mt-1">${b.syncError}</div>` : ''}`;
+      if (b.syncRunning) return '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"><i class="fas fa-sync-alt fa-spin-slow mr-1"></i>同步中</span>';
+      const s = b.lastSyncResult;
+      if (s === 'ok') return '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>';
+      if (s === 'token_invalid') return `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 sync-link" onclick="openSync('${b.name.replace(/'/g, "\\'")}')">Token 失效</span>${b.syncError ? `<div class="text-xs text-red-500 mt-1">${b.syncError}</div>` : ''}`;
+      if (s === 'failed') return `<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 sync-link" onclick="openSync('${b.name.replace(/'/g, "\\'")}')">同步失败</span>${b.syncError ? `<div class="text-xs text-red-500 mt-1">${b.syncError}</div>` : ''}`;
       return '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">从未同步</span>';
     }
-    function lastSyncDeltaHtml(b) {
-      if (b.syncState !== 'ok' || b.lastSyncAt === '-') return '<span class="text-gray-400">—</span>';
-      return `<span class="text-green-600">新增 ${b.added}</span> <span class="text-gray-300">·</span> <span class="text-red-600">移除 ${b.removed}</span>`;
+    function lastSyncDeltaHtml(b, i) {
+      const canOpen = (b.lastSyncResult === 'ok' && b.lastSyncAt !== '-') || b.syncRunning;
+      if (!canOpen && b.lastSyncResult !== 'ok') return '<span class="text-gray-400">—</span>';
+      if (b.lastSyncResult !== 'ok' && !b.syncRunning) return '<span class="text-gray-400">—</span>';
+      const inner = `<span class="text-green-600">新增 ${b.added}</span> <span class="text-gray-300">·</span> <span class="text-red-600">移除 ${b.removed}</span>`;
+      return `<button type="button" onclick="openSync('${b.name.replace(/'/g, "\\'")}')" class="sync-link text-left text-sm hover:text-blue-700">${inner}</button>`;
     }
 
     function now() { const d = new Date(); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
@@ -326,14 +334,13 @@
           <td class="px-6 py-4 whitespace-nowrap"><label class="switch"><input type="checkbox" ${b.enabled ? 'checked' : ''} onchange="toggleEnabled(${i})"><span class="slider"></span></label></td>
           <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-500">${b.lastSyncAt}</div></td>
           <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm">${syncStatusHtml(b)}</div></td>
-          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm">${lastSyncDeltaHtml(b)}</div></td>
+          <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm">${lastSyncDeltaHtml(b, i)}</div></td>
           <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-500">${b.createdAt}</div></td>
           <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-500">${b.updatedAt}</div></td>
           <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-700">${b.updatedBy}</div></td>
           <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
             <button onclick="openBmModal(${i})" class="text-blue-600 hover:text-blue-800">编辑</button>
-            <button onclick="syncOne(${i})" class="text-green-600 hover:text-green-800">手动同步</button>
-            <button onclick="openSync('${b.name}')" class="text-gray-600 hover:text-gray-800">同步记录</button>
+            <button onclick="syncOne(${i})" class="${b.syncRunning ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:text-green-800'}" ${b.syncRunning ? 'disabled' : ''}>手动同步</button>
           </td>`;
         tb.appendChild(tr);
       });
@@ -350,7 +357,7 @@
         (!name || b.name.toLowerCase().includes(name)) &&
         (!bmId || b.bmId.toLowerCase().includes(bmId)) &&
         (st === '' || String(b.enabled ? 1 : 0) === st) &&
-        (!syncSt || b.syncState === syncSt)
+        (!syncSt || (syncSt === 'running' ? b.syncRunning : (!b.syncRunning && b.lastSyncResult === syncSt)))
       ));
     }
     function resetFilters() { document.getElementById('fName').value = ''; document.getElementById('fBmId').value = ''; document.getElementById('fStatus').value = ''; document.getElementById('fSyncState').value = ''; render(); }
@@ -373,7 +380,7 @@
     function revalidateToken() {
       showNotification('正在重新校验 System User Token…', 'info');
       setTimeout(() => {
-        if (editIndex >= 0) { bmData[editIndex].syncState = 'ok'; bmData[editIndex].syncError = ''; render(); }
+        if (editIndex >= 0) { bmData[editIndex].lastSyncResult = 'ok'; bmData[editIndex].syncError = ''; render(); }
         showNotification('Token 校验通过', 'success');
       }, 1000);
     }
@@ -389,19 +396,32 @@
           bmData[editIndex].enabled = document.getElementById('mEnabled').checked;
           bmData[editIndex].updatedAt = now();
           bmData[editIndex].updatedBy = 'admin';
-          if (token) bmData[editIndex].syncState = 'ok';
+          if (token) bmData[editIndex].lastSyncResult = 'ok';
         } else {
-          bmData.push({ name, bmId: document.getElementById('mBmId').value, enabled: document.getElementById('mEnabled').checked, lastSyncAt: '-', syncState: 'never', added: 0, removed: 0, createdAt: now(), updatedAt: now(), updatedBy: 'admin' });
+          bmData.push({ name, bmId: document.getElementById('mBmId').value, enabled: document.getElementById('mEnabled').checked, lastSyncAt: '-', lastSyncResult: 'never', syncRunning: false, added: 0, removed: 0, createdAt: now(), updatedAt: now(), updatedBy: 'admin' });
         }
         render(); closeModal('bmModal'); showNotification(token ? 'Token 校验通过，已保存' : '已保存', 'success');
       }, 1000);
     }
     function toggleEnabled(i) { bmData[i].enabled = !bmData[i].enabled; bmData[i].updatedAt = now(); bmData[i].updatedBy = 'admin'; render(); showNotification(`${bmData[i].name} 已${bmData[i].enabled ? '启用' : '停用'}同步`, 'info'); }
     function syncOne(i) {
-      showNotification(`正在同步「${bmData[i].name}」…`, 'info');
-      setTimeout(() => { bmData[i].lastSyncAt = now(); bmData[i].syncState = 'ok'; bmData[i].syncError = ''; bmData[i].added = 1; bmData[i].removed = 0; render(); showNotification('同步完成', 'success'); }, 1500);
+      if (bmData[i].syncRunning) return;
+      bmData[i].syncRunning = true;
+      bmData[i].updatedAt = now();
+      bmData[i].updatedBy = 'admin';
+      render();
+      showNotification(`已触发「${bmData[i].name}」全量同步…`, 'info');
+      setTimeout(() => {
+        bmData[i].lastSyncAt = now();
+        bmData[i].lastSyncResult = 'ok';
+        bmData[i].syncRunning = false;
+        bmData[i].syncError = '';
+        bmData[i].added = 1;
+        bmData[i].removed = 0;
+        render();
+        showNotification('同步完成', 'success');
+      }, 3000);
     }
-    function syncAll() { showNotification('已触发全部启用 BM 的全量同步（异步执行）', 'info'); }
     function openSync(name) { document.getElementById('syncBmName').textContent = name; document.getElementById('syncModal').classList.remove('hidden'); }
 
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
