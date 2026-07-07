@@ -589,7 +589,6 @@
           <td class="px-4 py-3 text-sm space-x-1">
             <button onclick="editRole('${r.customerId}',${r.id})" class="text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded">编辑</button>
             <button onclick="toggleRoleStatus('${r.customerId}',${r.id})" class="text-gray-600 text-xs bg-gray-50 px-2 py-1 rounded">${r.status === '启用' ? '停用' : '启用'}</button>
-            ${r.userCount === 0 ? `<button onclick="deleteRole('${r.customerId}',${r.id})" class="text-red-600 text-xs bg-red-50 px-2 py-1 rounded">删除</button>` : ''}
           </td>
         </tr>`).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">暂无数据</td></tr>';
     }
@@ -666,7 +665,6 @@
     function closeRoleModal() { document.getElementById('roleModal').classList.add('hidden'); }
     function saveRole(e) { e.preventDefault(); alert('已保存（原型）'); closeRoleModal(); searchRoles(); }
     function toggleRoleStatus(cid, id) { alert('状态已切换（原型）'); }
-    function deleteRole(cid, id) { if (confirm('确认删除？')) alert('已删除（原型）'); }
 
     function onSubCustomerChange() {
       const c = getCustomer(document.getElementById('subCustomerId').value);

@@ -312,12 +312,10 @@
                     <select id="filterSubModule" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                       <option value="">全部子模块</option>
                       <option value="客户默认权限">客户默认权限</option>
-                      <option value="全量客户功能开关">全量客户功能开关</option>
                       <option value="批量客户功能开关">批量客户功能开关</option>
                       <option value="单客户功能权限">单客户功能权限</option>
                       <option value="角色-创建">角色-创建</option>
                       <option value="角色-编辑">角色-编辑</option>
-                      <option value="角色-删除">角色-删除</option>
                       <option value="子账号-创建">子账号-创建</option>
                       <option value="子账号-编辑">子账号-编辑</option>
                       <option value="子账号-重置密码">子账号-重置密码</option>
@@ -425,15 +423,6 @@
         content: '为客户默认权限配置：广告管理页面、广告系列管理页面，创建按钮、编辑按钮'
       },
       {
-        id: 'LOG002',
-        time: '2024-03-01 12:15:18',
-        operator: '李四',
-        module: '权限模块',
-        subModule: '全量客户功能开关',
-        target: '全量客户',
-        content: '对全量客户执行关闭操作：广告管理页面、创建广告按钮'
-      },
-      {
         id: 'LOG003',
         time: '2024-03-01 10:45:32',
         operator: '王五',
@@ -459,15 +448,6 @@
         subModule: '客户默认权限',
         target: '后续新增客户',
         content: '为客户默认权限配置：账户管理页面，充值功能按钮、提现功能按钮'
-      },
-      {
-        id: 'LOG006',
-        time: '2024-02-27 15:30:28',
-        operator: '王五',
-        module: '权限模块',
-        subModule: '全量客户功能开关',
-        target: '全量客户',
-        content: '对全量客户执行开启操作：报表查看页面、导出报表按钮'
       },
       {
         id: 'LOG007',
@@ -541,12 +521,9 @@
             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">${log.subModule}</span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            ${log.target === '全量客户' ? 
-              '<span class="text-red-600 font-medium">全量客户</span>' : 
-              (log.target === '后续新增客户' ? 
-                '<span class="text-blue-600">后续新增客户</span>' : 
-                log.target)
-            }
+            ${log.target === '后续新增客户' ?
+              '<span class="text-blue-600">后续新增客户</span>' :
+              log.target}
           </td>
           <td class="px-6 py-4 text-sm text-gray-600">${log.content}</td>
         `;

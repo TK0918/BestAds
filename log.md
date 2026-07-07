@@ -1,3 +1,33 @@
+#### 2026-07-07 - V2.29 范围收口：去掉全量开关与删除角色
+
+**客户管理** `customer-management.html`：移除顶栏「全量客户功能开关」及相关弹窗与 JS。
+
+**客户子账号管理** `customer-sub-account-management.html`：角色列表移除「删除」操作与 `deleteRole`。
+
+**权限审计日志** `permission-audit-log.html`：子模块筛选项移除「全量客户功能开关」「角色-删除」；Mock 日志同步删除。
+
+**PRD** `V 2.29 客户端权限和子账号管理.md` v1.2：上述能力移入「暂不包含」；状态机、RBC、审计子模块枚举同步更新。
+
+---
+
+#### 2026-07-07 - PRD V2.30 补充 Shopify 官方品类与内容变更识别方案
+
+**更新** `PRD/V 2.30 Shopify落地页品类识别.md`：
+- 新增「Shopify 官方品类（Level 1）」中英文对照表（基于 Shopify Taxonomy Explorer 稳定版；补充 unstable 的 Bundles）。
+- 优化链路 A：由「仅 URL 归一化去重」升级为「URL 归一化 + 内容指纹变更检测」双因子方案。
+- 请求/响应字段新增 `content_fingerprint`、`fingerprint_version`、`fingerprint_changed`，并在核心原则、流程与附录中同步约束。
+
+---
+
+#### 2026-07-07 - PRD V2.30 Shopify 落地页品类识别
+
+**新增** `PRD/V 2.30 Shopify落地页品类识别.md` v0.1：
+- 面向内部算法团队，定义落地页 URL → Shopify 品类识别 API、人工校正反馈与持续学习机制。
+- 替代外部 AI 工具（识别失准、不支持校正与学习）；下游主要供「广告周数据」等行业维度报表消费。
+- 含识别/查询/品类枚举/校正四类能力 Tab、状态机、对接附录与验收标准；不含广告侧校正 UI 原型。
+
+---
+
 #### 2026-07-03 - Meta 资产管理 V2.27 成员页移除「分配」
 
 **PRD** `V 2.27 Meta 资产管理.md` v1.6：成员页 BM 成员信息 Tab 移除「分配（按 User）」；资产分配统一在资产页操作。
