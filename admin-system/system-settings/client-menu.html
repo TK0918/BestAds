@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户端菜单 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .modal-backdrop { backdrop-filter: blur(8px); }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .tree-toggle { width: 20px; display: inline-flex; justify-content: center; cursor: pointer; color: #9ca3af; }
+    .tree-indent { display: inline-block; width: 20px; }
+  </style>
+</head>
+<body class="bg-gray-50">
+<div class="flex h-screen overflow-hidden">
+  <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+    <div class="flex items-center justify-center h-16 border-b border-gray-200">
+      <div class="flex items-center">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-line text-white text-sm"></i>
+        </div>
+        <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+      </div>
+    </div>
+    <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+      <nav>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+            <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400"></i>
+          </div>
+          <ul id="mainMenu" class="space-y-1 mb-2">
+            <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+            <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+            <li><a href="../main-functions/customer-sub-account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fas fa-user-friends w-5 h-5 mr-3 text-gray-400"></i>客户子账号管理</a></li>
+          </ul>
+        </div>
+        <div class="px-4 mb-6">
+          <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+            <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400"></i>
+          </div>
+          <ul id="sysMenu" class="space-y-1 mb-2">
+            <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            <li><a href="notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+            <li><a href="client-menu.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-sitemap w-5 h-5 mr-3 text-gray-500"></i>客户端菜单</a></li>
+            <li><a href="ad-consumption-decline-reminder.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>消耗下降提醒配置</a></li>
+            <li><a href="paypal-pay-whitelist.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fab fa-paypal w-5 h-5 mr-3 text-gray-400"></i>在线支付白名单</a></li>
+            <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </aside>
+
+  <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 lg:hidden"></div>
+
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <header class="bg-white shadow-sm border-b h-16 flex items-center px-6">
+      <button onclick="toggleSidebar()" class="lg:hidden mr-3 text-gray-400"><i class="fas fa-bars"></i></button>
+      <nav class="text-sm text-gray-500">
+        <span>系统设置</span><span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">客户端菜单</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 overflow-y-auto py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">客户端菜单</h2>
+            <p class="mt-1 text-sm text-gray-500">维护客户端 Web / H5 全部页面与按钮权限元数据；「客户默认权限」「批量功能开关」等功能开关的枚举树均从此处读取</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="openMenuModal('menu')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>新增菜单</button>
+            <button onclick="expandAll(true)" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">全部展开</button>
+            <button onclick="expandAll(false)" class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">全部收起</button>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-sm text-blue-900">
+          <p class="font-medium mb-1"><i class="fas fa-info-circle mr-1"></i>与后端表字段对齐（`sys_permission` 客户端菜单维度）</p>
+          <p class="text-blue-800">本页维护的是客户端权限<strong>主数据</strong>，不直接改某商户已开通权限。版本迭代新增页面/按钮时，在此配置后，客户管理侧开关树会自动出现新项。</p>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">权限维度</label>
+              <select id="filterDimension" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                <option value="">全部</option>
+                <option value="web">Web 端</option>
+                <option value="h5">H5 端</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">类型</label>
+              <select id="filterType" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                <option value="">全部</option>
+                <option value="1">菜单</option>
+                <option value="2">按钮</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
+              <input id="filterKeyword" type="text" placeholder="权限名称 / 权限标识 permission_mark" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+            </div>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">搜索</button>
+            <button onclick="resetFilter()" class="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">重置</button>
+          </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div class="px-4 py-3 border-b flex justify-between items-center">
+            <span class="text-sm text-gray-500">共 <strong id="totalCount">0</strong> 条（含子级）</span>
+            <span class="text-xs text-gray-400">菜单 <span id="menuCount">0</span> · 按钮 <span id="buttonCount">0</span></span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 table-hover text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">权限树</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">类型</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">权限标识</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">维度</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">层级</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">前端路由</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">排序</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">更新时间</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                </tr>
+              </thead>
+              <tbody id="treeTableBody" class="divide-y divide-gray-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 新增/编辑弹窗 -->
+<div id="menuModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b flex justify-between sticky top-0 bg-white">
+        <h3 class="text-lg font-medium" id="menuModalTitle">新增菜单</h3>
+        <button onclick="closeMenuModal()" class="text-gray-400"><i class="fas fa-times"></i></button>
+      </div>
+      <form class="px-6 py-4" onsubmit="saveMenu(event)">
+        <input type="hidden" id="formId">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">权限名称 *</label>
+            <input id="formName" required class="w-full px-3 py-2 border rounded-md text-sm" placeholder="如 Meta 广告管理">
+            <p class="text-xs text-gray-400 mt-1">字段：<code>permission_name</code></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">类型 *</label>
+            <select id="formType" required class="w-full px-3 py-2 border rounded-md text-sm" onchange="onTypeChange()">
+              <option value="1">菜单</option>
+              <option value="2">按钮</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">字段：<code>type</code>（1 菜单，2 按钮）</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">权限维度 *</label>
+            <select id="formDimension" required class="w-full px-3 py-2 border rounded-md text-sm">
+              <option value="web">Web 端</option>
+              <option value="h5">H5 端</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">字段：<code>permission_dimension</code></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">父级菜单</label>
+            <select id="formParentId" class="w-full px-3 py-2 border rounded-md text-sm">
+              <option value="0">无（顶级菜单）</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">字段：<code>permission_parent_id</code>；按钮须挂菜单下</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">权限层级</label>
+            <input id="formLevel" class="w-full px-3 py-2 border rounded-md text-sm" placeholder="如 L1 / L2">
+            <p class="text-xs text-gray-400 mt-1">字段：<code>permission_level</code></p>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">权限标识 *</label>
+            <input id="formMark" required class="w-full px-3 py-2 border rounded-md text-sm font-mono" placeholder="page:adMange_meta 或 button:xxx:yyy">
+            <p class="text-xs text-gray-400 mt-1">字段：<code>permission_mark</code>；客户权限开关树 value 来源</p>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">前端路由</label>
+            <input id="formFrontRoute" class="w-full px-3 py-2 border rounded-md text-sm font-mono" placeholder="/adMange/meta">
+            <p class="text-xs text-gray-400 mt-1">字段：<code>permission_front_route</code></p>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">后端路由</label>
+            <textarea id="formRoute" rows="2" class="w-full px-3 py-2 border rounded-md text-sm font-mono" placeholder="/customer/ad/meta/list"></textarea>
+            <p class="text-xs text-gray-400 mt-1">字段：<code>permission_route</code></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">排序 *</label>
+            <input id="formSort" type="number" required value="100" class="w-full px-3 py-2 border rounded-md text-sm">
+            <p class="text-xs text-gray-400 mt-1">字段：<code>sort</code></p>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6 pb-2">
+          <button type="button" onclick="closeMenuModal()" class="px-4 py-2 border rounded-md text-sm">取消</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mock：扁平数据，字段与后端 sys_permission 表对齐
+  let menuData = [
+    { id: 1, permission_name: 'Meta 广告管理', permission_dimension: 'web', permission_level: 'L1', permission_route: '/customer/ad/meta', permission_front_route: '/adMange/meta', permission_parent_id: 0, permission_mark: 'page:adMange_meta', type: 1, sort: 10, update_time: '2026-06-01 10:00' },
+    { id: 2, permission_name: '创建广告', permission_dimension: 'web', permission_level: 'L2', permission_route: '', permission_front_route: '', permission_parent_id: 1, permission_mark: 'button:adMange_meta:create', type: 2, sort: 11, update_time: '2026-06-01 10:00' },
+    { id: 3, permission_name: '编辑广告', permission_dimension: 'web', permission_level: 'L2', permission_route: '', permission_front_route: '', permission_parent_id: 1, permission_mark: 'button:adMange_meta:edit', type: 2, sort: 12, update_time: '2026-06-01 10:00' },
+    { id: 4, permission_name: '批量创建广告', permission_dimension: 'web', permission_level: 'L1', permission_route: '/customer/ad/meta/bulk', permission_front_route: '/adMange/meta/bulk-create-ad', permission_parent_id: 0, permission_mark: 'page:adMange_meta_bulk-create-ad', type: 1, sort: 20, update_time: '2026-06-01 10:00' },
+    { id: 5, permission_name: '账户管理', permission_dimension: 'web', permission_level: 'L1', permission_route: '/customer/asset/account', permission_front_route: '/asset-management/account-management', permission_parent_id: 0, permission_mark: 'page:asset-management_account-management', type: 1, sort: 30, update_time: '2026-06-01 10:00' },
+    { id: 6, permission_name: '充值', permission_dimension: 'web', permission_level: 'L2', permission_route: '', permission_front_route: '', permission_parent_id: 5, permission_mark: 'button:asset-management_account-management:recharge', type: 2, sort: 31, update_time: '2026-06-01 10:00' },
+    { id: 7, permission_name: '余额管理', permission_dimension: 'web', permission_level: 'L1', permission_route: '/customer/asset/balance', permission_front_route: '/asset-management/balance-management', permission_parent_id: 0, permission_mark: 'page:asset-management_balance-management', type: 1, sort: 40, update_time: '2026-06-01 10:00' },
+    { id: 8, permission_name: '子账号管理', permission_dimension: 'web', permission_level: 'L1', permission_route: '/customer/users/sub-accounts', permission_front_route: '/user-management/sub-account-management', permission_parent_id: 0, permission_mark: 'page:user-management_sub-account-management', type: 1, sort: 50, update_time: '2026-06-01 10:00' },
+    { id: 9, permission_name: '角色管理', permission_dimension: 'web', permission_level: 'L1', permission_route: '/customer/permissions', permission_front_route: '/user-management/role-management', permission_parent_id: 0, permission_mark: 'page:user-management_role-management', type: 1, sort: 51, update_time: '2026-06-01 10:00' },
+    { id: 10, permission_name: 'H5-账户管理', permission_dimension: 'h5', permission_level: 'L1', permission_route: '/h5/account', permission_front_route: '/h5/account-management', permission_parent_id: 0, permission_mark: 'page:h5_account-management', type: 1, sort: 100, update_time: '2026-06-01 10:00' },
+    { id: 11, permission_name: '批量充值', permission_dimension: 'h5', permission_level: 'L2', permission_route: '', permission_front_route: '', permission_parent_id: 10, permission_mark: 'button:h5_account-management:recharge', type: 2, sort: 101, update_time: '2026-06-01 10:00' },
+    { id: 12, permission_name: 'H5-钱包', permission_dimension: 'h5', permission_level: 'L1', permission_route: '/h5/wallet', permission_front_route: '/h5/balance-management', permission_parent_id: 0, permission_mark: 'page:h5_balance-management', type: 1, sort: 110, update_time: '2026-06-01 10:00' }
+  ];
+
+  let expandedIds = new Set(menuData.filter(m => m.type === 1).map(m => m.id));
+  let filteredIds = null;
+  let editingId = null;
+  let presetParentId = 0;
+  let presetType = 1;
+
+  function getChildren(parentId) {
+    return menuData.filter(m => m.permission_parent_id === parentId).sort((a, b) => a.sort - b.sort || a.id - b.id);
+  }
+
+  function getRoots() {
+    return menuData.filter(m => !m.permission_parent_id || m.permission_parent_id === 0).sort((a, b) => a.sort - b.sort || a.id - b.id);
+  }
+
+  function typeLabel(t) {
+    return t === 1 ? '<span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">菜单</span>' : '<span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700">按钮</span>';
+  }
+
+  function dimLabel(d) {
+    return d === 'h5' ? 'H5' : 'Web';
+  }
+
+  function matchesFilter(item) {
+    if (filteredIds && !filteredIds.has(item.id)) return false;
+    const dim = document.getElementById('filterDimension').value;
+    const typ = document.getElementById('filterType').value;
+    const kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
+    if (dim && item.permission_dimension !== dim) return false;
+    if (typ && String(item.type) !== typ) return false;
+    if (kw && !item.permission_name.toLowerCase().includes(kw) && !item.permission_mark.toLowerCase().includes(kw)) return false;
+    return true;
+  }
+
+  function collectVisibleRows() {
+    const rows = [];
+    function walk(parentId, depth) {
+      const children = getChildren(parentId);
+      children.forEach(item => {
+        if (!matchesFilter(item)) return;
+        const hasChild = getChildren(item.id).length > 0;
+        const expanded = expandedIds.has(item.id);
+        rows.push({ item, depth, hasChild, expanded });
+        if (hasChild && expanded) walk(item.id, depth + 1);
+      });
+    }
+    getRoots().forEach(root => {
+      if (!matchesFilter(root)) return;
+      const hasChild = getChildren(root.id).length > 0;
+      const expanded = expandedIds.has(root.id);
+      rows.push({ item: root, depth: 0, hasChild, expanded });
+      if (hasChild && expanded) walk(root.id, 1);
+    });
+    return rows;
+  }
+
+  function renderTable() {
+    const rows = collectVisibleRows();
+    document.getElementById('totalCount').textContent = rows.length;
+    document.getElementById('menuCount').textContent = menuData.filter(m => m.type === 1).length;
+    document.getElementById('buttonCount').textContent = menuData.filter(m => m.type === 2).length;
+
+    document.getElementById('treeTableBody').innerHTML = rows.map(({ item, depth, hasChild, expanded }) => {
+      const indent = '<span class="tree-indent"></span>'.repeat(depth);
+      const toggle = hasChild
+        ? `<span class="tree-toggle" onclick="toggleExpand(${item.id})"><i class="fas fa-chevron-${expanded ? 'down' : 'right'} text-xs"></i></span>`
+        : '<span class="tree-toggle"></span>';
+      const icon = item.type === 1 ? '<i class="fas fa-folder text-amber-500 mr-2"></i>' : '<i class="fas fa-mouse-pointer text-gray-400 mr-2"></i>';
+      return `<tr>
+        <td class="px-4 py-3 whitespace-nowrap">${indent}${toggle}${icon}<span class="font-medium text-gray-900">${item.permission_name}</span></td>
+        <td class="px-4 py-3">${typeLabel(item.type)}</td>
+        <td class="px-4 py-3 font-mono text-xs text-gray-600">${item.permission_mark}</td>
+        <td class="px-4 py-3">${dimLabel(item.permission_dimension)}</td>
+        <td class="px-4 py-3 text-gray-500">${item.permission_level || '-'}</td>
+        <td class="px-4 py-3 font-mono text-xs text-gray-500 max-w-[180px] truncate" title="${item.permission_front_route || ''}">${item.permission_front_route || '-'}</td>
+        <td class="px-4 py-3 text-gray-500">${item.sort}</td>
+        <td class="px-4 py-3 text-gray-400 text-xs">${item.update_time || '-'}</td>
+        <td class="px-4 py-3 whitespace-nowrap space-x-1">
+          <button onclick="editMenu(${item.id})" class="text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded">编辑</button>
+          ${item.type === 1 ? `<button onclick="openButtonModal(${item.id})" class="text-teal-600 text-xs bg-teal-50 px-2 py-1 rounded">新增按钮</button>` : ''}
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">暂无数据</td></tr>';
+  }
+
+  function toggleExpand(id) {
+    if (expandedIds.has(id)) expandedIds.delete(id); else expandedIds.add(id);
+    renderTable();
+  }
+
+  function expandAll(open) {
+    if (open) menuData.filter(m => m.type === 1).forEach(m => expandedIds.add(m.id));
+    else expandedIds.clear();
+    renderTable();
+  }
+
+  function applyFilter() {
+    const kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
+    if (!kw && !document.getElementById('filterDimension').value && !document.getElementById('filterType').value) {
+      filteredIds = null;
+    } else if (kw) {
+      // 命中项及其祖先一并展示
+      filteredIds = new Set();
+      menuData.forEach(item => {
+        if (item.permission_name.toLowerCase().includes(kw) || item.permission_mark.toLowerCase().includes(kw)) {
+          filteredIds.add(item.id);
+          let pid = item.permission_parent_id;
+          while (pid) {
+            filteredIds.add(pid);
+            pid = menuData.find(m => m.id === pid)?.permission_parent_id || 0;
+          }
+          menuData.filter(m => m.permission_parent_id === item.id).forEach(c => filteredIds.add(c.id));
+        }
+      });
+      menuData.forEach(m => { if (m.type === 1) expandedIds.add(m.id); });
+    } else {
+      filteredIds = null;
+    }
+    renderTable();
+  }
+
+  function resetFilter() {
+    document.getElementById('filterDimension').value = '';
+    document.getElementById('filterType').value = '';
+    document.getElementById('filterKeyword').value = '';
+    filteredIds = null;
+    renderTable();
+  }
+
+  function fillParentOptions(excludeId) {
+    const sel = document.getElementById('formParentId');
+    const menus = menuData.filter(m => m.type === 1 && m.id !== excludeId);
+    sel.innerHTML = '<option value="0">无（顶级菜单）</option>' + menus.map(m => `<option value="${m.id}">${m.permission_name}（${m.permission_mark}）</option>`).join('');
+  }
+
+  function onTypeChange() {
+    const type = Number(document.getElementById('formType').value);
+    const parentSel = document.getElementById('formParentId');
+    if (type === 2) {
+      parentSel.value = parentSel.value === '0' && presetParentId ? String(presetParentId) : parentSel.value;
+      if (parentSel.value === '0' && menuData.some(m => m.type === 1)) {
+        parentSel.value = String(menuData.find(m => m.type === 1).id);
+      }
+    }
+  }
+
+  function openMenuModal(kind, parentId) {
+    editingId = null;
+    presetParentId = parentId || 0;
+    presetType = kind === 'button' ? 2 : 1;
+    document.getElementById('menuModalTitle').textContent = kind === 'button' ? '新增按钮' : '新增菜单';
+    document.getElementById('formId').value = '';
+    document.getElementById('formName').value = '';
+    document.getElementById('formType').value = String(presetType);
+    document.getElementById('formDimension').value = 'web';
+    document.getElementById('formLevel').value = presetType === 1 ? 'L1' : 'L2';
+    document.getElementById('formMark').value = '';
+    document.getElementById('formFrontRoute').value = '';
+    document.getElementById('formRoute').value = '';
+    document.getElementById('formSort').value = '100';
+    fillParentOptions(null);
+    document.getElementById('formParentId').value = String(presetParentId);
+    document.getElementById('formType').disabled = kind === 'button';
+    onTypeChange();
+    document.getElementById('menuModal').classList.remove('hidden');
+  }
+
+  function openButtonModal(parentId) {
+    const parent = menuData.find(m => m.id === parentId);
+    openMenuModal('button', parentId);
+    if (parent) {
+      document.getElementById('formDimension').value = parent.permission_dimension;
+      document.getElementById('formLevel').value = 'L2';
+    }
+  }
+
+  function editMenu(id) {
+    const item = menuData.find(m => m.id === id);
+    if (!item) return;
+    editingId = id;
+    document.getElementById('menuModalTitle').textContent = '编辑权限项';
+    fillParentOptions(id);
+    document.getElementById('formId').value = id;
+    document.getElementById('formName').value = item.permission_name;
+    document.getElementById('formType').value = String(item.type);
+    document.getElementById('formType').disabled = true;
+    document.getElementById('formDimension').value = item.permission_dimension;
+    document.getElementById('formParentId').value = String(item.permission_parent_id || 0);
+    document.getElementById('formLevel').value = item.permission_level || '';
+    document.getElementById('formMark').value = item.permission_mark;
+    document.getElementById('formFrontRoute').value = item.permission_front_route || '';
+    document.getElementById('formRoute').value = item.permission_route || '';
+    document.getElementById('formSort').value = item.sort;
+    document.getElementById('menuModal').classList.remove('hidden');
+  }
+
+  function closeMenuModal() {
+    document.getElementById('menuModal').classList.add('hidden');
+    document.getElementById('formType').disabled = false;
+  }
+
+  function saveMenu(e) {
+    e.preventDefault();
+    const type = Number(document.getElementById('formType').value);
+    const parentId = Number(document.getElementById('formParentId').value);
+    if (type === 2 && (!parentId || parentId === 0)) {
+      alert('按钮必须挂在菜单下');
+      return;
+    }
+    const mark = document.getElementById('formMark').value.trim();
+    if (menuData.some(m => m.permission_mark === mark && m.id !== editingId)) {
+      alert('权限标识已存在');
+      return;
+    }
+    const payload = {
+      permission_name: document.getElementById('formName').value.trim(),
+      permission_dimension: document.getElementById('formDimension').value,
+      permission_level: document.getElementById('formLevel').value.trim(),
+      permission_route: document.getElementById('formRoute').value.trim(),
+      permission_front_route: document.getElementById('formFrontRoute').value.trim(),
+      permission_parent_id: type === 1 && parentId === 0 ? 0 : parentId,
+      permission_mark: mark,
+      type,
+      sort: Number(document.getElementById('formSort').value),
+      update_time: new Date().toISOString().slice(0, 16).replace('T', ' ')
+    };
+    if (editingId) {
+      const idx = menuData.findIndex(m => m.id === editingId);
+      menuData[idx] = { ...menuData[idx], ...payload };
+    } else {
+      const newId = Math.max(...menuData.map(m => m.id)) + 1;
+      menuData.push({ id: newId, ...payload });
+      if (type === 1) expandedIds.add(newId);
+      if (parentId) expandedIds.add(parentId);
+    }
+    closeMenuModal();
+    renderTable();
+    alert('已保存（原型）');
+  }
+
+  function toggleMenuSection(id) {
+    const ul = document.getElementById(id);
+    const arrow = document.getElementById(id + 'Arrow');
+    if (!ul) return;
+    ul.style.display = ul.style.display === 'none' ? '' : 'none';
+    if (arrow) arrow.classList.toggle('fa-chevron-down');
+    if (arrow) arrow.classList.toggle('fa-chevron-right');
+  }
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('mobile-menu-closed');
+    sidebar.classList.toggle('mobile-menu-open');
+    overlay.classList.toggle('hidden');
+    overlay.classList.toggle('opacity-0');
+    overlay.classList.toggle('opacity-50');
+  }
+
+  document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+  document.addEventListener('DOMContentLoaded', renderTable);
+</script>
+</body>
+</html>

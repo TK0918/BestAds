@@ -1,4 +1,24 @@
-#### 2026-07-07 - V2.29 范围收口：去掉全量开关与删除角色
+#### 2026-07-08 - V2.29 PRD 增补「客户端菜单」
+
+**更新** `PRD/V 2.29 客户端权限和子账号管理.md` v1.3：
+- 新增「页面 4：客户端菜单」完整 PRD（筛选、列表、新增菜单/按钮、编辑；不做删除）。
+- 修订历史、背景目标、核心原则、业务流程、需求范围同步更新。
+- 客户管理 / 角色分配权限树改为从 `sys_permission`（客户端菜单）接口读取。
+- 附录《客户端权限树》改为表字段映射 + 消费方说明，移除静态 key 全量表。
+
+---
+
+**新增** `admin-system/system-settings/client-menu.html`：
+- 运营端「系统设置 → 客户端菜单」：展示客户端 Web/H5 页面与按钮权限树（对齐 `sys_permission` 表字段）。
+- 支持筛选（维度、类型、关键词）、新增菜单/按钮、编辑、树形展开收起。
+- Mock 数据说明本页为「客户默认权限」「批量功能开关」等权限枚举的主数据源。
+
+**更新侧栏入口**：`index.html`、`customer-management.html`、`customer-sub-account-management.html`、`notification-config.html` 增加「客户端菜单」导航。
+
+**更新** `customer-management.html`：
+- 客户默认权限弹窗改为动态权限树（与批量/单客户一致），并标注数据来源为「客户端菜单」。
+
+---
 
 **客户管理** `customer-management.html`：移除顶栏「全量客户功能开关」及相关弹窗与 JS。
 
@@ -10,7 +30,16 @@
 
 ---
 
-#### 2026-07-07 - PRD V2.30 补充 Shopify 官方品类与内容变更识别方案
+#### 2026-07-08 - PRD V2.30 补充 unstable 全量品类中英文对照表
+
+**新增** `PRD/V 2.30 Shopify品类全量对照表-unstable.md`：
+- 自 Shopify 官方 unstable（`2026-08-unstable`）导出 14,606 条全量品类，含 Level 0~7 中英文名称与路径。
+- 数据来源：Shopify Taxonomy Explorer unstable；英文 `dist/en/taxonomy.json`，中文 `dist/zh-CN/taxonomy.json`。
+
+**更新** `PRD/V 2.30 Shopify落地页品类识别.md` v0.2：
+- 保留 Level 1 摘要表；新增「Shopify 官方品类（全量 Level，unstable）」章节，含字段说明、层级分布、节选 20 条及全量附件链接。
+
+---
 
 **更新** `PRD/V 2.30 Shopify落地页品类识别.md`：
 - 新增「Shopify 官方品类（Level 1）」中英文对照表（基于 Shopify Taxonomy Explorer 稳定版；补充 unstable 的 Bundles）。

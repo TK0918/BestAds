@@ -174,6 +174,7 @@
               <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
               <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
               <li><a href="../system-settings/notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+              <li><a href="../system-settings/client-menu.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sitemap w-5 h-5 mr-3 text-gray-400"></i>客户端菜单</a></li>
               <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
             </ul>
           </div>
@@ -767,120 +768,11 @@
                 执行对象：后续新增客户
               </p>
             </div>
-          </div>
-          <div class="space-y-2 border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
-            <!-- 广告管理 -->
-            <div class="permission-group">
-              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input type="checkbox" name="permissions" value="page:advertisement" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                <span class="text-sm font-medium text-gray-900">广告管理</span>
-              </label>
-              <div class="ml-6 mt-1 space-y-1">
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:advertisement:create" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">创建广告</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:advertisement:edit" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">编辑广告</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:advertisement:delete" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">删除广告</span>
-                </label>
-              </div>
-            </div>
-            
-            <!-- 广告系列管理 -->
-            <div class="permission-group">
-              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input type="checkbox" name="permissions" value="page:campaign" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                <span class="text-sm font-medium text-gray-900">广告系列管理</span>
-              </label>
-              <div class="ml-6 mt-1 space-y-1">
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:campaign:create" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">创建系列</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:campaign:edit" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">编辑系列</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:campaign:delete" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">删除系列</span>
-                </label>
-              </div>
-            </div>
-            
-            <!-- 广告组管理 -->
-            <div class="permission-group">
-              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input type="checkbox" name="permissions" value="page:adset" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                <span class="text-sm font-medium text-gray-900">广告组管理</span>
-              </label>
-              <div class="ml-6 mt-1 space-y-1">
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:adset:create" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">创建广告组</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:adset:edit" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">编辑广告组</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:adset:delete" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">删除广告组</span>
-                </label>
-              </div>
-            </div>
-            
-            <!-- 账户管理 -->
-            <div class="permission-group">
-              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input type="checkbox" name="permissions" value="page:account" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                <span class="text-sm font-medium text-gray-900">账户管理</span>
-              </label>
-              <div class="ml-6 mt-1 space-y-1">
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:account:recharge" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">充值功能</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:account:withdraw" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">提现功能</span>
-                </label>
-              </div>
-            </div>
-            
-            <!-- 钱包管理 -->
-            <div class="permission-group">
-              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input type="checkbox" name="permissions" value="page:wallet" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                <span class="text-sm font-medium text-gray-900">钱包管理</span>
-              </label>
-              <div class="ml-6 mt-1 space-y-1">
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:wallet:export" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">导出流水</span>
-                </label>
-              </div>
-            </div>
-            
-            <!-- 报表查看 -->
-            <div class="permission-group">
-              <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <input type="checkbox" name="permissions" value="page:report" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                <span class="text-sm font-medium text-gray-900">报表查看</span>
-              </label>
-              <div class="ml-6 mt-1 space-y-1">
-                <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded text-sm">
-                  <input type="checkbox" name="permissions" value="button:report:export" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                  <span class="text-gray-700">导出报表</span>
-                </label>
-              </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4 text-sm text-gray-600">
+              权限枚举来源：<a href="../system-settings/client-menu.html" class="text-blue-600 hover:underline">系统设置 → 客户端菜单</a>（上线后由接口返回权限树）
             </div>
           </div>
+          <div id="defaultPermissionTreeContainer" class="border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto"></div>
           <div class="flex justify-end space-x-3 mt-6">
             <button type="button" onclick="closeModal('defaultPermissionModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
               取消
@@ -948,6 +840,9 @@
                 <i class="fas fa-info-circle mr-2"></i>
                 执行对象：已勾选的 <span id="batchSelectedCount" class="font-bold">0</span> 位客户
               </p>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4 text-sm text-gray-600">
+              权限枚举来源：<a href="../system-settings/client-menu.html" class="text-blue-600 hover:underline">系统设置 → 客户端菜单</a>（上线后由接口返回权限树）
             </div>
           </div>
           <div class="space-y-4">
@@ -1064,6 +959,7 @@
           <!-- 权限树形结构 -->
           <div>
             <h4 class="text-md font-medium text-gray-900 mb-3">权限配置</h4>
+            <p class="text-sm text-gray-500 mb-3">权限枚举来源：<a href="../system-settings/client-menu.html" class="text-blue-600 hover:underline">系统设置 → 客户端菜单</a></p>
             <div class="border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
               <div class="space-y-2" id="permissionTreeContainer">
                 <!-- 动态生成权限树 -->
@@ -2080,6 +1976,7 @@
 
     // 打开客户默认权限设置模态框
     function openDefaultPermissionModal() {
+      document.getElementById('defaultPermissionTreeContainer').innerHTML = buildPermissionTreeHtml(CLIENT_PERMISSION_TREE, 'permissions', [], 'single');
       document.getElementById('defaultPermissionModal').classList.remove('hidden');
     }
 
@@ -2220,6 +2117,7 @@
     }
 
     // 权限树定义（与客户端 Web 路由对齐）
+    // 原型 Mock；上线后从「客户端菜单」接口获取树形权限主数据
     const CLIENT_PERMISSION_TREE = [
       { page: { key: 'page:adMange_meta', label: 'Meta 广告管理' }, buttons: [
         { key: 'button:adMange_meta:create', label: '创建广告' },
