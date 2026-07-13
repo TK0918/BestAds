@@ -17,10 +17,10 @@
     .modal-backdrop { backdrop-filter: blur(4px); }
     .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-wrap { overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; }
     .data-table { min-width: max-content; width: 100%; border-collapse: collapse; }
     .data-table thead th { padding: 8px 12px !important; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
-    .data-table tbody td { padding: 6px 12px !important; font-size: 13px; line-height: 1.35; color: #374151; white-space: nowrap; border-bottom: 1px solid #f3f4f6; }
+    .data-table tbody td { padding: 6px 12px !important; font-size: 13px; line-height: 1.35; color: #374151; white-space: nowrap; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
     .data-table tbody tr:hover { background-color: #f9fafb; }
     .status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; line-height: 1.4; }
     .status-badge.ban { background: #fef2f2; color: #dc2626; }
@@ -28,6 +28,12 @@
     .status-badge.muted { background: #f3f4f6; color: #6b7280; }
     .status-badge.sent { background: #dbeafe; color: #1d4ed8; }
     .status-badge.empty { background: #fef3c7; color: #d97706; }
+    .status-badge.pending { background: #fef3c7; color: #b45309; }
+    .status-badge.in_progress { background: #e0e7ff; color: #4338ca; }
+    .status-badge.notified_customer { background: #dbeafe; color: #1d4ed8; }
+    .status-badge.notified_agency { background: #f3e8ff; color: #7e22ce; }
+    .status-badge.no_action { background: #f3f4f6; color: #6b7280; }
+    .status-badge.closed { background: #dcfce7; color: #166534; }
     .filter-bar { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
     .filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: end; }
     @media (min-width: 768px) { .filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -48,10 +54,61 @@
     .tab-toolbar-title { font-size: 16px; font-weight: 500; color: #111827; margin: 0; }
     .btn-toolbar-primary { padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #2563eb; border: none; border-radius: 6px; cursor: pointer; }
     .btn-toolbar-primary:hover { background: #1d4ed8; }
+    .btn-toolbar-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-toolbar-secondary { padding: 6px 12px; font-size: 13px; font-weight: 500; color: #374151; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; }
     .btn-toolbar-secondary:hover { background: #f9fafb; }
+    .btn-link { color: #2563eb; font-size: 12px; background: none; border: none; cursor: pointer; padding: 0 4px; }
+    .btn-link:hover { text-decoration: underline; }
+    .btn-link.danger { color: #dc2626; }
     .info-banner { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #1e40af; }
     .feishu-preview { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; color: #334155; }
+    .remark-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+    .drawer-overlay { backdrop-filter: blur(4px); }
+    .drawer-panel { transform: translateX(100%); transition: transform 0.3s ease; }
+    .drawer-panel.open { transform: translateX(0); }
+    .merchant-combo { display: flex; gap: 6px; }
+    .merchant-combo .filter-select { width: 110px; flex-shrink: 0; }
+    .merchant-combo .filter-input { flex: 1; min-width: 0; }
+    .page-tabs { display: flex; gap: 4px; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px; }
+    .page-tab { padding: 10px 16px; font-size: 14px; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; background: none; cursor: pointer; margin-bottom: -1px; }
+    .page-tab:hover { color: #374151; }
+    .page-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .page-pane { display: none; }
+    .page-pane.active { display: block; }
+    .view-switch { display: inline-flex; border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden; }
+    .view-switch button { padding: 6px 14px; font-size: 13px; font-weight: 500; color: #6b7280; background: #fff; border: none; cursor: pointer; }
+    .view-switch button + button { border-left: 1px solid #d1d5db; }
+    .view-switch button.active { background: #2563eb; color: #fff; }
+    .stat-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    @media (min-width: 768px) { .stat-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; }
+    .stat-card .label { font-size: 12px; color: #6b7280; }
+    .stat-card .value { font-size: 20px; font-weight: 600; color: #111827; margin-top: 4px; }
+    .drill-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f8fafc; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
+    .pct-high { color: #dc2626; font-weight: 600; }
+    .pct-mid { color: #b45309; font-weight: 500; }
+    .pct-low { color: #166534; }
+    .th-sortable { cursor: pointer; user-select: none; }
+    .th-sortable:hover { color: #2563eb; }
+    .th-sort-icon { margin-left: 2px; font-size: 10px; color: #9ca3af; }
+    .th-sortable.active .th-sort-icon { color: #2563eb; }
+    .th-help { display: inline-flex; align-items: center; gap: 4px; }
+    .tip-wrap { position: relative; display: inline-flex; align-items: center; }
+    .tip-icon { color: #9ca3af; font-size: 11px; cursor: help; }
+    .tip-icon:hover { color: #2563eb; }
+    .tip-bubble {
+      display: none; position: absolute; z-index: 100; left: 50%; transform: translateX(-50%);
+      top: calc(100% + 8px); width: 260px; padding: 8px 10px; background: #111827; color: #f9fafb;
+      font-size: 12px; font-weight: 400; line-height: 1.45; border-radius: 6px; text-transform: none;
+      letter-spacing: normal; white-space: normal; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0,.18);
+      pointer-events: none;
+    }
+    .tip-bubble::after {
+      content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+      border: 6px solid transparent; border-bottom-color: #111827;
+    }
+    .tip-wrap:hover .tip-bubble { display: block; }
+    .data-table thead { position: relative; z-index: 5; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -242,19 +299,29 @@
             <div class="md:flex md:items-start md:justify-between gap-4">
               <div class="flex-1 min-w-0">
                 <h2 class="text-2xl font-bold text-gray-900">账户封停监控</h2>
-                <p class="mt-1 text-sm text-gray-500">每日 09:00、14:00 自动检测当日新增封停/解封；覆盖 Meta、Google、TikTok 全部广告账户（含未分配客户账户）</p>
-                <div class="info-banner mt-3">
+                <p class="mt-1 text-sm text-gray-500" id="pageSubtitle">每日 09:00、14:00 自动检测当日新增封停/解封；支持跟进闭环与解封一键关闭此前封停</p>
+                <div class="info-banner mt-3" id="pageBanner">
                   <i class="fas fa-info-circle mr-1"></i>
-                  消耗金额与币种分列展示（「账户币种」+ 纯数值），便于导出直接统计；飞书：每个新增封停/解封账户单独一条消息；无新增时发摘要通知
+                  <span id="pageBannerText">仅封停/解封可跟进；无新增行不可操作。列表跟进字段为最后一次；完整履历见「查看跟进记录」。金额为纯数值，账户币种单独成列。</span>
                 </div>
               </div>
-              <div class="mt-4 md:mt-0 flex gap-2 shrink-0">
+              <div class="mt-4 md:mt-0 flex gap-2 shrink-0 flex-wrap justify-end" id="toolbarRecords">
                 <button type="button" onclick="openFeishuPreview()" class="btn-toolbar-secondary"><i class="fas fa-comment-dots mr-1"></i>飞书消息样例</button>
+                <button type="button" id="btnBatchFollow" onclick="openBatchFollow()" class="btn-toolbar-secondary" disabled><i class="fas fa-tasks mr-1"></i>批量跟进</button>
                 <button type="button" onclick="exportData()" class="btn-toolbar-primary"><i class="fas fa-download mr-1"></i>导出</button>
+              </div>
+              <div class="mt-4 md:mt-0 flex gap-2 shrink-0 flex-wrap justify-end hidden" id="toolbarStats">
+                <button type="button" onclick="exportStats()" class="btn-toolbar-primary"><i class="fas fa-download mr-1"></i>导出统计</button>
               </div>
             </div>
           </div>
 
+          <div class="page-tabs">
+            <button type="button" class="page-tab active" id="pageTabRecords" onclick="switchPageTab('records')">监控记录</button>
+            <button type="button" class="page-tab" id="pageTabStats" onclick="switchPageTab('stats')">封停统计</button>
+          </div>
+
+          <div id="paneRecords" class="page-pane active">
           <div class="bg-white shadow-sm rounded-lg border border-gray-200">
             <div class="filter-bar">
               <div class="filter-grid">
@@ -296,9 +363,15 @@
                   <label class="filter-label">广告账户 ID</label>
                   <input type="text" id="filterAccountId" class="filter-input" placeholder="输入账户 ID">
                 </div>
-                <div>
-                  <label class="filter-label">商户 ID</label>
-                  <input type="text" id="filterMerchantId" class="filter-input" placeholder="输入商户 ID">
+                <div class="filter-col-span-2">
+                  <label class="filter-label">商户</label>
+                  <div class="merchant-combo">
+                    <select id="filterMerchantScope" class="filter-select" onchange="onMerchantScopeChange()">
+                      <option value="">全部</option>
+                      <option value="unassigned">未分配</option>
+                    </select>
+                    <input type="text" id="filterMerchantId" class="filter-input" placeholder="商户 ID（选未分配时忽略）">
+                  </div>
                 </div>
                 <div>
                   <label class="filter-label">代理</label>
@@ -317,6 +390,18 @@
                     <option value="no">否</option>
                   </select>
                 </div>
+                <div>
+                  <label class="filter-label">跟进状态</label>
+                  <select id="filterFollowStatus" class="filter-select">
+                    <option value="">全部</option>
+                    <option value="pending">待跟进</option>
+                    <option value="in_progress">跟进中</option>
+                    <option value="notified_customer">已通知客户</option>
+                    <option value="notified_agency">已反馈代理</option>
+                    <option value="no_action">无需处理</option>
+                    <option value="closed">已关闭</option>
+                  </select>
+                </div>
                 <div class="filter-actions filter-col-span-2">
                   <button type="button" onclick="searchData()" class="btn-filter-search"><i class="fas fa-search mr-1"></i>搜索</button>
                   <button type="button" onclick="resetFilters()" class="btn-filter-reset"><i class="fas fa-redo mr-1"></i>重置</button>
@@ -325,7 +410,9 @@
             </div>
 
             <div class="tab-toolbar">
-              <h3 class="tab-toolbar-title">监控记录 <span class="text-sm font-normal text-gray-500" id="totalCount">(0)</span></h3>
+              <h3 class="tab-toolbar-title">监控记录 <span class="text-sm font-normal text-gray-500" id="totalCount">(0)</span>
+                <span class="text-xs font-normal text-blue-600 ml-2" id="selectedHint"></span>
+              </h3>
               <span class="text-xs text-gray-500">默认按昨天美元消耗降序</span>
             </div>
 
@@ -333,6 +420,7 @@
               <table class="data-table">
                 <thead>
                   <tr>
+                    <th><input type="checkbox" id="checkAll" onclick="toggleCheckAll(this)" title="全选当前页可跟进记录"></th>
                     <th>监控时间</th>
                     <th>批次</th>
                     <th>事件类型</th>
@@ -350,8 +438,13 @@
                     <th>近7天美元消耗(不含当天)</th>
                     <th>状态变更时间</th>
                     <th>飞书通知</th>
+                    <th>跟进状态</th>
+                    <th>跟进人</th>
+                    <th>跟进时间</th>
+                    <th>跟进备注</th>
                     <th>BD</th>
                     <th>AM</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -363,6 +456,78 @@
               <div class="flex gap-1" id="pagination"></div>
             </div>
           </div>
+          </div><!-- /paneRecords -->
+
+          <div id="paneStats" class="page-pane">
+            <div class="stat-summary" id="statsSummary"></div>
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+              <div class="filter-bar">
+                <div class="filter-grid">
+                  <div class="filter-col-span-2">
+                    <label class="filter-label">统计自然周（周一至周日）</label>
+                    <select id="statsWeek" class="filter-select" onchange="onStatsFilterChange()">
+                      <option value="2026-07-07">2026-07-07 ~ 2026-07-13</option>
+                      <option value="2026-06-30">2026-06-30 ~ 2026-07-06</option>
+                      <option value="2026-06-23">2026-06-23 ~ 2026-06-29</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="filter-label">媒体平台</label>
+                    <select id="statsPlatform" class="filter-select" onchange="onStatsFilterChange()">
+                      <option value="">全部</option>
+                      <option value="Meta">Meta</option>
+                      <option value="Google">Google</option>
+                      <option value="TikTok">TikTok</option>
+                    </select>
+                  </div>
+                  <div id="statsAgencyFilterWrap" class="hidden">
+                    <label class="filter-label">代理</label>
+                    <select id="statsAgencyFilter" class="filter-select" onchange="onStatsFilterChange()">
+                      <option value="">全部</option>
+                      <option value="GIMC">GIMC</option>
+                      <option value="Madhouse">Madhouse</option>
+                      <option value="Wezonet">Wezonet</option>
+                    </select>
+                  </div>
+                  <div id="statsTypeFilterWrap" class="hidden">
+                    <label class="filter-label">账户类型</label>
+                    <select id="statsTypeFilter" class="filter-select" onchange="onStatsFilterChange()">
+                      <option value="">全部</option>
+                      <option value="海外户">海外户</option>
+                      <option value="国内户">国内户</option>
+                    </select>
+                  </div>
+                  <div class="filter-actions">
+                    <button type="button" onclick="onStatsFilterChange()" class="btn-filter-search"><i class="fas fa-search mr-1"></i>查询</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-toolbar">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div class="view-switch" id="statsViewSwitch">
+                    <button type="button" class="active" id="statsViewAgency" onclick="switchStatsView('agency')">按代理</button>
+                    <button type="button" id="statsViewCustomer" onclick="switchStatsView('customer')">按客户</button>
+                    <button type="button" id="statsViewAgencyType" onclick="switchStatsView('agencyType')">按代理×账户类型</button>
+                  </div>
+                  <span class="text-xs text-gray-500">点击表头可升/降序；默认按「封停账户周消耗」降序。交叉表可用代理/账户类型筛选做对照。</span>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead id="statsTableHead"></thead>
+                  <tbody id="statsTableBody"></tbody>
+                </table>
+              </div>
+              <div class="px-4 py-3 border-t border-gray-100 text-xs text-gray-500 leading-relaxed">
+                口径说明：统计周期为自然周（周一至周日）。两个封停率分子均为<strong>期末仍封停</strong>账户；
+                「全部账户封停率」分母为期末全部广告账户数；
+                「有消耗账户封停率」分子为周期内有消耗且期末仍封停，分母为周期内有消耗账户数；
+                「封停消耗占比」分子为上述有消耗且期末封停账户的自然周消耗，分母为对象全部自然周消耗。金额单位 USD，纯数值。
+              </div>
+            </div>
+          </div><!-- /paneStats -->
         </div>
       </div>
     </main>
@@ -433,30 +598,230 @@ AM：李四</div>
   </div>
 </div>
 
+<!-- 单条 / 批量跟进 -->
+<div id="followModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4 py-8">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900" id="followModalTitle">跟进</h3>
+        <button onclick="closeFollowModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="px-6 py-4 space-y-4">
+        <p class="text-sm text-gray-500" id="followModalHint"></p>
+        <div>
+          <label class="filter-label">跟进状态 <span class="text-red-500">*</span></label>
+          <select id="followStatusInput" class="filter-select">
+            <option value="pending">待跟进</option>
+            <option value="in_progress">跟进中</option>
+            <option value="notified_customer">已通知客户</option>
+            <option value="notified_agency">已反馈代理</option>
+            <option value="no_action">无需处理</option>
+            <option value="closed">已关闭</option>
+          </select>
+        </div>
+        <div>
+          <label class="filter-label">跟进备注</label>
+          <textarea id="followRemarkInput" rows="3" class="filter-input" placeholder="选填，建议填写处置说明"></textarea>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
+        <button onclick="closeFollowModal()" class="btn-toolbar-secondary">取消</button>
+        <button onclick="submitFollow()" class="btn-toolbar-primary">确认</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 一键关闭此前封停 -->
+<div id="closeBanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+  <div class="flex items-center justify-center min-h-screen px-4 py-8">
+    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full animate-fadeIn max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
+        <h3 class="text-lg font-medium text-gray-900">一键关闭此前封停跟进</h3>
+        <button onclick="closeCloseBanModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="px-6 py-4 space-y-4">
+        <div class="info-banner">
+          将把「同广告账户、状态变更时间早于本条解封、且跟进状态不是已关闭」的封停记录，全部追加一次跟进并置为「已关闭」。本条解封记录的跟进状态不会被自动修改。
+        </div>
+        <div class="text-sm text-gray-700 space-y-1" id="closeBanAnchor"></div>
+        <p class="text-sm font-medium text-gray-900">将关闭 <span id="closeBanCount" class="text-red-600">0</span> 条封停跟进</p>
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <table class="data-table w-full">
+            <thead>
+              <tr>
+                <th>广告账户 ID</th>
+                <th>封停状态变更时间</th>
+                <th>当前跟进状态</th>
+                <th>当前跟进人</th>
+                <th>昨天美元消耗</th>
+              </tr>
+            </thead>
+            <tbody id="closeBanListBody"></tbody>
+          </table>
+        </div>
+        <div>
+          <label class="filter-label">关闭备注</label>
+          <textarea id="closeBanRemark" rows="3" class="filter-input"></textarea>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2 sticky bottom-0 bg-white">
+        <button onclick="closeCloseBanModal()" class="btn-toolbar-secondary">取消</button>
+        <button onclick="confirmCloseBans()" class="btn-toolbar-primary" style="background:#dc2626;">确认关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 跟进履历抽屉 -->
+<div id="historyDrawerOverlay" class="fixed inset-0 drawer-overlay bg-gray-600 bg-opacity-50 hidden z-50" onclick="closeHistoryDrawer()"></div>
+<div id="historyDrawer" class="drawer-panel fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col">
+  <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+    <div>
+      <h3 class="text-lg font-medium text-gray-900">跟进记录</h3>
+      <p class="text-xs text-gray-500 mt-0.5" id="historyDrawerSub"></p>
+    </div>
+    <button onclick="closeHistoryDrawer()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="flex-1 overflow-y-auto px-5 py-4" id="historyDrawerBody"></div>
+</div>
+
 <script>
+  const FOLLOW_LABEL = {
+    pending: '待跟进',
+    in_progress: '跟进中',
+    notified_customer: '已通知客户',
+    notified_agency: '已反馈代理',
+    no_action: '无需处理',
+    closed: '已关闭'
+  };
+  const SOURCE_LABEL = { manual: '手动跟进', batch: '批量跟进', auto_close: '解封一键关闭' };
+  const CURRENT_USER = '管理员';
+
   const monitorData = [
-    { id: 1, monitorTime: '2026-07-08 09:00:05', batch: '09:00', eventType: 'ban', platform: 'Meta', accountId: 'act_100123456', accountName: 'Brand Store US', merchantId: 'M001', merchantName: '客户A', agency: 'GIMC', accountType: '海外户', spendCurrency: 'EUR', yesterdaySpend: 1200, spend7d: 8500, yesterdaySpendUsd: 1300, spend7dUsd: 9200, statusChangeTime: '2026-07-08 08:12:33', notifySent: true, notifyLabel: '已发送', bd: '张三', ops: '李四' },
-    { id: 2, monitorTime: '2026-07-08 09:00:05', batch: '09:00', eventType: 'ban', platform: 'Google', accountId: 'gg_8899776655', accountName: 'EU Campaign', merchantId: null, merchantName: null, agency: 'Madhouse', accountType: '海外户', spendCurrency: 'USD', yesterdaySpend: 3200, spend7d: 18500, yesterdaySpendUsd: 3200, spend7dUsd: 18500, statusChangeTime: '2026-07-08 07:45:10', notifySent: true, notifyLabel: '已发送', bd: '-', ops: '-' },
-    { id: 3, monitorTime: '2026-07-08 09:00:05', batch: '09:00', eventType: 'ban', platform: 'Meta', accountId: 'act_998877665', accountName: 'Fashion DTC', merchantId: 'M002', merchantName: '客户B', agency: 'Wezonet', accountType: '国内户', spendCurrency: 'USD', yesterdaySpend: 5800, spend7d: 32000, yesterdaySpendUsd: 5800, spend7dUsd: 32000, statusChangeTime: '2026-07-08 06:30:00', notifySent: true, notifyLabel: '已发送', bd: '王五', ops: '赵六' },
-    { id: 4, monitorTime: '2026-07-08 14:00:03', batch: '14:00', eventType: 'empty', platform: '-', accountId: '-', accountName: '-', merchantId: null, merchantName: null, agency: '-', accountType: '-', spendCurrency: '-', yesterdaySpend: null, spend7d: null, yesterdaySpendUsd: null, spend7dUsd: null, statusChangeTime: '-', notifySent: true, notifyLabel: '无新增的广告账户封停/解封通知', bd: '-', ops: '-' },
-    { id: 5, monitorTime: '2026-07-07 14:00:04', batch: '14:00', eventType: 'unban', platform: 'TikTok', accountId: 'tt_5566778899', accountName: 'TikTok Shop SG', merchantId: 'M003', merchantName: '客户C', agency: 'GIMC', accountType: '海外户', spendCurrency: 'SGD', yesterdaySpend: 450, spend7d: 2800, yesterdaySpendUsd: 330, spend7dUsd: 2050, statusChangeTime: '2026-07-07 13:22:18', notifySent: true, notifyLabel: '已发送', bd: '张三', ops: '李四' },
-    { id: 6, monitorTime: '2026-07-07 09:00:02', batch: '09:00', eventType: 'ban', platform: 'TikTok', accountId: 'tt_1122334455', accountName: 'Beauty Live', merchantId: null, merchantName: null, agency: 'Madhouse', accountType: '海外户', spendCurrency: 'USD', yesterdaySpend: 890, spend7d: 5200, yesterdaySpendUsd: 890, spend7dUsd: 5200, statusChangeTime: '2026-07-07 08:05:44', notifySent: true, notifyLabel: '已发送', bd: '-', ops: '-' }
+    {
+      id: 1, monitorTime: '2026-07-08 09:00:05', batch: '09:00', eventType: 'ban', platform: 'Meta',
+      accountId: 'act_100123456', accountName: 'Brand Store US', merchantId: 'M001', merchantName: '客户A',
+      agency: 'GIMC', accountType: '海外户', spendCurrency: 'EUR', yesterdaySpend: 1200, spend7d: 8500,
+      yesterdaySpendUsd: 1300, spend7dUsd: 9200, statusChangeTime: '2026-07-08 08:12:33',
+      notifySent: true, notifyLabel: '已发送', bd: '张三', ops: '李四',
+      followStatus: 'pending', followOperator: null, followTime: null, followRemark: null, followLogs: []
+    },
+    {
+      id: 2, monitorTime: '2026-07-08 09:00:05', batch: '09:00', eventType: 'ban', platform: 'Google',
+      accountId: 'gg_8899776655', accountName: 'EU Campaign', merchantId: null, merchantName: null,
+      agency: 'Madhouse', accountType: '海外户', spendCurrency: 'USD', yesterdaySpend: 3200, spend7d: 18500,
+      yesterdaySpendUsd: 3200, spend7dUsd: 18500, statusChangeTime: '2026-07-08 07:45:10',
+      notifySent: true, notifyLabel: '已发送', bd: '-', ops: '-',
+      followStatus: 'in_progress', followOperator: '王五', followTime: '2026-07-08 10:15:00',
+      followRemark: '未分配客户，已内部登记排查代理侧原因',
+      followLogs: [
+        { time: '2026-07-08 10:15:00', operator: '王五', status: 'in_progress', remark: '未分配客户，已内部登记排查代理侧原因', source: 'manual' }
+      ]
+    },
+    {
+      id: 3, monitorTime: '2026-07-08 09:00:05', batch: '09:00', eventType: 'ban', platform: 'Meta',
+      accountId: 'act_998877665', accountName: 'Fashion DTC', merchantId: 'M002', merchantName: '客户B',
+      agency: 'Wezonet', accountType: '国内户', spendCurrency: 'USD', yesterdaySpend: 5800, spend7d: 32000,
+      yesterdaySpendUsd: 5800, spend7dUsd: 32000, statusChangeTime: '2026-07-08 06:30:00',
+      notifySent: true, notifyLabel: '已发送', bd: '王五', ops: '赵六',
+      followStatus: 'notified_customer', followOperator: '赵六', followTime: '2026-07-08 11:20:00',
+      followRemark: '已电话通知客户，客户确认知晓并自行申诉',
+      followLogs: [
+        { time: '2026-07-08 09:40:00', operator: '赵六', status: 'in_progress', remark: '开始联系客户', source: 'manual' },
+        { time: '2026-07-08 11:20:00', operator: '赵六', status: 'notified_customer', remark: '已电话通知客户，客户确认知晓并自行申诉', source: 'manual' }
+      ]
+    },
+    {
+      id: 4, monitorTime: '2026-07-08 14:00:03', batch: '14:00', eventType: 'empty', platform: '-',
+      accountId: '-', accountName: '-', merchantId: null, merchantName: null,
+      agency: '-', accountType: '-', spendCurrency: '-', yesterdaySpend: null, spend7d: null,
+      yesterdaySpendUsd: null, spend7dUsd: null, statusChangeTime: '-',
+      notifySent: true, notifyLabel: '无新增的广告账户封停/解封通知', bd: '-', ops: '-',
+      followStatus: null, followOperator: null, followTime: null, followRemark: null, followLogs: []
+    },
+    {
+      id: 7, monitorTime: '2026-07-07 09:00:02', batch: '09:00', eventType: 'ban', platform: 'TikTok',
+      accountId: 'tt_5566778899', accountName: 'TikTok Shop SG', merchantId: 'M003', merchantName: '客户C',
+      agency: 'GIMC', accountType: '海外户', spendCurrency: 'SGD', yesterdaySpend: 620, spend7d: 4100,
+      yesterdaySpendUsd: 450, spend7dUsd: 3000, statusChangeTime: '2026-07-07 08:01:00',
+      notifySent: true, notifyLabel: '已发送', bd: '张三', ops: '李四',
+      followStatus: 'in_progress', followOperator: '张三', followTime: '2026-07-07 10:00:00',
+      followRemark: '已反馈代理，等待解封结果',
+      followLogs: [
+        { time: '2026-07-07 10:00:00', operator: '张三', status: 'in_progress', remark: '已反馈代理，等待解封结果', source: 'manual' }
+      ]
+    },
+    {
+      id: 5, monitorTime: '2026-07-07 14:00:04', batch: '14:00', eventType: 'unban', platform: 'TikTok',
+      accountId: 'tt_5566778899', accountName: 'TikTok Shop SG', merchantId: 'M003', merchantName: '客户C',
+      agency: 'GIMC', accountType: '海外户', spendCurrency: 'SGD', yesterdaySpend: 450, spend7d: 2800,
+      yesterdaySpendUsd: 330, spend7dUsd: 2050, statusChangeTime: '2026-07-07 13:22:18',
+      notifySent: true, notifyLabel: '已发送', bd: '张三', ops: '李四',
+      followStatus: 'pending', followOperator: null, followTime: null, followRemark: null, followLogs: []
+    },
+    {
+      id: 6, monitorTime: '2026-07-07 09:00:02', batch: '09:00', eventType: 'ban', platform: 'TikTok',
+      accountId: 'tt_1122334455', accountName: 'Beauty Live', merchantId: null, merchantName: null,
+      agency: 'Madhouse', accountType: '海外户', spendCurrency: 'USD', yesterdaySpend: 890, spend7d: 5200,
+      yesterdaySpendUsd: 890, spend7dUsd: 5200, statusChangeTime: '2026-07-07 08:05:44',
+      notifySent: true, notifyLabel: '已发送', bd: '-', ops: '-',
+      followStatus: 'pending', followOperator: null, followTime: null, followRemark: null, followLogs: []
+    }
   ];
 
   let currentPage = 1;
   let pageSize = 20;
   let filteredData = [...monitorData];
+  let selectedIds = new Set();
+  let followMode = 'single'; // single | batch
+  let followTargetIds = [];
+  let closeBanAnchorId = null;
+  let closeBanTargets = [];
 
-  /** 金额纯数值展示（不含币种符号/前缀），便于列表与导出直接统计 */
   function formatAmount(amount) {
     if (amount == null) return '-';
     return Number(amount).toFixed(2);
+  }
+
+  function nowStr() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
 
   function eventBadge(type) {
     if (type === 'ban') return '<span class="status-badge ban">封停</span>';
     if (type === 'unban') return '<span class="status-badge unban">解封</span>';
     return '<span class="status-badge empty">无新增通知</span>';
+  }
+
+  function followBadge(status) {
+    if (!status) return '-';
+    return `<span class="status-badge ${status}">${FOLLOW_LABEL[status] || status}</span>`;
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function remarkCell(remark) {
+    if (!remark) return '-';
+    const safe = escapeHtml(remark);
+    return `<span class="remark-cell" title="${safe}">${safe}</span>`;
+  }
+
+  function onMerchantScopeChange() {
+    const scope = document.getElementById('filterMerchantScope').value;
+    const input = document.getElementById('filterMerchantId');
+    if (scope === 'unassigned') {
+      input.value = '';
+      input.disabled = true;
+      input.placeholder = '已选未分配，忽略商户 ID';
+    } else {
+      input.disabled = false;
+      input.placeholder = '商户 ID（选未分配时忽略）';
+    }
   }
 
   function getFilters() {
@@ -467,9 +832,11 @@ AM：李四</div>
       eventType: document.getElementById('filterEventType').value,
       platform: document.getElementById('filterPlatform').value,
       accountId: document.getElementById('filterAccountId').value.trim(),
+      merchantScope: document.getElementById('filterMerchantScope').value,
       merchantId: document.getElementById('filterMerchantId').value.trim(),
       agency: document.getElementById('filterAgency').value,
-      notify: document.getElementById('filterNotify').value
+      notify: document.getElementById('filterNotify').value,
+      followStatus: document.getElementById('filterFollowStatus').value
     };
   }
 
@@ -482,11 +849,20 @@ AM：李四</div>
       if (f.batch && row.batch !== f.batch) return false;
       if (f.eventType && row.eventType !== f.eventType) return false;
       if (f.platform && row.platform !== f.platform) return false;
-      if (f.accountId && !row.accountId.includes(f.accountId)) return false;
-      if (f.merchantId && !(row.merchantId || '').includes(f.merchantId)) return false;
+      if (f.accountId && !String(row.accountId).includes(f.accountId)) return false;
+      if (f.merchantScope === 'unassigned') {
+        if (row.eventType === 'empty') return false;
+        if (row.merchantId) return false;
+      } else if (f.merchantId) {
+        if (!(row.merchantId || '').includes(f.merchantId)) return false;
+      }
       if (f.agency && row.agency !== f.agency) return false;
       if (f.notify === 'yes' && !row.notifySent) return false;
       if (f.notify === 'no' && row.notifySent) return false;
+      if (f.followStatus) {
+        if (row.eventType === 'empty') return false;
+        if (row.followStatus !== f.followStatus) return false;
+      }
       return true;
     });
     filteredData.sort((a, b) => {
@@ -496,8 +872,32 @@ AM：李四</div>
     });
   }
 
-  function renderTable() {
-    applyFilters();
+  function updateBatchBtn() {
+    const btn = document.getElementById('btnBatchFollow');
+    const hint = document.getElementById('selectedHint');
+    btn.disabled = selectedIds.size === 0;
+    hint.textContent = selectedIds.size ? `已选 ${selectedIds.size} 条` : '';
+  }
+
+  function toggleRowCheck(id, checked) {
+    if (checked) selectedIds.add(id);
+    else selectedIds.delete(id);
+    updateBatchBtn();
+  }
+
+  function toggleCheckAll(el) {
+    const start = (currentPage - 1) * pageSize;
+    const pageData = filteredData.slice(start, start + pageSize);
+    pageData.forEach(row => {
+      if (row.eventType === 'empty') return;
+      if (el.checked) selectedIds.add(row.id);
+      else selectedIds.delete(row.id);
+    });
+    renderTable(false);
+  }
+
+  function renderTable(refilter = true) {
+    if (refilter) applyFilters();
     const total = filteredData.length;
     const start = (currentPage - 1) * pageSize;
     const pageData = filteredData.slice(start, start + pageSize);
@@ -506,15 +906,33 @@ AM：李四</div>
     document.getElementById('totalRecords').textContent = total;
     document.getElementById('pageStart').textContent = total ? start + 1 : 0;
     document.getElementById('pageEnd').textContent = Math.min(start + pageSize, total);
+    updateBatchBtn();
 
     const tbody = document.getElementById('tableBody');
     if (!pageData.length) {
-      tbody.innerHTML = '<tr><td colspan="19" class="text-center py-8 text-gray-500">暂无数据</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="25" class="text-center py-8 text-gray-500">暂无数据</td></tr>';
+      document.getElementById('checkAll').checked = false;
       return;
     }
 
-    tbody.innerHTML = pageData.map(row => `
+    const followableOnPage = pageData.filter(r => r.eventType !== 'empty');
+    document.getElementById('checkAll').checked =
+      followableOnPage.length > 0 && followableOnPage.every(r => selectedIds.has(r.id));
+
+    tbody.innerHTML = pageData.map(row => {
+      const canFollow = row.eventType !== 'empty';
+      const actions = !canFollow ? '-' : (
+        `<button class="btn-link" onclick="openSingleFollow(${row.id})">跟进</button>` +
+        `<button class="btn-link" onclick="openHistoryDrawer(${row.id})">查看跟进记录</button>` +
+        (row.eventType === 'unban'
+          ? `<button class="btn-link danger" onclick="openCloseBanModal(${row.id})">一键关闭此前封停</button>`
+          : '')
+      );
+      return `
       <tr class="${row.eventType === 'empty' ? 'bg-amber-50/40' : ''}">
+        <td>${canFollow
+          ? `<input type="checkbox" ${selectedIds.has(row.id) ? 'checked' : ''} onchange="toggleRowCheck(${row.id}, this.checked)">`
+          : ''}</td>
         <td>${row.monitorTime}</td>
         <td>${row.batch}</td>
         <td>${eventBadge(row.eventType)}</td>
@@ -532,18 +950,166 @@ AM：李四</div>
         <td class="text-right tabular-nums font-medium">${formatAmount(row.spend7dUsd)}</td>
         <td>${row.statusChangeTime}</td>
         <td><span class="status-badge ${row.eventType === 'empty' ? 'empty' : 'sent'}">${row.notifyLabel}</span></td>
+        <td>${canFollow ? followBadge(row.followStatus) : '-'}</td>
+        <td>${canFollow ? (row.followOperator || '-') : '-'}</td>
+        <td>${canFollow ? (row.followTime || '-') : '-'}</td>
+        <td>${canFollow ? remarkCell(row.followRemark) : '-'}</td>
         <td>${row.bd}</td>
         <td>${row.ops}</td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function appendFollow(row, status, remark, source) {
+    const time = nowStr();
+    const log = { time, operator: CURRENT_USER, status, remark: remark || '', source };
+    row.followLogs = row.followLogs || [];
+    row.followLogs.push(log);
+    row.followStatus = status;
+    row.followOperator = CURRENT_USER;
+    row.followTime = time;
+    row.followRemark = remark || '';
+  }
+
+  function openSingleFollow(id) {
+    const row = monitorData.find(r => r.id === id);
+    if (!row || row.eventType === 'empty') return;
+    followMode = 'single';
+    followTargetIds = [id];
+    document.getElementById('followModalTitle').textContent = '跟进';
+    document.getElementById('followModalHint').textContent =
+      `${row.eventType === 'ban' ? '封停' : '解封'} · ${row.accountId} · 当前状态：${FOLLOW_LABEL[row.followStatus] || '-'}`;
+    document.getElementById('followStatusInput').value = row.followStatus || 'pending';
+    document.getElementById('followRemarkInput').value = '';
+    document.getElementById('followModal').classList.remove('hidden');
+  }
+
+  function openBatchFollow() {
+    if (!selectedIds.size) return;
+    followMode = 'batch';
+    followTargetIds = [...selectedIds];
+    const rows = followTargetIds.map(id => monitorData.find(r => r.id === id)).filter(Boolean);
+    const ban = rows.filter(r => r.eventType === 'ban').length;
+    const unban = rows.filter(r => r.eventType === 'unban').length;
+    document.getElementById('followModalTitle').textContent = '批量跟进';
+    document.getElementById('followModalHint').textContent =
+      `已选 ${rows.length} 条（封停 ${ban} / 解封 ${unban}）。不限制当前状态是否一致；本次将统一写入相同的目标状态与备注，每条各记一条履历。`;
+    document.getElementById('followStatusInput').value = 'in_progress';
+    document.getElementById('followRemarkInput').value = '';
+    document.getElementById('followModal').classList.remove('hidden');
+  }
+
+  function closeFollowModal() {
+    document.getElementById('followModal').classList.add('hidden');
+  }
+
+  function submitFollow() {
+    const status = document.getElementById('followStatusInput').value;
+    const remark = document.getElementById('followRemarkInput').value.trim();
+    const source = followMode === 'batch' ? 'batch' : 'manual';
+    followTargetIds.forEach(id => {
+      const row = monitorData.find(r => r.id === id);
+      if (row && row.eventType !== 'empty') appendFollow(row, status, remark, source);
+    });
+    if (followMode === 'batch') selectedIds.clear();
+    closeFollowModal();
+    renderTable();
+    alert(followMode === 'batch' ? `已批量跟进 ${followTargetIds.length} 条` : '跟进已保存');
+  }
+
+  function getClosableBans(unbanRow) {
+    return monitorData.filter(r =>
+      r.eventType === 'ban' &&
+      r.accountId === unbanRow.accountId &&
+      r.statusChangeTime < unbanRow.statusChangeTime &&
+      r.followStatus !== 'closed'
+    );
+  }
+
+  function openCloseBanModal(unbanId) {
+    const unban = monitorData.find(r => r.id === unbanId);
+    if (!unban || unban.eventType !== 'unban') return;
+    const targets = getClosableBans(unban);
+    if (!targets.length) {
+      alert('没有可关闭的此前封停跟进');
+      return;
+    }
+    closeBanAnchorId = unbanId;
+    closeBanTargets = targets;
+    document.getElementById('closeBanAnchor').innerHTML =
+      `<div>广告账户 ID：<span class="font-mono">${escapeHtml(unban.accountId)}</span></div>` +
+      `<div>本条解封状态变更时间：${escapeHtml(unban.statusChangeTime)}</div>` +
+      `<div>解封监控时间：${escapeHtml(unban.monitorTime)}</div>`;
+    document.getElementById('closeBanCount').textContent = targets.length;
+    document.getElementById('closeBanListBody').innerHTML = targets.map(r => `
+      <tr>
+        <td class="font-mono text-xs">${r.accountId}</td>
+        <td>${r.statusChangeTime}</td>
+        <td>${followBadge(r.followStatus)}</td>
+        <td>${r.followOperator || '-'}</td>
+        <td class="text-right">${formatAmount(r.yesterdaySpendUsd)}</td>
       </tr>
     `).join('');
+    document.getElementById('closeBanRemark').value =
+      `因账户于 ${unban.statusChangeTime} 解封，一键关闭此前封停跟进（关联解封记录 ID：${unban.id}）`;
+    document.getElementById('closeBanModal').classList.remove('hidden');
+  }
+
+  function closeCloseBanModal() {
+    document.getElementById('closeBanModal').classList.add('hidden');
+    closeBanAnchorId = null;
+    closeBanTargets = [];
+  }
+
+  function confirmCloseBans() {
+    const remark = document.getElementById('closeBanRemark').value.trim();
+    closeBanTargets.forEach(row => appendFollow(row, 'closed', remark, 'auto_close'));
+    const n = closeBanTargets.length;
+    closeCloseBanModal();
+    renderTable();
+    alert(`已关闭 ${n} 条封停跟进`);
+  }
+
+  function openHistoryDrawer(id) {
+    const row = monitorData.find(r => r.id === id);
+    if (!row || row.eventType === 'empty') return;
+    document.getElementById('historyDrawerSub').textContent =
+      `${row.eventType === 'ban' ? '封停' : '解封'} · ${row.accountId} · ${row.accountName}`;
+    const logs = [...(row.followLogs || [])].reverse();
+    const body = document.getElementById('historyDrawerBody');
+    if (!logs.length) {
+      body.innerHTML = '<p class="text-sm text-gray-500 text-center py-10">暂无跟进记录（当前为待跟进）</p>';
+    } else {
+      body.innerHTML = logs.map(log => `
+        <div class="border border-gray-200 rounded-lg p-3 mb-3">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            ${followBadge(log.status)}
+            <span class="text-xs text-gray-400">${SOURCE_LABEL[log.source] || log.source}</span>
+          </div>
+          <div class="text-xs text-gray-500 mb-1">${escapeHtml(log.time)} · ${escapeHtml(log.operator)}</div>
+          <div class="text-sm text-gray-800 whitespace-pre-wrap break-words">${escapeHtml(log.remark) || '<span class="text-gray-400">（无备注）</span>'}</div>
+        </div>
+      `).join('');
+    }
+    document.getElementById('historyDrawerOverlay').classList.remove('hidden');
+    document.getElementById('historyDrawer').classList.add('open');
+  }
+
+  function closeHistoryDrawer() {
+    document.getElementById('historyDrawer').classList.remove('open');
+    document.getElementById('historyDrawerOverlay').classList.add('hidden');
   }
 
   function searchData() { currentPage = 1; renderTable(); }
 
   function resetFilters() {
     initDateFilter();
-    ['filterBatch','filterEventType','filterPlatform','filterAgency','filterNotify'].forEach(id => document.getElementById(id).value = '');
+    ['filterBatch','filterEventType','filterPlatform','filterAgency','filterNotify','filterFollowStatus','filterMerchantScope']
+      .forEach(id => document.getElementById(id).value = '');
     ['filterAccountId','filterMerchantId'].forEach(id => document.getElementById(id).value = '');
+    onMerchantScopeChange();
+    selectedIds.clear();
     currentPage = 1;
     renderTable();
   }
@@ -558,7 +1124,332 @@ AM：李四</div>
 
   function openFeishuPreview() { document.getElementById('feishuModal').classList.remove('hidden'); }
   function closeFeishuPreview() { document.getElementById('feishuModal').classList.add('hidden'); }
-  function exportData() { alert('导出功能（原型演示）'); }
+  function exportData() { alert('导出功能（原型演示）：字段与列表列一致，含最新跟进四字段'); }
+  function exportStats() { alert('导出统计（原型演示）：导出当前视图表格（代理 / 客户 / 代理×账户类型）'); }
+
+  /* ========== 封停统计 Tab ========== */
+  let statsView = 'agency'; // agency | customer | agencyType
+  let statsSortKey = 'bannedWeekSpend';
+  let statsSortDir = 'desc'; // asc | desc
+
+  const STAT_TIPS = {
+    agency: '代理名称',
+    customer: '客户名称；未分配单独成行，不并入其他客户',
+    accountType: '广告账户类型（如海外户 / 国内户）',
+    bannedEnd: '统计自然周最后一天（周日）仍处于封停状态的广告账户数（去重）',
+    allAccounts: '统计自然周期末，该统计对象下的全部广告账户数（快照）',
+    allBanRate: '全部账户封停率 = 期末封停户数 ÷ 期末全部账户数',
+    spendAccounts: '该自然周内有消耗记录的广告账户数（去重）',
+    bannedSpendAccounts: '周期内有消耗，且期末仍为封停状态的广告账户数',
+    spendBanRate: '有消耗账户封停率 = 有消耗且期末封停户数 ÷ 有消耗账户数',
+    bannedWeekSpend: '「有消耗且期末封停」账户在该自然周的消耗合计（USD，来自消耗报表）',
+    totalWeekSpend: '该统计对象在自然周内的全部消耗合计（USD）',
+    spendShare: '封停消耗占比 = 封停账户周消耗 ÷ 全部周消耗'
+  };
+
+  const statsAgencyMock = {
+    '2026-07-07': [
+      { agency: 'GIMC', bannedEnd: 18, allAccounts: 420, spendAccounts: 310, bannedSpendAccounts: 14, bannedWeekSpend: 128400, totalWeekSpend: 980000 },
+      { agency: 'Madhouse', bannedEnd: 12, allAccounts: 260, spendAccounts: 190, bannedSpendAccounts: 9, bannedWeekSpend: 86400, totalWeekSpend: 520000 },
+      { agency: 'Wezonet', bannedEnd: 7, allAccounts: 180, spendAccounts: 140, bannedSpendAccounts: 5, bannedWeekSpend: 41200, totalWeekSpend: 360000 }
+    ],
+    '2026-06-30': [
+      { agency: 'GIMC', bannedEnd: 15, allAccounts: 415, spendAccounts: 300, bannedSpendAccounts: 11, bannedWeekSpend: 98000, totalWeekSpend: 920000 },
+      { agency: 'Madhouse', bannedEnd: 10, allAccounts: 255, spendAccounts: 185, bannedSpendAccounts: 8, bannedWeekSpend: 72000, totalWeekSpend: 500000 },
+      { agency: 'Wezonet', bannedEnd: 6, allAccounts: 175, spendAccounts: 135, bannedSpendAccounts: 4, bannedWeekSpend: 35000, totalWeekSpend: 340000 }
+    ],
+    '2026-06-23': [
+      { agency: 'GIMC', bannedEnd: 11, allAccounts: 400, spendAccounts: 290, bannedSpendAccounts: 8, bannedWeekSpend: 76000, totalWeekSpend: 880000 },
+      { agency: 'Madhouse', bannedEnd: 8, allAccounts: 250, spendAccounts: 180, bannedSpendAccounts: 6, bannedWeekSpend: 54000, totalWeekSpend: 480000 },
+      { agency: 'Wezonet', bannedEnd: 5, allAccounts: 170, spendAccounts: 130, bannedSpendAccounts: 3, bannedWeekSpend: 28000, totalWeekSpend: 320000 }
+    ]
+  };
+
+  const statsCustomerMock = {
+    '2026-07-07': [
+      { merchantId: 'M002', merchantName: '客户B', bannedEnd: 9, allAccounts: 45, spendAccounts: 38, bannedSpendAccounts: 8, bannedWeekSpend: 72000, totalWeekSpend: 210000 },
+      { merchantId: 'M001', merchantName: '客户A', bannedEnd: 6, allAccounts: 32, spendAccounts: 28, bannedSpendAccounts: 5, bannedWeekSpend: 38500, totalWeekSpend: 150000 },
+      { merchantId: 'M003', merchantName: '客户C', bannedEnd: 4, allAccounts: 20, spendAccounts: 16, bannedSpendAccounts: 3, bannedWeekSpend: 22100, totalWeekSpend: 86000 },
+      { merchantId: null, merchantName: '未分配', bannedEnd: 8, allAccounts: 95, spendAccounts: 40, bannedSpendAccounts: 6, bannedWeekSpend: 41200, totalWeekSpend: 120000 }
+    ],
+    '2026-06-30': [
+      { merchantId: 'M002', merchantName: '客户B', bannedEnd: 7, allAccounts: 44, spendAccounts: 36, bannedSpendAccounts: 6, bannedWeekSpend: 58000, totalWeekSpend: 195000 },
+      { merchantId: 'M001', merchantName: '客户A', bannedEnd: 5, allAccounts: 30, spendAccounts: 26, bannedSpendAccounts: 4, bannedWeekSpend: 30000, totalWeekSpend: 140000 },
+      { merchantId: null, merchantName: '未分配', bannedEnd: 6, allAccounts: 90, spendAccounts: 38, bannedSpendAccounts: 5, bannedWeekSpend: 35000, totalWeekSpend: 110000 }
+    ],
+    '2026-06-23': [
+      { merchantId: 'M002', merchantName: '客户B', bannedEnd: 5, allAccounts: 42, spendAccounts: 34, bannedSpendAccounts: 4, bannedWeekSpend: 42000, totalWeekSpend: 180000 },
+      { merchantId: 'M001', merchantName: '客户A', bannedEnd: 4, allAccounts: 28, spendAccounts: 24, bannedSpendAccounts: 3, bannedWeekSpend: 25000, totalWeekSpend: 130000 },
+      { merchantId: null, merchantName: '未分配', bannedEnd: 5, allAccounts: 88, spendAccounts: 35, bannedSpendAccounts: 4, bannedWeekSpend: 28000, totalWeekSpend: 100000 }
+    ]
+  };
+
+  const statsAgencyTypeMock = {
+    '2026-07-07': [
+      { agency: 'GIMC', accountType: '海外户', bannedEnd: 12, allAccounts: 280, spendAccounts: 210, bannedSpendAccounts: 10, bannedWeekSpend: 98000, totalWeekSpend: 720000 },
+      { agency: 'GIMC', accountType: '国内户', bannedEnd: 6, allAccounts: 140, spendAccounts: 100, bannedSpendAccounts: 4, bannedWeekSpend: 30400, totalWeekSpend: 260000 },
+      { agency: 'Madhouse', accountType: '海外户', bannedEnd: 10, allAccounts: 200, spendAccounts: 150, bannedSpendAccounts: 8, bannedWeekSpend: 76000, totalWeekSpend: 410000 },
+      { agency: 'Madhouse', accountType: '国内户', bannedEnd: 2, allAccounts: 60, spendAccounts: 40, bannedSpendAccounts: 1, bannedWeekSpend: 10400, totalWeekSpend: 110000 },
+      { agency: 'Wezonet', accountType: '海外户', bannedEnd: 3, allAccounts: 90, spendAccounts: 70, bannedSpendAccounts: 2, bannedWeekSpend: 18000, totalWeekSpend: 190000 },
+      { agency: 'Wezonet', accountType: '国内户', bannedEnd: 4, allAccounts: 90, spendAccounts: 70, bannedSpendAccounts: 3, bannedWeekSpend: 23200, totalWeekSpend: 170000 }
+    ],
+    '2026-06-30': [
+      { agency: 'GIMC', accountType: '海外户', bannedEnd: 10, allAccounts: 275, spendAccounts: 200, bannedSpendAccounts: 8, bannedWeekSpend: 72000, totalWeekSpend: 680000 },
+      { agency: 'GIMC', accountType: '国内户', bannedEnd: 5, allAccounts: 140, spendAccounts: 100, bannedSpendAccounts: 3, bannedWeekSpend: 26000, totalWeekSpend: 240000 },
+      { agency: 'Madhouse', accountType: '海外户', bannedEnd: 8, allAccounts: 195, spendAccounts: 145, bannedSpendAccounts: 7, bannedWeekSpend: 62000, totalWeekSpend: 400000 },
+      { agency: 'Madhouse', accountType: '国内户', bannedEnd: 2, allAccounts: 60, spendAccounts: 40, bannedSpendAccounts: 1, bannedWeekSpend: 10000, totalWeekSpend: 100000 },
+      { agency: 'Wezonet', accountType: '海外户', bannedEnd: 2, allAccounts: 88, spendAccounts: 68, bannedSpendAccounts: 1, bannedWeekSpend: 12000, totalWeekSpend: 180000 },
+      { agency: 'Wezonet', accountType: '国内户', bannedEnd: 4, allAccounts: 87, spendAccounts: 67, bannedSpendAccounts: 3, bannedWeekSpend: 23000, totalWeekSpend: 160000 }
+    ],
+    '2026-06-23': [
+      { agency: 'GIMC', accountType: '海外户', bannedEnd: 7, allAccounts: 265, spendAccounts: 190, bannedSpendAccounts: 5, bannedWeekSpend: 52000, totalWeekSpend: 650000 },
+      { agency: 'GIMC', accountType: '国内户', bannedEnd: 4, allAccounts: 135, spendAccounts: 100, bannedSpendAccounts: 3, bannedWeekSpend: 24000, totalWeekSpend: 230000 },
+      { agency: 'Madhouse', accountType: '海外户', bannedEnd: 6, allAccounts: 190, spendAccounts: 140, bannedSpendAccounts: 5, bannedWeekSpend: 45000, totalWeekSpend: 380000 },
+      { agency: 'Madhouse', accountType: '国内户', bannedEnd: 2, allAccounts: 60, spendAccounts: 40, bannedSpendAccounts: 1, bannedWeekSpend: 9000, totalWeekSpend: 100000 },
+      { agency: 'Wezonet', accountType: '海外户', bannedEnd: 2, allAccounts: 85, spendAccounts: 65, bannedSpendAccounts: 1, bannedWeekSpend: 10000, totalWeekSpend: 170000 },
+      { agency: 'Wezonet', accountType: '国内户', bannedEnd: 3, allAccounts: 85, spendAccounts: 65, bannedSpendAccounts: 2, bannedWeekSpend: 18000, totalWeekSpend: 150000 }
+    ]
+  };
+
+  function pct(n, d) {
+    if (!d) return '0.00%';
+    return ((n / d) * 100).toFixed(2) + '%';
+  }
+
+  function pctClass(n, d) {
+    if (!d) return 'pct-low';
+    const v = n / d;
+    if (v >= 0.05) return 'pct-high';
+    if (v >= 0.02) return 'pct-mid';
+    return 'pct-low';
+  }
+
+  function formatUsdNum(n) {
+    return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function tipHtml(key) {
+    const text = STAT_TIPS[key] || '';
+    return `<span class="tip-wrap"><i class="fas fa-question-circle tip-icon"></i><span class="tip-bubble">${escapeHtml(text)}</span></span>`;
+  }
+
+  function enrichRow(row) {
+    return {
+      ...row,
+      allBanRate: row.allAccounts ? row.bannedEnd / row.allAccounts : 0,
+      spendBanRate: row.spendAccounts ? row.bannedSpendAccounts / row.spendAccounts : 0,
+      spendShare: row.totalWeekSpend ? row.bannedWeekSpend / row.totalWeekSpend : 0,
+      customerSort: row.merchantName || ''
+    };
+  }
+
+  function sortIcon(key) {
+    if (statsSortKey !== key) return '<i class="fas fa-sort th-sort-icon"></i>';
+    return statsSortDir === 'asc'
+      ? '<i class="fas fa-sort-up th-sort-icon"></i>'
+      : '<i class="fas fa-sort-down th-sort-icon"></i>';
+  }
+
+  function thSortable(label, key, tipKey) {
+    const active = statsSortKey === key ? 'active' : '';
+    return `<th class="th-sortable ${active}" onclick="setStatsSort('${key}')">
+      <span class="th-help">${label}${sortIcon(key)}${tipHtml(tipKey || key)}</span>
+    </th>`;
+  }
+
+  function onStatsFilterChange() {
+    statsSortKey = 'bannedWeekSpend';
+    statsSortDir = 'desc';
+    renderStats();
+  }
+
+  function switchPageTab(name) {
+    document.getElementById('pageTabRecords').classList.toggle('active', name === 'records');
+    document.getElementById('pageTabStats').classList.toggle('active', name === 'stats');
+    document.getElementById('paneRecords').classList.toggle('active', name === 'records');
+    document.getElementById('paneStats').classList.toggle('active', name === 'stats');
+    document.getElementById('toolbarRecords').classList.toggle('hidden', name !== 'records');
+    document.getElementById('toolbarStats').classList.toggle('hidden', name !== 'stats');
+    if (name === 'stats') {
+      document.getElementById('pageSubtitle').textContent = '按自然周统计代理 / 客户 / 代理×账户类型封停情况';
+      document.getElementById('pageBannerText').textContent =
+        '封停率均按「期末仍封停」统计；封停消耗占比仅统计「周期内有消耗且期末仍封停」账户。交叉表可筛代理或账户类型做对照；表头支持排序，问号可看口径。';
+      renderStats();
+    } else {
+      document.getElementById('pageSubtitle').textContent = '每日 09:00、14:00 自动检测当日新增封停/解封；支持跟进闭环与解封一键关闭此前封停';
+      document.getElementById('pageBannerText').textContent =
+        '仅封停/解封可跟进；无新增行不可操作。列表跟进字段为最后一次；完整履历见「查看跟进记录」。金额为纯数值，账户币种单独成列。';
+    }
+  }
+
+  function switchStatsView(view) {
+    statsView = view;
+    statsSortKey = 'bannedWeekSpend';
+    statsSortDir = 'desc';
+    document.getElementById('statsViewAgency').classList.toggle('active', view === 'agency');
+    document.getElementById('statsViewCustomer').classList.toggle('active', view === 'customer');
+    document.getElementById('statsViewAgencyType').classList.toggle('active', view === 'agencyType');
+    const cross = view === 'agencyType';
+    document.getElementById('statsAgencyFilterWrap').classList.toggle('hidden', !cross);
+    document.getElementById('statsTypeFilterWrap').classList.toggle('hidden', !cross);
+    if (!cross) {
+      document.getElementById('statsAgencyFilter').value = '';
+      document.getElementById('statsTypeFilter').value = '';
+    }
+    renderStats();
+  }
+
+  function jumpToAgencyType(agency) {
+    document.getElementById('statsAgencyFilter').value = agency;
+    document.getElementById('statsTypeFilter').value = '';
+    switchStatsView('agencyType');
+  }
+
+  function jumpToRecordsFromStats(filters) {
+    switchPageTab('records');
+    if (filters.agency) document.getElementById('filterAgency').value = filters.agency;
+    if (filters.merchantScope === 'unassigned') {
+      document.getElementById('filterMerchantScope').value = 'unassigned';
+      onMerchantScopeChange();
+    } else if (filters.merchantId) {
+      document.getElementById('filterMerchantScope').value = '';
+      onMerchantScopeChange();
+      document.getElementById('filterMerchantId').value = filters.merchantId;
+    }
+    document.getElementById('filterEventType').value = 'ban';
+    searchData();
+  }
+
+  function setStatsSort(key) {
+    if (statsSortKey === key) {
+      statsSortDir = statsSortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      statsSortKey = key;
+      statsSortDir = (key === 'agency' || key === 'customerSort' || key === 'accountType') ? 'asc' : 'desc';
+    }
+    renderStats();
+  }
+
+  function sortStatsRows(rows) {
+    const key = statsSortKey;
+    const dir = statsSortDir === 'asc' ? 1 : -1;
+    return [...rows].sort((a, b) => {
+      const va = a[key];
+      const vb = b[key];
+      if (typeof va === 'string' || typeof vb === 'string') {
+        return String(va || '').localeCompare(String(vb || ''), 'zh') * dir;
+      }
+      return ((va || 0) - (vb || 0)) * dir;
+    });
+  }
+
+  function metricCells(row) {
+    return `
+      <td class="text-right tabular-nums">${row.bannedEnd}</td>
+      <td class="text-right tabular-nums">${row.allAccounts}</td>
+      <td class="text-right tabular-nums ${pctClass(row.bannedEnd, row.allAccounts)}">${pct(row.bannedEnd, row.allAccounts)}</td>
+      <td class="text-right tabular-nums">${row.spendAccounts}</td>
+      <td class="text-right tabular-nums">${row.bannedSpendAccounts}</td>
+      <td class="text-right tabular-nums ${pctClass(row.bannedSpendAccounts, row.spendAccounts)}">${pct(row.bannedSpendAccounts, row.spendAccounts)}</td>
+      <td class="text-right tabular-nums font-medium">${formatUsdNum(row.bannedWeekSpend)}</td>
+      <td class="text-right tabular-nums">${formatUsdNum(row.totalWeekSpend)}</td>
+      <td class="text-right tabular-nums ${pctClass(row.bannedWeekSpend, row.totalWeekSpend)}">${pct(row.bannedWeekSpend, row.totalWeekSpend)}</td>
+    `;
+  }
+
+  function metricHeaders(dimHeadersHtml) {
+    return `<tr>
+      ${dimHeadersHtml}
+      ${thSortable('期末封停户数', 'bannedEnd')}
+      ${thSortable('期末全部账户数', 'allAccounts')}
+      ${thSortable('全部账户封停率', 'allBanRate', 'allBanRate')}
+      ${thSortable('有消耗账户数', 'spendAccounts')}
+      ${thSortable('有消耗且期末封停户数', 'bannedSpendAccounts')}
+      ${thSortable('有消耗账户封停率', 'spendBanRate', 'spendBanRate')}
+      ${thSortable('封停账户周消耗(USD)', 'bannedWeekSpend')}
+      ${thSortable('全部周消耗(USD)', 'totalWeekSpend')}
+      ${thSortable('封停消耗占比', 'spendShare', 'spendShare')}
+      <th>操作</th>
+    </tr>`;
+  }
+
+  function renderStatsSummary(rows) {
+    const bannedEnd = rows.reduce((s, r) => s + r.bannedEnd, 0);
+    const bannedSpend = rows.reduce((s, r) => s + r.bannedWeekSpend, 0);
+    const totalSpend = rows.reduce((s, r) => s + r.totalWeekSpend, 0);
+    const bannedSpendAcc = rows.reduce((s, r) => s + r.bannedSpendAccounts, 0);
+    document.getElementById('statsSummary').innerHTML = `
+      <div class="stat-card"><div class="label">期末封停户数（当前表合计）</div><div class="value">${bannedEnd}</div></div>
+      <div class="stat-card"><div class="label">有消耗且期末封停户数</div><div class="value">${bannedSpendAcc}</div></div>
+      <div class="stat-card"><div class="label">封停账户周消耗(USD)</div><div class="value text-lg">${formatUsdNum(bannedSpend)}</div></div>
+      <div class="stat-card"><div class="label">封停消耗占比</div><div class="value ${pctClass(bannedSpend, totalSpend)}">${pct(bannedSpend, totalSpend)}</div></div>
+    `;
+  }
+
+  function getStatsSourceRows() {
+    const week = document.getElementById('statsWeek').value;
+    if (statsView === 'agency') return (statsAgencyMock[week] || []).map(enrichRow);
+    if (statsView === 'customer') return (statsCustomerMock[week] || []).map(enrichRow);
+    let rows = (statsAgencyTypeMock[week] || []).map(enrichRow);
+    const agency = document.getElementById('statsAgencyFilter').value;
+    const type = document.getElementById('statsTypeFilter').value;
+    if (agency) rows = rows.filter(r => r.agency === agency);
+    if (type) rows = rows.filter(r => r.accountType === type);
+    return rows;
+  }
+
+  function renderStats() {
+    const head = document.getElementById('statsTableHead');
+    const body = document.getElementById('statsTableBody');
+    let rows = sortStatsRows(getStatsSourceRows());
+    renderStatsSummary(rows);
+
+    if (statsView === 'agency') {
+      head.innerHTML = metricHeaders(thSortable('代理', 'agency', 'agency'));
+      body.innerHTML = rows.map(r => `
+        <tr>
+          <td class="font-medium">${r.agency}</td>
+          ${metricCells(r)}
+          <td>
+            <button class="btn-link" onclick="jumpToAgencyType('${r.agency}')">看账户类型</button>
+            <button class="btn-link" onclick="jumpToRecordsFromStats({agency:'${r.agency}'})">查看明细</button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="11" class="text-center py-8 text-gray-500">暂无数据</td></tr>';
+      return;
+    }
+
+    if (statsView === 'customer') {
+      head.innerHTML = metricHeaders(thSortable('客户', 'customerSort', 'customer'));
+      body.innerHTML = rows.map(r => {
+        const name = r.merchantId
+          ? `${escapeHtml(r.merchantName)}<div class="text-xs text-gray-400 font-mono">${escapeHtml(r.merchantId)}</div>`
+          : `<span class="text-amber-700 font-medium">未分配</span>`;
+        const jump = r.merchantId
+          ? `jumpToRecordsFromStats({merchantId:'${r.merchantId}'})`
+          : `jumpToRecordsFromStats({merchantScope:'unassigned'})`;
+        return `
+        <tr>
+          <td>${name}</td>
+          ${metricCells(r)}
+          <td><button class="btn-link" onclick="${jump}">查看明细</button></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="11" class="text-center py-8 text-gray-500">暂无数据</td></tr>';
+      return;
+    }
+
+    head.innerHTML = metricHeaders(
+      thSortable('代理', 'agency', 'agency') + thSortable('账户类型', 'accountType', 'accountType')
+    );
+    body.innerHTML = rows.map(r => `
+      <tr>
+        <td class="font-medium">${r.agency}</td>
+        <td>${r.accountType}</td>
+        ${metricCells(r)}
+        <td><button class="btn-link" onclick="jumpToRecordsFromStats({agency:'${r.agency}'})">查看明细</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="12" class="text-center py-8 text-gray-500">暂无数据</td></tr>';
+  }
 
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -581,6 +1472,7 @@ AM：李四</div>
 
   document.addEventListener('DOMContentLoaded', () => {
     initDateFilter();
+    onMerchantScopeChange();
     renderTable();
   });
 </script>
