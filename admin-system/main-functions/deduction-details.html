@@ -69,6 +69,25 @@
       background-color: #ef4444;
       color: white;
     }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    .status-badge.success { background: #dcfce7; color: #166534; }
+    .status-badge.reversed { background: #e0e7ff; color: #3730a3; }
+    .status-badge.failed { background: #fef2f2; color: #dc2626; }
+
+    .drawer-overlay { backdrop-filter: blur(4px); }
+    .drawer-panel { transform: translateX(100%); transition: transform 0.3s ease; }
+    .drawer-panel.open { transform: translateX(0); }
+
+    .balance-current { color: #dc2626; font-weight: 700; font-size: 15px; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -207,6 +226,7 @@
             </div>
             <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
               <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+              <li><a href="../auto-recharge/account-status-monitor.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>账户封停监控</a></li>
             </ul>
           </div>
           </div>
@@ -288,7 +308,7 @@
       <!-- 页面内容 -->
       <main class="flex-1 overflow-y-auto bg-gray-50">
         <div class="py-6">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <!-- 页面标题区域 -->
             <div class="mb-8">
               <div class="md:flex md:items-center md:justify-between">
@@ -297,7 +317,7 @@
                     其他扣费
                   </h2>
                   <p class="mt-1 text-sm text-gray-500">
-                    查看和管理广告主钱包其他费用扣费记录
+                    查看和管理广告主钱包其他费用扣费记录；支持多币种扣费与回退
                   </p>
                 </div>
                 <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
@@ -319,7 +339,7 @@
                 <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
               </div>
               <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
                     <input type="text" id="merchantIdFilter" placeholder="输入商户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -334,6 +354,25 @@
                       <option value="渠道返点">渠道返点</option>
                       <option value="媒体合作">媒体合作</option>
                       <option value="其他费用">其他费用</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">扣费币种</label>
+                    <select id="currencyFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部币种</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                      <option value="HKD">HKD</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">流水状态</label>
+                    <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">全部状态</option>
+                      <option value="SUCCESS">扣费成功</option>
+                      <option value="REVERSED">已回退</option>
+                      <option value="REVERSE_FAILED">回退失败</option>
                     </select>
                   </div>
                   <div>
@@ -361,16 +400,24 @@
                   共 <span class="font-medium text-gray-900" id="totalCount">0</span> 条记录
                 </div>
               </div>
-              <div class="overflow-x-auto">
+              <div class="table-wrap">
                 <table class="min-w-full divide-y divide-gray-200 table-hover">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商户ID</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">扣费时间</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">扣费类型</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">扣费金额</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作人</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">商户ID</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费时间</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费类型</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费币种</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费金额</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">钱包币种</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">钱包扣款额</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">流水状态</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">备注</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费操作人</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">回退时间</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">回退操作人</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">回退原因</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">操作</th>
                     </tr>
                   </thead>
                   <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
@@ -455,9 +502,22 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">扣费金额 <span class="text-red-500">*</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">扣费币种 <span class="text-red-500">*</span></label>
+              <select id="deductionCurrency" required onchange="onCurrencyChange()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="HKD">HKD</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2" id="amountLabel">扣费金额 <span class="text-red-500">*</span></label>
               <input type="number" id="deductionAmount" step="0.01" min="0.01" placeholder="请输入扣费金额" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <p id="amountError" class="mt-1 text-xs text-red-500 hidden"></p>
+              <div id="walletDeductionPreview" class="hidden mt-2 p-3 bg-blue-50 border border-blue-100 rounded-md text-xs text-gray-700 grid grid-cols-2 gap-2">
+                <div><span class="text-gray-500">预计钱包币种：</span><span id="previewWalletCurrency">-</span></div>
+                <div><span class="text-gray-500">预计钱包扣款额：</span><span id="previewWalletAmount" class="font-medium">-</span></div>
+              </div>
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
@@ -468,18 +528,23 @@
           <!-- 商户资金信息展示 -->
           <div id="merchantBalanceInfo" class="hidden mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <h4 class="text-sm font-medium text-gray-700 mb-3">商户资金信息</h4>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <p class="text-xs text-gray-500 mb-3">客户钱包仅有一个币种，以下金额均为钱包币种计</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <label class="block text-xs text-gray-500 mb-1">默认币种</label>
-                <p class="text-sm font-medium text-gray-900" id="defaultCurrency">-</p>
+                <label class="block text-xs text-gray-500 mb-1">钱包币种</label>
+                <p class="text-sm font-medium text-gray-900" id="walletCurrency">-</p>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">当前余额</label>
+                <p class="balance-current" id="currentBalance">-</p>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">可用金额</label>
+                <p class="text-sm font-medium text-gray-900" id="availableAmount">-</p>
               </div>
               <div>
                 <label class="block text-xs text-gray-500 mb-1">真实金额</label>
                 <p class="text-sm font-medium text-gray-900" id="realAmount">-</p>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">预充金额</label>
-                <p class="text-sm font-medium text-gray-900" id="prechargeAmount">-</p>
               </div>
               <div>
                 <label class="block text-xs text-gray-500 mb-1">信用额度</label>
@@ -490,8 +555,8 @@
                 <p class="text-sm font-medium text-gray-900" id="usedLimit">-</p>
               </div>
               <div>
-                <label class="block text-xs text-gray-500 mb-1">可用余额</label>
-                <p class="text-sm font-medium text-green-600" id="availableBalance">-</p>
+                <label class="block text-xs text-gray-500 mb-1">剩余额度</label>
+                <p class="text-sm font-medium text-gray-900" id="remainingLimit">-</p>
               </div>
             </div>
           </div>
@@ -508,366 +573,393 @@
     </div>
   </div>
 
+  <!-- 回退模态框 -->
+  <div id="reverseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">回退扣费</h3>
+          <button onclick="closeReverseModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="px-6 py-4">
+          <div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm space-y-2" id="reverseInfo"></div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">回退原因（选填）</label>
+            <textarea id="reverseReason" rows="3" placeholder="如：业务未实际发生" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          </div>
+          <label class="flex items-start gap-2 text-sm text-gray-700">
+            <input type="checkbox" id="reverseConfirm" class="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300">
+            <span id="reverseConfirmText">确认将款项退回商户钱包</span>
+          </label>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+          <button onclick="closeReverseModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
+          <button onclick="submitReverse()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">确认回退</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作日志抽屉 -->
+  <div id="logDrawerOverlay" class="fixed inset-0 drawer-overlay bg-gray-600 bg-opacity-50 hidden z-50" onclick="closeLogDrawer()"></div>
+  <div id="logDrawer" class="drawer-panel fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="text-lg font-medium text-gray-900">操作日志</h3>
+      <button onclick="closeLogDrawer()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-6 py-4" id="logDrawerContent"></div>
+  </div>
+
   <script>
-    // 模拟数据
+    const FX_RATES = { USD: 1, EUR: 1.08, GBP: 1.27, HKD: 0.128 };
+
     let deductionData = [
-      {
-        id: 1,
-        merchantId: 'M001',
-        deductionTime: '2024-03-15 10:30:00',
-        deductionType: '其他费用',
-        deductionAmount: 500.00,
-        remark: '服务费扣款',
-        operator: '管理员A'
-      },
-      {
-        id: 2,
-        merchantId: 'M002',
-        deductionTime: '2024-03-15 11:20:00',
-        deductionType: '渠道返点',
-        deductionAmount: 300.00,
-        remark: '渠道返点扣款',
-        operator: '管理员B'
-      },
-      {
-        id: 3,
-        merchantId: 'M003',
-        deductionTime: '2024-03-15 14:15:00',
-        deductionType: '其他费用',
-        deductionAmount: 200.00,
-        remark: '其他费用扣款',
-        operator: '管理员A'
-      }
+      { id: 1, merchantId: 'M001', walletCurrency: 'USD', currency: 'USD', deductionTime: '2026-07-05 10:30:00', deductionType: '其他费用', deductionAmount: 500, walletDeductionAmount: 500, status: 'SUCCESS', fundTxNo: 'FUND-TX-001', remark: '服务费扣款', operator: '管理员A', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-05 10:30:00', operator: '管理员A', detail: '扣费成功' }] },
+      { id: 2, merchantId: 'M002', walletCurrency: 'EUR', currency: 'EUR', deductionTime: '2026-07-06 11:20:00', deductionType: '渠道返点', deductionAmount: 300, walletDeductionAmount: 300, status: 'SUCCESS', fundTxNo: 'FUND-TX-002', remark: '渠道返点扣款', operator: '管理员B', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-06 11:20:00', operator: '管理员B', detail: '扣费成功' }] },
+      { id: 3, merchantId: 'M002', walletCurrency: 'EUR', currency: 'USD', deductionTime: '2026-07-07 14:15:00', deductionType: '其他费用', deductionAmount: 200, walletDeductionAmount: 185.19, status: 'SUCCESS', fundTxNo: 'FUND-TX-003', remark: '跨币种扣费', operator: '管理员A', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-07 14:15:00', operator: '管理员A', detail: '跨币种扣费成功' }] },
+      { id: 4, merchantId: 'M003', walletCurrency: 'USD', currency: 'USD', deductionTime: '2026-07-04 09:00:00', deductionType: '媒体合作', deductionAmount: 150, walletDeductionAmount: 150, status: 'REVERSED', fundTxNo: 'FUND-TX-004', reverseFundTxNo: 'FUND-RF-004', remark: '季度服务费', operator: '管理员A', reverseTime: '2026-07-04 16:30:00', reverseOperator: '管理员A', reverseReason: '业务未实际发生', logs: [{ action: '创建扣费', time: '2026-07-04 09:00:00', operator: '管理员A', detail: '扣费成功' }, { action: '回退', time: '2026-07-04 16:30:00', operator: '管理员A', detail: '款项已退回商户钱包' }] },
+      { id: 5, merchantId: 'M001', walletCurrency: 'USD', currency: 'USD', deductionTime: '2026-06-20 08:00:00', deductionType: '其他费用', deductionAmount: 80, walletDeductionAmount: 80, status: 'SUCCESS', fundTxNo: null, remark: '历史数据无流水号', operator: '管理员C', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-06-20 08:00:00', operator: '管理员C', detail: '历史导入，无 Fund 流水号' }] },
+      { id: 6, merchantId: 'M004', walletCurrency: 'GBP', currency: 'GBP', deductionTime: '2026-07-08 10:00:00', deductionType: '其他费用', deductionAmount: 120, walletDeductionAmount: 120, status: 'REVERSE_FAILED', fundTxNo: 'FUND-TX-006', remark: '待重试回退', operator: '管理员B', reverseTime: '2026-07-08 11:00:00', reverseOperator: '管理员B', reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-08 10:00:00', operator: '管理员B', detail: '扣费成功' }, { action: '回退失败', time: '2026-07-08 11:00:00', operator: '管理员B', detail: 'Fund 接口超时' }] }
     ];
 
-    // 模拟商户资金信息
     const merchantBalanceData = {
-      'M001': {
-        defaultCurrency: 'USD',
-        realAmount: 10000.00,
-        prechargeAmount: 2000.00,
-        creditLimit: 5000.00,
-        usedLimit: 1500.00,
-        availableBalance: 10500.00 // 真实金额 + 预充金额 + (信用额度 - 已用额度)
-      },
-      'M002': {
-        defaultCurrency: 'USD',
-        realAmount: 8000.00,
-        prechargeAmount: 1500.00,
-        creditLimit: 3000.00,
-        usedLimit: 1000.00,
-        availableBalance: 11500.00
-      },
-      'M003': {
-        defaultCurrency: 'USD',
-        realAmount: 5000.00,
-        prechargeAmount: 1000.00,
-        creditLimit: 2000.00,
-        usedLimit: 500.00,
-        availableBalance: 7500.00
-      },
-      'M004': {
-        defaultCurrency: 'USD',
-        realAmount: 12000.00,
-        prechargeAmount: 3000.00,
-        creditLimit: 6000.00,
-        usedLimit: 2000.00,
-        availableBalance: 19000.00
-      }
+      'M001': { walletCurrency: 'USD', currentBalance: 12500, availableAmount: 10500, realAmount: 10000, creditLimit: 5000, usedLimit: 1500 },
+      'M002': { walletCurrency: 'EUR', currentBalance: 9200, availableAmount: 8200, realAmount: 7000, creditLimit: 3000, usedLimit: 1000 },
+      'M003': { walletCurrency: 'USD', currentBalance: 8500, availableAmount: 7500, realAmount: 5000, creditLimit: 2000, usedLimit: 500 },
+      'M004': { walletCurrency: 'GBP', currentBalance: 21000, availableAmount: 19000, realAmount: 12000, creditLimit: 6000, usedLimit: 2000 }
     };
 
     let currentPage = 1;
     let pageSize = 20;
+    let currentMerchantBalance = null;
+    let reverseTargetId = null;
 
-    // 初始化页面
+    const STATUS_LABELS = { SUCCESS: '扣费成功', REVERSED: '已回退', REVERSE_FAILED: '回退失败' };
+    const STATUS_CLASSES = { SUCCESS: 'success', REVERSED: 'reversed', REVERSE_FAILED: 'failed' };
+    const TABLE_COLS = 14;
+
     document.addEventListener('DOMContentLoaded', function() {
       renderTable();
-      // 监听扣费金额输入
       document.getElementById('deductionAmount').addEventListener('input', validateDeductionAmount);
+      document.getElementById('deductionCurrency').addEventListener('change', onCurrencyChange);
     });
 
-    // 渲染表格
-    function renderTable() {
-      const tbody = document.getElementById('tableBody');
+    function fmtNum(n) {
+      if (n == null || n === '') return '-';
+      return Number(n).toFixed(2);
+    }
+
+    function calcWalletDeduction(walletCurrency, deductCurrency, amount) {
+      if (walletCurrency === deductCurrency) return amount;
+      const rate = (FX_RATES[deductCurrency] || 1) / (FX_RATES[walletCurrency] || 1);
+      return Math.round(amount * rate * 100) / 100;
+    }
+
+    function getFilteredData() {
       const merchantIdFilter = document.getElementById('merchantIdFilter').value.trim();
       const deductionTypeFilter = document.getElementById('deductionTypeFilter').value;
+      const currencyFilter = document.getElementById('currencyFilter').value;
+      const statusFilter = document.getElementById('statusFilter').value;
       const startTimeFilter = document.getElementById('startTimeFilter').value;
       const endTimeFilter = document.getElementById('endTimeFilter').value;
-
-      let filteredData = deductionData.filter(item => {
-        const matchMerchantId = !merchantIdFilter || item.merchantId.includes(merchantIdFilter);
-        const matchType = !deductionTypeFilter || item.deductionType === deductionTypeFilter;
-        const matchStartTime = !startTimeFilter || item.deductionTime >= startTimeFilter.replace('T', ' ');
-        const matchEndTime = !endTimeFilter || item.deductionTime <= endTimeFilter.replace('T', ' ');
-        return matchMerchantId && matchType && matchStartTime && matchEndTime;
+      return deductionData.filter(item => {
+        if (merchantIdFilter && !item.merchantId.includes(merchantIdFilter)) return false;
+        if (deductionTypeFilter && item.deductionType !== deductionTypeFilter) return false;
+        if (currencyFilter && item.currency !== currencyFilter) return false;
+        if (statusFilter && item.status !== statusFilter) return false;
+        if (startTimeFilter && item.deductionTime < startTimeFilter.replace('T', ' ')) return false;
+        if (endTimeFilter && item.deductionTime > endTimeFilter.replace('T', ' ')) return false;
+        return true;
       });
+    }
 
-      // 分页
+    function renderActionButtons(item) {
+      let html = `<button onclick="openLogDrawer(${item.id})" class="text-blue-600 hover:text-blue-800 text-xs mr-2"><i class="fas fa-history mr-1"></i>日志</button>`;
+      if (!item.fundTxNo) {
+        html += `<span class="text-gray-300 text-xs cursor-not-allowed" title="无 Fund 流水号，不可回退"><i class="fas fa-undo mr-1"></i>回退</span>`;
+      } else if (item.status === 'SUCCESS') {
+        html += `<button onclick="openReverseModal(${item.id})" class="text-red-600 hover:text-red-800 text-xs"><i class="fas fa-undo mr-1"></i>回退</button>`;
+      } else if (item.status === 'REVERSE_FAILED') {
+        html += `<button onclick="openReverseModal(${item.id})" class="text-orange-600 hover:text-orange-800 text-xs"><i class="fas fa-redo mr-1"></i>重试</button>`;
+      }
+      return html;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      const filteredData = getFilteredData();
       const totalRecords = filteredData.length;
       const startIndex = (currentPage - 1) * pageSize;
-      const endIndex = startIndex + pageSize;
-      const paginatedData = filteredData.slice(startIndex, endIndex);
+      const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
 
       document.getElementById('totalCount').textContent = totalRecords;
       document.getElementById('totalRecords').textContent = totalRecords;
       document.getElementById('pageStart').textContent = totalRecords > 0 ? startIndex + 1 : 0;
-      document.getElementById('pageEnd').textContent = Math.min(endIndex, totalRecords);
+      document.getElementById('pageEnd').textContent = Math.min(startIndex + pageSize, totalRecords);
 
-      if (paginatedData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>';
+      if (!paginatedData.length) {
+        tbody.innerHTML = `<tr><td colspan="${TABLE_COLS}" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>`;
         renderPagination(Math.ceil(totalRecords / pageSize));
         return;
       }
 
-      tbody.innerHTML = paginatedData.map(item => `
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.merchantId}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.deductionTime}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.deductionType}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$${item.deductionAmount.toFixed(2)}</td>
-          <td class="px-6 py-4 text-sm text-gray-900">${item.remark || '-'}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.operator}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = paginatedData.map(item => `<tr>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.merchantId}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.deductionTime}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.deductionType}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.currency}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${fmtNum(item.deductionAmount)}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.walletCurrency}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${fmtNum(item.walletDeductionAmount)}</td>
+        <td class="px-4 py-3 whitespace-nowrap"><span class="status-badge ${STATUS_CLASSES[item.status]}">${STATUS_LABELS[item.status]}</span></td>
+        <td class="px-4 py-3 text-sm text-gray-900 max-w-[120px] truncate" title="${item.remark || ''}">${item.remark || '-'}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.operator}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.reverseTime || '-'}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.reverseOperator || '-'}</td>
+        <td class="px-4 py-3 text-sm text-gray-900 max-w-[120px] truncate" title="${item.reverseReason || ''}">${item.reverseReason || '-'}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm">${renderActionButtons(item)}</td>
+      </tr>`).join('');
 
       renderPagination(Math.ceil(totalRecords / pageSize));
     }
 
-    // 渲染分页
     function renderPagination(totalPages) {
       const paginationNumbers = document.getElementById('paginationNumbers');
-      if (totalPages <= 1) {
-        paginationNumbers.innerHTML = '';
+      if (totalPages <= 1) { paginationNumbers.innerHTML = ''; return; }
+      let html = '';
+      const maxVisible = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+      if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button onclick="goToPage(${i})" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium ${i === currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}">${i}</button>`;
+      }
+      paginationNumbers.innerHTML = html;
+    }
+
+    function goToPage(page) { currentPage = page; renderTable(); }
+    function changePage(direction) {
+      const totalPages = Math.ceil(getFilteredData().length / pageSize);
+      const newPage = currentPage + direction;
+      if (newPage >= 1 && newPage <= totalPages) { currentPage = newPage; renderTable(); }
+    }
+    function searchData() { currentPage = 1; renderTable(); }
+
+    function onCurrencyChange() {
+      const currency = document.getElementById('deductionCurrency').value;
+      document.getElementById('amountLabel').innerHTML = `扣费金额 <span class="text-red-500">*</span> <span class="text-gray-400 font-normal">（${currency}）</span>`;
+      updateWalletPreview();
+      validateDeductionAmount();
+    }
+
+    function updateBalanceDisplay() {
+      if (!currentMerchantBalance) return;
+      const bal = currentMerchantBalance;
+      const wc = bal.walletCurrency;
+      const remaining = bal.creditLimit - bal.usedLimit;
+      document.getElementById('walletCurrency').textContent = wc;
+      document.getElementById('currentBalance').textContent = fmtNum(bal.currentBalance);
+      document.getElementById('availableAmount').textContent = fmtNum(bal.availableAmount);
+      document.getElementById('realAmount').textContent = fmtNum(bal.realAmount);
+      document.getElementById('creditLimit').textContent = fmtNum(bal.creditLimit);
+      document.getElementById('usedLimit').textContent = fmtNum(bal.usedLimit);
+      document.getElementById('remainingLimit').textContent = fmtNum(remaining);
+      updateWalletPreview();
+    }
+
+    function updateWalletPreview() {
+      const preview = document.getElementById('walletDeductionPreview');
+      const amount = parseFloat(document.getElementById('deductionAmount').value);
+      if (!currentMerchantBalance || !amount) { preview.classList.add('hidden'); return; }
+      const dc = document.getElementById('deductionCurrency').value;
+      const wc = currentMerchantBalance.walletCurrency;
+      const walletAmt = calcWalletDeduction(wc, dc, amount);
+      if (dc === wc) {
+        preview.classList.add('hidden');
         return;
       }
-
-      let paginationHTML = '';
-      const maxVisiblePages = 5;
-      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-      if (endPage - startPage < maxVisiblePages - 1) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        paginationHTML += `
-          <button onclick="goToPage(${i})" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-            i === currentPage 
-              ? 'bg-blue-50 border-blue-500 text-blue-600' 
-              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-          }">
-            ${i}
-          </button>
-        `;
-      }
-
-      paginationNumbers.innerHTML = paginationHTML;
+      document.getElementById('previewWalletCurrency').textContent = wc;
+      document.getElementById('previewWalletAmount').textContent = fmtNum(walletAmt);
+      preview.classList.remove('hidden');
     }
 
-    // 跳转到指定页
-    function goToPage(page) {
-      currentPage = page;
-      renderTable();
-    }
-
-    // 切换页码
-    function changePage(direction) {
-      const merchantIdFilter = document.getElementById('merchantIdFilter').value.trim();
-      const deductionTypeFilter = document.getElementById('deductionTypeFilter').value;
-      const startTimeFilter = document.getElementById('startTimeFilter').value;
-      const endTimeFilter = document.getElementById('endTimeFilter').value;
-
-      let filteredData = deductionData.filter(item => {
-        const matchMerchantId = !merchantIdFilter || item.merchantId.includes(merchantIdFilter);
-        const matchType = !deductionTypeFilter || item.deductionType === deductionTypeFilter;
-        const matchStartTime = !startTimeFilter || item.deductionTime >= startTimeFilter.replace('T', ' ');
-        const matchEndTime = !endTimeFilter || item.deductionTime <= endTimeFilter.replace('T', ' ');
-        return matchMerchantId && matchType && matchStartTime && matchEndTime;
-      });
-
-      const totalPages = Math.ceil(filteredData.length / pageSize);
-      const newPage = currentPage + direction;
-      
-      if (newPage >= 1 && newPage <= totalPages) {
-        currentPage = newPage;
-        renderTable();
-      }
-    }
-
-    // 搜索数据
-    function searchData() {
-      currentPage = 1;
-      renderTable();
-    }
-
-    // 当前选中的商户余额信息
-    let currentMerchantBalance = null;
-
-    // 加载商户资金信息
     function loadMerchantBalance() {
       const merchantId = document.getElementById('merchantId').value;
       const balanceInfo = document.getElementById('merchantBalanceInfo');
-      const amountError = document.getElementById('amountError');
-      const amountInput = document.getElementById('deductionAmount');
-      
       if (merchantId && merchantBalanceData[merchantId]) {
         currentMerchantBalance = merchantBalanceData[merchantId];
-        const balance = currentMerchantBalance;
-        document.getElementById('defaultCurrency').textContent = balance.defaultCurrency;
-        document.getElementById('realAmount').textContent = `$${balance.realAmount.toFixed(2)}`;
-        document.getElementById('prechargeAmount').textContent = `$${balance.prechargeAmount.toFixed(2)}`;
-        document.getElementById('creditLimit').textContent = `$${balance.creditLimit.toFixed(2)}`;
-        document.getElementById('usedLimit').textContent = `$${balance.usedLimit.toFixed(2)}`;
-        document.getElementById('availableBalance').textContent = `$${balance.availableBalance.toFixed(2)}`;
+        document.getElementById('deductionCurrency').value = currentMerchantBalance.walletCurrency;
+        onCurrencyChange();
+        updateBalanceDisplay();
         balanceInfo.classList.remove('hidden');
-        
-        // 验证当前输入的金额
-        if (amountInput.value) {
-          validateDeductionAmount();
-        }
       } else {
         currentMerchantBalance = null;
         balanceInfo.classList.add('hidden');
-        amountError.classList.add('hidden');
-        amountInput.setCustomValidity('');
+        document.getElementById('amountError').classList.add('hidden');
+        document.getElementById('walletDeductionPreview').classList.add('hidden');
       }
     }
 
-    // 验证扣费金额
     function validateDeductionAmount() {
       const amountInput = document.getElementById('deductionAmount');
       const amountError = document.getElementById('amountError');
       const amount = parseFloat(amountInput.value);
-      
-      if (currentMerchantBalance && amount > currentMerchantBalance.availableBalance) {
-        amountError.textContent = `扣费金额不能超过可用余额 $${currentMerchantBalance.availableBalance.toFixed(2)}`;
-        amountError.classList.remove('hidden');
-        amountInput.setCustomValidity(`扣费金额不能超过可用余额 $${currentMerchantBalance.availableBalance.toFixed(2)}`);
-      } else {
+      updateWalletPreview();
+      if (!currentMerchantBalance || !amount) {
         amountError.classList.add('hidden');
         amountInput.setCustomValidity('');
+        return;
       }
+      const dc = document.getElementById('deductionCurrency').value;
+      const wc = currentMerchantBalance.walletCurrency;
+      const walletDeduction = calcWalletDeduction(wc, dc, amount);
+      if (walletDeduction > currentMerchantBalance.availableAmount) {
+        amountError.textContent = `预计钱包扣款 ${fmtNum(walletDeduction)} ${wc} 超过可用金额 ${fmtNum(currentMerchantBalance.availableAmount)} ${wc}`;
+        amountError.classList.remove('hidden');
+        amountInput.setCustomValidity(amountError.textContent);
+        return;
+      }
+      amountError.classList.add('hidden');
+      amountInput.setCustomValidity('');
     }
 
-    // 打开新增模态框
     function openAddModal() {
       document.getElementById('addModal').classList.remove('hidden');
       document.getElementById('merchantBalanceInfo').classList.add('hidden');
       document.getElementById('amountError').classList.add('hidden');
+      document.getElementById('walletDeductionPreview').classList.add('hidden');
       currentMerchantBalance = null;
     }
 
-    // 关闭新增模态框
     function closeAddModal() {
       document.getElementById('addModal').classList.add('hidden');
       document.getElementById('merchantId').value = '';
       document.getElementById('deductionType').value = '';
+      document.getElementById('deductionCurrency').value = 'USD';
       document.getElementById('deductionAmount').value = '';
       document.getElementById('remark').value = '';
-      document.getElementById('merchantBalanceInfo').classList.add('hidden');
-      document.getElementById('amountError').classList.add('hidden');
       currentMerchantBalance = null;
     }
 
-    // 提交新增扣费
     function submitAddDeduction(event) {
       event.preventDefault();
-      
-      const merchantIdSelect = document.getElementById('merchantId');
-      const merchantId = merchantIdSelect.value;
+      const merchantId = document.getElementById('merchantId').value;
       const deductionType = document.getElementById('deductionType').value;
+      const currency = document.getElementById('deductionCurrency').value;
       const deductionAmount = parseFloat(document.getElementById('deductionAmount').value);
       const remark = document.getElementById('remark').value.trim();
-      
-      // 验证扣费金额
-      if (currentMerchantBalance && deductionAmount > currentMerchantBalance.availableBalance) {
-        alert(`扣费金额不能超过可用余额 $${currentMerchantBalance.availableBalance.toFixed(2)}`);
-        return;
-      }
-      
-      if (!currentMerchantBalance) {
-        alert('请先选择商户');
-        return;
-      }
+      if (!currentMerchantBalance) { alert('请先选择商户'); return; }
+      validateDeductionAmount();
+      if (document.getElementById('deductionAmount').validationMessage) return;
 
-      // 获取当前时间作为扣费时间
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const deductionTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      const wc = currentMerchantBalance.walletCurrency;
+      const walletDeductionAmount = calcWalletDeduction(wc, currency, deductionAmount);
+      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-      // 模拟提交（实际应该调用API）
-      const newRecord = {
+      deductionData.unshift({
         id: deductionData.length + 1,
-        merchantId: merchantId,
-        deductionTime: deductionTime,
-        deductionType: deductionType,
-        deductionAmount: deductionAmount,
-        remark: remark || null,
-        operator: '管理员A' // 实际应该从登录信息获取
-      };
-
-      deductionData.unshift(newRecord);
+        merchantId, walletCurrency: wc, currency,
+        deductionTime: now, deductionType, deductionAmount, walletDeductionAmount,
+        status: 'SUCCESS', fundTxNo: 'FUND-TX-' + Date.now(),
+        remark: remark || null, operator: '管理员A',
+        reverseTime: null, reverseOperator: null, reverseReason: null,
+        logs: [{ action: '创建扣费', time: now, operator: '管理员A', detail: '扣费成功' }]
+      });
       closeAddModal();
       renderTable();
-      
-      // 显示成功提示
       alert('其他扣费记录添加成功！');
     }
 
-    // 导出数据
-    function exportData() {
-      // 模拟导出功能
-      alert('导出功能开发中...');
+    function openReverseModal(id) {
+      const item = deductionData.find(d => d.id === id);
+      if (!item || !item.fundTxNo) return;
+      reverseTargetId = id;
+      document.getElementById('reverseInfo').innerHTML = `
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+          <p><span class="text-gray-500">商户ID：</span>${item.merchantId}</p>
+          <p><span class="text-gray-500">扣费类型：</span>${item.deductionType}</p>
+          <p><span class="text-gray-500">扣费币种：</span>${item.currency}</p>
+          <p><span class="text-gray-500">扣费金额：</span>${fmtNum(item.deductionAmount)}</p>
+          <p><span class="text-gray-500">钱包币种：</span>${item.walletCurrency}</p>
+          <p><span class="text-gray-500">钱包扣款额：</span>${fmtNum(item.walletDeductionAmount)}</p>
+          <p class="col-span-2"><span class="text-gray-500">扣费时间：</span>${item.deductionTime}</p>
+          <p class="col-span-2"><span class="text-gray-500">扣费操作人：</span>${item.operator}</p>
+        </div>`;
+      document.getElementById('reverseConfirmText').textContent = `确认将钱包扣款额 ${fmtNum(item.walletDeductionAmount)} ${item.walletCurrency} 退回商户钱包`;
+      document.getElementById('reverseReason').value = '';
+      document.getElementById('reverseConfirm').checked = false;
+      document.getElementById('reverseModal').classList.remove('hidden');
     }
 
-    // 侧边栏切换
+    function closeReverseModal() {
+      document.getElementById('reverseModal').classList.add('hidden');
+      reverseTargetId = null;
+    }
+
+    function submitReverse() {
+      if (!document.getElementById('reverseConfirm').checked) { alert('请勾选确认项'); return; }
+      const item = deductionData.find(d => d.id === reverseTargetId);
+      if (!item) return;
+      const reason = document.getElementById('reverseReason').value.trim();
+      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+      item.status = 'REVERSED';
+      item.reverseFundTxNo = 'FUND-RF-' + Date.now();
+      item.reverseTime = now;
+      item.reverseOperator = '管理员A';
+      item.reverseReason = reason || null;
+      item.logs.push({ action: '回退', time: now, operator: '管理员A', detail: reason ? `回退成功；原因：${reason}` : '回退成功' });
+      closeReverseModal();
+      renderTable();
+      alert('回退成功！');
+    }
+
+    function openLogDrawer(id) {
+      const item = deductionData.find(d => d.id === id);
+      if (!item) return;
+      document.getElementById('logDrawerContent').innerHTML = (item.logs || []).map(log => `
+        <div class="border-l-2 border-blue-400 pl-4 pb-4 mb-2">
+          <p class="text-sm font-medium text-gray-900">${log.action}</p>
+          <p class="text-xs text-gray-500 mt-1">${log.time} · ${log.operator}</p>
+          <p class="text-sm text-gray-600 mt-1">${log.detail}</p>
+        </div>`).join('') || '<p class="text-gray-500 text-sm">暂无日志</p>';
+      document.getElementById('logDrawerOverlay').classList.remove('hidden');
+      document.getElementById('logDrawer').classList.add('open');
+    }
+
+    function closeLogDrawer() {
+      document.getElementById('logDrawerOverlay').classList.add('hidden');
+      document.getElementById('logDrawer').classList.remove('open');
+    }
+
+    function exportData() { alert('导出为扁平字段 CSV（原型演示）'); }
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
-      
       if (sidebar.classList.contains('mobile-menu-closed')) {
         sidebar.classList.remove('mobile-menu-closed');
         sidebar.classList.add('mobile-menu-open');
-        overlay.classList.remove('hidden');
-        overlay.classList.remove('opacity-0');
+        overlay.classList.remove('hidden', 'opacity-0');
         overlay.classList.add('opacity-50');
       } else {
         sidebar.classList.remove('mobile-menu-open');
         sidebar.classList.add('mobile-menu-closed');
         overlay.classList.add('opacity-0');
         overlay.classList.remove('opacity-50');
-        setTimeout(() => {
-          overlay.classList.add('hidden');
-        }, 300);
+        setTimeout(() => overlay.classList.add('hidden'), 300);
       }
     }
 
-    // 点击遮罩层关闭侧边栏
-    document.getElementById('sidebar-overlay').addEventListener('click', function() {
-      toggleSidebar();
-    });
-
-    // 响应式处理
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
     window.addEventListener('resize', function() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
-      
       if (window.innerWidth >= 1024) {
-        sidebar.classList.remove('mobile-menu-closed');
-        sidebar.classList.add('mobile-menu-open');
-        overlay.classList.add('hidden');
-        overlay.classList.add('opacity-0');
+        document.getElementById('sidebar').classList.remove('mobile-menu-closed');
+        document.getElementById('sidebar').classList.add('mobile-menu-open');
+        const overlay = document.getElementById('sidebar-overlay');
+        overlay.classList.add('hidden', 'opacity-0');
         overlay.classList.remove('opacity-50');
       }
     });
-
-    // 每页显示数量变化
     document.getElementById('pageSize').addEventListener('change', function() {
       pageSize = parseInt(this.value);
       currentPage = 1;
