@@ -1,3 +1,20 @@
+#### 2026-07-14 - 将 V2.30 Shopify 落地页品类识别 PRD 纳入版本库
+
+**新增入库**：
+- `PRD/V 2.30 Shopify落地页品类识别.md`（v0.5：广告→算法→爬虫三方链路；业务自定义 14 类；无内容指纹，URL 缓存 + 周期重跑）
+- `PRD/V 2.30 Shopify品类全量对照表-unstable.md`（Shopify unstable 全量中英对照，14,606 条）
+
+---
+
+#### 2026-07-14 - 关闭本仓库 Python 语言服务常驻分析
+
+**新增** `.vscode/settings.json`：
+- `python.languageServer: None`，停用 ms-python 语言服务。
+- `cursorpyright.disableLanguageServices: true`，关闭 Cursorpyright 补全/跳转等后台分析。
+- 分析模式改为仅打开文件，类型检查关闭，减轻「正在分析 1 个文件，来源：Python」通知。
+
+---
+
 #### 2026-07-13 - PRD V2.31 与原型对齐（v0.5 封停统计）
 
 **更新** `PRD/V 2.31 广告账户封停监控.md` v0.5：
