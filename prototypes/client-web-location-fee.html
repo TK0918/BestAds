@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地区税费 - BestAds 客户端</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --fg: #1d2129;
+      --card: #ffffff;
+      --primary: #2759ff;
+      --muted: #86909c;
+      --border: #e5e6eb;
+      --warn: #ff7d00;
+      --danger: #f53f3f;
+      --ok: #00b42a;
+      --radius: 8px;
+      --font: "Microsoft YaHei", "PingFang SC", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 12px; }
+    .layout { display: flex; min-height: 100vh; }
+    .side {
+      width: 200px; background: #0f172a; color: #94a3b8; padding: 16px 0; flex-shrink: 0;
+    }
+    .side .brand { color: #fff; font-size: 16px; font-weight: 700; padding: 0 20px 20px; letter-spacing: .3px; }
+    .side .nav-label { font-size: 11px; color: #64748b; padding: 8px 20px; text-transform: uppercase; letter-spacing: .06em; }
+    .side a {
+      display: block; padding: 9px 20px; color: #94a3b8; text-decoration: none; font-size: 13px;
+    }
+    .side a:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .side a.active { color: #fff; background: rgba(39,89,255,.35); border-right: 3px solid var(--primary); }
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .top {
+      height: 48px; background: var(--card); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+    }
+    .top .title { font-size: 15px; font-weight: 600; }
+    .lang-switch {
+      display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    }
+    .lang-switch button {
+      border: none; background: #fff; padding: 5px 10px; font-size: 12px; cursor: pointer; color: var(--muted);
+    }
+    .lang-switch button.active { background: var(--primary); color: #fff; }
+    .content { padding: 16px 20px 40px; max-width: 1200px; }
+    .proto-bar {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 12px;
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); color: var(--muted);
+    }
+    .proto-bar b { color: var(--fg); }
+    .badge-proto { color: var(--warn); border: 1px solid var(--warn); border-radius: 99px; padding: 1px 8px; font-size: 11px; }
+
+    .notice {
+      background: #fff7e8; border: 1px solid #ffe4ba; border-radius: var(--radius);
+      padding: 12px 14px; margin-bottom: 16px; color: #873800; line-height: 1.55;
+    }
+    .notice .n-title { font-weight: 650; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .notice ul { margin: 0; padding-left: 18px; }
+    .notice li { margin: 3px 0; }
+    .notice.en { display: none; }
+    html[lang="en"] .notice.zh { display: none; }
+    html[lang="en"] .notice.en { display: block; }
+
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px;
+    }
+    .card .lab { color: var(--muted); font-size: 12px; }
+    .card .val { font-size: 22px; font-weight: 650; margin-top: 6px; font-variant-numeric: tabular-nums; }
+    .card .val .u { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+    .card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+    }
+    .panel-hd {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+    }
+    .panel-hd h2 { margin: 0; font-size: 14px; font-weight: 600; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .filters label { color: var(--muted); }
+    .filters input, .filters select {
+      height: 32px; border: 1px solid var(--border); border-radius: 4px; padding: 0 8px; font-size: 12px;
+      background: #fff; color: var(--fg);
+    }
+    .btn {
+      height: 32px; padding: 0 14px; border-radius: 4px; border: none; font-size: 12px; cursor: pointer; font-weight: 500;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--fg); border: 1px solid var(--border); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; font-size: 11px; font-weight: 500; color: var(--muted);
+      padding: 8px 12px; background: #fafafa; border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    td {
+      padding: 9px 12px; border-bottom: 1px solid var(--border); font-size: 13px; white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    th.num, td.num { text-align: right; }
+    tr:hover td { background: #fafbfc; }
+    .tag {
+      display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 11px;
+      background: #f2f3f5; color: var(--muted);
+    }
+    .tag.warn { background: #fff7e8; color: var(--warn); }
+    .page-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 16px; color: var(--muted); border-top: 1px solid var(--border);
+    }
+    .table-tip {
+      padding: 8px 16px; font-size: 12px; line-height: 1.5; color: #873800;
+      background: #fff7e8; border-bottom: 1px solid #ffe4ba;
+    }
+    .table-tip.en { display: none; }
+    html[lang="en"] .table-tip.zh { display: none; }
+    html[lang="en"] .table-tip.en { display: block; }
+    .i18n-en { display: none; }
+    html[lang="en"] .i18n-zh { display: none; }
+    html[lang="en"] .i18n-en { display: inline; }
+    html[lang="en"] .i18n-zh-ph { display: none !important; }
+    html[lang="en"] .i18n-en-ph { display: inline-block !important; }
+
+    @media (max-width: 960px) {
+      .side { display: none; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand">BestAds</div>
+    <div class="nav-label">Asset</div>
+    <a href="#">账户管理</a>
+    <a href="#">余额管理</a>
+    <a href="#">操作记录</a>
+    <a href="#" class="active"><span class="i18n-zh">地区税费</span><span class="i18n-en">Location Fees</span></a>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="title">
+        <span class="i18n-zh">地区税费</span>
+        <span class="i18n-en">Location Fees</span>
+      </div>
+      <div class="lang-switch">
+        <button type="button" class="active" data-lang="zh" onclick="setLang('zh')">中文</button>
+        <button type="button" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="proto-bar">
+        <b>BestAds 客户端 Web</b>
+        <span class="i18n-zh">地区税费原型</span>
+        <span class="i18n-en">Location Fee prototype</span>
+        <span class="badge-proto">示意数据</span>
+      </div>
+
+      <!-- 中文提示 -->
+      <div class="notice zh">
+        <div class="n-title">重要说明</div>
+        <ul>
+          <li>本页展示的地区税费为<strong>估算金额</strong>，仅供参考；实际费用<strong>以 Meta 账单为准</strong>。</li>
+          <li>Meta 消耗数据存在延迟，系统会<strong>每日更新最近 7 天</strong>的消耗与税费估算，历史数值可能变化。</li>
+          <li>金额按<strong>广告账户币种</strong>展示；地区税费不计入广告消耗指标，也不表示已从钱包扣款。</li>
+        </ul>
+      </div>
+      <!-- English notice -->
+      <div class="notice en">
+        <div class="n-title">Important notice</div>
+        <ul>
+          <li>Location fees shown here are <strong>estimates for reference only</strong>. Actual charges are based on your <strong>Meta invoice / billing statement</strong>.</li>
+          <li>Meta spend data may be delayed. The system <strong>refreshes the last 7 days</strong> of spend and estimated fees daily; recent figures may change.</li>
+          <li>Amounts are shown in the <strong>ad account currency</strong>. Location fees are separate from ad spend and do not mean a wallet deduction.</li>
+        </ul>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="lab"><span class="i18n-zh">应税消耗合计</span><span class="i18n-en">Taxable spend</span></div>
+          <div class="val">18,650.00<span class="u">USD</span></div>
+          <div class="sub"><span class="i18n-zh">筛选区间 · 多账户合计</span><span class="i18n-en">Selected period · multi-account</span></div>
+        </div>
+        <div class="card">
+          <div class="lab"><span class="i18n-zh">估算地区税费</span><span class="i18n-en">Est. location fees</span></div>
+          <div class="val" style="color:var(--primary)">624.50<span class="u">USD</span></div>
+          <div class="sub"><span class="i18n-zh">按投放国家税率估算</span><span class="i18n-en">By delivery-country rates</span></div>
+        </div>
+        <div class="card">
+          <div class="lab"><span class="i18n-zh">参考合计</span><span class="i18n-en">Reference total</span></div>
+          <div class="val">19,274.50<span class="u">USD</span></div>
+          <div class="sub"><span class="i18n-zh">应税消耗 + 估算税费</span><span class="i18n-en">Taxable spend + est. fees</span></div>
+        </div>
+        <div class="card">
+          <div class="lab"><span class="i18n-zh">涉及国家 / 账户</span><span class="i18n-en">Countries / accounts</span></div>
+          <div class="val">6 / 4</div>
+          <div class="sub"><span class="i18n-zh">仅展示已计税记录</span><span class="i18n-en">Taxed records only</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <h2>
+            <span class="i18n-zh">税费明细</span>
+            <span class="i18n-en">Fee details</span>
+          </h2>
+          <div class="filters">
+            <label class="i18n-zh">日期</label><label class="i18n-en">Date</label>
+            <input type="date" value="2026-07-01">
+            <span style="color:var(--muted)">—</span>
+            <input type="date" value="2026-07-14">
+            <input type="text" placeholder="广告账户ID" style="width:140px" class="i18n-zh-ph">
+            <input type="text" placeholder="Account ID" style="width:140px;display:none" class="i18n-en-ph">
+            <input type="text" placeholder="广告账户名称" style="width:140px" class="i18n-zh-ph">
+            <input type="text" placeholder="Account name" style="width:140px;display:none" class="i18n-en-ph">
+            <select>
+              <option value="">全部国家 / All countries</option>
+              <option>AT</option>
+              <option>FR</option>
+              <option>GB</option>
+            </select>
+            <button class="btn btn-primary"><span class="i18n-zh">查询</span><span class="i18n-en">Search</span></button>
+            <button class="btn btn-ghost" title="Export current filter results">
+              <span class="i18n-zh">导出</span><span class="i18n-en">Export</span>
+            </button>
+          </div>
+        </div>
+        <div class="table-tip zh">
+          Meta 消耗存在延迟，系统会<strong>每日更新最近 7 天</strong>的消耗与税费估算，近期明细可能变化。
+        </div>
+        <div class="table-tip en">
+          Meta spend may be delayed. The system <strong>refreshes the last 7 days</strong> of spend and estimated fees daily; recent rows may change.
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th><span class="i18n-zh">消耗日期</span><span class="i18n-en">Spend date</span></th>
+                <th><span class="i18n-zh">广告账户ID</span><span class="i18n-en">Account ID</span></th>
+                <th><span class="i18n-zh">广告账户名称</span><span class="i18n-en">Account name</span></th>
+                <th><span class="i18n-zh">国家</span><span class="i18n-en">Country</span></th>
+                <th><span class="i18n-zh">币种</span><span class="i18n-en">Currency</span></th>
+                <th class="num"><span class="i18n-zh">应税消耗</span><span class="i18n-en">Taxable spend</span></th>
+                <th class="num"><span class="i18n-zh">税率</span><span class="i18n-en">Rate</span></th>
+                <th class="num"><span class="i18n-zh">估算税费</span><span class="i18n-en">Est. fee</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026-07-13</td>
+                <td>act_88291001</td>
+                <td>AT-Prospecting</td>
+                <td>AT · <span class="i18n-zh">奥地利</span><span class="i18n-en">Austria</span></td>
+                <td>USD</td>
+                <td class="num">1,200.00</td>
+                <td class="num">5%</td>
+                <td class="num">60.00</td>
+              </tr>
+              <tr>
+                <td>2026-07-13</td>
+                <td>act_88291001</td>
+                <td>AT-Prospecting</td>
+                <td>FR · <span class="i18n-zh">法国</span><span class="i18n-en">France</span></td>
+                <td>USD</td>
+                <td class="num">800.00</td>
+                <td class="num">3%</td>
+                <td class="num">24.00</td>
+              </tr>
+              <tr>
+                <td>2026-07-12</td>
+                <td>act_77120088</td>
+                <td>EU-Brand</td>
+                <td>GB · <span class="i18n-zh">英国</span><span class="i18n-en">United Kingdom</span></td>
+                <td>EUR</td>
+                <td class="num">2,450.00</td>
+                <td class="num">2%</td>
+                <td class="num">49.00</td>
+              </tr>
+              <tr>
+                <td>2026-07-05</td>
+                <td>act_77120088</td>
+                <td>EU-Brand</td>
+                <td>TR · <span class="i18n-zh">土耳其</span><span class="i18n-en">Türkiye</span></td>
+                <td>EUR</td>
+                <td class="num">1,000.00</td>
+                <td class="num">5%</td>
+                <td class="num">50.00</td>
+              </tr>
+              <tr>
+                <td>2026-07-04</td>
+                <td>act_55118820</td>
+                <td>WW-Outsourcing</td>
+                <td>ES · <span class="i18n-zh">西班牙</span><span class="i18n-en">Spain</span></td>
+                <td>USD</td>
+                <td class="num">3,200.00</td>
+                <td class="num">3%</td>
+                <td class="num">96.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="page-foot">
+          <span><span class="i18n-zh">共 42 条</span><span class="i18n-en">42 records</span></span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost"><span class="i18n-zh">上一页</span><span class="i18n-en">Prev</span></button>
+            <button class="btn btn-ghost"><span class="i18n-zh">下一页</span><span class="i18n-en">Next</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setLang(lang) {
+    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+    document.querySelectorAll('.lang-switch button').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+  }
+</script>
+</body>
+</html>
