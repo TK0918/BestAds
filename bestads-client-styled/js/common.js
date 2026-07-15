@@ -14,12 +14,13 @@ const PAGE_CONFIG = {
   'role-create': { title: '创建角色', description: '配置新的系统角色及权限' },
   'role-edit': { title: '编辑角色', description: '修改系统角色及权限' },
   'auto-recharge-rules': { title: '自动充值规则', description: '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值' },
-  'introducer-daily-consume': { title: '推荐返佣', description: '按季度查看被介绍客户广告账户消耗、吐点比例与佣金' }
+  'introducer-daily-consume': { title: '推荐返佣', description: '按季度查看被介绍客户广告账户消耗、吐点比例与佣金' },
+  'location-fee': { title: '地区税费', description: '查看广告账户按投放国家估算的地区税费（以 Meta 账单为准）' }
 };
 
 var CLIENT_NAV_I18N = {
-  'zh-CN': { nav_referral_rebate: '推荐返佣' },
-  'en-US': { nav_referral_rebate: 'Referral Rebate' }
+  'zh-CN': { nav_referral_rebate: '推荐返佣', nav_location_fee: '地区税费' },
+  'en-US': { nav_referral_rebate: 'Referral Rebate', nav_location_fee: 'Location Fees' }
 };
 
 function applyClientNavI18n() {
@@ -27,6 +28,9 @@ function applyClientNavI18n() {
   var pack = CLIENT_NAV_I18N[lang] || CLIENT_NAV_I18N['zh-CN'];
   document.querySelectorAll('[data-i18n-nav="nav_referral_rebate"]').forEach(function (el) {
     if (pack.nav_referral_rebate) el.textContent = pack.nav_referral_rebate;
+  });
+  document.querySelectorAll('[data-i18n-nav="nav_location_fee"]').forEach(function (el) {
+    if (pack.nav_location_fee) el.textContent = pack.nav_location_fee;
   });
 }
 
@@ -301,6 +305,12 @@ function loadFallbackSidebar() {
         <a href="wallet.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="wallet">
           <i class="fas fa-wallet mr-3" style="color: #B0B5C0;"></i>
           <span>余额管理</span>
+        </a>
+      </li>
+      <li>
+        <a href="location-fee.html" class="sidebar-item flex items-center px-4 py-3 text-white hover:text-white rounded-md transition-all duration-200" style="color: #B0B5C0;" onmouseover="this.style.backgroundColor='#1E2230'" onmouseout="this.style.backgroundColor='transparent'" data-page="location-fee">
+          <i class="fas fa-globe mr-3" style="color: #B0B5C0;"></i>
+          <span data-i18n-nav="nav_location_fee">地区税费</span>
         </a>
       </li>
       <li>

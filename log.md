@@ -1,3 +1,19 @@
+#### 2026-07-15 - V2.33 客户端地区税费迁入 bestads-client-styled
+
+**客户端 Web**：
+- 新增 `bestads-client-styled/location-fee.html`（暗色风格对齐 `account-management.html`）
+- `components/sidebar.html`、`js/common.js` 侧栏新增「地区税费」入口（余额管理下方）
+- 删除旧原型 `prototypes/client-web-location-fee.html`
+
+**客户端 H5**：
+- 地区税费内容并入 `bestads-client-styled/h5-account-wallet.html`：新增 `page-fees` + 底部导航「税费」栏目
+- 风格与现有 H5 卡片 / 按钮 / 深浅主题 / i18n 一致
+- 删除旧原型 `prototypes/client-h5-location-fee.html`
+
+**PRD**：V2.33 升至 v0.3，同步原型路径
+
+---
+
 #### 2026-07-15 - V2.33 运营端地区税费原型迁至主要功能并对齐视觉
 
 **调整**：

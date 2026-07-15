@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地区税费 - BestAds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=PingFang+SC:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #1A1F2B;
+      font-size: 14px;
+    }
+    .table-hover tbody tr:hover { background-color: #242A3A; }
+    .sidebar-item { position: relative; transition: all 0.2s ease-in-out; }
+    .sidebar-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: #00FFB0; transform: scaleY(0); transition: transform 0.2s ease-in-out;
+    }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .btn-primary {
+      background: #00FFB0; color: #000000; border-radius: 4px; padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-primary:hover { background: #00E0A0; transform: scale(0.98); }
+    .btn-secondary {
+      background: #2A2F3D; color: #FFFFFF; border-radius: 4px; padding: 8px 16px;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-secondary:hover { background: #3A3F4D; transform: scale(0.98); }
+    .input-field {
+      background: #2A2F3D; color: #FFFFFF; border: 1px solid #3C404B;
+      border-radius: 4px; padding: 8px 12px; transition: all 0.2s ease-in-out;
+    }
+    .input-field::placeholder { color: #888888; }
+    .input-field:focus { border-color: #00FFB0; outline: 2px solid #00FFB0; }
+    .num { font-variant-numeric: tabular-nums; }
+    .i18n-en { display: none; }
+    html[lang="en"] .i18n-zh { display: none; }
+    html[lang="en"] .i18n-en { display: inline; }
+    html[lang="en"] .i18n-zh-block { display: none; }
+    html[lang="en"] .i18n-en-block { display: block; }
+    .i18n-en-block { display: none; }
+    html[lang="en"] .ph-zh { display: none !important; }
+    html[lang="en"] .ph-en { display: block !important; }
+    .ph-en { display: none; }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen text-white">
+  <div class="flex w-full h-screen">
+    <div id="sidebar-container" class="fixed inset-y-0 left-0 z-50" style="width: 220px;"></div>
+
+    <div class="flex-1 flex flex-col overflow-hidden" style="margin-left: 220px; background-color: #1A1F2B;">
+      <header class="flex items-center justify-between px-6" style="height: 56px; background-color: #1A1F2B; border-bottom: 1px solid #2E333F;">
+        <div class="flex items-center space-x-4">
+          <h2 class="text-xl font-semibold text-white" id="page-title">
+            <span class="i18n-zh">地区税费</span><span class="i18n-en">Location Fees</span>
+          </h2>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="relative group">
+            <button id="languageToggle" onclick="toggleLanguage()" class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
+              <i class="fas fa-globe text-lg"></i>
+            </button>
+            <div id="languageDropdown" class="absolute right-0 mt-2 w-32 bg-slate-800 rounded-md shadow-lg hidden z-50" style="border: 1px solid #2E333F;">
+              <div class="py-1">
+                <button onclick="changeLanguage('zh-CN')" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-slate-700">中文</button>
+                <button onclick="changeLanguage('en-US')" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-slate-700">English</button>
+              </div>
+            </div>
+          </div>
+          <div class="relative group">
+            <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
+              <i class="fas fa-bell text-lg"></i>
+              <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+            </button>
+          </div>
+          <div class="relative group flex items-center">
+            <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
+              <i class="fas fa-wallet mr-2"></i>
+              <span id="balanceAmount">$2,900.00</span>
+            </button>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">A</span>
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-white mb-1">
+            <span class="i18n-zh">地区税费</span><span class="i18n-en">Location Fees</span>
+          </h2>
+          <p class="text-sm page-description" style="color: #B0B5C0;">
+            <span class="i18n-zh">查看广告账户按投放国家估算的地区税费（以 Meta 账单为准）</span>
+            <span class="i18n-en">Estimated location fees by delivery country (actual charges follow Meta invoice)</span>
+          </p>
+        </div>
+
+        <!-- 重要说明 -->
+        <div class="mb-6 rounded-md px-4 py-3 text-sm leading-relaxed" style="background: rgba(245,158,11,0.12); border: 1px solid #F59E0B; color: #FBBF24;">
+          <div class="i18n-zh-block">
+            <div class="font-semibold mb-1"><i class="fas fa-info-circle mr-1"></i>重要说明</div>
+            <ul class="list-disc pl-5 space-y-1" style="color: #FCD34D;">
+              <li>本页地区税费为<strong>估算金额</strong>，仅供参考；实际费用<strong>以 Meta 账单为准</strong>。</li>
+              <li>Meta 消耗存在延迟，系统会<strong>每日更新最近 7 天</strong>的消耗与税费估算，数值可能变化。</li>
+              <li>金额按<strong>广告账户币种</strong>展示；税费不计入广告消耗，不等于已扣款。</li>
+            </ul>
+          </div>
+          <div class="i18n-en-block">
+            <div class="font-semibold mb-1"><i class="fas fa-info-circle mr-1"></i>Important notice</div>
+            <ul class="list-disc pl-5 space-y-1" style="color: #FCD34D;">
+              <li>Fees shown here are <strong>estimates for reference only</strong>. Actual charges follow your <strong>Meta invoice</strong>.</li>
+              <li>Meta spend may be delayed. The system <strong>refreshes the last 7 days</strong> daily; figures may change.</li>
+              <li>Amounts are in <strong>ad account currency</strong>; separate from ad spend; not a wallet deduction.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 汇总 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">应税消耗合计</span><span class="i18n-en">Taxable spend</span></div>
+            <div class="mt-1 text-2xl font-semibold text-white num">18,650.00 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
+          </div>
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">估算地区税费</span><span class="i18n-en">Est. location fees</span></div>
+            <div class="mt-1 text-2xl font-semibold num" style="color:#00FFB0;">624.50 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
+          </div>
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">参考合计</span><span class="i18n-en">Reference total</span></div>
+            <div class="mt-1 text-2xl font-semibold text-white num">19,274.50 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
+          </div>
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">涉及国家 / 账户</span><span class="i18n-en">Countries / accounts</span></div>
+            <div class="mt-1 text-2xl font-semibold text-white num">6 / 4</div>
+          </div>
+        </div>
+
+        <!-- 筛选 -->
+        <div class="shadow-lg mb-6" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="px-6 py-4" style="border-bottom: 1px solid #2E333F;">
+            <h3 class="text-lg font-medium text-white"><span class="i18n-zh">筛选条件</span><span class="i18n-en">Filters</span></h3>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;"><span class="i18n-zh">消耗日期（开始）</span><span class="i18n-en">Spend date from</span></label>
+                <input type="date" value="2026-07-01" class="input-field w-full">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;"><span class="i18n-zh">消耗日期（结束）</span><span class="i18n-en">Spend date to</span></label>
+                <input type="date" value="2026-07-14" class="input-field w-full">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;"><span class="i18n-zh">广告账户ID</span><span class="i18n-en">Account ID</span></label>
+                <input type="text" class="input-field w-full ph-zh" placeholder="模糊搜索">
+                <input type="text" class="input-field w-full ph-en" placeholder="Fuzzy search">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;"><span class="i18n-zh">广告账户名称</span><span class="i18n-en">Account name</span></label>
+                <input type="text" class="input-field w-full ph-zh" placeholder="模糊搜索">
+                <input type="text" class="input-field w-full ph-en" placeholder="Fuzzy search">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;"><span class="i18n-zh">国家</span><span class="i18n-en">Country</span></label>
+                <select class="input-field w-full">
+                  <option value=""><span class="i18n-zh">全部</span></option>
+                  <option>AT</option>
+                  <option>FR</option>
+                  <option>GB</option>
+                  <option>TR</option>
+                  <option>ES</option>
+                </select>
+              </div>
+              <div class="flex items-end gap-3">
+                <button type="button" class="btn-primary font-medium"><i class="fas fa-search mr-2"></i><span class="i18n-zh">搜索</span><span class="i18n-en">Search</span></button>
+                <button type="button" class="btn-secondary font-medium"><i class="fas fa-download mr-2"></i><span class="i18n-zh">导出</span><span class="i18n-en">Export</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 列表 -->
+        <div class="shadow-lg overflow-hidden" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+          <div class="flex items-center justify-between" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">
+            <h3 class="text-lg font-medium text-white"><span class="i18n-zh">税费明细</span><span class="i18n-en">Fee details</span></h3>
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">共</span><span class="i18n-en"></span> <span class="text-white font-medium">42</span> <span class="i18n-zh">条</span><span class="i18n-en">records</span></div>
+          </div>
+          <div class="px-4 py-3 text-sm" style="background: rgba(245,158,11,0.08); border-bottom: 1px solid #2E333F; color: #FBBF24;">
+            <i class="fas fa-clock mr-1"></i>
+            <span class="i18n-zh">Meta 消耗存在延迟，系统会<strong>每日更新最近 7 天</strong>的消耗与税费估算，近期明细可能变化。</span>
+            <span class="i18n-en">Meta spend may be delayed. The system <strong>refreshes the last 7 days</strong> of spend and estimated fees daily; recent rows may change.</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full table-hover" style="border-collapse: separate; border-spacing: 0;">
+              <thead style="background-color: #1A1F2B;">
+                <tr>
+                  <th class="text-left text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">消耗日期</span><span class="i18n-en">Spend date</span></th>
+                  <th class="text-left text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">广告账户ID</span><span class="i18n-en">Account ID</span></th>
+                  <th class="text-left text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">广告账户名称</span><span class="i18n-en">Account name</span></th>
+                  <th class="text-left text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">国家</span><span class="i18n-en">Country</span></th>
+                  <th class="text-left text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">币种</span><span class="i18n-en">Currency</span></th>
+                  <th class="text-right text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">应税消耗</span><span class="i18n-en">Taxable spend</span></th>
+                  <th class="text-right text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">税率</span><span class="i18n-en">Rate</span></th>
+                  <th class="text-right text-xs font-medium uppercase tracking-wider" style="padding: 12px 16px; color: #B0B5C0; border-bottom: 1px solid #2E333F;"><span class="i18n-zh">估算税费</span><span class="i18n-en">Est. fee</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">2026-07-13</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">act_88291001</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">AT-Prospecting</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">AT · <span class="i18n-zh">奥地利</span><span class="i18n-en">Austria</span></td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">USD</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">1,200.00</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">5%</td>
+                  <td class="text-right num font-medium" style="padding: 12px 16px; border-bottom: 1px solid #2E333F; color:#00FFB0;">60.00</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">2026-07-13</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">act_88291001</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">AT-Prospecting</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">FR · <span class="i18n-zh">法国</span><span class="i18n-en">France</span></td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">USD</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">800.00</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">3%</td>
+                  <td class="text-right num font-medium" style="padding: 12px 16px; border-bottom: 1px solid #2E333F; color:#00FFB0;">24.00</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">2026-07-12</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">act_77120088</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">EU-Brand</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">GB · <span class="i18n-zh">英国</span><span class="i18n-en">United Kingdom</span></td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">EUR</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">2,450.00</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">2%</td>
+                  <td class="text-right num font-medium" style="padding: 12px 16px; border-bottom: 1px solid #2E333F; color:#00FFB0;">49.00</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">2026-07-05</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">act_77120088</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">EU-Brand</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">TR · <span class="i18n-zh">土耳其</span><span class="i18n-en">Türkiye</span></td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">EUR</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">1,000.00</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">5%</td>
+                  <td class="text-right num font-medium" style="padding: 12px 16px; border-bottom: 1px solid #2E333F; color:#00FFB0;">50.00</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">2026-07-04</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">act_55118820</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">WW-Outsourcing</td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">ES · <span class="i18n-zh">西班牙</span><span class="i18n-en">Spain</span></td>
+                  <td style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">USD</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">3,200.00</td>
+                  <td class="text-right num" style="padding: 12px 16px; border-bottom: 1px solid #2E333F;">3%</td>
+                  <td class="text-right num font-medium" style="padding: 12px 16px; border-bottom: 1px solid #2E333F; color:#00FFB0;">96.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="flex items-center justify-between px-4 py-3" style="border-top: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">显示第 1-5 条，共 42 条</span><span class="i18n-en">Showing 1-5 of 42</span></div>
+            <div class="flex gap-2">
+              <button class="btn-secondary text-sm py-1 px-3"><span class="i18n-zh">上一页</span><span class="i18n-en">Prev</span></button>
+              <button class="btn-primary text-sm py-1 px-3">1</button>
+              <button class="btn-secondary text-sm py-1 px-3">2</button>
+              <button class="btn-secondary text-sm py-1 px-3"><span class="i18n-zh">下一页</span><span class="i18n-en">Next</span></button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function toggleLanguage() {
+      document.getElementById('languageDropdown').classList.toggle('hidden');
+    }
+    function changeLanguage(lang) {
+      document.documentElement.lang = lang === 'en-US' ? 'en' : 'zh-CN';
+      localStorage.setItem('bestadsClientLang', lang);
+      document.getElementById('languageDropdown').classList.add('hidden');
+      if (window.applyClientNavI18n) applyClientNavI18n();
+    }
+    document.addEventListener('click', function (e) {
+      const dd = document.getElementById('languageDropdown');
+      const btn = document.getElementById('languageToggle');
+      if (dd && !dd.contains(e.target) && btn && !btn.contains(e.target)) dd.classList.add('hidden');
+    });
+    (function initLang() {
+      const lang = localStorage.getItem('bestadsClientLang') || 'zh-CN';
+      document.documentElement.lang = lang === 'en-US' ? 'en' : 'zh-CN';
+    })();
+  </script>
+  <script src="./js/common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof initializePage === 'function') initializePage();
+    });
+  </script>
+</body>
+</html>

@@ -52,6 +52,12 @@
     body.theme-dark .text-gray-400 { color: #94A3B8 !important; }
     body.theme-dark .text-gray-300 { color: #CBD5E1 !important; }
     body.theme-dark .text-gray-900 { color: #F8FAFC !important; }
+    .fee-notice { background: #FFF7E8; border: 1px solid #FFE4BA; color: #873800; border-radius: 12px; padding: 10px 12px; font-size: 12px; line-height: 1.5; }
+    body.theme-dark .fee-notice { background: rgba(245,158,11,0.12); border-color: #F59E0B; color: #FBBF24; }
+    .fee-item .fee-amt { color: #00BF85; font-weight: 700; font-variant-numeric: tabular-nums; }
+    body.theme-dark .fee-item .fee-amt { color: #00FFB0; }
+    .bottom-nav .nav-btn { padding: 4px 6px; }
+    .bottom-nav .nav-btn span { font-size: 11px; }
   </style>
 </head>
 <body class="min-h-screen pb-[70px]">
@@ -182,6 +188,68 @@
       </div>
       <div id="recordList" class="space-y-3 mt-3"></div>
     </section>
+
+    <!-- 页面：地区税费 -->
+    <section id="page-fees" class="page">
+      <div class="fee-notice mb-3" id="i18n_fee_notice">
+        估算金额，仅供参考，实际以 Meta 账单为准。近 7 天数据每日更新，可能变化。
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div class="card p-3">
+          <div id="i18n_fee_taxable_label" class="text-xs text-gray-500">应税消耗</div>
+          <div class="text-lg font-bold mt-1" style="font-variant-numeric:tabular-nums;">18,650<span class="text-xs font-medium text-gray-500 ml-1">USD</span></div>
+        </div>
+        <div class="card p-3">
+          <div id="i18n_fee_est_label" class="text-xs text-gray-500">估算税费</div>
+          <div class="text-lg font-bold mt-1" style="color:#00BF85;font-variant-numeric:tabular-nums;">624.50<span class="text-xs font-medium text-gray-500 ml-1">USD</span></div>
+        </div>
+      </div>
+
+      <div class="card p-3 mb-3 space-y-2">
+        <div class="flex gap-2">
+          <input type="date" value="2026-07-01" class="input flex-1 px-2 py-2 text-sm min-w-0">
+          <input type="date" value="2026-07-14" class="input flex-1 px-2 py-2 text-sm min-w-0">
+        </div>
+        <div class="flex gap-2">
+          <input id="feeSearchInput" type="text" class="input flex-1 px-3 py-2 text-sm min-w-0" placeholder="账户ID">
+          <button class="btn-primary px-4 py-2 text-sm font-semibold whitespace-nowrap" id="i18n_fee_search_btn">查询</button>
+        </div>
+      </div>
+
+      <p id="i18n_fee_tip" class="text-xs text-gray-500 mb-2 px-0.5">按账户币种展示 · 非扣款</p>
+
+      <div class="space-y-2" id="feeList">
+        <div class="card p-3 fee-item">
+          <div class="flex justify-between items-baseline gap-2 mb-1">
+            <div class="font-semibold text-sm">AT · <span data-fee-country="at">奥地利</span></div>
+            <div class="fee-amt text-sm">+60.00 USD</div>
+          </div>
+          <div class="text-xs text-gray-500">2026-07-13 · AT-Prospecting · <span data-fee-spend>消耗</span> <b class="text-gray-900">1,200</b> · 5%</div>
+        </div>
+        <div class="card p-3 fee-item">
+          <div class="flex justify-between items-baseline gap-2 mb-1">
+            <div class="font-semibold text-sm">FR · <span data-fee-country="fr">法国</span></div>
+            <div class="fee-amt text-sm">+24.00 USD</div>
+          </div>
+          <div class="text-xs text-gray-500">2026-07-13 · AT-Prospecting · <span data-fee-spend>消耗</span> <b class="text-gray-900">800</b> · 3%</div>
+        </div>
+        <div class="card p-3 fee-item">
+          <div class="flex justify-between items-baseline gap-2 mb-1">
+            <div class="font-semibold text-sm">GB · <span data-fee-country="gb">英国</span></div>
+            <div class="fee-amt text-sm">+49.00 EUR</div>
+          </div>
+          <div class="text-xs text-gray-500">2026-07-12 · EU-Brand · <span data-fee-spend>消耗</span> <b class="text-gray-900">2,450</b> · 2%</div>
+        </div>
+        <div class="card p-3 fee-item">
+          <div class="flex justify-between items-baseline gap-2 mb-1">
+            <div class="font-semibold text-sm">TR · <span data-fee-country="tr">土耳其</span></div>
+            <div class="fee-amt text-sm">+50.00 EUR</div>
+          </div>
+          <div class="text-xs text-gray-500">2026-07-05 · EU-Brand · <span data-fee-spend>消耗</span> <b class="text-gray-900">1,000</b> · 5%</div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- 底部导航 -->
@@ -197,6 +265,10 @@
     <button class="nav-btn flex flex-col items-center text-xs" data-page="records" onclick="showPage('records')">
       <i class="fas fa-clock-rotate-left text-base mb-1"></i>
       <span id="i18n_nav_records">记录</span>
+    </button>
+    <button class="nav-btn flex flex-col items-center text-xs" data-page="fees" onclick="showPage('fees')">
+      <i class="fas fa-globe text-base mb-1"></i>
+      <span id="i18n_nav_fees">税费</span>
     </button>
     <button class="nav-btn flex flex-col items-center text-xs" data-page="wallet" onclick="showPage('wallet')">
       <i class="fas fa-wallet text-base mb-1"></i>
@@ -382,7 +454,21 @@
         nav_accounts: '账户',
         nav_reports: '报告',
         nav_records: '记录',
+        nav_fees: '税费',
         nav_wallet: '钱包',
+
+        // 地区税费
+        fee_notice: '估算金额，仅供参考，实际以 Meta 账单为准。近 7 天数据每日更新，可能变化。',
+        fee_taxable_label: '应税消耗',
+        fee_est_label: '估算税费',
+        fee_search_btn: '查询',
+        fee_search_placeholder: '账户ID',
+        fee_tip: '按账户币种展示 · 非扣款',
+        fee_spend: '消耗',
+        fee_country_at: '奥地利',
+        fee_country_fr: '法国',
+        fee_country_gb: '英国',
+        fee_country_tr: '土耳其',
         
         // 通用
         confirm: '确认',
@@ -452,7 +538,21 @@
         nav_accounts: 'Accounts',
         nav_reports: 'Reports',
         nav_records: 'Records',
+        nav_fees: 'Fees',
         nav_wallet: 'Wallet',
+
+        // Location fees
+        fee_notice: 'Estimates only — actual charges follow Meta invoice. Last 7 days refresh daily and may change.',
+        fee_taxable_label: 'Taxable spend',
+        fee_est_label: 'Est. fees',
+        fee_search_btn: 'Go',
+        fee_search_placeholder: 'Account ID',
+        fee_tip: 'Shown in account currency · not a deduction',
+        fee_spend: 'Spend',
+        fee_country_at: 'Austria',
+        fee_country_fr: 'France',
+        fee_country_gb: 'UK',
+        fee_country_tr: 'Türkiye',
         
         // Common
         confirm: 'Confirm',
@@ -1179,7 +1279,21 @@
       const n1 = document.getElementById('i18n_nav_accounts'); if (n1) n1.textContent = lang.nav_accounts;
       const n2 = document.getElementById('i18n_nav_reports'); if (n2) n2.textContent = lang.nav_reports;
       const n3 = document.getElementById('i18n_nav_records'); if (n3) n3.textContent = lang.nav_records;
+      const nFees = document.getElementById('i18n_nav_fees'); if (nFees) nFees.textContent = lang.nav_fees;
       const n4 = document.getElementById('i18n_nav_wallet'); if (n4) n4.textContent = lang.nav_wallet;
+
+      const feeNotice = document.getElementById('i18n_fee_notice'); if (feeNotice) feeNotice.textContent = lang.fee_notice;
+      const feeTaxable = document.getElementById('i18n_fee_taxable_label'); if (feeTaxable) feeTaxable.textContent = lang.fee_taxable_label;
+      const feeEst = document.getElementById('i18n_fee_est_label'); if (feeEst) feeEst.textContent = lang.fee_est_label;
+      const feeSearchBtn = document.getElementById('i18n_fee_search_btn'); if (feeSearchBtn) feeSearchBtn.textContent = lang.fee_search_btn;
+      const feeSearchInput = document.getElementById('feeSearchInput'); if (feeSearchInput) feeSearchInput.placeholder = lang.fee_search_placeholder;
+      const feeTip = document.getElementById('i18n_fee_tip'); if (feeTip) feeTip.textContent = lang.fee_tip;
+      document.querySelectorAll('[data-fee-spend]').forEach(function (el) { el.textContent = lang.fee_spend; });
+      const countryMap = { at: lang.fee_country_at, fr: lang.fee_country_fr, gb: lang.fee_country_gb, tr: lang.fee_country_tr };
+      document.querySelectorAll('[data-fee-country]').forEach(function (el) {
+        const key = el.getAttribute('data-fee-country');
+        if (countryMap[key]) el.textContent = countryMap[key];
+      });
       
       // 更新报告页面
       const r1 = document.getElementById('i18n_report_monthly'); if (r1) r1.textContent = lang.report_monthly;
