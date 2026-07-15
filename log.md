@@ -1,3 +1,13 @@
+#### 2026-07-15 - V2.33 运营端地区税费原型迁至主要功能并对齐视觉
+
+**调整**：
+- 原型自 `admin-system/reports/location-fee.html` 迁至 `admin-system/main-functions/location-fee.html`
+- 补全与客户管理一致的完整左侧菜单；侧栏「主要功能」下新增「地区税费」入口（客户管理 / 其他扣费页同步挂链）
+- UI 按 `customer-management.html` / `deduction-details.html`：面包屑顶栏、标题区、筛选卡片、`shadow-sm` 表格、分页与弹窗样式
+- PRD V2.33 同步更新原型路径与菜单归属（v0.2）
+
+---
+
 #### 2026-07-14 - 输出 PRD V 2.33 广告税费计算和展示
 
 **新增** `PRD/V 2.33 广告税费计算和展示.md`（v0.1）：

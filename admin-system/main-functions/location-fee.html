@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地区税费 - BestAds Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: #667eea; transform: scaleY(0); transition: transform 0.2s ease;
+    }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .modal-backdrop { backdrop-filter: blur(8px); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .mobile-menu-open { transform: translateX(0); }
+    .mobile-menu-closed { transform: translateX(-100%); }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .page-pane { display: none; }
+    .page-pane.active { display: block; }
+    .config-pane { display: none; }
+    .config-pane.active { display: block; }
+    .status-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 500; line-height: 1.4;
+    }
+    .status-badge.on { background: #dcfce7; color: #166534; }
+    .status-badge.off { background: #f3f4f6; color: #6b7280; }
+    .num { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
+        </div>
+      </div>
+
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
+              <i id="mainMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="mainMenu" class="space-y-1 mb-2">
+              <li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="customer-sub-account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-friends w-5 h-5 mr-3 text-gray-400"></i>客户子账号管理</a></li>
+              <li><a href="agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+              <li><a href="introducer-spitpoint.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-400"></i>介绍人和吐点</a></li>
+              <li><a href="deduction-details.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>其他扣费</a></li>
+              <li><a href="location-fee.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-globe w-5 h-5 mr-3 text-gray-500"></i>地区税费</a></li>
+              <li><a href="system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
+              <i id="perfMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="perfMenu" class="space-y-1 mb-2">
+              <li><a href="../performance/metric-description.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-book w-5 h-5 mr-3 text-gray-400"></i>绩效指标说明</a></li>
+              <li><a href="../performance/performance-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sliders-h w-5 h-5 mr-3 text-gray-400"></i>绩效配置</a></li>
+              <li><a href="../performance/all-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users-cog w-5 h-5 mr-3 text-gray-400"></i>全员绩效查看</a></li>
+              <li><a href="../performance/my-performance.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-check w-5 h-5 mr-3 text-gray-400"></i>我的绩效</a></li>
+              <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
+              <i id="fbMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="fbMenu" class="space-y-1 mb-2">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
+              <i id="sysMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="sysMenu" class="space-y-1 mb-2">
+              <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../system-settings/notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+              <li><a href="../system-settings/client-menu.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sitemap w-5 h-5 mr-3 text-gray-400"></i>客户端菜单</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
+              <i id="flowMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="flowMenu" class="space-y-1 mb-2">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="../auto-recharge/notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控通知</a></li>
+              <li><a href="../auto-recharge/account-status-monitor.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>账户封停监控</a></li>
+            </ul>
+          </div>
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
+              <i id="reportMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="reportMenu" class="space-y-1 mb-2">
+              <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <script>
+        function toggleMenuSection(id) {
+          const ul = document.getElementById(id);
+          const arrow = document.getElementById(id + 'Arrow');
+          if (ul.style.display === 'none') {
+            ul.style.display = '';
+            arrow.classList.remove('fa-chevron-right');
+            arrow.classList.add('fa-chevron-down');
+          } else {
+            ul.style.display = 'none';
+            arrow.classList.remove('fa-chevron-down');
+            arrow.classList.add('fa-chevron-right');
+          }
+        }
+      </script>
+    </aside>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+              <i class="fas fa-bars text-lg"></i>
+            </button>
+            <div class="ml-4 lg:ml-0">
+              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                <span class="text-gray-500">主页</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-500">主要功能</span>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                <span class="text-gray-900 font-medium">地区税费</span>
+              </nav>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+              </button>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">A</span>
+              </div>
+              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 页面标题 -->
+            <div class="mb-6">
+              <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">地区税费</h2>
+                  <p class="mt-1 text-sm text-gray-500">与客户端同源的估算地区税费查询；维护计税范围与国家税率。实际费用以 Meta 账单为准。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 一级 Tab -->
+            <div class="mb-6 border-b border-gray-200">
+              <nav class="-mb-px flex space-x-6">
+                <button type="button" class="page-tab active whitespace-nowrap py-3 px-1 border-b-2 border-blue-600 text-sm font-medium text-blue-600" data-pane="fee">税费明细</button>
+                <button type="button" class="page-tab whitespace-nowrap py-3 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-pane="config">税率与范围配置</button>
+              </nav>
+            </div>
+
+            <!-- ========== Tab: 税费明细 ========== -->
+            <div id="pane-fee" class="page-pane active">
+              <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800">
+                <i class="fas fa-info-circle mr-1"></i>
+                本页展示与客户端一致的<strong>估算地区税费</strong>；以 Meta 账单为准。近 7 天数据每日回刷。金额含账户币种，以及折算 USD 与所用汇率。
+              </div>
+
+              <!-- 汇总卡片 -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white shadow-sm rounded-lg border border-gray-200 px-5 py-4">
+                  <div class="text-sm text-gray-500">筛选区间应税消耗 (USD)</div>
+                  <div class="mt-1 text-2xl font-semibold text-gray-900 num">128,450.00</div>
+                </div>
+                <div class="bg-white shadow-sm rounded-lg border border-gray-200 px-5 py-4">
+                  <div class="text-sm text-gray-500">估算税费合计 (USD)</div>
+                  <div class="mt-1 text-2xl font-semibold text-blue-600 num">4,216.80</div>
+                </div>
+                <div class="bg-white shadow-sm rounded-lg border border-gray-200 px-5 py-4">
+                  <div class="text-sm text-gray-500">涉及账户数</div>
+                  <div class="mt-1 text-2xl font-semibold text-gray-900 num">36</div>
+                </div>
+                <div class="bg-white shadow-sm rounded-lg border border-gray-200 px-5 py-4">
+                  <div class="text-sm text-gray-500">涉及国家数</div>
+                  <div class="mt-1 text-2xl font-semibold text-gray-900 num">6</div>
+                </div>
+              </div>
+
+              <!-- 筛选 -->
+              <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                  <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
+                </div>
+                <div class="p-6">
+                  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">消耗日期（开始）</label>
+                      <input type="date" value="2026-07-01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">消耗日期（结束）</label>
+                      <input type="date" value="2026-07-14" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+                      <input type="text" placeholder="精确 / 模糊" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
+                      <input type="text" placeholder="模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">广告账户ID</label>
+                      <input type="text" placeholder="模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">广告账户名称</label>
+                      <input type="text" placeholder="模糊搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">媒体</label>
+                      <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>全部</option>
+                        <option selected>Meta</option>
+                        <option>Google</option>
+                        <option>TikTok</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">账户类型</label>
+                      <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>全部</option>
+                        <option selected>海外户</option>
+                        <option>企业户</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">国家</label>
+                      <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>全部</option>
+                        <option>AT 奥地利</option>
+                        <option>FR 法国</option>
+                        <option>GB 英国</option>
+                        <option>TR 土耳其</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="flex justify-end items-center mt-4 space-x-3">
+                    <button type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors duration-200">重置</button>
+                    <button type="button" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-download mr-2"></i>导出
+                    </button>
+                    <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors duration-200">
+                      <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 列表 -->
+              <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                  <h3 class="text-lg font-medium text-gray-900">税费明细列表</h3>
+                  <div class="text-sm text-gray-500">共 <span class="font-medium text-gray-900">128</span> 条记录</div>
+                </div>
+                <div class="px-6 py-3 bg-amber-50 border-b border-amber-100 text-sm text-amber-800">
+                  <i class="fas fa-clock mr-1"></i>
+                  Meta 消耗存在延迟，系统会<strong>每日回刷最近 7 天</strong>的消耗与税费估算，近期明细数值可能变化；7 天以外数据视为已稳定。
+                </div>
+                <div class="table-wrap">
+                  <table class="min-w-full divide-y divide-gray-200 table-hover">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">消耗日期</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">商户ID</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">客户名称</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">广告账户ID</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">广告账户名称</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">媒体</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">账户类型</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">国家</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">账户币种</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">应税消耗</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">税率</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">估算税费</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">汇率→USD</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">税费(USD)</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200 text-sm text-gray-700">
+                      <tr>
+                        <td class="px-4 py-3 whitespace-nowrap">2026-07-13</td>
+                        <td class="px-4 py-3 whitespace-nowrap">100086</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Alpine Trade Ltd</td>
+                        <td class="px-4 py-3 whitespace-nowrap">act_88291001</td>
+                        <td class="px-4 py-3 whitespace-nowrap">AT-Prospecting</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Meta</td>
+                        <td class="px-4 py-3 whitespace-nowrap">海外户</td>
+                        <td class="px-4 py-3 whitespace-nowrap">AT 奥地利</td>
+                        <td class="px-4 py-3 whitespace-nowrap">USD</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">1,200.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">5%</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">60.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">1.000000</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">60.00</td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 whitespace-nowrap">2026-07-13</td>
+                        <td class="px-4 py-3 whitespace-nowrap">100086</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Alpine Trade Ltd</td>
+                        <td class="px-4 py-3 whitespace-nowrap">act_88291001</td>
+                        <td class="px-4 py-3 whitespace-nowrap">AT-Prospecting</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Meta</td>
+                        <td class="px-4 py-3 whitespace-nowrap">海外户</td>
+                        <td class="px-4 py-3 whitespace-nowrap">FR 法国</td>
+                        <td class="px-4 py-3 whitespace-nowrap">USD</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">800.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">3%</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">24.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">1.000000</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">24.00</td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 whitespace-nowrap">2026-07-12</td>
+                        <td class="px-4 py-3 whitespace-nowrap">100102</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Nordic Brand GmbH</td>
+                        <td class="px-4 py-3 whitespace-nowrap">act_77120088</td>
+                        <td class="px-4 py-3 whitespace-nowrap">EU-Brand</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Meta</td>
+                        <td class="px-4 py-3 whitespace-nowrap">海外户</td>
+                        <td class="px-4 py-3 whitespace-nowrap">GB 英国</td>
+                        <td class="px-4 py-3 whitespace-nowrap">EUR</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">2,450.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">2%</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">49.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">1.085000</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">53.17</td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 whitespace-nowrap">2026-07-05</td>
+                        <td class="px-4 py-3 whitespace-nowrap">100102</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Nordic Brand GmbH</td>
+                        <td class="px-4 py-3 whitespace-nowrap">act_77120088</td>
+                        <td class="px-4 py-3 whitespace-nowrap">EU-Brand</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Meta</td>
+                        <td class="px-4 py-3 whitespace-nowrap">海外户</td>
+                        <td class="px-4 py-3 whitespace-nowrap">TR 土耳其</td>
+                        <td class="px-4 py-3 whitespace-nowrap">EUR</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">1,000.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">5%</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">50.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">1.082000</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">54.10</td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 whitespace-nowrap">2026-07-04</td>
+                        <td class="px-4 py-3 whitespace-nowrap">100220</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Sunrise Retail</td>
+                        <td class="px-4 py-3 whitespace-nowrap">act_55118820</td>
+                        <td class="px-4 py-3 whitespace-nowrap">WW-Outsourcing</td>
+                        <td class="px-4 py-3 whitespace-nowrap">Meta</td>
+                        <td class="px-4 py-3 whitespace-nowrap">海外户</td>
+                        <td class="px-4 py-3 whitespace-nowrap">ES 西班牙</td>
+                        <td class="px-4 py-3 whitespace-nowrap">USD</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">3,200.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">3%</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">96.00</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">1.000000</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right num">96.00</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                  <div class="text-sm text-gray-500">显示第 1-5 条，共 128 条</div>
+                  <div class="flex space-x-2">
+                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <button class="px-3 py-1 border border-blue-500 bg-blue-50 text-blue-600 rounded text-sm">1</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========== Tab: 配置 ========== -->
+            <div id="pane-config" class="page-pane">
+              <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800">
+                <i class="fas fa-cog mr-1"></i>
+                配置分两块：<strong>计税范围</strong>（媒体 × 账户类型 × 生效日，未配置默认不计税）与<strong>国家税率</strong>（国家 × 税率 × 生效期）。本期预置 Meta×海外户 自 2026-07-01、Meta×企业户 自 2026-10-01。
+              </div>
+
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div class="inline-flex rounded-md shadow-sm border border-gray-300 overflow-hidden">
+                  <button type="button" class="sub-tab active px-4 py-2 text-sm font-medium bg-blue-600 text-white" data-config="scope">计税范围</button>
+                  <button type="button" class="sub-tab px-4 py-2 text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 border-l border-gray-300" data-config="rate">国家税率</button>
+                </div>
+                <button id="btnAddConfig" type="button" onclick="openConfigModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                  <i class="fas fa-plus"></i><span>新增计税范围</span>
+                </button>
+              </div>
+
+              <!-- 计税范围 -->
+              <div id="config-scope" class="config-pane active bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                  <h3 class="text-lg font-medium text-gray-900">计税范围</h3>
+                </div>
+                <div class="table-wrap">
+                  <table class="min-w-full divide-y divide-gray-200 table-hover">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账户类型</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">生效开始日</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">生效结束日</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新人</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200 text-sm text-gray-700">
+                      <tr>
+                        <td class="px-4 py-3">Meta</td>
+                        <td class="px-4 py-3">海外户</td>
+                        <td class="px-4 py-3">2026-07-01</td>
+                        <td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td>
+                        <td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('scope-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3">Meta</td>
+                        <td class="px-4 py-3">企业户</td>
+                        <td class="px-4 py-3">2026-10-01</td>
+                        <td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td>
+                        <td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('scope-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3">Google</td>
+                        <td class="px-4 py-3">海外户</td>
+                        <td class="px-4 py-3">-</td>
+                        <td class="px-4 py-3">-</td>
+                        <td class="px-4 py-3"><span class="status-badge off">未配置 / 不计</span></td>
+                        <td class="px-4 py-3">-</td>
+                        <td class="px-4 py-3">-</td>
+                        <td class="px-4 py-3">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="openConfigModal('scope-new')">配置启用</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="px-6 py-3 text-xs text-gray-500 border-t border-gray-200 bg-gray-50">未出现在本表中的「媒体 × 账户类型」默认<strong>不计税</strong>。</div>
+              </div>
+
+              <!-- 国家税率 -->
+              <div id="config-rate" class="config-pane bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                  <h3 class="text-lg font-medium text-gray-900">国家税率</h3>
+                </div>
+                <div class="table-wrap">
+                  <table class="min-w-full divide-y divide-gray-200 table-hover">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">媒体</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">国家代码</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">国家名称</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">税率</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">生效开始日</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">生效结束日</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新人</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200 text-sm text-gray-700">
+                      <tr>
+                        <td class="px-4 py-3">Meta</td><td class="px-4 py-3">AT</td><td class="px-4 py-3">奥地利</td>
+                        <td class="px-4 py-3 text-right num">5%</td><td class="px-4 py-3">2026-07-01</td><td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td><td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('rate-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3">Meta</td><td class="px-4 py-3">TR</td><td class="px-4 py-3">土耳其</td>
+                        <td class="px-4 py-3 text-right num">5%</td><td class="px-4 py-3">2026-07-01</td><td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td><td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('rate-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3">Meta</td><td class="px-4 py-3">FR</td><td class="px-4 py-3">法国</td>
+                        <td class="px-4 py-3 text-right num">3%</td><td class="px-4 py-3">2026-07-01</td><td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td><td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('rate-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3">Meta</td><td class="px-4 py-3">IT</td><td class="px-4 py-3">意大利</td>
+                        <td class="px-4 py-3 text-right num">3%</td><td class="px-4 py-3">2026-07-01</td><td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td><td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('rate-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3">Meta</td><td class="px-4 py-3">ES</td><td class="px-4 py-3">西班牙</td>
+                        <td class="px-4 py-3 text-right num">3%</td><td class="px-4 py-3">2026-07-01</td><td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td><td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('rate-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3">Meta</td><td class="px-4 py-3">GB</td><td class="px-4 py-3">英国</td>
+                        <td class="px-4 py-3 text-right num">2%</td><td class="px-4 py-3">2026-07-01</td><td class="px-4 py-3">长期</td>
+                        <td class="px-4 py-3"><span class="status-badge on">启用</span></td>
+                        <td class="px-4 py-3">系统初始化</td><td class="px-4 py-3">2026-06-20 10:00:00</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <button class="text-blue-600 hover:text-blue-800 text-sm mr-3" onclick="openConfigModal('rate-edit')">编辑</button>
+                          <button class="text-gray-500 hover:text-gray-700 text-sm">停用</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="configModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop bg-gray-600 bg-opacity-50">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 animate-fadeIn">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 id="modalTitle" class="text-lg font-medium text-gray-900">新增计税范围</h3>
+        <button onclick="closeConfigModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="px-6 py-4 space-y-4" id="modalBodyScope">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">媒体 <span class="text-red-500">*</span></label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option>Meta</option><option>Google</option><option>TikTok</option><option>其他</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">账户类型 <span class="text-red-500">*</span></label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option>海外户</option><option>企业户</option><option>三不限</option><option>绿通户</option><option>绑卡户</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">生效开始日 <span class="text-red-500">*</span></label>
+          <input type="date" value="2026-07-01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">生效结束日 <span class="text-red-500">*</span></label>
+          <div class="flex items-center gap-4 mb-2">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="radio" name="scopeEndMode" value="long" checked onchange="toggleEndDate('scope')" class="text-blue-600"> 长期
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="radio" name="scopeEndMode" value="date" onchange="toggleEndDate('scope')" class="text-blue-600"> 指定日期
+            </label>
+          </div>
+          <input type="date" id="scopeEndDate" disabled class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <p class="text-xs text-gray-400 mt-1">选择「长期」则无需填写结束日；选择「指定日期」必须填写明确的生效结束日。</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option>启用</option><option>停用</option></select>
+        </div>
+      </div>
+      <div class="px-6 py-4 space-y-4 hidden" id="modalBodyRate">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">媒体 <span class="text-red-500">*</span></label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option>Meta</option><option>Google</option></select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">国家代码 <span class="text-red-500">*</span></label>
+            <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="AT" placeholder="如 AT">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">国家名称</label>
+            <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="奥地利">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">税率 (%) <span class="text-red-500">*</span></label>
+          <input type="number" step="0.01" value="5" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">生效开始日 <span class="text-red-500">*</span></label>
+          <input type="date" value="2026-07-01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">生效结束日 <span class="text-red-500">*</span></label>
+          <div class="flex items-center gap-4 mb-2">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="radio" name="rateEndMode" value="long" checked onchange="toggleEndDate('rate')" class="text-blue-600"> 长期
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="radio" name="rateEndMode" value="date" onchange="toggleEndDate('rate')" class="text-blue-600"> 指定日期
+            </label>
+          </div>
+          <input type="date" id="rateEndDate" disabled class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <p class="text-xs text-gray-400 mt-1">选择「长期」则无需填写结束日；选择「指定日期」必须填写明确的生效结束日。</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option>启用</option><option>停用</option></select>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+        <button onclick="closeConfigModal()" class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="closeConfigModal()" class="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar.classList.contains('mobile-menu-closed')) {
+        sidebar.classList.remove('mobile-menu-closed');
+        sidebar.classList.add('mobile-menu-open');
+        overlay.classList.remove('hidden');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-50');
+      } else {
+        sidebar.classList.remove('mobile-menu-open');
+        sidebar.classList.add('mobile-menu-closed');
+        overlay.classList.add('opacity-0');
+        overlay.classList.remove('opacity-50');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+    }
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+
+    document.querySelectorAll('.page-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.page-tab').forEach(t => {
+          t.classList.remove('active', 'border-blue-600', 'text-blue-600');
+          t.classList.add('border-transparent', 'text-gray-500');
+        });
+        document.querySelectorAll('.page-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active', 'border-blue-600', 'text-blue-600');
+        tab.classList.remove('border-transparent', 'text-gray-500');
+        document.getElementById('pane-' + tab.dataset.pane).classList.add('active');
+      });
+    });
+
+    let configMode = 'scope';
+    document.querySelectorAll('.sub-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.sub-tab').forEach(t => {
+          t.classList.remove('active', 'bg-blue-600', 'text-white');
+          t.classList.add('bg-white', 'text-gray-700');
+        });
+        document.querySelectorAll('.config-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active', 'bg-blue-600', 'text-white');
+        tab.classList.remove('bg-white', 'text-gray-700');
+        configMode = tab.dataset.config;
+        document.getElementById('config-' + configMode).classList.add('active');
+        const btn = document.getElementById('btnAddConfig');
+        btn.innerHTML = configMode === 'scope'
+          ? '<i class="fas fa-plus"></i><span>新增计税范围</span>'
+          : '<i class="fas fa-plus"></i><span>新增国家税率</span>';
+      });
+    });
+
+    function openConfigModal(hint) {
+      const modal = document.getElementById('configModal');
+      const isRate = configMode === 'rate' || (hint && String(hint).startsWith('rate'));
+      document.getElementById('modalBodyScope').classList.toggle('hidden', isRate);
+      document.getElementById('modalBodyRate').classList.toggle('hidden', !isRate);
+      document.getElementById('modalTitle').textContent = isRate
+        ? (hint === 'rate-edit' ? '编辑国家税率' : '新增国家税率')
+        : (hint === 'scope-edit' ? '编辑计税范围' : '新增计税范围');
+      const prefix = isRate ? 'rate' : 'scope';
+      const longRadio = document.querySelector(`input[name="${prefix}EndMode"][value="long"]`);
+      if (longRadio) longRadio.checked = true;
+      toggleEndDate(prefix);
+      modal.classList.remove('hidden');
+    }
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+    function toggleEndDate(prefix) {
+      const mode = document.querySelector(`input[name="${prefix}EndMode"]:checked`)?.value;
+      const input = document.getElementById(prefix + 'EndDate');
+      if (!input) return;
+      if (mode === 'long') {
+        input.disabled = true;
+        input.value = '';
+        input.classList.add('bg-gray-50');
+      } else {
+        input.disabled = false;
+        input.classList.remove('bg-gray-50');
+      }
+    }
+    document.getElementById('configModal').addEventListener('click', e => {
+      if (e.target.id === 'configModal') closeConfigModal();
+    });
+  </script>
+</body>
+</html>
