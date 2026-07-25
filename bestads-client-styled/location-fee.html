@@ -98,9 +98,41 @@
             <span class="i18n-zh">地区税费</span><span class="i18n-en">Location Fees</span>
           </h2>
           <p class="text-sm page-description" style="color: #B0B5C0;">
-            <span class="i18n-zh">查看广告账户按投放国家估算的地区税费（以 Meta 账单为准）</span>
-            <span class="i18n-en">Estimated location fees by delivery country (actual charges follow Meta invoice)</span>
+            <span class="i18n-zh">查看估算地区税费与预收池余额；充值时预收从充值额内拆分。实际以 Meta 账单为准。</span>
+            <span class="i18n-en">View estimated location fees and prepaid balance. Prepaid is split from recharge amount. Actual charges follow Meta invoice.</span>
           </p>
+        </div>
+
+        <!-- 客户端软提醒 -->
+        <div class="mb-6 rounded-md px-4 py-3 text-sm leading-relaxed" style="background: rgba(245,158,11,0.15); border: 2px solid #F59E0B; color: #FBBF24;">
+          <div class="i18n-zh-block">
+            <div class="font-semibold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i>软提醒：预收可能不足</div>
+            <p style="color:#FCD34D;">近 7 天估算税费合计约 <strong class="num">84.00 USD</strong>；当前预收池余额 <strong class="num">500.00 USD</strong>。若持续投放应税国家，预收可能不够覆盖，请联系运营补预收或调整投放。本提醒不扣款。</p>
+          </div>
+          <div class="i18n-en-block">
+            <div class="font-semibold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i>Soft alert: prepaid may be insufficient</div>
+            <p style="color:#FCD34D;">Estimated fees (last 7 days) ~ <strong class="num">84.00 USD</strong>; prepaid balance <strong class="num">500.00 USD</strong>. Contact ops if you keep spending in taxable countries. No auto charge.</p>
+          </div>
+        </div>
+
+        <!-- 预收池卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">预收池余额</span><span class="i18n-en">Prepaid balance</span></div>
+            <div class="mt-1 text-2xl font-semibold num" style="color:#00FFB0;">500.00 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
+          </div>
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">近 7 天估算税费</span><span class="i18n-en">Est. fees (7d)</span></div>
+            <div class="mt-1 text-2xl font-semibold text-white num">84.00 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
+          </div>
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">应税消耗合计</span><span class="i18n-en">Taxable spend</span></div>
+            <div class="mt-1 text-2xl font-semibold text-white num">18,650.00 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
+          </div>
+          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">估算地区税费</span><span class="i18n-en">Est. location fees</span></div>
+            <div class="mt-1 text-2xl font-semibold num" style="color:#00FFB0;">624.50 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
+          </div>
         </div>
 
         <!-- 重要说明 -->
@@ -123,18 +155,10 @@
           </div>
         </div>
 
-        <!-- 汇总 -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <!-- 汇总补充 -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
           <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
-            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">应税消耗合计</span><span class="i18n-en">Taxable spend</span></div>
-            <div class="mt-1 text-2xl font-semibold text-white num">18,650.00 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
-          </div>
-          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
-            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">估算地区税费</span><span class="i18n-en">Est. location fees</span></div>
-            <div class="mt-1 text-2xl font-semibold num" style="color:#00FFB0;">624.50 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
-          </div>
-          <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
-            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">参考合计</span><span class="i18n-en">Reference total</span></div>
+            <div class="text-sm" style="color: #B0B5C0;"><span class="i18n-zh">参考合计（消耗+估算税费）</span><span class="i18n-en">Reference total</span></div>
             <div class="mt-1 text-2xl font-semibold text-white num">19,274.50 <span class="text-sm font-medium" style="color:#B0B5C0;">USD</span></div>
           </div>
           <div class="shadow-lg px-5 py-4" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">

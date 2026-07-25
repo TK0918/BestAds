@@ -331,6 +331,8 @@
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告账户名称</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">一代</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">充值金额</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">预收税率</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">预收税费</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">是否绑卡户</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">使用卡</th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
@@ -373,9 +375,23 @@
           <div id="accountList" class="max-h-32 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50"></div>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">充值金额设置</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">充值金额 R（钱包扣款）</label>
           <div id="rechargeAmounts" class="space-y-2"></div>
           <div id="totalAmount" class="mt-2 text-sm text-gray-500"></div>
+        </div>
+        <div class="mb-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-3 text-sm text-blue-900">
+          <div class="font-medium mb-2"><i class="fas fa-info-circle mr-1"></i>金额拆分预览（钱包只扣 R，不额外加扣）</div>
+          <div class="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+            <div>示例 K% = 5%（账户/客户配置）</div>
+            <div>示例服务费 = 3%</div>
+            <div>预收 P = R × K%</div>
+            <div class="num font-medium" id="splitP">—</div>
+            <div>服务费 S = R × 服务费率</div>
+            <div class="num font-medium" id="splitS">—</div>
+            <div>广告账户到账 C = R − P − S</div>
+            <div class="num font-semibold text-blue-700" id="splitC">—</div>
+          </div>
+          <p class="text-xs text-blue-800 mt-2">绑卡充值同样按此拆分；预收进入广告侧预收池。</p>
         </div>
         <div class="flex justify-end">
           <button type="button" id="submitRecharge" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">提交</button>
@@ -457,12 +473,12 @@
     const rechargeData = [
       { id:'RC001', customerId:'C1001', customerName:'张三', customerEmail:'zhangsan@bestads.com',
         submitTime:'2024-06-09 10:30', accountId:'FB001234567', accountName:'跨境电商账户01',
-        agent:'王一代', amount:1000, status:'成功', completeTime:'2024-06-09 11:00', remark:'到账无误',
+        agent:'王一代', amount:1000, prepaidRate:5, prepaidFee:50, status:'成功', completeTime:'2024-06-09 11:00', remark:'到账无误',
         isBindCardAccount:false, activeCardId:null, activeCardLast4:null, fundOrderNo:null,
         cardAvailableLimit:null, statusTimeline:[] },
       { id:'RC002', customerId:'C1002', customerName:'李四', customerEmail:'lisi@bestads.com',
         submitTime:'2024-06-08 09:20', accountId:'FB001234568', accountName:'移动应用账户02',
-        agent:'李一代', amount:500, status:'待 Fund 调额', completeTime:'', remark:'等待 Fund 回调',
+        agent:'李一代', amount:500, prepaidRate:5, prepaidFee:25, status:'待 Fund 调额', completeTime:'', remark:'等待 Fund 回调',
         isBindCardAccount:true, activeCardId:'c_3bpoltc2u7sf1', activeCardLast4:'1234',
         fundOrderNo:'FUND20240608092005', cardAvailableLimit:300,
         statusTimeline:[
@@ -470,12 +486,12 @@
         ] },
       { id:'RC003', customerId:'C1003', customerName:'王五', customerEmail:'wangwu@bestads.com',
         submitTime:'2024-06-07 12:10', accountId:'FB009876543', accountName:'品牌推广账户03',
-        agent:'赵一代', amount:800, status:'待人工处理', completeTime:'', remark:'-',
+        agent:'赵一代', amount:800, prepaidRate:null, prepaidFee:null, status:'待人工处理', completeTime:'', remark:'-',
         isBindCardAccount:false, activeCardId:null, activeCardLast4:null, fundOrderNo:null,
         cardAvailableLimit:null, statusTimeline:[] },
       { id:'RC004', customerId:'C1004', customerName:'赵六', customerEmail:'zhaoliu@bestads.com',
         submitTime:'2024-06-07 09:45', accountId:'FB001111222', accountName:'跨境电商账户04',
-        agent:'钱一代', amount:1200, status:'待媒体后台调整', completeTime:'', remark:'等待业务到媒体后台调整',
+        agent:'钱一代', amount:1200, prepaidRate:5, prepaidFee:60, status:'待媒体后台调整', completeTime:'', remark:'等待业务到媒体后台调整',
         isBindCardAccount:true, activeCardId:'c_w9x8y7z6v5u4t3', activeCardLast4:'5678',
         fundOrderNo:'FUND20240607094520', cardAvailableLimit:1500,
         statusTimeline:[
@@ -485,7 +501,7 @@
         ] },
       { id:'RC005', customerId:'C1005', customerName:'钱七', customerEmail:'qianqi@bestads.com',
         submitTime:'2024-06-06 15:20', accountId:'FB003333444', accountName:'移动应用账户05',
-        agent:'孙一代', amount:300, status:'待媒体后台调整', completeTime:'', remark:'等待业务到媒体后台调整',
+        agent:'孙一代', amount:300, prepaidRate:0, prepaidFee:0, status:'待媒体后台调整', completeTime:'', remark:'等待业务到媒体后台调整',
         isBindCardAccount:true, activeCardId:'c_m1n2o3p4q5r6s7', activeCardLast4:'9012',
         fundOrderNo:'FUND20240606152030', cardAvailableLimit:800,
         statusTimeline:[
@@ -495,7 +511,7 @@
         ] },
       { id:'RC006', customerId:'C1006', customerName:'孙八', customerEmail:'sunba@bestads.com',
         submitTime:'2024-06-06 08:00', accountId:'FB005555666', accountName:'品牌推广账户06',
-        agent:'周一代', amount:900, status:'Fund 调信用卡失败', completeTime:'', remark:'Fund 回调超时',
+        agent:'周一代', amount:900, prepaidRate:5, prepaidFee:45, status:'Fund 调信用卡失败', completeTime:'', remark:'Fund 回调超时',
         isBindCardAccount:true, activeCardId:'c_h7j8k9l0m1n2o3', activeCardLast4:'3456',
         fundOrderNo:'FUND20240606080010', cardAvailableLimit:200,
         statusTimeline:[
@@ -504,12 +520,12 @@
         ] },
       { id:'RC007', customerId:'C1007', customerName:'周九', customerEmail:'zhoujiu@bestads.com',
         submitTime:'2024-06-05 18:40', accountId:'FB007777888', accountName:'跨境电商账户07',
-        agent:'吴一代', amount:2500, status:'成功', completeTime:'2024-06-05 19:00', remark:'-',
+        agent:'吴一代', amount:2500, prepaidRate:5, prepaidFee:125, status:'成功', completeTime:'2024-06-05 19:00', remark:'-',
         isBindCardAccount:false, activeCardId:null, activeCardLast4:null, fundOrderNo:null,
         cardAvailableLimit:null, statusTimeline:[] },
       { id:'RC008', customerId:'C1008', customerName:'吴十', customerEmail:'wushi@bestads.com',
         submitTime:'2024-06-04 14:15', accountId:'FB009999000', accountName:'移动应用账户08',
-        agent:'郑一代', amount:700, status:'已完成', completeTime:'2024-06-04 14:42:15', remark:'已在媒体后台完成调整',
+        agent:'郑一代', amount:700, prepaidRate:8, prepaidFee:56, status:'已完成', completeTime:'2024-06-04 14:42:15', remark:'已在媒体后台完成调整',
         isBindCardAccount:true, activeCardId:'c_p3q4r5s6t7u8v9', activeCardLast4:'7890',
         fundOrderNo:'FUND20240604141520', cardAvailableLimit:1200,
         statusTimeline:[
@@ -520,7 +536,7 @@
         ] },
       { id:'RC009', customerId:'C1009', customerName:'郑十一', customerEmail:'zheng11@bestads.com',
         submitTime:'2024-06-03 10:05', accountId:'FB001212121', accountName:'品牌推广账户09',
-        agent:'王二代', amount:1800, status:'已取消', completeTime:'2024-06-03 10:45', remark:'多次 Fund 调信用卡失败, 业务取消',
+        agent:'王二代', amount:1800, prepaidRate:5, prepaidFee:90, status:'已取消', completeTime:'2024-06-03 10:45', remark:'多次 Fund 调信用卡失败, 业务取消',
         isBindCardAccount:true, activeCardId:'c_x9y0z1a2b3c4d5', activeCardLast4:'2345',
         fundOrderNo:'FUND20240603100530', cardAvailableLimit:0,
         statusTimeline:[
@@ -530,7 +546,7 @@
         ] },
       { id:'RC010', customerId:'C1010', customerName:'钱十二', customerEmail:'qian12@bestads.com',
         submitTime:'2024-06-02 16:55', accountId:'FB004545454', accountName:'跨境电商账户10',
-        agent:'李二代', amount:950, status:'成功', completeTime:'2024-06-02 17:25', remark:'-',
+        agent:'李二代', amount:950, prepaidRate:null, prepaidFee:null, status:'成功', completeTime:'2024-06-02 17:25', remark:'-',
         isBindCardAccount:false, activeCardId:null, activeCardLast4:null, fundOrderNo:null,
         cardAvailableLimit:null, statusTimeline:[] }
     ];
@@ -582,6 +598,14 @@
     function formatAmount(n) {
       return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
+    function formatPrepaidRate(rate) {
+      if (rate === null || rate === undefined || rate === '') return '<span class="text-gray-400">—</span>';
+      return Number(rate) + '%';
+    }
+    function formatPrepaidFee(fee) {
+      if (fee === null || fee === undefined || fee === '') return '<span class="text-gray-400">—</span>';
+      return formatAmount(fee);
+    }
 
     function renderTable() {
       const tbody = document.getElementById('rechargeTableBody');
@@ -612,6 +636,8 @@
           <td class="px-6 py-4 whitespace-nowrap">${item.accountName}</td>
           <td class="px-6 py-4 whitespace-nowrap">${item.agent}</td>
           <td class="px-6 py-4 whitespace-nowrap">${formatAmount(item.amount)}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${formatPrepaidRate(item.prepaidRate)}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${formatPrepaidFee(item.prepaidFee)}</td>
           <td class="px-6 py-4 whitespace-nowrap">${bindCardBadge(item.isBindCardAccount)}</td>
           <td class="px-6 py-4 whitespace-nowrap">${activeCardText(item)}</td>
           <td class="px-6 py-4 whitespace-nowrap">${statusBadge(item.status)}</td>
@@ -637,12 +663,12 @@
       }
       currentSort.column = column;
 
-      // 列索引: 提交时间=5, 完成时间=14 (新增列后偏移)
+      // 列索引: 提交时间=5, 完成时间=16（充值金额后增预收税率/预收税费）
       let columnIndex;
       if (column === 'submitTime') {
         columnIndex = 5;
       } else if (column === 'completeTime') {
-        columnIndex = 14;
+        columnIndex = 16;
       }
 
       rows.sort((a, b) => {
@@ -737,7 +763,9 @@
           ${fieldRow('广告账户 ID', item.accountId)}
           ${fieldRow('广告账户名称', item.accountName)}
           ${fieldRow('媒体', MEDIA_NAME)}
-          ${fieldRow('充值金额', `${formatAmount(item.amount)} USD`)}
+          ${fieldRow('充值金额 R', `${formatAmount(item.amount)} USD`)}
+          ${fieldRow('预收税率', (item.prepaidRate === null || item.prepaidRate === undefined) ? '未配置' : (item.prepaidRate + '%'))}
+          ${fieldRow('预收税费 P', (item.prepaidFee === null || item.prepaidFee === undefined) ? '—' : (formatAmount(item.prepaidFee) + ' USD'))}
           ${fieldRow('是否绑卡户', item.isBindCardAccount ? '是' : '否')}
           ${fieldRow('使用卡', activeCardText(item))}
           
@@ -921,9 +949,19 @@
       
       if (selectedCustomer) {
         const balance = selectedCustomer.balance;
-        totalAmount.innerHTML = `总充值金额：¥${total} / 可用余额：¥${balance}`;
+        totalAmount.innerHTML = `总充值金额 R：$${total} / 可用余额：$${balance}（钱包只扣 R）`;
         totalAmount.className = total > balance ? 'mt-2 text-sm text-red-500' : 'mt-2 text-sm text-gray-500';
       }
+      const k = 0.05, s = 0.03;
+      const p = +(total * k).toFixed(2);
+      const fee = +(total * s).toFixed(2);
+      const c = +(total - p - fee).toFixed(2);
+      const elP = document.getElementById('splitP');
+      const elS = document.getElementById('splitS');
+      const elC = document.getElementById('splitC');
+      if (elP) elP.textContent = total ? ('$' + p.toFixed(2)) : '—';
+      if (elS) elS.textContent = total ? ('$' + fee.toFixed(2)) : '—';
+      if (elC) elC.textContent = total ? ('$' + c.toFixed(2)) : '—';
     }
 
     // 监听充值金额输入变化
@@ -993,7 +1031,7 @@
             id: newId, customerId: customer.id, customerName: customer.name,
             customerEmail: (customer.email || customer.name + '@bestads.com'),
             submitTime: nowStr(), accountId: acc.id, accountName: acc.name,
-            agent: '系统', amount: d.amount, status: '待 Fund 调额', completeTime: '',
+            agent: '系统', amount: d.amount, prepaidRate: 5, prepaidFee: +(d.amount * 0.05).toFixed(2), status: '待 Fund 调额', completeTime: '',
             remark: '绑卡户充值, 等待 Fund 回调',
             isBindCardAccount: true, activeCardId: acc.activeCardId, activeCardLast4: acc.activeCardLast4,
             fundOrderNo: 'FUND' + Date.now(), cardAvailableLimit: acc.cardAvailableLimit,
@@ -1007,7 +1045,7 @@
             id: newId, customerId: customer.id, customerName: customer.name,
             customerEmail: (customer.email || customer.name + '@bestads.com'),
             submitTime: nowStr(), accountId: acc.id, accountName: acc.name,
-            agent: '系统', amount: d.amount, status: '待人工处理', completeTime: '',
+            agent: '系统', amount: d.amount, prepaidRate: 5, prepaidFee: +(d.amount * 0.05).toFixed(2), status: '待人工处理', completeTime: '',
             remark: '-',
             isBindCardAccount: false, activeCardId: null, activeCardLast4: null,
             fundOrderNo: null, cardAvailableLimit: null, statusTimeline: []

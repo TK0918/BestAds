@@ -8,108 +8,32 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    .sidebar-item {
-      position: relative;
-      transition: all 0.2s ease;
-    }
-
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
     .sidebar-item::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: #667eea;
-      transform: scaleY(0);
-      transition: transform 0.2s ease;
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: #667eea; transform: scaleY(0); transition: transform 0.2s ease;
     }
-
-    .sidebar-item.active::before,
-    .sidebar-item:hover::before {
-      transform: scaleY(1);
-    }
-
-    .table-hover tbody tr:hover {
-      background-color: #f9fafb;
-    }
-
-    .modal-backdrop {
-      backdrop-filter: blur(8px);
-    }
-
-    .animate-fadeIn {
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .mobile-menu-open {
-      transform: translateX(0);
-    }
-
-    .mobile-menu-closed {
-      transform: translateX(-100%);
-    }
-
-    .status-success {
-      background-color: #10b981;
-      color: white;
-    }
-
-    .status-failed {
-      background-color: #ef4444;
-      color: white;
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 11px;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-    .status-badge.success { background: #dcfce7; color: #166534; }
-    .status-badge.reversed { background: #e0e7ff; color: #3730a3; }
-    .status-badge.failed { background: #fef2f2; color: #dc2626; }
-
-    .drawer-overlay { backdrop-filter: blur(4px); }
-    .drawer-panel { transform: translateX(100%); transition: transform 0.3s ease; }
-    .drawer-panel.open { transform: translateX(0); }
-
-    .balance-current { color: #dc2626; font-weight: 700; font-size: 15px; }
-    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .table-hover tbody tr:hover { background-color: #f9fafb; }
+    .num { font-variant-numeric: tabular-nums; }
   </style>
 </head>
 <body class="bg-gray-50">
   <div class="flex h-screen overflow-hidden">
     <!-- 侧边栏 -->
     <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
-      <!-- 侧边栏头部 -->
       <div class="flex items-center justify-center h-16 border-b border-gray-200">
         <div class="flex items-center">
           <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
             <i class="fas fa-chart-line text-white text-sm"></i>
           </div>
-          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            BestAds Admin
-          </span>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">BestAds Admin</span>
         </div>
       </div>
 
-      <!-- 侧边栏菜单区 -->
       <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
         <nav>
-          <!-- 主要功能 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('mainMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">主要功能</h3>
@@ -118,6 +42,7 @@
             <ul id="mainMenu" class="space-y-1 mb-2">
               <li><a href="index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
               <li><a href="customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="customer-sub-account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-friends w-5 h-5 mr-3 text-gray-400"></i>客户子账号管理</a></li>
               <li><a href="agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
               <li><a href="rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
               <li><a href="introducer-spitpoint.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-400"></i>介绍人和吐点</a></li>
@@ -126,7 +51,6 @@
               <li><a href="system-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
             </ul>
           </div>
-          <!-- 绩效 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('perfMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">绩效</h3>
@@ -140,7 +64,6 @@
               <li><a href="../performance/performance-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-history w-5 h-5 mr-3 text-gray-400"></i>绩效操作日志</a></li>
             </ul>
           </div>
-          <!-- FB业务管理 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('fbMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">FB业务管理</h3>
@@ -156,17 +79,6 @@
               <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
             </ul>
           </div>
-          <!-- 广告治理 -->
-          <div class="px-4 mb-6">
-            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
-              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
-              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
-            </div>
-            <ul id="adMenu" class="space-y-1 mb-2">
-              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
-            </ul>
-          </div>
-          <!-- Google业务管理 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
@@ -181,7 +93,6 @@
               <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
             </ul>
           </div>
-          <!-- 其他媒体业务管理 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
@@ -195,7 +106,15 @@
               <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
             </ul>
           </div>
-          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('adMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">广告治理</h3>
+              <i id="adMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="adMenu" class="space-y-1 mb-2">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('sysMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">系统设置</h3>
@@ -205,10 +124,10 @@
               <li><a href="../system-configuration/precharge-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
               <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
               <li><a href="../system-settings/notification-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>客户端通知配置</a></li>
+              <li><a href="../system-settings/client-menu.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sitemap w-5 h-5 mr-3 text-gray-400"></i>客户端菜单</a></li>
               <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
             </ul>
           </div>
-          <!-- 客户流水 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('flowMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">客户流水</h3>
@@ -219,7 +138,7 @@
               <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
               <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
             </ul>
-          <!-- 余额监控管理 -->
+          </div>
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
@@ -230,8 +149,6 @@
               <li><a href="../auto-recharge/account-status-monitor.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>账户封停监控</a></li>
             </ul>
           </div>
-          </div>
-          <!-- 报表 -->
           <div class="px-4 mb-6">
             <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('reportMenu')">
               <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">报表</h3>
@@ -264,201 +181,76 @@
       </script>
     </aside>
 
-    <!-- 遮罩层 (移动端) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
 
-    <!-- 主要内容区域 -->
-    <div class="flex flex-col flex-1 overflow-hidden">
-      <!-- 顶部栏 -->
-      <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-          <!-- 左侧 -->
-          <div class="flex items-center">
-            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-              <i class="fas fa-bars text-lg"></i>
-            </button>
-            
-            <div class="ml-4 lg:ml-0">
-              <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
-                <span class="text-gray-500">主页</span>
-                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
-                <span class="text-gray-900 font-medium">其他扣费</span>
-              </nav>
-            </div>
-          </div>
-          
-          <!-- 右侧 -->
-          <div class="flex items-center space-x-4">
-            <div class="relative">
-              <button class="p-2 text-gray-400 hover:text-gray-500 relative">
-                <i class="fas fa-bell text-lg"></i>
-                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
-              </button>
-            </div>
-            
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                <span class="text-white text-sm font-medium">A</span>
-              </div>
-              <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
-            </div>
-          </div>
-        </div>
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <header class="bg-white shadow-sm border-b h-16 flex items-center px-6">
+        <nav class="flex space-x-2 text-sm text-gray-500">
+          <span>主页</span><i class="fas fa-chevron-right text-xs mt-1 text-gray-300"></i>
+          <span>主要功能</span><i class="fas fa-chevron-right text-xs mt-1 text-gray-300"></i>
+          <span class="text-gray-900 font-medium">其他扣费</span>
+        </nav>
       </header>
 
-      <!-- 页面内容 -->
-      <main class="flex-1 overflow-y-auto bg-gray-50">
-        <div class="py-6">
-          <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- 页面标题区域 -->
-            <div class="mb-8">
-              <div class="md:flex md:items-center md:justify-between">
-                <div class="flex-1 min-w-0">
-                  <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-                    其他扣费
-                  </h2>
-                  <p class="mt-1 text-sm text-gray-500">
-                    查看和管理广告主钱包其他费用扣费记录；支持多币种扣费与回退
-                  </p>
-                </div>
-                <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-                  <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-                    <i class="fas fa-plus"></i>
-                    <span>新增其他扣费</span>
-                  </button>
-                  <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
-                    <i class="fas fa-download"></i>
-                    <span>导出</span>
-                  </button>
-                </div>
-              </div>
+      <main class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-7xl mx-auto">
+          <div class="md:flex md:items-center md:justify-between mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">其他扣费</h2>
+              <p class="mt-1 text-sm text-gray-500">扣费类型「地区税费预收补入」成功后，同额进入该<strong>客户</strong>预收池（可负记账），再按应计从池中冲抵。</p>
             </div>
+            <button type="button" onclick="openCreate()" class="mt-3 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+              <i class="fas fa-plus mr-1"></i>新建扣费
+            </button>
+          </div>
 
-            <!-- 筛选区域 -->
-            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
-              <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">筛选条件</h3>
-              </div>
-              <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
-                    <input type="text" id="merchantIdFilter" placeholder="输入商户ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">扣费类型</label>
-                    <select id="deductionTypeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option value="">全部类型</option>
-                      <option value="账户扣费">账户扣费</option>
-                      <option value="账户充值">账户充值</option>
-                      <option value="广告投放">广告投放</option>
-                      <option value="渠道返点">渠道返点</option>
-                      <option value="媒体合作">媒体合作</option>
-                      <option value="其他费用">其他费用</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">扣费币种</label>
-                    <select id="currencyFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option value="">全部币种</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                      <option value="HKD">HKD</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">流水状态</label>
-                    <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option value="">全部状态</option>
-                      <option value="SUCCESS">扣费成功</option>
-                      <option value="REVERSED">已回退</option>
-                      <option value="REVERSE_FAILED">回退失败</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">扣费时间（开始）</label>
-                    <input type="datetime-local" id="startTimeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">扣费时间（结束）</label>
-                    <input type="datetime-local" id="endTimeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  </div>
-                </div>
-                <div class="flex justify-end items-center mt-4">
-                  <button onclick="searchData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors duration-200">
-                    <i class="fas fa-search mr-2"></i>搜索
-                  </button>
-                </div>
-              </div>
+          <div id="bannerPrepaid" class="hidden mb-4 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-900">
+            <i class="fas fa-info-circle mr-1"></i>
+            已从地区税费提醒跳转：类型预填为<strong>地区税费预收补入</strong>。成功扣钱包后，同额记入该账户预收池。
+          </div>
+
+          <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+              <h3 class="text-lg font-medium">扣费列表</h3>
+              <div class="text-sm text-gray-500">含预收补入示例</div>
             </div>
-
-            <!-- 其他扣费列表表格 -->
-            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">其他扣费列表</h3>
-                <div class="text-sm text-gray-500">
-                  共 <span class="font-medium text-gray-900" id="totalCount">0</span> 条记录
-                </div>
-              </div>
-              <div class="table-wrap">
-                <table class="min-w-full divide-y divide-gray-200 table-hover">
-                  <thead class="bg-gray-50">
-                    <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">商户ID</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费时间</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费类型</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费币种</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费金额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">钱包币种</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">钱包扣款额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">流水状态</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">备注</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">扣费操作人</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">回退时间</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">回退操作人</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">回退原因</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">操作</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
-                    <!-- 数据将通过JavaScript动态填充 -->
-                  </tbody>
-                </table>
-              </div>
-              
-              <!-- 分页 -->
-              <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
-                <div class="flex items-center space-x-4">
-                  <div class="flex items-center space-x-2">
-                    <label class="text-sm text-gray-700">每页显示:</label>
-                    <select id="pageSize" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <option value="10">10</option>
-                      <option value="20" selected>20</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                    </select>
-                  </div>
-                  <div class="hidden sm:block">
-                    <p class="text-sm text-gray-700">
-                      显示 <span class="font-medium" id="pageStart">1</span> 到 <span class="font-medium" id="pageEnd">20</span> 共 <span class="font-medium" id="totalRecords">0</span> 条结果
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                    <button onclick="changePage(-1)" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                      <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div id="paginationNumbers" class="flex">
-                      <!-- 分页数字将通过JavaScript动态生成 -->
-                    </div>
-                    <button onclick="changePage(1)" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                      <i class="fas fa-chevron-right"></i>
-                    </button>
-                  </nav>
-                </div>
-              </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 table-hover text-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">单号</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">客户</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">广告账户</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">扣费类型</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500">金额</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">状态</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">预收池</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">时间</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr class="bg-purple-50">
+                    <td class="px-4 py-3">OD20260719008</td>
+                    <td class="px-4 py-3">Nordic Brand GmbH</td>
+                    <td class="px-4 py-3">act_77120088</td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs bg-purple-100 text-purple-800">地区税费预收补入</span></td>
+                    <td class="px-4 py-3 text-right num">49.00</td>
+                    <td class="px-4 py-3 text-green-700">成功</td>
+                    <td class="px-4 py-3 text-green-700">已入池 +49.00</td>
+                    <td class="px-4 py-3">2026-07-19 11:05</td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-3">OD20260710001</td>
+                    <td class="px-4 py-3">Sunrise Retail</td>
+                    <td class="px-4 py-3">—</td>
+                    <td class="px-4 py-3">账户管理费</td>
+                    <td class="px-4 py-3 text-right num">20.00</td>
+                    <td class="px-4 py-3 text-green-700">成功</td>
+                    <td class="px-4 py-3 text-gray-400">—</td>
+                    <td class="px-4 py-3">2026-07-10 16:20</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -466,507 +258,73 @@
     </div>
   </div>
 
-  <!-- 新增扣费模态框 -->
-  <div id="addModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full animate-fadeIn">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">新增其他扣费</h3>
-            <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
+  <div id="createModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-40">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+      <h3 class="text-lg font-semibold mb-4">新建其他扣费</h3>
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-gray-700 mb-1">扣费类型</label>
+          <select id="deductType" class="w-full border border-gray-300 rounded-md px-3 py-2">
+            <option value="location_fee_prepaid">地区税费预收补入</option>
+            <option value="mgmt">账户管理费</option>
+            <option value="other">其他</option>
+          </select>
         </div>
-        <form class="px-6 py-4" onsubmit="submitAddDeduction(event)">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">商户ID <span class="text-red-500">*</span></label>
-              <select id="merchantId" required onchange="loadMerchantBalance()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">请选择商户</option>
-                <option value="M001">M001 - 客户A</option>
-                <option value="M002">M002 - 客户B</option>
-                <option value="M003">M003 - 客户C</option>
-                <option value="M004">M004 - 客户D</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">扣费类型 <span class="text-red-500">*</span></label>
-              <select id="deductionType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">请选择扣费类型</option>
-                <option value="账户扣费">账户扣费</option>
-                <option value="账户充值">账户充值</option>
-                <option value="广告投放">广告投放</option>
-                <option value="渠道返点">渠道返点</option>
-                <option value="媒体合作">媒体合作</option>
-                <option value="其他费用">其他费用</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">扣费币种 <span class="text-red-500">*</span></label>
-              <select id="deductionCurrency" required onchange="onCurrencyChange()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="HKD">HKD</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2" id="amountLabel">扣费金额 <span class="text-red-500">*</span></label>
-              <input type="number" id="deductionAmount" step="0.01" min="0.01" placeholder="请输入扣费金额" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <p id="amountError" class="mt-1 text-xs text-red-500 hidden"></p>
-              <div id="walletDeductionPreview" class="hidden mt-2 p-3 bg-blue-50 border border-blue-100 rounded-md text-xs text-gray-700 grid grid-cols-2 gap-2">
-                <div><span class="text-gray-500">预计钱包币种：</span><span id="previewWalletCurrency">-</span></div>
-                <div><span class="text-gray-500">预计钱包扣款额：</span><span id="previewWalletAmount" class="font-medium">-</span></div>
-              </div>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
-              <textarea id="remark" rows="3" placeholder="请输入备注信息（选填）" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
-            </div>
-          </div>
-          
-          <!-- 商户资金信息展示 -->
-          <div id="merchantBalanceInfo" class="hidden mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h4 class="text-sm font-medium text-gray-700 mb-3">商户资金信息</h4>
-            <p class="text-xs text-gray-500 mb-3">客户钱包仅有一个币种，以下金额均为钱包币种计</p>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">钱包币种</label>
-                <p class="text-sm font-medium text-gray-900" id="walletCurrency">-</p>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">当前余额</label>
-                <p class="balance-current" id="currentBalance">-</p>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">可用金额</label>
-                <p class="text-sm font-medium text-gray-900" id="availableAmount">-</p>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">真实金额</label>
-                <p class="text-sm font-medium text-gray-900" id="realAmount">-</p>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">信用额度</label>
-                <p class="text-sm font-medium text-gray-900" id="creditLimit">-</p>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">已用额度</label>
-                <p class="text-sm font-medium text-gray-900" id="usedLimit">-</p>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-500 mb-1">剩余额度</label>
-                <p class="text-sm font-medium text-gray-900" id="remainingLimit">-</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex justify-end space-x-3 mt-6">
-            <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
-              取消
-            </button>
-            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">
-              提交
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- 回退模态框 -->
-  <div id="reverseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h3 class="text-lg font-medium text-gray-900">回退扣费</h3>
-          <button onclick="closeReverseModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        <div>
+          <label class="block text-gray-700 mb-1">客户（预收补入必填，入客户级预收池）</label>
+          <input id="deductCustomer" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="客户名称 / 商户ID">
         </div>
-        <div class="px-6 py-4">
-          <div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm space-y-2" id="reverseInfo"></div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">回退原因（选填）</label>
-            <textarea id="reverseReason" rows="3" placeholder="如：业务未实际发生" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-          </div>
-          <label class="flex items-start gap-2 text-sm text-gray-700">
-            <input type="checkbox" id="reverseConfirm" class="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300">
-            <span id="reverseConfirmText">确认将款项退回商户钱包</span>
-          </label>
+        <div>
+          <label class="block text-gray-700 mb-1">关联广告账户（可选，仅溯源）</label>
+          <input id="deductAccount" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="act_...">
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-          <button onclick="closeReverseModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">取消</button>
-          <button onclick="submitReverse()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">确认回退</button>
+        <div>
+          <label class="block text-gray-700 mb-1">扣费金额（钱包扣除）</label>
+          <input id="deductAmount" type="number" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="0.00">
+          <p class="text-xs text-gray-500 mt-1">金额由业务填写；成功后同额进入该账户预收池，再按应扣税费从池中冲抵。</p>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">备注</label>
+          <textarea class="w-full border border-gray-300 rounded-md px-3 py-2" rows="2" placeholder="如：硬提醒补预收 unpaid≈49"></textarea>
+        </div>
+        <div id="prepaidHint" class="rounded-md bg-purple-50 border border-purple-100 px-3 py-2 text-purple-900 text-xs">
+          选择「地区税费预收补入」时：Fund 扣钱包 → 广告预收池 +同额 → 日批/即时按应计冲抵。
         </div>
       </div>
+      <div class="flex justify-end space-x-2 mt-5">
+        <button type="button" onclick="closeCreate()" class="px-4 py-2 border rounded-md text-sm">取消</button>
+        <button type="button" onclick="submitCreate()" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm">提交扣费</button>
+      </div>
     </div>
-  </div>
-
-  <!-- 操作日志抽屉 -->
-  <div id="logDrawerOverlay" class="fixed inset-0 drawer-overlay bg-gray-600 bg-opacity-50 hidden z-50" onclick="closeLogDrawer()"></div>
-  <div id="logDrawer" class="drawer-panel fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col">
-    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-      <h3 class="text-lg font-medium text-gray-900">操作日志</h3>
-      <button onclick="closeLogDrawer()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="flex-1 overflow-y-auto px-6 py-4" id="logDrawerContent"></div>
   </div>
 
   <script>
-    const FX_RATES = { USD: 1, EUR: 1.08, GBP: 1.27, HKD: 0.128 };
-
-    let deductionData = [
-      { id: 1, merchantId: 'M001', walletCurrency: 'USD', currency: 'USD', deductionTime: '2026-07-05 10:30:00', deductionType: '其他费用', deductionAmount: 500, walletDeductionAmount: 500, status: 'SUCCESS', fundTxNo: 'FUND-TX-001', remark: '服务费扣款', operator: '管理员A', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-05 10:30:00', operator: '管理员A', detail: '扣费成功' }] },
-      { id: 2, merchantId: 'M002', walletCurrency: 'EUR', currency: 'EUR', deductionTime: '2026-07-06 11:20:00', deductionType: '渠道返点', deductionAmount: 300, walletDeductionAmount: 300, status: 'SUCCESS', fundTxNo: 'FUND-TX-002', remark: '渠道返点扣款', operator: '管理员B', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-06 11:20:00', operator: '管理员B', detail: '扣费成功' }] },
-      { id: 3, merchantId: 'M002', walletCurrency: 'EUR', currency: 'USD', deductionTime: '2026-07-07 14:15:00', deductionType: '其他费用', deductionAmount: 200, walletDeductionAmount: 185.19, status: 'SUCCESS', fundTxNo: 'FUND-TX-003', remark: '跨币种扣费', operator: '管理员A', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-07 14:15:00', operator: '管理员A', detail: '跨币种扣费成功' }] },
-      { id: 4, merchantId: 'M003', walletCurrency: 'USD', currency: 'USD', deductionTime: '2026-07-04 09:00:00', deductionType: '媒体合作', deductionAmount: 150, walletDeductionAmount: 150, status: 'REVERSED', fundTxNo: 'FUND-TX-004', reverseFundTxNo: 'FUND-RF-004', remark: '季度服务费', operator: '管理员A', reverseTime: '2026-07-04 16:30:00', reverseOperator: '管理员A', reverseReason: '业务未实际发生', logs: [{ action: '创建扣费', time: '2026-07-04 09:00:00', operator: '管理员A', detail: '扣费成功' }, { action: '回退', time: '2026-07-04 16:30:00', operator: '管理员A', detail: '款项已退回商户钱包' }] },
-      { id: 5, merchantId: 'M001', walletCurrency: 'USD', currency: 'USD', deductionTime: '2026-06-20 08:00:00', deductionType: '其他费用', deductionAmount: 80, walletDeductionAmount: 80, status: 'SUCCESS', fundTxNo: null, remark: '历史数据无流水号', operator: '管理员C', reverseTime: null, reverseOperator: null, reverseReason: null, logs: [{ action: '创建扣费', time: '2026-06-20 08:00:00', operator: '管理员C', detail: '历史导入，无 Fund 流水号' }] },
-      { id: 6, merchantId: 'M004', walletCurrency: 'GBP', currency: 'GBP', deductionTime: '2026-07-08 10:00:00', deductionType: '其他费用', deductionAmount: 120, walletDeductionAmount: 120, status: 'REVERSE_FAILED', fundTxNo: 'FUND-TX-006', remark: '待重试回退', operator: '管理员B', reverseTime: '2026-07-08 11:00:00', reverseOperator: '管理员B', reverseReason: null, logs: [{ action: '创建扣费', time: '2026-07-08 10:00:00', operator: '管理员B', detail: '扣费成功' }, { action: '回退失败', time: '2026-07-08 11:00:00', operator: '管理员B', detail: 'Fund 接口超时' }] }
-    ];
-
-    const merchantBalanceData = {
-      'M001': { walletCurrency: 'USD', currentBalance: 12500, availableAmount: 10500, realAmount: 10000, creditLimit: 5000, usedLimit: 1500 },
-      'M002': { walletCurrency: 'EUR', currentBalance: 9200, availableAmount: 8200, realAmount: 7000, creditLimit: 3000, usedLimit: 1000 },
-      'M003': { walletCurrency: 'USD', currentBalance: 8500, availableAmount: 7500, realAmount: 5000, creditLimit: 2000, usedLimit: 500 },
-      'M004': { walletCurrency: 'GBP', currentBalance: 21000, availableAmount: 19000, realAmount: 12000, creditLimit: 6000, usedLimit: 2000 }
-    };
-
-    let currentPage = 1;
-    let pageSize = 20;
-    let currentMerchantBalance = null;
-    let reverseTargetId = null;
-
-    const STATUS_LABELS = { SUCCESS: '扣费成功', REVERSED: '已回退', REVERSE_FAILED: '回退失败' };
-    const STATUS_CLASSES = { SUCCESS: 'success', REVERSED: 'reversed', REVERSE_FAILED: 'failed' };
-    const TABLE_COLS = 14;
-
-    document.addEventListener('DOMContentLoaded', function() {
-      renderTable();
-      document.getElementById('deductionAmount').addEventListener('input', validateDeductionAmount);
-      document.getElementById('deductionCurrency').addEventListener('change', onCurrencyChange);
-    });
-
-    function fmtNum(n) {
-      if (n == null || n === '') return '-';
-      return Number(n).toFixed(2);
-    }
-
-    function calcWalletDeduction(walletCurrency, deductCurrency, amount) {
-      if (walletCurrency === deductCurrency) return amount;
-      const rate = (FX_RATES[deductCurrency] || 1) / (FX_RATES[walletCurrency] || 1);
-      return Math.round(amount * rate * 100) / 100;
-    }
-
-    function getFilteredData() {
-      const merchantIdFilter = document.getElementById('merchantIdFilter').value.trim();
-      const deductionTypeFilter = document.getElementById('deductionTypeFilter').value;
-      const currencyFilter = document.getElementById('currencyFilter').value;
-      const statusFilter = document.getElementById('statusFilter').value;
-      const startTimeFilter = document.getElementById('startTimeFilter').value;
-      const endTimeFilter = document.getElementById('endTimeFilter').value;
-      return deductionData.filter(item => {
-        if (merchantIdFilter && !item.merchantId.includes(merchantIdFilter)) return false;
-        if (deductionTypeFilter && item.deductionType !== deductionTypeFilter) return false;
-        if (currencyFilter && item.currency !== currencyFilter) return false;
-        if (statusFilter && item.status !== statusFilter) return false;
-        if (startTimeFilter && item.deductionTime < startTimeFilter.replace('T', ' ')) return false;
-        if (endTimeFilter && item.deductionTime > endTimeFilter.replace('T', ' ')) return false;
-        return true;
-      });
-    }
-
-    function renderActionButtons(item) {
-      let html = `<button onclick="openLogDrawer(${item.id})" class="text-blue-600 hover:text-blue-800 text-xs mr-2"><i class="fas fa-history mr-1"></i>日志</button>`;
-      if (!item.fundTxNo) {
-        html += `<span class="text-gray-300 text-xs cursor-not-allowed" title="无 Fund 流水号，不可回退"><i class="fas fa-undo mr-1"></i>回退</span>`;
-      } else if (item.status === 'SUCCESS') {
-        html += `<button onclick="openReverseModal(${item.id})" class="text-red-600 hover:text-red-800 text-xs"><i class="fas fa-undo mr-1"></i>回退</button>`;
-      } else if (item.status === 'REVERSE_FAILED') {
-        html += `<button onclick="openReverseModal(${item.id})" class="text-orange-600 hover:text-orange-800 text-xs"><i class="fas fa-redo mr-1"></i>重试</button>`;
-      }
-      return html;
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById('tableBody');
-      const filteredData = getFilteredData();
-      const totalRecords = filteredData.length;
-      const startIndex = (currentPage - 1) * pageSize;
-      const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
-
-      document.getElementById('totalCount').textContent = totalRecords;
-      document.getElementById('totalRecords').textContent = totalRecords;
-      document.getElementById('pageStart').textContent = totalRecords > 0 ? startIndex + 1 : 0;
-      document.getElementById('pageEnd').textContent = Math.min(startIndex + pageSize, totalRecords);
-
-      if (!paginatedData.length) {
-        tbody.innerHTML = `<tr><td colspan="${TABLE_COLS}" class="px-6 py-4 text-center text-gray-500">暂无数据</td></tr>`;
-        renderPagination(Math.ceil(totalRecords / pageSize));
-        return;
-      }
-
-      tbody.innerHTML = paginatedData.map(item => `<tr>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.merchantId}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.deductionTime}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.deductionType}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.currency}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${fmtNum(item.deductionAmount)}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.walletCurrency}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${fmtNum(item.walletDeductionAmount)}</td>
-        <td class="px-4 py-3 whitespace-nowrap"><span class="status-badge ${STATUS_CLASSES[item.status]}">${STATUS_LABELS[item.status]}</span></td>
-        <td class="px-4 py-3 text-sm text-gray-900 max-w-[120px] truncate" title="${item.remark || ''}">${item.remark || '-'}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.operator}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.reverseTime || '-'}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${item.reverseOperator || '-'}</td>
-        <td class="px-4 py-3 text-sm text-gray-900 max-w-[120px] truncate" title="${item.reverseReason || ''}">${item.reverseReason || '-'}</td>
-        <td class="px-4 py-3 whitespace-nowrap text-sm">${renderActionButtons(item)}</td>
-      </tr>`).join('');
-
-      renderPagination(Math.ceil(totalRecords / pageSize));
-    }
-
-    function renderPagination(totalPages) {
-      const paginationNumbers = document.getElementById('paginationNumbers');
-      if (totalPages <= 1) { paginationNumbers.innerHTML = ''; return; }
-      let html = '';
-      const maxVisible = 5;
-      let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-      if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
-      for (let i = startPage; i <= endPage; i++) {
-        html += `<button onclick="goToPage(${i})" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium ${i === currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}">${i}</button>`;
-      }
-      paginationNumbers.innerHTML = html;
-    }
-
-    function goToPage(page) { currentPage = page; renderTable(); }
-    function changePage(direction) {
-      const totalPages = Math.ceil(getFilteredData().length / pageSize);
-      const newPage = currentPage + direction;
-      if (newPage >= 1 && newPage <= totalPages) { currentPage = newPage; renderTable(); }
-    }
-    function searchData() { currentPage = 1; renderTable(); }
-
-    function onCurrencyChange() {
-      const currency = document.getElementById('deductionCurrency').value;
-      document.getElementById('amountLabel').innerHTML = `扣费金额 <span class="text-red-500">*</span> <span class="text-gray-400 font-normal">（${currency}）</span>`;
-      updateWalletPreview();
-      validateDeductionAmount();
-    }
-
-    function updateBalanceDisplay() {
-      if (!currentMerchantBalance) return;
-      const bal = currentMerchantBalance;
-      const wc = bal.walletCurrency;
-      const remaining = bal.creditLimit - bal.usedLimit;
-      document.getElementById('walletCurrency').textContent = wc;
-      document.getElementById('currentBalance').textContent = fmtNum(bal.currentBalance);
-      document.getElementById('availableAmount').textContent = fmtNum(bal.availableAmount);
-      document.getElementById('realAmount').textContent = fmtNum(bal.realAmount);
-      document.getElementById('creditLimit').textContent = fmtNum(bal.creditLimit);
-      document.getElementById('usedLimit').textContent = fmtNum(bal.usedLimit);
-      document.getElementById('remainingLimit').textContent = fmtNum(remaining);
-      updateWalletPreview();
-    }
-
-    function updateWalletPreview() {
-      const preview = document.getElementById('walletDeductionPreview');
-      const amount = parseFloat(document.getElementById('deductionAmount').value);
-      if (!currentMerchantBalance || !amount) { preview.classList.add('hidden'); return; }
-      const dc = document.getElementById('deductionCurrency').value;
-      const wc = currentMerchantBalance.walletCurrency;
-      const walletAmt = calcWalletDeduction(wc, dc, amount);
-      if (dc === wc) {
-        preview.classList.add('hidden');
-        return;
-      }
-      document.getElementById('previewWalletCurrency').textContent = wc;
-      document.getElementById('previewWalletAmount').textContent = fmtNum(walletAmt);
-      preview.classList.remove('hidden');
-    }
-
-    function loadMerchantBalance() {
-      const merchantId = document.getElementById('merchantId').value;
-      const balanceInfo = document.getElementById('merchantBalanceInfo');
-      if (merchantId && merchantBalanceData[merchantId]) {
-        currentMerchantBalance = merchantBalanceData[merchantId];
-        document.getElementById('deductionCurrency').value = currentMerchantBalance.walletCurrency;
-        onCurrencyChange();
-        updateBalanceDisplay();
-        balanceInfo.classList.remove('hidden');
+    function openCreate() { document.getElementById('createModal').classList.remove('hidden'); }
+    function closeCreate() { document.getElementById('createModal').classList.add('hidden'); }
+    function submitCreate() {
+      const t = document.getElementById('deductType').value;
+      const amt = document.getElementById('deductAmount').value;
+      if (t === 'location_fee_prepaid') {
+        alert('原型：其他扣费成功，钱包 -' + amt + '，预收池 +' + amt + '。将按应计自动冲抵。');
       } else {
-        currentMerchantBalance = null;
-        balanceInfo.classList.add('hidden');
-        document.getElementById('amountError').classList.add('hidden');
-        document.getElementById('walletDeductionPreview').classList.add('hidden');
+        alert('原型：其他扣费已提交');
       }
+      closeCreate();
     }
-
-    function validateDeductionAmount() {
-      const amountInput = document.getElementById('deductionAmount');
-      const amountError = document.getElementById('amountError');
-      const amount = parseFloat(amountInput.value);
-      updateWalletPreview();
-      if (!currentMerchantBalance || !amount) {
-        amountError.classList.add('hidden');
-        amountInput.setCustomValidity('');
-        return;
-      }
-      const dc = document.getElementById('deductionCurrency').value;
-      const wc = currentMerchantBalance.walletCurrency;
-      const walletDeduction = calcWalletDeduction(wc, dc, amount);
-      if (walletDeduction > currentMerchantBalance.availableAmount) {
-        amountError.textContent = `预计钱包扣款 ${fmtNum(walletDeduction)} ${wc} 超过可用金额 ${fmtNum(currentMerchantBalance.availableAmount)} ${wc}`;
-        amountError.classList.remove('hidden');
-        amountInput.setCustomValidity(amountError.textContent);
-        return;
-      }
-      amountError.classList.add('hidden');
-      amountInput.setCustomValidity('');
-    }
-
-    function openAddModal() {
-      document.getElementById('addModal').classList.remove('hidden');
-      document.getElementById('merchantBalanceInfo').classList.add('hidden');
-      document.getElementById('amountError').classList.add('hidden');
-      document.getElementById('walletDeductionPreview').classList.add('hidden');
-      currentMerchantBalance = null;
-    }
-
-    function closeAddModal() {
-      document.getElementById('addModal').classList.add('hidden');
-      document.getElementById('merchantId').value = '';
-      document.getElementById('deductionType').value = '';
-      document.getElementById('deductionCurrency').value = 'USD';
-      document.getElementById('deductionAmount').value = '';
-      document.getElementById('remark').value = '';
-      currentMerchantBalance = null;
-    }
-
-    function submitAddDeduction(event) {
-      event.preventDefault();
-      const merchantId = document.getElementById('merchantId').value;
-      const deductionType = document.getElementById('deductionType').value;
-      const currency = document.getElementById('deductionCurrency').value;
-      const deductionAmount = parseFloat(document.getElementById('deductionAmount').value);
-      const remark = document.getElementById('remark').value.trim();
-      if (!currentMerchantBalance) { alert('请先选择商户'); return; }
-      validateDeductionAmount();
-      if (document.getElementById('deductionAmount').validationMessage) return;
-
-      const wc = currentMerchantBalance.walletCurrency;
-      const walletDeductionAmount = calcWalletDeduction(wc, currency, deductionAmount);
-      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-      deductionData.unshift({
-        id: deductionData.length + 1,
-        merchantId, walletCurrency: wc, currency,
-        deductionTime: now, deductionType, deductionAmount, walletDeductionAmount,
-        status: 'SUCCESS', fundTxNo: 'FUND-TX-' + Date.now(),
-        remark: remark || null, operator: '管理员A',
-        reverseTime: null, reverseOperator: null, reverseReason: null,
-        logs: [{ action: '创建扣费', time: now, operator: '管理员A', detail: '扣费成功' }]
-      });
-      closeAddModal();
-      renderTable();
-      alert('其他扣费记录添加成功！');
-    }
-
-    function openReverseModal(id) {
-      const item = deductionData.find(d => d.id === id);
-      if (!item || !item.fundTxNo) return;
-      reverseTargetId = id;
-      document.getElementById('reverseInfo').innerHTML = `
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-          <p><span class="text-gray-500">商户ID：</span>${item.merchantId}</p>
-          <p><span class="text-gray-500">扣费类型：</span>${item.deductionType}</p>
-          <p><span class="text-gray-500">扣费币种：</span>${item.currency}</p>
-          <p><span class="text-gray-500">扣费金额：</span>${fmtNum(item.deductionAmount)}</p>
-          <p><span class="text-gray-500">钱包币种：</span>${item.walletCurrency}</p>
-          <p><span class="text-gray-500">钱包扣款额：</span>${fmtNum(item.walletDeductionAmount)}</p>
-          <p class="col-span-2"><span class="text-gray-500">扣费时间：</span>${item.deductionTime}</p>
-          <p class="col-span-2"><span class="text-gray-500">扣费操作人：</span>${item.operator}</p>
-        </div>`;
-      document.getElementById('reverseConfirmText').textContent = `确认将钱包扣款额 ${fmtNum(item.walletDeductionAmount)} ${item.walletCurrency} 退回商户钱包`;
-      document.getElementById('reverseReason').value = '';
-      document.getElementById('reverseConfirm').checked = false;
-      document.getElementById('reverseModal').classList.remove('hidden');
-    }
-
-    function closeReverseModal() {
-      document.getElementById('reverseModal').classList.add('hidden');
-      reverseTargetId = null;
-    }
-
-    function submitReverse() {
-      if (!document.getElementById('reverseConfirm').checked) { alert('请勾选确认项'); return; }
-      const item = deductionData.find(d => d.id === reverseTargetId);
-      if (!item) return;
-      const reason = document.getElementById('reverseReason').value.trim();
-      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-      item.status = 'REVERSED';
-      item.reverseFundTxNo = 'FUND-RF-' + Date.now();
-      item.reverseTime = now;
-      item.reverseOperator = '管理员A';
-      item.reverseReason = reason || null;
-      item.logs.push({ action: '回退', time: now, operator: '管理员A', detail: reason ? `回退成功；原因：${reason}` : '回退成功' });
-      closeReverseModal();
-      renderTable();
-      alert('回退成功！');
-    }
-
-    function openLogDrawer(id) {
-      const item = deductionData.find(d => d.id === id);
-      if (!item) return;
-      document.getElementById('logDrawerContent').innerHTML = (item.logs || []).map(log => `
-        <div class="border-l-2 border-blue-400 pl-4 pb-4 mb-2">
-          <p class="text-sm font-medium text-gray-900">${log.action}</p>
-          <p class="text-xs text-gray-500 mt-1">${log.time} · ${log.operator}</p>
-          <p class="text-sm text-gray-600 mt-1">${log.detail}</p>
-        </div>`).join('') || '<p class="text-gray-500 text-sm">暂无日志</p>';
-      document.getElementById('logDrawerOverlay').classList.remove('hidden');
-      document.getElementById('logDrawer').classList.add('open');
-    }
-
-    function closeLogDrawer() {
-      document.getElementById('logDrawerOverlay').classList.add('hidden');
-      document.getElementById('logDrawer').classList.remove('open');
-    }
-
-    function exportData() { alert('导出为扁平字段 CSV（原型演示）'); }
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
-      if (sidebar.classList.contains('mobile-menu-closed')) {
-        sidebar.classList.remove('mobile-menu-closed');
-        sidebar.classList.add('mobile-menu-open');
-        overlay.classList.remove('hidden', 'opacity-0');
-        overlay.classList.add('opacity-50');
-      } else {
-        sidebar.classList.remove('mobile-menu-open');
-        sidebar.classList.add('mobile-menu-closed');
-        overlay.classList.add('opacity-0');
-        overlay.classList.remove('opacity-50');
-        setTimeout(() => overlay.classList.add('hidden'), 300);
-      }
-    }
-
-    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
-    window.addEventListener('resize', function() {
-      if (window.innerWidth >= 1024) {
-        document.getElementById('sidebar').classList.remove('mobile-menu-closed');
-        document.getElementById('sidebar').classList.add('mobile-menu-open');
-        const overlay = document.getElementById('sidebar-overlay');
-        overlay.classList.add('hidden', 'opacity-0');
-        overlay.classList.remove('opacity-50');
-      }
+    document.getElementById('deductType').addEventListener('change', function () {
+      document.getElementById('prepaidHint').classList.toggle('hidden', this.value !== 'location_fee_prepaid');
     });
-    document.getElementById('pageSize').addEventListener('change', function() {
-      pageSize = parseInt(this.value);
-      currentPage = 1;
-      renderTable();
-    });
+    (function initFromQuery() {
+      const q = new URLSearchParams(location.search);
+      if (q.get('type') === 'location_fee_prepaid') {
+        document.getElementById('bannerPrepaid').classList.remove('hidden');
+        document.getElementById('deductType').value = 'location_fee_prepaid';
+        if (q.get('customer')) document.getElementById('deductCustomer').value = q.get('customer');
+        if (q.get('account')) document.getElementById('deductAccount').value = q.get('account');
+        if (q.get('suggest')) document.getElementById('deductAmount').value = q.get('suggest');
+        openCreate();
+      }
+    })();
   </script>
 </body>
 </html>
-

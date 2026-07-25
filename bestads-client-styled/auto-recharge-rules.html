@@ -362,11 +362,12 @@
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">充值金额 *</label>
+            <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">充值金额 R（钱包扣款）*</label>
             <div class="flex">
               <span class="input-field rounded-r-none" style="border-right: none; color: #B0B5C0;">$</span>
               <input type="number" id="rechargeAmount" required step="0.01" min="0.01" class="input-field w-full rounded-l-none" placeholder="0.00">
             </div>
+            <p class="text-xs mt-2" style="color:#FBBF24;">若配置了 K%，从 R 内拆预收 P 与服务费 S，到账 C = R − P − S。目标账户余额时需按 C 倒算 R。</p>
           </div>
           <div>
             <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">自动充值冷却期 *</label>

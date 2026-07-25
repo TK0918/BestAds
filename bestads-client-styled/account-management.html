@@ -894,19 +894,32 @@
 
             <!-- 充值摘要 -->
             <div class="bg-gray-50 rounded-lg p-4" id="batchRechargeSummary" style="display: none;">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">充值摘要</h4>
+              <h4 class="text-sm font-medium text-gray-900 mb-3">充值摘要（钱包只扣 R）</h4>
               <div class="space-y-2" id="summaryList">
                 <!-- 动态生成摘要内容 -->
               </div>
-              <div class="border-t border-gray-200 pt-3 mt-3">
+              <div class="border-t border-gray-200 pt-3 mt-3 space-y-1">
                 <div class="flex justify-between text-sm font-medium text-gray-900">
-                  <span>总计金额：</span>
+                  <span>充值金额 R 合计：</span>
                   <span id="totalAmount">$0.00</span>
+                </div>
+                <div class="flex justify-between text-xs text-gray-600">
+                  <span>预收 P（示例 K%=5%）</span>
+                  <span id="summaryP">$0.00</span>
+                </div>
+                <div class="flex justify-between text-xs text-gray-600">
+                  <span>服务费 S（示例 3%）</span>
+                  <span id="summaryS">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm font-semibold text-purple-700">
+                  <span>预计到账广告账户 C：</span>
+                  <span id="summaryC">$0.00</span>
                 </div>
                 <div class="flex justify-between text-sm text-gray-500 mt-1">
                   <span>选中账户数：</span>
                   <span id="selectedCount">0</span>
                 </div>
+                <p class="text-xs text-amber-700 mt-2">提示：到账 C = R − P − S，钱包扣除等于 R，不会额外加扣预收。</p>
               </div>
             </div>
 
@@ -2016,6 +2029,15 @@
       summaryList.innerHTML = summaryHTML;
       totalAmountSpan.textContent = `$${totalAmount.toFixed(2)}`;
       selectedCountSpan.textContent = selectedCheckboxes.length;
+      const pAmt = totalAmount * 0.05;
+      const sAmt = totalAmount * 0.03;
+      const cAmt = totalAmount - pAmt - sAmt;
+      const elP = document.getElementById('summaryP');
+      const elS = document.getElementById('summaryS');
+      const elC = document.getElementById('summaryC');
+      if (elP) elP.textContent = `$${pAmt.toFixed(2)}`;
+      if (elS) elS.textContent = `$${sAmt.toFixed(2)}`;
+      if (elC) elC.textContent = `$${cAmt.toFixed(2)}`;
       
       // 显示摘要
       summaryDiv.style.display = 'block';
