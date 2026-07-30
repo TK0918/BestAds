@@ -860,10 +860,13 @@
         { id: 'FB009876543', name: '品牌推广账户03', balance: 150, isBindCardAccount: false, activeCardId: null, activeCardLast4: null, cardAvailableLimit: 0 }
       ] },
       { id: 'C1002', name: '李四', balance: 1200, accounts: [
-        { id: 'FB001234568', name: '移动应用账户02', balance: 300, isBindCardAccount: true, activeCardId: 'c_3bpoltc2u7sf1', activeCardLast4: '1234', cardAvailableLimit: 300 }
+        { id: 'FB001234568', name: '移动应用账户02', balance: 300, isBindCardAccount: true, activeCardId: 'c_3bpoltc2u7sf1', activeCardLast4: '1234', cardAvailableLimit: 300, verifyPendingRollback: false }
+      ] },
+      { id: 'C1098', name: '周验卡(待降回)', balance: 8000, accounts: [
+        { id: 'AL0423123', name: '账户名称EEE(验卡待降回)', balance: 0, isBindCardAccount: true, activeCardId: 'c_bootwait01', activeCardLast4: '1003', cardAvailableLimit: 20, verifyPendingRollback: true }
       ] },
       { id: 'C1099', name: '钱小白(无使用卡)', balance: 5000, accounts: [
-        { id: 'FB008888999', name: '绑卡户未配卡账户', balance: 100, isBindCardAccount: true, activeCardId: null, activeCardLast4: null, cardAvailableLimit: 0 }
+        { id: 'FB008888999', name: '绑卡户未配卡账户', balance: 100, isBindCardAccount: true, activeCardId: null, activeCardLast4: null, cardAvailableLimit: 0, verifyPendingRollback: false }
       ] }
     ];
 
@@ -902,14 +905,24 @@
       accountList.innerHTML = '';
       accounts.forEach(acc => {
         const label = document.createElement('label');
-        label.className = 'flex items-center mb-1 cursor-pointer';
+        label.className = 'flex items-start mb-2 cursor-pointer';
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.value = acc.id;
-        checkbox.className = 'mr-2';
+        checkbox.className = 'mr-2 mt-1';
         checkbox.addEventListener('change', updateRechargeAmounts);
         label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(`${acc.name}（${acc.id}）- 当前余额：¥${acc.balance}`));
+        const wrap = document.createElement('div');
+        let extra = '';
+        if (acc.isBindCardAccount && !acc.activeCardId) {
+          extra = '<div class="text-xs text-rose-600 mt-0.5">绑卡户未设使用卡，不可充值</div>';
+        } else if (acc.verifyPendingRollback) {
+          extra = '<div class="text-xs text-amber-700 mt-0.5">验卡临时额度待降回（' + (acc.activeCardId || '') + '），完成降回前不可充值</div>';
+        } else if (acc.isBindCardAccount) {
+          extra = '<div class="text-xs text-gray-500 mt-0.5">绑卡户 · 使用卡 ****' + (acc.activeCardLast4 || '-') + '</div>';
+        }
+        wrap.innerHTML = `<div class="text-sm">${acc.name}（${acc.id}）- 当前余额：¥${acc.balance}</div>${extra}`;
+        label.appendChild(wrap);
         accountList.appendChild(label);
       });
     }
@@ -1016,6 +1029,17 @@
       });
       if (blocked) {
         showToast('该账户未设置使用卡, 请先在绑卡户管理中绑定', 'error');
+        return;
+      }
+
+      // 校验: 使用卡验卡临时额度未降回时阻断充值
+      const verifyBlocked = rechargeDetails.find(d => {
+        const acc = customer.accounts.find(a => a.id === d.accountId);
+        return acc && acc.isBindCardAccount && acc.verifyPendingRollback;
+      });
+      if (verifyBlocked) {
+        const acc = customer.accounts.find(a => a.id === verifyBlocked.accountId);
+        showToast('该使用卡验卡临时额度尚未降回，请先在绑卡户管理完成「验卡完成并降回」后再充值（卡 ' + (acc && acc.activeCardId ? acc.activeCardId : '') + '）', 'error');
         return;
       }
 

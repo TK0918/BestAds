@@ -1,3 +1,40 @@
+#### 2026-07-30 - 新增 PRD V2.39 Slash 默认额度功能
+
+**新增** `PRD/V 2.39 Slash默认额度功能.md`：V2.21 增量（不改原文）；验卡任务独立状态机；「待验卡」覆盖媒体验卡与降回确认、不拆「待降回」；金额无硬顶、截图必传、降回至抬额前快照、充值门禁。
+
+---
+
+#### 2026-07-30 - 绑卡户原型增加「验卡初始额度」闭环
+
+**调整** `admin-system/reports/account-card-reconciliation-report.html`：
+- 新增验卡任务状态筛选、待降回顶栏提示；子表增加「验卡任务」列与主 CTA
+- Mock：`c_bootnew001`（可申请）、`c_bootpend01`（待审批）、`c_bootwait01`（已抬额待降回，AppLovin EEE 使用卡）、`c_bootdone01`（已完成）
+- 弹窗：申请（金额+媒体扣款截图+备注）→ 任务三步清单 → 模拟飞书审批抬额 → 确认降回至抬额前快照
+- 开卡文案改为：开卡固定 $1，验卡走独立任务，正式投放仍走充值
+
+**调整** `admin-system/fb-business/recharge-management.html`：
+- 客户「周验卡(待降回)」演示充值门禁；提交时若 `verifyPendingRollback` 则阻断
+
+PRD 待原型确认后再输出。
+
+---
+
+#### 2026-07-30 - 输出 3 份归因竞品调研英文版
+
+基于本地导出的中文 Markdown（飞书 Wiki 对应 Bestros 市场分析、Hyros、Triple Whale），在同级目录新增英文调研稿，便于归因产品调研阅读；保留原意与 `图片和附件/` 相对路径及 JSON 样例：
+
+- `竞品调研/[Bestros] 广告归因系统市场分析与系统规划/[Bestros] Ad Attribution System - Market Analysis & Product Planning (EN).md`
+- `竞品调研/Hyros - 调研 /Hyros - Research (EN).md`
+- `竞品调研/Triple whale - 调研/Triple Whale - Research (EN).md`
+
+---
+
+#### 2026-07-29 - 整理 Q2 产品季度总结文本
+
+基于 PRD V2.13 / V2.15 / V2.16 / V2.17 / V2.19 / V2.20 / V2.21 / V2.22 / V2.23 / V2.24 / V2.25，从第一性原理整理 Q2 工作总结与 Q3 计划文本（供 PPT 提取）；未落盘独立文档，内容在会话回复中交付。对照总索引：吐点三层模型（V2.23）待评审、绑卡户（V2.21）开发中等状态已在总结中区分。
+
+---
+
 #### 2026-07-25 - V2.34 相关文件提交并推送 GitHub
 
 **提交** `7f763d1` → `origin/main`：含 PRD（正式稿 + 方案）、运营端地区税费/其他扣费/充值列表、客户端税费与充值拆分原型、`log.md`。未纳入 `.DS_Store` 及其他无关未跟踪文件。
