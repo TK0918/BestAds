@@ -1316,19 +1316,19 @@
                   <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
                 </div>
                 <div class="ml-3">
-                  <h4 class="text-sm font-medium text-blue-800 mb-2">减款须知</h4>
+                  <h4 class="text-sm font-medium text-blue-800 mb-2" data-i18n="withdraw_notice_title">减款须知</h4>
                   <div class="space-y-2 text-sm text-blue-700">
                     <div class="flex items-start">
                       <span class="text-blue-500 mr-2">•</span>
-                      <span>减款实际结果以Facebook反馈为准。</span>
+                      <span data-i18n="withdraw_notice_pause">建议账户停止投放 48 小时后再来减款，金额会更加准确。</span>
                     </div>
                     <div class="flex items-start">
                       <span class="text-blue-500 mr-2">•</span>
-                      <span>建议暂停广告投放24小时后再提交减款申请。</span>
+                      <span data-i18n="withdraw_notice_settlement">最终减款金额以结算时的金额为准。</span>
                     </div>
                     <div class="flex items-start">
                       <span class="text-blue-500 mr-2">•</span>
-                      <span>减款处理一般需要几分钟操作，请耐心等候。</span>
+                      <span data-i18n="withdraw_notice_time">减款处理一般需要几分钟，请耐心等候。</span>
                     </div>
                   </div>
                 </div>
@@ -1521,19 +1521,19 @@
                   <i class="fas fa-exclamation-triangle text-orange-400 mt-0.5"></i>
                 </div>
                 <div class="ml-3">
-                  <h4 class="text-sm font-medium text-orange-800 mb-2">清零须知</h4>
+                  <h4 class="text-sm font-medium text-orange-800 mb-2" data-i18n="clear_notice_title">清零须知</h4>
                   <div class="space-y-2 text-sm text-orange-700">
                     <div class="flex items-start">
                       <span class="text-orange-500 mr-2">•</span>
-                      <span>清零操作将把选中账户的全部余额清零，金额将返回钱包。</span>
+                      <span data-i18n="clear_notice_pause">建议账户停止投放 48 小时后再来清零，金额会更加准确。</span>
                     </div>
                     <div class="flex items-start">
                       <span class="text-orange-500 mr-2">•</span>
-                      <span>清零操作不可撤销，请确认后再执行。</span>
+                      <span data-i18n="clear_notice_settlement">最终清零金额以结算时的金额为准。</span>
                     </div>
                     <div class="flex items-start">
                       <span class="text-orange-500 mr-2">•</span>
-                      <span>建议暂停广告投放后再执行清零操作。</span>
+                      <span data-i18n="clear_notice_wallet">清零操作将把选中账户余额回流钱包；请确认后再执行。</span>
                     </div>
                   </div>
                 </div>
@@ -1554,7 +1554,50 @@
     </div>
   </div>
 
+  <!-- 事前二次确认（清零/减款共用，批量整批一次） -->
+  <div id="preRiskConfirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-[60]">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+        <button type="button" onclick="closePreRiskConfirm(false)" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        <h3 class="text-lg font-medium text-gray-900 mb-1" id="preRiskTitle">确认提交清零</h3>
+        <p class="text-sm text-gray-500 mb-4" data-i18n="pre_risk_subtitle">请阅读以下说明后再确认。批量操作仅弹一次。</p>
+        <div class="rounded-md border border-blue-100 bg-blue-50 p-4 text-sm text-gray-700 space-y-3 mb-4">
+          <div class="flex gap-2"><span class="text-blue-600 font-bold">1</span><p id="preRiskLine1">建议账户停止投放 48 小时后再来清零，金额会更加准确。</p></div>
+          <div class="flex gap-2"><span class="text-blue-600 font-bold">2</span><p id="preRiskLine2">最终清零金额以结算时的金额为准。</p></div>
+        </div>
+        <div class="text-xs text-gray-500 mb-4" id="preRiskHint"></div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" onclick="closePreRiskConfirm(false)" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" data-i18n="pre_risk_cancel">取消</button>
+          <button type="button" onclick="closePreRiskConfirm(true)" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" data-i18n="pre_risk_confirm">我已知晓，确认提交</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let _preRiskCallback = null;
+    function openPreRiskConfirm(action, count, onConfirm) {
+      _preRiskCallback = onConfirm;
+      const isClear = action === 'clear';
+      const text = (key, params) => (typeof getText === 'function' ? getText(key, params) : key);
+      document.getElementById('preRiskTitle').textContent = text(isClear ? 'pre_risk_title_clear' : 'pre_risk_title_withdraw');
+      document.getElementById('preRiskLine1').textContent = text(isClear ? 'clear_notice_pause' : 'withdraw_notice_pause');
+      document.getElementById('preRiskLine2').textContent = text(isClear ? 'clear_notice_settlement' : 'withdraw_notice_settlement');
+      document.getElementById('preRiskHint').textContent = text(isClear ? 'pre_risk_hint_clear' : 'pre_risk_hint_withdraw', { count });
+      // 同步弹窗内 data-i18n 静态文案
+      document.querySelectorAll('#preRiskConfirmModal [data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (key && typeof getText === 'function') el.textContent = getText(key);
+      });
+      document.getElementById('preRiskConfirmModal').classList.remove('hidden');
+    }
+    function closePreRiskConfirm(ok) {
+      document.getElementById('preRiskConfirmModal').classList.add('hidden');
+      const cb = _preRiskCallback;
+      _preRiskCallback = null;
+      if (ok && typeof cb === 'function') cb();
+    }
+
     // 导航切换
     document.querySelectorAll('.sidebar-item').forEach(item => {
       item.addEventListener('click', function(e) {
@@ -2564,8 +2607,25 @@
         // 减款提示信息
         'withdraw_notice_title': '减款须知',
         'withdraw_notice_facebook': '减款实际结果以Facebook反馈为准。',
-        'withdraw_notice_pause': '建议暂停广告投放24小时后再提交减款申请。',
-        'withdraw_notice_time': '减款处理一般需要几分钟操作，请耐心等候。',
+        'withdraw_notice_pause': '建议账户停止投放 48 小时后再来减款，金额会更加准确。',
+        'withdraw_notice_settlement': '最终减款金额以结算时的金额为准。',
+        'withdraw_notice_time': '减款处理一般需要几分钟，请耐心等候。',
+
+        // 清零提示信息
+        'clear_modal_title': '批量清零',
+        'clear_notice_title': '清零须知',
+        'clear_notice_pause': '建议账户停止投放 48 小时后再来清零，金额会更加准确。',
+        'clear_notice_settlement': '最终清零金额以结算时的金额为准。',
+        'clear_notice_wallet': '清零操作将把选中账户余额回流钱包；请确认后再执行。',
+
+        // 事前二次确认弹窗
+        'pre_risk_title_clear': '确认提交清零',
+        'pre_risk_title_withdraw': '确认提交减款',
+        'pre_risk_subtitle': '请阅读以下说明后再确认。批量操作仅弹一次。',
+        'pre_risk_hint_clear': '本次将提交 {count} 个账户的清零申请。',
+        'pre_risk_hint_withdraw': '本次将提交 {count} 个账户的减款申请。',
+        'pre_risk_cancel': '取消',
+        'pre_risk_confirm': '我已知晓，确认提交',
         
         // 通知消息
         'notification_success': '申请已提交，我们将尽快处理！',
@@ -2738,8 +2798,25 @@
         // 减款提示信息
         'withdraw_notice_title': 'Withdraw Notice',
         'withdraw_notice_facebook': 'The actual withdraw result is subject to Facebook\'s feedback.',
-        'withdraw_notice_pause': 'It is recommended to pause ad delivery for 24 hours before submitting withdraw request.',
-        'withdraw_notice_time': 'Withdraw processing usually takes a few minutes, please be patient.',
+        'withdraw_notice_pause': 'It is recommended to pause ads for 48 hours before withdrawing for a more accurate amount.',
+        'withdraw_notice_settlement': 'The final withdraw amount is subject to the settlement amount.',
+        'withdraw_notice_time': 'Withdraw processing usually takes a few minutes. Please wait.',
+
+        // 清零提示信息
+        'clear_modal_title': 'Batch Clear',
+        'clear_notice_title': 'Clear Notice',
+        'clear_notice_pause': 'It is recommended to pause ads for 48 hours before clearing for a more accurate amount.',
+        'clear_notice_settlement': 'The final clear amount is subject to the settlement amount.',
+        'clear_notice_wallet': 'Clearing will return the selected account balance to your wallet. Please confirm before proceeding.',
+
+        // 事前二次确认弹窗
+        'pre_risk_title_clear': 'Confirm Clear Submission',
+        'pre_risk_title_withdraw': 'Confirm Withdraw Submission',
+        'pre_risk_subtitle': 'Please read the following before confirming. Batch actions show this once.',
+        'pre_risk_hint_clear': 'You are about to submit clear requests for {count} accounts.',
+        'pre_risk_hint_withdraw': 'You are about to submit withdraw requests for {count} accounts.',
+        'pre_risk_cancel': 'Cancel',
+        'pre_risk_confirm': 'I understand, confirm submit',
         
         // 通知消息
         'notification_success': 'Application submitted, we will process it as soon as possible!',
@@ -2922,6 +2999,18 @@
       // 批量减款弹窗
       const withdrawModalTitle = document.querySelector('#batchWithdrawModal h3');
       if (withdrawModalTitle) withdrawModalTitle.textContent = getText('withdraw_modal_title');
+
+      // 批量清零弹窗标题（若有翻译键则用，否则保留原文）
+      const clearModalTitle = document.querySelector('#batchClearModal h3');
+      if (clearModalTitle && translations[currentLanguage]['clear_modal_title']) {
+        clearModalTitle.textContent = getText('clear_modal_title');
+      }
+
+      // 清零/减款须知、事前确认等 data-i18n 节点
+      document.querySelectorAll('#batchWithdrawModal [data-i18n], #batchClearModal [data-i18n], #preRiskConfirmModal [data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (key) el.textContent = getText(key);
+      });
     }
 
     // 点击外部关闭语言下拉菜单
@@ -3164,9 +3253,11 @@
         return;
       }
       
-      console.log('批量减款数据:', selectedData);
-      showNotification(`批量减款申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
-      closeModal('batchWithdrawModal');
+      openPreRiskConfirm('reduce', selectedData.length, () => {
+        console.log('批量减款数据:', selectedData);
+        showNotification(`批量减款申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
+        closeModal('batchWithdrawModal');
+      });
     });
 
     // 减款分页功能
@@ -3503,9 +3594,11 @@
         return;
       }
       
-      console.log('批量清零数据:', selectedData);
-      showNotification(`批量清零申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
-      closeModal('batchClearModal');
+      openPreRiskConfirm('clear', selectedData.length, () => {
+        console.log('批量清零数据:', selectedData);
+        showNotification(`批量清零申请已提交！共${selectedData.length}个账户，总金额$${selectedData.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}`, 'success');
+        closeModal('batchClearModal');
+      });
     });
   </script>
   <script src="./js/common.js"></script>

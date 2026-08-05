@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>账户余额日环比异常 - BestAds运营管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .sidebar-item { position: relative; transition: all 0.2s ease; }
+    .sidebar-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #667eea; transform: scaleY(0); transition: transform 0.2s ease; }
+    .sidebar-item.active::before, .sidebar-item:hover::before { transform: scaleY(1); }
+    .diff-up { color: #dc2626; font-weight: 600; }
+    .diff-ok { color: #059669; }
+    .sticky-table-header thead th { position: sticky; top: 0; z-index: 1; background: #f9fafb; }
+
+    .status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; line-height: 1.4; }
+    .status-badge.pending { background: #fef3c7; color: #b45309; }
+    .status-badge.in_progress { background: #e0e7ff; color: #4338ca; }
+    .status-badge.done { background: #dcfce7; color: #166534; }
+    .btn-link { color: #2563eb; font-size: 12px; background: none; border: none; cursor: pointer; padding: 0 4px; }
+    .btn-link:hover { text-decoration: underline; }
+    .btn-toolbar-primary { padding: 6px 12px; font-size: 13px; font-weight: 500; color: #fff; background: #2563eb; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-toolbar-primary:hover { background: #1d4ed8; }
+    .btn-toolbar-secondary { padding: 6px 12px; font-size: 13px; font-weight: 500; color: #374151; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; }
+    .btn-toolbar-secondary:hover { background: #f9fafb; }
+    .btn-toolbar-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .filter-label { display: block; font-size: 12px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+    .filter-input, .filter-select { width: 100%; padding: 6px 8px; font-size: 13px; line-height: 1.4; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; color: #374151; }
+    .remark-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+    .drawer-overlay { backdrop-filter: blur(4px); }
+    .drawer-panel { transform: translateX(100%); transition: transform 0.3s ease; }
+    .drawer-panel.open { transform: translateX(0); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .th-sort { cursor: pointer; user-select: none; }
+    .th-sort:hover { color: #2563eb; }
+    .th-sort .sort-icon { margin-left: 2px; color: #9ca3af; font-size: 10px; }
+    .th-sort.active .sort-icon { color: #2563eb; }
+    .tip-icon { color: #9ca3af; margin-left: 2px; cursor: help; }
+    .tip-icon:hover { color: #6b7280; }
+    .sticky-action-th, .sticky-action-td {
+      position: sticky; right: 0; z-index: 2;
+      background: #f9fafb;
+      box-shadow: -4px 0 8px rgba(0,0,0,0.06);
+    }
+    .sticky-action-td { background: #fff; z-index: 1; }
+    .datetime-range { display: flex; align-items: center; gap: 6px; }
+    .datetime-range .filter-input { flex: 1; min-width: 0; }
+    .datetime-sep { color: #9ca3af; font-size: 12px; white-space: nowrap; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg">
+      <!-- 侧边栏头部 -->
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            BestAds Admin
+          </span>
+        </div>
+      </div>
+
+      <!-- 侧边栏菜单区，支持滚动 -->
+      <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+        <nav class="mt-8">
+          <!-- 主要功能 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">主要功能</h3>
+            <ul class="space-y-1">
+              <li><a href="../main-functions/index.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>仪表盘</a></li>
+              <li><a href="../main-functions/customer-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>客户管理</a></li>
+              <li><a href="../main-functions/agent_management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-shield w-5 h-5 mr-3 text-gray-400"></i>代理管理</a></li>
+              <li><a href="../main-functions/rebate-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-percent w-5 h-5 mr-3 text-gray-400"></i>返点配置</a></li>
+              <li><a href="../main-functions/introducer-spitpoint.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-handshake w-5 h-5 mr-3 text-gray-400"></i>介绍人和吐点</a></li>
+            </ul>
+          </div>
+          <!-- FB业务管理 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">FB业务管理</h3>
+            <ul class="space-y-1">
+              <li><a href="../fb-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../fb-business/account-opening.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-plus-circle w-5 h-5 mr-3 text-gray-400"></i>开户管理</a></li>
+              <li><a href="../fb-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../fb-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../fb-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../fb-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../fb-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- Google业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('googleMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">Google业务管理</h3>
+              <i id="googleMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="googleMenu" class="space-y-1 mb-2">
+              <li><a href="../google-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../google-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../google-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../google-business/deduction-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-minus-circle w-5 h-5 mr-3 text-gray-400"></i>账户减款</a></li>
+              <li><a href="../google-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../google-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 其他媒体业务管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('otherMediaMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">其他媒体业务管理</h3>
+              <i id="otherMediaMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="otherMediaMenu" class="space-y-1 mb-2">
+              <li><a href="../other-media-business/account-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-sync w-5 h-5 mr-3 text-gray-400"></i>账户管理</a></li>
+              <li><a href="../other-media-business/account-allocation.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-clipboard-list w-5 h-5 mr-3 text-gray-400"></i>账户分配</a></li>
+              <li><a href="../other-media-business/recharge-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-dollar-sign w-5 h-5 mr-3 text-gray-400"></i>账户充值</a></li>
+              <li><a href="../other-media-business/clear-management.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-eraser w-5 h-5 mr-3 text-gray-400"></i>账户清零</a></li>
+              <li><a href="../other-media-business/service-fee-config.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>服务费配置</a></li>
+            </ul>
+          </div>
+          <!-- 广告治理 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">广告治理</h3>
+            <ul class="space-y-1">
+              <li><a href="../ad-governance/ad-review.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>广告审核</a></li>
+            </ul>
+          </div>
+          <!-- 系统设置 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">系统设置</h3>
+            <ul class="space-y-1">
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-cog w-5 h-5 mr-3 text-gray-400"></i>系统配置</a></li>
+              <li><a href="#" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-user-cog w-5 h-5 mr-3 text-gray-400"></i>用户管理</a></li>
+              <li><a href="../Log/permission-audit-log.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>权限审计日志</a></li>
+            </ul>
+          </div>
+          <!-- 客户流水 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">客户流水</h3>
+            <ul class="space-y-1">
+              <li><a href="../customer-transactions/transaction-detail.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-receipt w-5 h-5 mr-3 text-gray-400"></i>交易明细</a></li>
+              <li><a href="../customer-transactions/online-recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>在线充值</a></li>
+              <li><a href="../customer-transactions/offline-transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-university w-5 h-5 mr-3 text-gray-400"></i>线下转账</a></li>
+            </ul>
+          </div>
+          <!-- 余额监控管理 -->
+          <div class="px-4 mb-6">
+            <div class="flex items-center justify-between cursor-pointer group" onclick="toggleMenuSection('balanceMonitorMenu')">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 select-none">余额监控管理</h3>
+              <i id="balanceMonitorMenuArrow" class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-blue-600 transition-transform"></i>
+            </div>
+            <ul id="balanceMonitorMenu" class="space-y-1 mb-2">
+              <li><a href="notifications.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>余额监控&自动充值</a></li>
+              <li><a href="account-status-monitor.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-shield-alt w-5 h-5 mr-3 text-gray-400"></i>账户封停监控</a></li>
+              <li><a href="balance-day-over-day-report.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100"><i class="fas fa-balance-scale w-5 h-5 mr-3 text-gray-500"></i>账户余额日环比</a></li>
+            </ul>
+          </div>
+          <!-- 报表 -->
+          <div class="px-4 mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">报表</h3>
+            <ul class="space-y-1">
+              <li><a href="../reports/customer-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>客户打款情况</a></li>
+              <li><a href="../reports/account-recharge-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-invoice-dollar w-5 h-5 mr-3 text-gray-400"></i>广告账户充值报表</a></li>
+              <li><a href="../reports/account-consume-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-line w-5 h-5 mr-3 text-gray-400"></i>广告消耗情况</a></li>
+              <li><a href="../reports/manual-consume-upload.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-upload w-5 h-5 mr-3 text-gray-400"></i>人工上传媒体消耗</a></li>
+              <li><a href="../reports/negative-ad-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-exclamation-triangle w-5 h-5 mr-3 text-gray-400"></i>负向广告报表</a></li>
+              <li><a href="../reports/report1.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>运营日报</a></li>
+              <li><a href="../reports/customer-reconciliation-daily-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-file-contract w-5 h-5 mr-3 text-gray-400"></i>客户对账日报</a></li>
+              <li><a href="../reports/data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-pie w-5 h-5 mr-3 text-gray-400"></i>数据报表</a></li>
+              <li><a href="../reports/consume-analysis-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-bolt w-5 h-5 mr-3 text-gray-400"></i>消耗分析</a></li>
+              <li><a href="../reports/recharge-distribution-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-layer-group w-5 h-5 mr-3 text-gray-400"></i>充值分布分析</a></li>
+              <li><a href="../reports/profit-fluctuation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-chart-area w-5 h-5 mr-3 text-gray-400"></i>预计利润波动分析</a></li>
+              <li><a href="../reports/customer-fund-change-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-hand-holding-usd w-5 h-5 mr-3 text-gray-400"></i>客户资金变动</a></li>
+              <li><a href="../reports/ad-customer-performance-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-people-group w-5 h-5 mr-3 text-gray-400"></i>广告客户表现</a></li>
+              <li><a href="../reports/weekly-ad-data-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-calendar-week w-5 h-5 mr-3 text-gray-400"></i>广告周数据</a></li>
+              <li><a href="../reports/account-card-reconciliation-report.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900"><i class="fas fa-link w-5 h-5 mr-3 text-gray-400"></i>绑卡户数据核对</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </aside>
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+            <span class="text-gray-500">主页</span>
+            <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+            <span class="text-gray-500">余额监控管理</span>
+            <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+            <span class="text-gray-900 font-medium">账户余额日环比异常</span>
+          </nav>
+          <div class="flex items-center space-x-3">
+            <button onclick="document.getElementById('feishuModal').classList.remove('hidden')" class="px-3 py-1.5 text-xs rounded-md border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100">
+              <i class="fa-brands fa-rocketchat mr-1"></i>飞书告警示意
+            </button>
+            <button class="px-3 py-1.5 text-xs rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"><i class="fas fa-download mr-1"></i>导出</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="py-6">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-6">
+              <h1 class="text-2xl font-bold text-gray-900">账户余额日环比异常</h1>
+              <p class="text-sm text-gray-500 mt-1">口径：前一天日终余额 + 当天充值 − 当天消耗 − 当天清零 − 当天减款 ≈ 当天日终余额。绑卡户日终余额取使用卡剩余额度。核对日期不含当天（当天日终余额尚未产出）。缺快照账户不进入清单。列表跟进字段为最后一次；完整履历见「查看跟进记录」。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <div class="text-sm text-gray-500">总异常数</div>
+                <div class="text-3xl font-bold text-gray-900 mt-2" id="kpiTotal">128</div>
+                <div class="text-xs text-gray-400 mt-1">历史累计未归档异常（示意，不随下方筛选变更）</div>
+              </div>
+              <div class="bg-white border border-amber-200 rounded-lg p-4 shadow-sm">
+                <div class="text-sm text-amber-700">最近3天新增异常</div>
+                <div class="text-3xl font-bold text-amber-700 mt-2" id="kpiRecent">18</div>
+                <div class="text-xs text-gray-400 mt-1">不含今天，近3个已产出日终的自然日新增（示意）</div>
+              </div>
+              <div class="bg-white border border-orange-200 rounded-lg p-4 shadow-sm">
+                <div class="text-sm text-orange-700">全部待跟进</div>
+                <div class="text-3xl font-bold text-orange-700 mt-2" id="kpiPending">42</div>
+                <div class="text-xs text-gray-400 mt-1">跟进状态为「待跟进」的全量条数（示意，不随筛选变更）</div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-4 mb-6">
+              <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
+                <div class="md:col-span-2">
+                  <label class="filter-label">核对日期（不含当天）</label>
+                  <div class="datetime-range">
+                    <input type="date" id="filterDateStart" class="filter-input">
+                    <span class="datetime-sep">至</span>
+                    <input type="date" id="filterDateEnd" class="filter-input">
+                  </div>
+                  <p class="text-[11px] text-gray-400 mt-1">默认最近7天（不含当天）；当天日终余额未产出，不可选当天及之后</p>
+                </div>
+                <div>
+                  <label class="filter-label">媒体</label>
+                  <select id="filterMedia" class="filter-select"><option value="">全部</option><option>Facebook</option><option>Google</option><option>TikTok</option></select>
+                </div>
+                <div>
+                  <label class="filter-label">是否绑卡户</label>
+                  <select id="filterBind" class="filter-select"><option value="">全部</option><option value="是">是</option><option value="否">否</option></select>
+                </div>
+                <div>
+                  <label class="filter-label">跟进状态</label>
+                  <select id="filterFollowStatus" class="filter-select">
+                    <option value="">全部</option>
+                    <option value="pending" selected>待跟进</option>
+                    <option value="in_progress">跟进中</option>
+                    <option value="done">已处理</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="filter-label">广告账户ID</label>
+                  <input id="filterAccountId" class="filter-input" placeholder="账户ID">
+                </div>
+                <div>
+                  <label class="filter-label">商户ID</label>
+                  <input id="filterMerchantId" class="filter-input" placeholder="商户ID">
+                </div>
+                <div>
+                  <label class="filter-label">客户名称</label>
+                  <input id="filterCustomerName" class="filter-input" placeholder="客户名称">
+                </div>
+                <div>
+                  <label class="filter-label">BD</label>
+                  <select id="filterBd" class="filter-select">
+                    <option value="">全部</option>
+                    <option>张三</option>
+                    <option>王五</option>
+                    <option>钱七</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="filter-label">AM</label>
+                  <select id="filterAm" class="filter-select">
+                    <option value="">全部</option>
+                    <option>李四</option>
+                    <option>赵六</option>
+                    <option>孙八</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mt-3 flex gap-2">
+                <button onclick="searchData()" class="btn-toolbar-primary"><i class="fas fa-search mr-1"></i>查询</button>
+                <button onclick="resetFilters()" class="btn-toolbar-secondary">重置</button>
+              </div>
+            </div>
+
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-3">
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">异常明细 <span id="listCount" class="text-gray-400 text-base">(0)</span></h3>
+                  <p class="text-xs text-gray-500 mt-0.5">数值列可点击升降序；跟进字段展示最后一次；操作列固定在右侧</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-gray-500" id="selectedHint"></span>
+                  <button type="button" id="btnBatchFollow" onclick="openBatchFollow()" class="btn-toolbar-secondary" disabled><i class="fas fa-tasks mr-1"></i>批量跟进</button>
+                  <button type="button" class="btn-toolbar-primary"><i class="fas fa-download mr-1"></i>导出</button>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-xs sticky-table-header">
+                  <thead class="bg-gray-50 text-gray-500">
+                    <tr>
+                      <th class="px-3 py-3 text-left"><input type="checkbox" id="checkAll" onclick="toggleCheckAll(this)" title="全选当前列表"></th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">核对日期</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">商户ID</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">客户名称</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">BD</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">AM</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">广告账户ID</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">广告账户名称</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">媒体</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">是否绑卡户</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">广告账户币种</th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="prevEnd" onclick="toggleSort('prevEnd')">前一天日终余额<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="recharge" onclick="toggleSort('recharge')">当天充值<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="spend" onclick="toggleSort('spend')">当天消耗<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="clear" onclick="toggleSort('clear')">当天清零<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="reduce" onclick="toggleSort('reduce')">当天减款<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="expected" onclick="toggleSort('expected')" title="推算余额 = 前一天日终余额 + 当天充值 − 当天消耗 − 当天清零 − 当天减款">推算余额 <i class="fas fa-info-circle tip-icon" title="推算余额 = 前一天日终余额 + 当天充值 − 当天消耗 − 当天清零 − 当天减款。绑卡户「前一天日终余额 / 当天日终余额」取使用卡剩余额度。"></i><span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="dayEnd" onclick="toggleSort('dayEnd')">当天日终余额<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="diff" onclick="toggleSort('diff')" title="差额 = 推算余额 − 当天日终余额">差额<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-right font-medium whitespace-nowrap th-sort" data-sort="diffPct" onclick="toggleSort('diffPct')" title="偏差% = 差额 ÷ |推算余额| × 100%；推算余额为 0 时展示 —">偏差%<span class="sort-icon"><i class="fas fa-sort"></i></span></th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">跟进状态</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">跟进人</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">跟进时间</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap">跟进备注</th>
+                      <th class="px-3 py-3 text-left font-medium whitespace-nowrap sticky-action-th">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody" class="bg-white divide-y divide-gray-100 text-gray-700"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="feishuModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-40">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button onclick="document.getElementById('feishuModal').classList.add('hidden')" class="absolute right-3 top-3 text-gray-400 text-xl">&times;</button>
+      <h3 class="font-semibold mb-3"><i class="fa-brands fa-rocketchat text-indigo-600 mr-2"></i>飞书告警示意</h3>
+      <div class="bg-gray-50 border rounded p-4 text-xs leading-6 text-gray-700">
+        <div class="font-semibold text-gray-900 mb-2">【日环比异常】2026-08-04 共 12 条</div>
+        <div>· 待跟进 8 条，其中绑卡户 3 条</div>
+        <div>· 最大差额账户：act_889900（差额 -28,830.50 USD）</div>
+        <div class="mt-2 text-indigo-600">查看异常清单 →</div>
+        <div class="mt-3 text-gray-400">接收：业务负责人 / 财务 / 指定群（暂不分金额档）</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="followModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4 py-8">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900" id="followModalTitle">跟进</h3>
+          <button onclick="closeFollowModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <p class="text-sm text-gray-500" id="followModalHint"></p>
+          <div>
+            <label class="filter-label">跟进状态 <span class="text-red-500">*</span></label>
+            <select id="followStatusInput" class="filter-select">
+              <option value="pending">待跟进</option>
+              <option value="in_progress">跟进中</option>
+              <option value="done">已处理</option>
+            </select>
+          </div>
+          <div>
+            <label class="filter-label">跟进备注</label>
+            <textarea id="followRemarkInput" rows="3" class="filter-input" placeholder="选填，建议填写处置说明"></textarea>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
+          <button onclick="closeFollowModal()" class="btn-toolbar-secondary">取消</button>
+          <button onclick="submitFollow()" class="btn-toolbar-primary">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="historyDrawerOverlay" class="fixed inset-0 drawer-overlay bg-gray-600 bg-opacity-50 hidden z-50" onclick="closeHistoryDrawer()"></div>
+  <div id="historyDrawer" class="drawer-panel fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col">
+    <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+      <div>
+        <h3 class="text-lg font-medium text-gray-900">跟进记录</h3>
+        <p class="text-xs text-gray-500 mt-0.5" id="historyDrawerSub"></p>
+      </div>
+      <button onclick="closeHistoryDrawer()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-5 py-4" id="historyDrawerBody"></div>
+  </div>
+
+  <script>
+    function toggleMenuSection(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('hidden');
+    }
+
+    const FOLLOW_LABEL = { pending: '待跟进', in_progress: '跟进中', done: '已处理' };
+    const SOURCE_LABEL = { manual: '手动跟进', batch: '批量跟进' };
+    const CURRENT_USER = '管理员';
+    /** 原型「今天」：日终未产出，核对日期不含此日 */
+    const PROTO_TODAY = '2026-08-05';
+    const CARD_KPI = { total: 128, recent3: 18, pending: 42 };
+    const fmt = n => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const nowStr = () => {
+      const d = new Date(), p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    };
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function followBadge(status) {
+      if (!status) return '-';
+      return `<span class="status-badge ${status}">${FOLLOW_LABEL[status] || status}</span>`;
+    }
+    function remarkCell(remark) {
+      if (!remark) return '-';
+      const safe = escapeHtml(remark);
+      return `<span class="remark-cell" title="${safe}">${safe}</span>`;
+    }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function parseYmd(s) {
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    function formatYmd(d) {
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+    function addDays(ymd, delta) {
+      const d = parseYmd(ymd);
+      d.setDate(d.getDate() + delta);
+      return formatYmd(d);
+    }
+    function defaultDateRange() {
+      // 最近7天，不含当天 → 昨天往前共7天
+      const end = addDays(PROTO_TODAY, -1);
+      const start = addDays(PROTO_TODAY, -7);
+      return { start, end };
+    }
+    function maxCheckDate() {
+      return addDays(PROTO_TODAY, -1);
+    }
+
+    let selectedIds = new Set();
+    let followMode = 'single';
+    let followTargetIds = [];
+    let sortKey = 'diff';
+    let sortDir = 'desc';
+
+    let rows = [
+      { id:1, date:'2026-08-04', merchantId:'C10086', customerName:'ACME跨境', bd:'张三', am:'李四', accountId:'act_889900', accountName:'ACME-US-01', media:'Facebook', bind:false, currency:'USD', prevEnd:1250, recharge:0, spend:80, clear:30000, reduce:0, dayEnd:0.5, followStatus:'pending', followOperator:null, followTime:null, followRemark:null, followLogs:[] },
+      { id:2, date:'2026-08-04', merchantId:'C20811', customerName:'BrightShop', bd:'王五', am:'赵六', accountId:'act_662211', accountName:'BS-Bind-03', media:'Facebook', bind:true, currency:'USD', prevEnd:5000, recharge:2000, spend:350, clear:0, reduce:0, dayEnd:6200, followStatus:'pending', followOperator:null, followTime:null, followRemark:null, followLogs:[] },
+      { id:3, date:'2026-08-04', merchantId:'C30102', customerName:'NovaAds', bd:'王五', am:'赵六', accountId:'act_110022', accountName:'Nova-GG-02', media:'Google', bind:false, currency:'USD', prevEnd:320, recharge:500, spend:120.4, clear:0, reduce:100, dayEnd:599.55, followStatus:'done', followOperator:'财务-王敏', followTime:'2026-08-04 11:20:00', followRemark:'差额在容差内，确认为消耗同步延迟，已处理。', followLogs:[
+        { time:'2026-08-04 11:20:00', operator:'财务-王敏', status:'done', remark:'差额在容差内，确认为消耗同步延迟，已处理。', source:'manual' }
+      ]},
+      { id:4, date:'2026-08-03', merchantId:'C10086', customerName:'ACME跨境', bd:'张三', am:'李四', accountId:'act_889901', accountName:'ACME-US-02', media:'Facebook', bind:false, currency:'USD', prevEnd:88, recharge:0, spend:10, clear:0, reduce:50, dayEnd:28, followStatus:'in_progress', followOperator:'业务-李强', followTime:'2026-08-03 18:40:00', followRemark:'截图已收到，金额一致，待次日再核对日终。', followLogs:[
+        { time:'2026-08-03 16:05:00', operator:'业务-李强', status:'in_progress', remark:'已联系客户核对应减款金额，等待代理后台截图。', source:'manual' },
+        { time:'2026-08-03 18:40:00', operator:'业务-李强', status:'in_progress', remark:'截图已收到，金额一致，待次日再核对日终。', source:'manual' }
+      ]},
+      { id:5, date:'2026-07-30', merchantId:'C40110', customerName:'OrbitTrade', bd:'钱七', am:'孙八', accountId:'act_778800', accountName:'Orbit-TT-01', media:'TikTok', bind:false, currency:'USD', prevEnd:2100, recharge:0, spend:900, clear:0, reduce:0, dayEnd:900, followStatus:'pending', followOperator:null, followTime:null, followRemark:null, followLogs:[] }
+    ];
+
+    function expected(r) { return r.prevEnd + r.recharge - r.spend - r.clear - r.reduce; }
+    function diff(r) { return expected(r) - r.dayEnd; }
+    /** 偏差% = 差额 / |推算余额| × 100；推算为 0 返回 null */
+    function diffPct(r) {
+      const e = expected(r);
+      if (Math.abs(e) < 1e-9) return null;
+      return (diff(r) / Math.abs(e)) * 100;
+    }
+    function fmtPct(p) {
+      if (p === null || p === undefined || Number.isNaN(p)) return '—';
+      return (p >= 0 ? '+' : '') + p.toFixed(2) + '%';
+    }
+    function sortValue(r, key) {
+      if (key === 'expected') return expected(r);
+      if (key === 'diff') return diff(r);
+      if (key === 'diffPct') {
+        const p = diffPct(r);
+        return p === null ? (sortDir === 'asc' ? Infinity : -Infinity) : p;
+      }
+      return r[key];
+    }
+
+    function clampDateInputs() {
+      const max = maxCheckDate();
+      ['filterDateStart', 'filterDateEnd'].forEach(id => {
+        const el = document.getElementById(id);
+        el.max = max;
+      });
+    }
+
+    function applyDefaultDateRange() {
+      const { start, end } = defaultDateRange();
+      document.getElementById('filterDateStart').value = start;
+      document.getElementById('filterDateEnd').value = end;
+      clampDateInputs();
+    }
+
+    function getFiltered() {
+      const start = document.getElementById('filterDateStart').value;
+      const end = document.getElementById('filterDateEnd').value;
+      const media = document.getElementById('filterMedia').value;
+      const bind = document.getElementById('filterBind').value;
+      const fs = document.getElementById('filterFollowStatus').value;
+      const aid = document.getElementById('filterAccountId').value.trim();
+      const mid = document.getElementById('filterMerchantId').value.trim();
+      const cname = document.getElementById('filterCustomerName').value.trim();
+      const bd = document.getElementById('filterBd').value;
+      const am = document.getElementById('filterAm').value;
+      const max = maxCheckDate();
+      let list = rows.filter(r => {
+        if (r.date >= PROTO_TODAY || r.date > max) return false;
+        if (start && r.date < start) return false;
+        if (end && r.date > end) return false;
+        if (media && r.media !== media) return false;
+        if (bind === '是' && !r.bind) return false;
+        if (bind === '否' && r.bind) return false;
+        if (fs && r.followStatus !== fs) return false;
+        if (aid && !r.accountId.includes(aid)) return false;
+        if (mid && !r.merchantId.includes(mid)) return false;
+        if (cname && !r.customerName.includes(cname)) return false;
+        if (bd && r.bd !== bd) return false;
+        if (am && r.am !== am) return false;
+        return true;
+      });
+      list = list.slice().sort((a, b) => {
+        const va = sortValue(a, sortKey);
+        const vb = sortValue(b, sortKey);
+        if (va === vb) return b.id - a.id;
+        return sortDir === 'asc' ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+      });
+      return list;
+    }
+
+    function updateSortIcons() {
+      document.querySelectorAll('th.th-sort').forEach(th => {
+        const key = th.getAttribute('data-sort');
+        const icon = th.querySelector('.sort-icon i');
+        th.classList.toggle('active', key === sortKey);
+        if (!icon) return;
+        if (key !== sortKey) icon.className = 'fas fa-sort';
+        else icon.className = sortDir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+      });
+    }
+
+    function toggleSort(key) {
+      if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else { sortKey = key; sortDir = 'desc'; }
+      renderTable();
+    }
+
+    function updateBatchBtn() {
+      const btn = document.getElementById('btnBatchFollow');
+      const hint = document.getElementById('selectedHint');
+      btn.disabled = selectedIds.size === 0;
+      hint.textContent = selectedIds.size ? `已选 ${selectedIds.size} 条` : '';
+    }
+
+    function toggleRowCheck(id, checked) {
+      if (checked) selectedIds.add(id); else selectedIds.delete(id);
+      updateBatchBtn();
+    }
+
+    function toggleCheckAll(el) {
+      getFiltered().forEach(r => {
+        if (el.checked) selectedIds.add(r.id); else selectedIds.delete(r.id);
+      });
+      renderTable();
+    }
+
+    function searchData() {
+      const start = document.getElementById('filterDateStart').value;
+      const end = document.getElementById('filterDateEnd').value;
+      const max = maxCheckDate();
+      if (start && start > max) {
+        alert('核对日期不能包含当天及之后（当天日终余额尚未产出）');
+        applyDefaultDateRange();
+        return;
+      }
+      if (end && end > max) {
+        alert('核对日期不能包含当天及之后（当天日终余额尚未产出）');
+        document.getElementById('filterDateEnd').value = max;
+        return;
+      }
+      if (start && end && start > end) {
+        alert('开始日期不能晚于结束日期');
+        return;
+      }
+      renderTable();
+    }
+
+    function resetFilters() {
+      applyDefaultDateRange();
+      document.getElementById('filterMedia').value = '';
+      document.getElementById('filterBind').value = '';
+      document.getElementById('filterFollowStatus').value = 'pending';
+      document.getElementById('filterAccountId').value = '';
+      document.getElementById('filterMerchantId').value = '';
+      document.getElementById('filterCustomerName').value = '';
+      document.getElementById('filterBd').value = '';
+      document.getElementById('filterAm').value = '';
+      sortKey = 'diff';
+      sortDir = 'desc';
+      selectedIds.clear();
+      renderTable();
+    }
+
+    function renderTable() {
+      document.getElementById('kpiTotal').textContent = CARD_KPI.total;
+      document.getElementById('kpiRecent').textContent = CARD_KPI.recent3;
+      document.getElementById('kpiPending').textContent = CARD_KPI.pending;
+      updateSortIcons();
+      const list = getFiltered();
+      document.getElementById('listCount').textContent = `(${list.length})`;
+      updateBatchBtn();
+      document.getElementById('checkAll').checked = list.length > 0 && list.every(r => selectedIds.has(r.id));
+      document.getElementById('tbody').innerHTML = list.map(r => {
+        const d = diff(r);
+        const pct = diffPct(r);
+        const actions = `<button class="btn-link" onclick="openSingleFollow(${r.id})">跟进</button>` +
+          `<button class="btn-link" onclick="openHistoryDrawer(${r.id})">查看跟进记录</button>`;
+        return `<tr>
+          <td class="px-3 py-2"><input type="checkbox" ${selectedIds.has(r.id) ? 'checked' : ''} onchange="toggleRowCheck(${r.id}, this.checked)"></td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.date}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.merchantId}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.customerName}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.bd || '-'}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.am || '-'}</td>
+          <td class="px-3 py-2 whitespace-nowrap font-mono">${r.accountId}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.accountName}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.media}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.bind ? '是' : '否'}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.currency}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right">${fmt(r.prevEnd)}${r.bind ? '<div class="text-gray-400 text-[10px]">使用卡剩余额度</div>' : ''}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right">${fmt(r.recharge)}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right">${fmt(r.spend)}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right">${fmt(r.clear)}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right">${fmt(r.reduce)}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right" title="前一天日终 + 充值 − 消耗 − 清零 − 减款">${fmt(expected(r))}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right">${fmt(r.dayEnd)}${r.bind ? '<div class="text-gray-400 text-[10px]">使用卡剩余额度</div>' : ''}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right ${Math.abs(d) > 1 ? 'diff-up' : 'diff-ok'}">${fmt(d)}</td>
+          <td class="px-3 py-2 whitespace-nowrap text-right ${pct !== null && Math.abs(pct) > 5 ? 'diff-up' : 'diff-ok'}">${fmtPct(pct)}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${followBadge(r.followStatus)}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.followOperator || '-'}</td>
+          <td class="px-3 py-2 whitespace-nowrap">${r.followTime || '-'}</td>
+          <td class="px-3 py-2">${remarkCell(r.followRemark)}</td>
+          <td class="px-3 py-2 whitespace-nowrap sticky-action-td">${actions}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="25" class="text-center py-8 text-gray-500">暂无数据</td></tr>';
+    }
+
+    function appendFollow(row, status, remark, source) {
+      const time = nowStr();
+      const log = { time, operator: CURRENT_USER, status, remark: remark || '', source };
+      row.followLogs = row.followLogs || [];
+      row.followLogs.push(log);
+      row.followStatus = status;
+      row.followOperator = CURRENT_USER;
+      row.followTime = time;
+      row.followRemark = remark || '';
+    }
+
+    function openSingleFollow(id) {
+      const row = rows.find(r => r.id === id);
+      if (!row) return;
+      followMode = 'single';
+      followTargetIds = [id];
+      document.getElementById('followModalTitle').textContent = '跟进';
+      document.getElementById('followModalHint').textContent =
+        `日环比异常 · ${row.accountId} · 当前状态：${FOLLOW_LABEL[row.followStatus] || '-'}`;
+      document.getElementById('followStatusInput').value = row.followStatus || 'pending';
+      document.getElementById('followRemarkInput').value = '';
+      document.getElementById('followModal').classList.remove('hidden');
+    }
+
+    function openBatchFollow() {
+      if (!selectedIds.size) return;
+      followMode = 'batch';
+      followTargetIds = [...selectedIds];
+      document.getElementById('followModalTitle').textContent = '批量跟进';
+      document.getElementById('followModalHint').textContent =
+        `已选 ${followTargetIds.length} 条。不限制当前状态是否一致；本次将统一写入相同的目标状态与备注，每条各记一条履历。`;
+      document.getElementById('followStatusInput').value = 'in_progress';
+      document.getElementById('followRemarkInput').value = '';
+      document.getElementById('followModal').classList.remove('hidden');
+    }
+
+    function closeFollowModal() {
+      document.getElementById('followModal').classList.add('hidden');
+    }
+
+    function submitFollow() {
+      const status = document.getElementById('followStatusInput').value;
+      const remark = document.getElementById('followRemarkInput').value.trim();
+      const source = followMode === 'batch' ? 'batch' : 'manual';
+      followTargetIds.forEach(id => {
+        const row = rows.find(r => r.id === id);
+        if (row) appendFollow(row, status, remark, source);
+      });
+      if (followMode === 'batch') selectedIds.clear();
+      closeFollowModal();
+      renderTable();
+      alert(followMode === 'batch' ? `已批量跟进 ${followTargetIds.length} 条` : '跟进已保存');
+    }
+
+    function openHistoryDrawer(id) {
+      const row = rows.find(r => r.id === id);
+      if (!row) return;
+      document.getElementById('historyDrawerSub').textContent =
+        `日环比异常 · ${row.accountId} · ${row.accountName}`;
+      const logs = [...(row.followLogs || [])].reverse();
+      const body = document.getElementById('historyDrawerBody');
+      if (!logs.length) {
+        body.innerHTML = '<p class="text-sm text-gray-500 text-center py-10">暂无跟进记录（当前为待跟进）</p>';
+      } else {
+        body.innerHTML = logs.map(log => `
+          <div class="border border-gray-200 rounded-lg p-3 mb-3">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              ${followBadge(log.status)}
+              <span class="text-xs text-gray-400">${SOURCE_LABEL[log.source] || log.source}</span>
+            </div>
+            <div class="text-xs text-gray-500 mb-1">${escapeHtml(log.time)} · ${escapeHtml(log.operator)}</div>
+            <div class="text-sm text-gray-800 whitespace-pre-wrap break-words">${escapeHtml(log.remark) || '<span class="text-gray-400">（无备注）</span>'}</div>
+          </div>`).join('');
+      }
+      document.getElementById('historyDrawerOverlay').classList.remove('hidden');
+      document.getElementById('historyDrawer').classList.add('open');
+    }
+
+    function closeHistoryDrawer() {
+      document.getElementById('historyDrawer').classList.remove('open');
+      document.getElementById('historyDrawerOverlay').classList.add('hidden');
+    }
+
+    applyDefaultDateRange();
+    renderTable();
+  </script>
+</body>
+</html>

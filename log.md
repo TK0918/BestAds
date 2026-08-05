@@ -1,3 +1,174 @@
+#### 2026-08-05 - 输出 Meta Country Feed 小白操作指南
+
+将 Meta Country Feed 功能说明细化成首次接触可跟做的操作文档，含名词解释、逐步操作、校验、限制、故障排查，并附官方文档链接。
+
+- 新增：`PRD/Meta-Country-Feed-操作指南.md`
+
+---
+
+#### 2026-08-06 - 推送 V 2.38 广告风控第一期至 GitHub
+
+提交并推送 V 2.38 PRD、日环比/清零/减款/客户端风控原型及相关侧栏与入口索引。
+
+---
+
+#### 2026-08-05 - 日环比页迁至余额监控管理
+
+账户余额日环比异常从 `reports/` 迁至 `auto-recharge/`，与余额监控&自动充值、账户封停监控同目录；旧路径保留跳转；同步 PRD / 入口索引 / 同目录侧栏。
+
+- 迁移：`admin-system/auto-recharge/balance-day-over-day-report.html`
+- 旧路径跳转：`admin-system/reports/balance-day-over-day-report.html`
+- 更新：`admin-system/auto-recharge/notifications.html`、`account-status-monitor.html`、`main-functions/index.html`
+- 更新：`PRD/V 2.38 广告风控第一期.md`、`prototypes/wallet-credit-risk-control-v1.html`
+
+---
+
+#### 2026-08-05 - 日环比补 BD/AM，PRD 补全计算公式
+
+日环比筛选拆分商户 ID / 客户名称，新增 BD、AM 筛选与列表列；PRD 补全日环比差额与事中清零/减款偏差详细计算公式（含示例）。
+
+- 更新：`admin-system/reports/balance-day-over-day-report.html`
+- 更新：`PRD/V 2.38 广告风控第一期.md`
+
+---
+
+#### 2026-08-05 - V 2.38 PRD 原型改为外网可访问链接
+
+PRD 内原型路径统一为 `https://tk0918.github.io/BestAds/...` 可点击链接。
+
+- 更新：`PRD/V 2.38 广告风控第一期.md`
+
+---
+
+#### 2026-08-05 - 输出 V 2.38 广告风控第一期 PRD
+
+按最终原型输出 PRD：事后日环比清单与跟进、事中 5%/基准缺失确认、事前清零减款确认（含 Web/H5/运营代客）；不写技术字段名，同名字段标注与现网页面对应关系。
+
+- 新增：`PRD/V 2.38 广告风控第一期.md`
+
+---
+
+#### 2026-08-05 - 日环比列表与跟进状态调整
+
+跟进状态收敛为待跟进/跟进中/已处理；核对日期改为近7天范围（不含当天）；列表增加偏差%、推算余额计算说明、数值列升降序、操作列右固定。
+
+- 更新：`admin-system/reports/balance-day-over-day-report.html`
+
+---
+
+#### 2026-08-05 - 日环比对齐封停监控跟进交互
+
+日环比异常清单跟进交互对齐 `account-status-monitor.html`：六态跟进状态、列表展示最后一次跟进人/时间/备注、跟进弹窗不手填跟进人、右侧履历抽屉、支持批量跟进。
+
+- 更新：`admin-system/reports/balance-day-over-day-report.html`
+
+---
+
+#### 2026-08-05 - 风控原型二次修正（H5/i18n/跟进）
+
+H5 去掉多加的减款按钮，修复清零弹窗浅色主题文字不可见导致「提示不完整」；客户端清零/减款须知与事前弹窗补齐中英文翻译；日环比增加跟进人、备注、跟进记录查看。
+
+- 更新：`bestads-client-styled/h5-account-wallet.html`
+- 更新：`bestads-client-styled/account-management.html`
+- 更新：`admin-system/reports/balance-day-over-day-report.html`
+
+---
+
+#### 2026-08-05 - 按反馈调整风控第一期原型
+
+日环比：改为「前一天/当天」口径、字段拆分、加币种、3 张汇总卡片置顶、侧栏对齐现网报表菜单。清零/减款发起增加近 3 天消耗与「全部发起 / 仅消耗为 0 发起」。客户端 Web/H5（`bestads-client-styled`）补充事前提示与二次确认。
+
+- 更新：`admin-system/reports/balance-day-over-day-report.html`
+- 更新：`admin-system/fb-business/clear-management.html`、`deduction-management.html`
+- 更新：`bestads-client-styled/account-management.html`、`h5-account-wallet.html`
+- 更新：`prototypes/wallet-credit-risk-control-v1.html`（入口索引）
+
+---
+
+#### 2026-08-05 - 风控原型改回现有运营端文件
+
+事中/事前不再单独堆页面：并入 FB 清零/减款现有原型；日环比落到报表新页；总览页改为入口索引（客户端因无现成原型保留最小示意）。
+
+- 调整：`admin-system/fb-business/clear-management.html`（5% / 基准缺失确认、代客事前确认、绑卡媒体已完成）
+- 调整：`admin-system/fb-business/deduction-management.html`（同上减款口径）
+- 新增：`admin-system/reports/balance-day-over-day-report.html`
+- 调整：`prototypes/wallet-credit-risk-control-v1.html`（改为入口 + 客户端补充示意）
+
+---
+
+#### 2026-08-05 - 输出钱包加款风控第一期交互原型
+
+按业务确认范围输出可切换场景原型：事后日环比异常清单+飞书示意；事中人工处理成功 5% / 基准缺失二次确认；事前客户 Web/H5 与运营代客发起清零·减款二次确认（批量整批一次）。
+
+- 新增：`prototypes/wallet-credit-risk-control-v1.html`
+
+---
+
+#### 2026-08-04 - 输出对外版「代理钱包 API 对接需求」
+
+梳理第一性原理后，撰写可直接发给合作代理的对外需求文档：明确代理钱包为清零/减款结算依据，要求提供变动流水 API（查询必做、推送建议）、原因码、业务关联字段，并覆盖「一笔清零多笔入账」场景。
+
+- 新增：`PRD/代理钱包API对接需求.md`
+
+---
+
+#### 2026-08-04 - 量化面板统计起点改为 2026-01
+
+月度量化面板仅保留上线时间 ≥ 2026-01 的需求；刷新 KPI / 按月 / 按项目 / 主表 / Top / 季度节奏，写入 `.tmp-hqyads-monthly-overview.md` 并复制到剪贴板。
+
+---
+
+#### 2026-08-04 - 月度总览改为量化面板
+
+弱化流水明细，突出 KPI / 按月量 / 按项目量 /「月份×项目×数量×解决问题」主表与月度 Top；完整 Markdown 写入 `.tmp-hqyads-monthly-overview.md` 并复制到剪贴板。
+
+---
+
+#### 2026-08-03 - 「其他」项目并回各产品线并刷新月度总览
+
+将原归入「其他」的 13 条已上线需求按内容全部并入 BestAds（多语言、蓝标同步、资产/创编、业务支撑、Meta 资产 UI 等）；月度总览不再保留「其他」行。
+
+- 更新：`.tmp-hqyads-monthly-overview.md`（已复制到剪贴板）
+- 项目口径：BestAds / Bestros / BestCreative / SpyTool·AntSpy / BPS·负向治理 / 技术基建
+
+---
+
+#### 2026-08-03 - 月度总览改为「月份×项目」并补齐问题/效果
+
+基于 hqyads 已上线 184 条 story，按「月份 × 项目」分行统计；字段调整为：月份、项目、当月主题、代表需求（含链接）、解决问题、对业务效果。
+
+- 更新临时稿：`.tmp-hqyads-monthly-overview.md`（已复制到剪贴板）
+- 项目口径：BestAds / Bestros / BestCreative / SpyTool·AntSpy / BPS·负向治理 / 技术基建 / 其他
+
+---
+
+#### 2026-08-03 - 拉取 hqyads 全部需求并整理带链接月度总览
+
+通过飞书项目 OpenAPI（plugin token）拉取空间 `hqyads` 全部 story（232 条），按流程节点「需求上线」时间归月，生成可跳转需求详情链接的月度总览与分月明细。
+
+- 临时产出：`.tmp-hqyads-monthly-overview.md`（已复制到剪贴板）
+- 口径：上线时间优先「需求上线」节点，回退 `finish_time`；链接 `https://project.feishu.cn/hqyads/story/detail/{id}`
+
+---
+
+#### 2026-08-03 - 加深 Meta 分析报告（BD 投放×站点双视角）
+
+在既有 Excel 实据报告上增加深度：按 BD 给客户建议框架重写——① Campaign Structure（1-N-N / 测新 1-N-1 / 素材多样性）；② 素材叙事（Problem Solve / UGC Reviewer / Demo）；③ 数据层护栏与国家漏斗；④ 站点运营视角（落地页 CVR、CTA、高点低转名单、.com vs .fr）。
+
+- 更新：`admin-system/reports/meta-ad-performance-analysis.html`
+- 同步：`~/Downloads/meta-ad-performance-analysis.html`
+
+---
+
+#### 2026-08-03 - 生成 Meta 广告表现分析 HTML 报告
+
+基于导出文件 `广告客户表现_自定义维度_20260803163022_12692.xlsx`（账户 HQ-B-05-428，2026-07-31~2026-08-02），参照聊天中的分析报告模板生成本地 HTML：KPI 卡片、系列表现表、近三日/国家维度、异常信号、素材异常、止血/加码/结构建议。
+
+- 产出：`admin-system/reports/meta-ad-performance-analysis.html`
+- 同步副本：`~/Downloads/meta-ad-performance-analysis.html`（便于直接双击打开）
+
+---
+
 #### 2026-07-30 - V2.39 相关文件提交并推送 GitHub
 
 **提交** `1d12240` → `origin/main`：含 `PRD/V 2.39 Slash默认额度功能.md`、绑卡户/充值原型、`log.md`；以及 PRD 重命名（V2.13 / V2.15 / V2.17 / V2.19 / V2.22）。未纳入 `.DS_Store`、V2.35/V2.36 及其他无关未跟踪文件。

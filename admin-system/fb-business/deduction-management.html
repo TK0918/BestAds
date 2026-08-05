@@ -353,7 +353,7 @@
 
   <!-- 减款弹窗 -->
   <div id="deductionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
       <button id="closeDeductionModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
       <h3 class="text-xl font-bold mb-4">发起减款</h3>
       <form id="deductionForm">
@@ -367,15 +367,17 @@
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">选择广告账户（支持搜索，多选）</label>
           <input type="text" id="accountSearch" placeholder="输入广告账户名称/ID搜索" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-2">
-          <div id="accountList" class="max-h-32 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50"></div>
+          <div id="accountList" class="max-h-40 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50 space-y-2"></div>
+          <p class="text-xs text-gray-500 mt-2">勾选后展示最近 3 天（含当天）消耗，便于判断是否适合发起减款。</p>
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">减款金额设置</label>
           <div id="deductionAmounts" class="space-y-2"></div>
           <div id="totalAmount" class="mt-2 text-sm text-gray-500"></div>
         </div>
-        <div class="flex justify-end">
-          <button type="button" id="submitDeduction" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium">提交</button>
+        <div class="flex flex-wrap justify-end gap-2">
+          <button type="button" id="submitDeductionZeroSpend" class="bg-white border border-red-400 text-red-700 hover:bg-red-50 px-4 py-2 rounded-md font-medium text-sm">仅对最近3天消耗为0的账户发起</button>
+          <button type="button" id="submitDeduction" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium text-sm">全部发起</button>
         </div>
       </form>
     </div>
@@ -391,7 +393,8 @@
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">实际减少总额度 <span class="text-red-500">*</span></label>
           <input type="number" id="actualReduceAmount" min="0.01" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="须大于 0, 最小 0.01">
-          <p class="text-xs text-gray-500 mt-1">以媒体后台实际降额结果为准, 系统不做计算提示</p>
+          <p class="text-xs text-gray-500 mt-1">减款基准为申请减款金额；与基准偏差 ≥5% 或基准缺失时需二次确认（不拦截）。</p>
+          <p id="mediaCompleteBaseHint" class="text-xs text-indigo-600 mt-1"></p>
         </div>
         <div class="flex justify-end space-x-2">
           <button type="button" onclick="closeMediaCompleteModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
@@ -473,8 +476,9 @@
       <button id="closeManualProcessModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
       <h3 class="text-xl font-bold mb-4">人工处理</h3>
       <div class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
-        请确认已经在代理的系统中完成减款处理再使用此功能。
+        请确认已经在代理的系统中完成减款处理再使用此功能。金额将增加客户钱包。
       </div>
+      <div id="manualBaseHint" class="text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 rounded p-2 mb-3"></div>
       <form id="manualProcessForm">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">处理结果（必选）</label>
@@ -483,6 +487,11 @@
             <option value="成功">成功</option>
             <option value="失败">失败</option>
           </select>
+        </div>
+        <div class="mb-4" id="manualAmountWrap">
+          <label class="block text-sm font-medium text-gray-700 mb-2">实际减款金额（成功时必填，将加钱包）</label>
+          <input type="number" id="manualActualAmount" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="请输入实际减款金额">
+          <p class="text-xs text-amber-600 mt-1">与申请减款金额偏差 ≥5% 或基准缺失时需二次确认（不拦截）。</p>
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">备注（选填）</label>
@@ -496,6 +505,62 @@
     </div>
   </div>
 
+  <!-- 事中：金额偏差 ≥5% 二次确认 -->
+  <div id="amountDiffConfirmModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button type="button" onclick="closeAmountDiffConfirm(false)" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-lg font-bold text-amber-700 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>金额偏差较大，请二次确认</h3>
+      <p class="text-sm text-gray-500 mb-4">输入金额与系统基准相差 ≥ 5%。确认后仍将按输入金额增加客户钱包。</p>
+      <div class="bg-gray-50 border border-gray-200 rounded p-3 text-sm space-y-2 mb-4">
+        <div class="flex justify-between"><span class="text-gray-500">基准说明</span><span id="diffBaseLabel" class="font-medium">申请减款金额</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">基准金额</span><span id="diffBaseAmt" class="font-semibold">-</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">本次输入</span><span id="diffInputAmt" class="font-semibold text-red-600">-</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">偏差</span><span id="diffPct" class="font-semibold text-red-600">-</span></div>
+        <div class="flex justify-between border-t border-gray-200 pt-2"><span class="text-gray-500">将增加钱包</span><span id="diffWalletAmt" class="font-bold text-red-600">-</span></div>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="closeAmountDiffConfirm(false)" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">返回修改</button>
+        <button type="button" onclick="closeAmountDiffConfirm(true)" class="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">已知悉，确认提交</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 事中：基准缺失 / 为 0 -->
+  <div id="amountMissingBaseModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button type="button" onclick="closeMissingBaseConfirm(false)" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-lg font-bold text-amber-700 mb-2"><i class="fas fa-question-circle mr-2"></i>无法校验金额偏差</h3>
+      <p class="text-sm text-gray-500 mb-4">基准金额为 0 或暂时无法获取，系统无法计算 5% 偏差。请人工核对后再确认。</p>
+      <div class="bg-amber-50 border border-amber-200 rounded p-3 text-sm space-y-2 mb-4">
+        <div class="flex justify-between"><span class="text-amber-800">基准状态</span><span class="font-medium text-amber-800">缺失 / $0.00</span></div>
+        <div class="flex justify-between"><span class="text-amber-800">本次输入</span><span id="missingInputAmt" class="font-semibold">-</span></div>
+        <div class="flex justify-between border-t border-amber-200 pt-2"><span class="text-amber-800">将增加钱包</span><span id="missingWalletAmt" class="font-bold text-amber-900">-</span></div>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="closeMissingBaseConfirm(false)" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">返回修改</button>
+        <button type="button" onclick="closeMissingBaseConfirm(true)" class="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">已知悉，确认提交</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 事前：代客发起减款二次确认 -->
+  <div id="preSubmitConfirmModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <button type="button" onclick="closePreSubmitConfirm(false)" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">确认提交减款</h3>
+      <p class="text-sm text-gray-500 mb-4">请阅读以下说明后再确认。批量操作仅弹一次。</p>
+      <div class="rounded-md border border-blue-100 bg-blue-50 p-4 text-sm text-gray-700 space-y-3 mb-4">
+        <div class="flex gap-2"><span class="text-blue-600 font-bold">1</span><p>建议账户<strong>停止投放 48 小时</strong>后再来减款，金额会更加准确。</p></div>
+        <div class="flex gap-2"><span class="text-blue-600 font-bold">2</span><p>最终减款金额以<strong>结算时的金额</strong>为准。</p></div>
+      </div>
+      <div class="text-xs text-gray-500 mb-4" id="preSubmitHint">本次将提交所选账户的减款申请。</div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="closePreSubmitConfirm(false)" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">取消</button>
+        <button type="button" onclick="closePreSubmitConfirm(true)" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">我已知晓，确认提交</button>
+      </div>
+    </div>
+  </div>
+
 
   <script>
     const PAGE_KIND = 'deduction'; // deduction | clear
@@ -505,13 +570,71 @@
     let currentSort = { column: 'submitTime', direction: 'desc' };
     let activeItemId = null;
     let _confirmCallback = null;
+    let _riskConfirmCallback = null;
+    let _preSubmitCallback = null;
 
     const accountCurrentCards = {
-      'FB001234568': { cardId: 'c_w9x8y7z6v5u4t3', last4: '5678', status: 'normal' },
-      'FB009876543': { cardId: 'c_3bpoltc2u7sf1', last4: '1234', status: 'normal' },
-      'FB001111222': { cardId: 'c_h7j8k9l0m1n2o3', last4: '2210', status: 'frozen' },
-      'FB003333444': { cardId: 'c_p3q4r5s6t7u8v9', last4: '7842', status: 'normal' }
+      'FB001234568': { cardId: 'c_w9x8y7z6v5u4t3', last4: '5678', status: 'normal', remainingLimit: 900 },
+      'FB009876543': { cardId: 'c_3bpoltc2u7sf1', last4: '1234', status: 'normal', remainingLimit: 2500 },
+      'FB001111222': { cardId: 'c_h7j8k9l0m1n2o3', last4: '2210', status: 'frozen', remainingLimit: 1200 },
+      'FB003333444': { cardId: 'c_p3q4r5s6t7u8v9', last4: '7842', status: 'normal', remainingLimit: 300 }
     };
+
+    function resolveReduceBaseline(it) {
+      if (!it) return { base: null, label: '申请减款金额', missing: true };
+      const apply = it.customerApplyAmount != null ? Number(it.customerApplyAmount) : (it.amount != null ? Number(it.amount) : null);
+      return { base: apply, label: '申请减款金额', missing: apply == null || apply <= 0 };
+    }
+
+    function openAmountDiffConfirm(baseLabel, baseAmt, inputAmt, onConfirm) {
+      _riskConfirmCallback = onConfirm;
+      const pct = Math.abs(inputAmt - baseAmt) / baseAmt * 100;
+      const sign = inputAmt >= baseAmt ? '+' : '-';
+      document.getElementById('diffBaseLabel').textContent = baseLabel;
+      document.getElementById('diffBaseAmt').textContent = '$' + formatAmount(baseAmt);
+      document.getElementById('diffInputAmt').textContent = '$' + formatAmount(inputAmt);
+      document.getElementById('diffPct').textContent = sign + pct.toFixed(1) + '%';
+      document.getElementById('diffWalletAmt').textContent = '$' + formatAmount(inputAmt);
+      document.getElementById('amountDiffConfirmModal').classList.remove('hidden');
+    }
+    function closeAmountDiffConfirm(ok) {
+      document.getElementById('amountDiffConfirmModal').classList.add('hidden');
+      const cb = _riskConfirmCallback; _riskConfirmCallback = null;
+      if (ok && typeof cb === 'function') cb();
+    }
+    function openMissingBaseConfirm(inputAmt, onConfirm) {
+      _riskConfirmCallback = onConfirm;
+      document.getElementById('missingInputAmt').textContent = '$' + formatAmount(inputAmt);
+      document.getElementById('missingWalletAmt').textContent = '$' + formatAmount(inputAmt);
+      document.getElementById('amountMissingBaseModal').classList.remove('hidden');
+    }
+    function closeMissingBaseConfirm(ok) {
+      document.getElementById('amountMissingBaseModal').classList.add('hidden');
+      const cb = _riskConfirmCallback; _riskConfirmCallback = null;
+      if (ok && typeof cb === 'function') cb();
+    }
+    function openPreSubmitConfirm(count, onConfirm) {
+      _preSubmitCallback = onConfirm;
+      document.getElementById('preSubmitHint').textContent = `本次将提交 ${count} 个账户的减款申请。`;
+      document.getElementById('preSubmitConfirmModal').classList.remove('hidden');
+    }
+    function closePreSubmitConfirm(ok) {
+      document.getElementById('preSubmitConfirmModal').classList.add('hidden');
+      const cb = _preSubmitCallback; _preSubmitCallback = null;
+      if (ok && typeof cb === 'function') cb();
+    }
+    function runAmountRiskGate(baseInfo, inputAmt, onPass) {
+      if (baseInfo.missing || !(baseInfo.base > 0)) {
+        openMissingBaseConfirm(inputAmt, onPass);
+        return;
+      }
+      const pct = Math.abs(inputAmt - baseInfo.base) / baseInfo.base * 100;
+      if (pct >= 5) {
+        openAmountDiffConfirm(baseInfo.label, baseInfo.base, inputAmt, onPass);
+        return;
+      }
+      onPass();
+    }
 
     const STATUS_BADGE = {
       '减款中': 'bg-yellow-100 text-yellow-800', '清零中': 'bg-yellow-100 text-yellow-800',
@@ -665,8 +788,12 @@
     function openMediaCompleteModal(id) {
       activeItemId = id;
       const it = findItem(id);
+      const baseInfo = resolveReduceBaseline(it);
       document.getElementById('mediaCompleteWarnings').innerHTML = cardWarningsHtml(it, false);
-      document.getElementById('actualReduceAmount').value = '';
+      document.getElementById('mediaCompleteBaseHint').textContent = baseInfo.missing
+        ? `基准：${baseInfo.label} = 无法获取 / 0`
+        : `基准：${baseInfo.label} = $${formatAmount(baseInfo.base)}`;
+      document.getElementById('actualReduceAmount').value = baseInfo.missing ? '' : String(baseInfo.base);
       document.getElementById('mediaCompleteModal').classList.remove('hidden');
     }
     function closeMediaCompleteModal() { document.getElementById('mediaCompleteModal').classList.add('hidden'); activeItemId = null; }
@@ -748,15 +875,13 @@
         const it = findItem(activeItemId); if (!it) return;
         const amt = parseFloat(document.getElementById('actualReduceAmount').value);
         if (!(amt > 0)) { showToast('实际减少总额度须大于 0', 'error'); return; }
-        const apply = it.customerApplyAmount != null ? it.customerApplyAmount : it.amount;
+        const baseInfo = resolveReduceBaseline(it);
         const submit = () => {
           it.actualReduceAmount = amt;
           closeMediaCompleteModal();
           triggerFundReduce(it);
         };
-        if (Math.abs(amt - apply) > 0.001) {
-          openConfirm('确认实际减少总额度', `客户申请 ${formatAmount(apply)}, 您录入 ${formatAmount(amt)}, 将以 ${formatAmount(amt)} 为准通知 Fund 并加钱包。`, () => { closeConfirm(); submit(); });
-        } else submit();
+        runAmountRiskGate(baseInfo, amt, submit);
       });
 
       document.getElementById('mediaFailForm').addEventListener('submit', e => {
@@ -787,7 +912,20 @@
 
       const mp = document.getElementById('manualProcessBtn');
       if (mp) {
-        mp.addEventListener('click', () => { if (!mp.disabled) document.getElementById('manualProcessModal').classList.remove('hidden'); });
+        mp.addEventListener('click', () => {
+          if (mp.disabled) return;
+          const selected = Array.from(document.querySelectorAll('#listTableBody .row-select:checked'))
+            .map(cb => findItem(cb.dataset.id))
+            .filter(it => it && !it.isBindCardAccount && it.status === '待人工处理');
+          if (!selected.length) { showToast('请选择待人工处理的单据', 'error'); return; }
+          const first = selected[0];
+          const baseInfo = resolveReduceBaseline(first);
+          document.getElementById('manualBaseHint').textContent = selected.length > 1
+            ? `已选 ${selected.length} 条；以第一条申请额为演示基准：$${formatAmount(baseInfo.base || 0)}（多选时请逐条核对）`
+            : `基准（申请减款金额）：${baseInfo.missing ? '无法获取 / 0' : '$' + formatAmount(baseInfo.base)}`;
+          document.getElementById('manualActualAmount').value = baseInfo.missing ? '' : String(baseInfo.base);
+          document.getElementById('manualProcessModal').classList.remove('hidden');
+        });
         document.getElementById('closeManualProcessModal').onclick = () => document.getElementById('manualProcessModal').classList.add('hidden');
         document.getElementById('cancelManualProcess').onclick = () => document.getElementById('manualProcessModal').classList.add('hidden');
         document.getElementById('manualProcessForm').addEventListener('submit', e => {
@@ -795,19 +933,33 @@
           const result = document.getElementById('manualResult').value;
           const remark = document.getElementById('manualRemark').value.trim();
           if (!result) { showToast('请选择处理结果', 'error'); return; }
-          Array.from(document.querySelectorAll('#listTableBody .row-select:checked')).forEach(cb => {
-            const it = findItem(cb.dataset.id);
-            if (it && !it.isBindCardAccount && it.status === '待人工处理') {
+          const selected = Array.from(document.querySelectorAll('#listTableBody .row-select:checked'))
+            .map(cb => findItem(cb.dataset.id))
+            .filter(it => it && !it.isBindCardAccount && it.status === '待人工处理');
+          const commit = () => {
+            selected.forEach(it => {
               it.status = result === '成功' ? '成功' : '失败';
               it.completeTime = nowStr();
+              if (result === '成功') {
+                const amt = parseFloat(document.getElementById('manualActualAmount').value);
+                if (amt > 0) it.amount = amt;
+              }
               if (remark) it.remark = remark;
               pushTimeline(it, it.status);
-            }
-          });
-          document.getElementById('manualProcessModal').classList.add('hidden');
-          document.getElementById('manualProcessForm').reset();
-          renderTable();
-          showToast('人工处理已提交(原型)', 'success');
+            });
+            document.getElementById('manualProcessModal').classList.add('hidden');
+            document.getElementById('manualProcessForm').reset();
+            renderTable();
+            showToast('人工处理已提交(原型)', 'success');
+          };
+          if (result === '成功') {
+            const amt = parseFloat(document.getElementById('manualActualAmount').value);
+            if (!(amt > 0)) { showToast('请输入有效的实际减款金额', 'error'); return; }
+            const baseInfo = resolveReduceBaseline(selected[0]);
+            runAmountRiskGate(baseInfo, amt, commit);
+          } else {
+            commit();
+          }
         });
       }
     }
@@ -844,11 +996,12 @@
 
     const deductCustomers = [
       { id: 'C1001', name: '张三', balance: 5000, accounts: [
-        { id: 'FB001234567', name: '跨境电商账户01', balance: 200 },
-        { id: 'FB001234569', name: '品牌推广账户03', balance: 150 }
+        { id: 'FB001234567', name: '跨境电商账户01', balance: 200, spendLast3Days: 45.2 },
+        { id: 'FB001234569', name: '品牌推广账户03', balance: 150, spendLast3Days: 0 }
       ]},
       { id: 'C1002', name: '李四', balance: 1200, accounts: [
-        { id: 'FB001234568', name: '移动应用账户02', balance: 300 }
+        { id: 'FB001234568', name: '移动应用账户02', balance: 300, spendLast3Days: 12.5 },
+        { id: 'FB001234570', name: '沉默账户04', balance: 80, spendLast3Days: 0 }
       ]}
     ];
 
@@ -880,35 +1033,40 @@
         currentAccounts = accounts;
         accountList.innerHTML = '';
         accounts.forEach(acc => {
-          const label = document.createElement('label');
-          label.className = 'flex items-center mb-1 cursor-pointer';
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.value = acc.id;
-          checkbox.className = 'mr-2';
-          checkbox.addEventListener('change', updateDeductionAmounts);
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(`${acc.name}（${acc.id}）- 当前余额：¥${acc.balance}`));
-          accountList.appendChild(label);
+          const spend = Number(acc.spendLast3Days || 0);
+          const spendCls = spend > 0 ? 'text-amber-700' : 'text-emerald-700';
+          const wrap = document.createElement('label');
+          wrap.className = 'flex items-start gap-2 p-2 rounded border border-gray-100 bg-white cursor-pointer hover:border-red-200';
+          wrap.innerHTML = `
+            <input type="checkbox" value="${acc.id}" data-spend="${spend}" class="mt-1 deduct-acc-cb">
+            <div class="flex-1 text-sm">
+              <div class="font-medium text-gray-900">${acc.name}（${acc.id}）</div>
+              <div class="text-xs text-gray-500 mt-0.5">当前余额：¥${acc.balance}</div>
+              <div class="text-xs ${spendCls} mt-0.5">最近3天消耗（含当天）：¥${spend.toFixed(2)}${spend === 0 ? ' · 无消耗' : ' · 仍有消耗，请谨慎减款'}</div>
+            </div>`;
+          wrap.querySelector('input').addEventListener('change', updateDeductionAmounts);
+          accountList.appendChild(wrap);
         });
+        updateDeductionAmounts();
       }
 
       function updateDeductionAmounts() {
-        const checked = Array.from(accountList.querySelectorAll('input[type=checkbox]:checked'));
+        const checked = Array.from(accountList.querySelectorAll('input.deduct-acc-cb:checked'));
         deductionAmounts.innerHTML = '';
         checked.forEach(checkbox => {
           const account = currentAccounts.find(acc => acc.id === checkbox.value);
           if (!account) return;
+          const spend = Number(account.spendLast3Days || 0);
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
           div.innerHTML = `
             <div class="flex-1 pr-2">
               <div class="text-sm font-medium">${account.name}</div>
-              <div class="text-xs text-gray-500">当前余额：¥${account.balance}</div>
+              <div class="text-xs text-gray-500">当前余额：¥${account.balance} · 近3天消耗：¥${spend.toFixed(2)}</div>
             </div>
             <input type="number" min="1" max="${account.balance}" placeholder="减款金额"
               class="w-28 px-2 py-1 text-sm border border-gray-300 rounded deduction-input text-right"
-              data-account-id="${account.id}" data-max-balance="${account.balance}">`;
+              data-account-id="${account.id}" data-max-balance="${account.balance}" data-spend="${spend}">`;
           deductionAmounts.appendChild(div);
         });
         updateTotalAmount();
@@ -953,18 +1111,31 @@
         ));
       });
 
-      document.getElementById('submitDeduction').addEventListener('click', () => {
+      function doSubmitDeduction(mode) {
         if (!selectedCustomer) { showToast('请选择客户', 'error'); return; }
-        const inputs = deductionAmounts.querySelectorAll('.deduction-input');
+        let inputs = Array.from(deductionAmounts.querySelectorAll('.deduction-input'));
         if (!inputs.length) { showToast('请选择账户并填写减款金额', 'error'); return; }
-        showToast('减款申请已提交(原型)', 'success');
-        modal.classList.add('hidden');
-        document.getElementById('deductionForm').reset();
-        deductionAmounts.innerHTML = '';
-        totalAmount.textContent = '';
-        customerBalance.textContent = '';
-        accountList.innerHTML = '';
-      });
+        if (mode === 'zeroOnly') {
+          inputs = inputs.filter(inp => Number(inp.dataset.spend || 0) === 0);
+          if (!inputs.length) { showToast('所选账户中没有「最近3天消耗为0」的账户', 'error'); return; }
+        }
+        for (const inp of inputs) {
+          if (!(parseFloat(inp.value) > 0)) { showToast('请为将发起的账户填写减款金额', 'error'); return; }
+        }
+        openPreSubmitConfirm(inputs.length, () => {
+          const tip = mode === 'zeroOnly' ? '（仅最近3天消耗为0）' : '（全部勾选）';
+          showToast(`减款申请已提交${tip}，共 ${inputs.length} 个账户`, 'success');
+          modal.classList.add('hidden');
+          document.getElementById('deductionForm').reset();
+          deductionAmounts.innerHTML = '';
+          totalAmount.textContent = '';
+          customerBalance.textContent = '';
+          accountList.innerHTML = '';
+        });
+      }
+
+      document.getElementById('submitDeduction').addEventListener('click', () => doSubmitDeduction('all'));
+      document.getElementById('submitDeductionZeroSpend').addEventListener('click', () => doSubmitDeduction('zeroOnly'));
     }
 
 
