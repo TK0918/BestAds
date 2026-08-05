@@ -12,6 +12,19 @@
 
 ---
 
+#### 2026-08-06 - 清理临时报表/原型并推送保留 PRD
+
+删除临时分析页、未完成的埋点统计原型与相关文档，以及整个 `prototypes/` 目录；同步去掉 V 2.38 对入口索引的失效链接，并推送需保留的 PRD。
+
+- 删除：`admin-system/reports/meta-ad-performance-analysis.html`、`client-behavior-report.html`、`ops-usage-report.html`
+- 删除：`prototypes/`（含风控入口索引与埋点看板原型）
+- 删除：`.tmp-hqyads-monthly-overview.md`、`埋点与数据看板-开发需求文档.md`
+- 更新：`PRD/V 2.38 广告风控第一期.md`、`PRD/V 2.36 官网GTM与Google投放埋点.md`
+- 新增并推送：`PRD/代理钱包API对接需求.md`、`PRD/V 2.35 react-antd-migration-prd.md`、`PRD/V 2.36 官网GTM与Google投放埋点.md`、`PRD/Meta-Country-Feed-操作指南.md`
+
+---
+
+
 #### 2026-08-05 - 日环比页迁至余额监控管理
 
 账户余额日环比异常从 `reports/` 迁至 `auto-recharge/`，与余额监控&自动充值、账户封停监控同目录；旧路径保留跳转；同步 PRD / 入口索引 / 同目录侧栏。
