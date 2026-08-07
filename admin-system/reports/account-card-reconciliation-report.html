@@ -49,8 +49,11 @@
     .badge-verify-none { background: #F3F4F6; color: #6B7280; }
     .badge-verify-pending { background: #E0E7FF; color: #3730A3; }
     .badge-verify-wait { background: #FEF3C7; color: #92400E; }
+    .badge-verify-ok { background: #DBEAFE; color: #1E40AF; }
     .badge-verify-done { background: #D1FAE5; color: #065F46; }
     .badge-verify-reject { background: #FEE2E2; color: #991B1B; }
+    .badge-verify-closed { background: #E0E7FF; color: #3730A3; }
+    .badge-verify-cancel { background: #F3F4F6; color: #4B5563; }
     .role-select { background: #fff; border: 1px solid #E5E7EB; }
     .step-list { list-style: none; padding: 0; margin: 0; }
     .step-list li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F3F4F6; }
@@ -317,9 +320,11 @@
                       <option value="">全部</option>
                       <option value="none">未申请</option>
                       <option value="pending_approval">待审批</option>
-                      <option value="pending_verify">待验卡/待降回</option>
-                      <option value="done">已完成</option>
-                      <option value="rejected">已驳回/已拒绝</option>
+                      <option value="pending_verify">待验卡</option>
+                      <option value="verified">已验卡</option>
+                      <option value="done">已完成/已回收</option>
+                      <option value="cancelled">已取消</option>
+                      <option value="rejected">已驳回</option>
                     </select>
                   </div>
                 </div>
@@ -328,17 +333,26 @@
                   <button onclick="renderConfigTable()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"><i class="fas fa-search mr-1"></i>查询</button>
                 </div>
               </div>
+              <div class="mb-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                <div class="font-medium mb-1"><i class="fas fa-info-circle mr-1"></i>两条线：卡可用 ≠ 验证流程闭环 · 取消 / 回收</div>
+                <div class="text-xs leading-relaxed opacity-95">
+                  <b>可用</b>：抬额 → <b>待验卡</b>（不可充）→ <b>标记已验卡</b>（可充，与退款无关）。开卡默认 <b>$1</b> ≠ 验卡额度；是否申请由业务决定。<br>
+                  <b>取消</b>：仅 <b>待验卡</b> 可「取消任务并降回 $1」（<b>不走飞书</b>，与降回不审批一致）；驳回 / 取消后可再申请。已验卡后不可取消。<br>
+                  <b>闭环 / 回收</b>：广告业务核对 Slash 退款后点「确认验卡退款并回收」（Slash 交易号 / 备注选填，<b>不走飞书</b>）。未充值 → 总额回快照；已充值 / 已关单 → 只减验卡申请额（如 <b>$520→$500</b>）。关单后仍可回收。可用不足则拦截「可用额度不足以回收」。<br>
+                  <b>额度转移</b>：待审批 / 抬额中 / 待验卡不可选；已验卡未回收可选但强提醒保留验卡额度；可转上限 = min(可用, 总额−$1)，破底线 ADS 禁止提交。
+                </div>
+              </div>
               <div id="verifyPendingBanner" class="warn-banner hidden">
                 <i class="fas fa-exclamation-triangle"></i>
                 <div class="flex-1">
-                  <div class="font-medium">有验卡临时额度待降回</div>
+                  <div class="font-medium">有待验卡 / 已验卡任务</div>
                   <div id="verifyPendingBannerText" class="text-xs mt-0.5 opacity-90"></div>
                 </div>
-                <button onclick="filterPendingVerify()" class="shrink-0 px-3 py-1.5 rounded-md bg-amber-600 text-white text-xs hover:bg-amber-700">查看待降回</button>
+                <button onclick="filterPendingVerify()" class="shrink-0 px-3 py-1.5 rounded-md bg-amber-600 text-white text-xs hover:bg-amber-700">查看</button>
               </div>
               <div class="card-box p-4">
                 <div class="flex items-center justify-between mb-3">
-                  <div class="text-sm text-gray-500">点击账户行展开关联卡明细 · 开卡后请走「验卡初始额度」任务再媒体验卡 · 同账户卡可「额度转移」</div>
+                  <div class="text-sm text-gray-500">点击账户行展开 · 待验卡请去媒体并标记 · 已验卡后可充值 · 同账户可额度转移</div>
                   <div class="flex flex-wrap gap-2 justify-end">
                     <button onclick="openFeishuNotifyPreview()" class="border border-sky-300 text-sky-700 px-4 py-2 rounded-md hover:bg-sky-50 text-sm"><i class="fas fa-bell mr-1"></i>飞书通知示意</button>
                     <button onclick="syncAllCardLimits()" id="syncLimitsBtn" class="bg-violet-600 text-white px-4 py-2 rounded-md hover:bg-violet-700 text-sm"><i class="fas fa-sync-alt mr-1"></i>更新信用卡额度</button>
@@ -740,15 +754,15 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">申请金额 (USD) <span class="text-red-500">*</span></label>
-          <input id="vaAmount" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="按媒体验卡所需填写，如 10 或 20">
-          <p class="text-xs text-gray-500 mt-1">无系统硬顶；财务依据截图与说明审批</p>
+          <input id="vaAmount" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="建议贴近媒体扣款，如 10 或 20">
+          <p class="text-xs text-gray-500 mt-1">无系统硬顶；建议与媒体扣款一致以控制临时挂账。财务依据截图与说明审批。验卡完成与媒体退款脱钩。</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">媒体扣款截图 <span class="text-red-500">*</span></label>
           <label class="upload-box block" for="vaScreenshotInput">
             <i class="fas fa-cloud-upload-alt text-blue-500 text-lg mb-1"></i>
             <div class="text-sm text-gray-700">上传媒体后台验卡将扣 / 需扣金额的截图</div>
-            <div class="text-xs text-gray-400 mt-1">支持 png / jpg，可多张</div>
+            <div class="text-xs text-gray-400 mt-1">支持 png / jpg，可多张；不必等退款截图</div>
           </label>
           <input id="vaScreenshotInput" type="file" accept="image/*" multiple class="hidden" onchange="onVerifyScreenshotChosen(event)">
           <div id="vaScreenshotList" class="mt-2"></div>
@@ -783,32 +797,69 @@
           <div>申请金额：<span id="vtApplyAmount" class="font-medium text-gray-900">-</span> USD</div>
           <div>抬额前快照：<span id="vtSnapshot" class="font-medium text-gray-900">-</span> USD</div>
           <div>当前总额度：<span id="vtCurrent" class="font-medium text-gray-900">-</span> USD</div>
+          <div>已用 / 可用：<span id="vtUsedAvail" class="font-medium text-gray-900">-</span></div>
+          <div>完结方式：<span id="vtDoneHow" class="text-gray-800">-</span></div>
           <div>截图：<span id="vtShots" class="text-indigo-700">-</span></div>
           <div>备注：<span id="vtRemark">-</span></div>
         </div>
-        <div id="vtRemindHint" class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 hidden">
-          <i class="fas fa-bell mr-1"></i>未降回前该使用卡无法发起绑卡户充值；超时将飞书提醒申请人。
-        </div>
+        <div id="vtLadderHint" class="text-xs text-slate-600 bg-white border border-slate-200 rounded-md p-2 hidden"></div>
+        <div id="vtRemindHint" class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 hidden"></div>
       </div>
       <div class="px-5 py-4 border-t border-gray-200 flex flex-wrap justify-end gap-2 sticky bottom-0 bg-white" id="vtFooterActions"></div>
     </div>
   </div>
 
-  <!-- 确认降回 -->
-  <div id="verifyRollbackModal" class="fixed inset-0 hidden items-center justify-center z-50">
-    <div class="absolute inset-0 modal-mask" onclick="closeVerifyRollbackModal()"></div>
+  <!-- 取消任务并降回 $1（仅待验卡） -->
+  <div id="verifyCancelModal" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="absolute inset-0 modal-mask" onclick="closeVerifyCancelModal()"></div>
     <div class="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4">
       <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-900">确认验卡完成并降回</h3>
-        <button onclick="closeVerifyRollbackModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        <h3 class="text-lg font-semibold text-gray-900">取消任务并降回 $1</h3>
+        <button onclick="closeVerifyCancelModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
       </div>
       <div class="p-5 space-y-3 text-sm text-gray-700">
-        <p id="vrConfirmText">-</p>
-        <p class="text-xs text-gray-500">降回不走飞书审批；将调 Fund 把卡总额度恢复为抬额前快照。请确认媒体验卡扣款已退回。</p>
+        <p id="vcConfirmText">-</p>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注（选填）</label>
+          <textarea id="vcRemark" rows="2" maxlength="200" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="如：媒体未扣款 / 验卡失败，取消任务"></textarea>
+        </div>
+        <p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-2">仅「待验卡」可取消。<b>不走飞书审批</b>，确认后立即将总额降回抬额前快照（通常 $1），任务结束并允许再次申请。已验卡后不可取消，应走回收。</p>
       </div>
       <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2">
-        <button onclick="closeVerifyRollbackModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
-        <button onclick="confirmVerifyRollback()" class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700">确认降回</button>
+        <button onclick="closeVerifyCancelModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">返回</button>
+        <button onclick="submitVerifyCancel()" class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700">确认取消并降回</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认验卡退款并回收（广告业务） -->
+  <div id="verifyReclaimModal" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="absolute inset-0 modal-mask" onclick="closeVerifyReclaimModal()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+        <h3 class="text-lg font-semibold text-gray-900">确认验卡退款并回收</h3>
+        <button onclick="closeVerifyReclaimModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-3 text-sm text-gray-700">
+        <p id="vreClaimSummary" class="bg-slate-50 border border-slate-200 rounded-lg p-3">-</p>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Slash 交易号（选填）</label>
+          <input id="vreTxnId" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="人工核对退款后可填，选填">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注（选填）</label>
+          <textarea id="vreRemark" rows="2" maxlength="200" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="如：已在 Slash 核对媒体验卡退款到账"></textarea>
+        </div>
+        <label class="flex items-start gap-2 text-xs text-slate-600 bg-white border border-slate-200 rounded-md p-2 cursor-pointer">
+          <input id="vreSimRefund" type="checkbox" class="mt-0.5" onchange="refreshReclaimPreview()">
+          <span>原型：模拟媒体退款已反映到 Slash「已用」（未充值场景下便于演示回收到快照；正式环境以 Slash 实数为准）</span>
+        </label>
+        <p id="vrePreview" class="text-xs text-gray-600 border border-dashed border-gray-300 rounded-md p-2">-</p>
+        <p class="text-xs text-indigo-800 bg-indigo-50 border border-indigo-200 rounded-md p-2">广告业务操作。<b>不走飞书审批</b>，确认后立即调额。未充值：总额 → 抬额前快照；已充值 / 已关单：总额 − 验卡申请额（如 $520→$500）。可用不足则拦截，提示「可用额度不足以回收」。关单后仍可回收。</p>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2 sticky bottom-0 bg-white">
+        <button onclick="closeVerifyReclaimModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">返回</button>
+        <button onclick="submitVerifyReclaim()" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">确认回收</button>
       </div>
     </div>
   </div>
@@ -844,20 +895,21 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">转出卡 <span class="text-red-500">*</span></label>
           <select id="tfFromCard" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="onTransferFromChanged()"></select>
-          <p class="text-xs text-gray-500 mt-1">仅可选：同账户、正常、有可用额度、无进行中验卡任务</p>
+          <p class="text-xs text-gray-500 mt-1">同账户、正常、可转上限 &gt; 0；「待审批 / 抬额中 / 待验卡」不可选；已验卡未回收可选（有提醒）</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">转入卡 <span class="text-red-500">*</span></label>
           <select id="tfToCard" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
-          <p class="text-xs text-gray-500 mt-1">仅同账户其他正常卡；无进行中验卡任务</p>
+          <p class="text-xs text-gray-500 mt-1">同账户其他正常卡；「待审批 / 抬额中 / 待验卡」不可选；已验卡未回收允许转入</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">转移金额 (USD) <span class="text-red-500">*</span></label>
-          <input id="tfAmount" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="≤ 转出卡可用额度">
-          <p class="text-xs text-gray-500 mt-1" id="tfAvailHint">可用额度：-</p>
+          <input id="tfAmount" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="≤ 可转上限">
+          <p class="text-xs text-gray-500 mt-1" id="tfAvailHint">可转上限：-</p>
         </div>
-        <div class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-2">
-          不走飞书审批。Fund 将：转出卡总额度 −X，转入卡总额度 +X；两边已用额度不变。成功后写入权限审计日志。
+        <div id="tfVerifyWarn" class="hidden text-xs text-amber-900 bg-amber-50 border border-amber-300 rounded-md p-2"></div>
+        <div class="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-md p-2">
+          不走飞书审批。转出后总额不得低于 <b>$1</b>（Fund 红线，ADS 禁止提交破线申请）。Fund：转出总额 −X、转入总额 +X；已用不变。成功后写权限审计日志。
         </div>
       </div>
       <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2 sticky bottom-0 bg-white">
@@ -899,7 +951,9 @@
       { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', merchantId: 'M10002', customerName: '蓝海互动', currency: 'USD', lastOperator: '韩梅梅, hanmeimei@bestads.com' },
       { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', merchantId: 'M10003', customerName: '极光传媒', currency: 'USD', lastOperator: '王芳, wangfang@bestads.com' },
       { media: 'Tiktok',   accountId: '323123', accountName: '账户名称DDD', merchantId: 'M10004', customerName: '跃动游戏', currency: 'USD', lastOperator: '赵敏, zhaomin@bestads.com' },
-      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', merchantId: 'M10005', customerName: '蜂巢电商', currency: 'USD', lastOperator: '-' }
+      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', merchantId: 'M10005', customerName: '蜂巢电商', currency: 'USD', lastOperator: '-' },
+      { media: 'Facebook', accountId: '888001', accountName: '账户名称FFF(验卡审批中)', merchantId: 'M10006', customerName: '短窗演示', currency: 'USD', lastOperator: '-' },
+      { media: 'Tiktok', accountId: '888002', accountName: '账户名称GGG(已验卡可充)', merchantId: 'M10007', customerName: '已验卡演示', currency: 'USD', lastOperator: '-' }
     ];
 
     // 子卡台账; secret 只用于「查看完整卡信息」, 不参与列表渲染
@@ -916,9 +970,16 @@
       { cardId: 'c_s7t8u9v0w1x2y3', last4: '7331', currency: 'USD', totalLimit: 1000.00, usedLimit:    0.00, status: 'normal',   createdAt: '2026-05-02 13:11:05', verifyTask: null, secret: { full: '4111 9999 0000 7331', cvv: '624', expiry: '04/2029', password: 'i4T2v3' } },
       // —— 验卡初始额度演示卡 ——
       { cardId: 'c_bootnew001', last4: '1001', currency: 'USD', totalLimit: 1.00, usedLimit: 0.00, status: 'normal', createdAt: '2026-07-28 10:00:00', verifyTask: null, secret: { full: '4111 0000 1111 1001', cvv: '111', expiry: '10/2029', password: 'new001' } },
-      { cardId: 'c_bootpend01', last4: '1002', currency: 'USD', totalLimit: 1.00, usedLimit: 0.00, status: 'normal', createdAt: '2026-07-28 11:00:00', verifyTask: { id: 'VT20260730001', status: 'pending_approval', applyAmount: 20, snapshotLimit: 1, screenshotNames: ['meta-verify-need-20.png'], remark: 'Meta 验卡需扣 $20，扣后会退回', appliedAt: '2026-07-30 09:10:00' }, secret: { full: '4111 0000 1111 1002', cvv: '222', expiry: '10/2029', password: 'pend01' } },
-      { cardId: 'c_bootwait01', last4: '1003', currency: 'USD', totalLimit: 20.00, usedLimit: 0.00, status: 'normal', createdAt: '2026-07-29 09:00:00', verifyTask: { id: 'VT20260729001', status: 'pending_verify', applyAmount: 20, snapshotLimit: 1, screenshotNames: ['meta-verify-need-20.png', 'meta-auth-detail.png'], remark: 'Meta 验卡需扣 $20', appliedAt: '2026-07-29 10:00:00', raisedAt: '2026-07-29 10:25:00' }, secret: { full: '4111 0000 1111 1003', cvv: '333', expiry: '10/2029', password: 'wait01' } },
-      { cardId: 'c_bootdone01', last4: '1004', currency: 'USD', totalLimit: 1.00, usedLimit: 0.00, status: 'normal', createdAt: '2026-07-27 08:00:00', verifyTask: { id: 'VT20260727001', status: 'done', applyAmount: 10, snapshotLimit: 1, screenshotNames: ['tt-verify-10.png'], remark: 'TikTok 验卡 $10', appliedAt: '2026-07-27 09:00:00', raisedAt: '2026-07-27 09:20:00', doneAt: '2026-07-27 10:05:00' }, secret: { full: '4111 0000 1111 1004', cvv: '444', expiry: '10/2029', password: 'done01' } },
+      { cardId: 'c_bootpend01', last4: '1002', currency: 'USD', totalLimit: 1.00, usedLimit: 0.00, status: 'normal', createdAt: '2026-07-28 11:00:00', verifyTask: { id: 'VT20260730001', status: 'pending_approval', applyAmount: 20, snapshotLimit: 1, screenshotNames: ['meta-verify-need-20.png'], remark: 'Meta 验卡需扣 $20；审批中短窗不可充值', appliedAt: '2026-07-30 09:10:00' }, secret: { full: '4111 0000 1111 1002', cvv: '222', expiry: '10/2029', password: 'pend01' } },
+      // 待验卡：额度已抬，须去媒体；不可充值
+      { cardId: 'c_bootwait01', last4: '1003', currency: 'USD', totalLimit: 20.00, usedLimit: 0.00, status: 'normal', createdAt: '2026-07-29 09:00:00', verifyTask: { id: 'VT20260729001', status: 'pending_verify', applyAmount: 20, snapshotLimit: 1, screenshotNames: ['meta-verify-need-20.png', 'meta-auth-detail.png'], remark: 'Meta 验卡需扣 $20；请先去媒体操作', appliedAt: '2026-07-29 10:00:00', raisedAt: '2026-07-29 10:25:00' }, secret: { full: '4111 0000 1111 1003', cvv: '333', expiry: '10/2029', password: 'wait01' } },
+      { cardId: 'c_bootdone01', last4: '1004', currency: 'USD', totalLimit: 1.00, usedLimit: 0.00, status: 'normal', createdAt: '2026-07-27 08:00:00', verifyTask: { id: 'VT20260727001', status: 'cancelled', applyAmount: 10, snapshotLimit: 1, screenshotNames: ['tt-verify-10.png'], remark: '媒体未扣款，已取消降回 $1，可再申请', appliedAt: '2026-07-27 09:00:00', raisedAt: '2026-07-27 09:20:00', doneAt: '2026-07-27 10:05:00', doneHow: 'cancel' }, secret: { full: '4111 0000 1111 1004', cvv: '444', expiry: '10/2029', password: 'done01' } },
+      // 已验卡：媒体已扣未退；可充值；闭环走回收（不可取消）
+      { cardId: 'c_bootok01', last4: '1006', currency: 'USD', totalLimit: 20.00, usedLimit: 20.00, status: 'normal', createdAt: '2026-07-28 12:00:00', verifyTask: { id: 'VT20260728001', status: 'verified', applyAmount: 20, snapshotLimit: 1, screenshotNames: ['meta-verify-need-20.png'], remark: '已标记媒体验证；退款未到也可充值；闭环走回收', appliedAt: '2026-07-28 13:00:00', raisedAt: '2026-07-28 13:20:00', mediaDeductedAt: '2026-07-28 14:00:00', verifiedAt: '2026-07-28 14:05:00' }, secret: { full: '4111 0000 1111 1006', cvv: '666', expiry: '10/2029', password: 'ok01' } },
+      // 已充值关单（总额 520）；仍可回收验卡增量 → $500
+      { cardId: 'c_bootauto01', last4: '1005', currency: 'USD', totalLimit: 520.00, usedLimit: 20.00, status: 'normal', createdAt: '2026-07-26 08:00:00', verifyTask: { id: 'VT20260726001', status: 'done', applyAmount: 20, snapshotLimit: 1, screenshotNames: ['meta-verify-need-20.png'], remark: '已充值关单，仍可回收验卡增量', appliedAt: '2026-07-26 09:00:00', raisedAt: '2026-07-26 09:20:00', mediaDeductedAt: '2026-07-26 10:00:00', verifiedAt: '2026-07-26 10:05:00', doneAt: '2026-07-26 14:00:00', doneHow: 'recharge_auto', rechargeAmount: 500 }, secret: { full: '4111 0000 1111 1005', cvv: '555', expiry: '10/2029', password: 'auto01' } },
+      // 已回收闭环示意
+      { cardId: 'c_bootreclaim01', last4: '1007', currency: 'USD', totalLimit: 500.00, usedLimit: 20.00, status: 'normal', createdAt: '2026-07-25 08:00:00', verifyTask: { id: 'VT20260725001', status: 'done', applyAmount: 20, snapshotLimit: 1, screenshotNames: ['meta-verify-need-20.png'], remark: '已回收闭环', appliedAt: '2026-07-25 09:00:00', raisedAt: '2026-07-25 09:20:00', mediaDeductedAt: '2026-07-25 10:00:00', verifiedAt: '2026-07-25 10:05:00', doneAt: '2026-07-25 16:00:00', doneHow: 'reclaim', rechargeAmount: 500, reclaimTxnId: 'slash_txn_demo_001', reclaimedAt: '2026-07-25 16:00:00' }, secret: { full: '4111 0000 1111 1007', cvv: '777', expiry: '10/2029', password: 'rclm01' } },
       { cardId: 'PENDING-202605290001', last4: null, currency: 'USD', totalLimit: null, usedLimit: null, status: 'creating', createdAt: '2026-05-29 10:12:33', verifyTask: null },
       { cardId: 'PENDING-202605290002', last4: null, currency: 'USD', totalLimit: null, usedLimit: null, status: 'creating', createdAt: '2026-05-29 11:48:19', verifyTask: null }
     ];
@@ -928,14 +989,17 @@
       { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', cardId: 'c_3bpoltc2u7sf1', isActiveCard: true,  updatedAt: '2026-04-10 16:42:01' },
       { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', cardId: 'c_w9x8y7z6v5u4t3', isActiveCard: false, updatedAt: '2026-04-12 09:08:21' },
       { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', cardId: 'c_m1n2o3p4q5r6s7', isActiveCard: false, updatedAt: '2026-04-15 11:30:50' },
-      { media: 'Facebook', accountId: '123123', accountName: '账户名称AAA', cardId: 'c_bootpend01', isActiveCard: false, updatedAt: '2026-07-30 09:10:00' },
+      { media: 'Facebook', accountId: '888001', accountName: '账户名称FFF(验卡审批中)', cardId: 'c_bootpend01', isActiveCard: true, updatedAt: '2026-07-30 09:10:00' },
       { media: 'Facebook', accountId: '123456', accountName: '账户名称BBB', cardId: 'c_h7j8k9l0m1n2o3', isActiveCard: true,  updatedAt: '2026-03-19 11:20:13' },
       { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', cardId: 'c_p3q4r5s6t7u8v9', isActiveCard: true,  updatedAt: '2026-03-26 18:00:00' },
       { media: 'Google',   accountId: '223123', accountName: '账户名称CCC', cardId: 'PENDING-202605290001', isActiveCard: false, updatedAt: '2026-05-29 10:12:33' },
       { media: 'Tiktok',   accountId: '323123', accountName: '账户名称DDD', cardId: 'c_x9y0z1a2b3c4d5', isActiveCard: true,  updatedAt: '2026-02-20 09:30:11' },
       { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', cardId: 'c_bootwait01', isActiveCard: true,  updatedAt: '2026-07-29 10:25:00' },
       { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', cardId: 'c_bootnew001', isActiveCard: false, updatedAt: '2026-07-28 10:05:00' },
-      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', cardId: 'c_bootdone01', isActiveCard: false, updatedAt: '2026-07-27 10:05:00' }
+      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', cardId: 'c_bootdone01', isActiveCard: false, updatedAt: '2026-07-27 10:05:00' },
+      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', cardId: 'c_bootauto01', isActiveCard: false, updatedAt: '2026-07-26 14:00:00' },
+      { media: 'AppLovin', accountId: '423123', accountName: '账户名称EEE', cardId: 'c_bootreclaim01', isActiveCard: false, updatedAt: '2026-07-25 16:00:00' },
+      { media: 'Tiktok', accountId: '888002', accountName: '账户名称GGG(已验卡可充)', cardId: 'c_bootok01', isActiveCard: true, updatedAt: '2026-07-28 14:05:00' }
     ];
 
     const operator = { name: '飞书人A', empId: 'EMP001', ip: '10.0.0.123' };
@@ -980,33 +1044,109 @@
       return s;
     }
 
-    function verifyStatusBadge(card) {
+    function verifyApplyAmountText(card) {
+      if (!card || !card.verifyTask || card.verifyTask.applyAmount == null) return '-';
+      return formatMoney(card.verifyTask.applyAmount);
+    }
+
+    /** 是否发生过绑卡户充值调额 */
+    function hasVerifyRecharged(card) {
+      const t = card && card.verifyTask;
+      if (!t) return false;
+      return t.doneHow === 'recharge_auto' || t.rechargeAmount != null || !!t.recharged;
+    }
+
+    /** 是否仍待回收 */
+    function needsVerifyReclaim(card) {
       const s = getVerifyTaskStatus(card);
-      switch (s) {
+      if (s === 'verified' || s === 'rolling_back') return true;
+      if (s === 'done' && card.verifyTask) {
+        if (card.verifyTask.doneHow === 'reclaim') return false;
+        if (card.verifyTask.doneHow === 'recharge_auto') return true;
+      }
+      return false;
+    }
+
+    /** 列表「验卡额度状态」 */
+    function getVerifyLimitStatus(card) {
+      const s = getVerifyTaskStatus(card);
+      if (s === 'none') return 'none';
+      if (s === 'pending_approval' || s === 'raising') return 'approving';
+      if (s === 'pending_verify') return 'pending_verify';
+      if (s === 'rolling_back') return 'reclaiming';
+      if (s === 'rejected') return 'rejected';
+      if (s === 'cancelled') return 'cancelled';
+      if (s === 'verified') {
+        if (card.verifyTask && card.verifyTask.lastReclaimFail) return 'reclaim_fail';
+        return 'verified_open';
+      }
+      if (s === 'done') {
+        if (card.verifyTask && card.verifyTask.doneHow === 'reclaim') return 'reclaimed';
+        if (card.verifyTask && card.verifyTask.doneHow === 'recharge_auto') {
+          if (card.verifyTask.lastReclaimFail) return 'reclaim_fail';
+          return 'recharge_closed';
+        }
+        if (card.verifyTask && (card.verifyTask.doneHow === 'cancel' || card.verifyTask.doneHow === 'rollback')) return 'cancelled';
+        return 'reclaimed';
+      }
+      return 'none';
+    }
+
+    function verifyLimitStatusBadge(card) {
+      const st = getVerifyLimitStatus(card);
+      switch (st) {
         case 'none': return '<span class="status-badge badge-verify-none">未申请</span>';
-        case 'pending_approval': return '<span class="status-badge badge-verify-pending">待审批</span>';
-        case 'raising': return '<span class="status-badge badge-verify-pending">抬额中</span>';
-        case 'pending_verify': return '<span class="status-badge badge-verify-wait">待验卡/待降回</span>';
-        case 'rolling_back': return '<span class="status-badge badge-verify-wait">降回中</span>';
-        case 'done': return '<span class="status-badge badge-verify-done">验卡已完成</span>';
+        case 'approving': return '<span class="status-badge badge-verify-pending">审批中</span>';
+        case 'pending_verify': return '<span class="status-badge badge-verify-wait">待验卡</span>';
+        case 'verified_open': return '<span class="status-badge badge-verify-ok">已验卡(未回收)</span>';
+        case 'reclaiming': return '<span class="status-badge badge-verify-wait">回收中</span>';
+        case 'reclaim_fail': return '<span class="status-badge badge-verify-reject">回收失败</span>';
+        case 'reclaimed': return '<span class="status-badge badge-verify-done">已回收</span>';
+        case 'recharge_closed': return '<span class="status-badge badge-verify-closed">已充值关单(未回收)</span>';
+        case 'cancelled': return '<span class="status-badge badge-verify-cancel">已取消</span>';
         case 'rejected': return '<span class="status-badge badge-verify-reject">已驳回</span>';
         default: return '<span class="status-badge badge-verify-none">-</span>';
       }
     }
 
+    function verifyStatusBadge(card) {
+      return verifyLimitStatusBadge(card);
+    }
+
+    function verifyDoneHowText(task) {
+      if (!task) return '-';
+      if (task.status === 'cancelled' || task.doneHow === 'cancel' || task.doneHow === 'rollback') return '取消任务并降回快照';
+      if (task.status !== 'done') return '-';
+      if (task.doneHow === 'recharge_auto') return '充值成功关单（未回收 · 可继续回收）';
+      if (task.doneHow === 'reclaim') return '确认退款并回收';
+      return '已完成';
+    }
+
+    /** 阻断充值/转移：待审批、抬额中、待验卡 */
+    function hasVerifyBlockRecharge(card) {
+      const s = getVerifyTaskStatus(card);
+      return s === 'pending_approval' || s === 'raising' || s === 'pending_verify';
+    }
+
+    /** 驳回 / 取消后可再申请；成功走过验卡或回收则不可 */
     function canApplyVerifyLimit(card) {
       if (!card || card.status !== 'normal') return false;
       const s = getVerifyTaskStatus(card);
-      if (s === 'pending_approval' || s === 'raising' || s === 'pending_verify' || s === 'rolling_back') return false;
-      if (s === 'done') return false;
-      // 原型：仅总额度≈开卡默认且无已用时可申请；已在使用的卡 Fund 会拒（此处前端也提示）
+      if (s === 'pending_approval' || s === 'raising' || s === 'pending_verify' || s === 'verified' || s === 'rolling_back') return false;
+      if (s === 'done') {
+        const how = card.verifyTask && card.verifyTask.doneHow;
+        if (how !== 'cancel' && how !== 'rollback') return false;
+      }
       if ((card.usedLimit || 0) > 0) return false;
       if (card.totalLimit != null && Number(card.totalLimit) > 1.01) return false;
       return true;
     }
 
     function listPendingVerifyCards() {
-      return cardPool.filter(c => getVerifyTaskStatus(c) === 'pending_verify' || getVerifyTaskStatus(c) === 'rolling_back');
+      return cardPool.filter(c => {
+        const s = getVerifyTaskStatus(c);
+        return s === 'pending_verify' || s === 'verified' || s === 'rolling_back' || needsVerifyReclaim(c);
+      });
     }
 
     function refreshVerifyPendingBanner() {
@@ -1019,7 +1159,16 @@
         return;
       }
       banner.classList.remove('hidden');
-      text.textContent = list.map(c => (c.last4 ? '****' + c.last4 : c.cardId) + ' 当前 ' + formatMoney(c.totalLimit) + ' → 待降回至快照 ' + formatMoney(c.verifyTask.snapshotLimit)).join('；');
+      text.textContent = list.map(c => {
+        const s = getVerifyTaskStatus(c);
+        const lim = getVerifyLimitStatus(c);
+        let label = s;
+        if (s === 'pending_verify') label = '待验卡·请去媒体（不可充）';
+        else if (s === 'verified') label = '已验卡·可充·待回收';
+        else if (lim === 'recharge_closed') label = '已关单·待回收';
+        else if (lim === 'reclaim_fail') label = '回收失败';
+        return (c.last4 ? '****' + c.last4 : c.cardId) + ' ' + label + ' · 总 ' + formatMoney(c.totalLimit) + ' / 已用 ' + formatMoney(c.usedLimit);
+      }).join('；');
     }
 
     function filterPendingVerify() {
@@ -1198,8 +1347,10 @@
               const vs = getVerifyTaskStatus(c.card);
               if (f.verifyStatus === 'none' && vs !== 'none') return false;
               if (f.verifyStatus === 'rejected' && vs !== 'rejected') return false;
+              if (f.verifyStatus === 'cancelled' && vs !== 'cancelled' && !(vs === 'done' && card.verifyTask && (card.verifyTask.doneHow === 'cancel' || card.verifyTask.doneHow === 'rollback'))) return false;
               if (f.verifyStatus === 'pending_approval' && vs !== 'pending_approval' && vs !== 'raising') return false;
-              if (f.verifyStatus === 'pending_verify' && vs !== 'pending_verify' && vs !== 'rolling_back') return false;
+              if (f.verifyStatus === 'pending_verify' && vs !== 'pending_verify') return false;
+              if (f.verifyStatus === 'verified' && vs !== 'verified' && vs !== 'rolling_back') return false;
               if (f.verifyStatus === 'done' && vs !== 'done') return false;
             }
             return true;
@@ -1229,7 +1380,10 @@
         const isOpen = expandedAccounts.has(g.accountId);
         const canSwitch = g.cardCount >= 2;
         const activeCard = g.activeCardId ? getCardById(g.activeCardId) : null;
-        const activePending = activeCard && (getVerifyTaskStatus(activeCard) === 'pending_verify' || getVerifyTaskStatus(activeCard) === 'rolling_back');
+        const activeVs = activeCard ? getVerifyTaskStatus(activeCard) : 'none';
+        const activePendingVerify = activeVs === 'pending_verify';
+        const activeVerified = activeVs === 'verified' || activeVs === 'rolling_back';
+        const activeShortBlock = activeVs === 'pending_approval' || activeVs === 'raising';
         const switchBtn = canSwitch
           ? '<button onclick="openSwitchCardModal(event, \'' + g.accountId + '\')" class="text-blue-600 hover:underline text-sm"><i class="fas fa-exchange-alt mr-1"></i>修改使用卡</button>'
           : '<button class="text-gray-300 cursor-not-allowed text-sm" disabled title="需至少 2 张关联卡"><i class="fas fa-exchange-alt mr-1"></i>修改使用卡</button>';
@@ -1237,18 +1391,27 @@
         const transferBtn = canTransfer
           ? ' <button onclick="openTransferLimitModal(event, \'' + g.accountId + '\')" class="text-teal-700 hover:underline text-sm"><i class="fas fa-right-left mr-1"></i>额度转移</button>'
           : '';
-        const verifyHint = activePending
-          ? ' <button onclick="openVerifyTaskModal(\'' + g.activeCardId + '\')" class="ml-2 text-amber-700 hover:underline text-sm"><i class="fas fa-tasks mr-1"></i>完成验卡降回</button>'
-          : '';
+        let verifyHint = '';
+        if (activePendingVerify) {
+          verifyHint = ' <button onclick="openVerifyTaskModal(\'' + g.activeCardId + '\')" class="ml-2 text-amber-700 hover:underline text-sm"><i class="fas fa-tasks mr-1"></i>待验卡·去媒体标记</button>';
+        } else if (activeVerified) {
+          verifyHint = ' <button onclick="openVerifyTaskModal(\'' + g.activeCardId + '\')" class="ml-2 text-blue-700 hover:underline text-sm"><i class="fas fa-tasks mr-1"></i>已验卡·可充值</button>';
+        } else if (activeShortBlock) {
+          verifyHint = ' <button onclick="openVerifyTaskModal(\'' + g.activeCardId + '\')" class="ml-2 text-indigo-700 hover:underline text-sm"><i class="fas fa-hourglass-half mr-1"></i>验卡审批中（不可充）</button>';
+        }
 
         const tr = document.createElement('tr');
-        tr.className = 'account-row' + (activePending ? ' bg-amber-50' : '');
+        tr.className = 'account-row' + (activePendingVerify ? ' bg-amber-50' : (activeVerified ? ' bg-blue-50/50' : (activeShortBlock ? ' bg-indigo-50/40' : '')));
         tr.onclick = () => toggleExpand(g.accountId);
         tr.innerHTML =
           '<td><i class="fas fa-chevron-right expand-icon' + (isOpen ? ' open' : '') + '"></i></td>' +
           '<td>' + escapeHtml(g.media) + '</td>' +
           '<td>' + escapeHtml(g.accountId) + '</td>' +
-          '<td>' + escapeHtml(g.accountName) + (activePending ? ' <span class="status-badge badge-verify-wait">使用卡待降回</span>' : '') + '</td>' +
+          '<td>' + escapeHtml(g.accountName) +
+            (activePendingVerify ? ' <span class="status-badge badge-verify-wait">使用卡待验卡·不可充</span>' : '') +
+            (activeVerified ? ' <span class="status-badge badge-verify-ok">使用卡已验卡·可充值</span>' : '') +
+            (activeShortBlock ? ' <span class="status-badge badge-verify-pending">使用卡审批中·不可充</span>' : '') +
+          '</td>' +
           '<td>' + g.cardCount + '</td>' +
           '<td><span class="card-id-mono">' + (g.activeCardId || '-') + '</span></td>' +
           '<td class="text-right">' + escapeHtml(g.activeAvailableText) + '</td>' +
@@ -1282,7 +1445,8 @@
         const statusCell = card ? statusBadge(card.status) : '-';
         const activeCell = item.isActiveCard ? activeBadge() : '-';
         const createdCell = card ? card.createdAt : '-';
-        const verifyCell = card ? verifyStatusBadge(card) : '-';
+        const verifyAmtCell = card ? verifyApplyAmountText(card) : '-';
+        const verifyLimitCell = card ? verifyLimitStatusBadge(card) : '-';
 
         let opsCell = '-';
         if (!isCreating) {
@@ -1301,10 +1465,16 @@
             verifyBtn = '<button onclick="openVerifyApplyModal(\'' + item.cardId + '\')" class="text-indigo-600 hover:underline text-xs mr-2 font-medium"><i class="fas fa-shield-alt mr-1"></i>申请验卡初始额度</button>';
           } else if (vs === 'pending_approval' || vs === 'raising') {
             verifyBtn = '<button onclick="openVerifyTaskModal(\'' + item.cardId + '\')" class="text-indigo-600 hover:underline text-xs mr-2"><i class="fas fa-tasks mr-1"></i>查看验卡任务</button>';
-          } else if (vs === 'pending_verify' || vs === 'rolling_back') {
-            verifyBtn = '<button onclick="openVerifyTaskModal(\'' + item.cardId + '\')" class="text-amber-700 hover:underline text-xs mr-2 font-semibold"><i class="fas fa-undo-alt mr-1"></i>确认验卡完成并降回</button>';
-          } else if (vs === 'done' || vs === 'rejected') {
-            verifyBtn = '<button onclick="openVerifyTaskModal(\'' + item.cardId + '\')" class="text-gray-500 hover:underline text-xs mr-2"><i class="fas fa-history mr-1"></i>验卡任务记录</button>';
+          } else if (vs === 'pending_verify') {
+            verifyBtn = '<button onclick="openVerifyTaskModal(\'' + item.cardId + '\')" class="text-amber-700 hover:underline text-xs mr-2 font-semibold"><i class="fas fa-tasks mr-1"></i>待验卡·去处理</button>';
+          } else if (vs === 'verified' || vs === 'rolling_back') {
+            verifyBtn = '<button onclick="openVerifyTaskModal(\'' + item.cardId + '\')" class="text-blue-700 hover:underline text-xs mr-2 font-semibold"><i class="fas fa-tasks mr-1"></i>已验卡·回收/充值</button>';
+          } else if (needsVerifyReclaim(card)) {
+            verifyBtn = '<button onclick="openVerifyTaskModal(\'' + item.cardId + '\')" class="text-indigo-700 hover:underline text-xs mr-2 font-semibold"><i class="fas fa-recycle mr-1"></i>关单待回收</button>';
+          } else if (vs === 'done' || vs === 'rejected' || vs === 'cancelled') {
+            verifyBtn = canApplyVerifyLimit(card)
+              ? '<button onclick="openVerifyApplyModal(\'' + item.cardId + '\')" class="text-indigo-600 hover:underline text-xs mr-2 font-medium"><i class="fas fa-shield-alt mr-1"></i>再次申请验卡额度</button>'
+              : '<button onclick="openVerifyTaskModal(\'' + item.cardId + '\')" class="text-gray-500 hover:underline text-xs mr-2"><i class="fas fa-history mr-1"></i>验卡任务记录</button>';
           } else if ((card.usedLimit || 0) > 0 || (card.totalLimit != null && Number(card.totalLimit) > 1.01)) {
             verifyBtn = '<span class="text-gray-300 text-xs mr-2" title="已在使用/额度非开卡默认，Fund 将拒绝验卡初始额度申请">不可申请验卡额度</span>';
           }
@@ -1316,7 +1486,10 @@
           opsCell = verifyBtn + transferOutBtn + viewBtn + unbindBtn + freezeBtn;
         }
 
-        return '<tr' + (getVerifyTaskStatus(card) === 'pending_verify' ? ' class="bg-amber-50/50"' : '') + '>' +
+        const rowHighlight = getVerifyTaskStatus(card) === 'pending_verify' ? ' class="bg-amber-50/50"'
+          : (getVerifyLimitStatus(card) === 'verified_open' || getVerifyLimitStatus(card) === 'recharge_closed' ? ' class="bg-blue-50/40"' : '');
+
+        return '<tr' + rowHighlight + '>' +
           '<td>' + cardIdCell + '</td>' +
           '<td><span class="card-id-mono">' + last4Cell + '</span></td>' +
           '<td>' + currencyCell + '</td>' +
@@ -1324,7 +1497,8 @@
           '<td class="text-right">' + usedCell + '</td>' +
           '<td class="text-right">' + availCell + '</td>' +
           '<td>' + statusCell + '</td>' +
-          '<td>' + verifyCell + '</td>' +
+          '<td class="text-right font-medium">' + verifyAmtCell + '</td>' +
+          '<td>' + verifyLimitCell + '</td>' +
           '<td>' + activeCell + '</td>' +
           '<td>' + createdCell + '</td>' +
           '<td style="white-space:normal; min-width:280px;">' + opsCell + '</td>' +
@@ -1335,7 +1509,7 @@
         '<thead><tr>' +
           '<th>卡 ID</th><th>卡后四位</th><th>卡币种</th>' +
           '<th class="text-right">总额度</th><th class="text-right">已用额度</th><th class="text-right">可用额度</th>' +
-          '<th>卡状态</th><th>验卡任务</th><th>是否使用卡</th><th>创建时间</th><th>操作</th>' +
+          '<th>卡状态</th><th class="text-right">验卡申请额度</th><th>验卡额度状态</th><th>是否使用卡</th><th>创建时间</th><th>操作</th>' +
         '</tr></thead>' +
         '<tbody>' + rows + '</tbody></table>';
     }
@@ -1987,27 +2161,59 @@
       verifyTaskCtxCardId = cardId;
       const task = card.verifyTask;
       document.getElementById('vtTaskMeta').textContent = (task ? task.id + ' · ' : '') + card.cardId + (card.last4 ? ' / ****' + card.last4 : '');
-      document.getElementById('vtStatusLine').innerHTML = '当前状态：' + verifyStatusBadge(card);
+      document.getElementById('vtStatusLine').innerHTML = '当前状态：' + verifyLimitStatusBadge(card) +
+        (task && task.applyAmount != null ? ' · 验卡申请额度 <b>' + formatMoney(task.applyAmount) + '</b> USD' : '');
       document.getElementById('vtApplyAmount').textContent = task ? formatMoney(task.applyAmount) : '-';
       document.getElementById('vtSnapshot').textContent = task && task.snapshotLimit != null ? formatMoney(task.snapshotLimit) : '-';
       document.getElementById('vtCurrent').textContent = formatMoney(card.totalLimit);
+      document.getElementById('vtUsedAvail').textContent =
+        formatMoney(card.usedLimit) + ' / ' + formatMoney(cardAvailableLimit(card)) + ' USD';
+      document.getElementById('vtDoneHow').textContent = verifyDoneHowText(task);
       document.getElementById('vtShots').textContent = task && task.screenshotNames && task.screenshotNames.length ? task.screenshotNames.join('、') : '-';
       document.getElementById('vtRemark').textContent = task ? (task.remark || '-') : '-';
 
       const vs = getVerifyTaskStatus(card);
+      const lim = getVerifyLimitStatus(card);
       const remind = document.getElementById('vtRemindHint');
-      remind.classList.toggle('hidden', vs !== 'pending_verify' && vs !== 'rolling_back');
+      const showRemind = ['pending_approval', 'raising', 'pending_verify', 'verified', 'rolling_back'].indexOf(vs) >= 0 || needsVerifyReclaim(card);
+      remind.classList.toggle('hidden', !showRemind);
+      if (vs === 'pending_approval' || vs === 'raising') {
+        remind.innerHTML = '<i class="fas fa-bell mr-1"></i>不可充值：待审批 / 抬额中。抬额成功后进入「待验卡」，请去媒体后台操作。';
+      } else if (vs === 'pending_verify') {
+        remind.innerHTML = '<i class="fas fa-bell mr-1"></i><b>待验卡 · 不可充值</b>。请去媒体完成验证后点「标记媒体已验证」。若媒体未扣款 / 失败，可「取消任务并降回 $1」（不走飞书）；取消后可再申请。';
+      } else if (lim === 'recharge_closed' || lim === 'reclaim_fail') {
+        remind.innerHTML = '<i class="fas fa-bell mr-1"></i><b>关单 ≠ 闭环</b>。充值已关业务单，但仍须广告业务确认 Slash 退款后「确认验卡退款并回收」（不走飞书）。不可取消。';
+      } else {
+        remind.innerHTML = '<i class="fas fa-bell mr-1"></i><b>已验卡 · 卡可用</b>。与费用是否退回无关。不可取消。退款到账后由广告业务「确认验卡退款并回收」（不走飞书）。未充值回快照；已充值只减验卡申请额。';
+      }
+
+      const ladder = document.getElementById('vtLadderHint');
+      if (task && (vs === 'pending_verify' || vs === 'verified' || vs === 'rolling_back' || vs === 'done' || needsVerifyReclaim(card))) {
+        ladder.classList.remove('hidden');
+        const applyAmt = Number(task.applyAmount || 0);
+        ladder.innerHTML = '额度链路：快照 <b>' + formatMoney(task.snapshotLimit) + '</b> → 抬额 <b>' + formatMoney(task.applyAmount) + '</b>' +
+          (vs === 'pending_verify' ? '（待验卡·不可充）→ 可标记已验证 / 可取消降回' : '') +
+          (task.verifiedAt || vs === 'verified' || vs === 'done' || lim === 'recharge_closed' ? ' → 已验卡（可充）' : '') +
+          (task.mediaDeductedAt || (card.usedLimit || 0) > 0 ? ' · 已用≈媒体占用' : '') +
+          (hasVerifyRecharged(card)
+            ? ' → 充值 +' + formatMoney(task.rechargeAmount || 500) + ' → 总额 <b>' + formatMoney(card.totalLimit) + '</b>；回收后目标 ≈ <b>' + formatMoney(Math.max(0, Number(card.totalLimit) - applyAmt)) + '</b>'
+            : (vs === 'verified' || vs === 'rolling_back' ? ' → 未充值回收目标快照 <b>' + formatMoney(task.snapshotLimit) + '</b>；若充 $500 则总额≈' + formatMoney((card.totalLimit || 0) + 500) : '')) +
+          (task.doneHow === 'reclaim' ? ' → <b>已回收闭环</b>' : '');
+      } else {
+        ladder.classList.add('hidden');
+        ladder.innerHTML = '';
+      }
 
       const steps = document.getElementById('vtStepList');
       const stepDefs = [
         { key: 'apply', title: '提交申请（金额 + 媒体扣款截图）', desc: 'Ads → Fund 资格校验 → 飞书审批' },
-        { key: 'raise', title: '审批通过并抬额', desc: '总额度设为申请金额；快照抬额前额度' },
-        { key: 'media', title: '媒体后台绑卡验证', desc: '媒体扣款验证后会退回；请人工完成' },
-        { key: 'rollback', title: '确认验卡完成并降回', desc: '降回至抬额前快照；完成后才可正式充值' }
+        { key: 'raise', title: '审批通过并抬额 → 待验卡', desc: '不可充值；可取消降回 $1（不审批）；或去媒体验证' },
+        { key: 'mark', title: '标记媒体已验证 → 已验卡', desc: '卡可用，不必等退款；此后不可取消' },
+        { key: 'close', title: '闭环：确认退款并回收', desc: '广告业务操作；未充值回快照；已充值/关单减申请额；不走飞书' }
       ];
       function stepClass(key) {
         if (!task) return key === 'apply' ? 'step-current' : 'step-todo';
-        if (vs === 'rejected') {
+        if (vs === 'rejected' || vs === 'cancelled') {
           if (key === 'apply') return 'step-done';
           return 'step-todo';
         }
@@ -2016,11 +2222,17 @@
           if (key === 'raise') return 'step-current';
           return 'step-todo';
         }
-        if (vs === 'pending_verify' || vs === 'rolling_back') {
+        if (vs === 'pending_verify') {
           if (key === 'apply' || key === 'raise') return 'step-done';
-          if (key === 'media' || key === 'rollback') return 'step-current';
+          if (key === 'mark') return 'step-current';
           return 'step-todo';
         }
+        if (vs === 'verified' || vs === 'rolling_back' || lim === 'recharge_closed' || lim === 'reclaim_fail') {
+          if (key === 'apply' || key === 'raise' || key === 'mark') return 'step-done';
+          if (key === 'close') return 'step-current';
+          return 'step-todo';
+        }
+        if (vs === 'done' && lim === 'reclaimed') return 'step-done';
         if (vs === 'done') return 'step-done';
         return 'step-todo';
       }
@@ -2036,10 +2248,18 @@
         html += '<button onclick="openVerifyApproveSimModal()" class="px-4 py-2 rounded-md border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-sm">原型：模拟审批结果</button>';
       }
       if (vs === 'pending_verify') {
-        html += '<button onclick="openVerifyRollbackModal()" class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700 font-medium"><i class="fas fa-undo-alt mr-1"></i>验卡已完成，降回至抬额前额度</button>';
+        html += '<button onclick="openVerifyCancelModal()" class="px-4 py-2 rounded-md border border-amber-400 text-amber-800 hover:bg-amber-50 font-medium"><i class="fas fa-ban mr-1"></i>取消任务并降回 $1</button>';
+        html += '<button onclick="markMediaVerified()" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium"><i class="fas fa-check-circle mr-1"></i>标记媒体已验证</button>';
       }
-      if (vs === 'rolling_back') {
-        html += '<button onclick="confirmVerifyRollback()" class="px-4 py-2 rounded-md bg-amber-600 text-white hover:bg-amber-700">重试降回</button>';
+      if (vs === 'verified') {
+        html += '<button onclick="simulateBindCardRechargeAutoComplete(500)" class="px-4 py-2 rounded-md border border-emerald-300 text-emerald-800 hover:bg-emerald-50 text-sm font-medium">原型：模拟充值 $500（关单）</button>';
+        html += '<button onclick="openVerifyReclaimModal()" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 font-medium"><i class="fas fa-recycle mr-1"></i>确认验卡退款并回收</button>';
+      }
+      if (needsVerifyReclaim(card) && vs !== 'verified' && vs !== 'rolling_back') {
+        html += '<button onclick="openVerifyReclaimModal()" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 font-medium"><i class="fas fa-recycle mr-1"></i>确认验卡退款并回收</button>';
+      }
+      if ((vs === 'cancelled' || vs === 'rejected' || (vs === 'done' && (task && (task.doneHow === 'cancel' || task.doneHow === 'rollback')))) && canApplyVerifyLimit(card)) {
+        html += '<button onclick="closeVerifyTaskModal(); openVerifyApplyModal(\'' + cardId + '\')" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">再次申请</button>';
       }
       if (vs === 'none' && canApplyVerifyLimit(card)) {
         html += '<button onclick="closeVerifyTaskModal(); openVerifyApplyModal(\'' + cardId + '\')" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">去申请</button>';
@@ -2054,29 +2274,185 @@
       document.getElementById('verifyTaskModal').classList.remove('flex');
     }
 
-    function openVerifyRollbackModal() {
+    function markMediaVerified() {
       const card = getCardById(verifyTaskCtxCardId);
       if (!card || !card.verifyTask) return;
-      document.getElementById('vrConfirmText').textContent =
-        '将卡 ' + card.cardId + ' 总额度从 ' + formatMoney(card.totalLimit) + ' USD 降回至抬额前快照 ' + formatMoney(card.verifyTask.snapshotLimit) + ' USD。';
-      document.getElementById('verifyRollbackModal').classList.remove('hidden');
-      document.getElementById('verifyRollbackModal').classList.add('flex');
+      if (getVerifyTaskStatus(card) !== 'pending_verify') return;
+      const amt = Number(card.verifyTask.applyAmount || 0);
+      if (!(Number(card.usedLimit || 0) > 0)) card.usedLimit = amt;
+      card.verifyTask.mediaDeductedAt = card.verifyTask.mediaDeductedAt || nowStamp();
+      card.verifyTask.verifiedAt = nowStamp();
+      card.verifyTask.status = 'verified';
+      setAccountLastOperatorByCard(card.cardId);
+      showToast('已标记已验卡 → 卡可用。不可再取消；退款后走「确认验卡退款并回收」。', 'success');
+      openVerifyTaskModal(card.cardId);
+      renderConfigTable();
     }
-    function closeVerifyRollbackModal() {
-      document.getElementById('verifyRollbackModal').classList.add('hidden');
-      document.getElementById('verifyRollbackModal').classList.remove('flex');
-    }
-    function confirmVerifyRollback() {
+
+    function openVerifyCancelModal() {
       const card = getCardById(verifyTaskCtxCardId);
       if (!card || !card.verifyTask) return;
+      if (getVerifyTaskStatus(card) !== 'pending_verify') {
+        showToast('仅「待验卡」可取消；已验卡后请走回收', 'warn');
+        return;
+      }
       const snap = card.verifyTask.snapshotLimit;
+      document.getElementById('vcRemark').value = '';
+      document.getElementById('vcConfirmText').textContent =
+        '将取消卡 ' + card.cardId + ' 的验卡任务，并立即把总额度从 ' + formatMoney(card.totalLimit) +
+        ' 降回快照 ' + formatMoney(snap) + ' USD（通常为开卡默认 $1）。不走飞书审批。取消后可再次申请。';
+      document.getElementById('verifyCancelModal').classList.remove('hidden');
+      document.getElementById('verifyCancelModal').classList.add('flex');
+    }
+    function closeVerifyCancelModal() {
+      document.getElementById('verifyCancelModal').classList.add('hidden');
+      document.getElementById('verifyCancelModal').classList.remove('flex');
+    }
+    function submitVerifyCancel() {
+      const card = getCardById(verifyTaskCtxCardId);
+      if (!card || !card.verifyTask) return;
+      if (getVerifyTaskStatus(card) !== 'pending_verify') return;
+      const snap = card.verifyTask.snapshotLimit;
+      const remark = (document.getElementById('vcRemark').value || '').trim();
       card.totalLimit = snap;
+      card.usedLimit = Math.min(Number(card.usedLimit || 0), Number(snap));
+      card.verifyTask.status = 'cancelled';
+      card.verifyTask.doneAt = nowStamp();
+      card.verifyTask.doneHow = 'cancel';
+      if (remark) card.verifyTask.cancelRemark = remark;
+      setAccountLastOperatorByCard(card.cardId);
+      closeVerifyCancelModal();
+      closeVerifyTaskModal();
+      showToast('已取消任务并降回 ' + formatMoney(snap) + ' USD（无飞书审批），可再次申请', 'success');
+      renderConfigTable();
+    }
+
+    function computeReclaimPlan(card, simRefund) {
+      const task = card.verifyTask;
+      const snap = Number(task.snapshotLimit != null ? task.snapshotLimit : 1);
+      const applyAmt = Number(task.applyAmount || 0);
+      const recharged = hasVerifyRecharged(card);
+      let used = Number(card.usedLimit || 0);
+      if (simRefund && !recharged) {
+        used = Math.min(used, snap);
+      }
+      const total = Number(card.totalLimit || 0);
+      const avail = Math.max(0, +(total - used).toFixed(2));
+      let targetTotal;
+      let needAvail;
+      let mode;
+      if (recharged) {
+        mode = 'delta';
+        targetTotal = +(total - applyAmt).toFixed(2);
+        needAvail = applyAmt;
+      } else {
+        mode = 'snapshot';
+        targetTotal = snap;
+        needAvail = +(total - snap).toFixed(2);
+      }
+      const ok = avail + 1e-9 >= needAvail && targetTotal + 1e-9 >= used;
+      return { mode, snap, applyAmt, used, total, avail, targetTotal, needAvail, ok, recharged, simRefund: !!simRefund };
+    }
+
+    function openVerifyReclaimModal() {
+      const card = getCardById(verifyTaskCtxCardId);
+      if (!card || !card.verifyTask) return;
+      if (!needsVerifyReclaim(card) && getVerifyTaskStatus(card) !== 'verified') {
+        showToast('当前状态不可回收', 'warn');
+        return;
+      }
+      document.getElementById('vreTxnId').value = '';
+      document.getElementById('vreRemark').value = '';
+      document.getElementById('vreSimRefund').checked = false;
+      document.getElementById('vreClaimSummary').innerHTML =
+        '卡 <span class="card-id-mono">' + card.cardId + '</span> · 当前总额 <b>' + formatMoney(card.totalLimit) +
+        '</b> / 已用 <b>' + formatMoney(card.usedLimit) + '</b> / 可用 <b>' + formatMoney(cardAvailableLimit(card)) +
+        '</b><br>验卡申请额 <b>' + formatMoney(card.verifyTask.applyAmount) + '</b> · 快照 <b>' + formatMoney(card.verifyTask.snapshotLimit) + '</b>' +
+        (hasVerifyRecharged(card) ? ' · <span class="text-indigo-700">已充值/关单：回收时只减验卡申请额</span>' : ' · <span class="text-amber-700">未充值：回收后回快照</span>');
+      refreshReclaimPreview();
+      document.getElementById('verifyReclaimModal').classList.remove('hidden');
+      document.getElementById('verifyReclaimModal').classList.add('flex');
+    }
+    function closeVerifyReclaimModal() {
+      document.getElementById('verifyReclaimModal').classList.add('hidden');
+      document.getElementById('verifyReclaimModal').classList.remove('flex');
+    }
+    function refreshReclaimPreview() {
+      const card = getCardById(verifyTaskCtxCardId);
+      if (!card || !card.verifyTask) return;
+      const sim = document.getElementById('vreSimRefund').checked;
+      const plan = computeReclaimPlan(card, sim);
+      const el = document.getElementById('vrePreview');
+      if (!plan.ok) {
+        el.className = 'text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-md p-2';
+        el.textContent = '预检失败：可用额度不足以回收（需要可用 ≥ ' + formatMoney(plan.needAvail) +
+          '，当前按已用 ' + formatMoney(plan.used) + ' 计算可用为 ' + formatMoney(plan.avail) +
+          '）。请确认 Slash 退款已到账后再提交。';
+        return;
+      }
+      el.className = 'text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md p-2';
+      el.textContent = '预检通过：' + (plan.mode === 'delta'
+        ? ('总额 ' + formatMoney(plan.total) + ' → ' + formatMoney(plan.targetTotal) + '（− 验卡申请额 ' + formatMoney(plan.applyAmt) + '）')
+        : ('总额 ' + formatMoney(plan.total) + ' → 快照 ' + formatMoney(plan.targetTotal))) +
+        '；回收后已用 ' + formatMoney(plan.used) + ' / 可用 ' + formatMoney(Math.max(0, plan.targetTotal - plan.used)) + '。';
+    }
+    function submitVerifyReclaim() {
+      const card = getCardById(verifyTaskCtxCardId);
+      if (!card || !card.verifyTask) return;
+      const sim = document.getElementById('vreSimRefund').checked;
+      const plan = computeReclaimPlan(card, sim);
+      if (!plan.ok) {
+        card.verifyTask.lastReclaimFail = true;
+        showToast('可用额度不足以回收', 'error');
+        renderConfigTable();
+        refreshReclaimPreview();
+        return;
+      }
+      const txnId = (document.getElementById('vreTxnId').value || '').trim();
+      const remark = (document.getElementById('vreRemark').value || '').trim();
+      if (sim && !plan.recharged) card.usedLimit = plan.used;
+      card.totalLimit = plan.targetTotal;
+      card.verifyTask.lastReclaimFail = false;
       card.verifyTask.status = 'done';
       card.verifyTask.doneAt = nowStamp();
+      card.verifyTask.doneHow = 'reclaim';
+      card.verifyTask.reclaimedAt = nowStamp();
+      if (txnId) card.verifyTask.reclaimTxnId = txnId;
+      if (remark) card.verifyTask.reclaimRemark = remark;
       setAccountLastOperatorByCard(card.cardId);
-      closeVerifyRollbackModal();
-      closeVerifyTaskModal();
-      showToast('已降回至抬额前快照 ' + formatMoney(snap) + ' USD，验卡任务完成；可发起正式充值', 'success');
+      closeVerifyReclaimModal();
+      showToast(
+        '已回收（无飞书审批）。总额 ' + formatMoney(card.totalLimit) +
+        ' / 已用 ' + formatMoney(card.usedLimit) +
+        ' / 可用 ' + formatMoney(cardAvailableLimit(card)) + '。验证流程已闭环。',
+        'success'
+      );
+      openVerifyTaskModal(card.cardId);
+      renderConfigTable();
+    }
+
+    function simulateBindCardRechargeAutoComplete(rechargeAmt) {
+      const card = getCardById(verifyTaskCtxCardId);
+      if (!card || !card.verifyTask) return;
+      const vs = getVerifyTaskStatus(card);
+      if (vs !== 'verified' && vs !== 'rolling_back') {
+        showToast('仅「已验卡」后可充值；请先标记媒体已验证', 'warn');
+        return;
+      }
+      const add = Number(rechargeAmt) || 500;
+      card.totalLimit = +(Number(card.totalLimit || 0) + add).toFixed(2);
+      card.verifyTask.status = 'done';
+      card.verifyTask.doneAt = nowStamp();
+      card.verifyTask.doneHow = 'recharge_auto';
+      card.verifyTask.rechargeAmount = add;
+      setAccountLastOperatorByCard(card.cardId);
+      showToast(
+        '充值 $' + formatMoney(add) + ' 成功：总额 ' + formatMoney(card.totalLimit) +
+        ' / 已用 ' + formatMoney(card.usedLimit) + ' / 可用 ' + formatMoney(cardAvailableLimit(card)) +
+        '。已关单（≠ 闭环），仍可「确认验卡退款并回收」。',
+        'success'
+      );
+      openVerifyTaskModal(card.cardId);
       renderConfigTable();
     }
 
@@ -2096,10 +2472,11 @@
       if (!card || !card.verifyTask) return;
       if (card.verifyTask.snapshotLimit == null) card.verifyTask.snapshotLimit = card.totalLimit;
       card.totalLimit = card.verifyTask.applyAmount;
+      card.usedLimit = 0;
       card.verifyTask.status = 'pending_verify';
       card.verifyTask.raisedAt = nowStamp();
       closeVerifyApproveSimModal();
-      showToast('审批通过：已抬额至 ' + formatMoney(card.totalLimit) + ' USD，请去媒体验卡后降回', 'success');
+      showToast('审批通过：已抬额至 ' + formatMoney(card.totalLimit) + ' USD，进入待验卡（请去媒体操作；此阶段不可充值）', 'success');
       openVerifyTaskModal(card.cardId);
       renderConfigTable();
     }
@@ -2116,10 +2493,11 @@
     // ========== Slash 额度转移 ==========
     let transferCtx = null;
     let transferAuditLogs = [];
+    const FUND_CARD_FLOOR = 1; // Fund / Slash 卡底线，ADS 禁止提交破线申请
 
-    function hasIncompleteVerifyTask(card) {
-      const s = getVerifyTaskStatus(card);
-      return s === 'pending_approval' || s === 'raising' || s === 'pending_verify' || s === 'rolling_back';
+    /** 待审批 / 抬额中 / 待验卡：转出转入均不可选 */
+    function hasShortWindowVerifyBlock(card) {
+      return hasVerifyBlockRecharge(card);
     }
 
     function cardAvailableLimit(card) {
@@ -2127,21 +2505,48 @@
       return Math.max(0, +(card.totalLimit - card.usedLimit).toFixed(2));
     }
 
+    /** 可转上限 = min(可用, 总额 − $1)；破底线则 0 */
+    function cardTransferableLimit(card) {
+      if (!card || card.totalLimit == null) return 0;
+      const avail = cardAvailableLimit(card);
+      const byFloor = Math.max(0, +(Number(card.totalLimit) - FUND_CARD_FLOOR).toFixed(2));
+      return Math.max(0, Math.min(avail, byFloor));
+    }
+
+    function cardHasUnreclaimedVerify(card) {
+      const lim = getVerifyLimitStatus(card);
+      return lim === 'verified_open' || lim === 'recharge_closed' || lim === 'reclaim_fail';
+    }
+
     function cardEligibleForTransferOut(card) {
       if (!card || card.status !== 'normal') return false;
-      if (hasIncompleteVerifyTask(card)) return false;
-      return cardAvailableLimit(card) > 0;
+      if (hasShortWindowVerifyBlock(card)) return false;
+      return cardTransferableLimit(card) > 0;
     }
 
     function cardEligibleForTransferIn(card) {
       if (!card || card.status !== 'normal') return false;
-      if (hasIncompleteVerifyTask(card)) return false;
+      if (hasShortWindowVerifyBlock(card)) return false;
       return true;
     }
 
     function cardLabelWithLast4(card) {
       if (!card) return '-';
       return card.cardId + (card.last4 ? '(' + card.last4 + ')' : '');
+    }
+
+    function refreshTransferVerifyWarn(fromCard) {
+      const el = document.getElementById('tfVerifyWarn');
+      if (!el) return;
+      if (!fromCard || !cardHasUnreclaimedVerify(fromCard) || !fromCard.verifyTask) {
+        el.classList.add('hidden');
+        el.innerHTML = '';
+        return;
+      }
+      const amt = formatMoney(fromCard.verifyTask.applyAmount);
+      el.classList.remove('hidden');
+      el.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>该卡有验卡额度 <b>' + amt +
+        '</b> USD 尚未回收。请确保可用额度中已体现媒体验卡费用的退回情况；<b>建议转出后卡上仍保留验卡额度</b>，避免把验卡临时额度转走。（不拦截提交）';
     }
 
     function openTransferLimitModal(ev, accountId, presetFromCardId) {
@@ -2151,19 +2556,19 @@
       if (!g) return;
       transferCtx = { accountId, accountName: g.accountName, media: g.media };
       document.getElementById('tfAccountHint').textContent =
-        '账户 ' + g.accountId + '（' + g.accountName + '）· ' + g.media + ' · 仅同账户关联卡互转，无需审批';
+        '账户 ' + g.accountId + '（' + g.accountName + '）· ' + g.media + ' · 仅同账户关联卡互转，无需审批；转出后总额 ≥ $1';
       const fromSel = document.getElementById('tfFromCard');
-      const toSel = document.getElementById('tfToCard');
       fromSel.innerHTML = '';
       const fromCandidates = g.cards.filter(c => cardEligibleForTransferOut(c.card));
       if (!fromCandidates.length) {
-        showToast('该账户暂无满足条件的转出卡（需有可用额度且无进行中验卡任务）', 'warn');
+        showToast('该账户暂无满足条件的转出卡（可转上限须 > 0；待审批/抬额中/待验卡不可选；仅剩 $1 底线不可转）', 'warn');
         return;
       }
       fromCandidates.forEach(item => {
         const op = document.createElement('option');
         op.value = item.cardId;
-        op.textContent = cardLabelWithLast4(item.card) + ' · 可用 ' + formatMoney(cardAvailableLimit(item.card));
+        const unreclaim = cardHasUnreclaimedVerify(item.card) ? ' · 未回收验卡' : '';
+        op.textContent = cardLabelWithLast4(item.card) + ' · 可转 ' + formatMoney(cardTransferableLimit(item.card)) + unreclaim;
         fromSel.appendChild(op);
       });
       if (presetFromCardId && fromCandidates.some(c => c.cardId === presetFromCardId)) {
@@ -2179,7 +2584,14 @@
       if (!transferCtx) return;
       const fromId = document.getElementById('tfFromCard').value;
       const fromCard = getCardById(fromId);
-      document.getElementById('tfAvailHint').textContent = '可用额度：' + formatMoney(cardAvailableLimit(fromCard)) + ' USD';
+      const avail = cardAvailableLimit(fromCard);
+      const cap = cardTransferableLimit(fromCard);
+      document.getElementById('tfAvailHint').textContent =
+        '可用 ' + formatMoney(avail) + ' USD · 可转上限 ' + formatMoney(cap) +
+        ' USD（= min(可用, 总额−$1)）';
+      const amtInput = document.getElementById('tfAmount');
+      if (amtInput) amtInput.max = String(cap || 0);
+      refreshTransferVerifyWarn(fromCard);
       const groups = buildAccountGroups();
       const g = groups.find(x => x.accountId === transferCtx.accountId);
       const toSel = document.getElementById('tfToCard');
@@ -2204,6 +2616,8 @@
       document.getElementById('transferLimitModal').classList.add('hidden');
       document.getElementById('transferLimitModal').classList.remove('flex');
       transferCtx = null;
+      const warn = document.getElementById('tfVerifyWarn');
+      if (warn) { warn.classList.add('hidden'); warn.innerHTML = ''; }
     }
 
     function submitTransferLimit() {
@@ -2221,17 +2635,26 @@
         showToast('请填写有效转移金额', 'warn');
         return;
       }
-      const avail = cardAvailableLimit(fromCard);
-      if (amount > avail + 1e-9) {
-        showToast('转移金额不能超过转出卡可用额度 ' + formatMoney(avail), 'warn');
+      if (hasShortWindowVerifyBlock(fromCard) || hasShortWindowVerifyBlock(toCard)) {
+        showToast('转出/转入卡处于待审批、抬额中或待验卡，暂不可转移', 'error');
         return;
       }
-      if (hasIncompleteVerifyTask(fromCard) || hasIncompleteVerifyTask(toCard)) {
-        showToast('转出/转入卡存在未完成验卡任务，禁止转移', 'error');
+      const cap = cardTransferableLimit(fromCard);
+      if (!(cap > 0)) {
+        showToast('可转上限为 0：转出后须保留总额 ≥ $1（Fund 红线），ADS 禁止提交', 'error');
         return;
       }
-      fromCard.totalLimit = +(fromCard.totalLimit - amount).toFixed(2);
-      toCard.totalLimit = +(toCard.totalLimit + amount).toFixed(2);
+      if (amount > cap + 1e-9) {
+        showToast('转移金额不能超过可转上限 ' + formatMoney(cap) + '（含 $1 底线）', 'warn');
+        return;
+      }
+      const afterTotal = +(Number(fromCard.totalLimit) - amount).toFixed(2);
+      if (afterTotal + 1e-9 < FUND_CARD_FLOOR) {
+        showToast('转出后总额将低于 $1，触碰 Fund 红线，ADS 禁止提交', 'error');
+        return;
+      }
+      fromCard.totalLimit = afterTotal;
+      toCard.totalLimit = +(Number(toCard.totalLimit) + amount).toFixed(2);
       setAccountLastOperator(transferCtx.accountId);
       const log = {
         id: Date.now(),

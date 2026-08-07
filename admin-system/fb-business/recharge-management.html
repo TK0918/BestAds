@@ -860,13 +860,19 @@
         { id: 'FB009876543', name: '品牌推广账户03', balance: 150, isBindCardAccount: false, activeCardId: null, activeCardLast4: null, cardAvailableLimit: 0 }
       ] },
       { id: 'C1002', name: '李四', balance: 1200, accounts: [
-        { id: 'FB001234568', name: '移动应用账户02', balance: 300, isBindCardAccount: true, activeCardId: 'c_3bpoltc2u7sf1', activeCardLast4: '1234', cardAvailableLimit: 300, verifyPendingRollback: false }
+        { id: 'FB001234568', name: '移动应用账户02', balance: 300, isBindCardAccount: true, activeCardId: 'c_3bpoltc2u7sf1', activeCardLast4: '1234', cardAvailableLimit: 300, verifyShortWindowBlock: false }
       ] },
-      { id: 'C1098', name: '周验卡(待降回)', balance: 8000, accounts: [
-        { id: 'AL0423123', name: '账户名称EEE(验卡待降回)', balance: 0, isBindCardAccount: true, activeCardId: 'c_bootwait01', activeCardLast4: '1003', cardAvailableLimit: 20, verifyPendingRollback: true }
+      { id: 'C1097', name: '吴审批中(不可充)', balance: 8000, accounts: [
+        { id: 'FB0423100', name: '账户名称(验卡待审批)', balance: 0, isBindCardAccount: true, activeCardId: 'c_bootpend01', activeCardLast4: '1002', cardAvailableLimit: 1, verifyBlockRecharge: true, verifyBlockReason: 'pending_approval' }
+      ] },
+      { id: 'C1098', name: '周待验卡(不可充)', balance: 8000, accounts: [
+        { id: 'AL0423123', name: '账户名称EEE(待验卡·须去媒体)', balance: 0, isBindCardAccount: true, activeCardId: 'c_bootwait01', activeCardLast4: '1003', cardAvailableLimit: 20, verifyBlockRecharge: true, verifyBlockReason: 'pending_verify' }
+      ] },
+      { id: 'C1100', name: '郑已验卡(可充)', balance: 8000, accounts: [
+        { id: 'TT888002', name: '账户名称GGG(已验卡·未退也可充)', balance: 0, isBindCardAccount: true, activeCardId: 'c_bootok01', activeCardLast4: '1006', cardAvailableLimit: 0, verifyBlockRecharge: false, verifyVerifiedNote: true }
       ] },
       { id: 'C1099', name: '钱小白(无使用卡)', balance: 5000, accounts: [
-        { id: 'FB008888999', name: '绑卡户未配卡账户', balance: 100, isBindCardAccount: true, activeCardId: null, activeCardLast4: null, cardAvailableLimit: 0, verifyPendingRollback: false }
+        { id: 'FB008888999', name: '绑卡户未配卡账户', balance: 100, isBindCardAccount: true, activeCardId: null, activeCardLast4: null, cardAvailableLimit: 0, verifyBlockRecharge: false }
       ] }
     ];
 
@@ -916,8 +922,12 @@
         let extra = '';
         if (acc.isBindCardAccount && !acc.activeCardId) {
           extra = '<div class="text-xs text-rose-600 mt-0.5">绑卡户未设使用卡，不可充值</div>';
-        } else if (acc.verifyPendingRollback) {
-          extra = '<div class="text-xs text-amber-700 mt-0.5">验卡临时额度待降回（' + (acc.activeCardId || '') + '），完成降回前不可充值</div>';
+        } else if (acc.verifyBlockRecharge && acc.verifyBlockReason === 'pending_verify') {
+          extra = '<div class="text-xs text-amber-700 mt-0.5">使用卡待验卡：请先去媒体操作并回系统「标记已验证」后再充值 · ' + (acc.activeCardId || '') + '</div>';
+        } else if (acc.verifyBlockRecharge) {
+          extra = '<div class="text-xs text-indigo-700 mt-0.5">验卡待审批/抬额中，暂不可充值 · 卡 ' + (acc.activeCardId || '') + '</div>';
+        } else if (acc.verifyVerifiedNote) {
+          extra = '<div class="text-xs text-blue-700 mt-0.5">使用卡已验卡（卡可用；退款回收属闭环另线）· 充值成功可关业务单，关单后仍可回收</div>';
         } else if (acc.isBindCardAccount) {
           extra = '<div class="text-xs text-gray-500 mt-0.5">绑卡户 · 使用卡 ****' + (acc.activeCardLast4 || '-') + '</div>';
         }
@@ -1032,14 +1042,18 @@
         return;
       }
 
-      // 校验: 使用卡验卡临时额度未降回时阻断充值
+      // 校验: 待审批 / 抬额中 / 待验卡 阻断；已验卡放行
       const verifyBlocked = rechargeDetails.find(d => {
         const acc = customer.accounts.find(a => a.id === d.accountId);
-        return acc && acc.isBindCardAccount && acc.verifyPendingRollback;
+        return acc && acc.isBindCardAccount && acc.verifyBlockRecharge;
       });
       if (verifyBlocked) {
         const acc = customer.accounts.find(a => a.id === verifyBlocked.accountId);
-        showToast('该使用卡验卡临时额度尚未降回，请先在绑卡户管理完成「验卡完成并降回」后再充值（卡 ' + (acc && acc.activeCardId ? acc.activeCardId : '') + '）', 'error');
+        if (acc && acc.verifyBlockReason === 'pending_verify') {
+          showToast('使用卡处于「待验卡」：请先在媒体完成验证并回绑卡户管理「标记媒体已验证」后再充值（卡 ' + (acc.activeCardId || '') + '）', 'error');
+        } else {
+          showToast('该使用卡验卡任务处于待审批/抬额中，暂不可充值（卡 ' + (acc && acc.activeCardId ? acc.activeCardId : '') + '）', 'error');
+        }
         return;
       }
 
@@ -1056,7 +1070,9 @@
             customerEmail: (customer.email || customer.name + '@bestads.com'),
             submitTime: nowStr(), accountId: acc.id, accountName: acc.name,
             agent: '系统', amount: d.amount, prepaidRate: 5, prepaidFee: +(d.amount * 0.05).toFixed(2), status: '待 Fund 调额', completeTime: '',
-            remark: '绑卡户充值, 等待 Fund 回调',
+            remark: acc.verifyVerifiedNote
+              ? '绑卡户充值（已验卡可充）；Fund 调额成功后验卡任务应自动完结（只关单）'
+              : '绑卡户充值, 等待 Fund 回调',
             isBindCardAccount: true, activeCardId: acc.activeCardId, activeCardLast4: acc.activeCardLast4,
             fundOrderNo: 'FUND' + Date.now(), cardAvailableLimit: acc.cardAvailableLimit,
             statusTimeline: [{ status: '待 Fund 调额', time: nowStr(), operator: '系统' }]
