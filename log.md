@@ -1,8 +1,52 @@
+#### 2026-08-07 - V2.38 PRD 同步近 2 天消耗硬校验
+
+`PRD/V 2.38 广告风控第一期.md` 升至 0.5：清零事前近 2 天（昨天+当天）有消耗不可勾选/不可提交；无消耗或查不到允许；客户与运营代客适用；减款不适用；补跨页口径与业务流程。
+
+- 更新：`PRD/V 2.38 广告风控第一期.md`
+
+---
+
+#### 2026-08-06 - 支出限额 Excel 调整为四列
+
+将动态列拆为「调整」「金额」；金额改为数值型（如 123.45）。
+
+- 更新：`~/Desktop/广告账户支出限额变更记录.xlsx`（开始日期 / 结束日期 / 调整 / 金额）
+
+---
+
+#### 2026-08-06 - 识别截图并导出支出限额变更 Excel
+
+识别桌面长截图 `screenshot-20260806-184406.png`（广告账户支出限额变更历史），OCR 整理为三列表格并输出到桌面。
+
+- 新增：`~/Desktop/广告账户支出限额变更记录.xlsx`（359 条：开始日期 / 结束日期 / 动态）
+
+---
+
 #### 2026-08-05 - 输出 Meta Country Feed 小白操作指南
 
 将 Meta Country Feed 功能说明细化成首次接触可跟做的操作文档，含名词解释、逐步操作、校验、限制、故障排查，并附官方文档链接。
 
 - 新增：`PRD/Meta-Country-Feed-操作指南.md`
+
+---
+
+#### 2026-08-07 - 近2天有消耗账户不可勾选清零
+
+有消耗账户复选框直接禁用（运营代客/客户端 Web）；H5 清零按钮禁用。提交侧剔除逻辑保留兜底。
+
+- 更新：`admin-system/fb-business/clear-management.html`
+- 更新：`bestads-client-styled/account-management.html`
+- 更新：`bestads-client-styled/h5-account-wallet.html`
+
+---
+
+#### 2026-08-07 - 清零增加近2天消耗硬校验（原型）
+
+清零提交前校验昨天+当天消耗：有消耗自动剔除（批量）或拦截（单户）；无消耗/查不到允许。减款不改。运营/Web/H5 清零原型已同步。
+
+- 更新：`admin-system/fb-business/clear-management.html`
+- 更新：`bestads-client-styled/account-management.html`
+- 更新：`bestads-client-styled/h5-account-wallet.html`
 
 ---
 

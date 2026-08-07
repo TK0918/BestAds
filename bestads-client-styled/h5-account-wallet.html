@@ -589,15 +589,16 @@
 
     // 数据源（示例）
     const wallet = { available: 7900.00, real: 3000.00, frozen: 100.00, creditLimit: 5000.00, creditUsed: 0.00 };
+    // spendLast2Days: 昨天+当天消耗；null=查不到（允许清零）；>0 禁止清零
     const accounts = [
-      { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active', canClear: true },
-      { id: 'FB001234568', name: '测试广告账户02', currency: 'USD', balance: 850.75, timezone: 'UTC+8', status: 'active', canClear: true },
-      { id: 'FB001234569', name: '测试广告账户03', currency: 'USD', balance: 2150.00, timezone: 'UTC+0', status: 'pending', canClear: false },
-      { id: 'GG001234570', name: 'Google广告账户01', currency: 'USD', balance: 530.25, timezone: 'UTC-5', status: 'active', canClear: true },
-      { id: 'FB001234571', name: 'Facebook跨境电商账户', currency: 'USD', balance: 2150.80, timezone: 'UTC+8', status: 'active', canClear: true },
-      { id: 'FB001234572', name: 'Facebook游戏推广账户', currency: 'USD', balance: 675.30, timezone: 'UTC+8', status: 'active', canClear: false },
-      { id: 'GG001234573', name: 'Google搜索广告账户', currency: 'USD', balance: 1320.45, timezone: 'UTC-5', status: 'active', canClear: true },
-      { id: 'FB001234575', name: 'Facebook品牌推广账户', currency: 'EUR', balance: 435.90, timezone: 'UTC+1', status: 'inactive', canClear: false }
+      { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active', canClear: true, spendLast2Days: 45.2 },
+      { id: 'FB001234568', name: '测试广告账户02', currency: 'USD', balance: 850.75, timezone: 'UTC+8', status: 'active', canClear: true, spendLast2Days: 0 },
+      { id: 'FB001234569', name: '测试广告账户03', currency: 'USD', balance: 2150.00, timezone: 'UTC+0', status: 'pending', canClear: false, spendLast2Days: 0 },
+      { id: 'GG001234570', name: 'Google广告账户01', currency: 'USD', balance: 530.25, timezone: 'UTC-5', status: 'active', canClear: true, spendLast2Days: null },
+      { id: 'FB001234571', name: 'Facebook跨境电商账户', currency: 'USD', balance: 2150.80, timezone: 'UTC+8', status: 'active', canClear: true, spendLast2Days: 0 },
+      { id: 'FB001234572', name: 'Facebook游戏推广账户', currency: 'USD', balance: 675.30, timezone: 'UTC+8', status: 'active', canClear: false, spendLast2Days: 10 },
+      { id: 'GG001234573', name: 'Google搜索广告账户', currency: 'USD', balance: 1320.45, timezone: 'UTC-5', status: 'active', canClear: true, spendLast2Days: 8.5 },
+      { id: 'FB001234575', name: 'Facebook品牌推广账户', currency: 'EUR', balance: 435.90, timezone: 'UTC+1', status: 'inactive', canClear: false, spendLast2Days: 0 }
     ];
 
     // 记录（示例 + 本地存储）
@@ -716,9 +717,10 @@
             </div>
             <div class="flex flex-col gap-2 min-w-[92px]">
               <button class="btn-primary px-3 py-2 text-sm font-semibold" onclick="openSheet('recharge','${a.id}')">${lang.account_recharge}</button>
-              <button class="btn-secondary px-3 py-2 text-sm ${!a.canClear ? 'opacity-50 cursor-not-allowed' : ''}" 
-                      onclick="${a.canClear ? `openClearConfirm('${a.id}')` : ''}" 
-                      ${!a.canClear ? 'disabled' : ''}>${lang.account_clear}</button>
+              <button class="btn-secondary px-3 py-2 text-sm ${(!a.canClear || isClearBlockedBySpend(a)) ? 'opacity-50 cursor-not-allowed' : ''}" 
+                      onclick="${(a.canClear && !isClearBlockedBySpend(a)) ? `openClearConfirm('${a.id}')` : ''}" 
+                      ${(!a.canClear || isClearBlockedBySpend(a)) ? 'disabled' : ''}
+                      title="${isClearBlockedBySpend(a) ? '近2天有消耗，不可清零' : ''}">${lang.account_clear}</button>
             </div>
           </div>
         </div>
@@ -793,14 +795,31 @@
     }
 
     // 清零相关函数
+    function isClearBlockedBySpend(acc) {
+      return acc && acc.spendLast2Days != null && Number(acc.spendLast2Days) > 0;
+    }
+
+    function formatSpendLast2Days(acc) {
+      if (!acc || acc.spendLast2Days == null) return '查不到（允许清零）';
+      const n = Number(acc.spendLast2Days);
+      if (n > 0) return `${formatAmount(n)}（有消耗，不可清零）`;
+      return `${formatAmount(0)}（无消耗，可清零）`;
+    }
+
     function openClearConfirm(accountId) {
       const acc = accounts.find(a => a.id === accountId);
       if (!acc || !acc.canClear) return;
+
+      if (isClearBlockedBySpend(acc)) {
+        notify('近2天（昨天、当天）有消耗，暂不可清零。请停止投放后再试。', 'error');
+        return;
+      }
       
       document.getElementById('clearAccountName').textContent = acc.name;
       document.getElementById('clearAccountId').textContent = acc.id;
       document.getElementById('clearCurrency').textContent = acc.currency;
       document.getElementById('clearBalance').textContent = formatAmount(acc.balance);
+      document.getElementById('clearSpend2d').textContent = formatSpendLast2Days(acc);
       
       // 存储当前要清零的账户ID
       window.__pendingClearAccountId = accountId;
@@ -814,6 +833,12 @@
       
       const acc = accounts.find(a => a.id === accountId);
       if (!acc || !acc.canClear) return;
+
+      if (isClearBlockedBySpend(acc)) {
+        notify('近2天（昨天、当天）有消耗，暂不可清零。', 'error');
+        closeModal('clearConfirmModal');
+        return;
+      }
 
       // 更新账户余额为0
       const clearAmount = acc.balance;
@@ -1196,11 +1221,13 @@
               <div>ID：<span id="clearAccountId" class="text-gray-900 font-medium"></span></div>
               <div>币种：<span id="clearCurrency" class="text-gray-900 font-medium"></span></div>
               <div>当前余额：<span id="clearBalance" class="text-gray-900 font-semibold"></span></div>
+              <div>近2天消耗：<span id="clearSpend2d" class="text-gray-900 font-medium"></span></div>
             </div>
             <div class="rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800 space-y-2">
               <div class="font-medium text-orange-900">清零须知</div>
               <div class="flex gap-2"><span class="font-bold">1</span><p>建议账户<strong>停止投放 48 小时</strong>后再来清零，金额会更加准确。</p></div>
               <div class="flex gap-2"><span class="font-bold">2</span><p>最终清零金额以<strong>结算时的金额</strong>为准。</p></div>
+              <div class="flex gap-2"><span class="font-bold">3</span><p>近 2 天（昨天、当天）有消耗时<strong>不可清零</strong>；无消耗或查不到消耗才可提交。</p></div>
               <div class="flex gap-2 text-xs text-orange-700"><i class="fas fa-exclamation-triangle mt-0.5"></i><p>清零后账户余额将回流钱包，请确认后再提交。</p></div>
             </div>
             <div class="flex gap-2">
