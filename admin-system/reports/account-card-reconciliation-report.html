@@ -338,8 +338,9 @@
               </div>
               <div class="card-box p-4">
                 <div class="flex items-center justify-between mb-3">
-                  <div class="text-sm text-gray-500">点击账户行展开关联卡明细 · 开卡后请走「验卡初始额度」任务再媒体验卡</div>
+                  <div class="text-sm text-gray-500">点击账户行展开关联卡明细 · 开卡后请走「验卡初始额度」任务再媒体验卡 · 同账户卡可「额度转移」</div>
                   <div class="flex flex-wrap gap-2 justify-end">
+                    <button onclick="openFeishuNotifyPreview()" class="border border-sky-300 text-sky-700 px-4 py-2 rounded-md hover:bg-sky-50 text-sm"><i class="fas fa-bell mr-1"></i>飞书通知示意</button>
                     <button onclick="syncAllCardLimits()" id="syncLimitsBtn" class="bg-violet-600 text-white px-4 py-2 rounded-md hover:bg-violet-700 text-sm"><i class="fas fa-sync-alt mr-1"></i>更新信用卡额度</button>
                     <button onclick="exportConfigTab()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 text-sm"><i class="fas fa-download mr-1"></i>导出</button>
                     <button onclick="openBindModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 text-sm"><i class="fas fa-link mr-1"></i>绑定可用卡</button>
@@ -426,6 +427,7 @@
                         <th>卡币种</th>
                         <th>卡状态</th>
                         <th>卡消耗</th>
+                        <th>卡返点</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -435,6 +437,7 @@
                         <td id="sumAccountConsume">0.00</td>
                         <td colspan="4"></td>
                         <td id="sumCardConsume">0.00</td>
+                        <td id="sumCardRebate">0.00</td>
                       </tr>
                     </tfoot>
                   </table>
@@ -828,6 +831,65 @@
     </div>
   </div>
 
+  <!-- Slash 额度转移 -->
+  <div id="transferLimitModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeTransferLimitModal()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+        <h3 class="text-lg font-semibold text-gray-900">Slash 额度转移</h3>
+        <button onclick="closeTransferLimitModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div class="text-sm text-gray-600 bg-slate-50 border border-slate-200 rounded-lg p-3" id="tfAccountHint">-</div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">转出卡 <span class="text-red-500">*</span></label>
+          <select id="tfFromCard" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="onTransferFromChanged()"></select>
+          <p class="text-xs text-gray-500 mt-1">仅可选：同账户、正常、有可用额度、无进行中验卡任务</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">转入卡 <span class="text-red-500">*</span></label>
+          <select id="tfToCard" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"></select>
+          <p class="text-xs text-gray-500 mt-1">仅同账户其他正常卡；无进行中验卡任务</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">转移金额 (USD) <span class="text-red-500">*</span></label>
+          <input id="tfAmount" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="≤ 转出卡可用额度">
+          <p class="text-xs text-gray-500 mt-1" id="tfAvailHint">可用额度：-</p>
+        </div>
+        <div class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-2">
+          不走飞书审批。Fund 将：转出卡总额度 −X，转入卡总额度 +X；两边已用额度不变。成功后写入权限审计日志。
+        </div>
+      </div>
+      <div class="px-5 py-4 border-t border-gray-200 flex justify-end gap-2 sticky bottom-0 bg-white">
+        <button onclick="closeTransferLimitModal()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">取消</button>
+        <button onclick="submitTransferLimit()" class="px-4 py-2 rounded-md bg-teal-600 text-white hover:bg-teal-700">确认转移</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 飞书通知示意（绑卡户：其他关联卡） -->
+  <div id="feishuNotifyPreviewModal" class="fixed inset-0 hidden items-center justify-center z-40">
+    <div class="absolute inset-0 modal-mask" onclick="closeFeishuNotifyPreview()"></div>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+        <h3 class="text-lg font-semibold text-gray-900">飞书通知示意 · 其他关联卡</h3>
+        <button onclick="closeFeishuNotifyPreview()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="flex gap-2 text-sm">
+          <button type="button" onclick="renderFeishuNotifySample('clear')" id="fnTabClear" class="px-3 py-1 rounded-md bg-blue-600 text-white">清零</button>
+          <button type="button" onclick="renderFeishuNotifySample('recharge')" id="fnTabRecharge" class="px-3 py-1 rounded-md border border-gray-300 text-gray-700">充值</button>
+          <button type="button" onclick="renderFeishuNotifySample('deduct')" id="fnTabDeduct" class="px-3 py-1 rounded-md border border-gray-300 text-gray-700">减款</button>
+        </div>
+        <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800 space-y-1.5" id="feishuNotifyBody"></div>
+        <p class="text-xs text-gray-500">口径：绑卡户通知中「使用卡 / 其他关联卡」均带状态与额度，格式如 <code class="text-xs bg-gray-100 px-1 rounded">卡ID(后四位)——正常——总:1,234.00——已用:1,234.00——余:0.00</code>；其他关联卡排除使用卡，若无则「其他关联卡：无」。充值 / 清零 / 减款均适用。</p>
+      </div>
+      <div class="px-5 py-3 border-t border-gray-200 flex justify-end">
+        <button onclick="closeFeishuNotifyPreview()" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast-wrap" id="toastWrap"></div>
 
   <script>
@@ -1171,6 +1233,10 @@
         const switchBtn = canSwitch
           ? '<button onclick="openSwitchCardModal(event, \'' + g.accountId + '\')" class="text-blue-600 hover:underline text-sm"><i class="fas fa-exchange-alt mr-1"></i>修改使用卡</button>'
           : '<button class="text-gray-300 cursor-not-allowed text-sm" disabled title="需至少 2 张关联卡"><i class="fas fa-exchange-alt mr-1"></i>修改使用卡</button>';
+        const canTransfer = g.cards.filter(c => c.card && c.card.status === 'normal' && !String(c.cardId).startsWith('PENDING')).length >= 2;
+        const transferBtn = canTransfer
+          ? ' <button onclick="openTransferLimitModal(event, \'' + g.accountId + '\')" class="text-teal-700 hover:underline text-sm"><i class="fas fa-right-left mr-1"></i>额度转移</button>'
+          : '';
         const verifyHint = activePending
           ? ' <button onclick="openVerifyTaskModal(\'' + g.activeCardId + '\')" class="ml-2 text-amber-700 hover:underline text-sm"><i class="fas fa-tasks mr-1"></i>完成验卡降回</button>'
           : '';
@@ -1187,7 +1253,7 @@
           '<td><span class="card-id-mono">' + (g.activeCardId || '-') + '</span></td>' +
           '<td class="text-right">' + escapeHtml(g.activeAvailableText) + '</td>' +
           '<td>' + escapeHtml(g.lastOperator || '-') + '</td>' +
-          '<td onclick="event.stopPropagation()">' + switchBtn + verifyHint + '</td>';
+          '<td onclick="event.stopPropagation()">' + switchBtn + transferBtn + verifyHint + '</td>';
         tbody.appendChild(tr);
 
         if (isOpen) {
@@ -1243,7 +1309,11 @@
             verifyBtn = '<span class="text-gray-300 text-xs mr-2" title="已在使用/额度非开卡默认，Fund 将拒绝验卡初始额度申请">不可申请验卡额度</span>';
           }
 
-          opsCell = verifyBtn + viewBtn + unbindBtn + freezeBtn;
+          const transferOutBtn = cardEligibleForTransferOut(card)
+            ? '<button onclick="openTransferLimitModal(null, \'' + item.accountId + '\', \'' + item.cardId + '\')" class="text-teal-700 hover:underline text-xs mr-2"><i class="fas fa-right-left mr-1"></i>转出额度</button>'
+            : '';
+
+          opsCell = verifyBtn + transferOutBtn + viewBtn + unbindBtn + freezeBtn;
         }
 
         return '<tr' + (getVerifyTaskStatus(card) === 'pending_verify' ? ' class="bg-amber-50/50"' : '') + '>' +
@@ -1369,6 +1439,11 @@
           const seed = (dIdx + 1) * 137 + (mIdx + 1) * 53;
           const accountConsume = +(80 + (seed % 200) + (seed % 17) / 100).toFixed(2);
           const cardConsume = +(accountConsume * (0.9 + ((seed % 21) / 100))).toFixed(2);
+          // Fund 从 Slash 同步的卡返点；原型：多数有返点，偶发 0.00 或缺失(-)
+          let cardRebate;
+          if (seed % 19 === 0) cardRebate = null;
+          else if (seed % 11 === 0) cardRebate = 0;
+          else cardRebate = +(cardConsume * (0.01 + (seed % 5) / 1000)).toFixed(2);
           rows.push({
             date: day,
             media: map.media,
@@ -1380,7 +1455,8 @@
             cardLast4: card.last4 || '-',
             cardCurrency: card.currency,
             cardStatus: card.status,
-            cardConsume
+            cardConsume,
+            cardRebate
           });
         });
       });
@@ -1415,17 +1491,21 @@
       const rows = buildReconcileRows();
       let sumAccount = 0;
       let sumCard = 0;
+      let sumRebate = 0;
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" class="text-center text-gray-400 py-8">暂无数据</td></tr>';
         document.getElementById('sumAccountConsume').textContent = '0.00';
         document.getElementById('sumCardConsume').textContent = '0.00';
+        document.getElementById('sumCardRebate').textContent = '0.00';
         return;
       }
 
       rows.forEach(row => {
         sumAccount += row.accountConsume;
         sumCard += row.cardConsume;
+        if (row.cardRebate != null) sumRebate += row.cardRebate;
+        const rebateCell = row.cardRebate == null ? '-' : formatMoney(row.cardRebate);
         const tr = document.createElement('tr');
         tr.innerHTML =
           '<td>' + row.date + '</td>' +
@@ -1438,12 +1518,14 @@
           '<td><span class="card-id-mono">' + (row.cardLast4 !== '-' ? row.cardLast4 : '-') + '</span></td>' +
           '<td>' + row.cardCurrency + '</td>' +
           '<td>' + statusBadge(row.cardStatus) + '</td>' +
-          '<td>' + formatMoney(row.cardConsume) + '</td>';
+          '<td>' + formatMoney(row.cardConsume) + '</td>' +
+          '<td>' + rebateCell + '</td>';
         tbody.appendChild(tr);
       });
 
       document.getElementById('sumAccountConsume').textContent = formatMoney(sumAccount);
       document.getElementById('sumCardConsume').textContent = formatMoney(sumCard);
+      document.getElementById('sumCardRebate').textContent = formatMoney(sumRebate);
     }
 
     function openBindModal() {
@@ -2031,6 +2113,221 @@
       renderConfigTable();
     }
 
+    // ========== Slash 额度转移 ==========
+    let transferCtx = null;
+    let transferAuditLogs = [];
+
+    function hasIncompleteVerifyTask(card) {
+      const s = getVerifyTaskStatus(card);
+      return s === 'pending_approval' || s === 'raising' || s === 'pending_verify' || s === 'rolling_back';
+    }
+
+    function cardAvailableLimit(card) {
+      if (!card || card.totalLimit == null || card.usedLimit == null) return 0;
+      return Math.max(0, +(card.totalLimit - card.usedLimit).toFixed(2));
+    }
+
+    function cardEligibleForTransferOut(card) {
+      if (!card || card.status !== 'normal') return false;
+      if (hasIncompleteVerifyTask(card)) return false;
+      return cardAvailableLimit(card) > 0;
+    }
+
+    function cardEligibleForTransferIn(card) {
+      if (!card || card.status !== 'normal') return false;
+      if (hasIncompleteVerifyTask(card)) return false;
+      return true;
+    }
+
+    function cardLabelWithLast4(card) {
+      if (!card) return '-';
+      return card.cardId + (card.last4 ? '(' + card.last4 + ')' : '');
+    }
+
+    function openTransferLimitModal(ev, accountId, presetFromCardId) {
+      if (ev) ev.stopPropagation();
+      const groups = buildAccountGroups();
+      const g = groups.find(x => x.accountId === accountId);
+      if (!g) return;
+      transferCtx = { accountId, accountName: g.accountName, media: g.media };
+      document.getElementById('tfAccountHint').textContent =
+        '账户 ' + g.accountId + '（' + g.accountName + '）· ' + g.media + ' · 仅同账户关联卡互转，无需审批';
+      const fromSel = document.getElementById('tfFromCard');
+      const toSel = document.getElementById('tfToCard');
+      fromSel.innerHTML = '';
+      const fromCandidates = g.cards.filter(c => cardEligibleForTransferOut(c.card));
+      if (!fromCandidates.length) {
+        showToast('该账户暂无满足条件的转出卡（需有可用额度且无进行中验卡任务）', 'warn');
+        return;
+      }
+      fromCandidates.forEach(item => {
+        const op = document.createElement('option');
+        op.value = item.cardId;
+        op.textContent = cardLabelWithLast4(item.card) + ' · 可用 ' + formatMoney(cardAvailableLimit(item.card));
+        fromSel.appendChild(op);
+      });
+      if (presetFromCardId && fromCandidates.some(c => c.cardId === presetFromCardId)) {
+        fromSel.value = presetFromCardId;
+      }
+      document.getElementById('tfAmount').value = '';
+      onTransferFromChanged();
+      document.getElementById('transferLimitModal').classList.remove('hidden');
+      document.getElementById('transferLimitModal').classList.add('flex');
+    }
+
+    function onTransferFromChanged() {
+      if (!transferCtx) return;
+      const fromId = document.getElementById('tfFromCard').value;
+      const fromCard = getCardById(fromId);
+      document.getElementById('tfAvailHint').textContent = '可用额度：' + formatMoney(cardAvailableLimit(fromCard)) + ' USD';
+      const groups = buildAccountGroups();
+      const g = groups.find(x => x.accountId === transferCtx.accountId);
+      const toSel = document.getElementById('tfToCard');
+      toSel.innerHTML = '';
+      (g?.cards || []).forEach(item => {
+        if (item.cardId === fromId) return;
+        if (!cardEligibleForTransferIn(item.card)) return;
+        const op = document.createElement('option');
+        op.value = item.cardId;
+        op.textContent = cardLabelWithLast4(item.card) + ' · 可用 ' + formatMoney(cardAvailableLimit(item.card));
+        toSel.appendChild(op);
+      });
+      if (!toSel.options.length) {
+        const op = document.createElement('option');
+        op.value = '';
+        op.textContent = '暂无可用转入卡';
+        toSel.appendChild(op);
+      }
+    }
+
+    function closeTransferLimitModal() {
+      document.getElementById('transferLimitModal').classList.add('hidden');
+      document.getElementById('transferLimitModal').classList.remove('flex');
+      transferCtx = null;
+    }
+
+    function submitTransferLimit() {
+      if (!transferCtx) return;
+      const fromId = document.getElementById('tfFromCard').value;
+      const toId = document.getElementById('tfToCard').value;
+      const amount = parseFloat(document.getElementById('tfAmount').value);
+      const fromCard = getCardById(fromId);
+      const toCard = getCardById(toId);
+      if (!fromCard || !toCard || !toId) {
+        showToast('请选择转出卡与转入卡', 'warn');
+        return;
+      }
+      if (!(amount > 0)) {
+        showToast('请填写有效转移金额', 'warn');
+        return;
+      }
+      const avail = cardAvailableLimit(fromCard);
+      if (amount > avail + 1e-9) {
+        showToast('转移金额不能超过转出卡可用额度 ' + formatMoney(avail), 'warn');
+        return;
+      }
+      if (hasIncompleteVerifyTask(fromCard) || hasIncompleteVerifyTask(toCard)) {
+        showToast('转出/转入卡存在未完成验卡任务，禁止转移', 'error');
+        return;
+      }
+      fromCard.totalLimit = +(fromCard.totalLimit - amount).toFixed(2);
+      toCard.totalLimit = +(toCard.totalLimit + amount).toFixed(2);
+      setAccountLastOperator(transferCtx.accountId);
+      const log = {
+        id: Date.now(),
+        time: nowStamp(),
+        operator: currentOperator,
+        module: '绑卡户管理',
+        subModule: 'Slash 额度转移',
+        target: cardLabelWithLast4(fromCard),
+        content: '转入 ' + cardLabelWithLast4(toCard) + '，金额 ' + formatMoney(amount) + ' USD'
+      };
+      transferAuditLogs.unshift(log);
+      try {
+        const key = 'bestads_slash_transfer_audit';
+        const prev = JSON.parse(localStorage.getItem(key) || '[]');
+        prev.unshift(log);
+        localStorage.setItem(key, JSON.stringify(prev.slice(0, 50)));
+      } catch (e) { /* ignore */ }
+      closeTransferLimitModal();
+      showToast('额度转移成功：' + log.content + '（已记权限审计日志）', 'success');
+      renderConfigTable();
+    }
+
+    // ========== 飞书通知示意 ==========
+    function openFeishuNotifyPreview() {
+      document.getElementById('feishuNotifyPreviewModal').classList.remove('hidden');
+      document.getElementById('feishuNotifyPreviewModal').classList.add('flex');
+      renderFeishuNotifySample('clear');
+    }
+    function closeFeishuNotifyPreview() {
+      document.getElementById('feishuNotifyPreviewModal').classList.add('hidden');
+      document.getElementById('feishuNotifyPreviewModal').classList.remove('flex');
+    }
+    function setFeishuTabActive(kind) {
+      ['clear', 'recharge', 'deduct'].forEach(k => {
+        const btn = document.getElementById('fnTab' + (k === 'clear' ? 'Clear' : k === 'recharge' ? 'Recharge' : 'Deduct'));
+        if (!btn) return;
+        if (k === kind) {
+          btn.className = 'px-3 py-1 rounded-md bg-blue-600 text-white';
+        } else {
+          btn.className = 'px-3 py-1 rounded-md border border-gray-300 text-gray-700';
+        }
+      });
+    }
+    function formatCardNotifyLine(card) {
+      if (!card) return '-';
+      const idPart = card.cardId + (card.last4 ? '(' + card.last4 + ')' : '');
+      const statusMap = { normal: '正常', frozen: '冻结', closed: '关闭', creating: '创建中' };
+      const status = statusMap[card.status] || (card.status || '-');
+      if (card.totalLimit == null || card.usedLimit == null) {
+        return idPart + '——' + status + '——总:-——已用:-——余:-';
+      }
+      const total = formatMoney(card.totalLimit);
+      const used = formatMoney(card.usedLimit);
+      const remain = formatMoney(card.totalLimit - card.usedLimit);
+      return idPart + '——' + status + '——总:' + total + '——已用:' + used + '——余:' + remain;
+    }
+
+    function getOtherLinkedCardsText(accountId, activeCardId) {
+      const others = mappingRows.filter(m => m.accountId === accountId && m.cardId !== activeCardId);
+      const lines = [];
+      others.forEach(m => {
+        const c = getCardById(m.cardId);
+        if (!c || c.status === 'creating') return;
+        lines.push(formatCardNotifyLine(c));
+      });
+      if (!lines.length) return '其他关联卡：无';
+      return '其他关联卡：\n' + lines.map((t, i) => (i + 1) + '、' + t).join('\n');
+    }
+    function renderFeishuNotifySample(kind) {
+      setFeishuTabActive(kind);
+      // 演示：AppLovin 423123 使用卡 c_bootwait01，另有关联卡
+      const accountId = '423123';
+      const activeId = 'c_bootwait01';
+      const active = getCardById(activeId);
+      const titles = {
+        clear: '广告账户清零需人工处理',
+        recharge: '广告账户充值需人工处理',
+        deduct: '广告账户减款需人工处理'
+      };
+      const otherText = getOtherLinkedCardsText(accountId, activeId);
+      const body =
+        '<div class="font-semibold text-gray-900 mb-2">' + titles[kind] + '</div>' +
+        '<div>商户ID：M10005</div>' +
+        '<div>客户名称：蜂巢电商</div>' +
+        '<div>广告账户ID：' + accountId + '</div>' +
+        '<div>广告账户名称：账户名称EEE</div>' +
+        '<div>媒体平台：AppLovin</div>' +
+        (kind === 'clear' ? '<div>账户余额：20.00 USD</div>' : '<div>金额：500.00 USD</div>') +
+        '<div>是否绑卡户：是</div>' +
+        '<div>使用卡：' + escapeHtml(formatCardNotifyLine(active)) + '</div>' +
+        '<div class="whitespace-pre-line mt-1 text-gray-900">' + escapeHtml(otherText) + '</div>' +
+        '<div class="mt-1">' + (kind === 'clear' ? '清零ID' : kind === 'recharge' ? '充值ID' : '减款ID') + '：AD20260807145720513086166</div>' +
+        '<div>提交时间：' + nowStamp() + '</div>';
+      document.getElementById('feishuNotifyBody').innerHTML = body;
+    }
+
     function setAccountLastOperator(accountId) {
       const acc = accountPool.find(a => a.accountId === accountId);
       if (acc) {
@@ -2248,7 +2545,7 @@
         showToast('暂无数据可导出, 请先查询', 'warn');
         return;
       }
-      const header = ['日期', '媒体', '广告账户ID', '广告账户名称', '账户币种', '账户消耗', '卡ID', '卡后四位', '卡币种', '卡状态', '卡消耗'];
+      const header = ['日期', '媒体', '广告账户ID', '广告账户名称', '账户币种', '账户消耗', '卡ID', '卡后四位', '卡币种', '卡状态', '卡消耗', '卡返点'];
       const aoa = [header];
       rows.forEach(row => {
         aoa.push([
@@ -2262,7 +2559,8 @@
           row.cardLast4 !== '-' ? row.cardLast4 : '-',
           row.cardCurrency,
           cardStatusText(row.cardStatus),
-          formatMoney(row.cardConsume)
+          formatMoney(row.cardConsume),
+          row.cardRebate == null ? '-' : formatMoney(row.cardRebate)
         ]);
       });
       writeWorkbookSheet('绑卡户管理-数据核对-' + exportStamp() + '.xlsx', aoa);

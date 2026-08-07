@@ -305,6 +305,7 @@
                       <option value="权限模块">权限模块</option>
                       <option value="角色管理">角色管理</option>
                       <option value="子账号管理">子账号管理</option>
+                      <option value="绑卡户管理">绑卡户管理</option>
                     </select>
                   </div>
                   <div>
@@ -320,6 +321,7 @@
                       <option value="子账号-编辑">子账号-编辑</option>
                       <option value="子账号-重置密码">子账号-重置密码</option>
                       <option value="子账号-分配广告账户">子账号-分配广告账户</option>
+                      <option value="Slash 额度转移">Slash 额度转移</option>
                     </select>
                   </div>
                   <div>
@@ -414,6 +416,24 @@
     // 模拟日志数据
     let logData = [
       {
+        id: 'LOG136',
+        time: '2026-08-07 15:05:12',
+        operator: '张三, zhangsan@bestads.com',
+        module: '绑卡户管理',
+        subModule: 'Slash 额度转移',
+        target: 'c_3bpoltc2u7sf1(1234)',
+        content: '转入 c_w9x8y7z6v5u4t3(5678)，金额 200.00 USD'
+      },
+      {
+        id: 'LOG135',
+        time: '2026-08-07 14:42:08',
+        operator: '李四, lisi@bestads.com',
+        module: '绑卡户管理',
+        subModule: 'Slash 额度转移',
+        target: 'c_bootdone01(1004)',
+        content: '转入 c_bootnew001(1001)，金额 1.00 USD'
+      },
+      {
         id: 'LOG001',
         time: '2024-03-01 14:30:25',
         operator: '张三',
@@ -500,6 +520,21 @@
 
     // 初始化页面
     document.addEventListener('DOMContentLoaded', function() {
+      try {
+        const stored = JSON.parse(localStorage.getItem('bestads_slash_transfer_audit') || '[]');
+        stored.forEach((item, idx) => {
+          logData.unshift({
+            id: 'TR' + (item.id || idx),
+            time: item.time,
+            operator: item.operator,
+            module: item.module || '绑卡户管理',
+            subModule: item.subModule || 'Slash 额度转移',
+            target: item.target,
+            content: item.content
+          });
+        });
+      } catch (e) { /* ignore */ }
+      filteredLogData = [...logData];
       renderLogTable();
     });
 
