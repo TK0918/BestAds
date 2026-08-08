@@ -1,0 +1,243 @@
+version: 0.2.0
+status: figma-first-baseline
+page:
+  id: customer-management
+  title: 客户管理
+  real_route: /customer-list
+  prototype_entry: admin-system/main-functions/customer-management.html
+  source_status: 已验证
+  source_notes: 视觉基线来自 OPS 2.0 Figma 的客户管理页面与组件 Ready for dev；字段、枚举、权限和行操作继续以运营端真实前端页面基线为准。
+
+visual:
+  source: OPS 2.0 Figma
+  source_url: https://www.figma.com/design/Ulok4n30eMWD46jNVHLbhz/OPS-2.0?node-id=1075-19511
+  skin: prototype-kit/admin-shell/figma-ops.css
+  tokens:
+    field_height: 32px
+    field_radius: 2px
+    field_border: '#D9D9D9'
+    card_radius: 12px
+    card_border: '#E5E5E5'
+    tabs_height: 34px
+    table_row_min_height: 55px
+    active_menu_background: '#202020'
+
+shell:
+  required:
+    - logo
+    - sidebar
+    - header
+    - breadcrumb
+    - page_tabs
+    - theme_toggle
+  breadcrumb:
+    - 主要功能
+    - 客户管理
+  page_tabs:
+    - 客户管理
+    - 客户子账号管理
+    - 开户管理
+  theme:
+    storage_key: bestads-theme
+    values: [light, dark]
+
+query:
+  layout:
+    columns: 4
+    gap: 16px
+  fields:
+    - key: customerContent
+      label: 商户ID内容
+      control: text
+      placeholder: 粘贴商户ID，一行一个，或使用空格/逗号分隔
+    - key: nickname
+      label: 客户名称
+      control: text
+      placeholder: 输入客户名称
+    - key: email
+      label: 登录账号
+      control: text
+      placeholder: 输入登录账号
+    - key: status
+      label: 客户状态
+      control: select
+      dictionary: customer.status
+    - key: customerLevel
+      label: 客户级别
+      control: select
+      dictionary: customer.level
+      multiple: true
+    - key: managerOpenId
+      label: BD
+      control: select
+      placeholder: 选择BD
+      multiple: true
+      searchable: true
+    - key: operatorOpenId
+      label: AM
+      control: select
+      placeholder: 选择AM
+      multiple: true
+      searchable: true
+  actions:
+    - id: reset
+      label: 重置
+    - id: search
+      label: 查询
+      primary: true
+
+toolbar:
+  left:
+    - id: add
+      label: 添加客户
+      permission: adsCustomer:add
+    - id: default-permission
+      label: 客户默认权限
+      permission: adsCustomer:defaultPerm
+    - id: batch-edit
+      label: 批量修改
+      permission: adsCustomer:batchEdit
+      requires_selection: true
+    - id: batch-permission
+      label: 批量功能开关
+      permission: adsCustomer:batchPerm
+      requires_selection: true
+  right:
+    - id: custom-fields
+      label: 自定义字段
+      permission: adsCustomer:list
+    - id: export
+      label: 导出数据
+      permission: adsCustomer:export
+
+columns:
+  - key: customerId
+    label: 客户ID
+    align: center
+  - key: customerName
+    label: 客户名称
+    align: left
+  - key: merchantId
+    label: 商户ID
+    align: center
+  - key: customerLevel
+    label: 客户级别
+    align: center
+  - key: bd
+    label: BD
+    align: left
+  - key: am
+    label: AM
+    align: left
+  - key: customerStatus
+    label: 客户状态
+    formatter: customer.status
+  - key: defaultCurrency
+    label: 币种
+    align: center
+  - key: currentBalance
+    label: 当前余额
+    formatter: money
+    align: right
+  - key: usedCredit
+    label: 已用额度
+    formatter: money
+    sortable: true
+    align: right
+  - key: creditLimit
+    label: 信用额度
+    formatter: money
+    sortable: true
+    align: right
+  - key: prepaidLimit
+    label: 预充金额上限
+    formatter: money
+    align: right
+  - key: remainingPrepaidAmount
+    label: 剩余预充金额
+    formatter: money
+    align: right
+  - key: availableBalance
+    label: 可用余额
+    formatter: money
+    sortable: true
+    align: right
+  - key: realAmount
+    label: 真实金额
+    formatter: money
+    sortable: true
+    align: right
+  - key: frozenAmount
+    label: 冻结金额
+    formatter: money
+    sortable: true
+    align: right
+  - key: registerTime
+    label: 注册时间
+    formatter: datetime
+  - key: lastLoginTime
+    label: 最近登录
+    formatter: datetime
+  - key: actions
+    label: 操作
+    fixed: right
+    width: 280px
+
+row_actions:
+  - label: 编辑
+    permission: adsCustomer:edit
+  - label: 修改账号
+    permission: adsCustomer:updateEmail
+  - label: 权限管理
+    permission: adsCustomer:permission
+  - label: 子账号管理
+    permission: adsCustomer:subAccount
+  - label: 重置密码
+    permission: adsCustomer:resetPassword
+    confirmation: required
+
+modals:
+  - id: add-customer
+    title: 添加客户
+    fields_source: admin-system/main-functions/customer-management.html#addModal
+  - id: edit-customer
+    title: 编辑客户
+    fields_source: admin-system/main-functions/customer-management.html#editModal
+  - id: default-permission
+    title: 客户默认权限
+    fields_source: admin-system/main-functions/customer-management.html#defaultPermissionModal
+  - id: batch-edit
+    title: 批量修改客户信息
+    requires_selection: true
+  - id: batch-permission
+    title: 批量功能开关
+    requires_selection: true
+  - id: reset-password
+    title: 重置密码
+    confirmation: required
+
+states:
+  - default
+  - loading
+  - empty
+  - request-error
+  - no-permission
+  - modal-validation-error
+  - submitting
+  - submit-success
+  - submit-failure
+
+data_modes:
+  fixture: prototype-kit/admin-contracts/customer-management/customer-management.fixture.json
+  live: requires_same_api_or_authorized_proxy
+
+acceptance:
+  - Figma skin is loaded only through the shared shell and does not modify the Figma file
+  - filter controls use a four-column grid and Figma Field dimensions
+  - card, tabs, table header, row divider and modal visual treatment use the Figma tokens above
+  - customer fields, dictionaries, row operations and permissions match the real customer-list baseline
+  - merchantId remains a five-digit numeric company identity ID beginning with 1 in fixture data
+  - BD and AM values use name plus bestfulfill.com email format when present
+  - amounts use currency code columns and English thousands separators without a currency symbol
+  - reset password is a danger confirmation and does not use browser alert/confirm
+  - sorting, paging, filter reset, selection-dependent batch actions and all listed modals remain clickable

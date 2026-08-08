@@ -131,7 +131,8 @@
     .admin-operation-col { position: sticky; right: 0; z-index: 2; width: 280px; min-width: 280px; background: #fff; box-shadow: -7px 0 12px rgba(15, 23, 42, .07); text-align: center !important; white-space: normal !important; }
     .admin-grid-table th.admin-operation-col { background: #f4f4f5; }
     .admin-grid-table tbody tr:hover td.admin-operation-col { background: #f8fbff; }
-    .admin-operation-col button, .admin-operation-col a { margin: 3px 7px; padding: 0; border: 0; background: transparent; color: var(--admin-primary); font-size: 12px; text-decoration: none; cursor: pointer; }
+    .admin-operation-col > div { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 6px 14px; }
+    .admin-operation-col button, .admin-operation-col a { margin: 0; padding: 0; border: 0; background: transparent; color: var(--admin-primary); font-size: 12px; text-decoration: none; white-space: nowrap; cursor: pointer; }
     .admin-operation-col button:hover, .admin-operation-col a:hover { color: #005bc4; text-decoration: underline; }
     .admin-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid transparent; border-radius: 4px; font-size: 12px; }
     .admin-tag--success { border-color: #dff7e6; background: #f0fff3; color: #57d188; }
@@ -290,10 +291,10 @@
     body.theme-dark .reset-password-result, body.theme-dark .reset-password-copy { color: #d1d3d7; }
   </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50" data-figma-ops="true" data-admin-page="customer-management">
   <div class="flex h-screen overflow-hidden">
     <!-- 侧边栏 -->
-    <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+    <aside id="sidebar" data-admin-shell="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
       <!-- 侧边栏头部 -->
       <div class="flex items-center justify-center h-16 border-b border-gray-200">
         <div class="admin-brand" aria-label="Ads">
@@ -470,7 +471,7 @@
 
     <!-- 主要内容区域 -->
     <div class="flex flex-col flex-1 overflow-hidden">
-      <header class="bg-white shadow-sm border-b border-gray-200">
+      <header data-admin-shell="header" class="bg-white shadow-sm border-b border-gray-200">
         <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
           <div class="flex items-center">
             <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
@@ -498,7 +499,7 @@
         </div>
       </header>
 
-      <div class="admin-tab-bar" role="tablist" aria-label="已打开页面">
+      <div data-admin-shell="tabs" class="admin-tab-bar" role="tablist" aria-label="已打开页面">
         <button type="button" class="admin-tab-nav" aria-label="返回" disabled><i class="fas fa-chevron-left"></i></button>
         <div class="admin-tabs-scroll">
           <button type="button" class="admin-page-tab is-active" role="tab" aria-selected="true">客户管理 <i class="fas fa-times"></i></button>
@@ -1153,19 +1154,19 @@
   <script>
     // 全局变量
     let allFields = [
-      { key: 'customerId', label: '客户ID', width: '100px' },
+      { key: 'customerId', label: '客户ID', width: '100px', sortable: true },
       { key: 'customerName', label: '客户名称', width: '150px' },
-      { key: 'merchantId', label: '商户ID', width: '180px' },
+      { key: 'merchantId', label: '商户ID', width: '180px', sortable: true },
       { key: 'customerLevel', label: '客户级别', width: '100px' },
       { key: 'bd', label: 'BD', width: '220px' },
       { key: 'am', label: 'AM', width: '220px' },
       { key: 'customerStatus', label: '客户状态', width: '100px' },
       { key: 'defaultCurrency', label: '币种', width: '100px' },
-      { key: 'currentBalance', label: '当前余额', width: '100px', align: 'right' },
+      { key: 'currentBalance', label: '当前余额', width: '100px', align: 'right', sortable: true },
       { key: 'usedCredit', label: '已用额度', width: '100px', align: 'right', sortable: true },
       { key: 'creditLimit', label: '信用额度', width: '100px', align: 'right', sortable: true },
-      { key: 'prepaidLimit', label: '预充金额上限', width: '120px', align: 'right' },
-      { key: 'remainingPrepaidAmount', label: '剩余预充金额', width: '120px', align: 'right' },
+      { key: 'prepaidLimit', label: '预充金额上限', width: '120px', align: 'right', sortable: true },
+      { key: 'remainingPrepaidAmount', label: '剩余预充金额', width: '120px', align: 'right', sortable: true },
       { key: 'availableBalance', label: '可用余额', width: '100px', align: 'right', sortable: true },
       { key: 'realAmount', label: '真实金额', width: '100px', align: 'right', sortable: true },
       { key: 'frozenAmount', label: '冻结金额', width: '100px', align: 'right', sortable: true },
@@ -2387,5 +2388,6 @@
     }
 
   </script>
+  <script src="../../prototype-kit/admin-shell/admin-shell.js"></script>
 </body>
 </html>

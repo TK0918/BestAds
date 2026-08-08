@@ -1,9 +1,11 @@
 # BestAds 运营端 UI 规范
 
-> 版本：`v1.0.0`
+> 版本：`v2.1.0`
 > 状态：现行规范
 > 首次整理：`2026-08-08`
 > 适用范围：`admin-system/` 下的运营端 HTML 原型，以及后续运营端页面的 PRD/原型视觉与交互基线。
+
+> v1.2.0 及更早版本已废弃。自 v2.0.0 起，OPS 2.0 Figma 作为视觉与组件基线；真实运营端前端和页面契约继续作为字段、枚举、权限、接口和状态机的事实来源。
 
 ## 0. 规范定位
 
@@ -24,10 +26,35 @@
 - 真实客户管理路由：`/customer-list`。
 - HTML 原型入口：按业务页面保留在 `admin-system/` 对应目录，文件名与业务路由保持可定位关系。
 - 参考实现：`前端-运营端-frontend/03-design-system.md`、`04-components.md`、`05-patterns.md`、`06-page-baseline-customer-management.md`。
-- 当前已对齐页面：`admin-system/main-functions/customer-management.html`。
+- 当前已启用 Figma skin 的页面：工作台、客户管理、客户子账号管理、代理管理、介绍人和吐点、返点配置、其他扣费、地区税费、导出中心、系统字典。
 - 当前测试环境参考：[运营端客户管理](https://operation-test-ads.bestads.com/customer-list)。
 
-### 0.2 原型与真实前端的关系
+### 0.2 Figma-first 视觉基线
+
+Figma 文件只读使用，不修改设计文件；本地原型通过 `prototype-kit/admin-shell/figma-ops.css` 消费视觉规则。
+
+| Figma 组件/页面 | 原型映射 | 已确认规则 |
+| --- | --- | --- |
+| `Field` | 输入框、选择器 | 高度 `32px`、圆角 `2px`、边框 `#D9D9D9`、背景 `#FFFFFF`、左右内边距 `12px` |
+| `Tabs` | 页面内 Tab / Legacy Tab | 容器高度 `34px`、背景 `#F5F5F5`、内边距 `3px`、间距 `8px`、圆角 `radius-lg` |
+| `tab选项框` | 单个 Tab | 高度 `28px`、圆角 `radius-md`、白底、边框 `#E5E5E5`、`shadow-sm` |
+| `Card` | 查询卡、列表卡、详情卡 | 白底、边框 `#E5E5E5`、圆角 `radius-xl`（当前原型映射为 `12px`）、`shadow-sm` |
+| `Menu_一级` | 左侧一级菜单 | 高度 `32px`、圆角 `radius-md`、选中背景 `#202020` |
+| `table-cell/action` | 表格行/操作单元格 | 最小高度约 `55px`、左右内边距 `16px`、操作间距 `8px`、底部分隔线使用黑色 `6%` |
+| `Dropdown` | 下拉面板 | 宽度参考 `260px`、最大高度 `416px`、白底、边框 `#E5E5E5`、`shadow-md` |
+| `Range Calendar` | 日期范围选择 | `488px × 293px`、白底、边框 `#E5E5E5`、`shadow-sm` |
+
+Figma 视觉规则的优先级高于历史 HTML 页面中的蓝色按钮、`4px` 输入框圆角和渐变/重阴影。业务页面若必须保留真实系统特例，应在页面契约中写明 `页面特例`，不能静默复制到其他页面。
+
+### 0.3 客户管理首个落地页面
+
+- Figma 页面样例节点：`1075-19511`，页面标题为“商户管理”；BestAds 业务页面仍使用真实路由 `/customer-list` 和“客户管理”文案。
+- 本地入口：`admin-system/main-functions/customer-management.html`。
+- 页面契约：`prototype-kit/admin-contracts/customer-management/page.spec.yml`。
+- Fixture：`prototype-kit/admin-contracts/customer-management/customer-management.fixture.json`。
+- 本页已经启用 `data-figma-ops="true"`；新增页面只需在 `body` 标记同一属性即可复用 skin。
+
+### 0.4 原型与真实前端的关系
 
 - HTML 原型用于业务评审、交互演示和前端实现参考，不默认代表已经接入真实 API。
 - 原型中的字段、枚举、权限、金额和状态必须尽量来自真实测试环境；无法确认时使用 `待确认`，不能把猜测写成已实现事实。
@@ -50,15 +77,15 @@ HTML 原型默认使用以下 CSS 变量；真实前端应优先消费 Ant Desig
 
 ```css
 :root {
-  --admin-primary: #006be6;
-  --admin-page-bg: #f1f3f6;
-  --admin-border: #e4e4e7;
-  --admin-text: rgba(50, 54, 57, .88);
-  --admin-secondary: #606266;
+  --admin-primary: #1677ff;
+  --admin-page-bg: #f7f8fa;
+  --admin-border: #e5e5e5;
+  --admin-text: rgba(10, 10, 10, .88);
+  --admin-secondary: #595959;
   --admin-muted: #8c8c8c;
-  --admin-success: #67c23a;
-  --admin-danger: #f56c6c;
-  --admin-warning: #d7a51a;
+  --admin-success: #389e0d;
+  --admin-danger: #d4380d;
+  --admin-warning: #d48806;
 }
 ```
 
@@ -90,9 +117,10 @@ body.theme-dark {
 | 控件高度 | `32px` | 输入框、选择器、普通按钮的默认高度。 |
 | 弹窗表单控件高度 | `34px` | 仅用于批量操作或编辑弹窗中的表单控件。 |
 | 表格表头高度 | `40px` | 表头文字居中；可排序列显示排序图标。 |
-| 表格行高 | `64px` | 允许 BD/AM 等长文本展示，但不无限撑高。 |
-| 基础圆角 | `4px` | 输入框、按钮、卡片、标签、表格区域。 |
-| 重点弹窗圆角 | `4px` 或 `8px` | 以真实页面同类弹窗为准，不在同一页面混用多种风格。 |
+| 表格行高 | `55px`（最小值） | 对齐 Figma `table-cell/action`；长文本允许按内容增高。 |
+| 输入/选择器圆角 | `2px` | 对齐 Figma `Field`。 |
+| 按钮 / Tab 圆角 | `8px` / `6px` | 对齐 Figma `Buttons`、`Tabs` 和 `tab选项框`。 |
+| 卡片 / 重点弹窗圆角 | `12px` | 对齐 Figma `Card`、`Dropdown` 和弹窗视觉。 |
 | 网格间距 | `8px` / `10px` / `16px` | 依次用于按钮组、弹窗操作区、卡片布局。 |
 
 ### 2.4 字体
@@ -137,6 +165,29 @@ body.theme-dark {
 - 卡片边框使用 `--admin-border`，默认无明显阴影。
 - 查询卡片与列表卡片必须有 `16px` 间隔，不能贴在一起。
 - 表格区域应使用 `min-height: 0`、内部滚动或等效布局，避免内容把页面撑破。
+
+### 3.5 公共 Shell 与菜单配置
+
+运营端 HTML 原型使用公共 Shell 统一承载 Logo、左侧菜单、Header、Tab 和主题切换。业务页面仍然保留在 `admin-system/<业务目录>/<页面>.html`，不迁移到新的页面目录。
+
+- 公共文件目录：`prototype-kit/admin-shell/`。
+- 菜单唯一配置源：`prototype-kit/admin-shell/admin-menu.js`，不得在业务页面中继续维护另一份完整菜单。
+- 每个运营端 HTML 页面在 `</body>` 前引入：
+
+  ```html
+  <script src="../../prototype-kit/admin-shell/admin-shell.js"></script>
+  ```
+
+- `admin-shell.js` 会根据自身脚本地址自动解析仓库根目录，因此同一套页面支持：
+  - `file://` 本地直接打开；
+  - 本地 HTTP 预览；
+  - GitHub Pages 等静态站点部署。
+- 菜单项的 `path` 使用仓库根目录相对路径，例如 `admin-system/main-functions/customer-management.html`；新增页面只需先创建 HTML，再在 `admin-menu.js` 增加一条配置，其他页面刷新后即可看到新菜单。
+- `status: 'planned'` 或没有 `path` 的菜单项展示为“待建设”并禁用跳转，不能伪造一个可访问页面。
+- 菜单分组的展开/折叠状态保存在 `bestads-admin-menu-collapse`；当前页面所在分组始终自动展开。
+- 主题状态保存在 `bestads-theme`，取值为 `light` / `dark`。Shell 会为缺少主题按钮的旧页面自动补充按钮；客户管理页面已有按钮时只接管其统一行为，不重复渲染。
+- 兼容模式：已有 `#sidebar`、`header` 或 `.admin-tab-bar` 的页面保留原有内容区，Shell 运行时替换菜单并增强 Header/Tab。新页面应优先直接保留这三个壳层节点，或使用 `data-admin-shell="sidebar|header|tabs"` 明确标记。
+- 菜单配置变化后，至少回归客户管理页面和一个跨目录页面，确认 active 状态、相对路径、主题切换与 planned 项状态。
 
 ## 4. 查询区规范
 
@@ -195,7 +246,8 @@ body.theme-dark {
 ### 5.2 操作列
 
 - 操作列固定在表格右侧，默认宽度 `280px`。
-- 行内操作允许换行，按钮之间保持约 `7px` 水平间距。
+- 行内操作允许按按钮为单位换行，但单个操作文案不得拆字换行；例如 `子账号管理`、`重置密码` 必须保持在同一行。
+- 操作按钮组使用 `flex-wrap: wrap` 和固定 `gap` 控制间距，不用空格或手写换行控制布局。
 - 操作列背景与表格保持一致，并使用左侧轻微阴影提示固定列。
 - 操作顺序优先：编辑 → 修改账号 → 权限管理 → 子账号管理 → 重置密码；具体页面按业务闭环调整，但不能随机排列。
 
@@ -234,8 +286,13 @@ body.theme-dark {
 
 当前客户管理已确认可排序字段：
 
+- `客户ID`
+- `商户ID`
+- `当前余额`
 - `已用额度`
 - `信用额度`
+- `预充金额上限`
+- `剩余预充金额`
 - `可用余额`
 - `真实金额`
 - `冻结金额`
@@ -374,6 +431,35 @@ body.theme-dark {
 待确认项在确认前应标记为 `待确认`，不能在新原型中伪装成统一规范。
 
 ## 14. 变更记录
+
+### v2.1.0 — 2026-08-09
+
+- 将主要功能下 8 个页面统一启用 OPS 2.0 Figma skin：客户管理、客户子账号管理、代理管理、介绍人和吐点、返点配置、其他扣费、地区税费、导出中心。
+- 明确测试环境页面内容区不展示单独的页面标题和说明；页面定位由 Header 面包屑、页面 Tab 和列表卡片承担。
+- 左侧菜单按测试环境 `/system-dict` 调整：`系统配置` 为一级分组，包含 `预充配置`、`系统字典`、`权限审计日志`、`客户端菜单`、`通知配置`、`消耗下降提醒配置`；`系统配置` 不再放在 `主要功能` 下。
+- 客户管理操作列改为“按钮文案不拆行，按钮组可换行”；新增客户 ID、商户 ID、当前余额、预充金额上限、剩余预充金额的排序能力。
+- `admin-system/main-functions/index.html` 保留为 Git/静态站点入口，但页面身份改为 `工作台`，不再作为 `仪表盘` 菜单页。
+
+### v2.0.0 — 2026-08-08
+
+- 将 OPS 2.0 Figma 设为运营端视觉与组件基线，明确 Figma 只读、不承担字段枚举和权限契约。
+- 新增 `prototype-kit/admin-shell/figma-ops.css`，首个落地页面为客户管理。
+- 固化 Figma `Field`、`Tabs`、`tab选项框`、`Card`、`Menu_一级`、`table-cell/action`、`Dropdown` 和 `Range Calendar` 的已读取尺寸、颜色、圆角和阴影。
+- 新增客户管理页面契约与脱敏 Fixture，页面路径继续保留在 `admin-system/main-functions/`。
+
+### v1.1.0 — 2026-08-08
+
+- 新增 `prototype-kit/admin-shell/` 公共 Shell，统一 Logo、菜单、Header、Tab 和主题切换。
+- 将 `admin-menu.js` 设为运营端菜单唯一配置源；新增页面或菜单项不再要求修改客户管理页面 HTML。
+- 明确 `file://`、本地 HTTP 和 GitHub Pages 的路径解析、planned 菜单项、菜单折叠状态和公共脚本接入规则。
+- 将现有 `admin-system/**/*.html` 页面接入公共 Shell，并保留原有业务目录结构。
+
+### v1.2.0 — 2026-08-08
+
+- 以测试环境真实页面为基线，补齐主要功能菜单下 7 个页面的页面标题、Tab、筛选字段、操作按钮、表格列顺序和测试样例数据。
+- 固化主要功能页面的入口路径：`/customer-sub-account`、`/agent-management`、`/introducer`、`/rebate-config`、`/other-fee`、`/region-tax-fee`、`/export-center`。
+- 新增 `prototype-kit/admin-shell/admin-page.css` 与 `admin-page.js`，统一内容区卡片、筛选、表格、状态 Tag、金额、弹窗、Toast、排序和批量选择交互。
+- 将“导出中心”加入“主要功能”菜单，并实现成功、失败、处理中三种下载状态展示；静态原型仍明确标注测试环境样例，不冒充真实接口。
 
 ### v1.0.0 — 2026-08-08
 

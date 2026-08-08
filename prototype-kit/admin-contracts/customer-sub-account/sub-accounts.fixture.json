@@ -1,0 +1,42 @@
+{
+  "mode": "fixture",
+  "source": "customer-sub-account-page-contract-v0.1.0",
+  "captured_at": "2026-08-08",
+  "page_size": 20,
+  "total": 3,
+  "items": [
+    {
+      "merchantId": "14229",
+      "customerName": "test金额变动",
+      "loginAccount": "456@demo.local",
+      "name": "回归2",
+      "roleName": "角色回归",
+      "balanceAccountCount": 2,
+      "adAccountCount": 0,
+      "status": 1,
+      "lastLoginAt": "2026-08-06 10:21:10"
+    },
+    {
+      "merchantId": "1128",
+      "customerName": "adstest",
+      "loginAccount": "test0520",
+      "name": "测试",
+      "roleName": "超级管理员",
+      "balanceAccountCount": 1,
+      "adAccountCount": 0,
+      "status": 1,
+      "lastLoginAt": "2026-08-03 11:50:34"
+    },
+    {
+      "merchantId": "14229",
+      "customerName": "test金额变动",
+      "loginAccount": "msw_demo@test.local",
+      "name": "MSW_202607280642",
+      "roleName": "MSW_DEMO_ROLE",
+      "balanceAccountCount": 1,
+      "adAccountCount": 0,
+      "status": 1,
+      "lastLoginAt": "2026-07-29 16:43:27"
+    }
+  ]
+}

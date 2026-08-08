@@ -1,0 +1,13 @@
+{
+  "customerSubAccount": {
+    "status": [
+      { "value": 1, "label": "启用", "tone": "success" },
+      { "value": 2, "label": "停用", "tone": "danger" }
+    ]
+  },
+  "formatters": {
+    "countWithUnit": "{value} 个",
+    "datetime": "YYYY-MM-DD HH:mm:ss",
+    "empty": "-"
+  }
+}

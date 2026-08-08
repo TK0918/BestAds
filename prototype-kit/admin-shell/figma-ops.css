@@ -1,0 +1,945 @@
+/*
+ * OPS 2.0 Figma visual skin.
+ *
+ * This file only defines the visual layer. Page fields, dictionaries, permissions
+ * and business state must still come from the real frontend/page contract.
+ * Enable it per page with: <body data-figma-ops="true">.
+ */
+
+body.figma-ops-page {
+  --ops-foreground: #0a0a0a;
+  --ops-secondary: #595959;
+  --ops-muted: #8c8c8c;
+  --ops-page-bg: #f7f8fa;
+  --ops-surface: #ffffff;
+  --ops-muted-surface: #f5f5f5;
+  --ops-border: #e5e5e5;
+  --ops-field-border: #d9d9d9;
+  --ops-divider: rgba(0, 0, 0, .06);
+  --ops-active: #202020;
+  --ops-primary: #1677ff;
+  --ops-success: #389e0d;
+  --ops-danger: #d4380d;
+  --ops-warning: #d48806;
+  --ops-radius-sm: 2px;
+  --ops-radius-md: 6px;
+  --ops-radius-lg: 8px;
+  --ops-radius-xl: 12px;
+  --ops-shadow-xs: 0 1px 2px rgba(0, 0, 0, .10);
+  --ops-shadow-sm: 0 1px 3px rgba(0, 0, 0, .10);
+  --ops-shadow-md: 0 2px 6px rgba(0, 0, 0, .10);
+  --admin-primary: var(--ops-primary);
+  --admin-page-bg: var(--ops-page-bg);
+  --admin-surface: var(--ops-surface);
+  --admin-border: var(--ops-border);
+  --admin-text: rgba(10, 10, 10, .88);
+  --admin-secondary: var(--ops-secondary);
+  --admin-muted: var(--ops-muted);
+  min-width: 1180px;
+  background: var(--ops-page-bg) !important;
+  color: var(--ops-foreground);
+  font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 14px;
+}
+
+body.figma-ops-page > .flex.h-screen,
+body.figma-ops-page #customerPageMain,
+body.figma-ops-page > .flex.h-screen > .flex.flex-col.flex-1 {
+  background: var(--ops-page-bg) !important;
+}
+
+/* Shell: Figma 的一级菜单选中态为 #202020，菜单项高度 32px。 */
+body.figma-ops-page #sidebar {
+  background: var(--ops-surface) !important;
+  border-right-color: var(--ops-border) !important;
+}
+
+body.figma-ops-page #sidebar .admin-shell-nav {
+  padding: 0 12px;
+}
+
+body.figma-ops-page #sidebar .admin-shell-group-toggle {
+  color: var(--ops-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+body.figma-ops-page #sidebar .admin-shell-group-list {
+  gap: 4px;
+}
+
+body.figma-ops-page #sidebar .admin-shell-item {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 8px !important;
+  border-radius: var(--ops-radius-md);
+  color: var(--ops-foreground);
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+body.figma-ops-page #sidebar .admin-shell-item i {
+  width: 16px;
+  min-width: 16px;
+  margin-right: 8px;
+  color: var(--ops-foreground);
+  font-size: 13px;
+}
+
+body.figma-ops-page #sidebar .admin-shell-item:hover {
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page #sidebar .admin-shell-item.is-active {
+  background: var(--ops-active);
+  color: #fff;
+  font-weight: 500 !important;
+}
+
+body.figma-ops-page #sidebar .admin-shell-item.is-active i {
+  color: #fff;
+}
+
+/* Header 与 Legacy Tabs 使用 Figma 的轻边框、紧凑高度。 */
+body.figma-ops-page > .flex.h-screen > .flex.flex-col.flex-1 > header,
+body.figma-ops-page [data-admin-shell="header"] {
+  background: var(--ops-surface) !important;
+  border-bottom-color: #f0f0f0 !important;
+}
+
+body.figma-ops-page [data-admin-shell="breadcrumb"] {
+  color: var(--ops-secondary);
+  font-size: 14px;
+}
+
+body.figma-ops-page [data-admin-shell="breadcrumb"] .text-gray-900,
+body.figma-ops-page [data-admin-shell="breadcrumb"] [aria-current="page"] {
+  color: var(--ops-foreground) !important;
+  font-weight: 500;
+}
+
+body.figma-ops-page .admin-tab-bar,
+body.figma-ops-page [data-admin-shell="tabs"] {
+  min-height: 42px;
+  height: 42px;
+  padding: 4px 16px;
+  border-bottom: 1px solid #f0f0f0 !important;
+  background: var(--ops-surface) !important;
+}
+
+body.figma-ops-page .admin-tabs-scroll {
+  align-items: center;
+  gap: 8px;
+  padding: 3px;
+  border-radius: var(--ops-radius-lg);
+  background: var(--ops-muted-surface);
+  overflow-x: auto;
+}
+
+body.figma-ops-page .admin-page-tab {
+  height: 28px;
+  margin-top: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--ops-radius-md);
+  background: transparent;
+  color: var(--ops-secondary);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+body.figma-ops-page .admin-page-tab:hover {
+  background: rgba(255, 255, 255, .72);
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .admin-page-tab.is-active {
+  background: var(--ops-surface);
+  color: var(--ops-foreground);
+  font-weight: 500;
+  box-shadow: var(--ops-shadow-sm);
+}
+
+body.figma-ops-page .admin-page-tab i {
+  color: var(--ops-muted);
+}
+
+/* 客户管理内容：Figma Card + Field + Table。 */
+body.figma-ops-page .customer-page-content {
+  min-width: 1120px;
+  padding: 20px 24px 24px;
+}
+
+body.figma-ops-page .admin-filter-card,
+body.figma-ops-page .admin-grid-card {
+  border: 1px solid var(--ops-border);
+  border-radius: var(--ops-radius-xl);
+  background: var(--ops-surface);
+  box-shadow: var(--ops-shadow-sm);
+}
+
+body.figma-ops-page .admin-filter-card {
+  min-height: 0;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+body.figma-ops-page .admin-filter-grid {
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+body.figma-ops-page .admin-field {
+  gap: 6px;
+  color: var(--ops-foreground);
+  font-size: 13px;
+}
+
+body.figma-ops-page .admin-field > span {
+  min-height: 20px;
+  color: var(--ops-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+body.figma-ops-page .admin-field input,
+body.figma-ops-page .admin-field select {
+  height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--ops-field-border);
+  border-radius: var(--ops-radius-sm);
+  background: var(--ops-surface);
+  color: var(--ops-foreground);
+  font-size: 14px;
+  box-shadow: none;
+}
+
+body.figma-ops-page .admin-field input::placeholder {
+  color: #bfbfbf;
+}
+
+body.figma-ops-page .admin-field input:focus,
+body.figma-ops-page .admin-field select:focus {
+  border-color: var(--ops-foreground);
+  box-shadow: 0 0 0 2px rgba(10, 10, 10, .06);
+}
+
+body.figma-ops-page .admin-filter-actions {
+  margin-top: 16px;
+  gap: 8px;
+}
+
+body.figma-ops-page .admin-button {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--ops-border);
+  border-radius: var(--ops-radius-lg);
+  background: var(--ops-surface);
+  color: var(--ops-foreground);
+  font-size: 14px;
+  box-shadow: var(--ops-shadow-xs);
+}
+
+body.figma-ops-page .admin-button:hover {
+  border-color: #bfbfbf;
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .admin-button--primary {
+  border-color: var(--ops-active);
+  background: var(--ops-active);
+  color: #fff;
+  box-shadow: none;
+}
+
+body.figma-ops-page .admin-button--primary:hover {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+}
+
+body.figma-ops-page .admin-button:disabled,
+body.figma-ops-page .admin-button:disabled:hover {
+  border-color: var(--ops-border);
+  background: #fafafa;
+  color: #bfbfbf;
+  box-shadow: none;
+}
+
+body.figma-ops-page .admin-command-bar {
+  min-height: 64px;
+  padding: 16px;
+  border-bottom: 1px solid var(--ops-divider);
+}
+
+body.figma-ops-page .admin-command-bar::before {
+  content: "客户列表";
+  margin-right: 16px;
+  color: var(--ops-foreground);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+body.figma-ops-page .admin-command-group {
+  gap: 8px;
+}
+
+body.figma-ops-page .admin-command-bar > .admin-command-group:last-child {
+  margin-left: auto;
+}
+
+body.figma-ops-page .admin-grid-scroll {
+  max-height: calc(100vh - 350px);
+  overflow: auto;
+}
+
+body.figma-ops-page .admin-grid-table {
+  width: 2640px;
+  min-width: 2640px;
+  color: var(--ops-foreground);
+  font-size: 13px;
+}
+
+body.figma-ops-page .admin-grid-table th,
+body.figma-ops-page .admin-grid-table td {
+  min-height: 55px;
+  height: 55px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ops-divider);
+  text-align: left;
+  vertical-align: middle;
+}
+
+body.figma-ops-page .admin-grid-table th {
+  height: 48px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+body.figma-ops-page .admin-grid-table td {
+  color: var(--ops-foreground);
+  line-height: 20px;
+}
+
+body.figma-ops-page .admin-grid-table tbody tr:hover td {
+  background: #fafafa;
+}
+
+body.figma-ops-page .admin-grid-table .admin-check-col,
+body.figma-ops-page .admin-grid-table th.admin-check-col {
+  width: 50px;
+  min-width: 50px;
+  padding-left: 16px;
+  padding-right: 16px;
+  text-align: center !important;
+}
+
+body.figma-ops-page .admin-sort-header {
+  justify-content: flex-start;
+  gap: 6px;
+  color: inherit;
+}
+
+body.figma-ops-page .admin-sort-header.is-right {
+  justify-content: flex-end;
+}
+
+body.figma-ops-page .admin-operation-col {
+  width: 280px;
+  min-width: 280px;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  background: var(--ops-surface);
+  box-shadow: -6px 0 12px rgba(0, 0, 0, .05);
+  text-align: left !important;
+}
+
+body.figma-ops-page .admin-grid-table th.admin-operation-col {
+  background: var(--ops-muted-surface);
+}
+
+body.figma-ops-page .admin-operation-col button,
+body.figma-ops-page .admin-operation-col a {
+  margin: 0;
+  padding: 0;
+  color: var(--ops-foreground);
+  font-size: 13px;
+  line-height: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+body.figma-ops-page .admin-operation-col > div {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+body.figma-ops-page .admin-operation-col button:hover,
+body.figma-ops-page .admin-operation-col a:hover {
+  color: var(--ops-primary);
+  text-decoration: underline;
+}
+
+body.figma-ops-page .admin-tag {
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: var(--ops-radius-md);
+  font-size: 12px;
+  line-height: 22px;
+}
+
+body.figma-ops-page .admin-tag--level {
+  border-color: #d9d9d9;
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .admin-tag--success {
+  border-color: #b7eb8f;
+  background: #f6ffed;
+  color: var(--ops-success);
+}
+
+body.figma-ops-page .admin-tag--danger {
+  border-color: #ffccc7;
+  background: #fff2f0;
+  color: var(--ops-danger);
+}
+
+body.figma-ops-page .admin-pagination {
+  min-height: 56px;
+  padding: 12px 16px;
+  border-top: 0;
+  color: var(--ops-secondary);
+}
+
+body.figma-ops-page .admin-pagination select {
+  height: 32px;
+  border: 1px solid var(--ops-field-border);
+  border-radius: var(--ops-radius-sm);
+  background: var(--ops-surface);
+}
+
+body.figma-ops-page .admin-page-buttons button {
+  min-width: 28px;
+  height: 28px;
+  border-radius: var(--ops-radius-md);
+  color: var(--ops-secondary);
+}
+
+body.figma-ops-page .admin-page-buttons button:hover,
+body.figma-ops-page .admin-page-buttons button.is-active {
+  background: var(--ops-active);
+  color: #fff;
+}
+
+/* admin-page.js 生成的主要功能页面：沿用客户管理同一套 OPS 2.0 组件皮肤。 */
+body.figma-ops-page .admin-page {
+  min-width: 1120px;
+  padding: 20px 24px 24px;
+}
+
+body.figma-ops-page .admin-page__titlebar {
+  margin: 0 0 16px;
+}
+
+body.figma-ops-page .admin-page__title {
+  color: var(--ops-foreground);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+body.figma-ops-page .admin-page__subtitle {
+  margin-top: 4px;
+  color: var(--ops-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+body.figma-ops-page .business-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  min-height: 38px;
+  margin: 0 0 16px;
+  padding: 4px;
+  border: 1px solid var(--ops-border);
+  border-radius: var(--ops-radius-xl);
+  background: var(--ops-surface);
+  box-shadow: var(--ops-shadow-xs);
+}
+
+body.figma-ops-page .business-tab {
+  min-height: 30px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--ops-radius-lg);
+  background: transparent;
+  color: var(--ops-secondary);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+body.figma-ops-page .business-tab:hover {
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .business-tab.is-active {
+  background: var(--ops-active);
+  color: #fff;
+  font-weight: 500;
+}
+
+body.figma-ops-page .admin-card {
+  border: 1px solid var(--ops-border);
+  border-radius: var(--ops-radius-xl);
+  background: var(--ops-surface);
+  box-shadow: var(--ops-shadow-sm);
+}
+
+body.figma-ops-page .admin-card + .admin-card {
+  margin-top: 16px;
+}
+
+body.figma-ops-page .admin-card__header {
+  min-height: 64px;
+  padding: 16px;
+  border-bottom: 1px solid var(--ops-divider);
+}
+
+body.figma-ops-page .admin-card__body {
+  padding: 16px;
+}
+
+body.figma-ops-page .filter-grid,
+body.figma-ops-page .filter-grid.cols-3,
+body.figma-ops-page .filter-grid.cols-5,
+body.figma-ops-page .filter-grid.cols-7,
+body.figma-ops-page .filter-grid--four {
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+body.figma-ops-page .filter-field label,
+body.figma-ops-page .form-field label {
+  margin-bottom: 6px;
+  color: var(--ops-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+body.figma-ops-page .filter-field input,
+body.figma-ops-page .filter-field select,
+body.figma-ops-page .form-field input,
+body.figma-ops-page .form-field select,
+body.figma-ops-page .form-field textarea {
+  height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--ops-field-border);
+  border-radius: var(--ops-radius-sm);
+  background: var(--ops-surface);
+  color: var(--ops-foreground);
+  box-shadow: none;
+}
+
+body.figma-ops-page .form-field textarea {
+  min-height: 84px;
+}
+
+body.figma-ops-page .filter-field input::placeholder,
+body.figma-ops-page .form-field input::placeholder,
+body.figma-ops-page .form-field textarea::placeholder {
+  color: #bfbfbf;
+}
+
+body.figma-ops-page .filter-field input:focus,
+body.figma-ops-page .filter-field select:focus,
+body.figma-ops-page .form-field input:focus,
+body.figma-ops-page .form-field select:focus,
+body.figma-ops-page .form-field textarea:focus {
+  border-color: var(--ops-foreground);
+  box-shadow: 0 0 0 2px rgba(10, 10, 10, .06);
+}
+
+body.figma-ops-page .filter-actions {
+  gap: 8px;
+  padding-top: 0;
+}
+
+body.figma-ops-page .btn {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--ops-radius-lg);
+  color: var(--ops-foreground);
+  font-size: 14px;
+  box-shadow: var(--ops-shadow-xs);
+}
+
+body.figma-ops-page .btn-default {
+  border-color: var(--ops-border);
+  background: var(--ops-surface);
+}
+
+body.figma-ops-page .btn-default:hover:not(:disabled) {
+  border-color: #bfbfbf;
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .btn-primary {
+  border-color: var(--ops-active);
+  background: var(--ops-active);
+  color: #fff;
+  box-shadow: none;
+}
+
+body.figma-ops-page .btn-primary:hover:not(:disabled) {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+}
+
+body.figma-ops-page .btn-danger {
+  border-color: var(--ops-danger);
+  background: var(--ops-danger);
+  color: #fff;
+}
+
+body.figma-ops-page .btn-link {
+  height: auto;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ops-foreground);
+  box-shadow: none;
+}
+
+body.figma-ops-page .btn-link:hover:not(:disabled) {
+  color: var(--ops-primary);
+  text-decoration: underline;
+}
+
+body.figma-ops-page .btn-link-danger {
+  color: var(--ops-danger);
+}
+
+body.figma-ops-page .command-bar {
+  width: 100%;
+  gap: 16px;
+}
+
+body.figma-ops-page .command-group {
+  gap: 8px;
+}
+
+body.figma-ops-page .admin-card__header .muted {
+  color: var(--ops-secondary);
+  font-size: 13px;
+}
+
+body.figma-ops-page .table-scroll {
+  max-height: calc(100vh - 350px);
+  overflow: auto;
+}
+
+body.figma-ops-page .admin-table {
+  color: var(--ops-foreground);
+  font-size: 13px;
+}
+
+body.figma-ops-page .admin-table th,
+body.figma-ops-page .admin-table td {
+  height: 55px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ops-divider);
+  color: var(--ops-foreground);
+  text-align: left;
+  vertical-align: middle;
+}
+
+body.figma-ops-page .admin-table th {
+  height: 48px;
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+body.figma-ops-page .admin-table th.num,
+body.figma-ops-page .admin-table td.num {
+  text-align: right;
+}
+
+body.figma-ops-page .admin-table th.left,
+body.figma-ops-page .admin-table td.left {
+  text-align: left;
+}
+
+body.figma-ops-page .admin-table tbody tr:hover td {
+  background: #fafafa;
+}
+
+body.figma-ops-page .admin-table .ops {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  min-width: 180px;
+  background: var(--ops-surface);
+  box-shadow: -6px 0 12px rgba(0, 0, 0, .05);
+  text-align: left;
+}
+
+body.figma-ops-page .admin-table th.ops {
+  z-index: 3;
+  background: var(--ops-muted-surface);
+}
+
+body.figma-ops-page .admin-table tbody tr:hover td.ops {
+  background: #fafafa;
+}
+
+body.figma-ops-page .admin-table .ops .command-group {
+  flex-wrap: nowrap;
+  gap: 14px;
+}
+
+body.figma-ops-page .sort-trigger {
+  color: inherit;
+}
+
+body.figma-ops-page .sort-trigger i {
+  color: var(--ops-muted);
+}
+
+body.figma-ops-page .sort-trigger.is-asc i,
+body.figma-ops-page .sort-trigger.is-desc i {
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .status-tag {
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--ops-radius-md);
+  font-size: 12px;
+  line-height: 22px;
+}
+
+body.figma-ops-page .status-success {
+  border-color: #b7eb8f;
+  background: #f6ffed;
+  color: var(--ops-success);
+}
+
+body.figma-ops-page .status-danger {
+  border-color: #ffccc7;
+  background: #fff2f0;
+  color: var(--ops-danger);
+}
+
+body.figma-ops-page .status-warning {
+  border-color: #ffe58f;
+  background: #fffbe6;
+  color: var(--ops-warning);
+}
+
+body.figma-ops-page .status-info {
+  border-color: #d9d9d9;
+  background: var(--ops-muted-surface);
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .pagination {
+  min-height: 56px;
+  padding: 12px 16px;
+  color: var(--ops-secondary);
+}
+
+body.figma-ops-page .page-number {
+  min-width: 28px;
+  height: 28px;
+  border-color: var(--ops-border);
+  border-radius: var(--ops-radius-md);
+  background: var(--ops-surface);
+  color: var(--ops-secondary);
+}
+
+body.figma-ops-page .page-number.is-active,
+body.figma-ops-page .page-number:hover:not(:disabled) {
+  border-color: var(--ops-active);
+  background: var(--ops-active);
+  color: #fff;
+}
+
+body.figma-ops-page .notice {
+  border-color: var(--ops-border);
+  border-radius: var(--ops-radius-lg);
+  background: var(--ops-muted-surface);
+  color: var(--ops-secondary);
+}
+
+body.figma-ops-page .toast {
+  border-color: var(--ops-border);
+  border-radius: var(--ops-radius-lg);
+  background: var(--ops-surface);
+  color: var(--ops-foreground);
+  box-shadow: var(--ops-shadow-md);
+}
+
+/* Figma Card / Modal：圆角 12、边框 #E5E5E5、shadow-sm/md。 */
+body.figma-ops-page .modal-backdrop {
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(2px);
+}
+
+body.figma-ops-page .modal-backdrop > div > div,
+body.figma-ops-page .modal,
+body.figma-ops-page .default-permission-dialog,
+body.figma-ops-page .batch-modal-dialog {
+  border: 1px solid var(--ops-border);
+  border-radius: var(--ops-radius-xl);
+  background: var(--ops-surface) !important;
+  box-shadow: var(--ops-shadow-md);
+}
+
+body.figma-ops-page .modal__header,
+body.figma-ops-page .modal__footer,
+body.figma-ops-page .batch-modal-header,
+body.figma-ops-page .batch-modal-footer {
+  border-color: var(--ops-divider);
+}
+
+body.figma-ops-page .modal__title,
+body.figma-ops-page .modal-backdrop h3 {
+  color: var(--ops-foreground);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+body.figma-ops-page .modal__close {
+  color: var(--ops-muted);
+}
+
+body.figma-ops-page .form-field input,
+body.figma-ops-page .form-field select,
+body.figma-ops-page .form-field textarea,
+body.figma-ops-page .batch-modal-form input,
+body.figma-ops-page .batch-modal-form select {
+  border-color: var(--ops-field-border);
+  border-radius: var(--ops-radius-sm);
+  background: var(--ops-surface);
+}
+
+body.figma-ops-page .modal__footer .btn,
+body.figma-ops-page .batch-modal-footer button {
+  min-height: 32px;
+  border-radius: var(--ops-radius-lg);
+}
+
+body.figma-ops-page.theme-dark {
+  --ops-foreground: rgba(255, 255, 255, .92);
+  --ops-secondary: #b7b9bf;
+  --ops-muted: #858990;
+  --ops-page-bg: #18191c;
+  --ops-surface: #1f2024;
+  --ops-muted-surface: #24262b;
+  --ops-border: #34363b;
+  --ops-field-border: #45484f;
+  --ops-divider: rgba(255, 255, 255, .10);
+  --ops-active: #f5f5f5;
+  --ops-primary: #5b9cff;
+  --admin-text: rgba(255, 255, 255, .88);
+  background: var(--ops-page-bg) !important;
+}
+
+body.figma-ops-page.theme-dark .admin-button--primary,
+body.figma-ops-page.theme-dark .admin-page-buttons button:hover,
+body.figma-ops-page.theme-dark .admin-page-buttons button.is-active {
+  background: #f5f5f5;
+  border-color: #f5f5f5;
+  color: #1f2024;
+}
+
+body.figma-ops-page.theme-dark #sidebar .admin-shell-item.is-active {
+  background: #f5f5f5;
+  color: #1f2024;
+}
+
+body.figma-ops-page.theme-dark #sidebar .admin-shell-item.is-active i {
+  color: #1f2024;
+}
+
+body.figma-ops-page.theme-dark .admin-grid-table tbody tr:hover td {
+  background: #292b30;
+}
+
+body.figma-ops-page.theme-dark .admin-operation-col,
+body.figma-ops-page.theme-dark .admin-grid-table td.admin-operation-col {
+  background: var(--ops-surface);
+}
+
+body.figma-ops-page.theme-dark .business-tab.is-active,
+body.figma-ops-page.theme-dark .btn-primary,
+body.figma-ops-page.theme-dark .btn-primary:hover:not(:disabled),
+body.figma-ops-page.theme-dark .page-number.is-active,
+body.figma-ops-page.theme-dark .page-number:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #f5f5f5;
+  color: #1f2024;
+}
+
+body.figma-ops-page.theme-dark .admin-card,
+body.figma-ops-page.theme-dark .business-tabs,
+body.figma-ops-page.theme-dark .modal,
+body.figma-ops-page.theme-dark .toast,
+body.figma-ops-page.theme-dark .account-check-list {
+  border-color: var(--ops-border);
+  background: var(--ops-surface);
+}
+
+body.figma-ops-page.theme-dark .admin-table th,
+body.figma-ops-page.theme-dark .admin-table th.ops {
+  background: var(--ops-muted-surface);
+}
+
+body.figma-ops-page.theme-dark .admin-table tbody tr:hover td,
+body.figma-ops-page.theme-dark .admin-table tbody tr:hover td.ops {
+  background: #292b30;
+}
+
+body.figma-ops-page.theme-dark .admin-table .ops {
+  background: var(--ops-surface);
+  box-shadow: -6px 0 12px rgba(0, 0, 0, .22);
+}
+
+@media (max-width: 1280px) {
+  body.figma-ops-page .admin-filter-grid,
+  body.figma-ops-page .filter-grid,
+  body.figma-ops-page .filter-grid.cols-3,
+  body.figma-ops-page .filter-grid.cols-5,
+  body.figma-ops-page .filter-grid.cols-7,
+  body.figma-ops-page .filter-grid--four {
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+  }
+}

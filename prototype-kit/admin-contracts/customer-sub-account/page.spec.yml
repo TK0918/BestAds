@@ -1,0 +1,260 @@
+version: 0.1.0
+status: baseline-revision-1
+page:
+  id: customer-sub-account
+  title: 客户子账号管理
+  real_route: /customer-sub-account
+  prototype_entry: admin-system/main-functions/customer-sub-account-management.html
+  source_status: 已验证
+  source_notes: 以测试环境当前页面、运营端前端上下文和本轮用户验收为基线；数据使用评审 Fixture，不复制登录态。所属客户、角色和广告账户的完整远程枚举仍需在测试环境回归时确认。
+
+shell:
+  required:
+    - logo
+    - sidebar
+    - header
+    - breadcrumb
+    - page_tabs
+    - theme_toggle
+  breadcrumb:
+    - 主要功能
+    - 客户子账号管理
+  page_tabs:
+    - 工作台
+    - 客户管理
+    - 客户子账号管理
+  page_content:
+    titlebar: false
+    note: 真实页面在业务 Tab 上方不展示页面标题和说明副标题。
+
+business_tabs:
+  - id: roles
+    label: 角色管理
+    source_status: 已验证
+    filters:
+      - key: merchantId
+        label: 商户ID
+        control: text
+        placeholder: 输入商户ID
+      - key: customerName
+        label: 客户名称
+        control: text
+        placeholder: 输入客户名称
+      - key: roleName
+        label: 角色名
+        control: text
+        placeholder: 输入角色名
+      - key: status
+        label: 状态
+        control: select
+        placeholder: 选择状态
+        dictionary: customerSubAccount.status
+    layout:
+      filter_columns: 4
+      filter_width: equal
+    actions:
+      - id: create-role
+        label: 创建角色
+        permission: customer-sub-account.role.create
+    columns:
+      - key: merchantId
+        label: 商户ID
+        align: center
+      - key: customerName
+        label: 客户名称
+        align: left
+        header_align: left
+      - key: roleName
+        label: 角色名
+        align: left
+        header_align: left
+      - key: boundUsers
+        label: 绑定用户数
+        align: center
+      - key: status
+        label: 状态
+        formatter: customerSubAccount.status
+      - key: updatedAt
+        label: 更新时间
+        align: center
+      - key: actions
+        label: 操作
+        fixed: right
+    row_actions:
+      - label: 编辑
+        permission: customer-sub-account.role.edit
+      - label: 状态切换
+        state_dependent: true
+    modal_titles:
+      create: 创建角色
+      edit: 编辑角色
+
+  - id: sub-accounts
+    label: 子账号管理
+    source_status: 已验证
+    filters:
+      - key: loginAccount
+        label: 登录账号
+        control: text
+        placeholder: 输入登录账号
+      - key: merchantId
+        label: 商户ID
+        control: text
+        placeholder: 输入商户ID
+      - key: customerName
+        label: 客户名称
+        control: text
+        placeholder: 输入客户名称
+      - key: status
+        label: 状态
+        control: select
+        placeholder: 选择状态
+        dictionary: customerSubAccount.status
+    filter_layout:
+      columns: 4
+      width: equal
+    actions:
+      - id: create-sub-account
+        label: 创建子账号
+        permission: customer-sub-account.sub-account.create
+    columns:
+      - key: merchantId
+        label: 商户ID
+        align: center
+      - key: customerName
+        label: 客户名称
+        align: center
+      - key: loginAccount
+        label: 登录账号
+        align: left
+      - key: name
+        label: 姓名
+        align: center
+      - key: roleName
+        label: 绑定角色
+        align: center
+      - key: balanceAccountCount
+        label: 管理余额账户
+        formatter: countWithUnit
+        align: center
+      - key: adAccountCount
+        label: 管理广告账户
+        formatter: countWithUnit
+        align: center
+      - key: status
+        label: 状态
+        formatter: customerSubAccount.status
+      - key: lastLoginAt
+        label: 最近登录
+        formatter: datetime
+        align: center
+      - key: actions
+        label: 操作
+        fixed: right
+    layout:
+      table: fixed
+      min_width: 1480
+      widths:
+        merchantId: 100
+        customerName: 180
+        loginAccount: 220
+        name: 110
+        roleName: 180
+        balanceAccountCount: 125
+        adAccountCount: 125
+        status: 100
+        lastLoginAt: 180
+        actions: 240
+    row_actions:
+      - label: 编辑
+        permission: customer-sub-account.sub-account.edit
+      - label: 重置密码
+        permission: customer-sub-account.sub-account.reset-password
+        confirmation: required
+    action_layout:
+      type: link
+      gap: 16
+      fixed_width: 240
+
+modals:
+  - id: create-sub-account
+    title: 创建子账号
+    source_status: 已验证
+    fields:
+      - key: customerId
+        label: 所属客户
+        control: customer-select
+        required: true
+      - key: loginAccount
+        label: 登录账号
+        control: text
+        required: true
+      - key: name
+        label: 姓名
+        control: text
+        required: true
+      - key: initialPassword
+        label: 初始密码
+        control: password
+        required: true
+      - key: roleId
+        label: 绑定角色
+        control: role-select
+        required: true
+      - key: status
+        label: 状态
+        control: status-select
+        dictionary: customerSubAccount.status
+        required: true
+      - key: balanceAccountIds
+        label: 管理余额的广告账户
+        control: account-multi-select
+        required: false
+      - key: adAccountIds
+        label: 管理广告的广告账户
+        control: account-multi-select
+        required: false
+    layout:
+      columns: 2
+    submit:
+      loading: true
+      success: close-refresh-toast
+      failure: keep-open-show-error
+
+  - id: reset-password
+    title: 重置密码
+    source_status: 已验证
+    confirmation: required
+    submit:
+      loading: true
+      success: close-toast
+      failure: keep-open-show-error
+
+states:
+  - default
+  - loading
+  - empty
+  - request-error
+  - no-permission
+  - modal-validation-error
+  - submitting
+  - submit-success
+  - submit-failure
+
+data_modes:
+  fixture: prototype-kit/admin-contracts/customer-sub-account/sub-accounts.fixture.json
+  live: requires_same_api_or_authorized_proxy
+
+acceptance:
+  - shell and page tabs match the active real-system baseline
+  - active business tab has the exact filter order and labels
+  - table columns, operation order, empty values and status labels match the contract
+  - create-sub-account modal fields match the contract
+  - reset-password requires confirmation and supports submitting/success/failure states
+  - reset-password row action uses danger text color and danger confirmation button
+  - filter controls use four equal columns at the target desktop viewport
+  - edit action opens the page-specific edit modal title and field layout
+  - role-table text columns keep header and body left aligned consistently
+  - page title and subtitle are not rendered above the business tabs
+  - both business-tab tables use fixed column widths so headers and cells share vertical alignment
+  - fixture mode is deterministic and contains no login token or production credential

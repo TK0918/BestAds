@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-CN" data-surface="client-web" data-theme="light" data-h5-theme="md2-light" data-view="desktop">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="BestAds 公共样式与组件预览中心" />
+    <title>BestAds · 组件预览中心</title>
+    <link rel="stylesheet" href="./showcase.css" />
+  </head>
+  <body>
+    <div class="showcase-app">
+      <aside class="showcase-sidebar" aria-label="组件目录">
+        <div class="brand-lockup">
+          <div class="brand-mark" data-profile="brand-mark">B</div>
+          <div>
+            <div class="brand-name" data-profile="brand-name">BestAds</div>
+            <div class="brand-caption" data-profile="brand-caption">Prototype Kit</div>
+          </div>
+        </div>
+
+        <nav class="side-nav">
+          <a class="side-nav__item is-active" href="#overview"><span class="nav-icon">⌂</span>预览总览</a>
+          <a class="side-nav__item" href="#tokens"><span class="nav-icon">◈</span>Design Tokens</a>
+          <a class="side-nav__item" href="#primitives"><span class="nav-icon">✦</span>基础组件</a>
+          <a class="side-nav__item" href="#data-display"><span class="nav-icon">▤</span>数据展示</a>
+          <a class="side-nav__item" href="#feedback"><span class="nav-icon">◌</span>反馈与状态</a>
+          <a class="side-nav__item" href="#business"><span class="nav-icon">￥</span>BestAds 业务组件</a>
+          <a class="side-nav__item admin-nav-item" href="#admin-components"><span class="nav-icon">◫</span>运营端组件基线</a>
+          <a class="side-nav__item admin-nav-item" href="#admin-baseline"><span class="nav-icon">▦</span>运营端页面基线</a>
+        </nav>
+
+        <div class="sidebar-note">
+          <div class="sidebar-note__title">当前基线</div>
+          <div class="sidebar-note__text" data-profile="surface-note">客户端 Web：Element Plus<br />H5：Varlet + UnoCSS<br />运营端：Vben + Ant Design Vue + VXE Grid</div>
+          <div class="sidebar-note__commit">来源：前端上下文 · 2026-06-09</div>
+        </div>
+      </aside>
+
+      <main class="showcase-main">
+        <header class="showcase-toolbar">
+          <div class="toolbar-breadcrumb"><span>Prototype Kit</span><span class="breadcrumb-separator">/</span><strong>组件预览中心</strong></div>
+          <div class="toolbar-controls">
+            <label class="control-field">
+              <span>端</span>
+              <select id="surfaceSelect" aria-label="选择产品端">
+                <option value="client-web">客户端 Web</option>
+                <option value="h5">客户端 H5</option>
+                <option value="admin">运营端 Admin</option>
+              </select>
+            </label>
+            <label class="control-field h5-only-control">
+              <span>H5 主题</span>
+              <select id="h5ThemeSelect" aria-label="选择 H5 主题">
+                <option value="md2-light">md2-light</option>
+                <option value="md2-dark">md2-dark</option>
+                <option value="md3-light">md3-light</option>
+                <option value="md3-dark">md3-dark</option>
+              </select>
+            </label>
+            <div class="control-field">
+              <span>主题</span>
+              <div class="segmented" role="group" aria-label="切换主题">
+                <button class="segment-button is-active" type="button" data-theme="light">浅色</button>
+                <button class="segment-button" type="button" data-theme="dark">深色</button>
+              </div>
+            </div>
+            <div class="control-field">
+              <span>视口</span>
+              <div class="segmented" role="group" aria-label="切换视口">
+                <button class="segment-button is-active" type="button" data-view="desktop">桌面</button>
+                <button class="segment-button" type="button" data-view="mobile">375</button>
+              </div>
+            </div>
+            <button class="icon-button" type="button" id="resetDemo" title="恢复默认预览状态" aria-label="恢复默认预览状态">↺</button>
+          </div>
+        </header>
+
+        <div class="showcase-canvas">
+          <section class="intro-section" id="overview">
+            <div>
+              <div class="eyebrow">BESTADS · COMPONENT PLAYGROUND</div>
+              <h1 data-profile="intro-title">先确认组件，再应用到业务页面</h1>
+              <p data-profile="intro-copy">这里展示基于真实客户端 Web 与 H5 前端上下文整理的视觉 Token、组件状态和业务组件。所有示例都是可交互的，确认后再迁移到现有原型。</p>
+            </div>
+            <div class="intro-meta">
+              <span class="status-pill status-pill--success"><i></i>可交互预览</span>
+              <span class="version-chip">v0.1 · draft</span>
+            </div>
+          </section>
+
+          <section class="section-block" id="tokens">
+            <div class="section-heading">
+              <div><span class="section-kicker">01</span><h2>Design Tokens</h2><p>颜色、字体、间距和密度随当前端自动切换。</p></div>
+              <span class="component-badge">真实前端来源</span>
+            </div>
+            <div class="token-grid">
+              <article class="token-card token-card--colors">
+                <div class="token-card__title">语义颜色</div>
+                <div class="swatch-list">
+                  <div class="swatch-row"><span class="swatch swatch-primary"></span><span><b>Primary</b><small id="primaryToken">#2759ff</small></span></div>
+                  <div class="swatch-row"><span class="swatch swatch-success"></span><span><b>Success</b><small id="successToken">#00b42a</small></span></div>
+                  <div class="swatch-row"><span class="swatch swatch-warning"></span><span><b>Warning</b><small id="warningToken">#ff7d00</small></span></div>
+                  <div class="swatch-row"><span class="swatch swatch-danger"></span><span><b>Danger</b><small id="dangerToken">#f53f3f</small></span></div>
+                  <div class="swatch-row"><span class="swatch swatch-info"></span><span><b>Info</b><small id="infoToken">#c9cdd4</small></span></div>
+                </div>
+              </article>
+              <article class="token-card token-card--type">
+                <div class="token-card__title">字体与密度</div>
+                <div class="type-sample type-sample--title">BestAds 账户管理</div>
+                <div class="type-sample type-sample--body" data-profile="type-copy">12px compact enterprise UI / 14px mobile list</div>
+                <div class="type-metrics"><span><b id="baseFontToken">12px</b><small id="baseFontLabel">Web 基础字号</small></span><span><b id="controlHeightToken">32px</b><small>控件高度</small></span><span><b id="radiusToken">8px</b><small>基础圆角</small></span></div>
+              </article>
+              <article class="token-card token-card--space">
+                <div class="token-card__title">间距与圆角</div>
+                <div class="space-demo"><span class="space-bar space-bar--1"></span><span>4</span><span class="space-bar space-bar--2"></span><span>8</span><span class="space-bar space-bar--3"></span><span>16</span><span class="space-bar space-bar--4"></span><span>24</span></div>
+                <div class="radius-demo"><span class="radius-box radius-box--sm">4</span><span class="radius-box radius-box--md">8</span><span class="radius-box radius-box--lg">10</span><span class="radius-box radius-box--pill">Pill</span></div>
+                <small class="token-help" data-profile="token-help">Web 以 4px 网格和 16px 页面间距为基线；H5 卡片圆角为 10px。</small>
+              </article>
+            </div>
+          </section>
+
+          <section class="section-block" id="primitives">
+            <div class="section-heading">
+              <div><span class="section-kicker">02</span><h2>基础组件</h2><p>组件名称与真实前端上下文保持一致，便于后续映射到 Vue。</p></div>
+              <span class="component-badge" data-profile="primitives-badge">BestQueryForm · BestTable · BestStatus</span>
+            </div>
+            <div class="component-grid">
+              <article class="demo-card demo-card--wide">
+                <div class="demo-card__header"><div><h3>Button / 按钮</h3><span class="component-id" data-profile="button">el-button / var-button / best-button</span></div><span class="api-label">size: default</span></div>
+                <div class="demo-row demo-row--wrap">
+                  <button class="best-button best-button--primary" type="button">主要操作</button>
+                  <button class="best-button best-button--secondary" type="button">次要操作</button>
+                  <button class="best-button best-button--plain" type="button">朴素按钮</button>
+                  <button class="best-button best-button--danger" type="button">危险操作</button>
+                  <button class="best-button best-button--text" type="button">文字按钮</button>
+                  <button class="best-button best-button--primary is-loading" type="button"><i class="spinner"></i>提交中</button>
+                  <button class="best-button best-button--primary" type="button" disabled>禁用</button>
+                </div>
+                <div class="demo-caption" data-profile="button-caption">Web 控件高度 32px、基础圆角 8px；H5 使用 Varlet 的按钮圆角和主题色映射。</div>
+              </article>
+
+              <article class="demo-card">
+                <div class="demo-card__header"><div><h3>Form / 表单</h3><span class="component-id" data-profile="form">BestQueryForm · BestFormItem</span></div><span class="api-label">label-width: 72px</span></div>
+                <div class="form-demo">
+                  <label class="field-group"><span>广告账户</span><select><option>全部账户</option><option>Meta · 238-401-982</option><option>TikTok · 710-293-118</option></select></label>
+                  <label class="field-group"><span>查询关键词</span><input placeholder="请输入账户名称或 ID" /></label>
+                  <label class="field-group"><span>状态</span><select><option>全部状态</option><option>正常</option><option>处理中</option></select></label>
+                  <div class="form-actions"><button class="best-button best-button--primary" type="button">查询</button><button class="best-button best-button--text" type="button">重置</button></div>
+                </div>
+              </article>
+
+              <article class="demo-card">
+                <div class="demo-card__header"><div><h3>Status / 状态</h3><span class="component-id" data-profile="status">BestStatus · var-chip</span></div><span class="api-label">dict: rechargeStatus</span></div>
+                <div class="demo-row demo-row--wrap status-demo">
+                  <span class="status-pill status-pill--success"><i></i>已完成</span>
+                  <span class="status-pill status-pill--warning"><i></i>处理中</span>
+                  <span class="status-pill status-pill--danger"><i></i>失败</span>
+                  <span class="status-pill status-pill--waiting"><i></i>待人工处理</span>
+                  <span class="status-pill status-pill--info"><i></i>未开始</span>
+                </div>
+                <div class="demo-caption" data-profile="status-caption">客户端 Web 使用 `BestStatus` dot + text；H5 使用 `var-chip size="mini"`。</div>
+              </article>
+            </div>
+          </section>
+
+          <section class="section-block" id="data-display">
+            <div class="section-heading">
+              <div><span class="section-kicker">03</span><h2>数据展示</h2><p>通过顶部“状态”控制器切换表格的加载、空数据、错误和无权限态。</p></div>
+              <label class="state-control"><span>状态</span><select id="stateSelect"><option value="default">默认</option><option value="loading">加载中</option><option value="empty">空数据</option><option value="error">网络错误</option><option value="authority">没有权限</option></select></label>
+            </div>
+            <article class="demo-card table-demo" data-demo-state="default">
+              <div class="demo-card__header"><div><h3>Account Table / 账户列表</h3><span class="component-id" data-profile="table">BestTable · default page size: 20</span></div><div class="table-actions"><button class="best-button best-button--plain" type="button">自定义列</button><button class="best-button best-button--primary" type="button" data-open-drawer>充值</button></div></div>
+              <div class="table-shell">
+                <div class="table-state table-state--loading"><i class="large-spinner"></i><span>数据加载中...</span></div>
+                <div class="table-state table-state--empty"><div class="state-illustration">∅</div><strong>暂无数据</strong><span>调整筛选条件后再试试</span></div>
+                <div class="table-state table-state--error"><div class="state-illustration state-illustration--danger">!</div><strong>网络异常</strong><span>数据加载失败，请重试</span><button class="best-button best-button--plain" type="button" data-retry>重新查询</button></div>
+                <div class="table-state table-state--authority"><div class="state-illustration state-illustration--muted">◌</div><strong>没有权限</strong><span>当前账号无法查看此页面</span></div>
+                <table class="best-table">
+                  <thead><tr><th><input class="checkbox" type="checkbox" aria-label="全选" /></th><th>广告账户</th><th>媒体 / 账户类型</th><th>账户余额</th><th>状态</th><th>最近消耗</th><th>操作</th></tr></thead>
+                  <tbody>
+                    <tr><td><input class="checkbox" type="checkbox" /></td><td><strong>BestAds Meta US 01</strong><small>238-401-982</small></td><td><span class="platform-badge platform-badge--meta">Meta</span><span class="table-secondary">企业户</span></td><td><strong>$12,480.00</strong></td><td><span class="status-pill status-pill--success"><i></i>正常</span></td><td>$1,280.44</td><td><button class="table-link" type="button" data-open-drawer>充值</button><button class="table-link" type="button">详情</button></td></tr>
+                    <tr><td><input class="checkbox" type="checkbox" /></td><td><strong>Growth TikTok UK</strong><small>710-293-118</small></td><td><span class="platform-badge platform-badge--tiktok">TikTok</span><span class="table-secondary">企业户</span></td><td><strong>$5,800.00</strong></td><td><span class="status-pill status-pill--waiting"><i></i>审核中</span></td><td>$650.12</td><td><button class="table-link" type="button">详情</button></td></tr>
+                    <tr><td><input class="checkbox" type="checkbox" /></td><td><strong>Northstar Google</strong><small>983-229-001</small></td><td><span class="platform-badge platform-badge--google">Google</span><span class="table-secondary">海外户</span></td><td><strong>$0.01</strong></td><td><span class="status-pill status-pill--warning"><i></i>低余额</span></td><td>$3,010.30</td><td><button class="table-link" type="button" data-open-drawer>充值</button><button class="table-link" type="button">详情</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="table-footer"><span>共 128 条</span><button class="pager-button is-active" type="button">1</button><button class="pager-button" type="button">2</button><button class="pager-button" type="button">3</button><button class="pager-button" type="button">›</button><select><option>20 / 页</option><option>50 / 页</option><option>100 / 页</option></select></div>
+            </article>
+          </section>
+
+          <section class="section-block" id="feedback">
+            <div class="section-heading"><div><span class="section-kicker">04</span><h2>反馈与状态</h2><p>业务页面最容易遗漏的不是默认态，而是异常和权限态。</p></div></div>
+            <div class="state-grid">
+              <article class="state-card"><div class="state-icon state-icon--loading"><i class="large-spinner"></i></div><strong>Loading</strong><span>数据加载中...</span></article>
+              <article class="state-card"><div class="state-icon state-icon--empty">∅</div><strong>Empty</strong><span>暂无数据</span></article>
+              <article class="state-card"><div class="state-icon state-icon--error">!</div><strong>Error</strong><span>网络异常，可重新查询</span></article>
+              <article class="state-card"><div class="state-icon state-icon--authority">◌</div><strong>Authority</strong><span>没有权限</span></article>
+            </div>
+          </section>
+
+          <section class="section-block" id="business">
+            <div class="section-heading"><div><span class="section-kicker">05</span><h2>BestAds 业务组件</h2><p data-profile="business-copy">先验证资金、账户和移动端核心组件，再迁移到业务页面。</p></div><span class="component-badge" data-profile="business-badge">Wallet · Recharge · PlatformBadge</span></div>
+            <div class="business-grid">
+              <article class="wallet-card">
+                <div class="wallet-card__top"><div><span class="wallet-card__eyebrow">可用余额</span><strong>$28,430.56</strong></div><button class="wallet-more" type="button">···</button></div>
+                <div class="wallet-card__metrics"><span><small>钱包余额</small><b>$20,100.56</b></span><span><small>剩余额度</small><b>$8,330.00</b></span><span><small>在途金额</small><b>$1,240.00</b></span></div>
+                <div class="wallet-card__actions"><button class="best-button best-button--primary" type="button" data-open-drawer>在线充值</button><button class="best-button best-button--secondary" type="button">转账记录</button></div>
+              </article>
+              <article class="demo-card account-card-demo">
+                <div class="demo-card__header"><div><h3>Mobile Account Card / H5 账户卡片</h3><span class="component-id">var-card · var-chip · bottom popup</span></div></div>
+                <div class="mobile-account-card"><div class="account-card__header"><div><span class="platform-badge platform-badge--meta">Meta</span><strong>BestAds Meta US 01</strong><small>238-401-982</small></div><span class="status-pill status-pill--success"><i></i>正常</span></div><div class="account-card__amount"><span>账户余额</span><strong>$12,480.00</strong></div><div class="account-card__footer"><span>今日消耗 $1,280.44</span><button class="best-button best-button--primary best-button--small" type="button" data-open-drawer>充值</button><button class="best-button best-button--plain best-button--small" type="button">减款</button></div></div>
+              </article>
+              <article class="demo-card amount-demo">
+                <div class="demo-card__header"><div><h3>Amount Form / 金额表单</h3><span class="component-id">recharge.vue · deducte.vue</span></div></div>
+                <div class="amount-form"><label class="field-group"><span>充值金额 (USD)</span><div class="amount-input"><span>$</span><input id="amountInput" value="500.00" inputmode="decimal" /><span class="amount-suffix">USD</span></div></label><div class="preset-row"><button type="button" data-amount="100">$100</button><button type="button" data-amount="200">$200</button><button class="is-active" type="button" data-amount="500">$500</button><button type="button" data-amount="1000">$1,000</button></div><div class="amount-summary"><span>预计服务费</span><b>$25.00</b><span>预计扣款</span><strong>$525.00</strong></div><button class="best-button best-button--primary best-button--full" type="button" data-open-drawer>提交充值</button></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="section-block admin-only" id="admin-components">
+            <div class="section-heading"><div><span class="section-kicker">06</span><h2>运营端组件基线</h2><p>只纳入前端上下文中已确认实际使用的组件，作为后续 HTML 原型的组合积木。</p></div><span class="component-badge">Vben · AntD · VXE</span></div>
+            <div class="admin-component-grid">
+              <article class="admin-component-card">
+                <div class="admin-component-card__header"><div><strong>Page + ACard</strong><small>页面容器 / 查询卡 / 表格卡</small></div><span class="admin-component-chip">layout</span></div>
+                <div class="admin-page-shell-preview"><div class="admin-page-shell-preview__top"><span>客户管理</span><button class="admin-mini-icon" type="button" aria-label="刷新">↻</button></div><div class="admin-card-preview"><div class="admin-card-preview__title">查询条件</div><div class="admin-card-preview__fields"><i></i><i></i><i></i></div></div><div class="admin-card-preview admin-card-preview--table"><div class="admin-card-preview__title">列表数据</div><div class="admin-card-preview__rows"><i></i><i></i><i></i></div></div></div>
+                <p>典型列表页采用 `Page auto-content-height`，上方查询 `ACard`，下方卡片占满剩余高度。</p>
+              </article>
+              <article class="admin-component-card">
+                <div class="admin-component-card__header"><div><strong>Vben Form</strong><small>查询表单 / 72px labelWidth</small></div><span class="admin-component-chip">form</span></div>
+                <div class="admin-form-preview"><label><span>客户名称</span><input placeholder="输入客户名称" /></label><label><span>客户状态</span><select><option>选择客户状态</option></select></label><div class="admin-form-preview__actions"><button class="best-button best-button--primary" type="button">搜索</button><button class="best-button best-button--secondary" type="button">重置</button></div></div>
+                <p>查询区由 `useVbenForm` 承载，表单 actions 默认由 schema 统一生成，页面通过 `handleSubmit/handleReset` 刷新 Grid。</p>
+              </article>
+              <article class="admin-component-card">
+                <div class="admin-component-card__header"><div><strong>Vben Modal + AntD Tree</strong><small>权限管理 / 批量功能开关</small></div><span class="admin-component-chip">modal</span></div>
+                <div class="admin-modal-preview"><div class="admin-modal-preview__header"><strong>客户默认权限</strong><span>×</span></div><div class="admin-tree-preview"><span>▾ 广告业务</span><span>☑ 账户管理</span><span>☐ 报表中心</span><span>☑ 资金管理</span></div><div class="admin-modal-preview__footer"><button class="best-button best-button--secondary" type="button">取消</button><button class="best-button best-button--primary" type="button">保存</button></div></div>
+                <p>弹窗打开时 reset 并拉取数据，权限树通过自定义 field 绑定 `checkedKeys`，保存后关闭并刷新列表。</p>
+              </article>
+              <article class="admin-component-card">
+                <div class="admin-component-card__header"><div><strong>AntD Tag + VXE Grid</strong><small>字典状态 / 选择列 / 固定操作列</small></div><span class="admin-component-chip">data</span></div>
+                <div class="admin-data-preview"><div class="admin-data-preview__tags"><span class="admin-tag admin-tag--success">启用</span><span class="admin-tag admin-tag--warning">处理中</span><span class="admin-tag admin-tag--danger">失败</span></div><div class="admin-data-preview__grid"><span></span><span></span><span></span><span class="admin-data-preview__fixed">操作</span></div><div class="admin-data-preview__links"><a>编辑</a><a>权限管理</a><a>重置密码</a></div></div>
+                <p>状态从 dict 读取 label/color 后输出 `Tag`；列表默认小尺寸、选择态保留，操作列固定右侧。</p>
+              </article>
+              <article class="admin-component-card">
+                <div class="admin-component-card__header"><div><strong>EditListFields + ExportTask</strong><small>字段定制 / 异步导出任务</small></div><span class="admin-component-chip">utility</span></div>
+                <div class="admin-utility-preview"><div class="admin-transfer-preview"><span>显示字段</span><span>客户 ID　☷</span><span>客户名称　☷</span><span>客户状态　☷</span></div><div class="admin-export-preview"><span class="admin-export-preview__icon">⇩</span><div><strong>导出任务已提交</strong><small>taskId: export_20260806_001</small></div><button class="best-button best-button--plain" type="button">导出中心</button></div></div>
+                <p>字段配置保留本地列顺序；导出先提交统一任务，再通过 `showExportTaskModal` 跳转导出中心。</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="section-block admin-only" id="admin-baseline">
+            <div class="section-heading"><div><span class="section-kicker">07</span><h2>运营端页面基线 · 客户管理</h2><p>来源：`AdCustomerList` · Vben Form + VXE Grid + Ant Design Vue。</p></div><span class="component-badge">/customer-list · 50/页 · fixed right 280px</span></div>
+            <article class="admin-page-demo">
+              <div class="admin-filter-card">
+                <div class="admin-filter-grid">
+                  <label class="admin-field admin-field--wide"><span>商户ID内容 <a href="#admin-baseline">展开</a></span><input placeholder="粘贴商户ID，一行一个，或使用空格/逗号分隔" /></label>
+                  <label class="admin-field"><span>客户名称</span><input placeholder="输入客户名称" /></label>
+                  <label class="admin-field"><span>登录账号</span><input placeholder="输入登录账号" /></label>
+                  <label class="admin-field"><span>客户状态</span><select><option>选择客户状态</option><option>启用</option><option>停用</option></select></label>
+                  <label class="admin-field"><span>客户级别</span><select><option>选择客户级别</option><option>S</option><option>A</option><option>B</option><option>C</option><option>D</option></select></label>
+                  <label class="admin-field"><span>BD</span><select><option>选择BD</option><option>王革</option><option>孙婉</option></select></label>
+                  <label class="admin-field"><span>AM</span><select><option>选择AM</option><option>孙婉</option><option>符刘凯</option></select></label>
+                </div>
+                <div class="admin-filter-actions"><button class="best-button best-button--primary" type="button">搜索</button><button class="best-button best-button--secondary" type="button">重置</button></div>
+              </div>
+              <div class="admin-grid-card">
+                <div class="admin-command-bar"><div class="admin-command-group"><button class="best-button best-button--primary" type="button">＋ 添加客户</button><button class="best-button best-button--secondary" type="button">♢ 客户默认权限</button><button class="best-button best-button--secondary" type="button">／ 批量修改</button><button class="best-button best-button--secondary" type="button">◷ 批量功能开关</button></div><div class="admin-command-group"><button class="best-button best-button--secondary" type="button">☷ 自定义字段</button><button class="best-button best-button--primary" type="button">⇩ 导出数据</button></div></div>
+                <div class="admin-grid-scroll">
+                  <table class="admin-grid-table">
+                    <colgroup><col style="width:50px" /><col style="width:100px" /><col style="width:150px" /><col style="width:180px" /><col style="width:100px" /><col style="width:220px" /><col style="width:220px" /><col style="width:100px" /><col style="width:100px" /><col style="width:100px" /><col style="width:100px" /><col style="width:100px" /><col style="width:120px" /><col style="width:120px" /><col style="width:100px" /><col style="width:100px" /><col style="width:100px" /><col style="width:150px" /><col style="width:150px" /><col style="width:280px" /></colgroup>
+                    <thead><tr><th class="admin-check-col"><input class="checkbox" type="checkbox" aria-label="全选" /></th><th>客户 ID</th><th>客户名称</th><th>商户 ID</th><th>客户级别</th><th>BD</th><th>AM</th><th>客户状态</th><th>币种</th><th>当前余额</th><th>已用额度</th><th>信用额度</th><th>预充金额上限</th><th>剩余预充金额</th><th>可用余额</th><th>真实金额</th><th>冻结金额</th><th>注册时间</th><th>最近登录</th><th class="admin-operation-col">操作</th></tr></thead>
+                    <tbody>
+                      <tr><td><input class="checkbox" type="checkbox" /></td><td>4820</td><td>Reda’simo</td><td>18013</td><td>-</td><td>王革 (wangge@bestfulfill.com)</td><td>孙婉 (sunwan@bestfulfill.com)</td><td><span class="admin-tag admin-tag--success">启用</span></td><td>USD</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2026-08-06 17:30:19</td><td>-</td><td class="admin-operation-col"><button>编辑</button><button>修改账号</button><button>权限管理</button><button>子账号管理</button><button>重置密码</button></td></tr>
+                      <tr><td><input class="checkbox" type="checkbox" /></td><td>4819</td><td>David</td><td>18010</td><td>-</td><td>王革 (wangge@bestfulfill.com)</td><td>符刘凯 (fuliuyu@bestfulfill.com)</td><td><span class="admin-tag admin-tag--success">启用</span></td><td>USD</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2026-08-05 17:30:15</td><td>-</td><td class="admin-operation-col"><button>编辑</button><button>修改账号</button><button>权限管理</button><button>子账号管理</button><button>重置密码</button></td></tr>
+                      <tr><td><input class="checkbox" type="checkbox" /></td><td>4818</td><td>Yanis</td><td>18008</td><td>D</td><td>-</td><td>李志伟 (lizhiwei@bestfulfill.com)</td><td><span class="admin-tag admin-tag--success">启用</span></td><td>USD</td><td>-1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2026-08-03 17:30:11</td><td>-</td><td class="admin-operation-col"><button>编辑</button><button>修改账号</button><button>权限管理</button><button>子账号管理</button><button>重置密码</button></td></tr>
+                      <tr><td><input class="checkbox" type="checkbox" /></td><td>4817</td><td>liyan</td><td>17995</td><td>-</td><td>-</td><td>-</td><td><span class="admin-tag admin-tag--success">启用</span></td><td>GBP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2026-08-03 17:10:54</td><td>2026-08-03 17:11:49</td><td class="admin-operation-col"><button>编辑</button><button>修改账号</button><button>权限管理</button><button>子账号管理</button><button>重置密码</button></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="admin-pagination"><span>共 2077 条记录</span><select><option>50条/页</option><option>100条/页</option><option>200条/页</option><option>500条/页</option></select><div class="admin-page-buttons"><button>‹</button><button>«</button><button class="is-active">1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>›</button><button>»</button></div></div>
+              </div>
+            </article>
+          </section>
+
+          <footer class="showcase-footer">BestAds Prototype Kit · 组件仅用于评审，最终以真实前端实现与后端状态机为准。</footer>
+        </div>
+      </main>
+    </div>
+
+    <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+    <aside class="demo-drawer" id="demoDrawer" aria-hidden="true" aria-labelledby="drawerTitle">
+      <div class="drawer-header"><div><span class="eyebrow">BUSINESS COMPONENT</span><h2 id="drawerTitle">广告账户充值</h2></div><button class="icon-button" type="button" data-close-drawer aria-label="关闭">×</button></div>
+      <div class="drawer-content"><div class="drawer-account"><span class="platform-badge platform-badge--meta">Meta</span><div><strong>BestAds Meta US 01</strong><small>238-401-982 · 企业户</small></div><span class="status-pill status-pill--success"><i></i>正常</span></div><div class="drawer-balance"><span>当前账户余额</span><strong>$12,480.00</strong><small>可用钱包余额 $20,100.56</small></div><label class="field-group"><span>充值金额 (USD)</span><div class="amount-input amount-input--large"><span>$</span><input id="drawerAmount" value="500.00" inputmode="decimal" /><span class="amount-suffix">USD</span></div></label><div class="preset-row"><button type="button" data-drawer-amount="100">$100</button><button type="button" data-drawer-amount="200">$200</button><button class="is-active" type="button" data-drawer-amount="500">$500</button><button type="button" data-drawer-amount="1000">$1,000</button></div><div class="drawer-notice"><span>i</span><p>充值将先预扣钱包金额，账户状态完成后写入交易明细。</p></div><div class="drawer-state" id="drawerState" hidden><span class="status-pill status-pill--warning"><i></i>处理中</span><p>充值单已创建，正在等待代理系统返回结果。</p></div></div>
+      <div class="drawer-footer"><button class="best-button best-button--secondary" type="button" data-close-drawer>取消</button><button class="best-button best-button--primary" type="button" id="submitDrawer">确认充值</button></div>
+    </aside>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./showcase.js"></script>
+  </body>
+</html>
