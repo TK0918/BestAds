@@ -17,6 +17,7 @@
     {
       id: 'main-functions',
       label: '主要功能',
+      icon: 'users',
       items: [
         page('customer-list', '客户管理', 'main-functions/customer-management.html', 'users'),
         page('customer-sub-account', '客户子账号管理', 'main-functions/customer-sub-account-management.html', 'user-friends'),
@@ -31,6 +32,7 @@
     {
       id: 'performance',
       label: '绩效',
+      icon: 'chart-line',
       items: [
         page('performance-metric-description', '绩效指标说明', 'performance/metric-description.html', 'book'),
         page('performance-config', '绩效配置', 'performance/performance-config.html', 'sliders-h'),
@@ -42,6 +44,7 @@
     {
       id: 'meta-asset-management',
       label: 'Meta资产管理',
+      icon: 'cubes',
       items: [
         page('meta-bm-config', 'BM 配置', 'meta-asset-management/bm-config.html', 'sliders-h'),
         page('meta-assets', '资产', 'meta-asset-management/assets.html', 'cubes'),
@@ -52,6 +55,7 @@
     {
       id: 'fb-business',
       label: 'FB业务管理',
+      icon: 'briefcase',
       items: [
         page('fb-account-management', '账户管理', 'fb-business/account-management.html', 'sync'),
         page('fb-account-opening', '开户管理', 'fb-business/account-opening.html', 'plus-circle'),
@@ -65,6 +69,7 @@
     {
       id: 'tt-business',
       label: 'TT业务管理',
+      icon: 'video',
       items: [
         page('tt-account-management', '账户管理', 'tt-business/account-management.html', 'sync'),
         page('tt-account-allocation', '账户分配', 'tt-business/account-allocation.html', 'clipboard-list'),
@@ -77,6 +82,7 @@
     {
       id: 'google-business',
       label: 'GG业务管理',
+      icon: 'globe',
       items: [
         page('google-account-management', '账户管理', 'google-business/account-management.html', 'sync'),
         page('google-account-allocation', '账户分配', 'google-business/account-allocation.html', 'clipboard-list'),
@@ -89,6 +95,7 @@
     {
       id: 'other-media-business',
       label: '其他媒体业务',
+      icon: 'layer-group',
       items: [
         page('other-account-management', '账户管理', 'other-media-business/account-management.html', 'sync'),
         page('other-account-allocation', '账户分配', 'other-media-business/account-allocation.html', 'clipboard-list'),
@@ -100,6 +107,7 @@
     {
       id: 'ad-governance',
       label: '广告管理',
+      icon: 'shield-alt',
       items: [
         page('ad-review', '广告审核', 'ad-governance/ad-review.html', 'shield-alt')
       ]
@@ -107,6 +115,7 @@
     {
       id: 'customer-transactions',
       label: '客户流水',
+      icon: 'receipt',
       items: [
         page('transaction-detail', '交易明细', 'customer-transactions/transaction-detail.html', 'receipt'),
         page('online-recharge', '在线充值', 'customer-transactions/online-recharge.html', 'credit-card'),
@@ -116,6 +125,7 @@
     {
       id: 'material-analysis',
       label: '素材分析',
+      icon: 'images',
       items: [
         page('material-library', '素材库', null, 'images', { status: 'planned' })
       ]
@@ -123,6 +133,7 @@
     {
       id: 'balance-monitor',
       label: '监控管理',
+      icon: 'bell',
       items: [
         page('balance-monitor-auto-recharge', '余额监控&自动充值', 'auto-recharge/notifications.html', 'bell'),
         page('account-status-monitor', '账户封停监控', 'auto-recharge/account-status-monitor.html', 'bell'),
@@ -132,6 +143,7 @@
     {
       id: 'reports',
       label: '报表',
+      icon: 'chart-pie',
       items: [
         page('industry-report', '行业报表', 'reports/industry-report.html', 'chart-pie'),
         page('customer-fund-change-report', '客户资金变动', 'reports/customer-fund-change-report.html', 'wallet'),
@@ -152,6 +164,7 @@
     {
       id: 'system-settings',
       label: '系统配置',
+      icon: 'cog',
       items: [
         page('precharge-config', '预充配置', 'system-configuration/precharge-config.html', 'sliders-h'),
         page('system-dict', '系统字典', 'main-functions/system-config.html', 'book'),

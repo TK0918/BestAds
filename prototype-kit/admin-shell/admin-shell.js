@@ -12,7 +12,7 @@
   const shellUrl = new URL(currentScript.src, window.location.href);
   const shellDirUrl = new URL('./', shellUrl);
   const repoRootUrl = new URL('../../', shellUrl);
-  const SHELL_VERSION = '20260809-monitor';
+  const SHELL_VERSION = '20260809-sidebar-icons';
   const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
   const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
   cssUrlObj.searchParams.set('v', SHELL_VERSION);
@@ -122,16 +122,16 @@
       // 用户在当前页面点击展开仅作为临时查看状态，不跨页面持久化。
       const isCollapsed = !containsCurrent;
       const listId = `admin-shell-group-${group.id}`;
+      const groupIconClass = `fas fa-${escapeHtml(group.icon || 'folder')}`;
       const itemsHtml = items.map(item => {
         const active = item.path && isCurrentPage(item.path);
         const planned = item.status === 'planned' || !item.path;
-        const iconClass = `fas fa-${escapeHtml(item.icon || 'file')}`;
         if (planned) {
-          return `<li><span class="sidebar-item admin-shell-item is-planned" aria-disabled="true" title="待建设"><i class="${iconClass}" aria-hidden="true"></i><span>${escapeHtml(item.label)}</span><span class="admin-shell-planned">待建设</span></span></li>`;
+          return `<li><span class="sidebar-item admin-shell-item is-planned" aria-disabled="true" title="待建设"><span>${escapeHtml(item.label)}</span><span class="admin-shell-planned">待建设</span></span></li>`;
         }
-        return `<li><a class="sidebar-item admin-shell-item${active ? ' is-active active' : ''}" href="${escapeHtml(absolutePath(item.path))}" data-admin-menu-id="${escapeHtml(item.id)}"${active ? ' aria-current="page"' : ''}><i class="${iconClass}" aria-hidden="true"></i><span>${escapeHtml(item.label)}</span></a></li>`;
+        return `<li><a class="sidebar-item admin-shell-item${active ? ' is-active active' : ''}" href="${escapeHtml(absolutePath(item.path))}" data-admin-menu-id="${escapeHtml(item.id)}"${active ? ' aria-current="page"' : ''}><span>${escapeHtml(item.label)}</span></a></li>`;
       }).join('');
-      return `<section class="admin-shell-group" data-admin-menu-group="${escapeHtml(group.id)}"><button type="button" class="admin-shell-group-toggle" aria-controls="${listId}" aria-expanded="${!isCollapsed}"><span>${escapeHtml(group.label)}</span><i class="fas fa-chevron-${isCollapsed ? 'right' : 'down'}" aria-hidden="true"></i></button><ul id="${listId}" class="admin-shell-group-list"${isCollapsed ? ' hidden' : ''}>${itemsHtml}</ul></section>`;
+      return `<section class="admin-shell-group" data-admin-menu-group="${escapeHtml(group.id)}"><button type="button" class="admin-shell-group-toggle" aria-controls="${listId}" aria-expanded="${!isCollapsed}"><span class="admin-shell-group-label"><i class="${groupIconClass}" aria-hidden="true"></i><span>${escapeHtml(group.label)}</span></span><i class="admin-shell-group-caret fas fa-chevron-${isCollapsed ? 'right' : 'down'}" aria-hidden="true"></i></button><ul id="${listId}" class="admin-shell-group-list"${isCollapsed ? ' hidden' : ''}>${itemsHtml}</ul></section>`;
     }).join('');
 
     const workbenchPath = 'admin-system/main-functions/index.html';
@@ -146,8 +146,8 @@
         const nextCollapsed = !list.hidden;
         list.hidden = nextCollapsed;
         button.setAttribute('aria-expanded', String(!nextCollapsed));
-        const icon = button.querySelector('i');
-        if (icon) icon.className = `fas fa-chevron-${nextCollapsed ? 'right' : 'down'}`;
+        const icon = button.querySelector('.admin-shell-group-caret');
+        if (icon) icon.className = `admin-shell-group-caret fas fa-chevron-${nextCollapsed ? 'right' : 'down'}`;
       });
     });
 
