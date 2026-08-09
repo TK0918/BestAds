@@ -12,8 +12,13 @@
   const shellUrl = new URL(currentScript.src, window.location.href);
   const shellDirUrl = new URL('./', shellUrl);
   const repoRootUrl = new URL('../../', shellUrl);
-  const cssUrl = new URL('admin-shell.css', shellDirUrl).href;
-  const figmaCssUrl = new URL('figma-ops.css', shellDirUrl).href;
+  const SHELL_VERSION = '20260809-collapse';
+  const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
+  const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
+  cssUrlObj.searchParams.set('v', SHELL_VERSION);
+  figmaCssUrlObj.searchParams.set('v', SHELL_VERSION);
+  const cssUrl = cssUrlObj.href;
+  const figmaCssUrl = figmaCssUrlObj.href;
   const menuUrl = new URL('admin-menu.js', shellDirUrl);
   // 菜单是配置文件，使用轻量 cache-busting，确保新增页面后刷新即可生效。
   menuUrl.searchParams.set('v', String(Date.now()));
@@ -113,7 +118,7 @@
     const groupsHtml = (menu || []).map(group => {
       const items = group.items || [];
       const containsCurrent = items.some(item => item.path && isCurrentPage(item.path));
-      // 与测试环境保持一致：页面加载后只展开当前页面所在一级菜单；其余一级菜单只展示标题。
+      // 页面加载后只展开当前页面所在一级菜单；其余一级菜单收起。
       // 用户在当前页面点击展开仅作为临时查看状态，不跨页面持久化。
       const isCollapsed = !containsCurrent;
       const listId = `admin-shell-group-${group.id}`;

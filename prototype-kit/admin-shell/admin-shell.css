@@ -131,6 +131,10 @@ body.admin-shell-ready #sidebar .admin-shell-group-list {
   list-style: none;
 }
 
+body.admin-shell-ready #sidebar .admin-shell-group-list[hidden] {
+  display: none !important;
+}
+
 body.admin-shell-ready #sidebar .admin-shell-item {
   display: flex;
   width: 100%;
