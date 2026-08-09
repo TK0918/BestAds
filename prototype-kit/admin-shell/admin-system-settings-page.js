@@ -190,8 +190,8 @@
       filters: [
         { key: 'date', label: '操作日期', type: 'daterange' },
         { key: 'operator', label: '操作人姓名', placeholder: '输入操作人姓名' },
-        { key: 'module', label: '模块', type: 'select', options: ['子账号管理', '角色管理', '权限模块'], placeholder: '选择模块' },
-        { key: 'subModule', label: '子模块', type: 'select', options: ['子账号-创建', '子账号-编辑', '子账号-分配广告账户', '子账号-重置密码', '角色-编辑', '单客户功能权限'], placeholder: '选择子模块' },
+        { key: 'module', label: '模块', type: 'select', options: ['子账号管理', '角色管理', '权限模块', '绑卡户管理'], placeholder: '选择模块' },
+        { key: 'subModule', label: '子模块', type: 'select', options: ['子账号-创建', '子账号-编辑', '子账号-分配广告账户', '子账号-重置密码', '角色-编辑', '单客户功能权限', 'Slash 额度转移'], placeholder: '选择子模块' },
         { key: 'merchantId', label: '目标商户ID', placeholder: '输入目标商户ID' }
       ],
       actions: [exportAction],
@@ -200,6 +200,8 @@
       hideOperation: true,
       columns: columns(['操作ID', '操作时间', '操作人', '模块', '子模块', '执行对象', '操作内容'], { left: ['操作人', '执行对象', '操作内容'], person: ['操作人'], long: ['操作内容'], widths: [100, 180, 260, 150, 190, 220, 420] }),
       rows: [
+        row(['965', '2026-08-09 16:42:18', people.zhang, '绑卡户管理', 'Slash 额度转移', '14229 / c_3bpoltc2u7sf1(7209)', '转入 c_w9x8y7z6v5u4t3(5678)，金额 200.00 USD'], { date: '2026-08-09', operator: '张宇', module: '绑卡户管理', subModule: 'Slash 额度转移', merchantId: '14229' }),
+        row(['964', '2026-08-09 15:58:06', people.tang, '绑卡户管理', 'Slash 额度转移', '10152 / c_close_4821(4821)', '转入 c_backup_7301(7301)，金额 20.00 USD；转出卡存在未回收验卡额度，已强提醒'], { date: '2026-08-09', operator: '汤秀梅', module: '绑卡户管理', subModule: 'Slash 额度转移', merchantId: '10152' }),
         row(['963', '2026-08-06 15:18:25', people.wang, '子账号管理', '子账号-分配广告账户', '1128 / test19901007', '为子账号「test19901007」分配广告账户'], { date: '2026-08-06', operator: '王荣荣', module: '子账号管理', subModule: '子账号-分配广告账户', merchantId: '1128' }),
         row(['962', '2026-08-06 15:18:25', people.wang, '子账号管理', '子账号-创建', '1128 / test19901007', '创建子账号「test19901007」'], { date: '2026-08-06', operator: '王荣荣', module: '子账号管理', subModule: '子账号-创建', merchantId: '1128' }),
         row(['956', '2026-08-03 11:49:49', people.tang, '角色管理', '角色-编辑', '1128 / 超级管理员', '编辑角色「超级管理员」，权限 8 项'], { date: '2026-08-03', operator: '汤秀梅', module: '角色管理', subModule: '角色-编辑', merchantId: '1128' }),

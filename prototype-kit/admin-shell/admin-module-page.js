@@ -23,6 +23,79 @@
   };
   const person = value => `<span class="person-cell">${esc(asText(value))}</span>`;
   const longText = value => `<span class="wrap">${esc(asText(value))}</span>`;
+  let runtimeState = null;
+
+  function formatMoney(value, currency) {
+    const amount = Number(value || 0);
+    return `${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency || 'USD'}`;
+  }
+  function numAmount(value) {
+    const normalized = String(value == null ? '' : value).replace(/,/g, '').replace(/[^\d.-]/g, '').trim();
+    const amount = Number(normalized);
+    return Number.isFinite(amount) ? amount : 0;
+  }
+  function bindCardId(row) { return row?.cardId || row?.c13 || ''; }
+  function bindCardLast4(row) { return row?.cardLast4 || row?.c14 || '-'; }
+  function bindCardStatus(row) { return row?.verifyStatus || row?.c22 || '未申请'; }
+  function bindCardCardStatus(row) { return row?.cardStatus || row?.c19 || '正常'; }
+  function bindCardVerifyAmount(row) { return numAmount(row?.verifyAmount || row?.c21); }
+  function bindCardPreVerifyLimit(row) { return numAmount(row?.preVerifyLimit) || 1; }
+  function bindCardTotalLimit(row) { return numAmount(row?.c16); }
+  function bindCardUsedAmount(row) { return numAmount(row?.c17); }
+  function bindCardAvailableAmount(row) { return numAmount(row?.c18); }
+  function bindCardIsCardRow(row) { const id = bindCardId(row); return Boolean(id && id !== '-'); }
+  function bindCardBlockedStatus(statusText) { return /待审批|审批中|抬额中|抬额失败|待验卡/.test(String(statusText || '')); }
+  function bindCardUnrecoveredStatus(statusText) { return /已验卡|已充值关单|回收失败/.test(String(statusText || '')); }
+  function bindCardTransferLimit(row) {
+    if (!row || row.canTransfer === false) return 0;
+    const total = bindCardTotalLimit(row);
+    const available = bindCardAvailableAmount(row);
+    return Math.max(0, Math.min(available, total - 1));
+  }
+  function canBindCardTransfer(row) {
+    return bindCardIsCardRow(row)
+      && row.canTransfer !== false
+      && bindCardCardStatus(row) === '正常'
+      && !bindCardBlockedStatus(bindCardStatus(row))
+      && bindCardTransferLimit(row) > 0;
+  }
+  function bindCardCardsForRow(row) {
+    const direct = (row?.children || []).filter(bindCardIsCardRow);
+    if (direct.length) return direct;
+    return (row?._treeParent?.children || []).filter(bindCardIsCardRow);
+  }
+  function bindCardTransferOption(row) {
+    const statusText = bindCardStatus(row);
+    const limit = bindCardTransferLimit(row);
+    const verifyAmount = bindCardVerifyAmount(row);
+    return {
+      value: bindCardId(row),
+      label: `${bindCardId(row)}(${bindCardLast4(row)})｜${statusText}｜可转 ${formatMoney(limit, row?.c15 || 'USD')}`,
+      max: limit,
+      status: statusText,
+      verifyAmount
+    };
+  }
+  function bindCardTransferFromOptions(row) {
+    const cards = bindCardCardsForRow(row).filter(canBindCardTransfer);
+    if (cards.length) return cards.map(bindCardTransferOption);
+    return (row?.transferFromOptions || []).map(option => typeof option === 'string' ? { value: option, label: option, max: numAmount(option), status: '-' } : option);
+  }
+  function bindCardTransferToOptions(row, excludeValue = '') {
+    const cards = bindCardCardsForRow(row).filter(card => bindCardIsCardRow(card) && bindCardCardStatus(card) === '正常' && !bindCardBlockedStatus(bindCardStatus(card)) && bindCardId(card) !== excludeValue);
+    if (cards.length) return cards.map(card => ({ value: bindCardId(card), label: `${bindCardId(card)}(${bindCardLast4(card)})｜${bindCardStatus(card)}｜可用 ${formatMoney(bindCardAvailableAmount(card), card.c15 || 'USD')}`, status: bindCardStatus(card) }));
+    return (row?.transferToOptions || []).map(option => typeof option === 'string' ? { value: option, label: option, status: '-' } : option).filter(option => option.value !== excludeValue);
+  }
+  function bindCardTransferWarning(row) {
+    if (row?.transferWarning) return row.transferWarning;
+    const statusText = bindCardStatus(row);
+    if (!bindCardUnrecoveredStatus(statusText)) return '';
+    const verifyAmount = bindCardVerifyAmount(row);
+    return `该卡验卡额度状态为「${statusText}」，仍存在未回收验卡额度${verifyAmount ? ` ${formatMoney(verifyAmount, row?.c15 || 'USD')}` : ''}。转出前请确认媒体退款和 Slash 可用额度，系统只强提醒，不硬拦截。`;
+  }
+  function rechargeBlockedStatus(statusText) {
+    return /待审批|审批中|抬额中|抬额失败|待验卡/.test(String(statusText || ''));
+  }
 
   const people = {
     tang: '汤秀梅(tangxiumei@bestfulfill.com)',
@@ -397,6 +470,37 @@
     if (control === 'textarea') return `<textarea name="${esc(field.key)}"${field.maxLength ? ` maxlength="${esc(field.maxLength)}"` : ''} placeholder="${esc(field.placeholder || '')}">${esc(value || '')}</textarea>`;
     if (control === 'readonly') return `<input name="${esc(field.key)}" type="text" value="${esc(value || field.value || '')}" readonly aria-readonly="true">`;
     if (control === 'select') return `<select name="${esc(field.key)}"><option value="">${esc(field.placeholder || '请选择')}</option>${(field.options || []).map(option => `<option value="${esc(option)}"${String(option) === String(value || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
+    if (control === 'refund-preview') {
+      const total = bindCardTotalLimit(row);
+      const used = bindCardUsedAmount(row);
+      const available = bindCardAvailableAmount(row);
+      const verifyAmount = bindCardVerifyAmount(row);
+      const preLimit = bindCardPreVerifyLimit(row);
+      const hasRecharge = row?.hasRechargeAfterVerify || /已充值关单/.test(bindCardStatus(row));
+      const targetTotal = hasRecharge ? Math.max(preLimit, total - verifyAmount) : preLimit;
+      const blocked = verifyAmount > 0 && available < verifyAmount;
+      const items = [
+        ['卡ID', `${bindCardId(row)}(${bindCardLast4(row)})`],
+        ['当前总额度', formatMoney(total, row?.c15 || 'USD')],
+        ['当前已用额度', formatMoney(used, row?.c15 || 'USD')],
+        ['当前可用额度', formatMoney(available, row?.c15 || 'USD')],
+        ['验卡申请额度', verifyAmount ? formatMoney(verifyAmount, row?.c15 || 'USD') : '-'],
+        ['回收后总额度', formatMoney(targetTotal, row?.c15 || 'USD')]
+      ];
+      return `<div class="readonly-context">${items.map(([label, itemValue]) => `<div><dt>${esc(label)}</dt><dd>${esc(itemValue)}</dd></div>`).join('')}</div><div class="notice ${blocked ? 'notice--danger' : 'notice--success'}">${blocked ? '可用额度不足以回收：当前可用额度小于验卡申请额度，本次确认会被拦截并标记为回收失败。' : '预检通过：确认后不走飞书审批，系统会调 Fund 回收验卡临时额度。'}</div>`;
+    }
+    if (control === 'transfer-card-select') {
+      const isFrom = field.key === 'fromCard';
+      const defaultFrom = runtimeState?.processingAction === '转出额度' ? bindCardId(row) : '';
+      const options = isFrom ? bindCardTransferFromOptions(row) : bindCardTransferToOptions(row, defaultFrom);
+      const selectedValue = isFrom ? (value || defaultFrom) : value;
+      const attr = isFrom ? 'data-transfer-from' : 'data-transfer-to';
+      return `<select name="${esc(field.key)}" ${attr}><option value="">${esc(field.placeholder || '请选择')}</option>${options.map(option => `<option value="${esc(option.value || option.label)}" data-max="${esc(option.max || 0)}" data-status="${esc(option.status || '')}" data-verify-amount="${esc(option.verifyAmount || 0)}"${String(option.value || option.label) === String(selectedValue || '') ? ' selected' : ''}>${esc(option.label || option.value)}</option>`).join('')}</select>`;
+    }
+    if (control === 'transfer-warning') {
+      const warning = bindCardTransferWarning(row);
+      return warning ? `<div class="notice notice--warning" data-transfer-warning>${esc(warning)}</div>` : '<div class="notice" data-transfer-warning>转出卡无未回收验卡额度提醒。系统仍会校验同账户、正常卡、可转上限和 $1 底线。</div>';
+    }
     if (control === 'account-search') {
       const options = field.options || [];
       return `<div class="account-search-picker" data-account-picker><input type="search" data-account-picker-search placeholder="${esc(field.placeholder || '输入广告账户ID或名称搜索')}"><div class="account-search-results">${options.map(option => `<label class="account-search-option" data-account-picker-option data-account-key="${esc(String(option).toLowerCase())}"><input type="radio" name="${esc(field.key)}" value="${esc(option)}"><span>${esc(option)}</span></label>`).join('')}</div></div>`;
@@ -429,7 +533,8 @@
     if (modal?.type === 'monitor-alert-preview') return monitorAlertPreviewModal(modal);
     if (modal?.type === 'card-secret') return cardSecretModal(modal, row);
     const fields = modal?.fields || [];
-    return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid">${fields.map(field => `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${field.required === false ? '' : ' <span style="color:var(--admin-danger)">*</span>'}</label>${modalControl(field, row?.[field.key], row)}</div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+    const transferAttrs = fields.some(field => /transfer-card-select|transfer-warning/.test(field.control || '')) ? ' data-transfer-modal' : '';
+    return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid"${transferAttrs}>${fields.map(field => `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${field.required === false ? '' : ' <span style="color:var(--admin-danger)">*</span>'}</label>${modalControl(field, row?.[field.key], row)}</div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
 
   function offlineTransferAuditModal(modal, row) {
@@ -463,7 +568,14 @@
   function rechargeRequestModal(modal) {
     const customers = modal.customers || [];
     const accountRows = customers.flatMap(customer => (customer.accounts || []).map(account => ({ ...account, customerId: customer.id, customerName: customer.name, merchantId: customer.merchantId, walletBalance: customer.balance })));
-    return `<div class="modal-backdrop"><section class="modal modal-recharge"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '发起充值')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="recharge-form" data-recharge-modal><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 客户（单选）</label><select data-recharge-customer><option value="">选择客户</option>${customers.map(customer => `<option value="${esc(customer.id)}">${esc(customer.id)} ${esc(customer.name)}（商户ID: ${esc(customer.merchantId)}）</option>`).join('')}</select></div><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 广告账户（多选）</label><div class="recharge-account-toolbar"><input type="text" data-recharge-account-search placeholder="输入广告账户"><button type="button" class="btn btn-primary" data-recharge-query>${icon('search')}查 询</button></div><div class="table-scroll recharge-account-table"><table class="admin-table admin-table--fixed"><colgroup><col style="width:52px"><col style="width:360px"><col style="width:140px"><col style="width:160px"></colgroup><thead><tr><th class="select-cell"></th><th class="left">账户名称</th><th>广告账户币种</th><th class="num">当前余额</th></tr></thead><tbody>${accountRows.map(account => `<tr data-recharge-account-row data-customer-id="${esc(account.customerId)}" data-account-key="${esc(`${account.name} ${account.id}`.toLowerCase())}" hidden><td class="select-cell"><input type="checkbox" data-recharge-account value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-currency="${esc(account.currency)}" data-balance="${esc(account.balance)}" data-wallet-balance="${esc(account.walletBalance)}" data-service-rate="${esc(account.serviceRate ?? 0)}" data-pre-tax-rate="${esc(account.preTaxRate ?? 0)}"></td><td class="left">${esc(account.name)}(${esc(account.id)})</td><td>${esc(account.currency)}</td><td class="num">${esc(account.balance)}</td></tr>`).join('')}</tbody></table><div class="empty-state recharge-empty" data-recharge-empty>暂无数据</div></div><div class="pagination recharge-account-pagination"><span data-recharge-count>共 0 条记录</span><div class="pagination__actions"><button type="button" class="page-number" disabled>‹</button><button type="button" class="page-number is-active">1</button><button type="button" class="page-number" disabled>›</button></div></div></div><div class="form-field full recharge-amount-panel" data-recharge-amount-panel><label>充值金额设置</label><div class="notice recharge-select-notice" data-recharge-select-notice>请至少选择一个广告账户</div><div class="recharge-amount-list" data-recharge-amount-list></div><div class="recharge-total-row"><span>总充值金额：<strong data-recharge-total>0.00 USD</strong></span><span>可用余额：<strong data-recharge-wallet>-</strong></span></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取 消</button><button type="button" class="btn btn-primary" data-modal-submit>确 定</button></div></section></div>`;
+    const rowsHtml = accountRows.map(account => {
+      const statusText = account.verifyStatus || '无验卡任务';
+      const blocked = rechargeBlockedStatus(statusText);
+      const reason = account.gateReason || (blocked ? `使用卡验卡任务处于${statusText}，需先标记媒体已验证后再充值` : '-');
+      const statusClass = blocked ? 'status-danger' : /已验卡|已充值关单|已回收/.test(statusText) ? 'status-success' : 'status-info';
+      return `<tr data-recharge-account-row data-customer-id="${esc(account.customerId)}" data-account-key="${esc(`${account.name} ${account.id}`.toLowerCase())}" hidden${blocked ? ' class="is-disabled-row"' : ''}><td class="select-cell"><input type="checkbox" data-recharge-account value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-customer-id="${esc(account.customerId)}" data-customer-name="${esc(account.customerName)}" data-merchant-id="${esc(account.merchantId)}" data-currency="${esc(account.currency)}" data-balance="${esc(account.balance)}" data-wallet-balance="${esc(account.walletBalance)}" data-service-rate="${esc(account.serviceRate ?? 0)}" data-pre-tax-rate="${esc(account.preTaxRate ?? 0)}" data-verify-status="${esc(statusText)}" data-card-id="${esc(account.cardId || '')}" data-card-label="${esc(account.cardLabel || '')}" data-other-cards="${esc(account.otherCards || '')}" data-gate-reason="${esc(reason)}"${blocked ? ' disabled' : ''}></td><td class="left">${esc(account.name)}(${esc(account.id)})</td><td>${esc(account.currency)}</td><td class="num">${esc(account.balance)}</td><td><span class="status-tag ${statusClass}">${esc(statusText)}</span></td><td class="left">${esc(reason)}</td></tr>`;
+    }).join('');
+    return `<div class="modal-backdrop"><section class="modal modal-recharge"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '发起充值')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="recharge-form" data-recharge-modal><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 客户（单选）</label><select data-recharge-customer><option value="">选择客户</option>${customers.map(customer => `<option value="${esc(customer.id)}" data-customer-name="${esc(customer.name)}" data-merchant-id="${esc(customer.merchantId)}">${esc(customer.id)} ${esc(customer.name)}（商户ID: ${esc(customer.merchantId)}）</option>`).join('')}</select></div><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 广告账户（多选）</label><div class="recharge-account-toolbar"><input type="text" data-recharge-account-search placeholder="输入广告账户"><button type="button" class="btn btn-primary" data-recharge-query>${icon('search')}查 询</button></div><div class="table-scroll recharge-account-table recharge-account-table--fit"><table class="admin-table admin-table--fixed"><colgroup><col style="width:44px"><col style="width:28%"><col style="width:12%"><col style="width:13%"><col style="width:16%"><col style="width:27%"></colgroup><thead><tr><th class="select-cell"></th><th class="left">账户名称</th><th>币种</th><th class="num">当前余额</th><th>验卡状态</th><th class="left">不可充值原因</th></tr></thead><tbody>${rowsHtml}</tbody></table><div class="empty-state recharge-empty" data-recharge-empty>暂无数据</div></div><div class="pagination recharge-account-pagination"><span data-recharge-count>共 0 条记录</span><div class="pagination__actions"><button type="button" class="page-number" disabled>‹</button><button type="button" class="page-number is-active">1</button><button type="button" class="page-number" disabled>›</button></div></div></div><div class="form-field full recharge-amount-panel" data-recharge-amount-panel><label>充值金额设置</label><div class="notice recharge-select-notice" data-recharge-select-notice>请至少选择一个广告账户</div><div class="recharge-amount-list" data-recharge-amount-list></div><div class="recharge-total-row"><span>总充值金额：<strong data-recharge-total>0.00 USD</strong></span><span>可用余额：<strong data-recharge-wallet>-</strong></span></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取 消</button><button type="button" class="btn btn-primary" data-modal-submit>确 定</button></div></section></div>`;
   }
 
   function assignAccountModal(modal) {
@@ -501,7 +613,8 @@
     const preferredKeys = (tab?.columns || []).map(column => column.key);
     const extraKeys = Object.keys(row || {}).filter(key => key !== 'ops' && key !== 'selectable' && !labelMap.has(key));
     const keys = preferredKeys.concat(extraKeys).filter(key => key in (row || {}) && key !== 'ops' && key !== 'selectable');
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">以下为按页面字段契约整理的原型信息；真实提交需以后端接口权限为准。</div><dl class="detail-grid">${keys.map(key => `<div><dt>${esc(labelMap.get(key) || key)}</dt><dd>${esc(asText(row[key]))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+    const bindCardNotice = row?.bindCard === '是' ? `<div class="notice notice--warning"><strong>飞书通知增量：</strong>使用卡：${esc(row.card || row.cardSnapshot || '-')}；${esc(row.otherCards || '其他关联卡：无')}</div>` : '';
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">以下为按页面字段契约整理的原型信息；真实提交需以后端接口权限为准。</div>${bindCardNotice}<dl class="detail-grid">${keys.map(key => `<div><dt>${esc(labelMap.get(key) || key)}</dt><dd>${esc(asText(row[key]))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
   function cardSecretModal(modal, row) {
@@ -570,6 +683,7 @@
     const config = pageConfig();
     const tabs = config.tabs || [{ id: 'list', label: '', ...config }];
     const state = { tab: tabs[0].id, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null };
+    runtimeState = state;
 
     function activeTab() { return tabs.find(item => item.id === state.tab) || tabs[0]; }
     function selectedSet(tab) { if (!state.selected[tab.id]) state.selected[tab.id] = new Set(); return state.selected[tab.id]; }
@@ -667,6 +781,7 @@
             child._treeKey = `${key}-${childIndex}`;
             child._treeParentKey = key;
             child._treeChildIndex = childIndex;
+            Object.defineProperty(child, '_treeParent', { value: parent, enumerable: false, configurable: true });
           });
           return parent;
         });
@@ -696,6 +811,8 @@
         const matchesKeyword = !keyword || (row.dataset.accountKey || '').includes(keyword);
         const visible = Boolean(matchesCustomer && matchesKeyword);
         row.hidden = !visible;
+        const input = row.querySelector('[data-recharge-account]');
+        if (input && (!visible || input.disabled)) input.checked = false;
         if (visible) visibleCount += 1;
       });
       const empty = modalRoot.querySelector('[data-recharge-empty]');
@@ -713,7 +830,7 @@
       const checked = Array.from(modalRoot.querySelectorAll('[data-recharge-account]:checked'));
       if (notice) notice.hidden = checked.length > 0;
       if (list) {
-        list.innerHTML = checked.map(input => `<div class="recharge-amount-card" data-recharge-amount-card data-currency="${esc(input.dataset.currency || 'USD')}" data-service-rate="${esc(input.dataset.serviceRate || '0')}" data-pre-tax-rate="${esc(input.dataset.preTaxRate || '0')}"><div class="recharge-amount-info"><strong>${esc(input.dataset.accountName || input.value)}</strong><div class="recharge-amount-meta"><span>当前余额：${esc(input.dataset.balance || '-')} ${esc(input.dataset.currency || '')}</span><span>服务费：<b data-service-fee>-</b></span><span>预收税费：<b data-pre-tax-fee>-</b></span><span>实际到账：<b data-actual-amount>-</b></span></div></div><input type="text" inputmode="decimal" placeholder="输入充值金额" data-recharge-amount-input></div>`).join('');
+        list.innerHTML = checked.map(input => `<div class="recharge-amount-card" data-recharge-amount-card data-account-id="${esc(input.value)}" data-account-name="${esc(input.dataset.accountName || '')}" data-customer-id="${esc(input.dataset.customerId || '')}" data-customer-name="${esc(input.dataset.customerName || '')}" data-merchant-id="${esc(input.dataset.merchantId || '')}" data-currency="${esc(input.dataset.currency || 'USD')}" data-service-rate="${esc(input.dataset.serviceRate || '0')}" data-pre-tax-rate="${esc(input.dataset.preTaxRate || '0')}" data-verify-status="${esc(input.dataset.verifyStatus || '')}" data-card-label="${esc(input.dataset.cardLabel || '')}" data-other-cards="${esc(input.dataset.otherCards || '')}"><div class="recharge-amount-info"><strong>${esc(input.dataset.accountName || input.value)}</strong><div class="recharge-amount-meta"><span>当前余额：${esc(input.dataset.balance || '-')} ${esc(input.dataset.currency || '')}</span><span>服务费：<b data-service-fee>-</b></span><span>预收税费：<b data-pre-tax-fee>-</b></span><span>实际到账：<b data-actual-amount>-</b></span></div></div><input type="text" inputmode="decimal" placeholder="输入充值金额" data-recharge-amount-input></div>`).join('');
       }
       recalculateRechargeAmounts(modalRoot);
       if (wallet) wallet.textContent = checked[0]?.dataset.walletBalance || '-';
@@ -725,6 +842,86 @@
     }
     function formatMoney(value, currency) {
       return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency || 'USD'}`;
+    }
+    function formatAmountOnly(value) {
+      return Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function numAmount(value) {
+      const normalized = String(value == null ? '' : value).replace(/,/g, '').replace(/[^\d.-]/g, '').trim();
+      const amount = Number(normalized);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+    function bindCardId(row) { return row?.cardId || row?.c13 || ''; }
+    function bindCardLast4(row) { return row?.cardLast4 || row?.c14 || '-'; }
+    function bindCardStatus(row) { return row?.verifyStatus || row?.c22 || '未申请'; }
+    function bindCardCardStatus(row) { return row?.cardStatus || row?.c19 || '正常'; }
+    function bindCardVerifyAmount(row) { return numAmount(row?.verifyAmount || row?.c21); }
+    function bindCardPreVerifyLimit(row) { return numAmount(row?.preVerifyLimit) || 1; }
+    function bindCardTotalLimit(row) { return numAmount(row?.c16); }
+    function bindCardUsedAmount(row) { return numAmount(row?.c17); }
+    function bindCardAvailableAmount(row) { return numAmount(row?.c18); }
+    function bindCardIsCardRow(row) { const id = bindCardId(row); return Boolean(id && id !== '-'); }
+    function bindCardBlockedStatus(statusText) { return /待审批|审批中|抬额中|抬额失败|待验卡/.test(String(statusText || '')); }
+    function bindCardUnrecoveredStatus(statusText) { return /已验卡|已充值关单|回收失败/.test(String(statusText || '')); }
+    function bindCardTransferLimit(row) {
+      if (!row || row.canTransfer === false) return 0;
+      const total = bindCardTotalLimit(row);
+      const available = bindCardAvailableAmount(row);
+      return Math.max(0, Math.min(available, total - 1));
+    }
+    function canBindCardTransfer(row) {
+      return bindCardIsCardRow(row)
+        && row.canTransfer !== false
+        && bindCardCardStatus(row) === '正常'
+        && !bindCardBlockedStatus(bindCardStatus(row))
+        && bindCardTransferLimit(row) > 0;
+    }
+    function bindCardParentForRow(row) {
+      const tab = activeTab();
+      const accountId = row?.accountId || row?.c2;
+      return normalizedTreeRows(tab).find(parent => parent === row || (parent.children || []).includes(row) || (accountId && (parent.accountId === accountId || parent.c2 === accountId)));
+    }
+    function bindCardCardsForRow(row) {
+      const direct = (row?.children || []).filter(bindCardIsCardRow);
+      if (direct.length) return direct;
+      return (bindCardParentForRow(row)?.children || []).filter(bindCardIsCardRow);
+    }
+    function bindCardTransferOption(row) {
+      const statusText = bindCardStatus(row);
+      const limit = bindCardTransferLimit(row);
+      const verifyAmount = bindCardVerifyAmount(row);
+      return {
+        value: bindCardId(row),
+        label: `${bindCardId(row)}(${bindCardLast4(row)})｜${statusText}｜可转 ${formatMoney(limit, row?.c15 || 'USD')}`,
+        max: limit,
+        status: statusText,
+        verifyAmount
+      };
+    }
+    function bindCardTransferFromOptions(row) {
+      const cards = bindCardCardsForRow(row).filter(canBindCardTransfer);
+      if (cards.length) return cards.map(bindCardTransferOption);
+      return (row?.transferFromOptions || []).map(option => typeof option === 'string' ? { value: option, label: option, max: numAmount(option), status: '-' } : option);
+    }
+    function bindCardTransferToOptions(row, excludeValue = '') {
+      const cards = bindCardCardsForRow(row).filter(card => bindCardIsCardRow(card) && bindCardCardStatus(card) === '正常' && !bindCardBlockedStatus(bindCardStatus(card)) && bindCardId(card) !== excludeValue);
+      if (cards.length) return cards.map(card => ({ value: bindCardId(card), label: `${bindCardId(card)}(${bindCardLast4(card)})｜${bindCardStatus(card)}｜可用 ${formatMoney(bindCardAvailableAmount(card), card.c15 || 'USD')}`, status: bindCardStatus(card) }));
+      return (row?.transferToOptions || []).map(option => typeof option === 'string' ? { value: option, label: option, status: '-' } : option).filter(option => option.value !== excludeValue);
+    }
+    function bindCardTransferWarning(row) {
+      if (row?.transferWarning) return row.transferWarning;
+      const statusText = bindCardStatus(row);
+      if (!bindCardUnrecoveredStatus(statusText)) return '';
+      const verifyAmount = bindCardVerifyAmount(row);
+      return `该卡验卡额度状态为「${statusText}」，仍存在未回收验卡额度${verifyAmount ? ` ${formatMoney(verifyAmount, row?.c15 || 'USD')}` : ''}。转出前请确认媒体退款和 Slash 可用额度，系统只强提醒，不硬拦截。`;
+    }
+    function setBindCardAmounts(row, total, used, available) {
+      row.c16 = formatAmountOnly(total);
+      row.c17 = formatAmountOnly(used);
+      row.c18 = formatAmountOnly(available);
+    }
+    function rechargeBlockedStatus(statusText) {
+      return /待审批|审批中|抬额中|抬额失败|待验卡/.test(String(statusText || ''));
     }
     function recalculateRechargeAmounts(modalRoot) {
       if (!modalRoot) return;
@@ -908,6 +1105,71 @@
       showToast(`已分配 ${newRows.length} 个广告账户（原型）`, 'success');
       return true;
     }
+    function submitRechargeModal(modalRoot, tab) {
+      const select = modalRoot.querySelector('[data-recharge-customer]');
+      const option = select?.selectedOptions?.[0];
+      const selectedAccounts = Array.from(modalRoot.querySelectorAll('[data-recharge-account]:checked'));
+      if (!select?.value) { showToast('请先选择客户', 'error'); return false; }
+      if (!selectedAccounts.length) { showToast('请至少选择一个可充值广告账户', 'error'); return false; }
+      const blocked = selectedAccounts.find(input => rechargeBlockedStatus(input.dataset.verifyStatus));
+      if (blocked) {
+        showToast(blocked.dataset.gateReason || '使用卡验卡任务处于待验卡/审批中，需先标记媒体已验证后再充值', 'error');
+        return false;
+      }
+      const cards = Array.from(modalRoot.querySelectorAll('[data-recharge-amount-card]'));
+      const time = currentTimestamp();
+      const newRows = [];
+      cards.forEach((card, index) => {
+        const amountValue = parseAmount(card.querySelector('[data-recharge-amount-input]')?.value);
+        if (!amountValue) return;
+        const currency = card.dataset.currency || 'USD';
+        const serviceRate = Number(card.dataset.serviceRate || 0);
+        const preTaxRate = Number(card.dataset.preTaxRate || 0);
+        const serviceFee = amountValue * serviceRate / 100;
+        const preTaxFee = amountValue * preTaxRate / 100;
+        const actualAmount = Math.max(0, amountValue - serviceFee - preTaxFee);
+        const cardLabel = card.dataset.cardLabel || '-';
+        const otherCards = card.dataset.otherCards || '其他关联卡：无';
+        const autoClose = /已验卡/.test(card.dataset.verifyStatus || '');
+        newRows.push({
+          orderId: `AD-PROTO-${Date.now()}-${index + 1}`,
+          customerId: card.dataset.customerId || select.value,
+          customerName: card.dataset.customerName || option?.dataset.customerName || '-',
+          merchantId: card.dataset.merchantId || option?.dataset.merchantId || '-',
+          submitter: '管理员(admin@bestfulfill.com)',
+          submittedAt: time,
+          accountId: card.dataset.accountId || '-',
+          accountName: card.dataset.accountName || '-',
+          bindCard: cardLabel && cardLabel !== '-' ? '是' : '否',
+          card: cardLabel,
+          otherCards,
+          currency,
+          agent: '-',
+          amount: formatAmountOnly(amountValue),
+          preTaxRate: `${formatAmountOnly(preTaxRate)}%`,
+          preTaxFee: formatAmountOnly(preTaxFee),
+          accountFeeRate: `${formatAmountOnly(serviceRate)}%`,
+          agentFeeRate: '0.00%',
+          totalFee: formatAmountOnly(serviceFee),
+          companyFee: formatAmountOnly(serviceFee),
+          agentFee: '0.00',
+          actualAmount: formatAmountOnly(actualAmount),
+          walletCurrency: currency,
+          walletAmount: formatAmountOnly(amountValue),
+          status: '完成',
+          completedAt: time,
+          remark: autoClose ? `验卡任务已关单为「已充值关单(未回收)」；飞书通知：使用卡 ${cardLabel}；${otherCards}` : '原型新增充值工单',
+          ops: ['查看详情', '标记状态']
+        });
+      });
+      if (!newRows.length) { showToast('请输入充值金额', 'error'); return false; }
+      tab.rows = newRows.concat(tab.rows || []);
+      selectedSet(tab).clear();
+      render();
+      const autoClosedCount = newRows.filter(row => /已充值关单/.test(row.remark || '')).length;
+      showToast(`已新增 ${newRows.length} 条充值工单（原型）${autoClosedCount ? `；${autoClosedCount} 个已验卡任务已关单为「已充值关单(未回收)」` : ''}`, 'success');
+      return true;
+    }
     function submitAdjustmentModal(modalRoot, tab) {
       const kind = modalRoot.dataset.adjustmentKind || '减款';
       const select = modalRoot.querySelector('[data-adjustment-customer]');
@@ -984,7 +1246,8 @@
         return `<th class="${headerClass}">${esc(column.label)}</th>`;
       }).join('');
       const childBody = childRows.length ? childRows.map((child, childIndex) => {
-        const ops = operationButtons(child, parentIndex, ` data-child-index="${childIndex}"`);
+        const childForOps = tab.id === 'config' && bindCardIsCardRow(child) ? { ...child, ops: bindCardOpsForStatus(child) } : child;
+        const ops = operationButtons(childForOps, parentIndex, ` data-child-index="${childIndex}"`);
         return `<tr class="tree-child-data-row">${childColumns.map(column => renderCell(column, child)).join('')}<td class="ops"><div class="command-group">${ops}</div></td></tr>`;
       }).join('') : `<tr><td class="empty-state" colspan="${childColumns.length + 1}">暂无子卡数据</td></tr>`;
       return `<tr class="tree-child-panel-row"><td colspan="__COLSPAN__"><div class="tree-child-panel"><div class="tree-child-panel__title">${esc(tab.childTitle || '下级明细')}</div><div class="table-scroll tree-child-table-scroll"><table class="admin-table admin-table--fixed tree-child-table" style="min-width:${childMinWidth}px"><colgroup>${childColumns.map(column => `<col style="width:${column.width || 140}px">`).join('')}<col style="width:${childOpsWidth}px"></colgroup><thead><tr>${childHeaders}<th class="ops">操作</th></tr></thead><tbody>${childBody}</tbody></table></div></div></td></tr>`;
@@ -992,14 +1255,15 @@
     function bindCardOpsForStatus(row) {
       const status = row.verifyStatus || row.c22 || '未申请';
       const cardStatus = row.cardStatus || row.c19 || '正常';
+      const transferOps = canBindCardTransfer(row) ? ['转出额度'] : [];
       if (cardStatus === '冻结') return ['查看完整卡信息'];
-      if (status === '待验卡') return ['验卡任务详情', '标记媒体已验证', '取消任务', '查看完整卡信息', '转出额度'];
-      if (status === '已验卡(未回收)') return ['验卡任务详情', '确认验卡退款并回收', '查看完整卡信息', '转出额度'];
-      if (status === '已充值关单(未回收)' || status === '回收失败') return ['验卡任务详情', '确认验卡退款并回收', '查看完整卡信息'];
+      if (status === '待验卡') return ['验卡任务详情', '标记媒体已验证', '取消任务', '查看完整卡信息'];
+      if (status === '已验卡(未回收)') return ['验卡任务详情', '确认验卡退款并回收', '查看完整卡信息', ...transferOps];
+      if (status === '已充值关单(未回收)' || status === '回收失败') return ['验卡任务详情', '确认验卡退款并回收', '查看完整卡信息', ...transferOps];
       if (status === '审批中') return ['验卡任务详情'];
       if (status === '已驳回' || status === '已取消') return ['申请验卡初始额度', '验卡任务详情', '查看完整卡信息'];
-      if (status === '已回收') return ['查看完整卡信息', '解绑', '冻结卡', '转出额度'];
-      return ['申请验卡初始额度', '查看完整卡信息', '解绑', '冻结卡', '转出额度'];
+      if (status === '已回收') return ['查看完整卡信息', '解绑', '冻结卡', ...transferOps];
+      return ['申请验卡初始额度', '查看完整卡信息', '解绑', '冻结卡', ...transferOps];
     }
     function refreshBindCardParent(parent) {
       if (!parent) return;
@@ -1025,6 +1289,49 @@
       refreshBindCardParent(parent);
       return true;
     }
+    function findBindCardById(row, cardId) {
+      return bindCardCardsForRow(row).find(card => bindCardId(card) === cardId);
+    }
+    function submitBindCardTransferAction(backdrop, row) {
+      const transferModal = backdrop?.querySelector('[data-transfer-modal]');
+      if (!transferModal) return false;
+      const fromSelect = transferModal.querySelector('[data-transfer-from]');
+      const toSelect = transferModal.querySelector('[data-transfer-to]');
+      const fromValue = fromSelect?.value || '';
+      const toValue = toSelect?.value || '';
+      const amount = parseAmount(transferModal.querySelector('[name="amount"]')?.value);
+      const fromOption = fromSelect?.selectedOptions?.[0];
+      const maxAmount = numAmount(fromOption?.dataset.max);
+      if (!fromValue) { showToast('请选择转出卡', 'error'); return 'pending'; }
+      if (!toValue) { showToast('请选择转入卡', 'error'); return 'pending'; }
+      if (fromValue === toValue) { showToast('转出卡和转入卡不能相同', 'error'); return 'pending'; }
+      if (!amount) { showToast('请输入转移金额', 'error'); return 'pending'; }
+      if (!maxAmount || amount > maxAmount) { showToast(`转移金额不可超过可转上限 ${formatMoney(maxAmount, 'USD')}，且转出后总额必须保留 $1`, 'error'); return 'pending'; }
+      const fromCard = findBindCardById(row, fromValue);
+      const toCard = findBindCardById(row, toValue);
+      if (!fromCard || !toCard) { showToast('只允许同一广告账户下的关联卡互转', 'error'); return 'pending'; }
+      if (!canBindCardTransfer(fromCard) || bindCardBlockedStatus(bindCardStatus(toCard))) { showToast('待审批、抬额中、抬额失败或待验卡状态不可参与额度转移', 'error'); return 'pending'; }
+      const fromTotal = bindCardTotalLimit(fromCard);
+      const fromUsed = bindCardUsedAmount(fromCard);
+      const fromAvailable = bindCardAvailableAmount(fromCard);
+      const toTotal = bindCardTotalLimit(toCard);
+      const toUsed = bindCardUsedAmount(toCard);
+      const toAvailable = bindCardAvailableAmount(toCard);
+      setBindCardAmounts(fromCard, fromTotal - amount, fromUsed, fromAvailable - amount);
+      setBindCardAmounts(toCard, toTotal + amount, toUsed, toAvailable + amount);
+      fromCard.c23 = currentTimestamp();
+      toCard.c23 = currentTimestamp();
+      fromCard.ops = bindCardOpsForStatus(fromCard);
+      toCard.ops = bindCardOpsForStatus(toCard);
+      const parent = bindCardParentForRow(row);
+      if (parent) parent.c12 = '管理员(admin@bestfulfill.com)';
+      state.processingRow = null;
+      state.processingAction = null;
+      closeModal();
+      render();
+      showToast(`已提交 Slash 额度转移：${fromValue} → ${toValue}，${formatMoney(amount, 'USD')}；已写入权限审计样例（原型）`, 'success');
+      return true;
+    }
     function submitBindCardPrototypeAction(backdrop) {
       const action = state.processingAction;
       const row = state.processingRow;
@@ -1034,11 +1341,32 @@
         if (!amount) { showToast('请输入申请金额', 'error'); return 'pending'; }
         updateBindCardRowStatus(row, '审批中', { amount });
       } else if (action === '取消任务') {
+        if (bindCardStatus(row) !== '待验卡') { showToast('只有待验卡状态允许取消任务', 'error'); return 'pending'; }
         updateBindCardRowStatus(row, '已取消');
       } else if (action === '确认验卡退款并回收') {
+        const verifyAmount = bindCardVerifyAmount(row);
+        const available = bindCardAvailableAmount(row);
+        if (!verifyAmount) { showToast('缺少验卡申请额度，无法回收', 'error'); return 'pending'; }
+        if (available < verifyAmount) {
+          updateBindCardRowStatus(row, '回收失败');
+          state.processingRow = null;
+          state.processingAction = null;
+          closeModal();
+          render();
+          showToast('可用额度不足以回收：本次未调额，已标记为回收失败（原型）', 'error');
+          return true;
+        }
+        const total = bindCardTotalLimit(row);
+        const nextTotal = row.hasRechargeAfterVerify || /已充值关单/.test(bindCardStatus(row)) ? Math.max(bindCardPreVerifyLimit(row), total - verifyAmount) : bindCardPreVerifyLimit(row);
+        const decrease = Math.max(0, total - nextTotal);
+        const nextAvailable = Math.max(0, available - decrease);
+        const nextUsed = Math.max(0, nextTotal - nextAvailable);
+        setBindCardAmounts(row, nextTotal, nextUsed, nextAvailable);
         updateBindCardRowStatus(row, '已回收');
       } else if (action === '标记媒体已验证') {
         updateBindCardRowStatus(row, '已验卡(未回收)');
+      } else if (action === '额度转移' || action === '转出额度') {
+        return submitBindCardTransferAction(backdrop, row);
       } else {
         return false;
       }
@@ -1257,6 +1585,11 @@
         if (backdrop?.dataset.confirmAction === 'confirm-mark-failed') {
           closeModal();
           markSelectedRowsFailed(tab);
+          return;
+        }
+        const rechargeModal = backdrop?.querySelector('[data-recharge-modal]');
+        if (rechargeModal) {
+          if (submitRechargeModal(rechargeModal, tab)) closeModal();
           return;
         }
         const assignModal = backdrop?.querySelector('[data-assign-modal]');

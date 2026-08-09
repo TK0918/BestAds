@@ -181,6 +181,9 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 
 .empty-state { padding: 56px 20px; color: var(--admin-muted); text-align: center; }
 .notice { padding: 10px 12px; border: 1px solid rgba(0, 107, 230, .2); border-radius: 4px; background: rgba(0, 107, 230, .06); color: var(--admin-secondary); font-size: 13px; line-height: 20px; }
+.notice--success { border-color: rgba(103, 194, 58, .28); background: rgba(103, 194, 58, .08); color: #3b7d20; }
+.notice--warning { border-color: rgba(215, 165, 26, .32); background: rgba(215, 165, 26, .12); color: #8a5b00; }
+.notice--danger { border-color: rgba(245, 108, 108, .32); background: rgba(245, 108, 108, .10); color: var(--admin-danger); }
 
 .modal-backdrop { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0, 0, 0, .42); backdrop-filter: blur(3px); }
 .modal-backdrop[hidden] { display: none; }
@@ -248,7 +251,11 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .recharge-account-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-bottom: 10px; }
 .recharge-account-toolbar input { width: 100%; height: 32px; border: 1px solid var(--admin-border); border-radius: 4px; outline: none; padding: 0 10px; background: var(--admin-surface); color: var(--admin-text); font: inherit; }
 .recharge-account-table { max-width: 100%; max-height: 280px; overflow: auto; border: 1px solid var(--admin-border); border-radius: 4px; }
-.recharge-account-table .admin-table { min-width: 1240px; }
+.recharge-account-table .admin-table { min-width: 0; }
+.recharge-account-table--fit { overflow-x: hidden; }
+.recharge-account-table--fit .admin-table { width: 100%; min-width: 0; }
+.recharge-account-table--fit th, .recharge-account-table--fit td { padding: 0 8px; }
+.recharge-account-table--fit th.left, .recharge-account-table--fit td.left { white-space: normal; line-height: 18px; }
 .recharge-account-table .admin-table td { height: 40px; }
 .recharge-account-table .is-disabled-row td { color: var(--admin-muted); background: color-mix(in srgb, var(--admin-page-bg) 70%, var(--admin-surface)); }
 .recharge-empty { border-top: 1px solid var(--admin-border); padding: 24px 12px; }
