@@ -139,6 +139,9 @@ body.admin-prototype-page.theme-dark {
 .detail-grid dd { margin: 0; color: var(--admin-text); line-height: 20px; word-break: break-word; }
 .confirm-copy { color: var(--admin-secondary); line-height: 22px; }
 .confirm-copy strong { color: var(--admin-text); }
+.module-page .person-cell { white-space: normal; line-height: 20px; }
+.module-page .module-footer-note { margin: 12px 16px 0; }
+.module-page .list-card .command-group:empty { min-height: 32px; }
 
 .toast-stack { position: fixed; right: 24px; top: 68px; z-index: 150; display: grid; gap: 8px; pointer-events: none; }
 .toast { min-width: 260px; max-width: 420px; padding: 11px 14px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); color: var(--admin-text); box-shadow: 0 8px 24px rgba(0, 0, 0, .12); font-size: 13px; line-height: 20px; }

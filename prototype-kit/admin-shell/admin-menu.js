@@ -21,8 +21,8 @@
         page('customer-list', '客户管理', 'main-functions/customer-management.html', 'users'),
         page('customer-sub-account', '客户子账号管理', 'main-functions/customer-sub-account-management.html', 'user-friends'),
         page('agent-management', '代理管理', 'main-functions/agent_management.html', 'user-shield'),
-        page('rebate-config', '返点配置', 'main-functions/rebate-config.html', 'percent'),
         page('introducer-spitpoint', '介绍人和吐点', 'main-functions/introducer-spitpoint.html', 'handshake'),
+        page('rebate-config', '返点配置', 'main-functions/rebate-config.html', 'percent'),
         page('deduction-details', '其他扣费', 'main-functions/deduction-details.html', 'list-alt'),
         page('location-fee', '地区税费', 'main-functions/location-fee.html', 'globe'),
         page('export-center', '导出中心', 'main-functions/export-center.html', 'download')
@@ -44,9 +44,8 @@
       label: 'Meta资产管理',
       items: [
         page('meta-bm-config', 'BM 配置', 'meta-asset-management/bm-config.html', 'sliders-h'),
-        page('meta-members', '成员', 'meta-asset-management/members.html', 'users'),
         page('meta-assets', '资产', 'meta-asset-management/assets.html', 'cubes'),
-        page('meta-assignment-audit', '资产分配核对', 'meta-asset-management/assignment-audit.html', 'clipboard-check'),
+        page('meta-members', '成员', 'meta-asset-management/members.html', 'users'),
         page('meta-operation-log', '操作日志', 'meta-asset-management/operation-log.html', 'history')
       ]
     },
@@ -100,7 +99,7 @@
     },
     {
       id: 'ad-governance',
-      label: '广告治理',
+      label: '广告管理',
       items: [
         page('ad-review', '广告审核', 'ad-governance/ad-review.html', 'shield-alt')
       ]
@@ -170,5 +169,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-09.1';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-09.3';
 })();
