@@ -618,12 +618,18 @@
       return row.treeKey || row.accountId || row.c2 || `row-${index}`;
     }
     function normalizedTreeRows(tab) {
-      if ((tab.rows || []).some(row => Array.isArray(row.children))) return tab.rows || [];
+      const rawRows = tab.rows || [];
+      const parentPattern = new RegExp(tab.treeParentPattern || '账户');
+      const isAlreadyNested = rawRows.some(row => Array.isArray(row.children)) && rawRows.every(row => {
+        const rowType = String(row.c0 || row.rowType || '');
+        return !rowType || parentPattern.test(rowType);
+      });
+      if (isAlreadyNested) return rawRows;
       const parents = [];
       let currentParent = null;
-      (tab.rows || []).forEach(row => {
+      rawRows.forEach(row => {
         const rowType = String(row.c0 || row.rowType || '');
-        if (/账户/.test(rowType) || !currentParent) {
+        if (parentPattern.test(rowType) || !currentParent) {
           currentParent = row;
           currentParent.children = [];
           parents.push(currentParent);
@@ -981,7 +987,7 @@
         const ops = operationButtons(child, parentIndex, ` data-child-index="${childIndex}"`);
         return `<tr class="tree-child-data-row">${childColumns.map(column => renderCell(column, child)).join('')}<td class="ops"><div class="command-group">${ops}</div></td></tr>`;
       }).join('') : `<tr><td class="empty-state" colspan="${childColumns.length + 1}">暂无子卡数据</td></tr>`;
-      return `<tr class="tree-child-panel-row"><td colspan="__COLSPAN__"><div class="tree-child-panel"><div class="tree-child-panel__title">子信用卡明细</div><div class="table-scroll tree-child-table-scroll"><table class="admin-table admin-table--fixed tree-child-table" style="min-width:${childMinWidth}px"><colgroup>${childColumns.map(column => `<col style="width:${column.width || 140}px">`).join('')}<col style="width:${childOpsWidth}px"></colgroup><thead><tr>${childHeaders}<th class="ops">操作</th></tr></thead><tbody>${childBody}</tbody></table></div></div></td></tr>`;
+      return `<tr class="tree-child-panel-row"><td colspan="__COLSPAN__"><div class="tree-child-panel"><div class="tree-child-panel__title">${esc(tab.childTitle || '下级明细')}</div><div class="table-scroll tree-child-table-scroll"><table class="admin-table admin-table--fixed tree-child-table" style="min-width:${childMinWidth}px"><colgroup>${childColumns.map(column => `<col style="width:${column.width || 140}px">`).join('')}<col style="width:${childOpsWidth}px"></colgroup><thead><tr>${childHeaders}<th class="ops">操作</th></tr></thead><tbody>${childBody}</tbody></table></div></div></td></tr>`;
     }
     function bindCardOpsForStatus(row) {
       const status = row.verifyStatus || row.c22 || '未申请';
@@ -1059,8 +1065,9 @@
       const filterHtml = tab.filters?.length ? `<section class="admin-card filter-card"><div class="admin-card__body"><div class="filter-grid ${tab.filterClass || (tab.filters.length >= 5 ? 'cols-5' : tab.filters.length === 3 ? 'cols-3' : '')}">${tab.filters.map(field => fieldHtml(field, state.values[tab.id] || {})).join('')}<div class="filter-actions"><button class="btn btn-primary" type="button" data-action="search">${icon('search')}搜 索</button><button class="btn btn-default" type="button" data-action="reset">重 置</button></div></div></div></section>` : '';
       const actionHtml = (tab.actions || []).map(action => `<button type="button" class="btn ${action.primary ? 'btn-primary' : 'btn-default'}" data-action="${esc(action.id)}">${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`).join('');
       const actionClass = action => action.danger ? 'btn-danger' : action.primary ? 'btn-primary' : 'btn-default';
-      const leftActions = (tab.actions || []).filter(action => action.align !== 'right').map(action => `<button type="button" class="btn ${actionClass(action)}" data-action="${esc(action.id)}" data-action-label="${esc(action.label)}"${action.requiresSelection ? ' data-requires-selection' : ''}>${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`).join('');
-      const rightActions = (tab.actions || []).filter(action => action.align === 'right').map(action => `<button type="button" class="btn ${actionClass(action)}" data-action="${esc(action.id)}" data-action-label="${esc(action.label)}"${action.requiresSelection ? ' data-requires-selection' : ''}>${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`).join('');
+      const actionAttrs = action => `${action.requiresSelection ? ' data-requires-selection' : ''}${action.uploadToast ? ` data-upload-toast="${esc(action.uploadToast)}"` : ''}`;
+      const leftActions = (tab.actions || []).filter(action => action.align !== 'right').map(action => `<button type="button" class="btn ${actionClass(action)}" data-action="${esc(action.id)}" data-action-label="${esc(action.label)}"${actionAttrs(action)}>${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`).join('');
+      const rightActions = (tab.actions || []).filter(action => action.align === 'right').map(action => `<button type="button" class="btn ${actionClass(action)}" data-action="${esc(action.id)}" data-action-label="${esc(action.label)}"${actionAttrs(action)}>${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`).join('');
       const showOps = !tab.hideOperation;
       const columns = displayedColumns(tab);
       const selected = selectedSet(tab);
@@ -1145,7 +1152,7 @@
         if (actionButton.dataset.action === 'export') { showToast('导出任务已创建，可在导出中心查看进度（原型）', 'success'); return; }
         if (actionButton.dataset.action === 'download-template') { showToast('已开始下载导入模版（原型）', 'success'); return; }
         if (actionButton.dataset.action === 'custom-fields') { openModal(customFieldsModal(tab, fieldPref(tab))); return; }
-        if (actionButton.dataset.action === 'upload') { const input = root.querySelector('[data-file-upload]'); if (input) { input.value = ''; input.click(); } showToast('请选择本地文件上传广告账号（原型）', 'info'); return; }
+        if (actionButton.dataset.action === 'upload') { const input = root.querySelector('[data-file-upload]'); if (input) { input.value = ''; input.click(); } showToast(actionButton.dataset.uploadToast || `请选择本地文件执行“${actionButton.dataset.actionLabel || actionButton.textContent.trim()}”（原型）`, 'info'); return; }
         if (actionButton.hasAttribute('data-requires-selection') && selectedSet(tab).size === 0) { showToast('请先勾选需要操作的广告账户', 'error'); return; }
         const actionLabel = actionButton.dataset.actionLabel || actionButton.textContent.trim();
         const modal = tab.modals?.[actionLabel] || config.modals?.[actionLabel];
