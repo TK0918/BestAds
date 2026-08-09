@@ -372,11 +372,18 @@
   function fieldHtml(field, values) {
     const value = values[field.key] || field.value || '';
     if (field.type === 'select') return `<div class="filter-field"><label>${esc(field.label)}</label><select data-filter="${esc(field.key)}"><option value="">${esc(field.placeholder || '全部')}</option>${(field.options || []).map(v => `<option value="${esc(v)}"${v === value ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
+    if (field.type === 'multiselect') return `<div class="filter-field filter-field--multi"><label>${esc(field.label)}</label><select data-filter="${esc(field.key)}" multiple aria-label="${esc(field.label)}">${(field.options || []).map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('')}</select><span class="filter-help">${esc(field.hint || '支持多选')}</span></div>`;
     if (field.type === 'daterange') {
       const startKey = field.startKey || `${field.key}Start`;
       const endKey = field.endKey || `${field.key}End`;
       return `<div class="filter-field"><label>${esc(field.label)}</label><div class="datetime-range"><input data-filter="${esc(startKey)}" type="date" value="${esc(values[startKey] || '')}"><span class="datetime-sep">至</span><input data-filter="${esc(endKey)}" type="date" value="${esc(values[endKey] || '')}"></div></div>`;
     }
+    if (field.type === 'textrange') {
+      const startKey = field.startKey || `${field.key}Start`;
+      const endKey = field.endKey || `${field.key}End`;
+      return `<div class="filter-field"><label>${esc(field.label)}</label><div class="datetime-range"><input data-filter="${esc(startKey)}" type="text" placeholder="${esc(field.startPlaceholder || '开始时间')}" value="${esc(values[startKey] || '')}"><span class="datetime-sep">至</span><input data-filter="${esc(endKey)}" type="text" placeholder="${esc(field.endPlaceholder || '结束时间')}" value="${esc(values[endKey] || '')}"></div></div>`;
+    }
+    if (field.type === 'textarea') return `<div class="filter-field filter-field--textarea"><label>${esc(field.label)}</label><textarea data-filter="${esc(field.key)}" placeholder="${esc(field.placeholder || '')}">${esc(value)}</textarea></div>`;
     return `<div class="filter-field"><label>${esc(field.label)}</label><input data-filter="${esc(field.key)}" type="${field.type === 'date' ? 'date' : 'text'}" placeholder="${esc(field.placeholder || '')}" value="${esc(value)}"></div>`;
   }
 
@@ -481,6 +488,35 @@
     return `<div class="modal-backdrop drawer-backdrop" data-field-drawer><section class="modal drawer-modal"><div class="modal__header"><h2 class="modal__title">自定义列表字段</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="field-custom-summary"><strong>${visible.length} 项显示</strong><span class="muted">拖拽可调整字段顺序</span></div><div class="account-check-list field-custom-list">${ordered.map(column => `<label class="account-check field-custom-item" draggable="true" data-field-key="${esc(column.key)}"><span class="field-drag-handle">${icon('grip-vertical')}</span><input type="checkbox" data-field-toggle="${esc(column.key)}" ${fieldPref.visible.has(column.key) ? 'checked' : ''}><span>${esc(column.label)}</span></label>`).join('')}</div><div class="field-custom-summary muted"><strong>${hidden.length} 项隐藏</strong><span>${hidden.length ? hidden.map(column => esc(column.label)).join('、') : '暂无数据'}</span></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-action-reset-fields>恢复默认</button><button type="button" class="btn btn-default" data-modal-close>取 消</button><button type="button" class="btn btn-primary" data-field-confirm>确 定</button></div></section></div>`;
   }
 
+  function chartCardHtml(chart) {
+    const items = chart.items || [];
+    const max = Math.max(1, ...items.map(item => Number(item.value) || 0));
+    if (chart.type === 'donut') {
+      let cursor = 0;
+      const stops = items.map((item, index) => {
+        const value = Math.max(0, Number(item.value) || 0);
+        const start = cursor;
+        cursor += value;
+        const end = cursor;
+        return `${item.color || ['#006be6', '#67c23a', '#d7a51a', '#f56c6c', '#8b5cf6'][index % 5]} ${start}% ${end}%`;
+      }).join(', ');
+      return `<section class="admin-card chart-card"><div class="admin-card__header"><h3 class="admin-card__title">${esc(chart.title || '图表')}</h3></div><div class="admin-card__body chart-card__body"><div class="donut-chart" style="--donut-stops:${esc(stops)}"><span>${esc(chart.center || '')}</span></div><div class="chart-legend">${items.map(item => `<span><i style="background:${esc(item.color || '#006be6')}"></i>${esc(item.label)} <b>${esc(item.display || `${item.value}%`)}</b></span>`).join('')}</div></div></section>`;
+    }
+    return `<section class="admin-card chart-card"><div class="admin-card__header"><h3 class="admin-card__title">${esc(chart.title || '图表')}</h3></div><div class="admin-card__body"><div class="bar-chart">${items.map(item => `<div class="bar-chart__row"><span class="bar-chart__label">${esc(item.label)}</span><div class="bar-chart__track"><i style="width:${Math.max(4, Math.round((Number(item.value) || 0) / max * 100))}%;background:${esc(item.color || '#006be6')}"></i></div><span class="bar-chart__value">${esc(item.display || item.value || '-')}</span></div>`).join('')}</div></div></section>`;
+  }
+
+  function chartsHtml(tab, config) {
+    const charts = tab.charts || config.charts || [];
+    return charts.length ? `<section class="chart-grid">${charts.map(chartCardHtml).join('')}</section>` : '';
+  }
+
+  function dimensionSelectorHtml(tab) {
+    const groups = tab.dimensionGroups || [];
+    if (!groups.length) return '';
+    const options = groups.flatMap(group => (group.options || []).map(option => ({ ...option, group })));
+    return `<section class="admin-card dimension-card"><div class="admin-card__body dimension-card__body"><div class="dimension-line"><div class="dimension-line__title">统计维度</div><div class="dimension-options">${options.map(item => `<label class="dimension-option"><input type="checkbox" name="${esc(item.group.key)}" data-dimension-group="${esc(item.group.key)}"${item.group.exclusive ? ' data-dimension-exclusive="true"' : ''} ${item.checked ? 'checked' : ''}><span>${esc(item.label)}</span></label>`).join('')}</div></div></div></section>`;
+  }
+
   function renderCell(column, row) {
     const value = row[column.key];
     const rendered = column.format ? column.format(value, row) : asText(value);
@@ -527,6 +563,7 @@
       let result = (tab.rows || []).filter(row => {
         const matchedTextFilters = Object.keys(values).every(key => {
           if (rangeValueKeys.has(key)) return true;
+          if (!(key in row)) return true;
           return !values[key] || String(row[key] || '').toLowerCase().includes(String(values[key]).toLowerCase());
         });
         if (!matchedTextFilters) return false;
@@ -840,7 +877,9 @@
     }
     function readFilters(tab) {
       const values = {};
-      root.querySelectorAll('[data-filter]').forEach(node => { values[node.dataset.filter] = node.value.trim(); });
+      root.querySelectorAll('[data-filter]').forEach(node => {
+        values[node.dataset.filter] = node.multiple ? Array.from(node.selectedOptions).map(option => option.value.trim()).filter(Boolean).join(' ') : node.value.trim();
+      });
       state.values[tab.id] = values;
     }
     function render() {
@@ -866,7 +905,7 @@
       const colspan = columns.length + (tab.selectable ? 1 : 0) + (showOps ? 1 : 0);
       const footerNote = tab.footerNote ? `<div class="notice module-footer-note">${esc(tab.footerNote)}</div>` : '';
       const cardHeader = leftActions || rightActions ? `<div class="admin-card__header"><div class="command-bar command-bar--split"><div class="command-group command-group--primary">${leftActions}</div><div class="command-group command-group--secondary">${rightActions}</div></div></div>` : '';
-      root.innerHTML = `<div class="admin-page module-page">${tabHtml}${kpiHtml}${filterHtml}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
+      root.innerHTML = `<div class="admin-page module-page">${tabHtml}${kpiHtml}${filterHtml}${dimensionSelectorHtml(tab)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
       root.querySelectorAll('[data-requires-selection]').forEach(button => { button.disabled = selected.size === 0; });
     }
     function handleRowAction(action, row) {
@@ -875,6 +914,10 @@
       if (modal) {
         if (modal.type === 'offline-transfer-audit') state.processingRow = row;
         if (modal.type === 'monitor-follow') state.processingRow = row;
+        if (/confirm/.test(modal.type || '')) {
+          openModal(confirmModal(modal.title || action, modal.copy || `确认执行“${esc(action)}”？原型不会调用真实接口。`, modal.danger, modal.type));
+          return;
+        }
         openModal(formModal(modal, row));
         return;
       }
@@ -885,7 +928,7 @@
       }
       if (/手动同步/.test(action)) { openModal(confirmModal('手动同步', `确认对 <strong>${esc(row.name || row.bmId || '当前 BM')}</strong> 触发手动同步？原型仅展示确认态，不会调用测试环境。`, false)); return; }
       if (/分配/.test(action)) { openModal(formModal({ title: '分配成员', fields: [{ key: 'email', label: 'User Email', placeholder: '请输入 User Email' }, { key: 'permission', label: '权限', control: 'select', options: ['管理员', '成员'], placeholder: '选择权限' }] }, row)); return; }
-      if (/解除|更新|标记内部|标记|编辑标记|编辑/.test(action)) { openModal(confirmModal(action, `确认对 <strong>${esc(row.email || row.accountName || row.pixelName || row.name || '当前记录')}</strong> 执行“${esc(action)}”？原型不会调用真实接口。`, /解除/.test(action))); return; }
+      if (/解除|删除|更新|标记内部|标记|编辑标记|编辑/.test(action)) { openModal(confirmModal(action, `确认对 <strong>${esc(row.email || row.accountName || row.pixelName || row.name || row.customerName || '当前记录')}</strong> 执行“${esc(action)}”？原型不会调用真实接口。`, /解除|删除/.test(action))); return; }
       openModal(detailModal(action, row, tab));
     }
 
@@ -919,6 +962,12 @@
       if (selectAll && !selectAll.disabled) { const tab = activeTab(); const set = selectedSet(tab); set.clear(); if (selectAll.checked) rows(tab).forEach((row, index) => { if (row.selectable !== false) set.add(index); }); render(); }
     });
     root.addEventListener('change', event => {
+      const dimensionInput = event.target.closest('[data-dimension-group]');
+      if (dimensionInput?.dataset.dimensionExclusive === 'true' && dimensionInput.checked) {
+        root.querySelectorAll(`[data-dimension-group="${CSS.escape(dimensionInput.dataset.dimensionGroup)}"]`).forEach(input => {
+          if (input !== dimensionInput) input.checked = false;
+        });
+      }
       if (event.target.closest('[data-file-upload]')) {
         const file = event.target.files?.[0];
         if (file) showToast(`已选择文件：${file.name}（原型）`, 'success');

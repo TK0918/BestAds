@@ -53,17 +53,21 @@ body.admin-prototype-page.theme-dark {
 .admin-card__title { margin: 0; color: var(--admin-text); font-size: 15px; font-weight: 600; }
 .admin-card__body { padding: 16px; }
 
-.filter-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 14px 16px; align-items: end; }
+.filter-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 14px 16px; align-items: start; }
 .filter-grid.cols-3 { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
 .filter-grid.cols-5 { grid-template-columns: repeat(5, minmax(145px, 1fr)); }
 .filter-grid.cols-7 { grid-template-columns: repeat(7, minmax(130px, 1fr)); }
 .filter-field { min-width: 0; }
 .filter-field label, .form-field label { display: block; margin-bottom: 6px; color: var(--admin-secondary); font-size: 13px; line-height: 18px; }
-.filter-field input, .filter-field select, .form-field input, .form-field select, .form-field textarea { width: 100%; height: 32px; border: 1px solid var(--admin-border); border-radius: 4px; outline: none; padding: 0 10px; background: var(--admin-surface); color: var(--admin-text); font: inherit; transition: border-color .16s ease, box-shadow .16s ease; }
+.filter-field input, .filter-field select, .filter-field textarea, .form-field input, .form-field select, .form-field textarea { width: 100%; height: 32px; border: 1px solid var(--admin-border); border-radius: 4px; outline: none; padding: 0 10px; background: var(--admin-surface); color: var(--admin-text); font: inherit; transition: border-color .16s ease, box-shadow .16s ease; }
+.filter-field textarea { height: 32px; min-height: 32px; padding-top: 5px; resize: none; overflow: hidden; }
+.filter-field--textarea { align-self: stretch; }
+.filter-field--multi select { height: 32px; padding: 0 10px; overflow: hidden; }
+.filter-help { display: block; margin-top: 4px; color: var(--admin-muted); font-size: 12px; line-height: 18px; }
 .form-field textarea { height: auto; min-height: 84px; padding-top: 8px; resize: vertical; }
-.filter-field input::placeholder, .form-field input::placeholder, .form-field textarea::placeholder { color: var(--admin-muted); }
-.filter-field input:focus, .filter-field select:focus, .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(0, 107, 230, .12); }
-.filter-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; grid-column: 1 / -1; padding-top: 2px; }
+.filter-field input::placeholder, .filter-field textarea::placeholder, .form-field input::placeholder, .form-field textarea::placeholder { color: var(--admin-muted); }
+.filter-field input:focus, .filter-field select:focus, .filter-field textarea:focus, .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(0, 107, 230, .12); }
+.filter-actions { display: flex; justify-content: flex-end; align-items: center; align-self: end; gap: 8px; padding-top: 2px; }
 
 .btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 32px; padding: 0 15px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--admin-text); cursor: pointer; font: inherit; white-space: nowrap; transition: background .16s ease, border-color .16s ease, color .16s ease; }
 .btn:disabled { cursor: not-allowed; opacity: .55; }
@@ -111,6 +115,34 @@ body.admin-prototype-page.theme-dark {
 .amount-negative { color: var(--admin-danger); font-variant-numeric: tabular-nums; }
 .amount-zero { color: var(--admin-text); font-variant-numeric: tabular-nums; }
 .merchant-id { font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+
+.chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.filter-card + .chart-grid { margin-top: 16px; }
+.chart-card__body { display: grid; grid-template-columns: 180px minmax(0, 1fr); align-items: center; gap: 18px; }
+.bar-chart { display: grid; gap: 14px; }
+.bar-chart__row { display: grid; grid-template-columns: 150px minmax(180px, 1fr) 100px; align-items: center; gap: 12px; min-width: 0; }
+.bar-chart__label { overflow: hidden; color: var(--admin-secondary); text-overflow: ellipsis; white-space: nowrap; }
+.bar-chart__track { height: 12px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--admin-page-bg) 82%, var(--admin-surface)); }
+.bar-chart__track i { display: block; height: 100%; border-radius: inherit; }
+.bar-chart__value { color: var(--admin-text); font-variant-numeric: tabular-nums; text-align: right; }
+.donut-chart { display: grid; place-items: center; width: 156px; height: 156px; border-radius: 50%; background: conic-gradient(var(--donut-stops)); }
+.donut-chart::before { content: ""; position: absolute; width: 96px; height: 96px; border-radius: 50%; background: var(--admin-surface); }
+.donut-chart { position: relative; }
+.donut-chart span { position: relative; z-index: 1; color: var(--admin-text); font-size: 18px; font-weight: 600; }
+.chart-legend { display: grid; gap: 10px; color: var(--admin-secondary); }
+.chart-legend span { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.chart-legend i { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.chart-legend b { margin-left: auto; color: var(--admin-text); font-weight: 500; font-variant-numeric: tabular-nums; }
+.dimension-card { margin-bottom: 16px; }
+.dimension-card__body { padding: 8px 16px; }
+body.figma-ops-page .admin-card.dimension-card .dimension-card__body { padding: 8px 16px; }
+.dimension-line { display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 12px; }
+.dimension-line__title { color: var(--admin-secondary); font-size: 13px; line-height: 32px; white-space: nowrap; }
+.dimension-options { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; height: 32px; min-height: 32px; overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+.dimension-option { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; height: 30px; min-height: 30px; max-height: 30px; padding: 0 10px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); color: var(--admin-text); line-height: 30px; white-space: nowrap; cursor: pointer; }
+body.figma-ops-page .dimension-card .dimension-options { align-items: center; height: 32px; min-height: 32px; overflow-y: hidden; }
+body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 30px; min-height: 30px; max-height: 30px; line-height: 30px; white-space: nowrap; }
+.dimension-option input { margin: 0; accent-color: var(--admin-primary); }
 
 .pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 16px; color: var(--admin-secondary); font-size: 12px; }
 .pagination__actions { display: flex; align-items: center; gap: 4px; }
