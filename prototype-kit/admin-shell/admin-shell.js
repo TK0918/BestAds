@@ -18,7 +18,6 @@
   // 菜单是配置文件，使用轻量 cache-busting，确保新增页面后刷新即可生效。
   menuUrl.searchParams.set('v', String(Date.now()));
   const THEME_KEY = 'bestads-theme';
-  const COLLAPSE_KEY = 'bestads-admin-menu-collapse';
 
   function safeStorage(action, fallback) {
     try {
@@ -80,14 +79,6 @@
     return allMenuItems(menu).find(item => item.path && isCurrentPage(item.path)) || null;
   }
 
-  function readCollapsedGroups() {
-    return safeStorage(storage => JSON.parse(storage.getItem(COLLAPSE_KEY) || '{}'), {});
-  }
-
-  function writeCollapsedGroups(value) {
-    safeStorage(storage => storage.setItem(COLLAPSE_KEY, JSON.stringify(value)), null);
-  }
-
   function renderSidebar(menu) {
     const sidebar = document.querySelector('[data-admin-shell="sidebar"]') || document.getElementById('sidebar');
     if (!sidebar) return;
@@ -118,12 +109,13 @@
     }
     wrapper.classList.add('admin-shell-menu-wrapper');
 
-    const collapsed = readCollapsedGroups();
     const currentItem = findCurrentItem(menu);
     const groupsHtml = (menu || []).map(group => {
       const items = group.items || [];
       const containsCurrent = items.some(item => item.path && isCurrentPage(item.path));
-      const isCollapsed = collapsed[group.id] === true && !containsCurrent;
+      // 与测试环境保持一致：页面加载后只展开当前页面所在一级菜单；其余一级菜单只展示标题。
+      // 用户在当前页面点击展开仅作为临时查看状态，不跨页面持久化。
+      const isCollapsed = !containsCurrent;
       const listId = `admin-shell-group-${group.id}`;
       const itemsHtml = items.map(item => {
         const active = item.path && isCurrentPage(item.path);
@@ -151,9 +143,6 @@
         button.setAttribute('aria-expanded', String(!nextCollapsed));
         const icon = button.querySelector('i');
         if (icon) icon.className = `fas fa-chevron-${nextCollapsed ? 'right' : 'down'}`;
-        const state = readCollapsedGroups();
-        state[group.dataset.adminMenuGroup] = nextCollapsed;
-        writeCollapsedGroups(state);
       });
     });
 

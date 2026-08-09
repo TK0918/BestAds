@@ -66,12 +66,12 @@
       id: 'tt-business',
       label: 'TT业务管理',
       items: [
-        page('tt-account-management', '账户管理', null, 'sync', { status: 'planned' }),
-        page('tt-account-allocation', '账户分配', null, 'clipboard-list', { status: 'planned' }),
-        page('tt-recharge-management', '账户充值', null, 'dollar-sign', { status: 'planned' }),
-        page('tt-deduction-management', '账户减款', null, 'minus-circle', { status: 'planned' }),
-        page('tt-clear-management', '账户清零', null, 'eraser', { status: 'planned' }),
-        page('tt-service-fee-config', '服务费配置', null, 'receipt', { status: 'planned' })
+        page('tt-account-management', '账户管理', 'tt-business/account-management.html', 'sync'),
+        page('tt-account-allocation', '账户分配', 'tt-business/account-allocation.html', 'clipboard-list'),
+        page('tt-recharge-management', '账户充值', 'tt-business/recharge-management.html', 'dollar-sign'),
+        page('tt-deduction-management', '账户减款', 'tt-business/deduction-management.html', 'minus-circle'),
+        page('tt-clear-management', '账户清零', 'tt-business/clear-management.html', 'eraser'),
+        page('tt-service-fee-config', '服务费配置', 'tt-business/service-fee-config.html', 'receipt')
       ]
     },
     {
@@ -83,7 +83,7 @@
         page('google-recharge-management', '账户充值', 'google-business/recharge-management.html', 'dollar-sign'),
         page('google-deduction-management', '账户减款', 'google-business/deduction-management.html', 'minus-circle'),
         page('google-clear-management', '账户清零', 'google-business/clear-management.html', 'eraser'),
-        page('google-service-fee-config', '服务费配置', 'google-business/service-fee-config.html', 'receipt')
+        page('google-service-fee-config', '账户服务费', 'google-business/service-fee-config.html', 'receipt')
       ]
     },
     {
@@ -94,7 +94,7 @@
         page('other-account-allocation', '账户分配', 'other-media-business/account-allocation.html', 'clipboard-list'),
         page('other-recharge-management', '账户充值', 'other-media-business/recharge-management.html', 'dollar-sign'),
         page('other-clear-management', '账户清零', 'other-media-business/clear-management.html', 'eraser'),
-        page('other-service-fee-config', '服务费配置', 'other-media-business/service-fee-config.html', 'receipt')
+        page('other-service-fee-config', '账户服务费', 'other-media-business/service-fee-config.html', 'receipt')
       ]
     },
     {
@@ -125,7 +125,7 @@
       label: '余额监控管理',
       items: [
         page('account-status-monitor', '账户状态监控', 'auto-recharge/account-status-monitor.html', 'bell'),
-        page('balance-day-over-day-report', '余额日环比', 'auto-recharge/balance-day-over-day-report.html', 'chart-line'),
+        page('balance-day-over-day-report', '账户余额日环比', 'auto-recharge/balance-day-over-day-report.html', 'chart-line'),
         page('client-rules', '客户端规则', 'auto-recharge/client-rules.html', 'sliders-h'),
         page('balance-notifications', '余额监控通知', 'auto-recharge/notifications.html', 'bell')
       ]
@@ -169,5 +169,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-09.3';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-09.4';
 })();
