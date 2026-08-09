@@ -122,12 +122,11 @@
     },
     {
       id: 'balance-monitor',
-      label: '余额监控管理',
+      label: '监控管理',
       items: [
-        page('account-status-monitor', '账户状态监控', 'auto-recharge/account-status-monitor.html', 'bell'),
-        page('balance-day-over-day-report', '账户余额日环比', 'auto-recharge/balance-day-over-day-report.html', 'chart-line'),
-        page('client-rules', '客户端规则', 'auto-recharge/client-rules.html', 'sliders-h'),
-        page('balance-notifications', '余额监控通知', 'auto-recharge/notifications.html', 'bell')
+        page('balance-monitor-auto-recharge', '余额监控&自动充值', 'auto-recharge/notifications.html', 'bell'),
+        page('account-status-monitor', '账户封停监控', 'auto-recharge/account-status-monitor.html', 'bell'),
+        page('balance-day-over-day-report', '账户余额日环比', 'auto-recharge/balance-day-over-day-report.html', 'chart-line')
       ]
     },
     {

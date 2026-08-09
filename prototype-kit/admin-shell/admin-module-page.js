@@ -372,6 +372,11 @@
   function fieldHtml(field, values) {
     const value = values[field.key] || field.value || '';
     if (field.type === 'select') return `<div class="filter-field"><label>${esc(field.label)}</label><select data-filter="${esc(field.key)}"><option value="">${esc(field.placeholder || '全部')}</option>${(field.options || []).map(v => `<option value="${esc(v)}"${v === value ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
+    if (field.type === 'daterange') {
+      const startKey = field.startKey || `${field.key}Start`;
+      const endKey = field.endKey || `${field.key}End`;
+      return `<div class="filter-field"><label>${esc(field.label)}</label><div class="datetime-range"><input data-filter="${esc(startKey)}" type="date" value="${esc(values[startKey] || '')}"><span class="datetime-sep">至</span><input data-filter="${esc(endKey)}" type="date" value="${esc(values[endKey] || '')}"></div></div>`;
+    }
     return `<div class="filter-field"><label>${esc(field.label)}</label><input data-filter="${esc(field.key)}" type="${field.type === 'date' ? 'date' : 'text'}" placeholder="${esc(field.placeholder || '')}" value="${esc(value)}"></div>`;
   }
 
@@ -389,6 +394,9 @@
     if (modal?.type === 'account-adjustment') return accountAdjustmentModal(modal);
     if (modal?.type === 'offline-transfer-audit') return offlineTransferAuditModal(modal, row);
     if (modal?.type === 'receipt-preview') return receiptPreviewModal(modal, row);
+    if (modal?.type === 'monitor-follow') return monitorFollowModal(modal, row);
+    if (modal?.type === 'monitor-history') return monitorHistoryModal(modal, row);
+    if (modal?.type === 'monitor-alert-preview') return monitorAlertPreviewModal(modal);
     const fields = modal?.fields || [];
     return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid">${fields.map(field => `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${field.required === false ? '' : ' <span style="color:var(--admin-danger)">*</span>'}</label>${modalControl(field, row?.[field.key])}</div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
@@ -399,6 +407,26 @@
 
   function receiptPreviewModal(modal, row) {
     return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '查看凭证')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="detail-grid"><div><dt>支付平台</dt><dd>${esc(row.platform || '-')}</dd></div><div><dt>平台支付ID</dt><dd>${esc(row.platformPayId || '-')}</dd></div><div><dt>支付金额</dt><dd>${esc(row.payAmount || '-')} ${esc(row.payCurrency || '')}</dd></div><div><dt>凭证文件</dt><dd>${esc(row.receiptFile || row.attachment || '-')}</dd></div></div><div class="receipt-preview-box"><div class="receipt-preview-box__icon">${icon('file-invoice-dollar')}</div><div><strong>支付凭证预览</strong><p>这里展示客户上传的银行转账、水单或第三方支付截图。原型使用脱敏 Fixture，不加载真实附件。</p></div></div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+  }
+
+  function monitorFollowModal(modal, row) {
+    const title = modal.title || (row && Object.keys(row).length ? '跟进' : '批量跟进');
+    const statusValue = row?.followStatus || '跟进中';
+    const target = row?.accountId || row?.ruleName || row?.notificationId || '已选记录';
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><p class="confirm-copy">跟进对象：<strong>${esc(target)}</strong>。原型只更新当前页面 Fixture，不调用真实接口。</p><div class="form-grid" data-monitor-follow-modal><div class="form-field full"><label>跟进状态 <span style="color:var(--admin-danger)">*</span></label><select data-monitor-follow-status><option value="待跟进"${statusValue === '待跟进' ? ' selected' : ''}>待跟进</option><option value="跟进中"${statusValue === '跟进中' ? ' selected' : ''}>跟进中</option><option value="已处理"${statusValue === '已处理' ? ' selected' : ''}>已处理</option></select></div><div class="form-field full"><label>跟进备注</label><textarea data-monitor-follow-remark placeholder="请输入跟进说明">${esc(row?.followRemark || '')}</textarea></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+  }
+
+  function monitorHistoryModal(modal, row) {
+    const history = row?.followHistory || [];
+    const current = row?.followAt ? [{ status: row.followStatus, owner: row.followOwner, at: row.followAt, remark: row.followRemark || row.remark || '-' }] : [];
+    const records = history.length ? history : current;
+    const body = records.length ? records.map(item => `<div class="follow-log"><div class="follow-log__head"><strong>${esc(item.statusLabel || item.status || '-')}</strong><span class="follow-log__meta">${esc(item.at || '-')}</span></div><div class="follow-log__meta">${esc(item.owner || '-')}</div><div class="follow-log__remark">${esc(item.remark || '-')}</div></div>`).join('') : '<div class="empty-state">暂无跟进记录</div>';
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '跟进记录')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body">${body}</div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+  }
+
+  function monitorAlertPreviewModal(modal) {
+    const lines = modal.lines || ['【监控告警】示例消息', '命中记录：3 条', '请相关负责人进入运营端处理。'];
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '飞书告警示意')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="risk-summary">${lines.map(line => `<span>${esc(line)}</span>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
   function rechargeRequestModal(modal) {
@@ -491,7 +519,26 @@
     }
     function rows(tab) {
       const values = state.values[tab.id] || {};
-      let result = (tab.rows || []).filter(row => Object.keys(values).every(key => !values[key] || String(row[key] || '').toLowerCase().includes(String(values[key]).toLowerCase())));
+      const rangeFields = new Map((tab.filters || []).filter(field => field.type === 'daterange').map(field => [field.key, {
+        startKey: field.startKey || `${field.key}Start`,
+        endKey: field.endKey || `${field.key}End`
+      }]));
+      const rangeValueKeys = new Set(Array.from(rangeFields.values()).flatMap(item => [item.startKey, item.endKey]));
+      let result = (tab.rows || []).filter(row => {
+        const matchedTextFilters = Object.keys(values).every(key => {
+          if (rangeValueKeys.has(key)) return true;
+          return !values[key] || String(row[key] || '').toLowerCase().includes(String(values[key]).toLowerCase());
+        });
+        if (!matchedTextFilters) return false;
+        return Array.from(rangeFields.entries()).every(([key, range]) => {
+          const rowDate = String(row[key] || '').slice(0, 10);
+          const start = values[range.startKey];
+          const end = values[range.endKey];
+          if (start && rowDate < start) return false;
+          if (end && rowDate > end) return false;
+          return true;
+        });
+      });
       const sort = state.sort[tab.id];
       if (sort) result = result.slice().sort((a, b) => String(a[sort.key] || '').localeCompare(String(b[sort.key] || ''), 'zh-CN', { numeric: true }) * (sort.dir === 'desc' ? -1 : 1));
       return result;
@@ -800,6 +847,8 @@
       const tab = activeTab();
       const hasTabs = tabs.filter(item => item.label).length > 1;
       const tabHtml = hasTabs ? `<div class="business-tabs" role="tablist">${tabs.filter(item => item.label).map(item => `<button type="button" class="business-tab${item.id === state.tab ? ' is-active' : ''}" data-tab="${esc(item.id)}">${esc(item.label)}</button>`).join('')}</div>` : '';
+      const kpis = tab.kpis || config.kpis || [];
+      const kpiHtml = kpis.length ? `<section class="kpi-grid" aria-label="${esc(tab.title || config.title || '统计')}">${kpis.map(item => `<div class="admin-card kpi-card"><p class="kpi-card__label">${esc(item.label)}</p><div class="kpi-card__value">${esc(item.value)}</div><p class="kpi-card__hint">${esc(item.hint || '')}</p></div>`).join('')}</section>` : '';
       const filterHtml = tab.filters?.length ? `<section class="admin-card filter-card"><div class="admin-card__body"><div class="filter-grid ${tab.filterClass || (tab.filters.length >= 5 ? 'cols-5' : tab.filters.length === 3 ? 'cols-3' : '')}">${tab.filters.map(field => fieldHtml(field, state.values[tab.id] || {})).join('')}<div class="filter-actions"><button class="btn btn-primary" type="button" data-action="search">${icon('search')}搜 索</button><button class="btn btn-default" type="button" data-action="reset">重 置</button></div></div></div></section>` : '';
       const actionHtml = (tab.actions || []).map(action => `<button type="button" class="btn ${action.primary ? 'btn-primary' : 'btn-default'}" data-action="${esc(action.id)}">${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`).join('');
       const actionClass = action => action.danger ? 'btn-danger' : action.primary ? 'btn-primary' : 'btn-default';
@@ -817,7 +866,7 @@
       const colspan = columns.length + (tab.selectable ? 1 : 0) + (showOps ? 1 : 0);
       const footerNote = tab.footerNote ? `<div class="notice module-footer-note">${esc(tab.footerNote)}</div>` : '';
       const cardHeader = leftActions || rightActions ? `<div class="admin-card__header"><div class="command-bar command-bar--split"><div class="command-group command-group--primary">${leftActions}</div><div class="command-group command-group--secondary">${rightActions}</div></div></div>` : '';
-      root.innerHTML = `<div class="admin-page module-page">${tabHtml}${filterHtml}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
+      root.innerHTML = `<div class="admin-page module-page">${tabHtml}${kpiHtml}${filterHtml}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
       root.querySelectorAll('[data-requires-selection]').forEach(button => { button.disabled = selected.size === 0; });
     }
     function handleRowAction(action, row) {
@@ -825,6 +874,7 @@
       const modal = tab.modals?.[action] || config.modals?.[action];
       if (modal) {
         if (modal.type === 'offline-transfer-audit') state.processingRow = row;
+        if (modal.type === 'monitor-follow') state.processingRow = row;
         openModal(formModal(modal, row));
         return;
       }
@@ -891,6 +941,7 @@
         if (backdrop?.dataset.confirmAction === 'confirm-submit-adjustment') state.pendingAdjustment = null;
         if (backdrop?.querySelector('[data-process-modal]')) state.processingRow = null;
         if (backdrop?.querySelector('[data-offline-audit-modal]')) state.processingRow = null;
+        if (backdrop?.querySelector('[data-monitor-follow-modal]')) state.processingRow = null;
         closeModal();
       }
       if (event.target.closest('[data-action-reset-fields]')) {
@@ -956,6 +1007,29 @@
           closeModal();
           render();
           showToast(`线下转账已${nextStatus === '成功' ? '审核通过' : '审核失败'}（原型）`, nextStatus === '成功' ? 'success' : 'info');
+          return;
+        }
+        const monitorFollowModalRoot = backdrop?.querySelector('[data-monitor-follow-modal]');
+        if (monitorFollowModalRoot) {
+          const tab = activeTab();
+          const statusValue = monitorFollowModalRoot.querySelector('[data-monitor-follow-status]')?.value || 'in_progress';
+          const statusLabel = statusValue;
+          const remark = monitorFollowModalRoot.querySelector('[data-monitor-follow-remark]')?.value.trim() || '-';
+          const time = currentTimestamp();
+          const targets = state.processingRow ? [state.processingRow] : Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+          if (!targets.length) { showToast('请先选择需要跟进的记录', 'error'); return; }
+          targets.forEach(row => {
+            row.followStatus = statusValue;
+            row.followOwner = '管理员(admin@bestfulfill.com)';
+            row.followAt = time;
+            row.followRemark = remark;
+            row.followHistory = [{ status: statusValue, statusLabel, owner: row.followOwner, at: time, remark }].concat(row.followHistory || []);
+          });
+          selectedSet(tab).clear();
+          state.processingRow = null;
+          closeModal();
+          render();
+          showToast(`已更新 ${targets.length} 条监控记录跟进状态（原型）`, 'success');
           return;
         }
         closeModal();
