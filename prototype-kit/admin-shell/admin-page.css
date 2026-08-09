@@ -183,6 +183,10 @@ body.admin-prototype-page.theme-dark {
 .risk-confirm__line p { margin: 0; line-height: 22px; }
 .risk-confirm__count { margin-top: 2px; }
 .risk-summary { display: grid; gap: 8px; margin-top: 4px; padding: 12px; border: 1px solid var(--admin-border); border-radius: 4px; background: color-mix(in srgb, var(--admin-page-bg) 52%, var(--admin-surface)); color: var(--admin-secondary); font-size: 13px; }
+.receipt-preview-box { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 120px; margin-top: 16px; padding: 18px; border: 1px dashed var(--admin-border); border-radius: 4px; background: color-mix(in srgb, var(--admin-page-bg) 55%, var(--admin-surface)); color: var(--admin-secondary); }
+.receipt-preview-box__icon { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(0, 107, 230, .1); color: var(--admin-primary); font-size: 22px; }
+.receipt-preview-box strong { display: block; margin-bottom: 6px; color: var(--admin-text); font-size: 14px; }
+.receipt-preview-box p { margin: 0; line-height: 20px; }
 .module-page .person-cell { white-space: normal; line-height: 20px; }
 .module-page .module-footer-note { margin: 12px 16px 0; }
 .module-page .list-card .command-group:empty { min-height: 32px; }

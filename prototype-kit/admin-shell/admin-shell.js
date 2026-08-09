@@ -12,7 +12,7 @@
   const shellUrl = new URL(currentScript.src, window.location.href);
   const shellDirUrl = new URL('./', shellUrl);
   const repoRootUrl = new URL('../../', shellUrl);
-  const SHELL_VERSION = '20260809-collapse';
+  const SHELL_VERSION = '20260809-customer-transactions';
   const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
   const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
   cssUrlObj.searchParams.set('v', SHELL_VERSION);

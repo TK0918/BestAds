@@ -387,8 +387,18 @@
     if (modal?.type === 'recharge-request') return rechargeRequestModal(modal);
     if (modal?.type === 'assign-account') return assignAccountModal(modal);
     if (modal?.type === 'account-adjustment') return accountAdjustmentModal(modal);
+    if (modal?.type === 'offline-transfer-audit') return offlineTransferAuditModal(modal, row);
+    if (modal?.type === 'receipt-preview') return receiptPreviewModal(modal, row);
     const fields = modal?.fields || [];
     return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid">${fields.map(field => `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${field.required === false ? '' : ' <span style="color:var(--admin-danger)">*</span>'}</label>${modalControl(field, row?.[field.key])}</div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+  }
+
+  function offlineTransferAuditModal(modal, row) {
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '线下转账审核')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">原型只更新本地列表状态，不会提交测试环境数据。</div><div class="detail-grid"><div><dt>转账单号</dt><dd>${esc(row.orderId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row.customerName || '-')}（商户ID: ${esc(row.merchantId || '-')}）</dd></div><div><dt>支付平台</dt><dd>${esc(row.platform || '-')}</dd></div><div><dt>支付金额</dt><dd>${esc(row.payAmount || '-')} ${esc(row.payCurrency || '')}</dd></div></div><div class="form-grid" data-offline-audit-modal><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 入账币种</label><select data-audit-currency><option value="USD"${row.accountCurrency === 'USD' ? ' selected' : ''}>USD</option><option value="EUR"${row.accountCurrency === 'EUR' ? ' selected' : ''}>EUR</option><option value="HKD"${row.accountCurrency === 'HKD' ? ' selected' : ''}>HKD</option></select></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 入账金额</label><input data-audit-amount inputmode="decimal" placeholder="请输入入账金额" value="${esc(row.accountAmount && row.accountAmount !== '-' ? row.accountAmount : row.payAmount || '')}"></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 审核结果</label><select data-audit-status><option value="成功">审核通过</option><option value="失败">审核失败</option></select></div><div class="form-field full"><label>备注</label><textarea data-audit-remark placeholder="请输入审核备注">${esc(row.remark && row.remark !== '-' ? row.remark : '')}</textarea></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+  }
+
+  function receiptPreviewModal(modal, row) {
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '查看凭证')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="detail-grid"><div><dt>支付平台</dt><dd>${esc(row.platform || '-')}</dd></div><div><dt>平台支付ID</dt><dd>${esc(row.platformPayId || '-')}</dd></div><div><dt>支付金额</dt><dd>${esc(row.payAmount || '-')} ${esc(row.payCurrency || '')}</dd></div><div><dt>凭证文件</dt><dd>${esc(row.receiptFile || row.attachment || '-')}</dd></div></div><div class="receipt-preview-box"><div class="receipt-preview-box__icon">${icon('file-invoice-dollar')}</div><div><strong>支付凭证预览</strong><p>这里展示客户上传的银行转账、水单或第三方支付截图。原型使用脱敏 Fixture，不加载真实附件。</p></div></div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
   function rechargeRequestModal(modal) {
@@ -427,8 +437,12 @@
     return `<div class="modal-backdrop"${action ? ` data-confirm-action="${esc(action)}"` : ''}><section class="modal${sizeClass}"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="confirm-copy">${copy}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>${esc(cancelText)}</button><button type="button" class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-modal-submit>${esc(confirmText)}</button></div></section></div>`;
   }
 
-  function detailModal(title, row) {
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">以下为按测试环境整理的原型信息；真实提交需以后端接口权限为准。</div><dl class="detail-grid">${Object.keys(row || {}).filter(k => k !== 'ops').map(key => `<div><dt>${esc(key)}</dt><dd>${esc(asText(row[key]))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+  function detailModal(title, row, tab) {
+    const labelMap = new Map((tab?.columns || []).map(column => [column.key, column.label]));
+    const preferredKeys = (tab?.columns || []).map(column => column.key);
+    const extraKeys = Object.keys(row || {}).filter(key => key !== 'ops' && key !== 'selectable' && !labelMap.has(key));
+    const keys = preferredKeys.concat(extraKeys).filter(key => key in (row || {}) && key !== 'ops' && key !== 'selectable');
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">以下为按页面字段契约整理的原型信息；真实提交需以后端接口权限为准。</div><dl class="detail-grid">${keys.map(key => `<div><dt>${esc(labelMap.get(key) || key)}</dt><dd>${esc(asText(row[key]))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
   function customFieldsModal(tab, fieldPref) {
@@ -441,7 +455,7 @@
 
   function renderCell(column, row) {
     const value = row[column.key];
-    const rendered = column.format ? column.format(value) : asText(value);
+    const rendered = column.format ? column.format(value, row) : asText(value);
     return `<td class="${column.num ? 'num ' : ''}${column.align === 'left' ? 'left ' : ''}${column.format === longText ? 'wrap' : ''}">${rendered}</td>`;
   }
 
@@ -809,7 +823,11 @@
     function handleRowAction(action, row) {
       const tab = activeTab();
       const modal = tab.modals?.[action] || config.modals?.[action];
-      if (modal) { openModal(formModal(modal, row)); return; }
+      if (modal) {
+        if (modal.type === 'offline-transfer-audit') state.processingRow = row;
+        openModal(formModal(modal, row));
+        return;
+      }
       if (/处理成功|媒体已完成/.test(action)) {
         state.processingRow = row;
         openModal(processResultModal(action, row));
@@ -818,7 +836,7 @@
       if (/手动同步/.test(action)) { openModal(confirmModal('手动同步', `确认对 <strong>${esc(row.name || row.bmId || '当前 BM')}</strong> 触发手动同步？原型仅展示确认态，不会调用测试环境。`, false)); return; }
       if (/分配/.test(action)) { openModal(formModal({ title: '分配成员', fields: [{ key: 'email', label: 'User Email', placeholder: '请输入 User Email' }, { key: 'permission', label: '权限', control: 'select', options: ['管理员', '成员'], placeholder: '选择权限' }] }, row)); return; }
       if (/解除|更新|标记内部|标记|编辑标记|编辑/.test(action)) { openModal(confirmModal(action, `确认对 <strong>${esc(row.email || row.accountName || row.pixelName || row.name || '当前记录')}</strong> 执行“${esc(action)}”？原型不会调用真实接口。`, /解除/.test(action))); return; }
-      openModal(detailModal(action, row));
+      openModal(detailModal(action, row, tab));
     }
 
     root.addEventListener('click', event => {
@@ -872,6 +890,7 @@
         }
         if (backdrop?.dataset.confirmAction === 'confirm-submit-adjustment') state.pendingAdjustment = null;
         if (backdrop?.querySelector('[data-process-modal]')) state.processingRow = null;
+        if (backdrop?.querySelector('[data-offline-audit-modal]')) state.processingRow = null;
         closeModal();
       }
       if (event.target.closest('[data-action-reset-fields]')) {
@@ -916,6 +935,27 @@
         const processModal = backdrop?.querySelector('[data-process-modal]');
         if (processModal) {
           submitProcessModal(processModal);
+          return;
+        }
+        const offlineAuditModal = backdrop?.querySelector('[data-offline-audit-modal]');
+        if (offlineAuditModal) {
+          const row = state.processingRow;
+          if (!row) { closeModal(); showToast('未找到待审核记录', 'error'); return; }
+          const nextStatus = offlineAuditModal.querySelector('[data-audit-status]')?.value || '成功';
+          const amount = offlineAuditModal.querySelector('[data-audit-amount]')?.value.trim();
+          const currency = offlineAuditModal.querySelector('[data-audit-currency]')?.value || row.payCurrency || 'USD';
+          if (nextStatus === '成功' && !amount) { showToast('请输入入账金额', 'error'); return; }
+          row.status = nextStatus;
+          row.accountCurrency = nextStatus === '成功' ? currency : '-';
+          row.accountAmount = nextStatus === '成功' ? amount : '-';
+          row.auditAt = currentTimestamp();
+          row.auditor = '管理员(admin@bestfulfill.com)';
+          row.remark = offlineAuditModal.querySelector('[data-audit-remark]')?.value.trim() || (nextStatus === '成功' ? '审核通过，已入账' : '审核失败，等待客户重新提交');
+          row.ops = ['查看详情', '查看凭证'];
+          state.processingRow = null;
+          closeModal();
+          render();
+          showToast(`线下转账已${nextStatus === '成功' ? '审核通过' : '审核失败'}（原型）`, nextStatus === '成功' ? 'success' : 'info');
           return;
         }
         closeModal();
