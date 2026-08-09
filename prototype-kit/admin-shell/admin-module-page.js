@@ -372,7 +372,12 @@
   function fieldHtml(field, values) {
     const value = values[field.key] || field.value || '';
     if (field.type === 'select') return `<div class="filter-field"><label>${esc(field.label)}</label><select data-filter="${esc(field.key)}"><option value="">${esc(field.placeholder || '全部')}</option>${(field.options || []).map(v => `<option value="${esc(v)}"${v === value ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
-    if (field.type === 'multiselect') return `<div class="filter-field filter-field--multi"><label>${esc(field.label)}</label><select data-filter="${esc(field.key)}" multiple aria-label="${esc(field.label)}">${(field.options || []).map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('')}</select><span class="filter-help">${esc(field.hint || '支持多选')}</span></div>`;
+    if (field.type === 'multiselect') {
+      const selected = String(value || '').split('||').filter(Boolean);
+      const selectedSet = new Set(selected);
+      const buttonText = selected.length ? `${selected[0]}${selected.length > 1 ? ` +${selected.length - 1}` : ''}` : (field.placeholder || `选择${field.label}`);
+      return `<div class="filter-field filter-field--multi" data-multiselect><label>${esc(field.label)}</label><input type="hidden" data-filter="${esc(field.key)}" value="${esc(selected.join('||'))}"><button type="button" class="multi-select-trigger" data-multiselect-toggle><span data-multiselect-label>${esc(buttonText)}</span>${icon('chevron-down')}</button><div class="multi-select-menu" data-multiselect-menu>${(field.options || []).map(v => `<label class="multi-select-option"><input type="checkbox" data-multiselect-option value="${esc(v)}"${selectedSet.has(v) ? ' checked' : ''}><span>${esc(v)}</span></label>`).join('')}</div></div>`;
+    }
     if (field.type === 'daterange') {
       const startKey = field.startKey || `${field.key}Start`;
       const endKey = field.endKey || `${field.key}End`;
@@ -387,11 +392,29 @@
     return `<div class="filter-field"><label>${esc(field.label)}</label><input data-filter="${esc(field.key)}" type="${field.type === 'date' ? 'date' : 'text'}" placeholder="${esc(field.placeholder || '')}" value="${esc(value)}"></div>`;
   }
 
-  function modalControl(field, value) {
+  function modalControl(field, value, row) {
     const control = field.control || 'text';
-    if (control === 'textarea') return `<textarea name="${esc(field.key)}" placeholder="${esc(field.placeholder || '')}">${esc(value || '')}</textarea>`;
+    if (control === 'textarea') return `<textarea name="${esc(field.key)}"${field.maxLength ? ` maxlength="${esc(field.maxLength)}"` : ''} placeholder="${esc(field.placeholder || '')}">${esc(value || '')}</textarea>`;
+    if (control === 'readonly') return `<input name="${esc(field.key)}" type="text" value="${esc(value || field.value || '')}" readonly aria-readonly="true">`;
     if (control === 'select') return `<select name="${esc(field.key)}"><option value="">${esc(field.placeholder || '请选择')}</option>${(field.options || []).map(option => `<option value="${esc(option)}"${String(option) === String(value || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
+    if (control === 'account-search') {
+      const options = field.options || [];
+      return `<div class="account-search-picker" data-account-picker><input type="search" data-account-picker-search placeholder="${esc(field.placeholder || '输入广告账户ID或名称搜索')}"><div class="account-search-results">${options.map(option => `<label class="account-search-option" data-account-picker-option data-account-key="${esc(String(option).toLowerCase())}"><input type="radio" name="${esc(field.key)}" value="${esc(option)}"><span>${esc(option)}</span></label>`).join('')}</div></div>`;
+    }
     if (control === 'checkbox') return `<div class="account-check-list">${(field.options || []).map((option, index) => `<label class="account-check"><input type="checkbox" name="${esc(field.key)}" value="${esc(option)}" ${String(value || '').includes(option) ? 'checked' : ''}><span>${esc(option)}</span></label>`).join('')}</div>`;
+    if (control === 'upload') return `<div class="upload-dropzone" data-upload-zone data-upload-max="${esc(field.max || 10)}" tabindex="0"><input type="file" name="${esc(field.key)}" data-upload-input hidden multiple accept="${esc(field.accept || 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip')}"><div class="upload-dropzone__icon">${icon('cloud-upload-alt')}</div><div class="upload-dropzone__copy"><strong>${esc(field.placeholder || '拖拽文件到此处，或点击上传')}</strong><span>支持直接粘贴、本地上传、拖拽上传；最多 ${esc(field.max || 10)} 个文件。</span></div><button class="btn btn-default" type="button" data-upload-browse>选择文件</button><ul class="upload-file-list" data-upload-list></ul></div>`;
+    if (control === 'card-context') {
+      const items = [
+        ['媒体', row?.media || row?.c1],
+        ['广告账户', `${row?.accountName || row?.c3 || '-'} / ${row?.accountId || row?.c2 || '-'}`],
+        ['商户 / 客户', `${row?.merchantId || row?.c4 || '-'} / ${row?.customerName || row?.c5 || '-'}`],
+        ['卡ID', row?.cardId || row?.c13],
+        ['卡后四位', row?.cardLast4 || row?.c14],
+        ['卡额度', `总额 ${row?.c16 || '-'}，已用 ${row?.c17 || '-'}，可用 ${row?.c18 || '-'}`],
+        ['当前验卡额度状态', row?.verifyStatus || row?.c22]
+      ];
+      return `<div class="readonly-context">${items.map(([label, itemValue]) => `<div><dt>${esc(label)}</dt><dd>${esc(asText(itemValue))}</dd></div>`).join('')}</div>`;
+    }
     return `<input name="${esc(field.key)}" type="text" placeholder="${esc(field.placeholder || '')}" value="${esc(value || '')}">`;
   }
 
@@ -404,8 +427,9 @@
     if (modal?.type === 'monitor-follow') return monitorFollowModal(modal, row);
     if (modal?.type === 'monitor-history') return monitorHistoryModal(modal, row);
     if (modal?.type === 'monitor-alert-preview') return monitorAlertPreviewModal(modal);
+    if (modal?.type === 'card-secret') return cardSecretModal(modal, row);
     const fields = modal?.fields || [];
-    return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid">${fields.map(field => `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${field.required === false ? '' : ' <span style="color:var(--admin-danger)">*</span>'}</label>${modalControl(field, row?.[field.key])}</div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid">${fields.map(field => `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${field.required === false ? '' : ' <span style="color:var(--admin-danger)">*</span>'}</label>${modalControl(field, row?.[field.key], row)}</div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
 
   function offlineTransferAuditModal(modal, row) {
@@ -480,6 +504,12 @@
     return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">以下为按页面字段契约整理的原型信息；真实提交需以后端接口权限为准。</div><dl class="detail-grid">${keys.map(key => `<div><dt>${esc(labelMap.get(key) || key)}</dt><dd>${esc(asText(row[key]))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
+  function cardSecretModal(modal, row) {
+    const cardId = row.cardId || row.c13 || '-';
+    const last4 = row.cardLast4 || row.c14 || '-';
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '查看完整卡信息')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">原型模拟飞书扫码核验流程，不展示真实卡号、密码、CVV 或有效期。</div><div class="card-secret-demo"><div class="card-secret-demo__qr">${icon('qrcode')}<span>飞书扫码确认</span></div><div class="card-secret-demo__content"><p><strong>卡 ID：</strong>${esc(cardId)}</p><p><strong>卡后四位：</strong>${esc(last4)}</p><p><strong>核验规则：</strong>校验飞书 open_id / user_id 是否在卡信息查看白名单。</p><p><strong>展示约束：</strong>120 秒倒计时自动关闭；全屏水印包含操作人、工号、IP、精确时间；关闭后移除敏感 DOM。</p><p><strong>审计：</strong>关闭弹窗后写入查看成功 / 失败审计日志。</p></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取 消</button><button type="button" class="btn btn-primary" data-modal-submit>模拟核验通过</button></div></section></div>`;
+  }
+
   function customFieldsModal(tab, fieldPref) {
     const columnsByKey = new Map((tab.columns || []).map(column => [column.key, column]));
     const ordered = (fieldPref.order || []).map(key => columnsByKey.get(key)).filter(Boolean);
@@ -519,8 +549,19 @@
 
   function renderCell(column, row) {
     const value = row[column.key];
-    const rendered = column.format ? column.format(value, row) : asText(value);
+    let rendered = column.format ? column.format(value, row) : asText(value);
+    if (row._treeLevel != null && column.key === (row._treeToggleColumn || 'c0')) {
+      const toggle = row._hasChildren ? `<button class="tree-expander${row._expanded ? ' is-expanded' : ''}" type="button" data-tree-toggle="${esc(row._treeKey)}" aria-label="${row._expanded ? '收起' : '展开'}子卡">${icon('chevron-right')}</button>` : '<span class="tree-expander-spacer"></span>';
+      rendered = `<span class="tree-cell tree-cell--level-${row._treeLevel}">${toggle}<span>${column.format ? rendered : esc(asText(value))}</span></span>`;
+    }
     return `<td class="${column.num ? 'num ' : ''}${column.align === 'left' ? 'left ' : ''}${column.format === longText ? 'wrap' : ''}">${rendered}</td>`;
+  }
+
+  function rowActionClass(action) {
+    if (/解绑|冻结|取消|删除|失败|驳回/.test(action)) return 'op-link--danger';
+    if (/申请|标记|确认|新增|绑定/.test(action)) return 'op-link--primary';
+    if (/转移|转出|修改/.test(action)) return 'op-link--warning';
+    return 'op-link--info';
   }
 
   function boot() {
@@ -528,10 +569,11 @@
     if (!root) return;
     const config = pageConfig();
     const tabs = config.tabs || [{ id: 'list', label: '', ...config }];
-    const state = { tab: tabs[0].id, values: {}, sort: {}, selected: {}, fields: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null };
+    const state = { tab: tabs[0].id, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null };
 
     function activeTab() { return tabs.find(item => item.id === state.tab) || tabs[0]; }
     function selectedSet(tab) { if (!state.selected[tab.id]) state.selected[tab.id] = new Set(); return state.selected[tab.id]; }
+    function expandedSet(tab) { if (!state.expanded[tab.id]) state.expanded[tab.id] = new Set(tab.defaultExpandedKeys || []); return state.expanded[tab.id]; }
     function defaultFieldPref(tab) {
       const keys = (tab.columns || []).map(column => column.key);
       return { order: keys.slice(), visible: new Set(keys) };
@@ -553,6 +595,44 @@
       const contentWidth = columns.reduce((sum, column) => sum + (column.width || 160), 0) + (tab.selectable ? 52 : 0) + (showOps ? (tab.opsWidth || 180) : 0);
       return Math.max(980, contentWidth);
     }
+    function rowMatches(row, values, rangeFields, rangeValueKeys) {
+      const matchedTextFilters = Object.keys(values).every(key => {
+        if (rangeValueKeys.has(key)) return true;
+        if (!(key in row)) return true;
+        if (!values[key]) return true;
+        const rowValue = String(row[key] || '').toLowerCase();
+        const filterValues = String(values[key]).split('||').filter(Boolean).map(item => item.toLowerCase());
+        return filterValues.length > 1 ? filterValues.some(item => rowValue.includes(item)) : rowValue.includes(filterValues[0] || '');
+      });
+      if (!matchedTextFilters) return false;
+      return Array.from(rangeFields.entries()).every(([key, range]) => {
+        const rowDate = String(row[key] || '').slice(0, 10);
+        const start = values[range.startKey];
+        const end = values[range.endKey];
+        if (start && rowDate < start) return false;
+        if (end && rowDate > end) return false;
+        return true;
+      });
+    }
+    function treeKey(row, index) {
+      return row.treeKey || row.accountId || row.c2 || `row-${index}`;
+    }
+    function normalizedTreeRows(tab) {
+      if ((tab.rows || []).some(row => Array.isArray(row.children))) return tab.rows || [];
+      const parents = [];
+      let currentParent = null;
+      (tab.rows || []).forEach(row => {
+        const rowType = String(row.c0 || row.rowType || '');
+        if (/账户/.test(rowType) || !currentParent) {
+          currentParent = row;
+          currentParent.children = [];
+          parents.push(currentParent);
+          return;
+        }
+        currentParent.children.push(row);
+      });
+      return parents;
+    }
     function rows(tab) {
       const values = state.values[tab.id] || {};
       const rangeFields = new Map((tab.filters || []).filter(field => field.type === 'daterange').map(field => [field.key, {
@@ -560,24 +640,33 @@
         endKey: field.endKey || `${field.key}End`
       }]));
       const rangeValueKeys = new Set(Array.from(rangeFields.values()).flatMap(item => [item.startKey, item.endKey]));
-      let result = (tab.rows || []).filter(row => {
-        const matchedTextFilters = Object.keys(values).every(key => {
-          if (rangeValueKeys.has(key)) return true;
-          if (!(key in row)) return true;
-          return !values[key] || String(row[key] || '').toLowerCase().includes(String(values[key]).toLowerCase());
-        });
-        if (!matchedTextFilters) return false;
-        return Array.from(rangeFields.entries()).every(([key, range]) => {
-          const rowDate = String(row[key] || '').slice(0, 10);
-          const start = values[range.startKey];
-          const end = values[range.endKey];
-          if (start && rowDate < start) return false;
-          if (end && rowDate > end) return false;
-          return true;
-        });
-      });
       const sort = state.sort[tab.id];
-      if (sort) result = result.slice().sort((a, b) => String(a[sort.key] || '').localeCompare(String(b[sort.key] || ''), 'zh-CN', { numeric: true }) * (sort.dir === 'desc' ? -1 : 1));
+      const sorter = (a, b) => String(a[sort.key] || '').localeCompare(String(b[sort.key] || ''), 'zh-CN', { numeric: true }) * (sort.dir === 'desc' ? -1 : 1);
+      if (tab.treeRows) {
+        const expanded = expandedSet(tab);
+        let parents = normalizedTreeRows(tab).filter(parent => rowMatches(parent, values, rangeFields, rangeValueKeys) || (parent.children || []).some(child => rowMatches(child, values, rangeFields, rangeValueKeys)));
+        if (sort) parents = parents.slice().sort(sorter);
+        return parents.map((parent, parentIndex) => {
+          const key = treeKey(parent, parentIndex);
+          const parentMatches = rowMatches(parent, values, rangeFields, rangeValueKeys);
+          const childRows = parentMatches ? (parent.children || []) : (parent.children || []).filter(child => rowMatches(child, values, rangeFields, rangeValueKeys));
+          parent._treeLevel = 0;
+          parent._treeKey = key;
+          parent._treeToggleColumn = tab.treeToggleColumnKey || 'c0';
+          parent._expanded = expanded.has(key);
+          parent._hasChildren = Boolean((parent.children || []).length);
+          parent._visibleChildren = childRows;
+          childRows.forEach((child, childIndex) => {
+            child._treeLevel = 1;
+            child._treeKey = `${key}-${childIndex}`;
+            child._treeParentKey = key;
+            child._treeChildIndex = childIndex;
+          });
+          return parent;
+        });
+      }
+      let result = (tab.rows || []).filter(row => rowMatches(row, values, rangeFields, rangeValueKeys));
+      if (sort) result = result.slice().sort(sorter);
       return result;
     }
     function showToast(message, type) {
@@ -875,10 +964,89 @@
       render();
       showToast('选中清零工单已处理为失败（原型）', 'success');
     }
-    function readFilters(tab) {
-      const values = {};
-      root.querySelectorAll('[data-filter]').forEach(node => {
-        values[node.dataset.filter] = node.multiple ? Array.from(node.selectedOptions).map(option => option.value.trim()).filter(Boolean).join(' ') : node.value.trim();
+    function operationButtons(row, index, dataset = '') {
+      return (row.ops || []).map(op => `<button type="button" class="btn btn-link op-link ${rowActionClass(op)}" data-row-action="${esc(op)}" data-row-index="${index}"${dataset}${row.selectable === false ? ' disabled' : ''}>${esc(op)}</button>`).join('');
+    }
+    function childTableHtml(tab, parentRow, parentIndex) {
+      if (!tab.treeRows || !parentRow._expanded) return '';
+      const childRows = parentRow._visibleChildren || [];
+      const childColumns = tab.childColumns || [];
+      const childOpsWidth = tab.childOpsWidth || 320;
+      const childMinWidth = childColumns.reduce((sum, column) => sum + (column.width || 140), 0) + childOpsWidth;
+      const childHeaders = childColumns.map(column => {
+        const headerClass = [column.num ? 'num' : '', column.align === 'left' ? 'left' : ''].filter(Boolean).join(' ');
+        return `<th class="${headerClass}">${esc(column.label)}</th>`;
+      }).join('');
+      const childBody = childRows.length ? childRows.map((child, childIndex) => {
+        const ops = operationButtons(child, parentIndex, ` data-child-index="${childIndex}"`);
+        return `<tr class="tree-child-data-row">${childColumns.map(column => renderCell(column, child)).join('')}<td class="ops"><div class="command-group">${ops}</div></td></tr>`;
+      }).join('') : `<tr><td class="empty-state" colspan="${childColumns.length + 1}">暂无子卡数据</td></tr>`;
+      return `<tr class="tree-child-panel-row"><td colspan="__COLSPAN__"><div class="tree-child-panel"><div class="tree-child-panel__title">子信用卡明细</div><div class="table-scroll tree-child-table-scroll"><table class="admin-table admin-table--fixed tree-child-table" style="min-width:${childMinWidth}px"><colgroup>${childColumns.map(column => `<col style="width:${column.width || 140}px">`).join('')}<col style="width:${childOpsWidth}px"></colgroup><thead><tr>${childHeaders}<th class="ops">操作</th></tr></thead><tbody>${childBody}</tbody></table></div></div></td></tr>`;
+    }
+    function bindCardOpsForStatus(row) {
+      const status = row.verifyStatus || row.c22 || '未申请';
+      const cardStatus = row.cardStatus || row.c19 || '正常';
+      if (cardStatus === '冻结') return ['查看完整卡信息'];
+      if (status === '待验卡') return ['验卡任务详情', '标记媒体已验证', '取消任务', '查看完整卡信息', '转出额度'];
+      if (status === '已验卡(未回收)') return ['验卡任务详情', '确认验卡退款并回收', '查看完整卡信息', '转出额度'];
+      if (status === '已充值关单(未回收)' || status === '回收失败') return ['验卡任务详情', '确认验卡退款并回收', '查看完整卡信息'];
+      if (status === '审批中') return ['验卡任务详情'];
+      if (status === '已驳回' || status === '已取消') return ['申请验卡初始额度', '验卡任务详情', '查看完整卡信息'];
+      if (status === '已回收') return ['查看完整卡信息', '解绑', '冻结卡', '转出额度'];
+      return ['申请验卡初始额度', '查看完整卡信息', '解绑', '冻结卡', '转出额度'];
+    }
+    function refreshBindCardParent(parent) {
+      if (!parent) return;
+      const statuses = (parent.children || []).map(child => child.verifyStatus || child.c22 || '');
+      const prompt = statuses.includes('待验卡') ? '待验卡·请去媒体'
+        : statuses.includes('已验卡(未回收)') ? '已验卡·可充值'
+          : statuses.includes('审批中') ? '审批中·不可充'
+            : statuses.includes('已充值关单(未回收)') ? '关单未回收·可回收'
+              : statuses.includes('回收失败') ? '回收失败·可重试'
+                : '-';
+      parent.c7 = prompt;
+      parent.verifyStatus = statuses.find(Boolean) || '-';
+    }
+    function updateBindCardRowStatus(row, nextStatus, options = {}) {
+      if (!row) return false;
+      row.verifyStatus = nextStatus;
+      row.c22 = nextStatus;
+      if (options.amount) row.c21 = `${options.amount} USD`;
+      row.c23 = currentTimestamp();
+      row.ops = bindCardOpsForStatus(row);
+      const tab = activeTab();
+      const parent = normalizedTreeRows(tab).find(item => item === row || (item.children || []).includes(row) || item.accountId === row.accountId || item.c2 === row.c2);
+      refreshBindCardParent(parent);
+      return true;
+    }
+    function submitBindCardPrototypeAction(backdrop) {
+      const action = state.processingAction;
+      const row = state.processingRow;
+      if (!action || !row) return false;
+      if (action === '申请验卡初始额度') {
+        const amount = backdrop?.querySelector('[name="verifyAmount"]')?.value.trim();
+        if (!amount) { showToast('请输入申请金额', 'error'); return 'pending'; }
+        updateBindCardRowStatus(row, '审批中', { amount });
+      } else if (action === '取消任务') {
+        updateBindCardRowStatus(row, '已取消');
+      } else if (action === '确认验卡退款并回收') {
+        updateBindCardRowStatus(row, '已回收');
+      } else if (action === '标记媒体已验证') {
+        updateBindCardRowStatus(row, '已验卡(未回收)');
+      } else {
+        return false;
+      }
+      state.processingRow = null;
+      state.processingAction = null;
+      closeModal();
+      render();
+      showToast(`已更新验卡额度状态：${row.c22 || row.verifyStatus}（原型）`, 'success');
+      return true;
+    }
+  function readFilters(tab) {
+    const values = {};
+    root.querySelectorAll('[data-filter]').forEach(node => {
+        values[node.dataset.filter] = node.value.trim();
       });
       state.values[tab.id] = values;
     }
@@ -898,11 +1066,17 @@
       const selected = selectedSet(tab);
       const currentRows = rows(tab);
       const selectableRows = currentRows.map((row, index) => ({ row, index })).filter(item => item.row.selectable !== false);
-      const tableRows = currentRows.map((row, index) => `<tr>${tab.selectable ? `<td class="select-cell"><input type="checkbox" data-select-row="${index}" aria-label="选择第 ${index + 1} 行"${selected.has(index) ? ' checked' : ''}${row.selectable === false ? ' disabled' : ''}></td>` : ''}${columns.map(column => renderCell(column, row)).join('')}${showOps ? `<td class="ops"><div class="command-group">${(row.ops || []).map(op => `<button type="button" class="btn btn-link${/解除|删除/.test(op) ? ' btn-link-danger' : ''}" data-row-action="${esc(op)}" data-row-index="${index}"${row.selectable === false ? ' disabled' : ''}>${esc(op)}</button>`).join('')}</div></td>` : ''}</tr>`).join('');
+      const colspan = columns.length + (tab.selectable ? 1 : 0) + (showOps ? 1 : 0);
+      const tableRows = currentRows.map((row, index) => {
+        const treeAttrs = row._treeLevel != null ? ` class="tree-row tree-row--level-${row._treeLevel}${row._hasChildren ? ' tree-row--parent' : ''}" data-tree-row="${esc(row._treeKey || '')}"` : '';
+        const ops = operationButtons(row, index);
+        const parentHtml = `<tr${treeAttrs}>${tab.selectable ? `<td class="select-cell"><input type="checkbox" data-select-row="${index}" aria-label="选择第 ${index + 1} 行"${selected.has(index) ? ' checked' : ''}${row.selectable === false ? ' disabled' : ''}></td>` : ''}${columns.map(column => renderCell(column, row)).join('')}${showOps ? `<td class="ops"><div class="command-group">${ops}</div></td>` : ''}</tr>`;
+        const childHtml = childTableHtml(tab, row, index).replace('__COLSPAN__', String(colspan));
+        return parentHtml + childHtml;
+      }).join('');
       const headers = columns.map(column => { const headerClass = [column.num ? 'num' : '', column.align === 'left' ? 'left' : ''].filter(Boolean).join(' '); return column.sort ? `<th class="${headerClass}"><button class="sort-trigger" type="button" data-sort="${esc(column.key)}">${esc(column.label)} ${icon(state.sort[tab.id]?.key === column.key && state.sort[tab.id]?.dir === 'desc' ? 'sort-down' : 'sort-up')}</button></th>` : `<th class="${headerClass}">${esc(column.label)}</th>`; }).join('');
       const selectHead = tab.selectable ? `<th class="select-cell"><input type="checkbox" data-select-all aria-label="选择全部"${selectableRows.length && selected.size === selectableRows.length ? ' checked' : ''}${selectableRows.length ? '' : ' disabled'}></th>` : '';
       const colgroup = `<colgroup>${tab.selectable ? '<col style="width:52px">' : ''}${columns.map(column => `<col style="width:${column.width || 160}px">`).join('')}${showOps ? `<col style="width:${tab.opsWidth || 180}px">` : ''}</colgroup>`;
-      const colspan = columns.length + (tab.selectable ? 1 : 0) + (showOps ? 1 : 0);
       const footerNote = tab.footerNote ? `<div class="notice module-footer-note">${esc(tab.footerNote)}</div>` : '';
       const cardHeader = leftActions || rightActions ? `<div class="admin-card__header"><div class="command-bar command-bar--split"><div class="command-group command-group--primary">${leftActions}</div><div class="command-group command-group--secondary">${rightActions}</div></div></div>` : '';
       root.innerHTML = `<div class="admin-page module-page">${tabHtml}${kpiHtml}${filterHtml}${dimensionSelectorHtml(tab)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
@@ -912,6 +1086,8 @@
       const tab = activeTab();
       const modal = tab.modals?.[action] || config.modals?.[action];
       if (modal) {
+        state.processingRow = row;
+        state.processingAction = action;
         if (modal.type === 'offline-transfer-audit') state.processingRow = row;
         if (modal.type === 'monitor-follow') state.processingRow = row;
         if (/confirm/.test(modal.type || '')) {
@@ -933,6 +1109,32 @@
     }
 
     root.addEventListener('click', event => {
+      const multiToggle = event.target.closest('[data-multiselect-toggle]');
+      if (multiToggle) {
+        const current = multiToggle.closest('[data-multiselect]');
+        root.querySelectorAll('[data-multiselect].is-open').forEach(node => { if (node !== current) node.classList.remove('is-open'); });
+        current?.classList.toggle('is-open');
+        return;
+      }
+      if (!event.target.closest('[data-multiselect]')) root.querySelectorAll('[data-multiselect].is-open').forEach(node => node.classList.remove('is-open'));
+      const treeToggle = event.target.closest('[data-tree-toggle]');
+      if (treeToggle) {
+        const tab = activeTab();
+        const set = expandedSet(tab);
+        const key = treeToggle.dataset.treeToggle;
+        if (set.has(key)) set.delete(key); else set.add(key);
+        render();
+        return;
+      }
+      const treeParentRow = event.target.closest('tr.tree-row--parent');
+      if (treeParentRow && !event.target.closest('button, a, input, select, textarea, label')) {
+        const tab = activeTab();
+        const set = expandedSet(tab);
+        const key = treeParentRow.dataset.treeRow;
+        if (set.has(key)) set.delete(key); else set.add(key);
+        render();
+        return;
+      }
       const tabButton = event.target.closest('[data-tab]');
       if (tabButton) { state.tab = tabButton.dataset.tab; render(); return; }
       const actionButton = event.target.closest('[data-action]');
@@ -953,7 +1155,12 @@
         return;
       }
       const rowAction = event.target.closest('[data-row-action]');
-      if (rowAction) handleRowAction(rowAction.dataset.rowAction, rows(activeTab())[Number(rowAction.dataset.rowIndex)] || {});
+      if (rowAction) {
+        const parentRow = rows(activeTab())[Number(rowAction.dataset.rowIndex)] || {};
+        const childIndex = rowAction.dataset.childIndex;
+        const targetRow = childIndex != null ? (parentRow._visibleChildren || parentRow.children || [])[Number(childIndex)] || parentRow : parentRow;
+        handleRowAction(rowAction.dataset.rowAction, targetRow);
+      }
       const sortButton = event.target.closest('[data-sort]');
       if (sortButton) { const tab = activeTab(); const key = sortButton.dataset.sort; const current = state.sort[tab.id]; state.sort[tab.id] = !current || current.key !== key ? { key, dir: 'asc' } : current.dir === 'asc' ? { key, dir: 'desc' } : null; render(); }
       const rowSelect = event.target.closest('[data-select-row]');
@@ -962,6 +1169,16 @@
       if (selectAll && !selectAll.disabled) { const tab = activeTab(); const set = selectedSet(tab); set.clear(); if (selectAll.checked) rows(tab).forEach((row, index) => { if (row.selectable !== false) set.add(index); }); render(); }
     });
     root.addEventListener('change', event => {
+      const multiOption = event.target.closest('[data-multiselect-option]');
+      if (multiOption) {
+        const fieldRoot = multiOption.closest('[data-multiselect]');
+        const selected = Array.from(fieldRoot.querySelectorAll('[data-multiselect-option]:checked')).map(input => input.value);
+        const hidden = fieldRoot.querySelector('[data-filter]');
+        const label = fieldRoot.querySelector('[data-multiselect-label]');
+        if (hidden) hidden.value = selected.join('||');
+        if (label) label.textContent = selected.length ? `${selected[0]}${selected.length > 1 ? ` +${selected.length - 1}` : ''}` : fieldRoot.querySelector('label')?.textContent?.replace(/^/, '选择') || '请选择';
+        return;
+      }
       const dimensionInput = event.target.closest('[data-dimension-group]');
       if (dimensionInput?.dataset.dimensionExclusive === 'true' && dimensionInput.checked) {
         root.querySelectorAll(`[data-dimension-group="${CSS.escape(dimensionInput.dataset.dimensionGroup)}"]`).forEach(input => {
@@ -974,6 +1191,15 @@
       }
     });
     document.body.addEventListener('click', event => {
+      const uploadBrowse = event.target.closest('[data-upload-browse], [data-upload-zone]');
+      if (uploadBrowse && !event.target.closest('[data-upload-list]')) {
+        const zone = uploadBrowse.closest('[data-upload-zone]');
+        const input = zone?.querySelector('[data-upload-input]');
+        if (input && event.target !== input) {
+          input.click();
+          return;
+        }
+      }
       const closeButton = event.target.closest('[data-modal-close]');
       if (closeButton) {
         const backdrop = closeButton.closest('.modal-backdrop');
@@ -991,6 +1217,10 @@
         if (backdrop?.querySelector('[data-process-modal]')) state.processingRow = null;
         if (backdrop?.querySelector('[data-offline-audit-modal]')) state.processingRow = null;
         if (backdrop?.querySelector('[data-monitor-follow-modal]')) state.processingRow = null;
+        if (!backdrop?.dataset.confirmAction || backdrop.dataset.confirmAction === 'confirm') {
+          state.processingRow = null;
+          state.processingAction = null;
+        }
         closeModal();
       }
       if (event.target.closest('[data-action-reset-fields]')) {
@@ -1081,7 +1311,11 @@
           showToast(`已更新 ${targets.length} 条监控记录跟进状态（原型）`, 'success');
           return;
         }
+        const bindCardResult = submitBindCardPrototypeAction(backdrop);
+        if (bindCardResult) return;
         closeModal();
+        state.processingRow = null;
+        state.processingAction = null;
         showToast('操作已提交，列表将在成功后刷新（原型）', 'success');
       }
       if (event.target.closest('[data-recharge-query]')) {
@@ -1093,6 +1327,58 @@
       if (event.target.closest('[data-adjustment-query]')) {
         refreshAdjustmentModal(event.target.closest('[data-adjustment-modal]'));
       }
+    });
+    document.body.addEventListener('input', event => {
+      const search = event.target.closest('[data-account-picker-search]');
+      if (!search) return;
+      const keyword = search.value.trim().toLowerCase();
+      const picker = search.closest('[data-account-picker]');
+      let visibleCount = 0;
+      picker?.querySelectorAll('[data-account-picker-option]').forEach(option => {
+        const visible = !keyword || (option.dataset.accountKey || '').includes(keyword);
+        option.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+      picker?.classList.toggle('is-empty', visibleCount === 0);
+    });
+    document.body.addEventListener('change', event => {
+      const uploadInput = event.target.closest('[data-upload-input]');
+      if (!uploadInput) return;
+      const zone = uploadInput.closest('[data-upload-zone]');
+      const max = Number(zone?.dataset.uploadMax || 10);
+      const files = Array.from(uploadInput.files || []).slice(0, max);
+      const list = zone?.querySelector('[data-upload-list]');
+      if (list) list.innerHTML = files.map(file => `<li>${icon('paperclip')}<span>${esc(file.name)}</span></li>`).join('');
+      showToast(files.length ? `已选择 ${files.length} 个文件（最多 ${max} 个）` : '未选择文件', files.length ? 'success' : 'info');
+    });
+    document.body.addEventListener('dragover', event => {
+      if (event.target.closest('[data-upload-zone]')) {
+        event.preventDefault();
+        event.target.closest('[data-upload-zone]')?.classList.add('is-dragover');
+      }
+    });
+    document.body.addEventListener('dragleave', event => {
+      event.target.closest('[data-upload-zone]')?.classList.remove('is-dragover');
+    });
+    document.body.addEventListener('drop', event => {
+      const zone = event.target.closest('[data-upload-zone]');
+      if (!zone) return;
+      event.preventDefault();
+      zone.classList.remove('is-dragover');
+      const max = Number(zone.dataset.uploadMax || 10);
+      const files = Array.from(event.dataTransfer?.files || []).slice(0, max);
+      const list = zone.querySelector('[data-upload-list]');
+      if (list) list.innerHTML = files.map(file => `<li>${icon('paperclip')}<span>${esc(file.name)}</span></li>`).join('');
+      showToast(files.length ? `已拖拽上传 ${files.length} 个文件（原型）` : '未检测到文件', files.length ? 'success' : 'info');
+    });
+    document.body.addEventListener('paste', event => {
+      const zone = event.target.closest('[data-upload-zone]');
+      if (!zone) return;
+      const max = Number(zone.dataset.uploadMax || 10);
+      const files = Array.from(event.clipboardData?.files || []).slice(0, max);
+      const list = zone.querySelector('[data-upload-list]');
+      if (list && files.length) list.innerHTML = files.map((file, index) => `<li>${icon('image')}<span>${esc(file.name || `粘贴图片-${index + 1}.png`)}</span></li>`).join('');
+      if (files.length) showToast(`已粘贴 ${files.length} 个文件（原型）`, 'success');
     });
     document.body.addEventListener('change', event => {
       const rechargeCustomer = event.target.closest('[data-recharge-customer]');
