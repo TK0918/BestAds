@@ -21,9 +21,28 @@
     const cls = number > 0 ? 'amount-positive' : number < 0 ? 'amount-negative' : 'amount-zero';
     return `<span class="${cls}">${esc(text)}</span>`;
   };
+  const countWithUnit = value => {
+    const text = asText(value);
+    return text === '-' ? '<span class="muted">-</span>' : `${esc(text)} 个`;
+  };
+  const builtInFormatters = { countWithUnit };
   const person = value => `<span class="person-cell">${esc(asText(value))}</span>`;
   const longText = value => `<span class="wrap">${esc(asText(value))}</span>`;
   let runtimeState = null;
+
+  function formatterByName(name) {
+    return (window.BESTADS_ADMIN_FORMATTERS && window.BESTADS_ADMIN_FORMATTERS[name]) || builtInFormatters[name];
+  }
+
+  function renderValue(column, row) {
+    const value = row[column.key];
+    if (column.format) return column.format(value, row);
+    if (column.formatter) {
+      const formatter = formatterByName(column.formatter);
+      if (typeof formatter === 'function') return formatter(value, row);
+    }
+    return esc(asText(value));
+  }
 
   function formatMoney(value, currency) {
     const amount = Number(value || 0);
@@ -235,6 +254,50 @@
           ]
         }
       ]
+    },
+
+    'meta-assignment-audit': {
+      title: '资产分配核对',
+      subtitle: '把 Meta 侧「账户 → User → 商户ID」与 BestAds 侧「账户 → 系统归属商户」逐条比对，自动判定一致性。',
+      kpis: [
+        { label: '匹配正常', value: '2', hint: 'Meta 商户ID = 系统商户ID' },
+        { label: '匹配异常', value: '1', hint: 'User 商户与账户归属不一致' },
+        { label: '待确认', value: '2', hint: 'User 未设身份或系统侧无归属' },
+        { label: 'Meta待分配', value: '2', hint: '系统有归属但 Meta 缺少商户 User' },
+        { label: '已跳过', value: '2', hint: '内部人员不参与商户核对' }
+      ],
+      filters: [
+        { key: 'bm', label: '所属 BM', type: 'select', options: ['电商集团 BM', '游戏出海 BM', '品牌广告 BM'], placeholder: '全部' },
+        { key: 'accountKeyword', label: '广告账户', placeholder: '账户名 / act_id' },
+        { key: 'result', label: '匹配结果', type: 'select', options: ['正常', '异常', '待确认', 'Meta待分配'], placeholder: '全部' },
+        { key: 'userKeyword', label: 'User', placeholder: '姓名 / email' }
+      ],
+      actions: [{ id: 'export', label: '导出数据', icon: 'download', primary: true }],
+      filterClass: 'cols-5',
+      tableMinWidth: 1580,
+      opsWidth: 120,
+      columns: [
+        { key: 'bm', label: '所属 BM', align: 'left', width: 180 },
+        { key: 'accountName', label: '广告账户', align: 'left', width: 220 },
+        { key: 'accountId', label: '广告账户ID', width: 180, sort: true },
+        { key: 'userName', label: 'User', align: 'left', width: 140 },
+        { key: 'userEmail', label: 'User Email', align: 'left', width: 230 },
+        { key: 'metaMerchantId', label: 'Meta 商户ID', width: 130 },
+        { key: 'systemMerchantId', label: '系统商户ID', width: 130 },
+        { key: 'lastSyncAt', label: '上次同步', width: 170 },
+        { key: 'result', label: '匹配结果', format: status, width: 120 },
+        { key: 'reason', label: '原因', align: 'left', width: 240, format: longText }
+      ],
+      rows: [
+        { bm: '电商集团 BM', accountKeyword: 'EC-US-01 广告账户 act_102938475', accountName: 'EC-US-01 广告账户', accountId: 'act_102938475', userKeyword: '张伟 zhang.wei@corp.com', userName: '张伟', userEmail: 'zhang.wei@corp.com', metaMerchantId: '10086', systemMerchantId: '10086', lastSyncAt: '2026-06-18 03:00', result: '正常', reason: '-', ops: ['详情'] },
+        { bm: '电商集团 BM', accountKeyword: 'EC-EU-02 广告账户 act_102938476', accountName: 'EC-EU-02 广告账户', accountId: 'act_102938476', userKeyword: '王芳 wang.fang@corp.com', userName: '王芳', userEmail: 'wang.fang@corp.com', metaMerchantId: '10090', systemMerchantId: '10086', lastSyncAt: '2026-06-18 03:00', result: '异常', reason: 'User 商户 ≠ 系统归属', ops: ['详情'] },
+        { bm: '品牌广告 BM', accountKeyword: 'BRAND-CN 广告账户 act_384756102', accountName: 'BRAND-CN 广告账户', accountId: 'act_384756102', userKeyword: 'John Lee john.lee@corp.com', userName: 'John Lee', userEmail: 'john.lee@corp.com', metaMerchantId: '10120', systemMerchantId: '10120', lastSyncAt: '2026-06-18 03:00', result: '正常', reason: '-', ops: ['详情'] },
+        { bm: '品牌广告 BM', accountKeyword: 'BRAND-CN 广告账户 act_384756102', accountName: 'BRAND-CN 广告账户', accountId: 'act_384756102', userKeyword: '陈静 chen.jing@corp.com', userName: '陈静', userEmail: 'chen.jing@corp.com', metaMerchantId: '未设身份', systemMerchantId: '10120', lastSyncAt: '2026-06-18 03:00', result: '待确认', reason: 'User 未设身份', ops: ['详情'] },
+        { bm: '游戏出海 BM', accountKeyword: 'GAME-SEA 广告账户 act_209384756', accountName: 'GAME-SEA 广告账户', accountId: 'act_209384756', userKeyword: '王芳 wang.fang@corp.com', userName: '王芳', userEmail: 'wang.fang@corp.com', metaMerchantId: '10090', systemMerchantId: '系统无归属', lastSyncAt: '2026-06-18 03:00', result: '待确认', reason: '系统侧无归属商户', ops: ['详情'] },
+        { bm: '—', accountKeyword: 'act_555666777', accountName: 'act_555666777', accountId: 'act_555666777', userKeyword: '—', userName: '—', userEmail: '—', metaMerchantId: '未分配', systemMerchantId: '10090', lastSyncAt: '2026-06-18 03:00', result: 'Meta待分配', reason: 'Meta待分配/已分配但User未指向商户ID', ops: ['详情'] },
+        { bm: '电商集团 BM', accountKeyword: 'EC-INTERNAL 广告账户 act_998877665', accountName: 'EC-INTERNAL 广告账户', accountId: 'act_998877665', userKeyword: '—', userName: '—', userEmail: '—', metaMerchantId: '内部人员跳过', systemMerchantId: '10150', lastSyncAt: '2026-06-18 03:00', result: 'Meta待分配', reason: 'Meta 侧仅分配内部人员，缺少指向商户ID的 User', ops: ['详情'] }
+      ],
+      footerNote: '核对口径：内部人员跳过不核对；User 未设身份或系统侧无归属标记为待确认；系统有归属但 Meta 无对应商户 User 标记为 Meta待分配。'
     },
 
     'meta-members': {
@@ -469,7 +532,9 @@
     const control = field.control || 'text';
     if (control === 'textarea') return `<textarea name="${esc(field.key)}"${field.maxLength ? ` maxlength="${esc(field.maxLength)}"` : ''} placeholder="${esc(field.placeholder || '')}">${esc(value || '')}</textarea>`;
     if (control === 'readonly') return `<input name="${esc(field.key)}" type="text" value="${esc(value || field.value || '')}" readonly aria-readonly="true">`;
+    if (control === 'customer-select' || control === 'role-select' || control === 'status-select') return `<select name="${esc(field.key)}"><option value="">${esc(field.placeholder || '请选择')}</option>${(field.options || []).map(option => `<option value="${esc(option)}"${String(option) === String(value || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
     if (control === 'select') return `<select name="${esc(field.key)}"><option value="">${esc(field.placeholder || '请选择')}</option>${(field.options || []).map(option => `<option value="${esc(option)}"${String(option) === String(value || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
+    if (control === 'password') return `<input name="${esc(field.key)}" type="password" placeholder="${esc(field.placeholder || '')}" value="${esc(value || '')}">`;
     if (control === 'refund-preview') {
       const total = bindCardTotalLimit(row);
       const used = bindCardUsedAmount(row);
@@ -505,7 +570,7 @@
       const options = field.options || [];
       return `<div class="account-search-picker" data-account-picker><input type="search" data-account-picker-search placeholder="${esc(field.placeholder || '输入广告账户ID或名称搜索')}"><div class="account-search-results">${options.map(option => `<label class="account-search-option" data-account-picker-option data-account-key="${esc(String(option).toLowerCase())}"><input type="radio" name="${esc(field.key)}" value="${esc(option)}"><span>${esc(option)}</span></label>`).join('')}</div></div>`;
     }
-    if (control === 'checkbox') return `<div class="account-check-list">${(field.options || []).map((option, index) => `<label class="account-check"><input type="checkbox" name="${esc(field.key)}" value="${esc(option)}" ${String(value || '').includes(option) ? 'checked' : ''}><span>${esc(option)}</span></label>`).join('')}</div>`;
+    if (control === 'checkbox' || control === 'account-multi-select') return `<div class="account-check-list">${(field.options || []).map((option, index) => `<label class="account-check"><input type="checkbox" name="${esc(field.key)}" value="${esc(option)}" ${String(value || '').includes(option) ? 'checked' : ''}><span>${esc(option)}</span></label>`).join('')}</div>`;
     if (control === 'upload') return `<div class="upload-dropzone" data-upload-zone data-upload-max="${esc(field.max || 10)}" tabindex="0"><input type="file" name="${esc(field.key)}" data-upload-input hidden multiple accept="${esc(field.accept || 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip')}"><div class="upload-dropzone__icon">${icon('cloud-upload-alt')}</div><div class="upload-dropzone__copy"><strong>${esc(field.placeholder || '拖拽文件到此处，或点击上传')}</strong><span>支持直接粘贴、本地上传、拖拽上传；最多 ${esc(field.max || 10)} 个文件。</span></div><button class="btn btn-default" type="button" data-upload-browse>选择文件</button><ul class="upload-file-list" data-upload-list></ul></div>`;
     if (control === 'card-context') {
       const items = [
@@ -534,7 +599,8 @@
     if (modal?.type === 'card-secret') return cardSecretModal(modal, row);
     const fields = modal?.fields || [];
     const transferAttrs = fields.some(field => /transfer-card-select|transfer-warning/.test(field.control || '')) ? ' data-transfer-modal' : '';
-    return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid"${transferAttrs}>${fields.map(field => `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${field.required === false ? '' : ' <span style="color:var(--admin-danger)">*</span>'}</label>${modalControl(field, row?.[field.key], row)}</div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+    const hasRow = row && Object.keys(row).length > 0;
+    return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid"${transferAttrs}>${fields.map(field => { const required = hasRow && field.editRequired !== undefined ? field.editRequired : field.required !== false; return `<div class="form-field${field.full ? ' full' : ''}"><label>${esc(field.label)}${required ? ' <span style="color:var(--admin-danger)">*</span>' : ''}</label>${modalControl(field, row?.[field.key], row)}</div>`; }).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
 
   function offlineTransferAuditModal(modal, row) {
@@ -662,10 +728,11 @@
 
   function renderCell(column, row) {
     const value = row[column.key];
-    let rendered = column.format ? column.format(value, row) : asText(value);
+    const hasCustomRender = Boolean(column.format || column.formatter);
+    let rendered = renderValue(column, row);
     if (row._treeLevel != null && column.key === (row._treeToggleColumn || 'c0')) {
       const toggle = row._hasChildren ? `<button class="tree-expander${row._expanded ? ' is-expanded' : ''}" type="button" data-tree-toggle="${esc(row._treeKey)}" aria-label="${row._expanded ? '收起' : '展开'}子卡">${icon('chevron-right')}</button>` : '<span class="tree-expander-spacer"></span>';
-      rendered = `<span class="tree-cell tree-cell--level-${row._treeLevel}">${toggle}<span>${column.format ? rendered : esc(asText(value))}</span></span>`;
+      rendered = `<span class="tree-cell tree-cell--level-${row._treeLevel}">${toggle}<span>${hasCustomRender ? rendered : esc(asText(value))}</span></span>`;
     }
     return `<td class="${column.num ? 'num ' : ''}${column.align === 'left' ? 'left ' : ''}${column.format === longText ? 'wrap' : ''}">${rendered}</td>`;
   }
@@ -1432,6 +1499,34 @@
         openModal(formModal(modal, row));
         return;
       }
+      if (action === '编辑' && tab.modal) {
+        openModal(formModal({ ...tab.modal, title: tab.modal.editTitle || tab.modal.title || '编辑' }, row));
+        return;
+      }
+      if (/重置密码/.test(action)) {
+        openModal(confirmModal('重置密码', `确定要重置 <strong>${esc(row.loginAccount || '该子账号')}</strong> 的登录密码吗？重置后请通过安全渠道告知用户。`, true));
+        return;
+      }
+      if (/启用|禁用/.test(action)) {
+        openModal(confirmModal(action, `确定要${esc(action)} <strong>${esc(row.roleName || row.loginAccount || row.customerName || row.name || '当前记录')}</strong> 吗？`, action === '禁用'));
+        return;
+      }
+      if (/回退|释放|预收补入/.test(action)) {
+        openModal(confirmModal(action, `请确认对商户ID <strong>${esc(row.merchantId || '-')}</strong> 执行“${esc(action)}”操作。该操作会影响资金流水，请确认后继续。`, true));
+        return;
+      }
+      if (/下载文件/.test(action)) {
+        if (row.status !== '处理成功') {
+          showToast(row.status === '处理中' ? '任务仍在处理中，暂不可下载' : '处理失败，没有可下载文件', 'error');
+          return;
+        }
+        showToast(`已开始下载任务 ${row.taskId}（原型）`, 'success');
+        return;
+      }
+      if (/查看详情|查看明细|关系与吐点|权限管理|子账号管理|更新余额/.test(action)) {
+        openModal(detailModal(action, row, tab));
+        return;
+      }
       if (/处理成功|媒体已完成/.test(action)) {
         state.processingRow = row;
         openModal(processResultModal(action, row));
@@ -1484,8 +1579,15 @@
         if (actionButton.hasAttribute('data-requires-selection') && selectedSet(tab).size === 0) { showToast('请先勾选需要操作的广告账户', 'error'); return; }
         const actionLabel = actionButton.dataset.actionLabel || actionButton.textContent.trim();
         const modal = tab.modals?.[actionLabel] || config.modals?.[actionLabel];
+        if (actionButton.dataset.action === 'batch-status' || actionButton.dataset.action === 'batch-rebate') {
+          const count = selectedSet(tab).size;
+          if (!count) { showToast('请先勾选需要批量处理的记录', 'error'); return; }
+          openModal(confirmModal(actionLabel, `将对已选 <strong>${count}</strong> 条记录执行“${esc(actionLabel)}”。提交前请确认影响范围。`, false));
+          return;
+        }
         if (/confirm/.test(modal?.type || '')) openModal(confirmModal(modalTextWithSelection(modal.title, tab), modalTextWithSelection(modal.copy, tab), modal.danger, modal.type));
         else if (modal) openModal(formModal(modal, {}));
+        else if ((/^create/.test(actionButton.dataset.action || '') || /新增|创建/.test(actionLabel)) && tab.modal) openModal(formModal({ ...tab.modal, title: tab.modal.title || actionLabel }, {}));
         else showToast(`${actionLabel}操作已触发（原型）`, 'success');
         return;
       }

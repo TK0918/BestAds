@@ -1,0 +1,8 @@
+{
+  "name": "bestads-prototypes",
+  "private": true,
+  "scripts": {
+    "admin-kit:sync": "node prototype-kit/admin-shell/sync-admin-kit-version.mjs",
+    "admin-kit:check": "node prototype-kit/admin-shell/sync-admin-kit-version.mjs --check"
+  }
+}

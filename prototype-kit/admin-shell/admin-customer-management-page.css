@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+
+
+
+    .table-hover tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+
+  
+
+
+    /* 运营端真实页面基线：Vben Admin + Ant Design Vue + VXE Grid */
+    :root {
+      --admin-primary: #006be6;
+      --admin-page-bg: #f1f3f6;
+      --admin-border: #e4e4e7;
+      --admin-text: rgba(50, 54, 57, .88);
+      --admin-secondary: #606266;
+      --admin-muted: #8c8c8c;
+      --admin-sidebar-width: 224px;
+    }
+
+    html, body { min-width: 1180px; background: var(--admin-page-bg); }
+    body { margin: 0; color: var(--admin-text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif; font-size: 14px; }
+
+
+    .customer-management-root { overflow: auto; background: var(--admin-page-bg); }
+    .customer-page-content { min-width: 1120px; padding: 16px; }
+    .customer-page-content button, .customer-page-content input, .customer-page-content select { font-family: inherit; }
+    .admin-filter-card, .admin-grid-card { border: 1px solid var(--admin-border); border-radius: 4px; background: #fff; box-shadow: none; }
+    .admin-filter-card { min-height: 144px; padding: 16px; }
+    .admin-filter-grid { display: grid; grid-template-columns: 1.25fr repeat(6, minmax(112px, 1fr)); gap: 14px; }
+    .admin-field { display: flex; min-width: 0; flex-direction: column; gap: 6px; color: var(--admin-secondary); font-size: 13px; }
+    .admin-field > span { min-height: 18px; line-height: 18px; color: var(--admin-secondary); }
+    .admin-field input, .admin-field select { width: 100%; height: 32px; padding: 4px 11px; border: 1px solid var(--admin-border); border-radius: 4px; outline: none; background: #fff; color: var(--admin-text); font-size: 14px; }
+    .admin-field input::placeholder { color: #bfbfbf; }
+    .admin-field input:focus, .admin-field select:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(0, 107, 230, .12); }
+    .admin-filter-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .admin-button { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 0 15px; border: 1px solid var(--admin-border); border-radius: 4px; background: #fff; color: var(--admin-text); font-size: 14px; font-weight: 400; cursor: pointer; }
+    .admin-button:hover { border-color: var(--admin-primary); color: var(--admin-primary); }
+    .admin-button--primary { border-color: var(--admin-primary); background: var(--admin-primary); color: #fff; }
+    .admin-button--primary:hover { border-color: #005bc4; background: #005bc4; color: #fff; }
+    .admin-command-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px 10px; }
+    .admin-command-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .admin-grid-scroll { overflow: auto; max-height: calc(100vh - 330px); }
+    .admin-grid-table { width: 2640px; min-width: 2640px; border-collapse: separate; border-spacing: 0; color: var(--admin-secondary); font-size: 13px; }
+    .admin-grid-table th, .admin-grid-table td { height: 64px; padding: 0 10px; border-bottom: 1px solid var(--admin-border); text-align: center; vertical-align: middle; white-space: nowrap; }
+    .admin-grid-table th { height: 40px; background: #f4f4f5; color: var(--admin-secondary); font-size: 13px; font-weight: 700; }
+    .admin-grid-table td { color: var(--admin-text); }
+    .admin-grid-table tbody tr:hover td { background: #f8fbff; }
+    .admin-sort-icons { display: inline-flex; flex-direction: column; gap: 0; color: #b6b8bd; font-size: 9px; line-height: 7px; }
+    .admin-sort-icons i { height: 7px; }
+    .admin-sort-icons i.is-active { color: var(--admin-primary); }
+    .admin-amount--positive { color: #67c23a !important; }
+    .admin-amount--negative { color: #f56c6c !important; }
+    .admin-check-col { width: 50px; min-width: 50px; text-align: center !important; }
+    .admin-operation-col { position: sticky; right: 0; z-index: 2; width: 280px; min-width: 280px; background: #fff; box-shadow: -7px 0 12px rgba(15, 23, 42, .07); text-align: center !important; white-space: normal !important; }
+    .admin-grid-table th.admin-operation-col { background: #f4f4f5; }
+    .admin-grid-table tbody tr:hover td.admin-operation-col { background: #f8fbff; }
+    .admin-operation-col > div { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 6px 14px; }
+    .admin-operation-col button, .admin-operation-col a { margin: 0; padding: 0; border: 0; background: transparent; color: var(--admin-primary); font-size: 12px; text-decoration: none; white-space: nowrap; cursor: pointer; }
+    .admin-operation-col button:hover, .admin-operation-col a:hover { color: #005bc4; text-decoration: underline; }
+    .admin-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid transparent; border-radius: 4px; font-size: 12px; }
+    .admin-tag--success { border-color: #dff7e6; background: #f0fff3; color: #57d188; }
+    .admin-tag--danger { border-color: #ffccc7; background: #fff2f0; color: #cf1322; }
+    .admin-tag--level { border-color: #d9e8ff; background: #f0f6ff; color: var(--admin-primary); }
+    .admin-pagination { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 16px; color: var(--admin-secondary); font-size: 12px; }
+    .admin-pagination select { height: 30px; padding: 0 22px 0 10px; border: 1px solid var(--admin-border); border-radius: 4px; background: #fff; color: var(--admin-secondary); }
+    .admin-page-buttons { display: flex; gap: 4px; margin-left: auto; }
+    .admin-page-buttons button { min-width: 26px; height: 26px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--admin-secondary); font-size: 12px; cursor: pointer; }
+    .admin-page-buttons button:hover, .admin-page-buttons button.is-active { background: var(--admin-primary); color: #fff; }
+    .admin-total-count { color: var(--admin-secondary); }
+    @media (max-width: 1280px) {
+      .admin-filter-grid { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+      .admin-grid-scroll { max-height: calc(100vh - 390px); }
+    }
+  
+
+
+    /* 截图对齐补充：Ads 品牌、左侧导航、标签页与弹窗 */
+
+    .admin-page-tab { display: inline-flex; align-items: center; gap: 10px; height: 40px; margin-top: 8px; padding: 0 14px; border: 0; border-right: 1px solid #f0f0f0; border-radius: 8px 8px 0 0; background: #fff; color: #606266; font-size: 14px; white-space: nowrap; cursor: pointer; }
+    .admin-page-tab i { color: #909399; font-size: 10px; }
+    .admin-page-tab:hover { color: var(--admin-primary); background: #f5f8ff; }
+    .admin-page-tab.is-active { color: var(--admin-primary); background: #eaf2ff; font-weight: 600; }
+    .admin-page-tab.is-active i { color: #606266; }
+
+    .customer-page-content { padding-top: 16px; }
+    .admin-filter-card { margin-bottom: 16px; }
+    .admin-grid-card { margin-bottom: 16px; }
+    .admin-button--permission { min-width: 158px; }
+    .admin-button--permission i { font-size: 13px; }
+    .admin-button:disabled { cursor: not-allowed; border-color: #e4e4e7; background: #f5f5f5; color: #bfbfbf; }
+    .admin-button:disabled:hover { border-color: #e4e4e7; background: #f5f5f5; color: #bfbfbf; }
+
+    /* 默认权限弹窗使用运营端紧凑卡片风格 */
+    #defaultPermissionModal, #confirmDefaultPermissionModal, #resetPasswordModal { background: rgba(0, 0, 0, .45); backdrop-filter: blur(2px); }
+    #defaultPermissionModal > div > div, #confirmDefaultPermissionModal > div > div, #resetPasswordModal > div > div { border-radius: 8px; box-shadow: 0 12px 40px rgba(0,0,0,.18); }
+    #defaultPermissionModal h3, #confirmDefaultPermissionModal h3, #resetPasswordModal h3 { font-size: 16px; font-weight: 600; }
+    #defaultPermissionModal .border-b, #confirmDefaultPermissionModal .border-b, #resetPasswordModal .border-b { border-color: var(--admin-border); }
+    #defaultPermissionModal .bg-blue-50 { border-color: #cfe1ff; background: #f0f6ff; }
+    #defaultPermissionModal .bg-gray-50 { background: #f7f8fa; }
+    #defaultPermissionModal #defaultPermissionTreeContainer { border-color: var(--admin-border); border-radius: 4px; background: #fff; }
+    #defaultPermissionModal button[type="submit"], #confirmDefaultPermissionModal button[onclick*="confirmDefaultPermissions"] { border-color: var(--admin-primary); background: var(--admin-primary); }
+    #defaultPermissionModal button[type="submit"]:hover, #confirmDefaultPermissionModal button[onclick*="confirmDefaultPermissions"]:hover { background: #005bc4; }
+    #defaultPermissionModal .permission-group { border-bottom: 1px solid #f0f0f0; padding: 4px 0; }
+    #defaultPermissionModal .permission-group:last-child { border-bottom: 0; }
+    #defaultPermissionModal input[type="checkbox"] { accent-color: var(--admin-primary); }
+    #confirmDefaultPermissionModal .bg-yellow-50, #resetPasswordModal .bg-yellow-50 { border-color: #ffe58f; background: #fffbe6; }
+    #confirmDefaultPermissionModal button[onclick*="confirmDefaultPermissions"] { color: #fff; }
+    #resetPasswordModal button[onclick*="confirmResetPassword"] { border-color: var(--admin-primary); background: var(--admin-primary); color: #fff; }
+    #resetPasswordModal button[onclick*="confirmResetPassword"]:hover { background: #005bc4; }
+
+    /* 与真实运营端弹窗一致：默认权限为紧凑权限树，重置密码为命令式确认框 */
+    #defaultPermissionModal .default-permission-dialog { max-width: 900px; }
+    #defaultPermissionModal .default-permission-form { padding: 22px 24px 0; }
+    #defaultPermissionModal .default-permission-section-title { margin-bottom: 10px; color: var(--admin-text); font-size: 14px; font-weight: 600; }
+    #defaultPermissionModal .default-permission-tree { height: 280px; max-height: 280px; overflow-y: auto; padding: 12px 18px; border: 1px solid var(--admin-border); border-radius: 6px; background: #fff; }
+    #defaultPermissionModal .default-permission-row { display: flex; align-items: center; min-height: 28px; color: var(--admin-secondary); font-size: 14px; }
+    #defaultPermissionModal .default-permission-toggle { width: 18px; padding: 0; border: 0; background: transparent; color: #606266; font-size: 11px; cursor: pointer; }
+    #defaultPermissionModal .default-permission-row label { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+    #defaultPermissionModal .default-permission-row input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--admin-primary); }
+    #defaultPermissionModal .default-permission-footer { display: flex; justify-content: flex-end; gap: 10px; margin: 20px -24px 0; padding: 16px 24px 20px; border-top: 1px solid var(--admin-border); }
+    #defaultPermissionModal .default-permission-footer .admin-button { min-width: 64px; }
+
+    #resetPasswordModal .reset-password-dialog { max-width: 416px; border-radius: 4px; }
+    #resetPasswordModal .reset-password-content { display: flex; gap: 14px; padding: 24px 24px 12px; }
+    #resetPasswordModal .reset-password-icon { display: grid; width: 24px; height: 24px; flex: 0 0 24px; place-items: center; margin-top: 2px; border-radius: 50%; background: #fff1b8; color: #d7a51a; font-size: 12px; }
+    #resetPasswordModal .reset-password-copy { min-width: 0; color: var(--admin-text); font-size: 14px; line-height: 1.55; }
+    #resetPasswordModal .reset-password-copy p { margin: 0; }
+    #resetPasswordModal .reset-password-result { margin-top: 10px !important; color: var(--admin-secondary); }
+    #resetPasswordModal .reset-password-result span { color: var(--admin-text); font-weight: 500; }
+    #resetPasswordModal .reset-password-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 0 24px 20px; }
+    #resetPasswordModal .reset-password-actions .admin-button { min-width: 64px; }
+
+    /* 主题切换按钮 */
+
+    /* 批量操作弹窗：对齐真实运营端 Vben/Ant Design 弹窗结构 */
+    #batchEditModal, #batchPermissionModal { background: rgba(0, 0, 0, .45); backdrop-filter: blur(2px); }
+    #batchEditModal .batch-modal-dialog, #batchPermissionModal .batch-modal-dialog { border-radius: 4px; box-shadow: 0 12px 40px rgba(0,0,0,.18); }
+    #batchEditModal .batch-modal-dialog { max-width: 680px; }
+    #batchPermissionModal .batch-modal-dialog { max-width: 900px; }
+    .batch-modal-form { padding: 22px 26px 0; }
+    .batch-modal-label { display: block; margin-bottom: 10px; color: var(--admin-text); font-size: 14px; font-weight: 600; }
+    .batch-modal-required { margin-right: 3px; color: #ff4d4f; }
+    .batch-modal-form select, .batch-modal-form input { width: 100%; height: 34px; padding: 4px 11px; border: 1px solid var(--admin-border); border-radius: 4px; outline: none; background: #fff; color: var(--admin-text); font-size: 14px; }
+    .batch-modal-form select:focus, .batch-modal-form input:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(0, 107, 230, .12); }
+    .batch-modal-helper { margin-top: 8px; color: var(--admin-muted); font-size: 12px; }
+    .batch-modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin: 24px -26px 0; padding: 16px 26px 20px; border-top: 1px solid var(--admin-border); }
+    .batch-modal-footer .admin-button { min-width: 64px; }
+    #batchPermissionModal .batch-permission-section { margin-bottom: 20px; }
+    #batchPermissionModal .batch-permission-tree { height: 280px; max-height: 280px; overflow-y: auto; padding: 12px 18px; border: 1px solid var(--admin-border); border-radius: 6px; background: #fff; }
+    #batchPermissionModal .batch-permission-row { display: flex; align-items: center; min-height: 28px; color: var(--admin-secondary); font-size: 14px; }
+    #batchPermissionModal .batch-permission-toggle { width: 18px; padding: 0; border: 0; background: transparent; color: #606266; font-size: 11px; cursor: pointer; }
+    #batchPermissionModal .batch-permission-row label { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+    #batchPermissionModal .batch-permission-row input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--admin-primary); }
+    #batchPermissionModal .batch-action-options { display: flex; align-items: center; gap: 24px; }
+    #batchPermissionModal .batch-action-options label { display: inline-flex; align-items: center; gap: 8px; color: var(--admin-secondary); font-size: 14px; cursor: pointer; }
+    #batchPermissionModal .batch-action-options input[type="radio"] { width: 16px; height: 16px; accent-color: var(--admin-primary); }
+
+    /* 深色模式 */
+    body.theme-dark { --admin-page-bg: #18191c; --admin-border: #34363b; --admin-text: rgba(255,255,255,.88); --admin-secondary: #b7b9bf; --admin-muted: #858990; background: #18191c !important; color: var(--admin-text); }
+    body.theme-dark .admin-page-tab { color: #aeb1b8; border-right-color: #303238; }
+    body.theme-dark .admin-page-tab:hover { background: #292b30; color: #5b9cff; }
+    body.theme-dark .admin-page-tab.is-active { background: #303238; color: #5b9cff; }
+    body.theme-dark .admin-field input, body.theme-dark .admin-field select, body.theme-dark .admin-pagination select, body.theme-dark .admin-button { border-color: var(--admin-border); background: #24262b; color: var(--admin-text); }
+    body.theme-dark .admin-field input::placeholder, body.theme-dark .admin-button:disabled { color: #70747c; }
+    body.theme-dark .admin-button:hover { border-color: #5b9cff; color: #76adff; }
+    body.theme-dark .admin-button--primary { border-color: #1677ff; background: #1677ff; color: #fff; }
+    body.theme-dark .admin-button--primary:hover { border-color: #4096ff; background: #4096ff; color: #fff; }
+    body.theme-dark .admin-button:disabled { border-color: #34363b; background: #24262b; }
+    body.theme-dark .admin-grid-table th { background: #2a2c30; color: #c5c7cc; }
+    body.theme-dark .admin-grid-table td { border-bottom-color: var(--admin-border); color: #d1d3d7; }
+    body.theme-dark .admin-grid-table tbody tr:hover td { background: #292b30; }
+    body.theme-dark .admin-operation-col { background: #1f2024; box-shadow: -7px 0 12px rgba(0,0,0,.22); }
+    body.theme-dark .admin-grid-table tbody tr:hover td.admin-operation-col { background: #292b30; }
+    body.theme-dark .admin-sort-icons { color: #777b84; }
+    body.theme-dark .admin-pagination { color: #b7b9bf; }
+    body.theme-dark .admin-page-buttons button { color: #b7b9bf; }
+    body.theme-dark .admin-page-buttons button:hover, body.theme-dark .admin-page-buttons button.is-active { background: #1677ff; color: #fff; }
+    body.theme-dark .modal-backdrop > div > div, body.theme-dark .default-permission-dialog, body.theme-dark .batch-modal-dialog { border-color: var(--admin-border); background: #1f2024 !important; color: var(--admin-text); }
+    body.theme-dark .batch-modal-form select, body.theme-dark .batch-modal-form input, body.theme-dark #defaultPermissionModal .default-permission-tree, body.theme-dark #batchPermissionModal .batch-permission-tree { border-color: #45484f; background: #24262b; color: #e4e6ea; }
+    body.theme-dark .batch-modal-helper, body.theme-dark .batch-action-options label { color: #b7b9bf; }
+    body.theme-dark .default-permission-tree, body.theme-dark .batch-permission-tree { background: #24262b; }
+    body.theme-dark .reset-password-result, body.theme-dark .reset-password-copy { color: #d1d3d7; }

@@ -49,6 +49,7 @@
         page('meta-bm-config', 'BM 配置', 'meta-asset-management/bm-config.html', 'sliders-h'),
         page('meta-assets', '资产', 'meta-asset-management/assets.html', 'cubes'),
         page('meta-members', '成员', 'meta-asset-management/members.html', 'users'),
+        page('meta-assignment-audit', '资产分配核对', 'meta-asset-management/assignment-audit.html', 'clipboard-check'),
         page('meta-operation-log', '操作日志', 'meta-asset-management/operation-log.html', 'history')
       ]
     },

@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+
+
+
+
+
+    .status-pending { background: #fef3c7; color: #d97706; }
+    .status-auto-approved { background: #dcfce7; color: #166534; }
+    .status-auto-rejected { background: #fef2f2; color: #dc2626; }
+    .status-auto-uncertain { background: #e0e7ff; color: #4338ca; }
+    .status-manual-approved { background: #d1fae5; color: #065f46; }
+    .status-manual-rejected { background: #fee2e2; color: #991b1b; }
+
+    .review-card {
+      transition: all 0.3s ease;
+      border: 1px solid #e5e7eb;
+    }
+
+    .review-card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .media-preview {
+      max-width: 200px;
+      max-height: 150px;
+      object-fit: cover;
+    }
+
+    .score-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+    }
+
+    .risk-tag {
+      transition: all 0.2s ease;
+    }
+
+    .risk-tag:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .fb-info-section {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 1px solid #bfdbfe;
+    }
+
+.status-approved { background: #dcfce7; color: #166534; }
+.status-rejected { background: #fee2e2; color: #991b1b; }

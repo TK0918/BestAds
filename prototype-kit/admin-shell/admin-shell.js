@@ -12,7 +12,9 @@
   const shellUrl = new URL(currentScript.src, window.location.href);
   const shellDirUrl = new URL('./', shellUrl);
   const repoRootUrl = new URL('../../', shellUrl);
-  const SHELL_VERSION = '20260809-sidebar-icons';
+  // 运营端原型公共资源统一版本号。
+  // admin-system/**/*.html 中 prototype-kit/admin-shell/* 的 ?v= 应与此值保持一致。
+  const SHELL_VERSION = '20260810-thin-shell-pages-menu';
   const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
   const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
   cssUrlObj.searchParams.set('v', SHELL_VERSION);
@@ -20,8 +22,7 @@
   const cssUrl = cssUrlObj.href;
   const figmaCssUrl = figmaCssUrlObj.href;
   const menuUrl = new URL('admin-menu.js', shellDirUrl);
-  // 菜单是配置文件，使用轻量 cache-busting，确保新增页面后刷新即可生效。
-  menuUrl.searchParams.set('v', String(Date.now()));
+  menuUrl.searchParams.set('v', SHELL_VERSION);
   const THEME_KEY = 'bestads-theme';
 
   function safeStorage(action, fallback) {
@@ -288,6 +289,7 @@
   }
 
   window.BESTADS_ADMIN_SHELL = window.BESTADS_ADMIN_SHELL || {};
+  window.BESTADS_ADMIN_SHELL.version = SHELL_VERSION;
   window.BESTADS_ADMIN_SHELL.toggleTheme = toggleTheme;
   window.BESTADS_ADMIN_SHELL.applyTheme = applyTheme;
 
