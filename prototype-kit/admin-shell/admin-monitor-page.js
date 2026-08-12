@@ -68,6 +68,22 @@
     { checkDate: '2026-08-07', merchantId: '11280', customerName: 'adstest', bd: owners.bdZhang, am: owners.amLi, accountId: '438877120043995', accountName: 'MX-B-08-729', media: 'Facebook', bindCard: '是', currency: 'USD', prevEnd: '1,560.00', recharge: '0.00', spend: '88.12', clear: '0.00', reduce: '0.00', expected: '1,471.88', dayEnd: '1,471.88', diff: '0.00', diffPct: '0.00%', followStatus: '已处理', followOwner: '李四(lisi@bestfulfill.com)', followAt: '2026-08-08 09:50:01', followRemark: '绑卡户余额口径已确认', ops: ['跟进', '查看跟进记录'] }
   ];
 
+  const balanceDayOverDayModals = Object.assign({}, monitorModals, {
+    '飞书告警示意': {
+      type: 'monitor-alert-preview',
+      title: '飞书告警示意',
+      lines: [
+        '【账户余额日环比异常】2026-08-09 第 1/3 条',
+        '商户 ID：16201；客户名称：Arne；BD：王五；AM：赵六',
+        '媒体：Facebook；广告账户 ID：821285917232112；广告账户名称：HQ-W-12-13；是否绑卡户：否；币种：USD',
+        '前一天日终余额：1,020.50；当天充值：0.00；当天消耗：128.20；当天清零：0.00；当天减款：120.50',
+        '推算余额：771.80；当天日终余额：650.30；差额：121.50；偏差%：15.74%',
+        '异常说明：推算余额高于实际日终，账上可能少了。请核对充值、消耗、清零、减款流水。',
+        '跟进状态：待跟进；查看异常清单 →'
+      ]
+    }
+  });
+
   const balanceMonitorRuleRows = [
     { ruleName: 'test123', condition: '小于 $12', status: '停用', interval: '48 小时', accountCount: '1', updatedBy: '谭英就(tanyingjiu@bestfulfill.com)', updatedAt: '2026-06-29 14:51:05', ops: ['编辑'] },
     { ruleName: 'v224-mon-1782385472834', condition: '小于 $500', status: '启用', interval: '12 小时', accountCount: '1', updatedBy: '谭英就(tanyingjiu@bestfulfill.com)', updatedAt: '2026-06-29 14:21:42', ops: ['编辑'] },
@@ -216,7 +232,7 @@
         { key: 'followRemark', label: '跟进备注', align: 'left', width: 220, format: text }
       ],
       rows: balanceRows,
-      modals: monitorModals
+      modals: balanceDayOverDayModals
     },
 
     'balance-monitor-auto-recharge': {
