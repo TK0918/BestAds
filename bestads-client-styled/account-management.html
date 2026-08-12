@@ -984,32 +984,7 @@
 </head>
 <body>
   <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <span class="brand-mark">B</span>
-        <span class="brand-name">BestAds</span>
-      </div>
-      <button class="mode-button" type="button" data-i18n="mode_ad_management">Ad Management</button>
-      <nav>
-        <section class="menu-group">
-          <div class="menu-title" data-i18n="menu_asset">Asset Management</div>
-          <a class="menu-item active" href="./account-management.html" data-i18n="menu_account">Account Management</a>
-          <a class="menu-item" href="./wallet.html" data-i18n="menu_wallet">Wallet Management</a>
-          <a class="menu-item" href="./operation-records.html" data-i18n="menu_records">Operation Records</a>
-          <a class="menu-item" href="./location-fee.html" data-i18n="menu_tax">Tax Fee Details</a>
-          <a class="menu-item" href="./introducer-daily-consume.html" data-i18n="menu_referral">Referral Rebate</a>
-        </section>
-        <section class="menu-group">
-          <div class="menu-title" data-i18n="menu_user">User Management</div>
-          <a class="menu-item" href="./sub-account-management.html" data-i18n="menu_sub_account">Sub-account Management</a>
-          <a class="menu-item" href="./role-management.html" data-i18n="menu_role">Role Management</a>
-        </section>
-        <section class="menu-group">
-          <div class="menu-title" data-i18n="menu_settings">Settings</div>
-          <a class="menu-item" href="./auto-recharge-rules.html" data-i18n="menu_auto_recharge">Auto Recharge Settings</a>
-        </section>
-      </nav>
-    </aside>
+    <aside class="sidebar"></aside>
 
     <main class="main">
       <header class="topbar">
@@ -1768,6 +1743,7 @@
       });
       document.querySelectorAll('#timezoneRows button').forEach(el => { el.textContent = t('btn_delete'); });
       document.getElementById('languageToggle').textContent = currentLanguage === 'zh-CN' ? '中文' : 'English';
+      window.BESTADS_CLIENT_SHELL?.renderLegacyMenu?.('account-management');
       applyTheme(localStorage.getItem(THEME_KEY) || 'light');
       renderAccounts();
       ['recharge', 'deduct', 'clear'].forEach(mode => {
@@ -2223,6 +2199,7 @@
     createTimezoneRow(false);
     createTextRow('pageList', t('placeholder_page'), false);
   </script>
+  <script src="./js/client-shell.js?v=20260812-client-shell"></script>
   <script src="./js/common.js?v=20260811-email-settings-simple-v3"></script>
 </body>
 </html>

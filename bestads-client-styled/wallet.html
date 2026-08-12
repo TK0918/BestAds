@@ -3,705 +3,1674 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>钱包 - BestAds</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="./css/common.css">
-</head>
-<body class="m-0 p-0 h-screen">
-  <div class="flex w-full h-screen">
-    <!-- Left Sidebar -->
-    <div id="sidebar-container" class="fixed inset-y-0 left-0 z-50" style="width: 220px;"></div>
+  <title>余额管理 - BestAds</title>
+  <style>
+    :root {
+      --primary: #2759ff;
+      --primary-hover: #2f6bff;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --layout-bg: #f5f7fb;
+      --text: #1f2329;
+      --title: #101828;
+      --subtle: #646a73;
+      --muted: #8f959e;
+      --border: #e5e7eb;
+      --border-soft: #edf0f5;
+      --control-border: #d9d9d9;
+      --table-head: #fafafa;
+      --success: #00a870;
+      --warning: #f59e0b;
+      --danger: #f04438;
+      --shadow: 0 8px 24px rgba(31, 35, 41, 0.08);
+    }
 
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col" style="margin-left: 220px; background-color: #1A1F2B;">
-      <!-- Top Header -->
-      <header class="flex items-center justify-between px-6" style="height: 56px; background-color: #1A1F2B; border-bottom: 1px solid #2E333F;">
-        <div class="flex items-center space-x-4">
-          <h2 class="text-xl font-semibold text-white">余额管理</h2>
-        </div>
-        
-        <div class="flex items-center space-x-4">
-          <!-- Notification -->
-          <div class="relative group">
-            <button class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
-              <i class="fas fa-bell text-lg"></i>
-              <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">3</span>
+    body.theme-dark {
+      --bg: #080b1b;
+      --panel: #111827;
+      --layout-bg: #080b1b;
+      --text: #eef2f7;
+      --title: #ffffff;
+      --subtle: #cbd5e1;
+      --muted: #98a2b3;
+      --border: #2d3a50;
+      --border-soft: #263247;
+      --control-border: #334155;
+      --table-head: #1e293b;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      background: var(--layout-bg);
+      color: var(--text);
+      font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      background: var(--layout-bg);
+    }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 208px;
+      background: transparent;
+      padding: 0 8px;
+      overflow-y: auto;
+      z-index: 20;
+    }
+
+    .brand {
+      width: 208px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: var(--primary);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .brand-name {
+      color: #171818;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .mode-toggle {
+      width: 208px;
+      height: 34px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-bottom: 6px;
+    }
+
+    .mode-button {
+      width: 98px;
+      height: 28px;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      background: var(--primary);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    nav {
+      width: 192px;
+      margin: 4px 0 0;
+      padding: 0;
+    }
+
+    .menu-group {
+      margin-bottom: 0;
+    }
+
+    .menu-title {
+      height: 38px;
+      padding: 0 16px;
+      color: #4e5969;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .menu-item {
+      height: 40px;
+      margin: 2px 0;
+      padding: 0 16px 0 48px;
+      border-radius: 8px;
+      color: #4e5969;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    html[lang="en"] .menu-item {
+      padding-right: 10px;
+    }
+
+    .menu-item.active {
+      background: #eef3ff;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .main {
+      width: 100%;
+      min-width: 972px;
+      margin-left: 208px;
+      background: transparent;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      height: 64px;
+      padding: 0 16px;
+      background: transparent;
+      border-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-title {
+      margin: 0;
+      color: var(--title);
+      font-size: 22px;
+      line-height: 30px;
+      font-weight: 600;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #4e5969;
+    }
+
+    .wallet-value {
+      color: #1f2329;
+      font-weight: 600;
+    }
+
+    .top-link {
+      min-width: 0;
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #4e5969;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 0 4px;
+      font-weight: 500;
+    }
+
+    .top-link.theme {
+      width: 90px;
+      height: 24px;
+      border: 1px solid var(--control-border);
+      background: var(--panel);
+      padding: 0 8px;
+    }
+
+    .top-link:hover {
+      color: var(--primary);
+      background: rgba(39, 89, 255, 0.08);
+    }
+
+    .icon-button {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #4e5969;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .icon-button:hover {
+      background: rgba(39, 89, 255, 0.08);
+      color: var(--primary);
+    }
+
+    .client-user-menu {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .client-user-button {
+      height: 32px;
+      border: 0;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    .client-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #eef3ff;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .client-user-name,
+    .client-user-chevron {
+      display: none;
+    }
+
+    .client-user-dropdown {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      z-index: 900;
+      display: none;
+      min-width: 156px;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+    }
+
+    .client-user-menu.is-open .client-user-dropdown {
+      display: grid;
+      gap: 2px;
+    }
+
+    .client-user-dropdown button {
+      width: 100%;
+      min-height: 34px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      text-align: left;
+    }
+
+    .client-user-dropdown button:hover {
+      background: #eef3ff;
+      color: var(--primary);
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .page-card {
+      border-radius: 8px;
+      padding: 17px;
+      background: transparent;
+    }
+
+    .balance-page {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+    }
+
+    .exchange-card {
+      min-height: 54px;
+      padding: 15px 25px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--subtle);
+      overflow-x: auto;
+    }
+
+    .rate-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .rate-value {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .rate-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+    }
+
+    .stat-card {
+      min-height: 106px;
+      padding: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .stat-list {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .stat-item {
+      width: 180px;
+      min-height: 56px;
+      position: relative;
+      padding-right: 24px;
+    }
+
+    .stat-item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 6px;
+      right: 0;
+      width: 1px;
+      height: 44px;
+      background: var(--border-soft);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .help-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid #c0c4cc;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: help;
+      position: relative;
+    }
+
+    .help-icon:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      width: 220px;
+      transform: translateX(-50%);
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #1f2329;
+      color: #ffffff;
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+      z-index: 20;
+    }
+
+    .stat-value {
+      color: var(--text);
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .stat-value.primary {
+      color: var(--primary);
+    }
+
+    .stat-value.warning {
+      color: var(--warning);
+    }
+
+    .stat-value.danger {
+      color: var(--danger);
+    }
+
+    .stat-value.success {
+      color: var(--success);
+    }
+
+    .button {
+      height: 32px;
+      min-width: 76px;
+      padding: 0 15px;
+      border-radius: 8px;
+      border: 1px solid var(--control-border);
+      background: var(--panel);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .button:hover {
+      border-color: var(--primary-hover);
+      color: var(--primary-hover);
+    }
+
+    .button.primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .button.primary:hover {
+      border-color: var(--primary-hover);
+      background: var(--primary-hover);
+      color: #ffffff;
+    }
+
+    .button.white {
+      min-width: 71px;
+      height: 29px;
+      border-color: var(--control-border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 0 12px;
+    }
+
+    .button.text {
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      padding: 0 4px;
+    }
+
+    .tabs-card {
+      min-height: 488px;
+      padding: 16px;
+    }
+
+    .tab-nav {
+      height: 34px;
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 16px;
+    }
+
+    .tab-button {
+      height: 34px;
+      border: 0;
+      background: transparent;
+      color: var(--subtle);
+      padding: 0;
+      position: relative;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .tab-button.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .tab-button.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--primary);
+    }
+
+    .toolbar {
+      min-height: 32px;
+      display: grid;
+      grid-template-columns: 220px 220px 76px minmax(24px, 1fr) 76px;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .toolbar.online,
+    .toolbar.offline {
+      grid-template-columns: 220px 220px 220px 76px minmax(24px, 1fr) 76px;
+    }
+
+    .range-field {
+      height: 32px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+      align-items: center;
+      border: 1px solid var(--control-border);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 0 11px;
+    }
+
+    .range-field input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .range-separator {
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .input,
+    .select {
+      width: 100%;
+      height: 32px;
+      border: 1px solid var(--control-border);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 0 11px;
+      outline: none;
+    }
+
+    .input::placeholder {
+      color: #b8bcca;
+    }
+
+    .input:focus,
+    .select:focus,
+    .range-field:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(39, 89, 255, 0.1);
+    }
+
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 10px 10px 0 0;
+      overflow: auto;
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    thead th {
+      height: 40px;
+      background: var(--table-head);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      height: 41px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--border-soft);
+      color: var(--text);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover td {
+      background: #fafcff;
+    }
+
+    .amount-positive {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .amount-negative {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .empty {
+      height: 168px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      padding-top: 12px;
+      color: #4e5969;
+    }
+
+    .page-number {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--primary);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+    }
+
+    .modal-root {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 188px 24px 32px;
+      background: rgba(15, 23, 42, 0.45);
+      overflow: auto;
+    }
+
+    .modal-root.open {
+      display: flex;
+    }
+
+    .payment-modal {
+      width: 960px;
+      max-width: calc(100vw - 48px);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      height: 68px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .modal-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .close {
+      width: 20px;
+      height: 20px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .close:hover {
+      background: rgba(39, 89, 255, 0.08);
+      color: var(--primary);
+    }
+
+    .payment-content {
+      padding: 16px 24px 24px;
+    }
+
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .payment-panel {
+      min-height: 456px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 16px;
+    }
+
+    .payment-panel.left {
+      min-height: 711px;
+    }
+
+    .payment-section {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .field-title {
+      margin-bottom: 8px;
+      color: var(--subtle);
+      font-weight: 500;
+    }
+
+    .required {
+      color: var(--danger);
+      margin-right: 2px;
+    }
+
+    .currency-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .currency-item {
+      min-width: 54px;
+      height: 29px;
+      border: 1px solid var(--control-border);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      font-weight: 500;
+    }
+
+    .currency-item.active,
+    .method-item.active,
+    .bank-item.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #eef3ff;
+    }
+
+    .amount-field {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 52px;
+      align-items: center;
+      border: 1px solid var(--control-border);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .amount-field input {
+      width: 100%;
+      height: 33px;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      padding: 0 11px;
+    }
+
+    .amount-field span {
+      color: var(--subtle);
+      text-align: center;
+      border-left: 1px solid var(--border-soft);
+    }
+
+    .method-list,
+    .bank-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .method-list {
+      grid-template-columns: 1fr;
+    }
+
+    .method-item,
+    .bank-item {
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      font-weight: 500;
+    }
+
+    .online-pay-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .online-pay-head strong {
+      font-size: 14px;
+    }
+
+    .pay-button {
+      width: 100%;
+      height: 35px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .pay-button:hover {
+      background: var(--primary-hover);
+    }
+
+    .payment-note {
+      margin-top: 18px;
+      color: var(--subtle);
+      line-height: 1.8;
+    }
+
+    .payment-note-title {
+      color: var(--text);
+      font-weight: 600;
+      margin: 14px 0 6px;
+    }
+
+    .payment-note ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .payment-note li {
+      margin: 2px 0;
+    }
+
+    .toast {
+      position: fixed;
+      top: 78px;
+      right: 24px;
+      z-index: 200;
+      display: none;
+      min-width: 240px;
+      max-width: 360px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .toast.success {
+      border-color: #b7ebd2;
+      color: #00875a;
+    }
+
+    .toast.warning {
+      border-color: #ffd591;
+      color: #d46b08;
+    }
+
+    body.theme-dark .brand-name,
+    body.theme-dark .page-title {
+      color: #ffffff;
+    }
+
+    body.theme-dark .menu-title,
+    body.theme-dark .menu-item,
+    body.theme-dark .top-link,
+    body.theme-dark .wallet-value,
+    body.theme-dark .top-actions,
+    body.theme-dark .icon-button,
+    body.theme-dark .pagination {
+      color: var(--subtle);
+    }
+
+    body.theme-dark .menu-item.active,
+    body.theme-dark .currency-item.active,
+    body.theme-dark .method-item.active,
+    body.theme-dark .bank-item.active {
+      background: #eef3ff;
+      color: var(--primary);
+    }
+
+    body.theme-dark tbody tr:hover td {
+      background: #1d293d;
+    }
+
+    body.theme-dark .rate-divider {
+      background: var(--border);
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        min-width: 0;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+      }
+
+      .brand,
+      .mode-toggle,
+      nav {
+        width: 100%;
+      }
+
+      .app {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+        min-width: 0;
+      }
+
+      .toolbar,
+      .toolbar.online,
+      .toolbar.offline {
+        grid-template-columns: 1fr;
+      }
+
+      .payment-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-root {
+        padding: 72px 12px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar"></aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1 class="page-title" data-i18n="page_title">余额管理</h1>
+        <div class="top-actions">
+          <span class="wallet-value">-2512.38USD</span>
+          <button id="themeToggle" class="top-link theme" type="button" data-i18n="theme_dark">暗黑模式</button>
+          <button class="icon-button" type="button" aria-label="Notifications">!</button>
+          <button id="languageToggle" class="top-link" type="button">中文</button>
+          <div class="client-user-menu" data-client-user-menu>
+            <button type="button" class="client-user-button" data-client-user-toggle aria-haspopup="menu" aria-expanded="false">
+              <span class="client-avatar">A</span>
+              <span class="client-user-name" data-i18n="user_name">客户</span>
+              <span class="client-user-chevron">⌄</span>
             </button>
-          </div>
-          
-          <!-- Language Selector -->
-          <select class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
-            <option>中文</option>
-            <option>English</option>
-          </select>
-          
-          <!-- User Avatar -->
-          <div class="relative group flex items-center">
-            <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
-              <i class="fas fa-wallet mr-2"></i>
-              <span id="balanceAmount">$2,900.00</span>
-            </button>
-            <!-- 悬浮详细信息 -->
-            <div class="absolute right-0 top-10 z-50 hidden group-hover:block rounded-lg shadow-lg p-4 min-w-[220px] text-sm" style="background-color: #0F121A; border: 1px solid #2E333F; color: #B0B5C0;">
-              <div class="mb-2 flex items-center justify-between">
-                <span>可用余额</span><span class="font-bold" style="color: #00FFB0;">$2,900.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>真实金额</span><span>$2,800.00</span>
-              </div>
-              <div class="mb-1 flex items-center justify-between">
-                <span>冻结金额</span><span>$100.00</span>
-              </div>
+            <div class="client-user-dropdown" role="menu">
+              <button type="button" role="menuitem" data-client-email-action="open-settings">
+                <span>✉</span>
+                <span data-i18n="email_settings">邮件与邮箱</span>
+              </button>
             </div>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <span class="text-white text-sm font-medium">A</span>
-            </div>
-            <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
           </div>
         </div>
       </header>
 
-      <!-- Content Area -->
-      <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
-        <!-- Page Title -->
-        <div class="mb-8">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-2xl font-bold text-white mb-2">余额管理</h2>
-            </div>
-          </div>
-        </div>
+      <div class="content">
+        <section class="page-card">
+          <div class="balance-page">
+            <section class="card exchange-card" aria-label="Exchange Rate">
+              <span class="rate-item"><span>EUR -> USD :</span><span class="rate-value">1.146898</span></span>
+              <span class="rate-divider"></span>
+              <span class="rate-item"><span>GBP -> USD :</span><span class="rate-value">1.342445</span></span>
+              <span class="rate-divider"></span>
+              <span class="rate-item"><span>HKD -> USD :</span><span class="rate-value">0.126674</span></span>
+            </section>
 
-        <!-- 余额详细信息 -->
-        <div class="shadow-lg p-6 mb-8" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            <div class="flex flex-col items-center">
-              <div class="flex items-center space-x-1 mb-1">
-                <span style="color: #B0B5C0;" class="text-sm">可用余额</span>
-                <div class="relative group">
-                  <i class="fas fa-question-circle" style="color: #B0B5C0; font-size: 12px; cursor: pointer;"></i>
-                  <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg border border-gray-600">
-                    剩余可以使用的余额。
-                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-800"></div>
+            <section class="card stat-card">
+              <div class="stat-list">
+                <div class="stat-item">
+                  <div class="stat-label">
+                    <span data-i18n="stat_real">真实金额</span>
+                    <span class="help-icon" data-tip="客户钱包中的真实资金金额。">?</span>
                   </div>
+                  <div class="stat-value primary">0.00 USD</div>
                 </div>
-              </div>
-              <span class="text-2xl font-bold mt-1" style="color: #00FFB0;">$2,900.00</span>
-            </div>
-            <div class="flex flex-col items-center">
-              <div class="flex items-center space-x-1 mb-1">
-                <span style="color: #B0B5C0;" class="text-sm">真实金额</span>
-                <div class="relative group">
-                  <i class="fas fa-question-circle" style="color: #B0B5C0; font-size: 12px; cursor: pointer;"></i>
-                  <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg border border-gray-600">
-                    您真实的现金金额，包含冻结金额。
-                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-800"></div>
+                <div class="stat-item">
+                  <div class="stat-label">
+                    <span data-i18n="stat_frozen">冻结金额</span>
+                    <span class="help-icon" data-tip="账户充值、减款等业务处理中暂时不可用的金额。">?</span>
                   </div>
+                  <div class="stat-value warning">0.00 USD</div>
                 </div>
-              </div>
-              <span class="text-xl font-bold mt-1 text-white">$3,000.00</span>
-            </div>
-            <div class="flex flex-col items-center">
-              <div class="flex items-center space-x-1 mb-1">
-                <span style="color: #B0B5C0;" class="text-sm">冻结金额</span>
-                <div class="relative group">
-                  <i class="fas fa-question-circle" style="color: #B0B5C0; font-size: 12px; cursor: pointer;"></i>
-                  <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg border border-gray-600" style="width: 200px; white-space: normal;">
-                    因为预扣款产生的暂时无法使用的金额。例如：广告账户充值$100，会冻结$100。当确定广告账户完成充值后，会真实扣除$100。
-                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-800"></div>
+                <div class="stat-item">
+                  <div class="stat-label">
+                    <span data-i18n="stat_credit">信用额度</span>
+                    <span class="help-icon" data-tip="当前客户可使用的信用额度。">?</span>
                   </div>
+                  <div class="stat-value">10000.00 USD</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">
+                    <span data-i18n="stat_used_credit">已用额度</span>
+                    <span class="help-icon" data-tip="当前已占用的信用额度。">?</span>
+                  </div>
+                  <div class="stat-value danger">364.20 USD</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">
+                    <span data-i18n="stat_available">可用余额</span>
+                    <span class="help-icon" data-tip="当前可用于广告账户充值等操作的金额。">?</span>
+                  </div>
+                  <div class="stat-value success">7487.62 USD</div>
                 </div>
               </div>
-              <span class="text-xl font-bold mt-1 text-white">$100.00</span>
-            </div>
-          </div>
-        </div>
+              <button class="button primary" type="button" data-open-payment data-i18n="btn_recharge_transfer">充值/转账</button>
+            </section>
 
-        <!-- 功能入口 -->
-        <div class="flex flex-wrap gap-4 mb-8">
-          <button onclick="openModal('onlineRechargeModal')" class="btn-primary px-6 py-3 text-base font-medium flex items-center space-x-2">
-            <i class="fas fa-credit-card"></i>
-            <span>在线充值</span>
-          </button>
-          <button onclick="openModal('offlineTransferModal')" class="btn-secondary px-6 py-3 text-base font-medium flex items-center space-x-2">
-            <i class="fas fa-university"></i>
-            <span>线下转账</span>
-          </button>
-          <div class="text-gray-400 text-sm flex items-center ml-2">* 在线充值和线下转账支持多币种，到账金额和到账时间以实际为准。</div>
-        </div>
-
-        <!-- 数据报表Tab -->
-        <div class="shadow-lg" style="background-color: #1A1F2B; border-radius: 6px; border: 1px solid #2E333F;">
-          <div class="flex" style="border-bottom: 1px solid #2E333F;">
-            <button class="tab-active flex-1 py-3 text-center text-base font-medium" onclick="showTab('detail')" id="tab-detail">交易明细</button>
-            <button class="tab-inactive flex-1 py-3 text-center text-base font-medium" onclick="showTab('online')" id="tab-online">在线充值</button>
-            <button class="tab-inactive flex-1 py-3 text-center text-base font-medium" onclick="showTab('offline')" id="tab-offline">线下转账</button>
-          </div>
-          <div class="p-6" id="tabContent">
-            <!-- 交易明细Tab内容 -->
-            <div id="tab-detail-content">
-              <div class="mb-4 flex flex-wrap gap-4 items-end">
-                <div>
-                  <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">日期</label>
-                  <input type="date" class="input-field">
-                  <span class="mx-2" style="color: #B0B5C0;">-</span>
-                  <input type="date" class="input-field">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">变动原因</label>
-                  <select class="input-field">
-                    <option value="">全部</option>
-                    <option value="在线充值">在线充值</option>
-                    <option value="线下转账">线下转账</option>
-                    <option value="广告账户充值">广告账户充值</option>
-                    <option value="广告账户充值失败">广告账户充值失败</option>
-                    <option value="广告账户清零">广告账户清零</option>
-                  </select>
-                </div>
-                <button class="btn-primary px-4 py-2 font-medium flex items-center space-x-2">
-                  <i class="fas fa-search"></i>
-                  <span>筛选</span>
-                </button>
-                <button class="btn-secondary px-4 py-2 font-medium flex items-center space-x-2">
-                  <i class="fas fa-download"></i>
-                  <span>导出</span>
-                </button>
+            <section class="card tabs-card">
+              <div class="tab-nav" role="tablist">
+                <button class="tab-button active" type="button" data-tab="detail" data-i18n="tab_detail">交易明细</button>
+                <button class="tab-button" type="button" data-tab="online" data-i18n="tab_online">在线充值</button>
+                <button class="tab-button" type="button" data-tab="offline" data-i18n="tab_offline">线下转账</button>
               </div>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-700">
-                  <thead class="bg-slate-700">
-                    <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">时间</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">变动原因</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">变动金额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">变动后余额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">备注</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-slate-800 divide-y divide-gray-700">
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-20 14:25</td>
-                      <td class="px-4 py-3 whitespace-nowrap">广告账户充值失败</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">+100.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">3500.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">账户ID: FB12345678，失败金额: $100.00</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-19 16:30</td>
-                      <td class="px-4 py-3 whitespace-nowrap">广告账户清零</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">+250.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">3400.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">账户ID: FB12345678，清零金额: $250.00</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-18 09:15</td>
-                      <td class="px-4 py-3 whitespace-nowrap">广告账户充值</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-red-400">-100.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">3400.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">账户ID: FB12345678，充值金额: $100.00</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-16 11:30</td>
-                      <td class="px-4 py-3 whitespace-nowrap">线下转账</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">+2000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">3500.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">Wise转账到账</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-15 10:30</td>
-                      <td class="px-4 py-3 whitespace-nowrap">在线充值</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">+1000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">1500.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">Stripe</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-14 16:45</td>
-                      <td class="px-4 py-3 whitespace-nowrap">广告账户充值</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-red-400">-500.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">500.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">账户ID: GG87654321，充值金额: $500.00</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-13 09:20</td>
-                      <td class="px-4 py-3 whitespace-nowrap">在线充值</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">+1000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">1000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">PayPal</td>
-                    </tr>
-                  </tbody>
+
+              <div id="tabToolbar" class="toolbar"></div>
+              <div class="table-wrap">
+                <table>
+                  <thead id="tableHead"></thead>
+                  <tbody id="tableBody"></tbody>
                 </table>
+                <div id="emptyState" class="empty" hidden data-i18n="empty">暂无数据</div>
               </div>
-            </div>
-            <!-- 在线充值Tab内容 -->
-            <div id="tab-online-content" style="display:none;">
-              <div class="mb-4 flex flex-wrap gap-4 items-end">
-                <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-2">日期</label>
-                  <input type="date" class="px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <span class="mx-2 text-gray-400">-</span>
-                  <input type="date" class="px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-2">支付平台</label>
-                  <select class="px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">全部</option>
-                    <option value="Stripe">Stripe</option>
-                    <option value="PayPal">PayPal</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-2">状态</label>
-                  <select class="px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">全部</option>
-                    <option>成功</option>
-                    <option>失败</option>
-                    <option>进行中</option>
-                  </select>
-                </div>
-                <button class="btn-primary px-4 py-2 font-medium flex items-center space-x-2">
-                  <i class="fas fa-search"></i>
-                  <span>筛选</span>
-                </button>
-                <button class="btn-secondary px-4 py-2 font-medium flex items-center space-x-2">
-                  <i class="fas fa-download"></i>
-                  <span>导出</span>
-                </button>
+              <div class="pagination">
+                <span id="totalText">共 11 条</span>
+                <span class="page-number">1</span>
+                <select class="select" style="width: 96px;">
+                  <option data-i18n="page_size_20">20 条/页</option>
+                </select>
               </div>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-700">
-                  <thead class="bg-slate-700">
-                    <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">充值时间</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">支付平台</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">平台的支付ID</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">支付币种</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">支付金额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">入账币种</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">入账金额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">完成时间</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">备注</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-slate-800 divide-y divide-gray-700">
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-15 10:30</td>
-                      <td class="px-4 py-3 whitespace-nowrap">Stripe</td>
-                      <td class="px-4 py-3 whitespace-nowrap">pay_123456</td>
-                      <td class="px-4 py-3 whitespace-nowrap">USD</td>
-                      <td class="px-4 py-3 whitespace-nowrap">1000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">成功</td>
-                      <td class="px-4 py-3 whitespace-nowrap">USD</td>
-                      <td class="px-4 py-3 whitespace-nowrap">1000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-15 10:35</td>
-                      <td class="px-4 py-3 whitespace-nowrap">到账成功</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-14 09:20</td>
-                      <td class="px-4 py-3 whitespace-nowrap">PayPal</td>
-                      <td class="px-4 py-3 whitespace-nowrap">pp_987654</td>
-                      <td class="px-4 py-3 whitespace-nowrap">USD</td>
-                      <td class="px-4 py-3 whitespace-nowrap">500.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-yellow-400">进行中</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">等待支付平台确认</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-13 09:20</td>
-                      <td class="px-4 py-3 whitespace-nowrap">PayPal</td>
-                      <td class="px-4 py-3 whitespace-nowrap">pp_654321</td>
-                      <td class="px-4 py-3 whitespace-nowrap">USD</td>
-                      <td class="px-4 py-3 whitespace-nowrap">1000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">成功</td>
-                      <td class="px-4 py-3 whitespace-nowrap">USD</td>
-                      <td class="px-4 py-3 whitespace-nowrap">1000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-13 09:25</td>
-                      <td class="px-4 py-3 whitespace-nowrap">到账成功</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-12 15:10</td>
-                      <td class="px-4 py-3 whitespace-nowrap">Stripe</td>
-                      <td class="px-4 py-3 whitespace-nowrap">pay_789012</td>
-                      <td class="px-4 py-3 whitespace-nowrap">USD</td>
-                      <td class="px-4 py-3 whitespace-nowrap">800.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-red-400">失败</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">卡片余额不足</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <!-- 线下转账Tab内容 -->
-            <div id="tab-offline-content" style="display:none;">
-              <div class="mb-4 flex flex-wrap gap-4 items-end">
-                <div>
-                  <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">日期</label>
-                  <input type="date" class="input-field">
-                  <span class="mx-2" style="color: #B0B5C0;">-</span>
-                  <input type="date" class="input-field">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">支付平台</label>
-                  <select class="input-field">
-                    <option value="">全部</option>
-                    <option>Wise</option>
-                    <option>Stripe</option>
-                    <option>Airwallex</option>
-                    <option>PayPal</option>
-                    <option>Payoneer</option>
-                    <option>Worldfirst</option>
-                    <option>Others</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-2" style="color: #B0B5C0;">状态</label>
-                  <select class="input-field">
-                    <option value="">全部</option>
-                    <option>审核中</option>
-                    <option>成功</option>
-                    <option>失败</option>
-                  </select>
-                </div>
-                <button class="btn-primary px-4 py-2 font-medium flex items-center space-x-2">
-                  <i class="fas fa-search"></i>
-                  <span>筛选</span>
-                </button>
-                <button class="btn-secondary px-4 py-2 font-medium flex items-center space-x-2">
-                  <i class="fas fa-download"></i>
-                  <span>导出</span>
-                </button>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-700">
-                  <thead class="bg-slate-700">
-                    <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">提交时间</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">支付平台</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">平台的支付ID</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">附件</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">状态</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">入账币种</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">入账金额</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">审核时间</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">备注</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-slate-800 divide-y divide-gray-700">
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-16 15:00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">Wise</td>
-                      <td class="px-4 py-3 whitespace-nowrap">wise_abc123</td>
-                      <td class="px-4 py-3 whitespace-nowrap"><a href="#" class="text-blue-400 underline">查看</a></td>
-                      <td class="px-4 py-3 whitespace-nowrap text-green-400">成功</td>
-                      <td class="px-4 py-3 whitespace-nowrap">USD</td>
-                      <td class="px-4 py-3 whitespace-nowrap">2000.00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-16 16:00</td>
-                      <td class="px-4 py-3 whitespace-nowrap">审核通过</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-12 11:20</td>
-                      <td class="px-4 py-3 whitespace-nowrap">Payoneer</td>
-                      <td class="px-4 py-3 whitespace-nowrap">payo_7890</td>
-                      <td class="px-4 py-3 whitespace-nowrap"><a href="#" class="text-blue-400 underline">查看</a></td>
-                      <td class="px-4 py-3 whitespace-nowrap text-yellow-400">审核中</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">等待审核</td>
-                    </tr>
-                    <tr>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-10 09:30</td>
-                      <td class="px-4 py-3 whitespace-nowrap">Stripe</td>
-                      <td class="px-4 py-3 whitespace-nowrap">stripe_xyz789</td>
-                      <td class="px-4 py-3 whitespace-nowrap"><a href="#" class="text-blue-400 underline">查看</a></td>
-                      <td class="px-4 py-3 whitespace-nowrap text-red-400">失败</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">-</td>
-                      <td class="px-4 py-3 whitespace-nowrap">2024-01-10 10:15</td>
-                      <td class="px-4 py-3 whitespace-nowrap">支付凭证不清晰</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            </section>
           </div>
-        </div>
-              </main>
+        </section>
       </div>
-
-  <!-- 在线充值弹窗 -->
-  <div id="onlineRechargeModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
-        <div class="px-6 py-4 border-b border-gray-600 flex items-center justify-between">
-          <h3 class="text-lg font-medium text-white">在线充值</h3>
-          <button onclick="closeModal('onlineRechargeModal')" class="text-gray-400 hover:text-white transition-colors duration-200"><i class="fas fa-times"></i></button>
-        </div>
-        <form id="rechargeForm" class="px-6 py-4" onsubmit="handleRecharge(event)">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">充值金额 *</label>
-              <input type="number" id="rechargeAmount" min="0.01" step="0.01" placeholder="请输入充值金额" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <div id="amountError" class="text-red-400 text-sm mt-1 hidden">请输入大于0的数值，支持两位小数</div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">支付平台 *</label>
-              <select id="paymentPlatform" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">请选择支付平台</option>
-                <option value="Stripe">Stripe</option>
-                <option value="PayPal">PayPal</option>
-              </select>
-              <div id="platformError" class="text-red-400 text-sm mt-1 hidden">请选择支付平台</div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">币种 *</label>
-              <select class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
-                <option value="USD" selected>USD</option>
-              </select>
-            </div>
-          </div>
-          <div class="flex justify-end space-x-3 mt-6">
-            <button type="button" onclick="closeModal('onlineRechargeModal')" class="px-4 py-2 text-sm font-medium text-gray-300 bg-slate-700 border border-gray-600 rounded-md hover:bg-slate-600 transition-colors duration-200">取消</button>
-            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">去支付</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    </main>
   </div>
 
-  <!-- 线下转账弹窗 -->
-  <div id="offlineTransferModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
-        <div class="px-6 py-4 border-b border-gray-600 flex items-center justify-between">
-          <h3 class="text-lg font-medium text-white">线下转账</h3>
-          <button onclick="closeModal('offlineTransferModal')" class="text-gray-400 hover:text-white transition-colors duration-200"><i class="fas fa-times"></i></button>
-        </div>
-        <form id="offlineTransferForm" class="px-6 py-4" onsubmit="handleOfflineTransfer(event)">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">支付平台 *</label>
-              <select id="transferPlatform" required class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">请选择支付平台</option>
-                <option>Wise</option>
-                <option>Stripe</option>
-                <option>Airwallex</option>
-                <option>PayPal</option>
-                <option>Payoneer</option>
-                <option>Worldfirst</option>
-                <option>Others</option>
-              </select>
-              <div id="transferPlatformError" class="text-red-400 text-sm mt-1 hidden">请选择支付平台</div>
+  <div id="paymentModal" class="modal-root" role="dialog" aria-modal="true" aria-labelledby="paymentTitle">
+    <section class="payment-modal">
+      <header class="modal-header">
+        <h2 id="paymentTitle" class="modal-title" data-i18n="payment_title">充值/转账</h2>
+        <button class="close" type="button" data-close-payment aria-label="Close">×</button>
+      </header>
+      <div class="payment-content">
+        <div class="payment-grid">
+          <section class="payment-panel left">
+            <div class="payment-section">
+              <div class="section-title" data-i18n="select_payment_method">选择支付方式</div>
+              <div class="field-title" data-i18n="payment_currency">支付币种</div>
+              <div class="currency-list">
+                <button class="currency-item active" type="button" data-currency="USD">USD</button>
+                <button class="currency-item" type="button" data-currency="EUR">EUR</button>
+                <button class="currency-item" type="button" data-currency="GBP">GBP</button>
+              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">平台的支付ID *</label>
-              <input type="text" id="transferPaymentId" placeholder="请输入支付平台返回的ID" class="w-full px-3 py-2 bg-slate-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <div id="transferPaymentIdError" class="text-red-400 text-sm mt-1 hidden">请输入支付平台的支付ID</div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">上传附件 *</label>
-              <input type="file" id="transferAttachment" multiple accept="image/*,.pdf,.doc,.docx" class="w-full text-gray-300 bg-slate-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <div class="text-xs text-gray-400 mt-1">最多可上传10个文件，支持jpg/png/pdf格式</div>
-              <div id="transferAttachmentError" class="text-red-400 text-sm mt-1 hidden">请上传转账凭证</div>
-            </div>
-          </div>
-          <div class="flex justify-end space-x-3 mt-6">
-            <button type="button" onclick="closeModal('offlineTransferModal')" class="px-4 py-2 text-sm font-medium text-gray-300 bg-slate-700 border border-gray-600 rounded-md hover:bg-slate-600 transition-colors duration-200">取消</button>
-            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 transition-colors duration-200">提交</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
-  <!-- 支付提示弹窗 -->
-  <div id="paymentTipModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
-        <div class="px-6 py-4 border-b border-gray-600 flex items-center justify-between">
-          <h3 class="text-lg font-medium text-white">支付提示</h3>
-          <button onclick="closeModal('paymentTipModal')" class="text-gray-400 hover:text-white transition-colors duration-200"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="px-6 py-4">
-          <div class="flex items-center space-x-3 mb-4">
-            <i class="fas fa-info-circle text-blue-400 text-xl"></i>
-            <p class="text-gray-300">请在新标签页完成支付后，再刷新页面。</p>
-          </div>
-          <div class="flex justify-end">
-            <button onclick="closeModal('paymentTipModal')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors duration-200">知道了</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+            <div class="payment-section">
+              <div class="field-title"><span class="required">*</span><span data-i18n="payment_amount">支付金额</span></div>
+              <label class="amount-field">
+                <input id="paymentAmount" type="number" min="0" step="0.01" placeholder="请输入充值金额" data-i18n-placeholder="placeholder_payment_amount">
+                <span data-selected-currency>USD</span>
+              </label>
+            </div>
 
-  <!-- 线下转账成功提示弹窗 -->
-  <div id="offlineSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-slate-800 rounded-lg shadow-xl max-w-md w-full animate-fadeIn border border-gray-600">
-        <div class="px-6 py-4 border-b border-gray-600 flex items-center justify-between">
-          <h3 class="text-lg font-medium text-white">提交成功</h3>
-          <button onclick="closeModal('offlineSuccessModal')" class="text-gray-400 hover:text-white transition-colors duration-200"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="px-6 py-4">
-          <div class="flex items-center space-x-3 mb-4">
-            <i class="fas fa-check-circle text-green-400 text-xl"></i>
-            <p class="text-gray-300">提交成功，请耐心等待审核。</p>
-          </div>
-          <div class="flex justify-end">
-            <button onclick="closeModal('offlineSuccessModal')" class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 transition-colors duration-200">知道了</button>
-          </div>
+            <div class="payment-section">
+              <div class="field-title" data-i18n="payment_way">支付方式</div>
+              <div class="section-title" data-i18n="online_payment">线上支付</div>
+              <div class="method-list">
+                <button class="method-item active" type="button" data-method="PayPal">PayPal</button>
+              </div>
+            </div>
+
+            <div class="payment-section">
+              <div class="section-title" data-i18n="bank_transfer">银行转账</div>
+              <div class="bank-grid">
+                <button class="bank-item" type="button" data-method="Payoneer">Payoneer</button>
+                <button class="bank-item" type="button" data-method="Payoneer">Payoneer</button>
+                <button class="bank-item" type="button" data-method="Payoneer">Payoneer</button>
+                <button class="bank-item" type="button" data-method="Airwallex">Airwallex</button>
+                <button class="bank-item" type="button" data-method="Airwallex">Airwallex</button>
+                <button class="bank-item" type="button" data-method="Airwallex">Airwallex</button>
+                <button class="bank-item" type="button" data-method="Worldfirst">Worldfirst</button>
+                <button class="bank-item" type="button" data-method="Worldfirst">Worldfirst</button>
+                <button class="bank-item" type="button" data-method="Paypal">Paypal</button>
+                <button class="bank-item" type="button" data-method="Slash">Slash</button>
+                <button class="bank-item" type="button" data-method="HSBC">HSBC</button>
+                <button class="bank-item" type="button" data-method="Worldfirst">Worldfirst</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="payment-panel">
+            <div class="online-pay-head">
+              <strong data-i18n="online_payment">在线支付</strong>
+              <span data-selected-currency>USD</span>
+            </div>
+            <input id="onlinePaymentAmount" class="input" type="number" min="0" step="0.01" placeholder="支付金额" data-i18n-placeholder="placeholder_online_amount">
+            <button id="payNowButton" class="pay-button" type="button" data-i18n="btn_pay_now">立即支付</button>
+
+            <div class="payment-note">
+              <p data-i18n="receipt_tip">请在转账后提交银行回单，否则可能无法及时核验</p>
+              <div class="payment-note-title" data-i18n="warm_tip">温馨提示</div>
+              <ul>
+                <li data-i18n="payment_tip_1">创建付款时请勿填写敏感备注，例如：topup ads、order等、建议填写数字代码</li>
+                <li data-i18n="payment_tip_2">请填写正确的支付金额、币种、支付时间，相同的交易请勿重复提交。</li>
+                <li data-i18n="payment_tip_3">请上传交易凭证，否则无法核验并及时添加余额。</li>
+                <li data-i18n="payment_tip_4">提交成功后根据实际到账金额添加余额。工作时间提交的转账当日处理，非工作时间提交的转账将在下一个工作日处理。</li>
+                <li data-i18n="payment_tip_5">通过平台互转（例如payoneer转payoneer）付款方式可能会有10分钟延迟，请耐心等待。</li>
+                <li data-i18n="payment_tip_6">广告款项若入账金额为美金外其他币种额外扣除0.6%手续费，其中PayPal支付方式额外扣除2.5%手续费。</li>
+                <li data-i18n="payment_tip_7">如有问题，请联系客服。</li>
+              </ul>
+            </div>
+          </section>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 
-  <!-- 引入公共JavaScript -->
-  <script src="./js/common.js"></script>
-  
-  <!-- 页面特定的JavaScript -->
+  <div id="toast" class="toast"></div>
+
   <script>
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-    function showTab(tab) {
-      document.getElementById('tab-detail').className = tab === 'detail' ? 'tab-active flex-1 py-3 text-center text-base font-medium' : 'tab-inactive flex-1 py-3 text-center text-base font-medium';
-      document.getElementById('tab-online').className = tab === 'online' ? 'tab-active flex-1 py-3 text-center text-base font-medium' : 'tab-inactive flex-1 py-3 text-center text-base font-medium';
-      document.getElementById('tab-offline').className = tab === 'offline' ? 'tab-active flex-1 py-3 text-center text-base font-medium' : 'tab-inactive flex-1 py-3 text-center text-base font-medium';
-      document.getElementById('tab-detail-content').style.display = tab === 'detail' ? 'block' : 'none';
-      document.getElementById('tab-online-content').style.display = tab === 'online' ? 'block' : 'none';
-      document.getElementById('tab-offline-content').style.display = tab === 'offline' ? 'block' : 'none';
+    const LANG_KEY = 'bestadsClientLang';
+    const THEME_KEY = 'bestadsClientTheme';
+
+    const translations = {
+      'zh-CN': {
+        mode_ad_management: '广告管理',
+        menu_asset: '资产管理',
+        menu_account: '账户管理',
+        menu_balance: '余额管理',
+        menu_records: '操作记录',
+        menu_tax: '税费明细',
+        menu_referral: '推荐返佣',
+        menu_user: '用户管理',
+        menu_sub_account: '子账号管理',
+        menu_role: '角色管理',
+        menu_settings: '设置',
+        menu_auto_recharge: '自动充值设置',
+        page_title: '余额管理',
+        user_name: '客户',
+        email_settings: '邮件与邮箱',
+        theme_dark: '暗黑模式',
+        theme_light: '浅色模式',
+        stat_real: '真实金额',
+        stat_frozen: '冻结金额',
+        stat_credit: '信用额度',
+        stat_used_credit: '已用额度',
+        stat_available: '可用余额',
+        btn_recharge_transfer: '充值/转账',
+        tab_detail: '交易明细',
+        tab_online: '在线充值',
+        tab_offline: '线下转账',
+        placeholder_reason: '请选择变动原因',
+        placeholder_platform: '请选择支付平台',
+        placeholder_status: '请选择状态',
+        btn_query: '查询',
+        btn_export: '导出',
+        empty: '暂无数据',
+        page_size_20: '20 条/页',
+        total_items: '共 {count} 条',
+        col_time: '时间',
+        col_reason: '变动原因',
+        col_trade_currency: '交易币种',
+        col_trade_amount: '交易金额',
+        col_rate: '汇率',
+        col_default_currency: '默认币种',
+        col_change_amount: '变动金额',
+        col_after_balance: '变动后当前余额',
+        col_recharge_time: '充值时间',
+        col_payment_platform: '支付平台',
+        col_payment_id: '平台支付ID',
+        col_status: '状态',
+        col_pay_currency: '支付币种',
+        col_pay_amount: '支付金额',
+        col_arrival_currency: '入账币种',
+        col_arrival_amount: '入账金额',
+        col_complete_time: '完成时间',
+        col_remark: '备注',
+        col_submit_time: '提交时间',
+        col_attachment: '附件',
+        col_payment_date: '支付日期',
+        col_payer_name: '付款人名称',
+        col_audit_time: '审核时间',
+        reason_other: '其他',
+        reason_recharge_failed: '广告账户充值失败',
+        reason_recharge: '广告账户充值',
+        reason_clear: '广告账户清零',
+        reason_deduct: '广告账户减款',
+        payment_title: '充值/转账',
+        select_payment_method: '选择支付方式',
+        payment_currency: '支付币种',
+        payment_amount: '支付金额',
+        payment_way: '支付方式',
+        online_payment: '在线支付',
+        bank_transfer: '银行转账',
+        placeholder_payment_amount: '请输入充值金额',
+        placeholder_online_amount: '支付金额',
+        btn_pay_now: '立即支付',
+        receipt_tip: '请在转账后提交银行回单，否则可能无法及时核验',
+        warm_tip: '温馨提示',
+        payment_tip_1: '创建付款时请勿填写敏感备注，例如：topup ads、order等、建议填写数字代码',
+        payment_tip_2: '请填写正确的支付金额、币种、支付时间，相同的交易请勿重复提交。',
+        payment_tip_3: '请上传交易凭证，否则无法核验并及时添加余额。',
+        payment_tip_4: '提交成功后根据实际到账金额添加余额。工作时间提交的转账当日处理，非工作时间提交的转账将在下一个工作日处理。',
+        payment_tip_5: '通过平台互转（例如payoneer转payoneer）付款方式可能会有10分钟延迟，请耐心等待。',
+        payment_tip_6: '广告款项若入账金额为美金外其他币种额外扣除0.6%手续费，其中PayPal支付方式额外扣除2.5%手续费。',
+        payment_tip_7: '如有问题，请联系客服。',
+        toast_query: '查询条件已应用',
+        toast_export: '导出任务已创建',
+        toast_amount_required: '请输入支付金额',
+        toast_pay_created: '支付请求已创建'
+      },
+      'en-US': {
+        mode_ad_management: 'Ad Mgmt',
+        menu_asset: 'Assets',
+        menu_account: 'Accounts',
+        menu_balance: 'Balance',
+        menu_records: 'Records',
+        menu_tax: 'Tax Details',
+        menu_referral: 'Referral',
+        menu_user: 'Users',
+        menu_sub_account: 'Sub-accounts',
+        menu_role: 'Roles',
+        menu_settings: 'Settings',
+        menu_auto_recharge: 'Auto Recharge',
+        page_title: 'Balance Management',
+        user_name: 'Customer',
+        email_settings: 'Email & Mailbox',
+        theme_dark: 'Dark Mode',
+        theme_light: 'Light Mode',
+        stat_real: 'Real Amount',
+        stat_frozen: 'Frozen Amount',
+        stat_credit: 'Credit Limit',
+        stat_used_credit: 'Used Credit',
+        stat_available: 'Available Balance',
+        btn_recharge_transfer: 'Recharge/Transfer',
+        tab_detail: 'Transaction Details',
+        tab_online: 'Online Recharge',
+        tab_offline: 'Offline Transfer',
+        placeholder_reason: 'Please select change reason',
+        placeholder_platform: 'Please select payment platform',
+        placeholder_status: 'Please select status',
+        btn_query: 'Query',
+        btn_export: 'Export',
+        empty: 'No data',
+        page_size_20: '20 / page',
+        total_items: 'Total {count} items',
+        col_time: 'Time',
+        col_reason: 'Change Reason',
+        col_trade_currency: 'Transaction Currency',
+        col_trade_amount: 'Transaction Amount',
+        col_rate: 'Exchange Rate',
+        col_default_currency: 'Default Currency',
+        col_change_amount: 'Change Amount',
+        col_after_balance: 'Current Balance After Change',
+        col_recharge_time: 'Recharge Time',
+        col_payment_platform: 'Payment Platform',
+        col_payment_id: 'Platform Payment ID',
+        col_status: 'Status',
+        col_pay_currency: 'Payment Currency',
+        col_pay_amount: 'Payment Amount',
+        col_arrival_currency: 'Arrival Currency',
+        col_arrival_amount: 'Arrival Amount',
+        col_complete_time: 'Completed Time',
+        col_remark: 'Remark',
+        col_submit_time: 'Submitted Time',
+        col_attachment: 'Attachment',
+        col_payment_date: 'Payment Date',
+        col_payer_name: 'Payer Name',
+        col_audit_time: 'Audit Time',
+        reason_other: 'Other',
+        reason_recharge_failed: 'Ad Account Recharge Failed',
+        reason_recharge: 'Ad Account Recharge',
+        reason_clear: 'Ad Account Clear',
+        reason_deduct: 'Ad Account Deduction',
+        payment_title: 'Recharge/Transfer',
+        select_payment_method: 'Select Payment Method',
+        payment_currency: 'Payment Currency',
+        payment_amount: 'Payment Amount',
+        payment_way: 'Payment Method',
+        online_payment: 'Online Payment',
+        bank_transfer: 'Bank Transfer',
+        placeholder_payment_amount: 'Please enter recharge amount',
+        placeholder_online_amount: 'Payment amount',
+        btn_pay_now: 'Pay Now',
+        receipt_tip: 'Please submit the bank receipt after transfer, otherwise verification may be delayed.',
+        warm_tip: 'Tips',
+        payment_tip_1: 'Do not include sensitive notes when creating payment, such as topup ads or order. Numeric codes are recommended.',
+        payment_tip_2: 'Enter the correct payment amount, currency and payment time. Do not submit the same transaction repeatedly.',
+        payment_tip_3: 'Upload the transaction receipt, otherwise the balance cannot be verified and added in time.',
+        payment_tip_4: 'After successful submission, the balance is added based on the actual received amount. Transfers submitted during working hours are processed on the same day; otherwise on the next working day.',
+        payment_tip_5: 'Platform-to-platform transfers, such as Payoneer to Payoneer, may be delayed by about 10 minutes.',
+        payment_tip_6: 'Ad funds received in currencies other than USD incur an extra 0.6% fee. PayPal incurs an extra 2.5% fee.',
+        payment_tip_7: 'Please contact support if you have questions.',
+        toast_query: 'Filters applied',
+        toast_export: 'Export task created',
+        toast_amount_required: 'Please enter payment amount',
+        toast_pay_created: 'Payment request created'
+      }
+    };
+
+    const tabColumns = {
+      detail: ['col_time', 'col_reason', 'col_trade_currency', 'col_trade_amount', 'col_rate', 'col_default_currency', 'col_change_amount', 'col_after_balance'],
+      online: ['col_recharge_time', 'col_payment_platform', 'col_payment_id', 'col_status', 'col_pay_currency', 'col_pay_amount', 'col_arrival_currency', 'col_arrival_amount', 'col_rate', 'col_complete_time', 'col_remark'],
+      offline: ['col_submit_time', 'col_payment_platform', 'col_payment_id', 'col_attachment', 'col_payment_date', 'col_payer_name', 'col_status', 'col_pay_currency', 'col_pay_amount', 'col_arrival_currency', 'col_arrival_amount', 'col_audit_time', 'col_remark']
+    };
+
+    const transactionRows = [
+      { time: '2026-08-11 16:47:01', reason: 'reason_other', currency: 'USD', tradeAmount: '5.00', rate: '1', defaultCurrency: 'USD', change: '-5.00', balance: '-2,512.38' },
+      { time: '2026-08-11 14:41:16', reason: 'reason_recharge_failed', currency: 'USD', tradeAmount: '20.00', rate: '1', defaultCurrency: 'USD', change: '+20.00', balance: '-2,507.38' },
+      { time: '2026-08-11 14:41:13', reason: 'reason_recharge', currency: 'USD', tradeAmount: '20.00', rate: '1', defaultCurrency: 'USD', change: '-20.00', balance: '-2,527.38' },
+      { time: '2026-08-11 14:41:13', reason: 'reason_recharge', currency: 'USD', tradeAmount: '20.00', rate: '1', defaultCurrency: 'USD', change: '-20.00', balance: '-2,507.38' },
+      { time: '2026-08-11 11:42:30', reason: 'reason_recharge', currency: 'USD', tradeAmount: '20.00', rate: '1', defaultCurrency: 'USD', change: '-20.00', balance: '-2,487.38' },
+      { time: '2026-08-11 11:37:30', reason: 'reason_recharge_failed', currency: 'USD', tradeAmount: '20.00', rate: '1', defaultCurrency: 'USD', change: '+20.00', balance: '-2,467.38' },
+      { time: '2026-08-11 11:37:29', reason: 'reason_recharge', currency: 'USD', tradeAmount: '20.00', rate: '1', defaultCurrency: 'USD', change: '-20.00', balance: '-2,487.38' },
+      { time: '2026-08-07 14:23:52', reason: 'reason_recharge', currency: 'USD', tradeAmount: '12.00', rate: '1', defaultCurrency: 'USD', change: '-12.00', balance: '-2,467.38' },
+      { time: '2026-08-06 16:31:00', reason: 'reason_clear', currency: 'USD', tradeAmount: '35.86', rate: '1', defaultCurrency: 'USD', change: '+35.86', balance: '-267.20' },
+      { time: '2026-08-06 16:12:03', reason: 'reason_deduct', currency: 'USD', tradeAmount: '20.00', rate: '1', defaultCurrency: 'USD', change: '+20.00', balance: '-303.06' },
+      { time: '2026-08-06 16:09:09', reason: 'reason_recharge', currency: 'USD', tradeAmount: '11.11', rate: '1', defaultCurrency: 'USD', change: '-11.11', balance: '-323.06' }
+    ];
+
+    let currentLanguage = localStorage.getItem(LANG_KEY) || 'zh-CN';
+    let activeTab = 'detail';
+    let selectedCurrency = 'USD';
+
+    function t(key, values = {}) {
+      const pack = translations[currentLanguage] || translations['zh-CN'];
+      let text = pack[key] || translations['zh-CN'][key] || key;
+      Object.keys(values).forEach(name => {
+        text = text.replace(`{${name}}`, values[name]);
+      });
+      return text;
     }
-    
-    // 处理在线充值表单提交
-    function handleRecharge(event) {
-      event.preventDefault();
-      
-      const amount = document.getElementById('rechargeAmount').value;
-      const platform = document.getElementById('paymentPlatform').value;
-      const amountError = document.getElementById('amountError');
-      const platformError = document.getElementById('platformError');
-      
-      // 重置错误提示
-      amountError.classList.add('hidden');
-      platformError.classList.add('hidden');
-      
-      let hasError = false;
-      
-      // 验证充值金额
-      if (!amount || parseFloat(amount) <= 0) {
-        amountError.classList.remove('hidden');
-        hasError = true;
-      }
-      
-      // 验证支付平台
-      if (!platform) {
-        platformError.classList.remove('hidden');
-        hasError = true;
-      }
-      
-      // 如果有错误，停止提交
-      if (hasError) {
-        return false;
-      }
-      
-      // 关闭充值弹窗
-      closeModal('onlineRechargeModal');
-      
-      // 根据支付平台跳转到相应网站
-      if (platform === 'Stripe') {
-        window.open('https://stripe.com/zh-sg', '_blank');
-      } else if (platform === 'PayPal') {
-        window.open('https://www.paypal.cn/', '_blank');
-      }
-      
-      // 显示支付提示弹窗
-      openModal('paymentTipModal');
-      
-      return false;
+
+    function applyI18n() {
+      document.documentElement.lang = currentLanguage === 'zh-CN' ? 'zh-CN' : 'en';
+      document.title = `${t('page_title')} - BestAds`;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+      });
+      document.getElementById('languageToggle').textContent = currentLanguage === 'zh-CN' ? '中文' : 'English';
+      window.BESTADS_CLIENT_SHELL?.renderLegacyMenu?.('wallet');
+      applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+      renderToolbar();
+      renderTable();
     }
-    
-    // 处理线下转账表单提交
-    function handleOfflineTransfer(event) {
-      event.preventDefault();
-      
-      const platform = document.getElementById('transferPlatform').value;
-      const paymentId = document.getElementById('transferPaymentId').value.trim();
-      const attachment = document.getElementById('transferAttachment').files;
-      
-      const platformError = document.getElementById('transferPlatformError');
-      const paymentIdError = document.getElementById('transferPaymentIdError');
-      const attachmentError = document.getElementById('transferAttachmentError');
-      
-      // 重置错误提示
-      platformError.classList.add('hidden');
-      paymentIdError.classList.add('hidden');
-      attachmentError.classList.add('hidden');
-      
-      let hasError = false;
-      
-      // 验证支付平台
-      if (!platform) {
-        platformError.classList.remove('hidden');
-        hasError = true;
-      }
-      
-      // 验证支付ID
-      if (!paymentId) {
-        paymentIdError.classList.remove('hidden');
-        hasError = true;
-      }
-      
-      // 验证附件
-      if (!attachment || attachment.length === 0) {
-        attachmentError.classList.remove('hidden');
-        hasError = true;
-      }
-      
-      // 如果有错误，停止提交
-      if (hasError) {
-        return false;
-      }
-      
-      // 关闭线下转账弹窗
-      closeModal('offlineTransferModal');
-      
-      // 显示成功提示弹窗
-      openModal('offlineSuccessModal');
-      
-      return false;
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'zh-CN' ? 'en-US' : 'zh-CN';
+      localStorage.setItem(LANG_KEY, currentLanguage);
+      applyI18n();
     }
-    
-    // 页面特定的JavaScript代码
-    document.addEventListener('DOMContentLoaded', function() {
-      // 默认显示交易明细Tab
-      showTab('detail');
-      
-      // 检查组件是否加载成功
-      setTimeout(() => {
-        const sidebar = document.getElementById('sidebar-container');
-        const header = document.getElementById('header-container');
-        console.log('侧边栏内容:', sidebar ? sidebar.innerHTML.length : '未找到');
-        console.log('头部内容:', header ? header.innerHTML.length : '未找到');
-        
-        if (!sidebar.innerHTML.trim()) {
-          console.error('侧边栏组件加载失败');
+
+    function applyTheme(theme) {
+      const isDark = theme === 'dark';
+      document.body.classList.toggle('theme-dark', isDark);
+      document.getElementById('themeToggle').textContent = isDark ? t('theme_light') : t('theme_dark');
+      localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      applyTheme(document.body.classList.contains('theme-dark') ? 'light' : 'dark');
+    }
+
+    function renderToolbar() {
+      const toolbar = document.getElementById('tabToolbar');
+      toolbar.className = activeTab === 'detail' ? 'toolbar' : `toolbar ${activeTab}`;
+      const range = `
+        <label class="range-field">
+          <input type="date" value="2026-08-06" aria-label="Start date">
+          <span class="range-separator">-</span>
+          <input type="date" value="2026-08-12" aria-label="End date">
+        </label>
+      `;
+      if (activeTab === 'detail') {
+        toolbar.innerHTML = `
+          ${range}
+          <select id="reasonFilter" class="select">
+            <option value="">${t('placeholder_reason')}</option>
+            <option value="reason_other">${t('reason_other')}</option>
+            <option value="reason_recharge_failed">${t('reason_recharge_failed')}</option>
+            <option value="reason_recharge">${t('reason_recharge')}</option>
+            <option value="reason_clear">${t('reason_clear')}</option>
+            <option value="reason_deduct">${t('reason_deduct')}</option>
+          </select>
+          <button class="button primary" type="button" data-query>${t('btn_query')}</button>
+          <span></span>
+          <button class="button primary" type="button" data-export>${t('btn_export')}</button>
+        `;
+      } else {
+        toolbar.innerHTML = `
+          ${range}
+          <select class="select">
+            <option value="">${t('placeholder_platform')}</option>
+            <option>PayPal</option>
+            <option>Payoneer</option>
+            <option>Airwallex</option>
+            <option>Worldfirst</option>
+            <option>HSBC</option>
+          </select>
+          <select class="select">
+            <option value="">${t('placeholder_status')}</option>
+            <option>Success</option>
+            <option>Processing</option>
+            <option>Failed</option>
+          </select>
+          <button class="button primary" type="button" data-query>${t('btn_query')}</button>
+          <span></span>
+          <button class="button primary" type="button" data-export>${t('btn_export')}</button>
+        `;
+      }
+      toolbar.querySelector('[data-query]').addEventListener('click', () => {
+        renderTable();
+        showToast(t('toast_query'), 'success');
+      });
+      toolbar.querySelector('[data-export]').addEventListener('click', () => showToast(t('toast_export'), 'success'));
+      const reasonFilter = document.getElementById('reasonFilter');
+      if (reasonFilter) reasonFilter.addEventListener('change', renderTable);
+    }
+
+    function rowsForActiveTab() {
+      if (activeTab !== 'detail') return [];
+      const reason = document.getElementById('reasonFilter')?.value || '';
+      return reason ? transactionRows.filter(row => row.reason === reason) : transactionRows;
+    }
+
+    function renderTable() {
+      const head = document.getElementById('tableHead');
+      const body = document.getElementById('tableBody');
+      const empty = document.getElementById('emptyState');
+      const rows = rowsForActiveTab();
+      head.innerHTML = `<tr>${tabColumns[activeTab].map(key => `<th>${t(key)}</th>`).join('')}</tr>`;
+
+      if (activeTab === 'detail') {
+        body.innerHTML = rows.map(row => `
+          <tr>
+            <td>${row.time}</td>
+            <td>${t(row.reason)}</td>
+            <td>${row.currency}</td>
+            <td>${row.tradeAmount}</td>
+            <td>${row.rate}</td>
+            <td>${row.defaultCurrency}</td>
+            <td class="${row.change.startsWith('+') ? 'amount-positive' : 'amount-negative'}">${row.change}</td>
+            <td>${row.balance}</td>
+          </tr>
+        `).join('');
+      } else {
+        body.innerHTML = '';
+      }
+
+      empty.hidden = rows.length > 0;
+      document.getElementById('totalText').textContent = t('total_items', { count: rows.length });
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.toggle('active', button.dataset.tab === tab);
+      });
+      renderToolbar();
+      renderTable();
+    }
+
+    function openPaymentModal() {
+      document.getElementById('paymentModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function selectCurrency(currency) {
+      selectedCurrency = currency;
+      document.querySelectorAll('[data-currency]').forEach(button => {
+        button.classList.toggle('active', button.dataset.currency === currency);
+      });
+      document.querySelectorAll('[data-selected-currency]').forEach(el => {
+        el.textContent = currency;
+      });
+    }
+
+    function selectPaymentMethod(button) {
+      document.querySelectorAll('.method-item, .bank-item').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+    }
+
+    function syncPaymentAmount(source) {
+      const target = source.id === 'paymentAmount' ? document.getElementById('onlinePaymentAmount') : document.getElementById('paymentAmount');
+      target.value = source.value;
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast show ${type}`;
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => {
+        toast.className = 'toast';
+      }, 2400);
+    }
+
+    function initWalletPage() {
+      document.getElementById('languageToggle').addEventListener('click', toggleLanguage);
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => switchTab(button.dataset.tab));
+      });
+      document.querySelector('[data-open-payment]').addEventListener('click', openPaymentModal);
+      document.querySelector('[data-close-payment]').addEventListener('click', closePaymentModal);
+      document.getElementById('paymentModal').addEventListener('click', event => {
+        if (event.target.id === 'paymentModal') closePaymentModal();
+      });
+      document.querySelectorAll('[data-currency]').forEach(button => {
+        button.addEventListener('click', () => selectCurrency(button.dataset.currency));
+      });
+      document.querySelectorAll('.method-item, .bank-item').forEach(button => {
+        button.addEventListener('click', () => selectPaymentMethod(button));
+      });
+      document.getElementById('paymentAmount').addEventListener('input', event => syncPaymentAmount(event.target));
+      document.getElementById('onlinePaymentAmount').addEventListener('input', event => syncPaymentAmount(event.target));
+      document.getElementById('payNowButton').addEventListener('click', () => {
+        const amount = Number(document.getElementById('paymentAmount').value || document.getElementById('onlinePaymentAmount').value);
+        if (!amount || amount <= 0) {
+          showToast(t('toast_amount_required'), 'warning');
+          return;
         }
-        if (!header.innerHTML.trim()) {
-          console.error('头部组件加载失败');
-        }
-      }, 1000);
-      
-      // 页面初始化完成后的额外操作
-      console.log('钱包页面加载完成');
-    });
+        showToast(`${t('toast_pay_created')}：${amount.toFixed(2)} ${selectedCurrency}`, 'success');
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closePaymentModal();
+      });
+      applyI18n();
+    }
+
+    initWalletPage();
   </script>
+  <script src="./js/client-shell.js?v=20260812-client-shell"></script>
+  <script src="./js/common.js?v=20260811-email-settings-simple-v3"></script>
 </body>
-</html> 
+</html>
