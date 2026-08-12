@@ -674,14 +674,34 @@
     return `<div class="modal-backdrop"${action ? ` data-confirm-action="${esc(action)}"` : ''}><section class="modal${sizeClass}"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="confirm-copy">${copy}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>${esc(cancelText)}</button><button type="button" class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-modal-submit>${esc(confirmText)}</button></div></section></div>`;
   }
 
-  function detailModal(title, row, tab) {
-    const labelMap = new Map((tab?.columns || []).map(column => [column.key, column.label]));
-    const preferredKeys = (tab?.columns || []).map(column => column.key);
-    const extraKeys = Object.keys(row || {}).filter(key => key !== 'ops' && key !== 'selectable' && !labelMap.has(key));
-    const keys = preferredKeys.concat(extraKeys).filter(key => key in (row || {}) && key !== 'ops' && key !== 'selectable');
-    const bindCardNotice = row?.bindCard === '是' ? `<div class="notice notice--warning"><strong>飞书通知增量：</strong>使用卡：${esc(row.card || row.cardSnapshot || '-')}；${esc(row.otherCards || '其他关联卡：无')}</div>` : '';
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">以下为按页面字段契约整理的原型信息；真实提交需以后端接口权限为准。</div>${bindCardNotice}<dl class="detail-grid">${keys.map(key => `<div><dt>${esc(labelMap.get(key) || key)}</dt><dd>${esc(asText(row[key]))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+  function isSlashTransferRecord(row) {
+    return Boolean(row?.transferOrderId || /^TR\d+/.test(String(row?.c0 || '')));
   }
+
+    function detailModal(title, row, tab) {
+      if (/查看转移履历|查看处理记录/.test(title) && isSlashTransferRecord(row)) return slashTransferHistoryModal(row);
+      const labelMap = new Map((tab?.columns || []).map(column => [column.key, column.label]));
+      const preferredKeys = (tab?.columns || []).map(column => column.key);
+      const extraKeys = tab?.hideExtraDetailFields ? [] : Object.keys(row || {}).filter(key => key !== 'ops' && key !== 'selectable' && !labelMap.has(key));
+      const keys = preferredKeys.concat(extraKeys).filter(key => key in (row || {}) && key !== 'ops' && key !== 'selectable');
+      const bindCardNotice = row?.bindCard === '是' ? `<div class="notice notice--warning"><strong>飞书通知增量：</strong>使用卡：${esc(row.card || row.cardSnapshot || '-')}；${esc(row.otherCards || '其他关联卡：无')}</div>` : '';
+      return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">以下为按页面字段契约整理的原型信息；真实提交需以后端接口权限为准。</div>${bindCardNotice}<dl class="detail-grid">${keys.map(key => `<div><dt>${esc(labelMap.get(key) || key)}</dt><dd>${esc(asText(row[key]))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+    }
+    function slashTransferHistoryModal(row) {
+      const summary = [
+        ['转移单号', row.transferOrderId || row.c0],
+        ['处理状态', row.transferStatus || row.c1],
+        ['广告账户', `${row.c3 || '-'} / ${row.accountId || row.c2 || '-'}`],
+        ['商户 / 客户', `${row.merchantId || row.c4 || '-'} / ${row.customerName || row.c5 || '-'}`],
+        ['转出卡', row.c6],
+        ['当前转入卡', row.c7],
+        ['转移金额', row.c8],
+        ['待处理金额', row.c11]
+      ];
+      const logs = row.transferLogs || [];
+      const history = logs.length ? logs : [{ at: row.updatedAt || row.c15, operator: row.c14 || '-', action: row.transferStatus || row.c1 || '当前处理结果', status: row.transferStatus || row.c1 || '-', detail: row.c12 || '-' }];
+      return `<div class="modal-backdrop"><section class="modal modal-transfer-history"><div class="modal__header"><h2 class="modal__title">额度转移履历</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">记录这笔额度转移从发起、Fund 子步骤回调到人工重试 / 换卡 / 退回的完整过程。</div><dl class="readonly-context">${summary.map(([label, itemValue]) => `<div><dt>${esc(label)}</dt><dd>${esc(asText(itemValue))}</dd></div>`).join('')}</dl><div class="transfer-history-list">${history.map(item => `<div class="transfer-history-item"><div class="transfer-history-item__line"><span class="transfer-history-item__dot"></span><strong>${esc(item.action || '-')}</strong><span class="status-tag ${/失败/.test(item.status || '') ? 'status-danger' : /处理中|退回中/.test(item.status || '') ? 'status-warning' : /成功|已取消|已退回/.test(item.status || '') ? 'status-success' : 'status-info'}">${esc(item.status || '-')}</span></div><div class="transfer-history-item__meta">${esc(item.at || '-')} · ${esc(item.operator || '-')}</div><div class="transfer-history-item__detail">${esc(item.detail || '-')}</div></div>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+    }
 
   function cardSecretModal(modal, row) {
     const cardId = row.cardId || row.c13 || '-';
@@ -739,8 +759,8 @@
 
   function rowActionClass(action) {
     if (/解绑|冻结|取消|删除|失败|驳回/.test(action)) return 'op-link--danger';
-    if (/申请|标记|确认|新增|绑定/.test(action)) return 'op-link--primary';
-    if (/转移|转出|修改/.test(action)) return 'op-link--warning';
+    if (/申请|标记|确认|新增|绑定|重试/.test(action)) return 'op-link--primary';
+    if (/转移|转出|修改|换转入|退回/.test(action)) return 'op-link--warning';
     return 'op-link--info';
   }
 
@@ -1399,10 +1419,59 @@
       showToast(`已提交 Slash 额度转移：${fromValue} → ${toValue}，${formatMoney(amount, 'USD')}；已写入权限审计样例（原型）`, 'success');
       return true;
     }
+    function updateSlashTransferRecord(row, status, stepPatch, nextOps, note) {
+      row.transferStatus = status;
+      row.c1 = status;
+      Object.entries(stepPatch || {}).forEach(([key, value]) => { row[key] = value; });
+      row.c14 = '管理员(admin@bestfulfill.com)';
+      row.c15 = currentTimestamp();
+      row.updatedAt = row.c15;
+      row.ops = nextOps || ['查看转移履历'];
+      row.transferLogs = (row.transferLogs || []).concat([{ at: row.c15, operator: row.c14, action: state.processingAction || status, status, detail: row.c12 || note || '-' }]);
+      state.processingRow = null;
+      state.processingAction = null;
+      closeModal();
+      render();
+      showToast(note || `额度转移单已更新为：${status}（原型）`, 'success');
+      return true;
+    }
+    function submitSlashTransferRecordAction(backdrop, action, row) {
+      if (!isSlashTransferRecord(row)) return false;
+      if (action === '重试转出') {
+        if (row.transferStatus !== '转出降额失败') { showToast('只有转出降额失败状态允许重试转出', 'error'); return 'pending'; }
+        return updateSlashTransferRecord(row, '处理中', { c9: '降额重试中', c10: '待开始', c12: '已重新提交转出卡降额请求，等待 Fund 返回结果', c13: '转出卡/转入卡锁定' }, ['查看转移履历'], '已重试转出卡降额，原转移单进入处理中（原型）');
+      }
+      if (action === '取消转移') {
+        if (row.transferStatus !== '转出降额失败') { showToast('转出卡已降额后不能取消，只能退回或继续转入', 'error'); return 'pending'; }
+        return updateSlashTransferRecord(row, '已取消', { c9: '未降额', c10: '未升额', c11: '0.00 USD', c12: '转出未成功，业务取消该笔转移', c13: '未锁定' }, ['查看转移履历'], '已取消额度转移，未产生单边额度变动（原型）');
+      }
+      if (action === '重试转入') {
+        if (!/转入升额失败|退回失败/.test(row.transferStatus || '')) { showToast('只有转入升额失败或退回失败状态允许重试转入', 'error'); return 'pending'; }
+        return updateSlashTransferRecord(row, '处理中', { c10: '升额重试中', c12: '转出卡已降额，本次只重试转入卡升额', c13: '转出卡额度锁定' }, ['查看转移履历'], '已重试转入卡升额，不会重复降低转出卡额度（原型）');
+      }
+      if (action === '换转入卡重试') {
+        if (!/转入升额失败|退回失败/.test(row.transferStatus || '')) { showToast('只有转入升额失败或退回失败状态允许换转入卡重试', 'error'); return 'pending'; }
+        const nextCard = backdrop?.querySelector('[name="newToCard"]')?.value || '';
+        if (!nextCard) { showToast('请选择新的转入卡', 'error'); return 'pending'; }
+        const cardText = nextCard.split('｜')[0];
+        return updateSlashTransferRecord(row, '处理中', { c7: cardText, toCardId: cardText.replace(/\(.+\)/, ''), c10: '升额重试中', c12: `已更换转入卡为 ${cardText}，仅重试转入升额步骤`, c13: '转出卡/新转入卡锁定' }, ['查看转移履历'], '已更换转入卡并发起升额重试（原型）');
+      }
+      if (action === '退回转出卡') {
+        if (row.transferStatus !== '转入升额失败') { showToast('只有转出已成功且转入失败时允许退回', 'error'); return 'pending'; }
+        return updateSlashTransferRecord(row, '退回中', { c10: '不再升额', c12: '已提交退回请求，将待处理额度加回转出卡', c13: '转出卡额度锁定' }, ['查看转移履历'], '已提交退回转出卡请求（原型）');
+      }
+      if (action === '重试退回') {
+        if (row.transferStatus !== '退回失败') { showToast('只有退回失败状态允许重试退回', 'error'); return 'pending'; }
+        return updateSlashTransferRecord(row, '退回中', { c12: '退回失败后已重新提交 Fund 加回转出卡请求', c13: '转出卡额度锁定' }, ['查看转移履历'], '已重试退回转出卡（原型）');
+      }
+      return false;
+    }
     function submitBindCardPrototypeAction(backdrop) {
       const action = state.processingAction;
       const row = state.processingRow;
       if (!action || !row) return false;
+      const slashTransferResult = submitSlashTransferRecordAction(backdrop, action, row);
+      if (slashTransferResult) return slashTransferResult;
       if (action === '申请验卡初始额度') {
         const amount = backdrop?.querySelector('[name="verifyAmount"]')?.value.trim();
         if (!amount) { showToast('请输入申请金额', 'error'); return 'pending'; }
@@ -1523,7 +1592,7 @@
         showToast(`已开始下载任务 ${row.taskId}（原型）`, 'success');
         return;
       }
-      if (/查看详情|查看明细|关系与吐点|权限管理|子账号管理|更新余额/.test(action)) {
+      if (/查看转移履历|查看处理记录|查看详情|查看明细|关系与吐点|权限管理|子账号管理|更新余额/.test(action)) {
         openModal(detailModal(action, row, tab));
         return;
       }
@@ -1597,6 +1666,7 @@
         const childIndex = rowAction.dataset.childIndex;
         const targetRow = childIndex != null ? (parentRow._visibleChildren || parentRow.children || [])[Number(childIndex)] || parentRow : parentRow;
         handleRowAction(rowAction.dataset.rowAction, targetRow);
+        return;
       }
       const sortButton = event.target.closest('[data-sort]');
       if (sortButton) { const tab = activeTab(); const key = sortButton.dataset.sort; const current = state.sort[tab.id]; state.sort[tab.id] = !current || current.key !== key ? { key, dir: 'asc' } : current.dir === 'asc' ? { key, dir: 'desc' } : null; render(); }
