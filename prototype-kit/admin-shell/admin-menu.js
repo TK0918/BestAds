@@ -175,8 +175,18 @@
         page('ad-consumption-decline-reminder', '消耗下降提醒配置', 'system-settings/ad-consumption-decline-reminder.html', 'exclamation-triangle')
       ]
     },
+    {
+      id: 'email-notifications',
+      label: '邮件通知',
+      icon: 'envelope',
+      items: [
+        page('email-template', '提醒邮件模板', 'email-notifications/templates.html', 'envelope-open-text'),
+        page('email-send-logs', '邮件发送日志', 'email-notifications/send-logs.html', 'list-alt'),
+        page('email-usage', '邮件发送用量统计', 'email-notifications/usage.html', 'chart-bar')
+      ]
+    },
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-09.4';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-13.2';
 })();

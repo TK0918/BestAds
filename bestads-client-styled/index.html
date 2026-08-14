@@ -130,14 +130,21 @@
               </div>
             </div>
           </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <span class="text-white text-sm font-medium">A</span>
+          <div class="client-user-menu" data-client-user-menu>
+            <button type="button" class="client-user-button" data-client-user-toggle aria-haspopup="menu" aria-expanded="false">
+              <span class="client-avatar">A</span>
+              <span class="client-user-name">管理员</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="client-user-dropdown" role="menu">
+              <button type="button" role="menuitem" data-client-email-action="open-settings">
+                <i class="fas fa-envelope"></i>
+                <span>邮件与邮箱</span>
+              </button>
             </div>
-            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
-      </div>
-    </div>
-  </header>
+          </div>
+        </div>
+      </header>
 
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto" style="padding: 24px; background-color: #1A1F2B;">
@@ -476,6 +483,6 @@
       }
     }
   </script>
-  <script src="./js/common.js"></script>
+  <script src="./js/common.js?v=20260811-email-settings-simple-v3"></script>
 </body>
-</html> 
+</html>

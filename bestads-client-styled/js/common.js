@@ -47,6 +47,8 @@ const BALANCE_DATA = {
 // 加载HTML组件
 async function loadComponent(componentPath, targetElementId) {
   try {
+    const target = document.getElementById(targetElementId);
+    if (!target) return false;
     console.log(`正在加载组件: ${componentPath} 到 ${targetElementId}`);
     const response = await fetch(componentPath);
     if (!response.ok) {
@@ -54,7 +56,7 @@ async function loadComponent(componentPath, targetElementId) {
     }
     const html = await response.text();
     console.log(`组件 ${componentPath} 加载成功，内容长度: ${html.length}`);
-    document.getElementById(targetElementId).innerHTML = html;
+    target.innerHTML = html;
     return true;
   } catch (error) {
     console.error(`加载组件失败 ${componentPath}:`, error);
@@ -71,20 +73,22 @@ async function loadComponent(componentPath, targetElementId) {
 async function initializePage() {
   // 获取当前页面名称
   const currentPage = getCurrentPageName();
+  const hasSidebarContainer = !!document.getElementById('sidebar-container');
+  const hasHeaderContainer = !!document.getElementById('header-container');
   
   // 尝试加载侧边栏
-  const sidebarLoaded = await loadComponent('./components/sidebar.html', 'sidebar-container');
+  const sidebarLoaded = hasSidebarContainer ? await loadComponent('./components/sidebar.html', 'sidebar-container') : true;
   
   // 尝试加载头部
-  const headerLoaded = await loadComponent('./components/header.html', 'header-container');
+  const headerLoaded = hasHeaderContainer ? await loadComponent('./components/header.html', 'header-container') : true;
   
   // 如果组件加载失败，使用备用方案
-  if (!sidebarLoaded) {
+  if (hasSidebarContainer && !sidebarLoaded) {
     console.warn('侧边栏组件加载失败，使用备用方案');
     loadFallbackSidebar();
   }
   
-  if (!headerLoaded) {
+  if (hasHeaderContainer && !headerLoaded) {
     console.warn('头部组件加载失败，使用备用方案');
     loadFallbackHeader();
   }
@@ -100,6 +104,12 @@ async function initializePage() {
   
   // 更新余额信息
   updateBalanceInfo();
+
+  ensureClientEmailSettingsStyles();
+  mountClientEmailSettingsModal();
+  if (shouldOpenClientEmailSettings()) {
+    window.setTimeout(openClientEmailSettings, 0);
+  }
 }
 
 // 获取当前页面名称
@@ -229,6 +239,274 @@ function openInboxDrawer() {
   }
 }
 
+function mountClientEmailSettingsModal() {
+  if (document.getElementById('clientEmailSettingsModal')) return;
+  const modal = document.createElement('div');
+  modal.id = 'clientEmailSettingsModal';
+  modal.className = 'client-email-settings-backdrop hidden';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.innerHTML = `
+    <section class="client-email-settings-modal" aria-labelledby="clientEmailSettingsTitle">
+      <div class="client-email-settings-header">
+        <div>
+          <h3 id="clientEmailSettingsTitle">邮件与邮箱</h3>
+          <p>维护接收邮箱和低频邮件提醒开关。</p>
+        </div>
+        <button type="button" class="icon-button" data-client-email-action="close" aria-label="关闭">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="client-email-settings-body">
+        <section class="email-settings-section">
+          <div class="email-settings-section__header">
+            <h4>接收邮箱</h4>
+            <span>最多 5 个</span>
+          </div>
+          <div class="email-recipient-list" data-email-recipient-list>
+            ${emailRecipientItem('media.buyer@zephyr.com')}
+            ${emailRecipientItem('finance@zephyr.com')}
+            ${emailRecipientItem('ops-alert@zephyr.com')}
+          </div>
+          <div class="email-recipient-add">
+            <input class="input-field" data-email-recipient-input placeholder="输入邮箱地址">
+            <button type="button" class="btn-secondary" data-client-email-action="add-recipient">
+              <i class="fas fa-plus"></i>
+              <span>添加</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="email-settings-section">
+          <div class="email-settings-section__header">
+            <h4>提醒开关</h4>
+            <span>关闭后不发送对应邮件</span>
+          </div>
+          <div class="email-toggle-list">
+            ${emailToggleItem('风险提醒', '续航不足、钱包不足事件、钱包不足预测', true)}
+            ${emailToggleItem('钱包到账', '在线充值成功、转账审核通过', true)}
+            ${emailToggleItem('自动充失败', '自动充值执行失败', true)}
+            ${emailToggleItem('账户充失败', '手动账户充值链路失败', true)}
+          </div>
+        </section>
+      </div>
+      <div class="client-email-settings-footer">
+        <button type="button" class="btn-secondary" data-client-email-action="close">取消</button>
+        <button type="button" class="btn-primary" data-client-email-action="save">保存</button>
+      </div>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  bindClientEmailSettingsEvents();
+}
+
+function shouldOpenClientEmailSettings() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('emailSettings') === '1' || window.location.hash === '#email-settings';
+}
+
+function ensureClientEmailSettingsStyles() {
+  if (document.getElementById('clientEmailSettingsRuntimeStyle')) return;
+  const style = document.createElement('style');
+  style.id = 'clientEmailSettingsRuntimeStyle';
+  style.textContent = `
+    :root{--ba-primary:#2759ff;--ba-primary-hover:#1d4be6;--ba-primary-soft:#eef3ff;--ba-success:#18a058;--ba-success-soft:#e9f8ef;--ba-danger:#e5484d;--ba-danger-soft:#fff0f0;--ba-bg:#f5f7fb;--ba-surface:#fff;--ba-surface-muted:#f8fafc;--ba-border:#e5e7eb;--ba-border-strong:#d7dce5;--ba-text:#1f2937;--ba-text-muted:#667085;--ba-text-subtle:#98a2b3;--ba-radius:8px;--ba-shadow:0 8px 24px rgba(31,41,55,.06)}
+    .client-user-menu{position:relative;display:inline-flex;align-items:center}
+    .client-user-button{height:36px;display:inline-flex;align-items:center;gap:8px;padding:0 8px;border:1px solid transparent;border-radius:var(--ba-radius);background:transparent;color:var(--ba-text-muted);cursor:pointer}
+    .client-user-button:hover,.client-user-menu.is-open .client-user-button{border-color:var(--ba-border);background:var(--ba-surface);color:var(--ba-primary)}
+    .client-user-button .fa-chevron-down{font-size:11px;color:var(--ba-text-subtle)}
+    .client-avatar{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:var(--ba-primary);font-size:13px;font-weight:600}
+    .client-user-name{max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:500}
+    .client-user-dropdown{position:absolute;right:0;top:calc(100% + 8px);z-index:900;display:none;min-width:180px;padding:6px;border:1px solid var(--ba-border);border-radius:var(--ba-radius);background:var(--ba-surface);box-shadow:0 12px 30px rgba(15,23,42,.16)}
+    .client-user-menu.is-open .client-user-dropdown{display:grid;gap:2px}
+    .client-user-dropdown button{width:100%;min-height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--ba-text);font:inherit;text-align:left;cursor:pointer}
+    .client-user-dropdown button:hover{background:var(--ba-primary-soft);color:var(--ba-primary)}
+    .client-email-settings-backdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(15,23,42,.45);backdrop-filter:blur(4px)}
+    .client-email-settings-backdrop.hidden{display:none}
+    .client-email-settings-modal{width:min(720px,calc(100vw - 48px));max-height:calc(100vh - 64px);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--ba-border);border-radius:var(--ba-radius);background:var(--ba-surface);box-shadow:0 20px 60px rgba(15,23,42,.24)}
+    .client-email-settings-header,.client-email-settings-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-bottom:1px solid var(--ba-border)}
+    .client-email-settings-header h3{margin:0;color:var(--ba-text);font-size:18px;font-weight:600}.client-email-settings-header p{margin:4px 0 0;color:var(--ba-text-muted);font-size:13px}
+    .client-email-settings-body{display:grid;gap:12px;padding:14px 18px;overflow-y:auto;scrollbar-gutter:stable}.client-email-settings-footer{justify-content:flex-end;border-top:1px solid var(--ba-border);border-bottom:0}
+    .email-settings-section{border:1px solid var(--ba-border);border-radius:var(--ba-radius);background:var(--ba-surface)}
+    .email-settings-section__header span,.email-toggle-item span{color:var(--ba-text-muted);font-size:12px}.email-recipient-item strong,.email-toggle-item strong{color:var(--ba-text);font-weight:600}
+    .email-settings-section{overflow:hidden}.email-settings-section__header{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 12px;border-bottom:1px solid var(--ba-border);background:var(--ba-surface-muted)}.email-settings-section__header h4{margin:0;color:var(--ba-text);font-size:15px;font-weight:600}
+    .email-recipient-list,.email-toggle-list{display:grid}.email-recipient-item{min-height:44px;display:grid;grid-template-columns:minmax(0,1fr)auto;align-items:center;gap:12px;padding:7px 12px;border-bottom:1px solid var(--ba-border)}.email-recipient-item:hover{background:var(--ba-surface-muted)}.email-recipient-item strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.email-recipient-actions{display:flex;justify-content:flex-end;gap:8px}.email-danger-text{color:var(--ba-danger)!important}.email-recipient-add{display:grid;grid-template-columns:minmax(0,1fr)auto;gap:10px;padding:10px 12px}
+    .email-toggle-item{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 12px;border-bottom:1px solid var(--ba-border)}.email-toggle-item>div{display:grid;gap:2px}.email-recipient-item:last-child,.email-toggle-item:last-child{border-bottom:0}
+    .client-switch{position:relative;flex:0 0 auto;width:44px;height:24px;border:0;border-radius:999px;background:var(--ba-border-strong);cursor:pointer}.client-switch:before{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.16);transition:left .16s ease}.client-switch.is-on{background:var(--ba-primary)}.client-switch.is-on:before{left:23px}
+    .client-email-settings-modal .input-field{min-height:32px;padding:6px 12px;color:var(--ba-text);background:var(--ba-surface);border:1px solid var(--ba-border-strong);border-radius:var(--ba-radius);outline:none}.client-email-settings-modal .btn-primary,.client-email-settings-modal .btn-secondary,.client-email-settings-modal .btn-text{min-height:32px;border-radius:var(--ba-radius);padding:6px 14px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:500;cursor:pointer}.client-email-settings-modal .btn-primary{color:#fff!important;background:var(--ba-primary)!important;border-color:var(--ba-primary)!important}.client-email-settings-modal .btn-secondary{color:var(--ba-primary)!important;background:var(--ba-surface)!important;border-color:var(--ba-primary)!important}.client-email-settings-modal .btn-text{color:var(--ba-primary)!important;background:transparent!important}
+    .client-email-settings-modal .icon-button{width:32px;height:32px;border:1px solid var(--ba-border);border-radius:var(--ba-radius);background:var(--ba-surface);color:var(--ba-text-muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+    .client-toast-stack{position:fixed;top:72px;right:24px;z-index:1100;display:grid;gap:8px}.client-toast{min-width:220px;max-width:360px;padding:10px 14px;border:1px solid var(--ba-border);border-left:3px solid var(--ba-success);border-radius:var(--ba-radius);background:var(--ba-surface);color:var(--ba-text);box-shadow:var(--ba-shadow);font-size:13px}.client-toast.error{border-left-color:var(--ba-danger)}.client-modal-open{overflow:hidden}
+    @media (max-width:768px){.email-recipient-item{grid-template-columns:1fr}.email-recipient-actions{justify-content:flex-start}}
+  `;
+  document.head.appendChild(style);
+}
+
+function emailRecipientItem(email) {
+  const normalizedEmail = normalizeClientEmail(email);
+  const safeEmail = escapeClientHtml(normalizedEmail);
+  return `
+    <div class="email-recipient-item" data-email-value="${safeEmail}">
+      <strong>${safeEmail}</strong>
+      <div class="email-recipient-actions">
+        <button type="button" class="btn-text email-danger-text" data-client-email-action="remove-recipient">删除</button>
+      </div>
+    </div>
+  `;
+}
+
+function normalizeClientEmail(value) {
+  return String(value == null ? '' : value).trim().toLowerCase();
+}
+
+function emailToggleItem(title, desc, enabled) {
+  const safeTitle = escapeClientHtml(title);
+  const safeDesc = escapeClientHtml(desc);
+  return `
+    <div class="email-toggle-item">
+      <div>
+        <strong>${safeTitle}</strong>
+        <span>${safeDesc}</span>
+      </div>
+      <button type="button" class="client-switch ${enabled ? 'is-on' : ''}" data-client-email-action="toggle-email" aria-pressed="${enabled ? 'true' : 'false'}" aria-label="${safeTitle}"></button>
+    </div>
+  `;
+}
+
+function escapeClientHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function bindClientEmailSettingsEvents() {
+  if (window.__clientEmailSettingsBound) return;
+  window.__clientEmailSettingsBound = true;
+  document.addEventListener('click', function (event) {
+    const userToggle = event.target.closest('[data-client-user-toggle]');
+    if (userToggle) {
+      event.preventDefault();
+      toggleClientUserMenu(userToggle);
+      return;
+    }
+    if (!event.target.closest('[data-client-user-menu]')) closeClientUserMenus();
+
+    const actionNode = event.target.closest('[data-client-email-action]');
+    if (!actionNode) {
+      if (event.target.id === 'clientEmailSettingsModal') closeClientEmailSettings();
+      return;
+    }
+    const action = actionNode.dataset.clientEmailAction;
+    if (action === 'open-settings') {
+      closeClientUserMenus();
+      openClientEmailSettings();
+    }
+    if (action === 'close') closeClientEmailSettings();
+    if (action === 'save') saveClientEmailSettings();
+    if (action === 'add-recipient') addClientEmailRecipient();
+    if (action === 'remove-recipient') removeClientEmailRecipient(actionNode);
+    if (action === 'toggle-email') toggleClientEmailSetting(actionNode);
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      closeClientUserMenus();
+      closeClientEmailSettings();
+    }
+  });
+}
+
+function toggleClientUserMenu(button) {
+  const menu = button.closest('[data-client-user-menu]');
+  if (!menu) return;
+  const open = !menu.classList.contains('is-open');
+  closeClientUserMenus();
+  menu.classList.toggle('is-open', open);
+  button.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function closeClientUserMenus() {
+  document.querySelectorAll('[data-client-user-menu].is-open').forEach(function (menu) {
+    menu.classList.remove('is-open');
+    menu.querySelector('[data-client-user-toggle]')?.setAttribute('aria-expanded', 'false');
+  });
+}
+
+function openClientEmailSettings() {
+  mountClientEmailSettingsModal();
+  const modal = document.getElementById('clientEmailSettingsModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  document.body.classList.add('client-modal-open');
+}
+
+function closeClientEmailSettings() {
+  const modal = document.getElementById('clientEmailSettingsModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  document.body.classList.remove('client-modal-open');
+}
+
+function saveClientEmailSettings() {
+  closeClientEmailSettings();
+  clientToast('邮件与邮箱设置已保存');
+}
+
+function addClientEmailRecipient() {
+  const input = document.querySelector('[data-email-recipient-input]');
+  const list = document.querySelector('[data-email-recipient-list]');
+  if (!input || !list) return;
+  const email = normalizeClientEmail(input.value);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    clientToast('请输入正确的邮箱地址', 'error');
+    return;
+  }
+  const duplicate = Array.from(list.querySelectorAll('.email-recipient-item')).some(function (item) {
+    const existingEmail = item.dataset.emailValue || item.querySelector('strong')?.textContent;
+    return normalizeClientEmail(existingEmail) === email;
+  });
+  if (duplicate) {
+    clientToast('该邮箱已存在', 'error');
+    input.focus();
+    input.select();
+    return;
+  }
+  if (list.querySelectorAll('.email-recipient-item').length >= 5) {
+    clientToast('最多添加 5 个邮箱', 'error');
+    return;
+  }
+  list.insertAdjacentHTML('beforeend', emailRecipientItem(email));
+  input.value = '';
+  clientToast('邮箱已添加');
+}
+
+function removeClientEmailRecipient(button) {
+  button.closest('.email-recipient-item')?.remove();
+  clientToast('邮箱已删除');
+}
+
+function toggleClientEmailSetting(button) {
+  const enabled = !button.classList.contains('is-on');
+  button.classList.toggle('is-on', enabled);
+  button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+  clientToast(`${button.getAttribute('aria-label')}${enabled ? '已开启' : '已关闭'}`);
+}
+
+function clientToast(message, type = 'success') {
+  let stack = document.querySelector('.client-toast-stack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.className = 'client-toast-stack';
+    document.body.appendChild(stack);
+  }
+  const toast = document.createElement('div');
+  toast.className = `client-toast ${type}`;
+  toast.textContent = message;
+  stack.appendChild(toast);
+  window.setTimeout(function () { toast.remove(); }, 2000);
+}
+
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
   initializePage();
@@ -353,9 +631,9 @@ function loadFallbackHeader() {
     <h2 class="text-xl font-semibold text-white" id="page-title">页面标题</h2>
   </div>
 
-  <div class="flex items-center space-x-4">
-    <!-- Notification -->
-    <div class="relative group">
+	  <div class="flex items-center space-x-4">
+	    <!-- Notification -->
+	    <div class="relative group">
       <button onclick="openInboxDrawer()" class="p-2 text-gray-400 hover:text-white relative transition-colors duration-200">
         <i class="fas fa-bell text-lg"></i>
         <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">5</span>
@@ -363,12 +641,12 @@ function loadFallbackHeader() {
     </div>
 
     <!-- Language Selector -->
-    <select class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
-      <option>中文</option>
-      <option>English</option>
-    </select>
+	    <select class="bg-slate-700 text-white px-3 py-2 rounded-md focus:outline-none">
+	      <option>中文</option>
+	      <option>English</option>
+	    </select>
 
-    <!-- User Avatar -->
+	    <!-- User Avatar -->
     <div class="relative group flex items-center">
       <button onclick="window.location.href='wallet.html'" class="btn-secondary flex items-center font-bold text-base transition-all duration-200" style="min-width:120px; color: #00FFB0;">
         <i class="fas fa-wallet mr-2"></i>
@@ -387,12 +665,19 @@ function loadFallbackHeader() {
         </div>
       </div>
     </div>
-    <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-        <span class="text-white text-sm font-medium">A</span>
-      </div>
-      <span class="hidden md:block text-sm font-medium text-gray-300">客户</span>
-    </div>
+	    <div class="client-user-menu" data-client-user-menu>
+	      <button type="button" class="client-user-button" data-client-user-toggle aria-haspopup="menu" aria-expanded="false">
+	        <span class="client-avatar">A</span>
+	        <span class="client-user-name">客户</span>
+	        <i class="fas fa-chevron-down"></i>
+	      </button>
+	      <div class="client-user-dropdown" role="menu">
+	        <button type="button" role="menuitem" data-client-email-action="open-settings">
+	          <i class="fas fa-envelope"></i>
+	          <span>邮件与邮箱</span>
+	        </button>
+	      </div>
+	    </div>
   </div>
 </header>`;
   
@@ -406,6 +691,10 @@ window.CommonUtils = {
   showNotification,
   setPageTitle,
   applyIntroducerDailyNavVisibility,
+  openClientEmailSettings,
   PAGE_CONFIG,
   BALANCE_DATA
-}; 
+};
+
+window.openClientEmailSettings = openClientEmailSettings;
+window.closeClientEmailSettings = closeClientEmailSettings;
