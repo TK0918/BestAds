@@ -18,6 +18,11 @@
   const amount = value => `<span class="amount-zero">${esc(value == null || value === '' ? '-' : value)}</span>`;
   const person = value => `<span class="person-cell">${esc(value || '-')}</span>`;
   const text = value => `<span class="wrap">${esc(value || '-')}</span>`;
+  const urlLink = value => {
+    const href = String(value || '').trim();
+    if (!/^https?:\/\//i.test(href)) return text(value);
+    return `<a class="admin-inline-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(href)}</a>`;
+  };
 
   const dateRange = label => ({ key: 'date', label, type: 'date', placeholder: '开始时间' });
   const select = (key, label, options, placeholder = '请选择') => ({ key, label, type: 'select', options, placeholder });
@@ -99,6 +104,77 @@
     }
   });
 
+  const openingMediaChannels = ['Facebook', 'Google', 'TikTok', '其他媒体'];
+  const openingAccountTypes = ['Facebook-绿通户', 'Facebook-企业户', 'Facebook-三不限', 'Google-海外户', 'TikTok-企业户', '其他媒体账户'];
+  const openingRuleRows = [
+    { ruleId: 'OR-FB-001', mediaChannel: 'Facebook', priority: '10', status: '启用', agent: 'Madhouse', accountType: 'Facebook-绿通户', countryMatch: '美国 / 加拿大 / 英国 / 法国 / 荷兰', categoryMatch: '服饰配件 / 家居收纳 / 美妆个护', minDailyBudget: '0', maxDailyBudget: '500', dailyBudgetRange: '0 - 500 USD', openingFeePerAccount: '150.00', prechargeBasePerAccount: '550.00', currency: 'USD', quoteVersion: 'RULE-20260813-A', updatedAt: '2026-08-13 11:20:18', updatedBy: owners.amLi, remark: '常规品类优先规则，审核时只锁定代理和账户类型。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-FB-002', mediaChannel: 'Facebook', priority: '20', status: '启用', agent: 'Gimc', accountType: 'Facebook-企业户', countryMatch: '美国 / 加拿大 / 英国 / 法国', categoryMatch: '宠物用品 / 家居收纳 / 服饰配件', minDailyBudget: '0', maxDailyBudget: '800', dailyBudgetRange: '0 - 800 USD', openingFeePerAccount: '150.00', prechargeBasePerAccount: '650.00', currency: 'USD', quoteVersion: 'RULE-20260813-B', updatedAt: '2026-08-13 11:18:02', updatedBy: owners.amZhao, remark: '标准企业户规则，适合常规地区和标准品类。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-FB-003', mediaChannel: 'Facebook', priority: '30', status: '启用', agent: 'Rockads', accountType: 'Facebook-三不限', countryMatch: '美国 / 加拿大 / 英国 / 法国 / 德国', categoryMatch: '保健品 / 成人 / 金融 / 高风险', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '220.00', prechargeBasePerAccount: '900.00', currency: 'USD', quoteVersion: 'RULE-20260813-C', updatedAt: '2026-08-13 11:08:43', updatedBy: owners.bdWang, remark: '高限制品类使用，不向客户端暴露规则明细。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-FB-004', mediaChannel: 'Facebook', priority: '40', status: '启用', agent: 'Panda', accountType: 'Facebook-企业户', countryMatch: '荷兰 / 英国 / 法国', categoryMatch: '美妆个护 / 服饰配件 / 家居收纳', minDailyBudget: '0', maxDailyBudget: '300', dailyBudgetRange: '0 - 300 USD', openingFeePerAccount: '150.00', prechargeBasePerAccount: '650.00', currency: 'USD', quoteVersion: 'RULE-20260813-D', updatedAt: '2026-08-13 10:52:34', updatedBy: owners.bdQian, remark: '低预算欧洲投放兜底规则。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-GG-001', mediaChannel: 'Google', priority: '50', status: '启用', agent: 'Gimc', accountType: 'Google-海外户', countryMatch: '美国 / 英国 / 加拿大', categoryMatch: '全部', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '120.00', prechargeBasePerAccount: '500.00', currency: 'USD', quoteVersion: 'RULE-20260813-GG', updatedAt: '2026-08-13 10:40:12', updatedBy: owners.amLi, remark: 'Google 开户预留规则，供跨媒体方案评审。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-TT-001', mediaChannel: 'TikTok', priority: '60', status: '启用', agent: 'Madhouse', accountType: 'TikTok-企业户', countryMatch: '美国 / 英国 / 法国', categoryMatch: '服饰配件 / 美妆个护', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '130.00', prechargeBasePerAccount: '600.00', currency: 'USD', quoteVersion: 'RULE-20260813-TT', updatedAt: '2026-08-13 10:30:51', updatedBy: owners.amZhao, remark: 'TikTok 开户预留规则，供跨媒体方案评审。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-FB-005', mediaChannel: 'Facebook', priority: '90', status: '停用', agent: 'MeetSocial', accountType: 'Facebook-企业户', countryMatch: '全部', categoryMatch: '全部', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '180.00', prechargeBasePerAccount: '700.00', currency: 'USD', quoteVersion: 'RULE-20260801-LEGACY', updatedAt: '2026-08-01 18:16:21', updatedBy: owners.amSun, remark: '旧代理规则，已停用，不参与自动报价。', ops: ['编辑', '复制', '启用', '查看详情'] }
+  ];
+  const openingRuleFields = [
+    { key: 'mediaChannel', label: '媒体渠道', control: 'select', options: openingMediaChannels, placeholder: '选择媒体渠道' },
+    { key: 'priority', label: '匹配优先级', placeholder: '1-999 的正整数，数值越小越优先', help: '仅用于多条启用规则同时命中时排序；取 1-999 的正整数，不支持小数；数值越小越优先匹配。建议按 10、20、30 间隔维护，便于后续插入新规则。' },
+    { key: 'status', label: '状态', control: 'select', options: ['启用', '停用'], placeholder: '选择状态' },
+    { key: 'agent', label: '开户代理', control: 'select', options: agents, placeholder: '选择开户代理' },
+    { key: 'accountType', label: '账户类型', control: 'select', options: openingAccountTypes, placeholder: '选择账户类型' },
+    { key: 'countryMatch', label: '投放国家匹配', placeholder: '多个国家用 / 分隔' },
+    { key: 'categoryMatch', label: '品类匹配', placeholder: '多个品类用 / 分隔' },
+    { key: 'minDailyBudget', label: '日预算下限', placeholder: '输入金额' },
+    { key: 'maxDailyBudget', label: '日预算上限', required: false, placeholder: '为空表示不限' },
+    { key: 'openingFeePerAccount', label: '开户费/账户', placeholder: '输入开户费，0 表示不收取开户费', help: '填写 0 表示该规则不收取开户费。开户审核时按账户数计算开户费小计。' },
+    { key: 'prechargeBasePerAccount', label: '账户首充金额', placeholder: '输入账户首充金额，0 表示无首充要求', help: '填写 0 表示该规则没有首充要求。开户审核时按账户数计算首充小计。' },
+    { key: 'currency', label: '币种', control: 'select', options: currencies, placeholder: '选择币种' },
+    { key: 'remark', label: '备注', control: 'textarea', full: true, required: false, placeholder: '仅运营端可见' }
+  ];
+
+  const openingRulesPage = {
+    title: '账户规则配置',
+    filters: [
+      select('mediaChannel', '媒体渠道', openingMediaChannels, '选择媒体渠道'),
+      select('agent', '开户代理', agents, '选择开户代理'),
+      select('accountType', '账户类型', openingAccountTypes, '选择账户类型'),
+      input('countryMatch', '投放国家', '输入国家关键词'),
+      input('categoryMatch', '识别品类', '输入品类关键词'),
+      select('status', '状态', ['启用', '停用'], '选择状态')
+    ],
+    actions: [
+      { id: 'create-opening-rule', label: '新增规则', icon: 'plus', primary: true },
+      { id: 'custom-fields', label: '自定义字段', icon: 'sliders-h', align: 'right' },
+      { id: 'export', label: '导出数据', icon: 'download', primary: true, align: 'right' }
+    ],
+    filterClass: 'cols-5',
+    tableMinWidth: 2380,
+    opsWidth: 260,
+    columns: [
+      { key: 'ruleId', label: '规则ID', width: 130, sort: true },
+      { key: 'mediaChannel', label: '媒体渠道', width: 110 },
+      { key: 'priority', label: '匹配优先级', width: 120, num: true, sort: true, help: '仅用于多条启用规则同时命中时排序；取 1-999 的正整数，不支持小数；数值越小越优先匹配。建议按 10、20、30 间隔维护，便于后续插入新规则。' },
+      { key: 'status', label: '状态', width: 90, format: tag },
+      { key: 'agent', label: '开户代理', width: 130 },
+      { key: 'accountType', label: '账户类型', width: 150 },
+      { key: 'countryMatch', label: '投放国家匹配', align: 'left', width: 220, format: text },
+      { key: 'categoryMatch', label: '品类匹配', align: 'left', width: 220, format: text },
+      { key: 'dailyBudgetRange', label: '日预算范围', width: 150 },
+      { key: 'openingFeePerAccount', label: '开户费/账户', width: 120, num: true, format: amount, help: '0 表示该规则不收取开户费。开户审核时按账户数计算开户费小计。' },
+      { key: 'prechargeBasePerAccount', label: '账户首充金额', width: 140, num: true, format: amount, help: '0 表示该规则没有首充要求。开户审核时按账户数计算首充小计。' },
+      { key: 'currency', label: '币种', width: 80 },
+      { key: 'quoteVersion', label: '报价版本', width: 160 },
+      { key: 'updatedBy', label: '最后修改人', align: 'left', width: 240, format: person },
+      { key: 'updatedAt', label: '最后修改时间', width: 170, sort: true },
+      { key: 'remark', label: '备注', align: 'left', width: 240, format: text }
+    ],
+    rows: openingRuleRows,
+    modals: {
+      '新增规则': { type: 'opening-rule-config', mode: 'create', title: '新增账户规则', fields: openingRuleFields },
+      '编辑': { type: 'opening-rule-config', mode: 'edit', title: '编辑账户规则', fields: openingRuleFields },
+      '复制': { type: 'opening-rule-config', mode: 'copy', title: '复制账户规则', fields: openingRuleFields }
+    }
+  };
+
   const openingPage = {
     title: '开户管理',
     filters: [
@@ -106,8 +182,8 @@
       input('customerId', '客户ID', '输入客户ID'),
       input('merchantId', '商户ID', '输入商户ID'),
       input('customerName', '客户名称', '输入客户名称'),
-      select('status', '开户状态', ['待处理', '处理中', '开户成功', '开户失败'], '选择开户状态'),
-      select('agentStatus', '一代开户状态', ['客户申请工单', '等待蓝标审核', 'FaceBook审核通过', '取消'], '选择一代开户状态')
+      select('status', '开户状态', ['待运营审核', '审核不通过', '待客户确认付款', '已付款待开户', '开户成功', '开户取消'], '选择开户状态'),
+      select('paymentStatus', '付款状态', ['未扣款', '待客户确认', '已扣款', '已退款'], '选择付款状态')
     ],
     actions: [
       { id: 'create', label: '新建开户申请', icon: 'plus', primary: true },
@@ -115,35 +191,48 @@
       { id: 'export', label: '导出数据', icon: 'download', primary: true, align: 'right' }
     ],
     filterClass: 'cols-5',
-    tableMinWidth: 2500,
-    opsWidth: 150,
+    tableMinWidth: 3300,
+    opsWidth: 420,
     columns: [
-      { key: 'applyId', label: '申请ID', width: 90, sort: true },
+      { key: 'applyId', label: '申请ID', width: 150, sort: true },
       { key: 'customerId', label: '客户ID', width: 100 },
       { key: 'customerName', label: '客户名称', align: 'left', width: 170 },
-      { key: 'operator', label: '操作人', align: 'left', width: 220, format: person },
       { key: 'merchantId', label: '商户ID', width: 110 },
       { key: 'applyAt', label: '申请时间', width: 170, sort: true },
-      { key: 'status', label: '状态', width: 110, format: tag },
-      { key: 'agentStatus', label: '一代开户状态', width: 150 },
-      { key: 'url', label: 'URL', align: 'left', width: 260, format: text },
+      { key: 'status', label: '开户状态', width: 140, format: tag },
+      { key: 'paymentStatus', label: '付款状态', width: 120, format: tag },
+      { key: 'url', label: 'URL', align: 'left', width: 260, format: urlLink },
+      { key: 'country', label: '投放国家', width: 140 },
       { key: 'timezone', label: '时区', width: 170 },
-      { key: 'bmId', label: 'BM ID', width: 130 },
-      { key: 'bmName', label: 'BM名称', align: 'left', width: 160 },
-      { key: 'page', label: 'Page', align: 'left', width: 220, format: text },
-      { key: 'handler', label: '处理人员', align: 'left', width: 220, format: person },
-      { key: 'handledAt', label: '处理时间', width: 170 },
+      { key: 'dailyBudget', label: '日预算', width: 110 },
+      { key: 'accountCount', label: '账户数', width: 90, num: true },
+      { key: 'category', label: '识别品类', width: 130 },
+      { key: 'initialQuote', label: '初始报价', width: 120, num: true, format: amount },
+      { key: 'finalQuote', label: '最终报价', width: 120, num: true, format: amount },
+      { key: 'quoteVersion', label: '报价版本', width: 130 },
       { key: 'agent', label: '开户代理', width: 120 },
-      { key: 'accountInfo', label: '账户信息', align: 'left', width: 190 },
-      { key: 'remark', label: '备注', align: 'left', width: 180, format: text }
+      { key: 'accountType', label: '账户类型', width: 140 },
+      { key: 'openingFee', label: '开户费', width: 110, num: true, format: amount },
+      { key: 'precharge', label: '首充预缴', width: 120, num: true, format: amount },
+      { key: 'prechargeRecord', label: '首充预缴记录', align: 'left', width: 230, format: text },
+      { key: 'accountInfo', label: '开户结果账户', align: 'left', width: 210, format: text },
+      { key: 'remark', label: '备注', align: 'left', width: 220, format: text }
     ],
     rows: [
-      { applyId: '149', customerId: '102', customerName: 'adstest', operator: 'adstest', merchantId: '1128', applyAt: '2026-07-30 18:15:11', status: '待处理', agentStatus: '客户申请工单', url: 'https://test-ads.bestads.com/asset-management/account-management', timezone: 'America/Anchorage', bmId: '1', bmName: '23', page: 'https://www.facebook.com/', handler: '-', handledAt: '-', agent: 'Madhouse', accountInfo: '-', remark: '-', ops: ['处理', '取消开户'] },
-      { applyId: '141', customerId: '3472', customerName: 'test金额变动', operator: 'test金额变动', merchantId: '14229', applyAt: '2026-07-28 16:34:27', status: '开户失败', agentStatus: '取消', url: 'https://bestfulfill.feishu.cn/wiki/PLwowZdEPim1wFkRf1hcsK1cnWg', timezone: 'America/Chicago', bmId: '1', bmName: '123', page: 'test123', handler: '谭英就(tanyingjiu@bestfulfill.com)', handledAt: '2026-07-28 16:35:15', agent: 'Madhouse', accountInfo: '-', remark: '-', ops: ['处理'] },
-      { applyId: '138', customerId: '2658', customerName: '测试何', operator: '测试何', merchantId: '13328', applyAt: '2026-04-11 14:58:01', status: '开户成功', agentStatus: 'FaceBook审核通过', url: 'https://www.mjdraw.cn/home/?from=wx#/mj', timezone: 'America/Los Angeles', bmId: '1', bmName: '12321', page: 'john', handler: '何毅臻(heyizhen@bestfulfill.com)', handledAt: '2026-04-11 14:59:24', agent: 'Madhouse', accountInfo: '2666042513606521 / HQ-B-20-1034', remark: '-', ops: ['处理'] }
+      { applyId: 'AO20260813001', customerId: '102', customerName: 'adstest', merchantId: '1128', applyAt: '2026-08-13 10:26:18', status: '待运营审核', paymentStatus: '未扣款', url: 'https://www.luminara-home.com', country: '美国 / 加拿大', timezone: 'America/Los_Angeles', dailyBudget: '300 USD', accountCount: '2', category: '家居收纳', initialQuote: '1700.00', finalQuote: '-', quoteVersion: 'Q-20260813-001', agent: '-', accountType: '-', openingFee: '-', precharge: '-', prechargeRecord: '-', accountInfo: '-', remark: '客户已同意金额一致时自动扣款', ops: ['审核开户', '查看详情'] },
+      { applyId: 'AO20260812008', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', applyAt: '2026-08-12 16:42:09', status: '待客户确认付款', paymentStatus: '待客户确认', url: 'https://www.breeze-pet.co', country: '美国', timezone: 'America/New_York', dailyBudget: '500 USD', accountCount: '3', category: '宠物用品', initialQuote: '2250.00', finalQuote: '2450.00', quoteVersion: 'Q-20260812-008-v2', agent: 'Gimc', accountType: 'Facebook-企业户', openingFee: '450.00', precharge: '2000.00', prechargeRecord: '客户付款后生成', accountInfo: '-', remark: '总额不一致，已邮件通知客户回系统确认付款', ops: ['查看详情', '取消开户', '重开审核'] },
+      { applyId: 'AO20260812002', customerId: '2688', customerName: '测试用户_1777106273', merchantId: '11894', applyAt: '2026-08-12 11:08:42', status: '已付款待开户', paymentStatus: '已扣款', url: 'https://www.furora-style.com', country: '英国 / 法国', timezone: 'Europe/London', dailyBudget: '200 USD', accountCount: '2', category: '服饰配件', initialQuote: '1400.00', finalQuote: '1400.00', quoteVersion: 'Q-20260812-002', agent: 'Madhouse', accountType: 'Facebook-绿通户', openingFee: '300.00', precharge: '1100.00', prechargeRecord: 'PRE-AO20260812002-01 / 02', accountInfo: '-', remark: '金额一致，已按客户授权自动扣款', ops: ['开户成功', '开户失败', '查看详情', '取消开户'] },
+      { applyId: 'AO20260811005', customerId: '2658', customerName: '测试何', merchantId: '13328', applyAt: '2026-08-11 09:33:21', status: '开户成功', paymentStatus: '已扣款', url: 'https://www.oliva-amsterdam.nl', country: '荷兰', timezone: 'Europe/Amsterdam', dailyBudget: '150 USD', accountCount: '1', category: '美妆个护', initialQuote: '800.00', finalQuote: '800.00', quoteVersion: 'Q-20260811-005', agent: 'Panda', accountType: 'Facebook-企业户', openingFee: '150.00', precharge: '650.00', prechargeRecord: 'PRE-AO20260811005-01 已补充广告账户ID并转为正式充值记录', accountInfo: '1002116215352952 / Oliva-Amsterdam / EUR', remark: '-', ops: ['查看详情'] },
+      { applyId: 'AO20260810003', customerId: '4770', customerName: '-', merchantId: '17794', applyAt: '2026-08-10 14:12:37', status: '开户取消', paymentStatus: '已退款', url: 'https://www.example-health-supplement.com', country: '美国', timezone: 'America/Chicago', dailyBudget: '250 USD', accountCount: '1', category: '保健品', initialQuote: '950.00', finalQuote: '950.00', quoteVersion: 'Q-20260810-003', agent: 'Rockads', accountType: 'Facebook-企业户', openingFee: '150.00', precharge: '800.00', prechargeRecord: '开户失败退款：开户费 150.00 USD + 首充 800.00 USD 已退回钱包', accountInfo: '-', remark: '代理拒绝开户，开户已取消', ops: ['查看详情'] }
     ],
     modals: {
-      '新建开户申请': { title: '新建开户申请', fields: [{ key: 'customerId', label: '客户ID', placeholder: '请输入客户ID' }, { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'timezone', label: '时区', placeholder: '请选择时区' }, { key: 'agent', label: '开户代理', control: 'select', options: agents, placeholder: '选择开户代理' }, { key: 'url', label: 'URL', placeholder: '请输入开户链接', full: true }] }
+      '新建开户申请': { title: '新建开户申请', fields: [{ key: 'customerId', label: '客户ID', placeholder: '请输入客户ID' }, { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'country', label: '投放国家', placeholder: '请输入投放国家' }, { key: 'timezone', label: '时区', placeholder: '请选择时区' }, { key: 'dailyBudget', label: '日预算', placeholder: '请输入日预算' }, { key: 'accountCount', label: '账户数', placeholder: '请输入账户数' }, { key: 'url', label: 'URL', placeholder: '请输入开户链接', full: true }] },
+      '审核开户': { type: 'opening-audit', title: '审核开户' },
+      '审核报价': { type: 'opening-audit', title: '审核开户' },
+      '开户成功': { type: 'opening-result-success', title: '开户成功' },
+      '开户失败': { type: 'opening-result-failed', title: '开户失败' },
+      '取消开户': { type: 'opening-cancel', title: '取消开户' },
+      '重开审核': { type: 'opening-reopen', title: '重开审核' }
     }
   };
 
@@ -504,6 +593,7 @@
     ...(window.BESTADS_ADMIN_MODULE_CONFIGS || {}),
     'fb-account-management': accountPage('fb', fbAccounts, { bm: true, tableMinWidth: 2500 }),
     'fb-account-opening': openingPage,
+    'account-opening-rules': openingRulesPage,
     'fb-account-allocation': assignPage(false, fbAssign),
     'fb-recharge-management': orderPage('充值', rechargeRows.fb),
     'fb-deduction-management': orderPage('减款', subtractionRows.fb),
@@ -530,4 +620,5 @@
     'other-clear-management': orderPage('清零', clearRows.other, true, { clearUnknownBalance: true }),
     'other-service-fee-config': feePage(fees.other, true, '账户服务费')
   };
+  window.BESTADS_OPENING_RULES = openingRuleRows;
 })();

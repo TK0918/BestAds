@@ -2,6 +2,7 @@
   const LANG_KEY = 'bestadsClientLang';
   const THEME_KEY = 'bestadsClientTheme';
   const activeTabByPage = {};
+  const modalContext = {};
 
   const menuConfig = [
     {
@@ -40,7 +41,12 @@
 
   const columnTranslations = {
     '申请ID': { 'zh-CN': '申请ID', 'en-US': 'Application ID' },
-    '账户信息': { 'zh-CN': '账户信息', 'en-US': 'Account Info' },
+    '投放信息': { 'zh-CN': '投放信息', 'en-US': 'Campaign Info' },
+    '账户数': { 'zh-CN': '账户数', 'en-US': 'Accounts' },
+    '初始报价': { 'zh-CN': '初始报价', 'en-US': 'Initial Quote' },
+    '最终报价': { 'zh-CN': '最终报价', 'en-US': 'Final Quote' },
+    '钱包扣款': { 'zh-CN': '钱包扣款', 'en-US': 'Wallet Charge' },
+    '操作': { 'zh-CN': '操作', 'en-US': 'Actions' },
     'BM ID': { 'zh-CN': 'BM ID', 'en-US': 'BM ID' },
     'BM名称': { 'zh-CN': 'BM名称', 'en-US': 'BM Name' },
     '时区和数量': { 'zh-CN': '时区和数量', 'en-US': 'Time Zone / Qty' },
@@ -205,10 +211,12 @@
     style.textContent = `
       aside.sidebar .mode-toggle { width: 100%; height: 34px; display: flex; align-items: flex-start; justify-content: center; padding-bottom: 6px; }
       aside.sidebar .mode-button { width: 98px; height: 28px; margin: 0; padding: 0 14px; font-size: 12px; line-height: 14px; }
-      aside.sidebar nav { width: 192px; margin: 4px 0 0; }
+      aside.sidebar nav,
+      aside.sidebar .menu-group { width: 192px; margin-left: 0; margin-right: 0; }
+      aside.sidebar nav { margin-top: 4px; }
       aside.sidebar .menu-title,
-      aside.sidebar .menu-item { white-space: nowrap; }
-      aside.sidebar .menu-item { overflow: hidden; text-overflow: ellipsis; }
+      aside.sidebar .menu-item { width: 100%; box-sizing: border-box; white-space: nowrap; }
+      aside.sidebar .menu-item { display: flex; overflow: hidden; text-overflow: ellipsis; }
       body.theme-dark aside.sidebar .client-brand-name { color: #ffffff; }
       body.theme-dark aside.sidebar .menu-title,
       body.theme-dark aside.sidebar .menu-item { color: #cbd5e1; }
@@ -332,7 +340,7 @@
 
   function tag(status) {
     const normalized = String(status || '');
-    const cls = normalized === '启用' || normalized === '完成' ? 'success' : normalized === '停用' ? 'warning' : normalized === '失败' ? 'failed' : 'warning';
+    const cls = /启用|完成|成功|已付款|已扣款/.test(normalized) ? 'success' : /失败|取消|退款/.test(normalized) ? 'failed' : 'warning';
     const label = statusI18n(normalized);
     return `<span class="client-tag ${cls}">${html(label)}</span>`;
   }
@@ -344,7 +352,12 @@
       '停用': 'Disabled',
       '完成': 'Completed',
       '失败': 'Failed',
-      '处理中': 'Processing'
+      '处理中': 'Processing',
+      '待运营审核': 'Pending Review',
+      '待客户确认付款': 'Payment Confirmation',
+      '已付款待开户': 'Paid, Opening',
+      '开户成功': 'Opened',
+      '开户取消': 'Canceled'
     };
     return map[status] || status;
   }
@@ -377,6 +390,39 @@
     `;
   }
 
+  function openingRowActions(pageId, row, index) {
+    const actions = [
+      { label: tPage(pageId, 'viewDetail'), action: 'opening-view', index }
+    ];
+    if (row.status === '待客户确认付款') {
+      actions.splice(1, 0, { label: tPage(pageId, 'confirmPayment'), action: 'opening-confirm', index, primary: true });
+    }
+    return rowActions(actions);
+  }
+
+  function renderOpeningRecords(pageId, data) {
+    const rows = data.rows || [];
+    const columns = ['申请ID', '投放信息', '账户数', '初始报价', '最终报价', '钱包扣款', '状态', '操作'];
+    return renderTable(columns, rows, (row, index) => `
+      <tr>
+        <td>${html(row.applyId || '-')}</td>
+        <td class="client-wrap-cell">
+          <div class="client-cell-stack">
+            <strong>${html(row.url || '-')}</strong>
+            <span>${html([row.country, row.timezone].filter(Boolean).join(' · ') || '-')}</span>
+            <span>${html([row.dailyBudget, row.category].filter(Boolean).join(' · ') || '-')}</span>
+          </div>
+        </td>
+        <td>${html(row.accountCount || '-')}</td>
+        <td>${html(row.initialQuote || '-')}</td>
+        <td>${html(row.finalQuote || '-')}</td>
+        <td>${html(row.walletCharge || '-')}</td>
+        <td>${tag(row.status)}</td>
+        <td class="client-actions-cell">${openingRowActions(pageId, row, index)}</td>
+      </tr>
+    `);
+  }
+
   function renderOperationRecords(pageId, data) {
     const tabId = activeTabByPage[pageId] || data.defaultTab;
     const tabs = data.tabs || [];
@@ -388,7 +434,7 @@
           ${tabs.map((tab) => `<button class="client-tab ${tab.id === active.id ? 'active' : ''}" type="button" data-client-tab="${tab.id}">${html(labels[tab.labelKey] || tab.id)}</button>`).join('')}
         </div>
         ${renderToolbar(pageId, active.toolbar, active.actions)}
-        ${renderTable(active.columns, active.rows)}
+        ${active.id === 'opening' ? renderOpeningRecords(pageId, active) : renderTable(active.columns, active.rows)}
       </div>
     `;
   }
@@ -445,7 +491,217 @@
   }
 
   function rowActions(actions) {
-    return `<span class="client-action-row">${actions.map((action) => `<button class="client-link ${action.danger ? 'danger' : ''}" type="button" data-client-page-action="${html(action.action)}" data-row-index="${action.index}">${html(action.label)}</button>`).join('')}</span>`;
+    return `<span class="client-action-row">${actions.map((action) => `<button class="client-link ${action.danger ? 'danger' : ''} ${action.primary ? 'primary' : ''}" type="button" data-client-page-action="${html(action.action)}" data-row-index="${action.index}">${html(action.label)}</button>`).join('')}</span>`;
+  }
+
+  function numberFromText(value) {
+    const amount = Number(String(value || '').replace(/,/g, '').replace(/[^\d.-]/g, ''));
+    return Number.isFinite(amount) ? amount : 0;
+  }
+
+  function estimateOpeningQuote(dailyBudget, accountCount) {
+    return estimateOpeningQuoteBreakdown(dailyBudget, accountCount).total;
+  }
+
+  function estimateOpeningQuoteBreakdown(dailyBudget, accountCount) {
+    const budget = numberFromText(dailyBudget);
+    const count = Math.min(20, Math.max(1, Number(accountCount) || 1));
+    const prechargePerAccount = Math.max(550, Math.ceil(budget * 1.5 / 50) * 50);
+    const openingFee = 150 * count;
+    const precharge = prechargePerAccount * count;
+    return { openingFee, precharge, total: openingFee + precharge };
+  }
+
+  function formatQuoteAmount(amount) {
+    return `${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+  }
+
+  function syncOpeningEstimate(root = document) {
+    const target = root.querySelector('[data-opening-estimate]');
+    if (!target) return;
+    const budget = root.querySelector('[data-opening-budget]')?.value || '300 USD';
+    const count = root.querySelector('[data-opening-count]')?.value || '1';
+    const breakdown = estimateOpeningQuoteBreakdown(budget, count);
+    target.textContent = formatQuoteAmount(breakdown.total);
+    const openingFeeTarget = root.querySelector('[data-opening-estimate-opening]');
+    const prechargeTarget = root.querySelector('[data-opening-estimate-precharge]');
+    if (openingFeeTarget) openingFeeTarget.textContent = formatQuoteAmount(breakdown.openingFee);
+    if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(breakdown.precharge);
+  }
+
+  function parseBmIds(value) {
+    return Array.from(new Set(String(value || '').split(/[\s,，]+/).map((item) => item.trim()).filter(Boolean)));
+  }
+
+  function syncBmPreview(root = document) {
+    const preview = root.querySelector('[data-opening-bm-preview]');
+    if (!preview) return;
+    const ids = parseBmIds(root.querySelector('[data-opening-bm-ids]')?.value || '');
+    preview.innerHTML = ids.length
+      ? ids.map((id) => `<span class="client-bm-chip">${html(id)}</span>`).join('')
+      : '<span class="client-bm-empty">暂未识别到 BM ID</span>';
+  }
+
+  function openingApplyFields() {
+    return `
+      <div class="client-form-grid" data-opening-apply-modal>
+        <label class="client-form-field full">
+          <span class="client-label">投放URL <span class="client-required">*</span></span>
+          <input class="client-input" data-opening-url type="text" value="https://www.luminara-home.com">
+        </label>
+        <label class="client-form-field full client-bm-field">
+          <span class="client-label">BM ID</span>
+          <input class="client-input" data-opening-bm-ids type="text" value="121212345678901, 898989765432101" placeholder="多个 BM ID 可用逗号或空格分隔">
+          <span class="client-field-tip">支持输入多个 BM ID，可用逗号或空格分隔。</span>
+          <span class="client-bm-preview" data-opening-bm-preview aria-live="polite"></span>
+        </label>
+        <label class="client-form-field">
+          <span class="client-label">投放国家 <span class="client-required">*</span></span>
+          <input class="client-input" data-opening-country type="text" value="美国 / 加拿大">
+        </label>
+        <label class="client-form-field">
+          <span class="client-label">时区 <span class="client-required">*</span></span>
+          <input class="client-input" data-opening-timezone type="text" value="America/Los_Angeles">
+        </label>
+        <label class="client-form-field">
+          <span class="client-label">日预算 <span class="client-required">*</span></span>
+          <input class="client-input" data-opening-budget type="text" value="300 USD">
+        </label>
+        <label class="client-form-field">
+          <span class="client-label">账户数 <span class="client-required">*</span></span>
+          <input class="client-input" data-opening-count type="text" value="2">
+        </label>
+        <div class="client-opening-estimate full" aria-live="polite">
+          <div>
+            <p class="client-opening-estimate-title">预估开户费用</p>
+            <p class="client-opening-estimate-desc">系统根据 URL、投放国家、日预算和账户数预估。最终金额以运营审核结果为准。</p>
+            <div class="client-opening-breakdown">
+              <span>开户费：<b data-opening-estimate-opening>${html(formatQuoteAmount(300))}</b></span>
+              <span>首充：<b data-opening-estimate-precharge>${html(formatQuoteAmount(1100))}</b></span>
+            </div>
+          </div>
+          <div class="client-opening-estimate-total">
+            <span>合计</span>
+            <strong class="client-opening-estimate-amount" data-opening-estimate>${html(formatQuoteAmount(estimateOpeningQuote('300 USD', 2)))}</strong>
+          </div>
+        </div>
+        <label class="client-checkbox-row client-form-field full client-opening-consent">
+          <input data-opening-auto-pay type="checkbox" checked>
+          <span>若最终金额与初始报价一致，同意系统直接扣款；不一致时再通知确认。</span>
+        </label>
+      </div>
+      <div class="client-note" style="margin-top:16px;">
+        <div class="client-note-title">系统提示</div>
+        <p>提交后先生成初始报价快照，运营确认最终报价后再进入扣费或客户确认付款流程。</p>
+      </div>
+    `;
+  }
+
+  function readonlyItem(label, value, options = {}) {
+    return `
+      <div class="client-readonly-item ${options.full ? 'full' : ''}">
+        <span class="client-readonly-label">${html(label)}</span>
+        <span class="client-readonly-value ${options.emphasis ? 'emphasis' : ''}">${html(value || '-')}</span>
+      </div>
+    `;
+  }
+
+  function readonlySection(title, items) {
+    return `
+      <section class="client-readonly-section">
+        <h3 class="client-readonly-title">${html(title)}</h3>
+        <div class="client-readonly-grid">${items.join('')}</div>
+      </section>
+    `;
+  }
+
+  function openingReviewFields(row) {
+    return `
+      <div class="client-form-grid">
+        ${formInput('初始报价', row?.initialQuote || '-', false)}
+        ${formInput('最终报价', row?.finalQuote || row?.initialQuote || '-', true)}
+        ${formSelect('执行方式', row?.paymentStatus === '已扣款' ? '金额一致，直接扣款' : '金额不一致，邮件通知客户确认', ['金额一致，直接扣款', '金额不一致，邮件通知客户确认'])}
+        ${formInput('代理', 'Madhouse', true)}
+        ${formInput('账户类型', 'Facebook-企业户', true)}
+        <label class="client-form-field full">
+          <span class="client-label">审核说明</span>
+          <textarea class="client-textarea" placeholder="填写最终报价依据、是否需要客户确认"></textarea>
+        </label>
+      </div>
+      <div class="client-note" style="margin-top:16px;">
+        <div class="client-note-title">比对规则</div>
+        <p>当前只比对总额，不对子项做校验。</p>
+      </div>
+    `;
+  }
+
+  function openingPaymentFields(row) {
+    return `
+      ${readonlySection('客户申请信息', [
+        readonlyItem('申请ID', row?.applyId),
+        readonlyItem('投放国家', row?.country),
+        readonlyItem('投放URL', row?.url, { full: true }),
+        readonlyItem('BM ID', row?.bmIds || '-'),
+        readonlyItem('时区', row?.timezone),
+        readonlyItem('日预算', row?.dailyBudget),
+        readonlyItem('账户数', row?.accountCount),
+        readonlyItem('识别品类', row?.category)
+      ])}
+      ${readonlySection('报价与余额', [
+        readonlyItem('初始报价', row?.initialQuote, { emphasis: true }),
+        readonlyItem('最终报价', row?.finalQuote || row?.initialQuote, { emphasis: true }),
+        readonlyItem('可用余额', '5,000.00 USD', { emphasis: true })
+      ])}
+    `;
+  }
+
+  function openingDetailFields(row) {
+    return `
+      <div class="client-form-grid">
+        ${formInput('申请ID', row.applyId || '-', false)}
+        ${formInput('状态', row.status || '-', false)}
+        ${formInput('URL', row.url || '-', false)}
+        ${formInput('BM ID', row.bmIds || '-', false)}
+        ${formInput('国家 / 时区', `${row.country || '-'} / ${row.timezone || '-'}`, false)}
+        ${formInput('日预算', row.dailyBudget || '-', false)}
+        ${formInput('账户数', row.accountCount || '-', false)}
+        ${formInput('初始报价', row.initialQuote || '-', false)}
+        ${formInput('最终报价', row.finalQuote || '-', false)}
+        ${formInput('钱包扣款', row.walletCharge || '-', false)}
+        ${formInput('结果', row.result || '-', false)}
+        ${formInput('广告账户ID', row.accountInfo || '-', false)}
+        ${formInput('充值记录', row.rechargeRecord || '-', false)}
+      </div>
+      <div class="client-note" style="margin-top:16px;">
+        <div class="client-note-title">流程说明</div>
+        <p>客户确认付款后不可取消。开户失败时，开户费和首充会一起退回钱包。</p>
+      </div>
+    `;
+  }
+
+  function showOpeningApplyModal() {
+    modalContext.type = 'opening-apply';
+    modalContext.rowIndex = null;
+    openModal('申请开户', openingApplyFields(), { wide: true, confirmText: '提交申请' });
+  }
+
+  function showOpeningPaymentModal(row, index) {
+    modalContext.type = 'opening-payment';
+    modalContext.rowIndex = index;
+    openModal('确认付款', openingPaymentFields(row), {
+      wide: true,
+      footer: `
+        <button class="client-button" type="button" data-client-modal-close>关闭窗口</button>
+        <button class="client-button danger" type="button" data-client-modal-cancel-opening>取消开户</button>
+        <button class="client-button primary" type="button" data-client-modal-save>确认付款</button>
+      `
+    });
+  }
+
+  function showOpeningDetailModal(row) {
+    modalContext.type = 'opening-detail';
+    modalContext.rowIndex = null;
+    openModal('开户详情', openingDetailFields(row), { wide: true, confirmText: '知道了' });
   }
 
   function renderSubAccounts(pageId, data) {
@@ -539,6 +795,10 @@
   function openModal(title, body, options) {
     const modal = document.getElementById('clientShellModal');
     if (!modal) return;
+    const footer = options?.footer || `
+      <button class="client-button" type="button" data-client-modal-close>${html(tCommon('cancel'))}</button>
+      <button class="client-button primary" type="button" data-client-modal-save>${html(options?.confirmText || tCommon('save'))}</button>
+    `;
     modal.innerHTML = `
       <section class="client-modal ${options?.wide ? 'wide' : ''}">
         <div class="client-modal-header">
@@ -546,14 +806,13 @@
           <button class="client-modal-close" type="button" data-client-modal-close>×</button>
         </div>
         <div class="client-modal-body">${body}</div>
-        <div class="client-modal-footer">
-          <button class="client-button" type="button" data-client-modal-close>${html(tCommon('cancel'))}</button>
-          <button class="client-button primary" type="button" data-client-modal-save>${html(options?.confirmText || tCommon('save'))}</button>
-        </div>
+        <div class="client-modal-footer">${footer}</div>
       </section>
     `;
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
+    syncOpeningEstimate(modal);
+    syncBmPreview(modal);
   }
 
   function closeModal() {
@@ -638,25 +897,46 @@
   }
 
   function showApplyAccountModal(pageId) {
-    openModal(tPage(pageId, 'applyAccount'), `
-      <div class="client-form-grid">
-        ${formSelect('平台', 'Facebook', ['Facebook', 'TikTok', 'Google', 'Outbrain'])}
-        ${formInput('BM ID', '')}
-        ${formInput('BM名称', '')}
-        ${formInput('时区和数量', 'Europe/Paris × 1')}
-        <label class="client-form-field full">
-          <span class="client-label">账户信息</span>
-          <textarea class="client-textarea" placeholder="URL / Facebook Page"></textarea>
-        </label>
-      </div>
-    `, { wide: true, confirmText: tCommon('confirm') });
+    const page = pagePack(pageId);
+    modalContext.type = 'opening-apply';
+    modalContext.rowIndex = null;
+    openModal(page.applyAccount, openingApplyFields(), { wide: true, confirmText: tCommon('confirm') });
+  }
+
+  function cancelOpeningRow(pageId, row) {
+    if (!row) return false;
+    row.status = '开户取消';
+    row.paymentStatus = '未扣款';
+    row.result = '开户取消';
+    row.walletCharge = '-';
+    row.finalQuote = row.finalQuote || row.initialQuote || '-';
+    row.rechargeRecord = '未扣款，无充值记录';
+    renderPage(pageId);
+    return true;
+  }
+
+  function actionRows(pageId) {
+    const data = window.BESTADS_CLIENT_PAGES?.data?.[pageId];
+    if (pageId === 'operation-records') {
+      const tabId = activeTabByPage[pageId] || data?.defaultTab;
+      const tab = (data?.tabs || []).find((item) => item.id === tabId) || data?.tabs?.[0];
+      return tab?.rows || [];
+    }
+    return data?.rows || [];
   }
 
   function handlePageAction(pageId, action, index) {
     const data = window.BESTADS_CLIENT_PAGES?.data?.[pageId];
+    const row = actionRows(pageId)[index];
     if (action === 'query') return toast(tCommon('toastQuery'));
     if (action === 'export') return toast(tCommon('toastExport'));
-    if (action === 'apply-account') return showApplyAccountModal(pageId);
+    if (action === 'apply-account') return showOpeningApplyModal();
+    if (action === 'opening-view') return showOpeningDetailModal(row);
+    if (action === 'opening-confirm') return showOpeningPaymentModal(row, index);
+    if (action === 'opening-cancel') {
+      if (!cancelOpeningRow(pageId, row)) return toast('未找到对应开户记录', 'error');
+      return toast('开户申请已取消', 'info');
+    }
     if (action === 'sub-create') return showSubAccountModal(pageId);
     if (action === 'sub-edit') return showSubAccountModal(pageId, data.rows[index]);
     if (action === 'sub-reset') return toast(tCommon('toastResetPassword'));
@@ -701,16 +981,110 @@
         return;
       }
       if (event.target.matches('[data-client-modal-close]') || event.target.id === 'clientShellModal') {
+        modalContext.type = null;
+        modalContext.rowIndex = null;
         closeModal();
         return;
       }
-      if (event.target.matches('[data-client-modal-save]')) {
+      if (event.target.matches('[data-client-modal-cancel-opening]')) {
+        const rowIndex = Number(modalContext.rowIndex);
+        const row = Number.isFinite(rowIndex) && rowIndex >= 0 ? actionRows(pageId)[rowIndex] : null;
+        if (modalContext.type !== 'opening-payment' || !cancelOpeningRow(pageId, row)) {
+          toast('未找到对应开户记录', 'error');
+          return;
+        }
         closeModal();
+        modalContext.type = null;
+        modalContext.rowIndex = null;
+        toast('开户申请已取消', 'info');
+        return;
+      }
+      if (event.target.matches('[data-client-modal-save]')) {
+        const rowIndex = Number(modalContext.rowIndex);
+        const row = Number.isFinite(rowIndex) && rowIndex >= 0 ? actionRows(pageId)[rowIndex] : null;
+        if (modalContext.type === 'opening-apply') {
+          const applyRoot = document.querySelector('[data-opening-apply-modal]');
+          const rows = actionRows(pageId);
+          const url = applyRoot?.querySelector('[data-opening-url]')?.value.trim() || 'https://www.example.com';
+          const country = applyRoot?.querySelector('[data-opening-country]')?.value.trim() || '美国';
+          const timezone = applyRoot?.querySelector('[data-opening-timezone]')?.value.trim() || 'America/Los_Angeles';
+          const dailyBudget = applyRoot?.querySelector('[data-opening-budget]')?.value.trim() || '300 USD';
+          const accountCount = applyRoot?.querySelector('[data-opening-count]')?.value.trim() || '1';
+          const bmIds = parseBmIds(applyRoot?.querySelector('[data-opening-bm-ids]')?.value || '');
+          const autoPay = Boolean(applyRoot?.querySelector('[data-opening-auto-pay]')?.checked);
+          syncOpeningEstimate(applyRoot);
+          const initialQuote = applyRoot?.querySelector('[data-opening-estimate]')?.textContent.trim() || formatQuoteAmount(estimateOpeningQuote(dailyBudget, accountCount));
+          const quoteVersion = `Q-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(rows.length + 1).padStart(3, '0')}`;
+          rows.unshift({
+            applyId: `AO${Date.now()}`,
+            url,
+            country,
+            bmIds: bmIds.join(' / '),
+            timezone,
+            dailyBudget,
+            accountCount,
+            category: 'AI 识别中',
+            initialQuote,
+            finalQuote: '待运营确认',
+            walletCharge: '-',
+            paymentStatus: '未扣款',
+            paymentAuth: autoPay ? '已同意金额一致时自动扣款' : '未授权自动扣款，待最终报价后确认',
+            submittedAt: '2026-08-13 10:30:00',
+            status: '待运营审核',
+            result: '-',
+            accountInfo: '-',
+            rechargeRecord: '首充预缴记录待生成',
+            quoteVersion,
+            initialNote: bmIds.length ? `BM ID：${bmIds.join(' / ')}` : ''
+          });
+          renderPage(pageId);
+          closeModal();
+          modalContext.type = null;
+          modalContext.rowIndex = null;
+          toast('开户申请已提交', 'success');
+          return;
+        }
+        if (modalContext.type === 'opening-payment' && row) {
+          row.walletCharge = row.finalQuote || row.initialQuote || '-';
+          row.paymentStatus = '已扣款';
+          row.status = '已付款待开户';
+          row.result = '待开户';
+          row.rechargeRecord = row.rechargeRecord && row.rechargeRecord.includes('首充预缴记录')
+            ? row.rechargeRecord
+            : `首充预缴记录：PRE-${row.applyId}`;
+          renderPage(pageId);
+          closeModal();
+          modalContext.type = null;
+          modalContext.rowIndex = null;
+          toast('已确认付款，等待开户结果', 'success');
+          return;
+        }
+        if (modalContext.type === 'opening-detail') {
+          closeModal();
+          modalContext.type = null;
+          modalContext.rowIndex = null;
+          return;
+        }
+        closeModal();
+        modalContext.type = null;
+        modalContext.rowIndex = null;
         toast(tCommon('toastSaved'));
       }
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') closeModal();
+    });
+    document.addEventListener('input', (event) => {
+      const openingInput = event.target.closest('[data-opening-budget], [data-opening-count]');
+      const bmInput = event.target.closest('[data-opening-bm-ids]');
+      if (openingInput) syncOpeningEstimate(openingInput.closest('[data-opening-apply-modal]') || document);
+      if (bmInput) syncBmPreview(bmInput.closest('[data-opening-apply-modal]') || document);
+    });
+    document.addEventListener('change', (event) => {
+      const openingInput = event.target.closest('[data-opening-budget], [data-opening-count]');
+      const bmInput = event.target.closest('[data-opening-bm-ids]');
+      if (openingInput) syncOpeningEstimate(openingInput.closest('[data-opening-apply-modal]') || document);
+      if (bmInput) syncBmPreview(bmInput.closest('[data-opening-apply-modal]') || document);
     });
   }
 

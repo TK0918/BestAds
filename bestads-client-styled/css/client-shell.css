@@ -505,6 +505,11 @@ button {
   color: var(--client-danger);
 }
 
+.client-button.danger:hover {
+  border-color: #ff9c96;
+  color: #d92d20;
+}
+
 .client-button.small {
   min-width: 56px;
   height: 28px;
@@ -544,6 +549,188 @@ button {
   color: var(--client-text);
   white-space: nowrap;
   vertical-align: middle;
+}
+
+.client-table td.client-wrap-cell {
+  min-width: 280px;
+  white-space: normal;
+}
+
+.client-cell-stack {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0;
+}
+
+.client-cell-stack strong {
+  color: var(--client-text);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.client-cell-stack span {
+  color: var(--client-muted);
+  font-size: 12px;
+}
+
+.client-opening-consent {
+  min-height: 34px;
+  flex-direction: row;
+  align-items: center;
+  color: var(--client-text);
+}
+
+.client-bm-field .client-input {
+  width: 100%;
+}
+
+.client-field-tip {
+  color: var(--client-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.client-bm-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 24px;
+}
+
+.client-bm-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid #c9d8ff;
+  border-radius: 6px;
+  background: #f3f7ff;
+  color: var(--client-primary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.client-bm-empty {
+  color: var(--client-muted);
+  font-size: 12px;
+  line-height: 24px;
+}
+
+.client-opening-estimate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  min-height: 70px;
+  padding: 12px;
+  border: 1px solid #d6e4ff;
+  border-radius: 8px;
+  background: #f7faff;
+}
+
+.client-opening-estimate-title {
+  margin: 0 0 4px;
+  color: var(--client-title);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.client-opening-estimate-desc {
+  margin: 0;
+  color: var(--client-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.client-opening-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 8px;
+  color: var(--client-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.client-opening-breakdown b {
+  color: var(--client-title);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.client-opening-estimate-total {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+  text-align: right;
+}
+
+.client-opening-estimate-total span {
+  color: var(--client-muted);
+  font-size: 12px;
+}
+
+.client-opening-estimate-amount {
+  color: var(--client-primary);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.client-readonly-section {
+  display: grid;
+  gap: 12px;
+}
+
+.client-readonly-section + .client-readonly-section {
+  margin-top: 18px;
+}
+
+.client-readonly-title {
+  margin: 0;
+  color: var(--client-title);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.client-readonly-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.client-readonly-item {
+  min-height: 58px;
+  padding: 10px 12px;
+  border: 1px solid var(--client-border-soft);
+  border-radius: 8px;
+  background: #fbfcff;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+
+.client-readonly-item.full {
+  grid-column: 1 / -1;
+}
+
+.client-readonly-label {
+  color: var(--client-muted);
+}
+
+.client-readonly-value {
+  color: var(--client-text);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.client-readonly-value.emphasis {
+  color: var(--client-title);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .client-table tr:last-child td {
@@ -686,6 +873,10 @@ button {
   color: var(--client-primary);
   padding: 0;
   font-weight: 500;
+}
+
+.client-link.primary {
+  color: var(--client-primary);
 }
 
 .client-link.danger {
@@ -980,13 +1171,22 @@ body.theme-dark .client-permission-grid {
 }
 
 body.theme-dark .client-summary-item,
-body.theme-dark .client-note {
+body.theme-dark .client-note,
+body.theme-dark .client-readonly-item {
   background: #141d2f;
   border-color: var(--client-border);
 }
 
+body.theme-dark .client-opening-estimate,
+body.theme-dark .client-bm-chip {
+  background: #101b33;
+  border-color: #2d4f91;
+}
+
 body.theme-dark .client-summary-value,
-body.theme-dark .client-note-title {
+body.theme-dark .client-note-title,
+body.theme-dark .client-readonly-title,
+body.theme-dark .client-readonly-value.emphasis {
   color: var(--client-title);
 }
 

@@ -168,6 +168,7 @@
       icon: 'cog',
       items: [
         page('precharge-config', '预充配置', 'system-configuration/precharge-config.html', 'sliders-h'),
+        page('account-opening-rules', '账户规则配置', 'system-configuration/account-opening-rules.html', 'sliders-h'),
         page('system-dict', '系统字典', 'main-functions/system-config.html', 'book'),
         page('permission-audit-log', '权限审计日志', 'Log/permission-audit-log.html', 'file-alt'),
         page('client-menu', '客户端菜单', 'system-settings/client-menu.html', 'sitemap'),

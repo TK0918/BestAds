@@ -14,7 +14,7 @@
   const repoRootUrl = new URL('../../', shellUrl);
   // 运营端原型公共资源统一版本号。
   // admin-system/**/*.html 中 prototype-kit/admin-shell/* 的 ?v= 应与此值保持一致。
-  const SHELL_VERSION = '20260814-opening-rules-simple-charge';
+  const SHELL_VERSION = '20260817-opening-rules-fee-help';
   const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
   const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
   cssUrlObj.searchParams.set('v', SHELL_VERSION);

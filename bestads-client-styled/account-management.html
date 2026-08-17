@@ -125,6 +125,12 @@
       color: #facc15;
     }
 
+    body.theme-dark .quote-estimate,
+    body.theme-dark .bm-id-chip {
+      border-color: #2d4f91;
+      background: #101b33;
+    }
+
     .brand {
       width: 224px;
       height: 64px;
@@ -173,6 +179,7 @@
     }
 
     .menu-group {
+      width: 192px;
       margin-bottom: 14px;
     }
 
@@ -187,6 +194,7 @@
     }
 
     .menu-item {
+      width: 100%;
       height: 38px;
       border-radius: 8px;
       color: #4e5969;
@@ -197,6 +205,10 @@
       margin: 2px 0;
       font-size: 14px;
       text-decoration: none;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .menu-item.active {
@@ -748,6 +760,116 @@
       align-items: center;
     }
 
+    .apply-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .apply-form-grid .full {
+      grid-column: 1 / -1;
+    }
+
+    .bm-id-input-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bm-id-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 24px;
+    }
+
+    .bm-id-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid #c9d8ff;
+      border-radius: 6px;
+      background: #f3f7ff;
+      color: var(--primary);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bm-id-empty {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 24px;
+    }
+
+    .quote-estimate {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid #d6e4ff;
+      border-radius: 8px;
+      background: #f7faff;
+    }
+
+    .quote-estimate-title {
+      margin: 0 0 4px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .quote-estimate-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .quote-breakdown {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .quote-breakdown b {
+      color: var(--text);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .quote-estimate-total {
+      display: grid;
+      gap: 4px;
+      justify-items: end;
+      text-align: right;
+    }
+
+    .quote-estimate-total span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .quote-estimate-amount {
+      color: var(--primary);
+      font-size: 16px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .consent-row {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+
     .mini-table {
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -1080,52 +1202,61 @@
   <div id="applyModal" class="modal-root" role="dialog" aria-modal="true" aria-labelledby="applyTitle">
     <section class="modal">
       <header class="modal-header">
-        <h2 id="applyTitle" class="modal-title" data-i18n="apply_title">Apply for Facebook Account</h2>
+        <h2 id="applyTitle" class="modal-title" data-i18n="apply_title">Apply for Account</h2>
         <button class="close" type="button" data-close="applyModal" aria-label="Close">x</button>
       </header>
       <div class="modal-body">
-        <div class="form-block">
-          <div class="form-title" data-i18n="url_label">URL</div>
-          <div id="urlList" class="stack"></div>
-          <div class="form-tip" data-i18n="url_tip">At least 1 and at most 20 URLs</div>
-          <button id="addUrlButton" class="button" type="button" data-i18n="btn_add_url">Add URL</button>
-        </div>
-
-        <div class="form-block">
-          <div class="form-title" data-i18n="timezone_quantity">Time Zone and Quantity</div>
-          <div class="mini-table">
-            <table>
-              <thead>
-                <tr>
-                  <th data-i18n="col_timezone">Time Zone</th>
-                  <th style="width: 110px;" data-i18n="col_quantity">Quantity</th>
-                  <th style="width: 88px;" data-i18n="col_action">Action</th>
-                </tr>
-              </thead>
-              <tbody id="timezoneRows"></tbody>
-            </table>
+        <div class="apply-form-grid">
+          <label class="field full">
+            <span class="form-title" data-i18n="url_label">Delivery URL</span>
+            <input id="applyUrl" class="input" type="text" value="https://www.luminara-home.com" placeholder="Please enter delivery URL" data-i18n-placeholder="placeholder_url">
+          </label>
+          <label class="field full bm-id-input-wrap">
+            <span class="form-title" data-i18n="apply_bm_ids">BM ID</span>
+            <input id="applyBmIds" class="input" type="text" value="121212345678901, 898989765432101" placeholder="Enter multiple BM IDs separated by comma or space" data-i18n-placeholder="placeholder_bm_ids">
+            <span class="form-tip" data-i18n="apply_bm_tip">Multiple BM IDs can be separated by comma or space.</span>
+            <span id="applyBmPreview" class="bm-id-preview" aria-live="polite"></span>
+          </label>
+          <label class="field">
+            <span class="form-title" data-i18n="apply_country">Delivery Country</span>
+            <input id="applyCountry" class="input" type="text" value="United States / Canada" placeholder="Please enter delivery country" data-i18n-placeholder="placeholder_country">
+          </label>
+          <label class="field">
+            <span class="form-title" data-i18n="apply_timezone">Time Zone</span>
+            <select id="applyTimezone" class="select">
+              <option value="America/Los_Angeles">America/Los_Angeles</option>
+              <option value="America/New_York">America/New_York</option>
+              <option value="Europe/London">Europe/London</option>
+              <option value="Europe/Amsterdam">Europe/Amsterdam</option>
+              <option value="UTC">UTC</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="form-title" data-i18n="apply_daily_budget">Daily Budget</span>
+            <input id="applyDailyBudget" class="input" type="text" value="300 USD" placeholder="Please enter daily budget" data-i18n-placeholder="placeholder_daily_budget">
+          </label>
+          <label class="field">
+            <span class="form-title" data-i18n="apply_account_count">Account Count</span>
+            <input id="applyAccountCount" class="input" type="number" min="1" max="20" value="2">
+          </label>
+          <div class="quote-estimate full" aria-live="polite">
+            <div>
+              <p class="quote-estimate-title" data-i18n="apply_estimated_quote">Estimated opening cost</p>
+              <p class="quote-estimate-desc" data-i18n="apply_estimated_quote_desc">Estimated by URL, country, daily budget and account count. Final amount is subject to review.</p>
+              <div class="quote-breakdown">
+                <span><span data-i18n="apply_opening_fee_subtotal">Opening fee</span>：<b id="applyOpeningFeeSubtotal">300.00 USD</b></span>
+                <span><span data-i18n="apply_precharge_subtotal">Initial top-up</span>：<b id="applyPrechargeSubtotal">1,100.00 USD</b></span>
+              </div>
+            </div>
+            <div class="quote-estimate-total">
+              <span data-i18n="apply_quote_total">Total</span>
+              <strong id="applyEstimatedQuote" class="quote-estimate-amount">1,400.00 USD</strong>
+            </div>
           </div>
-          <div class="form-tip" data-i18n="timezone_tip">The total quantity per application cannot exceed 5</div>
-          <button id="addTimezoneButton" class="button" type="button" data-i18n="btn_add_timezone">Add Time Zone and Quantity</button>
-        </div>
-
-        <div class="form-block">
-          <label class="field">
-            <span class="form-title" data-i18n="bm_id">BM ID</span>
-            <input id="bmId" class="input" type="text" placeholder="Please enter BM ID" data-i18n-placeholder="placeholder_bm_id">
+          <label class="consent-row full">
+            <input id="applyAutoPay" type="checkbox" checked>
+            <span data-i18n="apply_auto_pay">If the final amount is the same as the initial quote, authorize automatic wallet deduction.</span>
           </label>
-        </div>
-        <div class="form-block">
-          <label class="field">
-            <span class="form-title" data-i18n="bm_name">BM Name</span>
-            <input id="bmName" class="input" type="text" placeholder="Please enter BM Name" data-i18n-placeholder="placeholder_bm_name">
-          </label>
-        </div>
-        <div class="form-block">
-          <div class="form-title" data-i18n="facebook_page">Facebook Page</div>
-          <div id="pageList" class="stack"></div>
-          <div class="form-tip" data-i18n="facebook_page_tip">Some account applications require Facebook Pages, up to 20</div>
-          <button id="addPageButton" class="button" type="button" data-i18n="btn_add_link">Add Link</button>
         </div>
       </div>
       <footer class="modal-footer">
@@ -1401,7 +1532,10 @@
         placeholder_batch_search: 'Search account ID and name',
         placeholder_bm_id: 'Please enter BM ID',
         placeholder_bm_name: 'Please enter BM Name',
+        placeholder_bm_ids: 'Enter multiple BM IDs separated by comma or space',
         placeholder_url: 'Please enter URL',
+        placeholder_country: 'Please enter delivery country',
+        placeholder_daily_budget: 'Please enter daily budget',
         placeholder_page: 'Please enter Facebook Page link',
         placeholder_timezone: 'Please select Time Zone',
         placeholder_custom_amount: 'Please enter Custom Amount',
@@ -1437,8 +1571,21 @@
         status_active: 'Active',
         status_disabled: 'Disabled',
         status_closed: 'Closed',
-        apply_title: 'Apply for Facebook Account',
-        url_label: 'URL',
+        apply_title: 'Apply for Account',
+        url_label: 'Delivery URL',
+        apply_country: 'Delivery Country',
+        apply_timezone: 'Time Zone',
+        apply_daily_budget: 'Daily Budget',
+        apply_account_count: 'Account Count',
+        apply_estimated_quote: 'Estimated opening cost',
+        apply_estimated_quote_desc: 'Estimated by URL, country, daily budget and account count. Final amount is subject to review.',
+        apply_bm_ids: 'BM ID',
+        apply_bm_tip: 'Multiple BM IDs can be separated by comma or space.',
+        apply_bm_empty: 'No BM ID parsed yet',
+        apply_opening_fee_subtotal: 'Opening fee',
+        apply_precharge_subtotal: 'Initial top-up',
+        apply_quote_total: 'Total',
+        apply_auto_pay: 'If the final amount is the same as the initial quote, authorize automatic wallet deduction.',
         url_tip: 'At least 1 and at most 20 URLs',
         btn_add_url: 'Add URL',
         timezone_quantity: 'Time Zone and Quantity',
@@ -1485,9 +1632,11 @@
         toast_recharge_done: 'Batch recharge request submitted',
         toast_deduct_done: 'Batch deduction request submitted',
         toast_clear_done: 'Batch clear request submitted',
-        toast_url_required: 'Please enter at least one URL',
-        toast_quantity_limit: 'The total quantity per application cannot exceed 5',
-        toast_apply_done: 'Account application submitted',
+        toast_url_required: 'Please enter delivery URL',
+        toast_country_required: 'Please enter delivery country',
+        toast_budget_required: 'Please enter daily budget',
+        toast_quantity_limit: 'Account count must be between 1 and 20',
+        toast_apply_done: 'Account opening request submitted. Initial quote is generated and can be viewed in Operation Records.',
         toast_url_limit: 'At most 20 URLs',
         toast_page_limit: 'At most 20 Facebook Pages'
       },
@@ -1518,7 +1667,10 @@
         placeholder_batch_search: '搜索账户 ID 和名称',
         placeholder_bm_id: '请输入 BM ID',
         placeholder_bm_name: '请输入 BM 名称',
+        placeholder_bm_ids: '请输入 BM ID，多个可用逗号或空格分隔',
         placeholder_url: '请输入 URL',
+        placeholder_country: '请输入投放国家',
+        placeholder_daily_budget: '请输入日预算',
         placeholder_page: '请输入 Facebook Page 链接',
         placeholder_timezone: '请选择时区',
         placeholder_custom_amount: '请输入自定义金额',
@@ -1554,8 +1706,21 @@
         status_active: '活跃',
         status_disabled: '已禁用',
         status_closed: '已关闭',
-        apply_title: '申请 Facebook 账户',
-        url_label: 'URL',
+        apply_title: '申请开户',
+        url_label: '投放 URL',
+        apply_country: '投放国家',
+        apply_timezone: '时区',
+        apply_daily_budget: '日预算',
+        apply_account_count: '账户数',
+        apply_estimated_quote: '预估开户费用',
+        apply_estimated_quote_desc: '系统根据 URL、投放国家、日预算和账户数预估。最终金额以运营审核结果为准。',
+        apply_bm_ids: 'BM ID',
+        apply_bm_tip: '支持输入多个 BM ID，可用逗号或空格分隔。',
+        apply_bm_empty: '暂未识别到 BM ID',
+        apply_opening_fee_subtotal: '开户费',
+        apply_precharge_subtotal: '首充',
+        apply_quote_total: '合计',
+        apply_auto_pay: '若最终金额与初始报价一致，同意系统直接从钱包扣款。',
         url_tip: '至少 1 个，最多 20 个 URL',
         btn_add_url: '添加 URL',
         timezone_quantity: '时区和数量',
@@ -1602,9 +1767,11 @@
         toast_recharge_done: '批量充值申请已提交',
         toast_deduct_done: '批量减款申请已提交',
         toast_clear_done: '批量清零申请已提交',
-        toast_url_required: '请至少输入一个 URL',
-        toast_quantity_limit: '单次申请总数量不能超过 5',
-        toast_apply_done: '开户申请已提交',
+        toast_url_required: '请输入投放 URL',
+        toast_country_required: '请输入投放国家',
+        toast_budget_required: '请输入日预算',
+        toast_quantity_limit: '账户数需在 1 到 20 之间',
+        toast_apply_done: '开户申请已提交，系统已生成初始报价，可在操作记录查看。',
         toast_url_limit: '最多 20 个 URL',
         toast_page_limit: '最多 20 个 Facebook Page'
       }
@@ -1726,6 +1893,64 @@
       return text;
     }
 
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function numberFromText(value) {
+      const amount = Number(String(value || '').replace(/,/g, '').replace(/[^\d.-]/g, ''));
+      return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function estimateOpeningQuote(dailyBudget, accountCount) {
+      return estimateOpeningQuoteBreakdown(dailyBudget, accountCount).total;
+    }
+
+    function estimateOpeningQuoteBreakdown(dailyBudget, accountCount) {
+      const budget = numberFromText(dailyBudget);
+      const count = Math.min(20, Math.max(1, Number(accountCount) || 1));
+      const prechargePerAccount = Math.max(550, Math.ceil(budget * 1.5 / 50) * 50);
+      const openingFee = 150 * count;
+      const precharge = prechargePerAccount * count;
+      return { openingFee, precharge, total: openingFee + precharge };
+    }
+
+    function formatQuoteAmount(amount) {
+      return `${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+    }
+
+    function updateApplyEstimate() {
+      const target = document.getElementById('applyEstimatedQuote');
+      if (!target) return;
+      const dailyBudget = document.getElementById('applyDailyBudget')?.value || '300 USD';
+      const accountCount = document.getElementById('applyAccountCount')?.value || '1';
+      const breakdown = estimateOpeningQuoteBreakdown(dailyBudget, accountCount);
+      target.textContent = formatQuoteAmount(breakdown.total);
+      const openingFeeTarget = document.getElementById('applyOpeningFeeSubtotal');
+      const prechargeTarget = document.getElementById('applyPrechargeSubtotal');
+      if (openingFeeTarget) openingFeeTarget.textContent = formatQuoteAmount(breakdown.openingFee);
+      if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(breakdown.precharge);
+    }
+
+    function parseBmIds(value) {
+      return Array.from(new Set(String(value || '').split(/[\s,，]+/).map(item => item.trim()).filter(Boolean)));
+    }
+
+    function updateApplyBmPreview() {
+      const preview = document.getElementById('applyBmPreview');
+      if (!preview) return;
+      const bmIds = parseBmIds(document.getElementById('applyBmIds')?.value || '');
+      preview.innerHTML = bmIds.length
+        ? bmIds.map(id => `<span class="bm-id-chip">${escapeHtml(id)}</span>`).join('')
+        : `<span class="bm-id-empty">${escapeHtml(t('apply_bm_empty'))}</span>`;
+    }
+
     function applyI18n() {
       document.documentElement.lang = currentLanguage === 'zh-CN' ? 'zh-CN' : 'en';
       document.title = `${t('page_title')} - BestAds`;
@@ -1746,6 +1971,8 @@
       window.BESTADS_CLIENT_SHELL?.renderLegacyMenu?.('account-management');
       applyTheme(localStorage.getItem(THEME_KEY) || 'light');
       renderAccounts();
+      updateApplyEstimate();
+      updateApplyBmPreview();
       ['recharge', 'deduct', 'clear'].forEach(mode => {
         if (document.getElementById(`${mode}Modal`).classList.contains('open')) {
           updateBatchSummary(mode);
@@ -2081,16 +2308,33 @@
     }
 
     function submitApply() {
-      const urls = Array.from(document.querySelectorAll('#urlList input')).map(input => input.value.trim()).filter(Boolean);
-      const totalQuantity = Array.from(document.querySelectorAll('#timezoneRows .quantity-input')).reduce((sum, input) => sum + (Number(input.value) || 0), 0);
-      if (!urls.length) {
+      const url = document.getElementById('applyUrl')?.value.trim();
+      const country = document.getElementById('applyCountry')?.value.trim();
+      const timezone = document.getElementById('applyTimezone')?.value.trim();
+      const dailyBudget = document.getElementById('applyDailyBudget')?.value.trim();
+      const accountCount = Number(document.getElementById('applyAccountCount')?.value) || 0;
+      if (!url) {
         showToast(t('toast_url_required'), 'warning');
         return;
       }
-      if (totalQuantity < 1 || totalQuantity > 5) {
+      if (!country) {
+        showToast(t('toast_country_required'), 'warning');
+        return;
+      }
+      if (!timezone) {
+        showToast(t('placeholder_timezone'), 'warning');
+        return;
+      }
+      if (!dailyBudget) {
+        showToast(t('toast_budget_required'), 'warning');
+        return;
+      }
+      if (accountCount < 1 || accountCount > 20) {
         showToast(t('toast_quantity_limit'), 'warning');
         return;
       }
+      updateApplyEstimate();
+      updateApplyBmPreview();
       showToast(t('toast_apply_done'), 'success');
       closeModal('applyModal');
     }
@@ -2163,6 +2407,14 @@
       button.addEventListener('click', () => applyQuickAmount(button.dataset.applyQuick));
     });
 
+    ['applyDailyBudget', 'applyAccountCount'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', updateApplyEstimate);
+      document.getElementById(id)?.addEventListener('change', updateApplyEstimate);
+    });
+
+    document.getElementById('applyBmIds')?.addEventListener('input', updateApplyBmPreview);
+    document.getElementById('applyBmIds')?.addEventListener('change', updateApplyBmPreview);
+
     document.querySelectorAll('[data-confirm-batch]').forEach(button => {
       button.addEventListener('click', () => confirmBatch(button.dataset.confirmBatch));
     });
@@ -2175,7 +2427,7 @@
       input.addEventListener('input', () => renderBatchRows(input.dataset.batchSearch));
     });
 
-    document.getElementById('addUrlButton').addEventListener('click', () => {
+    document.getElementById('addUrlButton')?.addEventListener('click', () => {
       if (document.querySelectorAll('#urlList .inline-row').length >= 20) {
         showToast(t('toast_url_limit'), 'warning');
         return;
@@ -2183,7 +2435,7 @@
       createTextRow('urlList', t('placeholder_url'));
     });
 
-    document.getElementById('addPageButton').addEventListener('click', () => {
+    document.getElementById('addPageButton')?.addEventListener('click', () => {
       if (document.querySelectorAll('#pageList .inline-row').length >= 20) {
         showToast(t('toast_page_limit'), 'warning');
         return;
@@ -2191,15 +2443,15 @@
       createTextRow('pageList', t('placeholder_page'));
     });
 
-    document.getElementById('addTimezoneButton').addEventListener('click', () => createTimezoneRow());
+    document.getElementById('addTimezoneButton')?.addEventListener('click', () => createTimezoneRow());
     document.getElementById('submitApply').addEventListener('click', submitApply);
 
     applyI18n();
-    createTextRow('urlList', t('placeholder_url'), false);
-    createTimezoneRow(false);
-    createTextRow('pageList', t('placeholder_page'), false);
+    if (document.getElementById('urlList')) createTextRow('urlList', t('placeholder_url'), false);
+    if (document.getElementById('timezoneRows')) createTimezoneRow(false);
+    if (document.getElementById('pageList')) createTextRow('pageList', t('placeholder_page'), false);
   </script>
-  <script src="./js/client-shell.js?v=20260812-client-shell"></script>
+  <script src="./js/client-shell.js?v=20260817-opening-automation"></script>
   <script src="./js/common.js?v=20260811-email-settings-simple-v3"></script>
 </body>
 </html>
