@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bestads Contact Us - WhatsApp Country Code Prototype</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #656b76;
+      --line: #e6e6e6;
+      --soft-line: #f0f1f3;
+      --surface: #ffffff;
+      --surface-soft: #f7f9fb;
+      --accent: #18a574;
+      --accent-dark: #087152;
+      --focus: rgba(24, 165, 116, 0.18);
+      --shadow: 0 18px 44px rgba(20, 31, 45, 0.12);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(247, 249, 251, 0.92) 0%, rgba(255, 255, 255, 0) 42%),
+        var(--surface);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .contact-page {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 72px 0 88px;
+    }
+
+    .contact-kicker {
+      margin: 0 0 12px;
+      color: var(--accent-dark);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .contact-heading {
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(38px, 5vw, 72px);
+      line-height: 1.02;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .contact-intro {
+      max-width: 640px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.65;
+    }
+
+    .contact-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 76px;
+      align-items: start;
+      margin-top: 72px;
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 18px;
+      max-width: 620px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: #25282d;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--surface);
+      color: #000000;
+      font-size: 17px;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .field input {
+      height: 46px;
+      padding: 0 16px;
+    }
+
+    .field textarea {
+      min-height: 150px;
+      resize: vertical;
+      padding: 14px 16px;
+      line-height: 1.5;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .country-trigger:focus-visible,
+    .country-search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--focus);
+    }
+
+    .whatsapp-control {
+      position: relative;
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .country-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      height: 46px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-right: 0;
+      border-radius: 4px 0 0 4px;
+      background: var(--surface-soft);
+      color: var(--ink);
+      padding: 0 12px;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+    }
+
+    .country-trigger:hover {
+      background: #f0f7f4;
+    }
+
+    .country-trigger.is-selected {
+      background: #eefbf6;
+    }
+
+    .country-trigger-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .country-flag {
+      width: 24px;
+      flex: 0 0 auto;
+      font-size: 20px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .country-placeholder {
+      overflow: hidden;
+      color: #8a9099;
+      font-size: 15px;
+      text-overflow: ellipsis;
+    }
+
+    .country-code {
+      flex: 0 0 auto;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .country-name {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 13px;
+      text-overflow: ellipsis;
+    }
+
+    .country-arrow {
+      flex: 0 0 auto;
+      color: #6f7680;
+      font-size: 12px;
+      transition: transform 0.16s ease;
+    }
+
+    .country-trigger[aria-expanded="true"] .country-arrow {
+      transform: rotate(180deg);
+    }
+
+    .whatsapp-control > input {
+      border-radius: 0 4px 4px 0;
+    }
+
+    .country-popover {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 8px);
+      left: 0;
+      width: min(430px, 100%);
+      border: 1px solid #dde4ea;
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .country-popover[hidden] {
+      display: none;
+    }
+
+    .country-search {
+      padding: 12px;
+      border-bottom: 1px solid var(--soft-line);
+      background: #fbfcfd;
+    }
+
+    .country-search input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      outline: none;
+      padding: 0 12px;
+      font-size: 15px;
+    }
+
+    .country-list {
+      max-height: 278px;
+      overflow-y: auto;
+      padding: 6px;
+    }
+
+    .country-option {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-height: 42px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--ink);
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .country-option:hover,
+    .country-option.is-active {
+      background: #eefbf6;
+    }
+
+    .country-option .country-flag {
+      width: 28px;
+    }
+
+    .country-option-name {
+      min-width: 0;
+      overflow: hidden;
+      font-size: 15px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .country-option-code {
+      color: var(--accent-dark);
+      font-size: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .country-empty {
+      padding: 18px 16px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .country-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--soft-line);
+      padding: 10px 12px;
+      background: #fbfcfd;
+    }
+
+    .country-current {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .clear-code {
+      border: 0;
+      background: transparent;
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 0;
+    }
+
+    .agreement {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+      color: #343840;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .agreement input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+    }
+
+    .send-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 46px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 800;
+      transition: background-color 0.16s ease, transform 0.16s ease;
+    }
+
+    .send-button:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .contact-aside {
+      display: grid;
+      gap: 24px;
+      padding-top: 38px;
+    }
+
+    .contact-photo {
+      min-height: 230px;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(8, 113, 82, 0.9), rgba(24, 165, 116, 0.55)),
+        url("data:image/svg+xml,%3Csvg width='720' height='460' viewBox='0 0 720 460' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='720' height='460' fill='%23e9f3f1'/%3E%3Cpath d='M0 342c78-26 145-19 203 19 77 51 140 48 223-10 74-52 154-65 294-36v145H0V342Z' fill='%23c7e3db'/%3E%3Crect x='84' y='80' width='220' height='154' rx='16' fill='%23ffffff' fill-opacity='.86'/%3E%3Crect x='108' y='112' width='125' height='14' rx='7' fill='%2318a574' fill-opacity='.8'/%3E%3Crect x='108' y='148' width='168' height='10' rx='5' fill='%238fb2a8'/%3E%3Crect x='108' y='174' width='142' height='10' rx='5' fill='%238fb2a8'/%3E%3Ccircle cx='548' cy='144' r='58' fill='%23ffffff' fill-opacity='.82'/%3E%3Cpath d='M522 143l19 19 36-43' stroke='%2318a574' stroke-width='12' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Crect x='404' y='254' width='198' height='76' rx='14' fill='%23ffffff' fill-opacity='.86'/%3E%3Crect x='430' y='281' width='98' height='12' rx='6' fill='%2318a574' fill-opacity='.8'/%3E%3Crect x='430' y='307' width='132' height='9' rx='4.5' fill='%238fb2a8'/%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .aside-block {
+      display: grid;
+      gap: 10px;
+      border-left: 3px solid var(--accent);
+      padding-left: 18px;
+    }
+
+    .aside-title {
+      margin: 0;
+      color: #1f2328;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .aside-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .contact-points {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .contact-points li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: #343840;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .point-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e8f8f2;
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 920px) {
+      .contact-page {
+        width: min(100% - 28px, 680px);
+        padding: 44px 0 64px;
+      }
+
+      .contact-shell {
+        grid-template-columns: 1fr;
+        gap: 38px;
+        margin-top: 44px;
+      }
+
+      .contact-aside {
+        padding-top: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .whatsapp-control {
+        grid-template-columns: 1fr;
+      }
+
+      .country-trigger {
+        border-right: 1px solid var(--line);
+        border-radius: 4px 4px 0 0;
+      }
+
+      .whatsapp-control > input {
+        border-top: 0;
+        border-radius: 0 0 4px 4px;
+      }
+
+      .country-popover {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="contact-page">
+    <p class="contact-kicker">Unlock your solution</p>
+    <h1 class="contact-heading">Contact our experts</h1>
+    <p class="contact-intro">Tell us what you need for global advertising growth. The team will review your information and get back to you within 24 hours.</p>
+
+    <section class="contact-shell" aria-label="Contact us form">
+      <form class="contact-form">
+        <div class="form-row">
+          <div class="field">
+            <label for="contact-firstName">Your Name</label>
+            <input id="contact-firstName" type="text" autocomplete="given-name">
+          </div>
+
+          <div class="field">
+            <label for="contact-lastName">Last Name</label>
+            <input id="contact-lastName" type="text" autocomplete="family-name">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="contact-email">Email</label>
+          <input id="contact-email" type="email" autocomplete="email">
+        </div>
+
+        <div class="field">
+          <label for="contact-whatsapp">WhatsApp</label>
+          <div class="whatsapp-control" data-country-select>
+            <button class="country-trigger" id="country-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="country-popover">
+              <span class="country-trigger-content" data-selected-country>
+                <span class="country-placeholder">Select code</span>
+              </span>
+              <span class="country-arrow" aria-hidden="true">⌄</span>
+            </button>
+            <input id="contact-whatsapp" type="tel" inputmode="tel" autocomplete="tel-national" name="whatsappNumber" placeholder="WhatsApp number">
+            <input id="contact-country-code" type="hidden" name="whatsappCountryCode" value="">
+            <input id="contact-country-iso" type="hidden" name="whatsappCountryIso" value="">
+            <input id="contact-country-name" type="hidden" name="whatsappCountryName" value="">
+
+            <div class="country-popover" id="country-popover" hidden>
+              <div class="country-search">
+                <label class="sr-only" for="country-search">Search country code</label>
+                <input id="country-search" type="search" placeholder="Search country / region or code" autocomplete="off">
+              </div>
+              <div class="country-list" id="country-list" role="listbox" aria-label="WhatsApp country code"></div>
+              <div class="country-footer">
+                <span class="country-current" id="country-current">No code selected</span>
+                <button class="clear-code" type="button" id="clear-code">Clear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="contact-productLink">Product Link</label>
+          <input id="contact-productLink" type="url" placeholder="website/aliexpress/1688">
+        </div>
+
+        <div class="field">
+          <label for="contact-userMessage">Your Message</label>
+          <textarea id="contact-userMessage" placeholder="Please submit your requirements. My team and I will contact you within 24 hours."></textarea>
+        </div>
+
+        <label class="agreement">
+          <input type="checkbox">
+          <span>You Agree To Our Friendly Privacy Policy</span>
+        </label>
+
+        <button class="send-button" type="submit">Send message <span aria-hidden="true">→</span></button>
+      </form>
+
+      <aside class="contact-aside" aria-label="Bestads contact support">
+        <div class="contact-photo" role="img" aria-label="Advertising consultation workspace"></div>
+        <div class="aside-block">
+          <h2 class="aside-title">Fast routing by region</h2>
+          <p class="aside-copy">Choosing a WhatsApp country code helps the contact team identify the right regional owner before the first reply.</p>
+        </div>
+        <ul class="contact-points">
+          <li><span class="point-mark">1</span><span>Country code starts empty, so users make an explicit choice when WhatsApp is provided.</span></li>
+          <li><span class="point-mark">2</span><span>Search supports country name, region keywords, ISO code, and dialing code.</span></li>
+          <li><span class="point-mark">3</span><span>Only one code can be selected; selecting another code replaces the previous one.</span></li>
+        </ul>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const COUNTRY_DATA_URLS = [
+      "https://cdn.jsdelivr.net/npm/countries-list@3.1.1/countries.min.json",
+      "https://unpkg.com/countries-list@3.1.1/countries.min.json"
+    ];
+    const PRIORITY_ISO = ["US", "CA", "GB", "HK", "CN", "TW", "SG", "MY", "TH", "VN", "PH", "ID", "IN", "AE", "SA", "AU", "JP", "KR", "DE", "FR", "ES", "IT", "NL", "BR", "MX", "ZA"];
+    const FALLBACK_COUNTRIES = [
+      { flag: "🇺🇸", name: "United States", iso: "US", code: "+1", keywords: "america usa" },
+      { flag: "🇨🇦", name: "Canada", iso: "CA", code: "+1", keywords: "canada" },
+      { flag: "🇬🇧", name: "United Kingdom", iso: "GB", code: "+44", keywords: "uk britain england" },
+      { flag: "🇭🇰", name: "Hong Kong", iso: "HK", code: "+852", keywords: "hongkong hk" },
+      { flag: "🇨🇳", name: "China", iso: "CN", code: "+86", keywords: "mainland china prc" },
+      { flag: "🇹🇼", name: "Taiwan", iso: "TW", code: "+886", keywords: "taiwan" },
+      { flag: "🇸🇬", name: "Singapore", iso: "SG", code: "+65", keywords: "singapore" },
+      { flag: "🇲🇾", name: "Malaysia", iso: "MY", code: "+60", keywords: "malaysia" },
+      { flag: "🇹🇭", name: "Thailand", iso: "TH", code: "+66", keywords: "thai thailand" },
+      { flag: "🇻🇳", name: "Vietnam", iso: "VN", code: "+84", keywords: "viet nam vietnam" },
+      { flag: "🇵🇭", name: "Philippines", iso: "PH", code: "+63", keywords: "philippines" },
+      { flag: "🇮🇩", name: "Indonesia", iso: "ID", code: "+62", keywords: "indonesia" },
+      { flag: "🇮🇳", name: "India", iso: "IN", code: "+91", keywords: "india" },
+      { flag: "🇦🇪", name: "United Arab Emirates", iso: "AE", code: "+971", keywords: "uae dubai emirates" },
+      { flag: "🇸🇦", name: "Saudi Arabia", iso: "SA", code: "+966", keywords: "saudi" },
+      { flag: "🇦🇺", name: "Australia", iso: "AU", code: "+61", keywords: "australia" },
+      { flag: "🇯🇵", name: "Japan", iso: "JP", code: "+81", keywords: "japan" },
+      { flag: "🇰🇷", name: "South Korea", iso: "KR", code: "+82", keywords: "korea south korea" },
+      { flag: "🇩🇪", name: "Germany", iso: "DE", code: "+49", keywords: "germany deutschland" },
+      { flag: "🇫🇷", name: "France", iso: "FR", code: "+33", keywords: "france" },
+      { flag: "🇪🇸", name: "Spain", iso: "ES", code: "+34", keywords: "spain" },
+      { flag: "🇮🇹", name: "Italy", iso: "IT", code: "+39", keywords: "italy" },
+      { flag: "🇳🇱", name: "Netherlands", iso: "NL", code: "+31", keywords: "netherlands holland" },
+      { flag: "🇧🇷", name: "Brazil", iso: "BR", code: "+55", keywords: "brazil" },
+      { flag: "🇲🇽", name: "Mexico", iso: "MX", code: "+52", keywords: "mexico" },
+      { flag: "🇿🇦", name: "South Africa", iso: "ZA", code: "+27", keywords: "south africa" }
+    ];
+    let countries = FALLBACK_COUNTRIES;
+
+    const root = document.querySelector("[data-country-select]");
+    const trigger = document.getElementById("country-trigger");
+    const popover = document.getElementById("country-popover");
+    const search = document.getElementById("country-search");
+    const list = document.getElementById("country-list");
+    const selectedTarget = root.querySelector("[data-selected-country]");
+    const hiddenCode = document.getElementById("contact-country-code");
+    const hiddenIso = document.getElementById("contact-country-iso");
+    const hiddenName = document.getElementById("contact-country-name");
+    const current = document.getElementById("country-current");
+    const clearButton = document.getElementById("clear-code");
+    let selectedCountry = null;
+
+    function emojiFlag(iso) {
+      return String(iso || "")
+        .toUpperCase()
+        .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
+    }
+
+    function toDialCode(iso, phones) {
+      const values = Array.isArray(phones) ? phones : [phones];
+      if (iso === "XK" && values.includes(383)) return "+383";
+      const first = values.find((item) => item != null);
+      if (first == null) return "";
+      const raw = String(first);
+      if (raw.length >= 4 && raw.startsWith("1")) return "+1";
+      return `+${raw}`;
+    }
+
+    function mapCountryData(data) {
+      return Object.entries(data)
+        .map(([iso, item]) => {
+          const code = toDialCode(iso, item && item.phone);
+          if (!code) return null;
+          return {
+            flag: emojiFlag(iso),
+            name: item.name,
+            iso,
+            code,
+            keywords: [item.native, item.capital, iso].filter(Boolean).join(" ")
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+          const ai = PRIORITY_ISO.indexOf(a.iso);
+          const bi = PRIORITY_ISO.indexOf(b.iso);
+          if (ai !== -1 || bi !== -1) {
+            if (ai === -1) return 1;
+            if (bi === -1) return -1;
+            return ai - bi;
+          }
+          return a.name.localeCompare(b.name);
+        });
+    }
+
+    async function fetchCountryJson(url) {
+      const response = await fetch(url, { cache: "force-cache" });
+      if (!response.ok) throw new Error(`country data ${response.status}`);
+      return response.json();
+    }
+
+    async function loadCountries() {
+      for (const url of COUNTRY_DATA_URLS) {
+        try {
+          const data = await fetchCountryJson(url);
+          const mapped = mapCountryData(data);
+          if (mapped.length) return mapped;
+        } catch (error) {
+          console.warn("Country code source unavailable:", url, error);
+        }
+      }
+      return FALLBACK_COUNTRIES;
+    }
+
+    function normalize(value) {
+      return value.toLowerCase().replace(/[^a-z0-9+]+/g, "");
+    }
+
+    function fuzzyMatch(source, query) {
+      if (!query) return true;
+      const cleanSource = normalize(source);
+      const cleanQuery = normalize(query);
+      if (cleanSource.includes(cleanQuery)) return true;
+
+      let index = 0;
+      for (const char of cleanSource) {
+        if (char === cleanQuery[index]) index += 1;
+        if (index === cleanQuery.length) return true;
+      }
+      return false;
+    }
+
+    function countryText(country) {
+      return `${country.name} ${country.iso} ${country.code} ${country.keywords}`;
+    }
+
+    function renderSelected() {
+      if (!selectedCountry) {
+        trigger.classList.remove("is-selected");
+        selectedTarget.innerHTML = '<span class="country-placeholder">Select code</span>';
+        hiddenCode.value = "";
+        hiddenIso.value = "";
+        hiddenName.value = "";
+        current.textContent = "No code selected";
+        return;
+      }
+
+      trigger.classList.add("is-selected");
+      selectedTarget.innerHTML = `
+        <span class="country-flag" aria-hidden="true">${selectedCountry.flag}</span>
+        <span class="country-code">${selectedCountry.code}</span>
+        <span class="country-name">${selectedCountry.iso}</span>
+      `;
+      hiddenCode.value = selectedCountry.code;
+      hiddenIso.value = selectedCountry.iso;
+      hiddenName.value = selectedCountry.name;
+      current.textContent = `${selectedCountry.flag} ${selectedCountry.name} ${selectedCountry.code}`;
+    }
+
+    function renderList() {
+      const query = search.value.trim();
+      const matched = countries.filter((country) => fuzzyMatch(countryText(country), query));
+      list.innerHTML = "";
+
+      if (!matched.length) {
+        const empty = document.createElement("div");
+        empty.className = "country-empty";
+        empty.textContent = "No matching country code";
+        list.appendChild(empty);
+        return;
+      }
+
+      matched.forEach((country) => {
+        const option = document.createElement("button");
+        const isSelected = selectedCountry && selectedCountry.iso === country.iso;
+        option.type = "button";
+        option.className = `country-option${isSelected ? " is-active" : ""}`;
+        option.setAttribute("role", "option");
+        option.setAttribute("aria-selected", isSelected ? "true" : "false");
+        option.innerHTML = `
+          <span class="country-flag" aria-hidden="true">${country.flag}</span>
+          <span class="country-option-name">${country.name}</span>
+          <span class="country-option-code">${country.code}</span>
+        `;
+        option.addEventListener("click", () => {
+          selectedCountry = country;
+          renderSelected();
+          closePopover();
+        });
+        list.appendChild(option);
+      });
+    }
+
+    function openPopover() {
+      popover.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      renderList();
+      requestAnimationFrame(() => search.focus());
+    }
+
+    function closePopover() {
+      popover.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      search.value = "";
+      renderList();
+      trigger.focus();
+    }
+
+    trigger.addEventListener("click", () => {
+      if (popover.hidden) {
+        openPopover();
+      } else {
+        closePopover();
+      }
+    });
+
+    search.addEventListener("input", renderList);
+
+    search.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closePopover();
+      }
+      if (event.key === "Enter") {
+        const firstOption = list.querySelector(".country-option");
+        if (firstOption) {
+          event.preventDefault();
+          firstOption.click();
+        }
+      }
+    });
+
+    clearButton.addEventListener("click", () => {
+      selectedCountry = null;
+      renderSelected();
+      renderList();
+      search.focus();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!root.contains(event.target) && !popover.hidden) {
+        closePopover();
+      }
+    });
+
+    renderSelected();
+    renderList();
+    loadCountries().then((loaded) => {
+      countries = loaded;
+      renderList();
+    });
+  </script>
+</body>
+</html>
