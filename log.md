@@ -1,3 +1,10 @@
+#### 2026-08-18 - V2.41 账户余额通知：去掉提醒邮件模板页「场景模板状态」
+
+每场景只维护一份当前启用稿后，场景卡片与模板列表重复，去掉该看板。
+
+- 更新：`admin-system/email-notifications/email-notifications.js`、`templates.html`、`send-logs.html`、`usage.html`（脚本版本 `20260818-v241-no-scene-status`）
+- 更新：`PRD/V 2.41 账户余额通知.md` 至 v0.6；7.1.4 写 `略`
+
 #### 2026-08-18 - V2.42 开户自动化：原型入库并推送 GitHub Pages
 
 将 V2.42 开户自动化相关原型、PRD v0.4 和运营端 kit 版本戳提交到 `main`，供公网 Pages 刷新。

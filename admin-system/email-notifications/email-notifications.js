@@ -13,9 +13,9 @@
     .replace(/'/g, '&#39;');
 
   const scenarios = [
-    { key: 'account_runway', name: '续航不足', category: '风险提醒', color: '#2f6bff' },
-    { key: 'wallet_shortfall_event', name: '钱包不足·事件', category: '风险提醒', color: '#16a34a' },
-    { key: 'wallet_shortfall_predict', name: '钱包不足·预测', category: '风险提醒', color: '#f59e0b' },
+    { key: 'account_runway', name: '续航不足', category: '续航不足', color: '#2f6bff' },
+    { key: 'wallet_shortfall_event', name: '钱包不足·事件', category: '钱包不足·事件', color: '#16a34a' },
+    { key: 'wallet_shortfall_predict', name: '钱包不足·预测', category: '钱包不足·预测', color: '#f59e0b' },
     { key: 'auto_recharge_fail', name: '自动充失败', category: '自动充失败', color: '#ef4444' },
     { key: 'account_recharge_fail', name: '账户充失败', category: '账户充失败', color: '#8b5cf6' },
     { key: 'wallet_credited', name: '钱包到账', category: '钱包到账', color: '#06b6d4' }
@@ -232,13 +232,12 @@
   };
 
   const templates = [
-    templateRow('TPL-ADS-001', 'account_runway', '启用', '是', 'v4', '已发布', '欧伟权', '2026-08-13 10:12:08'),
-    templateRow('TPL-ADS-002', 'wallet_shortfall_event', '启用', '是', 'v2', '已发布', '汤秀梅', '2026-08-13 09:42:33'),
-    templateRow('TPL-ADS-003', 'wallet_shortfall_predict', '启用', '是', 'v3', '草稿', '李志伟', '2026-08-12 18:26:41'),
-    templateRow('TPL-ADS-004', 'auto_recharge_fail', '启用', '是', 'v2', '已发布', '欧伟权', '2026-08-12 15:08:49'),
-    templateRow('TPL-ADS-005', 'account_recharge_fail', '启用', '是', 'v2', '已发布', '王荣荣', '2026-08-12 14:53:20'),
-    templateRow('TPL-ADS-006', 'wallet_credited', '停用', '否', 'v1', '历史版本', '程允良', '2026-08-09 17:01:10'),
-    templateRow('TPL-ADS-007', 'wallet_credited', '启用', '是', 'v3', '已发布', '程允良', '2026-08-13 11:18:32')
+    templateRow('TPL-ADS-001', 'account_runway', '启用', '是', '已发布', '欧伟权', '2026-08-13 10:12:08'),
+    templateRow('TPL-ADS-002', 'wallet_shortfall_event', '启用', '是', '已发布', '汤秀梅', '2026-08-13 09:42:33'),
+    templateRow('TPL-ADS-003', 'wallet_shortfall_predict', '启用', '是', '草稿', '李志伟', '2026-08-12 18:26:41'),
+    templateRow('TPL-ADS-004', 'auto_recharge_fail', '启用', '是', '已发布', '欧伟权', '2026-08-12 15:08:49'),
+    templateRow('TPL-ADS-005', 'account_recharge_fail', '启用', '是', '已发布', '王荣荣', '2026-08-12 14:53:20'),
+    templateRow('TPL-ADS-006', 'wallet_credited', '启用', '是', '已发布', '程允良', '2026-08-13 11:18:32')
   ];
 
   const templateVariables = [
@@ -402,7 +401,7 @@
   const templatePreviewTables = {
     account_runway: {
       headers: ['Ad account', 'Current balance', 'Estimated days left'],
-      rows: [['FB-8921 | Zephyr-US-Main', '$126.40', '2.7 days'], ['FB-9016 | Zephyr-CA-Scale', '$84.12', '1.9 days']]
+      rows: [['FB-8921 | Zephyr-US-Main', '$126.40', '2.7 days'], ['AL-2201 | Zephyr-AL-iOS', '$519.00', '3.1 days']]
     },
     wallet_shortfall_event: {
       headers: ['Recharge request', 'Required amount', 'Wallet balance', 'Shortfall'],
@@ -429,12 +428,12 @@
   let activeTemplateField = null;
 
   const logs = [
-    { time: '2026-08-11 10:58:31', scene: '续航不足', merchant: '14229', customer: 'Zephyr Commerce', recipient: 'm***@zephyr.com', status: '受理成功', reason: '-', messageId: 'M01-20260811105831-882101', template: 'TPL-ADS-001', attribution: '72h 已充值', operator: 'system' },
-    { time: '2026-08-11 10:47:09', scene: '钱包不足·事件', merchant: '13185', customer: 'Umair-Simos', recipient: 'f***@umair.co', status: '受理成功', reason: '-', messageId: 'M01-20260811104709-110912', template: 'TPL-ADS-002', attribution: '待观察', operator: 'system' },
-    { time: '2026-08-11 10:35:18', scene: '钱包到账', merchant: '1128', customer: 'adstest', recipient: 'a***@test.com', status: '受理失败', reason: 'Sender domain daily limit', messageId: '-', template: 'TPL-ADS-007', attribution: '-', operator: 'system' },
-    { time: '2026-08-11 09:21:46', scene: '账户充失败', merchant: '14606', customer: 'BestAds接口测试', recipient: 'b***@merchant.com', status: '已抑制', reason: '无可用通知邮箱', messageId: '-', template: 'TPL-ADS-005', attribution: '-', operator: 'system' },
-    { time: '2026-08-10 22:12:07', scene: '自动充失败', merchant: '13249', customer: '产品验收0112', recipient: 'p***@shop.com', status: '受理成功', reason: '-', messageId: 'M01-20260810221207-770923', template: 'TPL-ADS-004', attribution: '未转化', operator: 'system' },
-    { time: '2026-08-10 18:02:54', scene: '钱包不足·预测', merchant: '12816', customer: 'Tobias', recipient: 't***@brand.com', status: '已抑制', reason: '风险提醒已关闭', messageId: '-', template: 'TPL-ADS-003', attribution: '-', operator: 'system' }
+    { time: '2026-08-11 10:58:31', scene: '续航不足', merchant: '14229', customer: 'Zephyr Commerce', recipient: 'm***@zephyr.com', status: '受理成功', reason: '-', messageId: 'M01-20260811105831-882101', template: 'TPL-ADS-001', operator: 'system' },
+    { time: '2026-08-11 10:47:09', scene: '钱包不足·事件', merchant: '13185', customer: 'Umair-Simos', recipient: 'f***@umair.co', status: '受理成功', reason: '-', messageId: 'M01-20260811104709-110912', template: 'TPL-ADS-002', operator: 'system' },
+    { time: '2026-08-11 10:35:18', scene: '钱包到账', merchant: '1128', customer: 'adstest', recipient: 'a***@test.com', status: '受理失败', reason: 'Sender domain daily limit', messageId: '-', template: 'TPL-ADS-006', operator: 'system' },
+    { time: '2026-08-11 09:21:46', scene: '账户充失败', merchant: '14606', customer: 'BestAds接口测试', recipient: 'b***@merchant.com', status: '已抑制', reason: '无可用通知邮箱', messageId: '-', template: 'TPL-ADS-005', operator: 'system' },
+    { time: '2026-08-10 22:12:07', scene: '自动充失败', merchant: '13249', customer: '产品验收0112', recipient: 'p***@shop.com', status: '受理成功', reason: '-', messageId: 'M01-20260810221207-770923', template: 'TPL-ADS-004', operator: 'system' },
+    { time: '2026-08-10 18:02:54', scene: '钱包不足·预测', merchant: '12816', customer: 'Tobias', recipient: 't***@brand.com', status: '已抑制', reason: '钱包不足·预测已关闭', messageId: '-', template: 'TPL-ADS-003', operator: 'system' }
   ];
 
   const merchants = [
@@ -467,7 +466,7 @@
     return `<span class="status-tag ${cls}">${esc(value)}</span>`;
   }
 
-  function templateRow(id, sceneKey, status, current, version, publishStatus, updatedBy, updatedAt) {
+  function templateRow(id, sceneKey, status, current, publishStatus, updatedBy, updatedAt) {
     const scene = scenarios.find(item => item.key === sceneKey);
     const content = templateDefaults[sceneKey];
     return {
@@ -480,7 +479,6 @@
       source: 'Ads 自定义 HTML',
       status,
       current,
-      version,
       publishStatus,
       updatedBy,
       updatedAt,
@@ -512,9 +510,7 @@
           const suppressed = Math.max(0, Math.floor(requests * (scenario.key.includes('shortfall') ? 0.16 : 0.09)));
           const accepted = Math.max(0, requests - failed);
           const recipients = Math.max(1, Math.round(accepted * (1.22 + merchantIndex * 0.03)));
-          const attributed24 = scenario.key === 'wallet_credited' ? 0 : Math.floor(accepted * (0.12 + scenarioIndex * 0.01));
-          const attributed72 = scenario.key === 'wallet_credited' ? 0 : Math.floor(accepted * (0.24 + scenarioIndex * 0.015));
-          days.push({ date: iso, merchant: merchant.merchant, customer: merchant.customer, sceneKey: scenario.key, scene: scenario.name, requests, accepted, failed, suppressed, recipients, attributed24, attributed72 });
+          days.push({ date: iso, merchant: merchant.merchant, customer: merchant.customer, sceneKey: scenario.key, scene: scenario.name, requests, accepted, failed, suppressed, recipients });
         });
       });
     }
@@ -535,7 +531,7 @@
   }
 
   function blankUsageRow(scenario) {
-    return { key: scenario.key, scene: scenario.name, requests: 0, accepted: 0, failed: 0, suppressed: 0, recipients: 0, attributed24: 0, attributed72: 0 };
+    return { key: scenario.key, scene: scenario.name, requests: 0, accepted: 0, failed: 0, suppressed: 0, recipients: 0 };
   }
 
   function addUsage(target, source) {
@@ -544,8 +540,6 @@
     target.failed += source.failed;
     target.suppressed += source.suppressed;
     target.recipients += source.recipients;
-    target.attributed24 += source.attributed24;
-    target.attributed72 += source.attributed72;
     return target;
   }
 
@@ -556,7 +550,7 @@
   }
 
   function usageTotals(rows) {
-    return rows.reduce((acc, item) => addUsage(acc, item), { requests: 0, accepted: 0, failed: 0, suppressed: 0, recipients: 0, attributed24: 0, attributed72: 0 });
+    return rows.reduce((acc, item) => addUsage(acc, item), { requests: 0, accepted: 0, failed: 0, suppressed: 0, recipients: 0 });
   }
 
   function trendRows(records) {
@@ -574,7 +568,7 @@
     const byMerchant = new Map();
     records.forEach(item => {
       if (!byMerchant.has(item.merchant)) {
-        byMerchant.set(item.merchant, { merchant: item.merchant, customer: item.customer, sceneTotals: {}, requests: 0, accepted: 0, failed: 0, suppressed: 0, recipients: 0, attributed24: 0, attributed72: 0 });
+        byMerchant.set(item.merchant, { merchant: item.merchant, customer: item.customer, sceneTotals: {}, requests: 0, accepted: 0, failed: 0, suppressed: 0, recipients: 0 });
       }
       const row = byMerchant.get(item.merchant);
       addUsage(row, item);
@@ -582,7 +576,7 @@
     });
     return Array.from(byMerchant.values()).map(item => {
       const topScene = Object.entries(item.sceneTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-      return { ...item, topScene, estimatedCost: `$${(item.recipients * 0.03).toFixed(2)}` };
+      return { ...item, topScene };
     }).sort((a, b) => b.requests - a.requests);
   }
 
@@ -627,23 +621,11 @@
   }
 
   function renderTemplates() {
-    const rows = templates.map(item => `<tr><td>${esc(item.id)}</td><td class="left">${esc(item.scenario)}</td><td class="left"><span class="template-list-title">${esc(item.name)}</span><span class="template-list-sub">${esc(renderSampleText(item.subject))}</span></td><td>${statusTag(item.publishStatus)}</td><td>${esc(item.version)}</td><td>${esc(item.updatedBy)}</td><td>${esc(item.updatedAt)}</td><td class="ops"><div class="command-group"><button class="btn btn-link" data-action="preview-template" data-id="${esc(item.id)}">预览</button><button class="btn btn-link" data-action="edit-template" data-id="${esc(item.id)}">编辑</button><button class="btn btn-link" data-action="test-template" data-id="${esc(item.id)}">测试发送</button><button class="btn btn-link" data-action="template-versions" data-id="${esc(item.id)}">版本</button></div></td></tr>`).join('');
+    const rows = templates.map(item => `<tr><td>${esc(item.id)}</td><td class="left">${esc(item.scenario)}</td><td class="left"><span class="template-list-title">${esc(item.name)}</span><span class="template-list-sub">${esc(renderSampleText(item.subject))}</span></td><td>${statusTag(item.publishStatus)}</td><td>${esc(item.updatedBy)}</td><td>${esc(item.updatedAt)}</td><td class="ops"><div class="command-group"><button class="btn btn-link" data-action="preview-template" data-id="${esc(item.id)}">预览</button><button class="btn btn-link" data-action="edit-template" data-id="${esc(item.id)}">编辑</button><button class="btn btn-link" data-action="test-template" data-id="${esc(item.id)}">测试发送</button></div></td></tr>`).join('');
     root.innerHTML = pageHeader('提醒邮件模板', '维护 Ads 自定义 HTML 事务邮件模板，业务通过结构化模块配置，发送时由 Ads 渲染 HTML 后调用 Bestreach。')
-      + filters([{ label: '场景', type: 'select', options: scenarios.map(s => s.name) }, { label: '模板编码', placeholder: '输入模板编码' }, { label: '发布状态', type: 'select', options: ['草稿', '已发布', '历史版本'] }], 'template')
-      + `<div class="admin-card"><div class="admin-card__header"><h2 class="admin-card__title">场景模板状态</h2></div><div class="admin-card__body"><div class="email-scene-grid">${scenarios.map(s => sceneTemplateCard(s)).join('')}</div></div></div>`
-      + table([{ label: '模板编码' }, { label: '场景', left: true }, { label: '模板名称 / 主题', left: true }, { label: '发布状态' }, { label: '版本' }, { label: '更新人' }, { label: '更新时间' }, { label: '操作', left: true }], rows, 1320, 'email-template-table')
+      + filters([{ label: '场景', type: 'select', options: scenarios.map(s => s.name) }, { label: '模板编码', placeholder: '输入模板编码' }, { label: '发布状态', type: 'select', options: ['草稿', '已发布'] }], 'template')
+      + table([{ label: '模板编码' }, { label: '场景', left: true }, { label: '模板名称 / 主题', left: true }, { label: '发布状态' }, { label: '更新人' }, { label: '更新时间' }, { label: '操作', left: true }], rows, 1240, 'email-template-table')
       + '</section>' + modalHtml();
-  }
-
-  function sceneTemplateCard(scenario) {
-    const sceneTemplates = templates.filter(item => item.sceneKey === scenario.key);
-    const current = sceneTemplates.find(item => item.current === '是') || sceneTemplates[0];
-    const variableCount = allowedVariables(scenario.key).length;
-    return `<div class="email-scene" style="--scene-color:${scenarioColor(scenario.key)}">
-      <div class="email-scene__head"><b>${esc(scenario.name)}</b>${current ? statusTag(current.publishStatus) : statusTag('未配置')}</div>
-      <span>${esc(current?.name || '未配置模板')}</span>
-      <em>${esc(current?.version || '-')} · ${variableCount} 个可用变量 · ${sceneTemplates.length} 个版本</em>
-    </div>`;
   }
 
   function findTemplate(id) {
@@ -977,20 +959,12 @@
     </div>`;
   }
 
-  function versionBody(template) {
-    const versions = [
-      { version: template.version, status: template.publishStatus, updatedBy: template.updatedBy, updatedAt: template.updatedAt },
-      { version: 'v2', status: '历史版本', updatedBy: '系统管理员', updatedAt: '2026-08-10 12:20:33' },
-      { version: 'v1', status: '历史版本', updatedBy: '系统管理员', updatedAt: '2026-08-08 16:42:10' }
-    ];
-    return `<div class="table-scroll"><table class="admin-table template-version-table" style="min-width:640px"><thead><tr><th>版本</th><th>状态</th><th>更新人</th><th>更新时间</th><th>操作</th></tr></thead><tbody>${versions.map(item => `<tr><td>${esc(item.version)}</td><td>${statusTag(item.status)}</td><td>${esc(item.updatedBy)}</td><td>${esc(item.updatedAt)}</td><td><button class="btn btn-link" type="button" data-action="preview-template" data-id="${esc(template.id)}">预览</button></td></tr>`).join('')}</tbody></table></div>`;
-  }
 
   function renderLogs() {
-    const rows = logs.map(item => `<tr><td>${esc(item.time)}</td><td>${esc(item.scene)}</td><td>${esc(item.merchant)}</td><td class="left">${esc(item.customer)}</td><td>${esc(item.recipient)}</td><td>${statusTag(item.status)}</td><td class="left"><span class="wrap">${esc(item.reason)}</span></td><td>${esc(item.messageId)}</td><td>${esc(item.template)}</td><td>${statusTag(item.attribution)}</td><td>${esc(item.operator)}</td><td class="ops"><button class="btn btn-link" data-action="view-log">详情</button></td></tr>`).join('');
-    root.innerHTML = pageHeader('邮件发送日志', '查询系统判定、抑制、Bestreach 受理和时间窗归因结果。')
+    const rows = logs.map(item => `<tr><td>${esc(item.time)}</td><td>${esc(item.scene)}</td><td>${esc(item.merchant)}</td><td class="left">${esc(item.customer)}</td><td>${esc(item.recipient)}</td><td>${statusTag(item.status)}</td><td class="left"><span class="wrap">${esc(item.reason)}</span></td><td>${esc(item.messageId)}</td><td>${esc(item.template)}</td><td>${esc(item.operator)}</td><td class="ops"><button class="btn btn-link" data-action="view-log">详情</button></td></tr>`).join('');
+    root.innerHTML = pageHeader('邮件发送日志', '查询系统判定、抑制和 Bestreach 受理结果。')
       + filters([{ key: 'logDate', label: '发送时间', type: 'daterange', start: '开始日期', end: '结束日期' }, { label: '场景', type: 'multi', selectedKeys: scenarios.map(item => item.key) }, { label: '商户 ID', placeholder: '输入商户 ID' }, { label: '客户名称', placeholder: '输入客户名称' }, { label: '状态', type: 'select', options: ['受理成功', '受理失败', '已抑制'] }], 'log')
-      + table([{ label: '时间' }, { label: '场景' }, { label: '商户ID' }, { label: '客户名称', left: true }, { label: '收件人' }, { label: '状态' }, { label: '原因', left: true }, { label: 'messageId' }, { label: '模板' }, { label: '归因' }, { label: '触发方' }, { label: '操作', left: true }], rows, 1840, '', exportButton('export-log'))
+      + table([{ label: '时间' }, { label: '场景' }, { label: '商户ID' }, { label: '客户名称', left: true }, { label: '收件人' }, { label: '状态' }, { label: '原因', left: true }, { label: 'messageId' }, { label: '模板' }, { label: '触发方' }, { label: '操作', left: true }], rows, 1680, '', exportButton('export-log'))
       + '</section>' + modalHtml();
   }
 
@@ -1007,17 +981,17 @@
     const rows = sceneRows.map(item => usageRow(item)).join('');
     const merchantTableRows = merchantData.map(item => {
       const acceptRate = `${Math.round(item.accepted / item.requests * 100)}%`;
-      return `<tr><td>${esc(item.merchant)}</td><td class="left">${esc(item.customer)}</td><td>${esc(item.topScene)}</td><td>${item.requests}</td><td>${item.accepted}</td><td>${item.failed}</td><td>${item.suppressed}</td><td>${item.recipients}</td><td>${acceptRate}</td><td>${esc(item.estimatedCost)}</td></tr>`;
+      return `<tr><td>${esc(item.merchant)}</td><td class="left">${esc(item.customer)}</td><td>${esc(item.topScene)}</td><td>${item.requests}</td><td>${item.accepted}</td><td>${item.failed}</td><td>${item.suppressed}</td><td>${item.recipients}</td><td>${acceptRate}</td></tr>`;
     }).join('');
     const tabHtml = `<div class="business-tabs email-usage-tabs" role="tablist"><button class="business-tab ${usageState.tab === 'overview' ? 'is-active' : ''}" type="button" data-usage-tab="overview">业务整体</button><button class="business-tab ${usageState.tab === 'merchant' ? 'is-active' : ''}" type="button" data-usage-tab="merchant">商户维度</button></div>`;
-    const overviewHtml = `<div class="email-metric-grid">${metricCard('请求数', total.requests.toLocaleString(), '按发送任务计数')}${metricCard('受理成功', total.accepted.toLocaleString(), 'Bestreach MAIL_RECEIVED')}${metricCard('收件人数', total.recipients.toLocaleString(), '按邮箱计数')}${metricCard('72h 归因成功', total.attributed72.toLocaleString(), '入金或账户充值')}</div>`
+    const overviewHtml = `<div class="email-metric-grid">${metricCard('请求数', total.requests.toLocaleString(), '按发送任务计数')}${metricCard('受理成功', total.accepted.toLocaleString(), 'Bestreach MAIL_RECEIVED')}${metricCard('受理失败', total.failed.toLocaleString(), 'Bestreach 未受理')}${metricCard('抑制数', total.suppressed.toLocaleString(), '无邮箱或开关关闭')}</div>`
       + `<div class="email-chart-grid">${pieChart(sceneRows, total)}${trendChart(trendData)}</div>`
-      + table([{ label: '场景', left: true }, { label: '请求数' }, { label: '受理成功' }, { label: '受理失败' }, { label: '抑制数' }, { label: '收件人数' }, { label: '受理率' }, { label: '72h 归因率' }], rows, 1180, 'email-usage-table', exportButton('export-usage'));
+      + table([{ label: '场景', left: true }, { label: '请求数' }, { label: '受理成功' }, { label: '受理失败' }, { label: '抑制数' }, { label: '收件人数' }, { label: '受理率' }], rows, 1080, 'email-usage-table', exportButton('export-usage'));
     const merchantTotal = usageTotals(merchantData);
-    const merchantHtml = `<div class="email-metric-grid">${metricCard('覆盖商户', merchantData.length, '当前筛选范围')}${metricCard('商户请求数', merchantTotal.requests.toLocaleString(), '按商户聚合')}${metricCard('收件人数', merchantTotal.recipients.toLocaleString(), '可用于成本分摊')}${metricCard('预估费用', `$${(merchantTotal.recipients * 0.03).toFixed(2)}`, '原型按 $0.03/封')}</div>`
+    const merchantHtml = `<div class="email-metric-grid">${metricCard('覆盖商户', merchantData.length, '当前筛选范围')}${metricCard('商户请求数', merchantTotal.requests.toLocaleString(), '按商户聚合')}${metricCard('收件人数', merchantTotal.recipients.toLocaleString(), '按邮箱计数')}${metricCard('抑制数', merchantTotal.suppressed.toLocaleString(), '无邮箱或开关关闭')}</div>`
       + `<div class="admin-card"><div class="admin-card__header"><h2 class="admin-card__title">商户用量 Top 8</h2></div><div class="admin-card__body"><div class="email-merchant-bars">${merchantData.map(item => `<div data-tooltip="${esc(`${item.customer}：${item.requests} 次请求，${item.recipients} 个收件人`)}"><span>${esc(item.customer)}</span><i><b style="width:${Math.max(8, item.requests / Math.max(1, merchantData[0]?.requests || 1) * 100)}%"></b></i><em>${item.requests}</em></div>`).join('')}</div></div></div>`
-      + table([{ label: '商户ID' }, { label: '客户名称', left: true }, { label: '最高频场景' }, { label: '请求数' }, { label: '受理成功' }, { label: '受理失败' }, { label: '抑制数' }, { label: '收件人数' }, { label: '受理率' }, { label: '预估费用' }], merchantTableRows, 1360, 'email-usage-table', exportButton('export-usage'));
-    root.innerHTML = pageHeader('邮件发送用量统计', '一期只展示 BestAds 自有请求、受理、失败、抑制与归因；送达率、打开率等待 EDM 回执。')
+      + table([{ label: '商户ID' }, { label: '客户名称', left: true }, { label: '最高频场景' }, { label: '请求数' }, { label: '受理成功' }, { label: '受理失败' }, { label: '抑制数' }, { label: '收件人数' }, { label: '受理率' }], merchantTableRows, 1240, 'email-usage-table', exportButton('export-usage'));
+    root.innerHTML = pageHeader('邮件发送用量统计', '一期只展示 BestAds 自有请求、受理、失败和抑制；送达率、打开率等待 EDM 回执。')
       + tabHtml
       + filters([{ key: 'usageDate', label: '统计日期', type: 'daterange', start: '开始日期', end: '结束日期', startValue: usageState.startDate, endValue: usageState.endDate }, { label: '场景', type: 'multi', selectedKeys: selectedScenarioKeys() }, ...(usageState.tab === 'merchant' ? [{ key: 'merchantId', label: '商户 ID', value: usageState.merchantId, placeholder: '输入商户 ID' }, { key: 'customerName', label: '客户名称', value: usageState.customerName, placeholder: '输入客户名称' }] : [])], 'usage')
       + (usageState.tab === 'overview' ? overviewHtml : merchantHtml)
@@ -1026,8 +1000,7 @@
 
   function usageRow(item) {
     const acceptRate = `${Math.round(item.accepted / item.requests * 100)}%`;
-    const attribution = item.accepted ? `${Math.round(item.attributed72 / item.accepted * 100)}%` : '-';
-    return `<tr><td class="left">${esc(item.scene)}</td><td>${item.requests}</td><td>${item.accepted}</td><td>${item.failed}</td><td>${item.suppressed}</td><td>${item.recipients}</td><td>${acceptRate}</td><td>${attribution}</td></tr>`;
+    return `<tr><td class="left">${esc(item.scene)}</td><td>${item.requests}</td><td>${item.accepted}</td><td>${item.failed}</td><td>${item.suppressed}</td><td>${item.recipients}</td><td>${acceptRate}</td></tr>`;
   }
 
   function pieChart(rows, total) {
@@ -1209,13 +1182,8 @@
         });
         return;
       }
-      if (action === 'template-versions') {
-        const template = findTemplate(button.dataset.id);
-        openModal('模板版本', versionBody(template), { size: 'modal-lg' });
-        return;
-      }
       if (action === 'publish-template') {
-        showToast('模板已发布并设为当前启用版本（原型）', 'success');
+        showToast('模板已发布并设为当前启用稿（原型）', 'success');
         document.getElementById('emailModal').hidden = true;
         return;
       }
@@ -1228,7 +1196,7 @@
         refreshTemplatePreview();
         return;
       }
-      if (action === 'view-log') openModal('发送日志详情', '<dl class="detail-grid"><div><dt>受理状态</dt><dd>MAIL_RECEIVED</dd></div><div><dt>收件人</dt><dd>m***@zephyr.com</dd></div><div><dt>抑制原因</dt><dd>-</dd></div><div><dt>归因</dt><dd>72h 已充值</dd></div></dl>');
+      if (action === 'view-log') openModal('发送日志详情', '<dl class="detail-grid"><div><dt>受理状态</dt><dd>MAIL_RECEIVED</dd></div><div><dt>收件人</dt><dd>m***@zephyr.com</dd></div><div><dt>抑制原因</dt><dd>-</dd></div><div><dt>模板</dt><dd>TPL-ADS-001</dd></div></dl>');
     });
     document.addEventListener('change', event => {
       if (event.target.matches('[data-scene-filter]')) {
@@ -1338,9 +1306,6 @@
       .email-date-range{display:grid;grid-template-columns:minmax(0,1fr)24px minmax(0,1fr);gap:8px;align-items:center}
       .email-date-range span{color:var(--admin-muted);text-align:center}
       .email-usage-tabs{margin:0 0 16px}
-      .email-scene-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-      .email-scene{display:grid;gap:6px;padding:12px;border:1px solid var(--admin-border);border-radius:4px;background:color-mix(in srgb,var(--admin-page-bg) 72%,var(--admin-surface))}
-      .email-scene b{font-size:14px}.email-scene span{color:var(--admin-muted);font-size:12px}.email-scene em{font-style:normal;color:var(--admin-primary);font-size:12px}
       .email-metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
       .email-metric{display:grid;gap:6px;padding:16px;border:1px solid var(--admin-border);border-radius:4px;background:var(--admin-surface)}
       .email-metric span{color:var(--admin-secondary);font-size:13px}.email-metric b{font-size:26px;line-height:34px}.email-metric em{font-style:normal;color:var(--admin-muted);font-size:12px}
@@ -1386,9 +1351,6 @@
       .template-list-title,.template-list-sub{display:block;min-width:0}
       .template-list-title{font-weight:600;color:var(--admin-text);line-height:20px}
       .template-list-sub{margin-top:4px;color:var(--admin-muted);font-size:12px;line-height:18px;white-space:normal}
-      .email-scene{position:relative;overflow:hidden}
-      .email-scene::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--scene-color,var(--admin-primary))}
-      .email-scene__head{display:flex;align-items:center;justify-content:space-between;gap:10px}
       .email-modal{display:flex;flex-direction:column;padding:18px 22px;overflow:hidden}
       .email-modal.modal-xl{width:min(1480px,calc(100vw - 48px));max-height:calc(100vh - 48px)}
       .email-modal .modal__header{min-height:36px;padding:0 8px 12px;border:0}
@@ -1453,9 +1415,8 @@
       .email-rendered__cta{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 18px;border-radius:4px;background:#006be6;color:#fff;text-decoration:none;font-weight:600}
       .email-rendered__cta--secondary{background:#fff;color:#006be6;border:1px solid #bfdbfe}
       .email-rendered__footer{padding:16px 28px;border-top:1px solid #e5e7eb;background:#f8fafc;color:#6b7280;font-size:12px;line-height:18px}
-      .template-version-table .admin-table td{height:52px}
       @media (max-width:1160px){.email-chart-grid{grid-template-columns:1fr}.email-pie-layout{grid-template-columns:180px minmax(0,1fr)}}
-      @media (max-width:960px){.email-scene-grid,.email-metric-grid{grid-template-columns:1fr}.email-merchant-bars div{grid-template-columns:1fr}.email-merchant-bars em{text-align:left}.email-date-range{grid-template-columns:1fr}.email-date-range span{text-align:left}.email-pie-layout{grid-template-columns:1fr}.email-pie-wrap{margin:auto}.template-editor-shell{grid-template-columns:1fr;height:auto}.template-preview-pane{height:auto}.email-rendered__metrics{grid-template-columns:1fr}}
+      @media (max-width:960px){.email-metric-grid{grid-template-columns:1fr}.email-merchant-bars div{grid-template-columns:1fr}.email-merchant-bars em{text-align:left}.email-date-range{grid-template-columns:1fr}.email-date-range span{text-align:left}.email-pie-layout{grid-template-columns:1fr}.email-pie-wrap{margin:auto}.template-editor-shell{grid-template-columns:1fr;height:auto}.template-preview-pane{height:auto}.email-rendered__metrics{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
   }

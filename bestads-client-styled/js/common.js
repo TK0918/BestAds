@@ -283,10 +283,12 @@ function mountClientEmailSettingsModal() {
             <span>关闭后不发送对应邮件</span>
           </div>
           <div class="email-toggle-list">
-            ${emailToggleItem('风险提醒', '续航不足、钱包不足事件、钱包不足预测', true)}
-            ${emailToggleItem('钱包到账', '在线充值成功、转账审核通过', true)}
-            ${emailToggleItem('自动充失败', '自动充值执行失败', true)}
-            ${emailToggleItem('账户充失败', '手动账户充值链路失败', true)}
+            ${emailToggleItem('续航不足', '广告账户余额按均耗可能撑不过约定天数', true)}
+            ${emailToggleItem('钱包不足·事件', '自动充值因钱包不够失败或跳过', true)}
+            ${emailToggleItem('钱包不足·预测', '建议充值合计可能大于钱包可用余额', true)}
+            ${emailToggleItem('自动充失败', '自动充值失败，且原因不是钱包不足', true)}
+            ${emailToggleItem('账户充失败', '手动账户充值提交后链路失败', true)}
+            ${emailToggleItem('钱包到账', '在线充值成功或转账审核通过后入账', true)}
           </div>
         </section>
       </div>
