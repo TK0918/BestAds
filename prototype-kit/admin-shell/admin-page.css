@@ -263,6 +263,11 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .readonly-context dd { margin: 0; color: var(--admin-text); font-size: 13px; line-height: 20px; word-break: break-word; }
 .readonly-context--wide { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
 .opening-modal-stack { display: grid; gap: 16px; }
+.opening-account-slots { display: grid; gap: 12px; }
+.opening-account-slot { border: 1px solid var(--admin-border); border-radius: 6px; padding: 12px; background: var(--admin-surface); }
+.opening-account-slot__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.opening-account-slot__head strong { font-size: 13px; }
+.opening-slot-fail { display: inline-flex; align-items: center; gap: 6px; color: var(--admin-secondary); font-size: 12px; cursor: pointer; }
 .opening-rule-preview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 12px; border: 1px solid var(--admin-border); border-radius: 6px; background: color-mix(in srgb, var(--admin-page-bg) 56%, var(--admin-surface)); }
 .opening-rule-preview div { min-width: 0; padding: 10px 12px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); }
 .opening-rule-preview span { display: block; color: var(--admin-muted); font-size: 12px; line-height: 18px; }

@@ -48,6 +48,8 @@
     '钱包扣款': { 'zh-CN': '钱包扣款', 'en-US': 'Wallet Charge' },
     '操作': { 'zh-CN': '操作', 'en-US': 'Actions' },
     'BM ID': { 'zh-CN': 'BM ID', 'en-US': 'BM ID' },
+    'MCC': { 'zh-CN': 'MCC', 'en-US': 'MCC' },
+    'BC': { 'zh-CN': 'BC', 'en-US': 'BC' },
     'BM名称': { 'zh-CN': 'BM名称', 'en-US': 'BM Name' },
     '时区和数量': { 'zh-CN': '时区和数量', 'en-US': 'Time Zone / Qty' },
     '申请时间': { 'zh-CN': '申请时间', 'en-US': 'Applied Time' },
@@ -353,13 +355,23 @@
       '完成': 'Completed',
       '失败': 'Failed',
       '处理中': 'Processing',
+      '待确认': 'Awaiting Confirmation',
       '待运营审核': 'Pending Review',
       '待客户确认付款': 'Payment Confirmation',
       '已付款待开户': 'Paid, Opening',
       '开户成功': 'Opened',
+      '部分成功': 'Partial Success',
       '开户取消': 'Canceled'
     };
     return map[status] || status;
+  }
+
+  function clientOpeningStatus(row) {
+    const status = String(row?.openingStatus || row?.status || '');
+    if (status === '待客户确认付款' || status === '待确认') return '待确认';
+    if (status === '开户成功' || status === '部分成功' || status === '完成') return '完成';
+    if (status === '开户取消' || status === '失败' || status === '审核不通过') return '失败';
+    return '处理中';
   }
 
   function renderCell(cell) {
@@ -394,7 +406,7 @@
     const actions = [
       { label: tPage(pageId, 'viewDetail'), action: 'opening-view', index }
     ];
-    if (row.status === '待客户确认付款') {
+    if (row.status === '待确认' || row.openingStatus === '待客户确认付款') {
       actions.splice(1, 0, { label: tPage(pageId, 'confirmPayment'), action: 'opening-confirm', index, primary: true });
     }
     return rowActions(actions);
@@ -402,10 +414,11 @@
 
   function renderOpeningRecords(pageId, data) {
     const rows = data.rows || [];
-    const columns = ['申请ID', '投放信息', '账户数', '初始报价', '最终报价', '钱包扣款', '状态', '操作'];
+    const columns = ['申请ID', '媒体', '投放信息', '账户数', '初始报价', '最终报价', '钱包扣款', '状态', '操作'];
     return renderTable(columns, rows, (row, index) => `
       <tr>
         <td>${html(row.applyId || '-')}</td>
+        <td>${html(row.mediaChannel || '-')}</td>
         <td class="client-wrap-cell">
           <div class="client-cell-stack">
             <strong>${html(row.url || '-')}</strong>
@@ -417,7 +430,7 @@
         <td>${html(row.initialQuote || '-')}</td>
         <td>${html(row.finalQuote || '-')}</td>
         <td>${html(row.walletCharge || '-')}</td>
-        <td>${tag(row.status)}</td>
+        <td>${tag(clientOpeningStatus(row))}</td>
         <td class="client-actions-cell">${openingRowActions(pageId, row, index)}</td>
       </tr>
     `);
@@ -533,35 +546,137 @@
     return Array.from(new Set(String(value || '').split(/[\s,，]+/).map((item) => item.trim()).filter(Boolean)));
   }
 
+  const OPENING_ASSET_SAMPLES = {
+    Facebook: '121212345678901, 898989765432101',
+    Google: '123-456-7890, 987-654-3210',
+    TikTok: '7012345678901234567, 7098765432109876543'
+  };
+
+  function openingAssetMeta(media) {
+    if (media === 'Facebook') {
+      return {
+        label: 'BM ID',
+        placeholder: '多个 BM ID 可用逗号或空格分隔',
+        tip: '仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。',
+        empty: '暂未识别到 BM ID',
+        sample: OPENING_ASSET_SAMPLES.Facebook
+      };
+    }
+    if (media === 'Google') {
+      return {
+        label: 'MCC',
+        placeholder: '多个 MCC 可用逗号或空格分隔',
+        tip: '仅 Google 需要。支持输入多个 MCC，可用逗号或空格分隔。',
+        empty: '暂未识别到 MCC',
+        sample: OPENING_ASSET_SAMPLES.Google
+      };
+    }
+    if (media === 'TikTok') {
+      return {
+        label: 'BC',
+        placeholder: '多个 BC 可用逗号或空格分隔',
+        tip: '仅 TikTok 需要。支持输入多个 BC，可用逗号或空格分隔。',
+        empty: '暂未识别到 BC',
+        sample: OPENING_ASSET_SAMPLES.TikTok
+      };
+    }
+    return null;
+  }
+
+  function isKnownAssetSample(value) {
+    const normalized = String(value || '').trim();
+    return !normalized || Object.values(OPENING_ASSET_SAMPLES).includes(normalized);
+  }
+
+  function openingAssetIdLabel(media) {
+    return openingAssetMeta(media)?.label || 'BM ID';
+  }
+
+  function openingAssetIdValue(row) {
+    if (!openingAssetMeta(row?.mediaChannel)) return '-';
+    return row?.bmIds || row?.assetIds || '-';
+  }
+
   function syncBmPreview(root = document) {
     const preview = root.querySelector('[data-opening-bm-preview]');
     if (!preview) return;
+    const modal = root.querySelector('[data-opening-apply-modal]') || root;
+    const media = modal.querySelector('[data-opening-media]')?.value || '';
+    const meta = openingAssetMeta(media);
     const ids = parseBmIds(root.querySelector('[data-opening-bm-ids]')?.value || '');
     preview.innerHTML = ids.length
       ? ids.map((id) => `<span class="client-bm-chip">${html(id)}</span>`).join('')
-      : '<span class="client-bm-empty">暂未识别到 BM ID</span>';
+      : `<span class="client-bm-empty">${html(meta?.empty || '暂未识别到 ID')}</span>`;
+  }
+
+  function syncOpeningMediaFields(root = document) {
+    const modal = root.querySelector('[data-opening-apply-modal]') || root;
+    const wrap = modal.querySelector('[data-opening-bm-wrap]');
+    const sel = modal.querySelector('[data-opening-media]');
+    if (!wrap) return;
+    const media = sel?.value || '';
+    if (media && sel) sel.style.outline = '';
+    const meta = openingAssetMeta(media);
+    wrap.hidden = !meta;
+    if (!meta) return;
+    const label = wrap.querySelector('[data-opening-asset-label]');
+    const input = wrap.querySelector('[data-opening-bm-ids]');
+    const tip = wrap.querySelector('[data-opening-asset-tip]');
+    if (label) label.textContent = meta.label;
+    if (tip) tip.textContent = meta.tip;
+    if (input) {
+      input.placeholder = meta.placeholder;
+      if (isKnownAssetSample(input.value)) input.value = meta.sample;
+    }
+    syncBmPreview(modal);
   }
 
   function openingApplyFields() {
     return `
       <div class="client-form-grid" data-opening-apply-modal>
+        <label class="client-form-field">
+          <span class="client-label">媒体渠道 <span class="client-required">*</span></span>
+          <select class="client-select" data-opening-media>
+            <option value="">请选择媒体渠道</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Google">Google</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Snapchat">Snapchat</option>
+            <option value="AppLovin">AppLovin</option>
+            <option value="Taboola">Taboola</option>
+            <option value="Outbrain">Outbrain</option>
+            <option value="X">X</option>
+          </select>
+        </label>
         <label class="client-form-field full">
           <span class="client-label">投放URL <span class="client-required">*</span></span>
           <input class="client-input" data-opening-url type="text" value="https://www.luminara-home.com">
         </label>
-        <label class="client-form-field full client-bm-field">
-          <span class="client-label">BM ID</span>
-          <input class="client-input" data-opening-bm-ids type="text" value="121212345678901, 898989765432101" placeholder="多个 BM ID 可用逗号或空格分隔">
-          <span class="client-field-tip">支持输入多个 BM ID，可用逗号或空格分隔。</span>
+        <label class="client-form-field full client-bm-field" data-opening-bm-wrap hidden>
+          <span class="client-label" data-opening-asset-label>BM ID</span>
+          <input class="client-input" data-opening-bm-ids type="text" value="" placeholder="多个 BM ID 可用逗号或空格分隔">
+          <span class="client-field-tip" data-opening-asset-tip>仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。</span>
           <span class="client-bm-preview" data-opening-bm-preview aria-live="polite"></span>
         </label>
         <label class="client-form-field">
           <span class="client-label">投放国家 <span class="client-required">*</span></span>
-          <input class="client-input" data-opening-country type="text" value="美国 / 加拿大">
+          <select class="client-select" data-opening-country>
+            <option value="美国 / 加拿大" selected>美国 / 加拿大</option>
+            <option value="美国">美国</option>
+            <option value="英国 / 法国">英国 / 法国</option>
+            <option value="荷兰">荷兰</option>
+            <option value="英国">英国</option>
+          </select>
         </label>
         <label class="client-form-field">
           <span class="client-label">时区 <span class="client-required">*</span></span>
-          <input class="client-input" data-opening-timezone type="text" value="America/Los_Angeles">
+          <select class="client-select" data-opening-timezone>
+            <option value="America/Los_Angeles" selected>America/Los_Angeles</option>
+            <option value="America/New_York">America/New_York</option>
+            <option value="Europe/London">Europe/London</option>
+            <option value="Europe/Amsterdam">Europe/Amsterdam</option>
+            <option value="America/Chicago">America/Chicago</option>
+          </select>
         </label>
         <label class="client-form-field">
           <span class="client-label">日预算 <span class="client-required">*</span></span>
@@ -574,10 +689,10 @@
         <div class="client-opening-estimate full" aria-live="polite">
           <div>
             <p class="client-opening-estimate-title">预估开户费用</p>
-            <p class="client-opening-estimate-desc">系统根据 URL、投放国家、日预算和账户数预估。最终金额以运营审核结果为准。</p>
+            <p class="client-opening-estimate-desc">系统根据媒体、URL、投放国家、日预算和账户数预估。提交时不扣款。运营确认费用后，开户费和首充分开从钱包扣除。最终金额以运营审核结果为准。</p>
             <div class="client-opening-breakdown">
               <span>开户费：<b data-opening-estimate-opening>${html(formatQuoteAmount(300))}</b></span>
-              <span>首充：<b data-opening-estimate-precharge>${html(formatQuoteAmount(1100))}</b></span>
+              <span>首充（广告账户充值）：<b data-opening-estimate-precharge>${html(formatQuoteAmount(1100))}</b></span>
             </div>
           </div>
           <div class="client-opening-estimate-total">
@@ -587,7 +702,7 @@
         </div>
         <label class="client-checkbox-row client-form-field full client-opening-consent">
           <input data-opening-auto-pay type="checkbox" checked>
-          <span>若最终金额与初始报价一致，同意系统直接扣款；不一致时再通知确认。</span>
+          <span>若最终金额与初始报价一致，同意系统直接扣除开户费和首充；不一致时再通知确认。</span>
         </label>
       </div>
       <div class="client-note" style="margin-top:16px;">
@@ -636,12 +751,15 @@
   }
 
   function openingPaymentFields(row) {
+    const openingFee = row?.openingFee || '-';
+    const precharge = row?.precharge || '-';
     return `
       ${readonlySection('客户申请信息', [
         readonlyItem('申请ID', row?.applyId),
+        readonlyItem('媒体', row?.mediaChannel),
         readonlyItem('投放国家', row?.country),
         readonlyItem('投放URL', row?.url, { full: true }),
-        readonlyItem('BM ID', row?.bmIds || '-'),
+        readonlyItem(openingAssetIdLabel(row?.mediaChannel), openingAssetIdValue(row)),
         readonlyItem('时区', row?.timezone),
         readonlyItem('日预算', row?.dailyBudget),
         readonlyItem('账户数', row?.accountCount),
@@ -650,6 +768,8 @@
       ${readonlySection('报价与余额', [
         readonlyItem('初始报价', row?.initialQuote, { emphasis: true }),
         readonlyItem('最终报价', row?.finalQuote || row?.initialQuote, { emphasis: true }),
+        readonlyItem('开户费', openingFee),
+        readonlyItem('首充（广告账户充值）', precharge),
         readonlyItem('可用余额', '5,000.00 USD', { emphasis: true })
       ])}
     `;
@@ -659,22 +779,26 @@
     return `
       <div class="client-form-grid">
         ${formInput('申请ID', row.applyId || '-', false)}
-        ${formInput('状态', row.status || '-', false)}
+        ${formInput('状态', clientOpeningStatus(row), false)}
+        ${formInput('媒体', row.mediaChannel || '-', false)}
         ${formInput('URL', row.url || '-', false)}
-        ${formInput('BM ID', row.bmIds || '-', false)}
+        ${formInput(openingAssetIdLabel(row.mediaChannel), openingAssetIdValue(row), false)}
         ${formInput('国家 / 时区', `${row.country || '-'} / ${row.timezone || '-'}`, false)}
         ${formInput('日预算', row.dailyBudget || '-', false)}
         ${formInput('账户数', row.accountCount || '-', false)}
         ${formInput('初始报价', row.initialQuote || '-', false)}
         ${formInput('最终报价', row.finalQuote || '-', false)}
+        ${formInput('开户费', row.openingFee || '-', false)}
+        ${formInput('首充', row.precharge || '-', false)}
         ${formInput('钱包扣款', row.walletCharge || '-', false)}
         ${formInput('结果', row.result || '-', false)}
         ${formInput('广告账户ID', row.accountInfo || '-', false)}
-        ${formInput('充值记录', row.rechargeRecord || '-', false)}
+        ${formInput('其他扣费单', row.openingFeeRecord || '-', false)}
+        ${formInput('首充充值单', row.rechargeRecord || '-', false)}
       </div>
       <div class="client-note" style="margin-top:16px;">
         <div class="client-note-title">流程说明</div>
-        <p>客户确认付款后不可取消。开户失败时，开户费和首充会一起退回钱包。</p>
+        <p>确认付款后会分开扣除开户费和首充。开户失败时，开户费回退、首充充值单失败退款。</p>
       </div>
     `;
   }
@@ -813,6 +937,7 @@
     modal.setAttribute('aria-hidden', 'false');
     syncOpeningEstimate(modal);
     syncBmPreview(modal);
+    syncOpeningMediaFields(modal);
   }
 
   function closeModal() {
@@ -905,12 +1030,14 @@
 
   function cancelOpeningRow(pageId, row) {
     if (!row) return false;
-    row.status = '开户取消';
+    row.openingStatus = '开户取消';
+    row.status = '失败';
     row.paymentStatus = '未扣款';
     row.result = '开户取消';
     row.walletCharge = '-';
     row.finalQuote = row.finalQuote || row.initialQuote || '-';
     row.rechargeRecord = '未扣款，无充值记录';
+    row.openingFeeRecord = '未扣款，无其他扣费';
     renderPage(pageId);
     return true;
   }
@@ -1005,18 +1132,28 @@
         if (modalContext.type === 'opening-apply') {
           const applyRoot = document.querySelector('[data-opening-apply-modal]');
           const rows = actionRows(pageId);
+          const mediaChannel = applyRoot?.querySelector('[data-opening-media]')?.value || '';
+          if (!mediaChannel) {
+            const sel = applyRoot?.querySelector('[data-opening-media]');
+            if (sel) { sel.style.outline = '2px solid var(--client-danger, #f53f3f)'; sel.focus(); }
+            showToast('请选择媒体渠道', 'error');
+            return;
+          }
           const url = applyRoot?.querySelector('[data-opening-url]')?.value.trim() || 'https://www.example.com';
           const country = applyRoot?.querySelector('[data-opening-country]')?.value.trim() || '美国';
           const timezone = applyRoot?.querySelector('[data-opening-timezone]')?.value.trim() || 'America/Los_Angeles';
           const dailyBudget = applyRoot?.querySelector('[data-opening-budget]')?.value.trim() || '300 USD';
           const accountCount = applyRoot?.querySelector('[data-opening-count]')?.value.trim() || '1';
-          const bmIds = parseBmIds(applyRoot?.querySelector('[data-opening-bm-ids]')?.value || '');
+          const assetMeta = openingAssetMeta(mediaChannel);
+          const bmIds = assetMeta ? parseBmIds(applyRoot?.querySelector('[data-opening-bm-ids]')?.value || '') : [];
           const autoPay = Boolean(applyRoot?.querySelector('[data-opening-auto-pay]')?.checked);
           syncOpeningEstimate(applyRoot);
-          const initialQuote = applyRoot?.querySelector('[data-opening-estimate]')?.textContent.trim() || formatQuoteAmount(estimateOpeningQuote(dailyBudget, accountCount));
+          const breakdown = estimateOpeningQuoteBreakdown(dailyBudget, accountCount);
+          const initialQuote = applyRoot?.querySelector('[data-opening-estimate]')?.textContent.trim() || formatQuoteAmount(breakdown.total);
           const quoteVersion = `Q-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(rows.length + 1).padStart(3, '0')}`;
           rows.unshift({
             applyId: `AO${Date.now()}`,
+            mediaChannel,
             url,
             country,
             bmIds: bmIds.join(' / '),
@@ -1025,17 +1162,21 @@
             accountCount,
             category: 'AI 识别中',
             initialQuote,
+            openingFee: formatQuoteAmount(breakdown.openingFee),
+            precharge: formatQuoteAmount(breakdown.precharge),
             finalQuote: '待运营确认',
             walletCharge: '-',
             paymentStatus: '未扣款',
             paymentAuth: autoPay ? '已同意金额一致时自动扣款' : '未授权自动扣款，待最终报价后确认',
-            submittedAt: '2026-08-13 10:30:00',
-            status: '待运营审核',
+            submittedAt: '2026-08-18 10:30:00',
+            openingStatus: '待运营审核',
+            status: '处理中',
             result: '-',
             accountInfo: '-',
-            rechargeRecord: '首充预缴记录待生成',
+            openingFeeRecord: '确认费用后生成其他扣费单',
+            rechargeRecord: '确认费用后生成占位充值单',
             quoteVersion,
-            initialNote: bmIds.length ? `BM ID：${bmIds.join(' / ')}` : ''
+            initialNote: bmIds.length ? `${assetMeta.label}：${bmIds.join(' / ')}` : ''
           });
           renderPage(pageId);
           closeModal();
@@ -1047,11 +1188,11 @@
         if (modalContext.type === 'opening-payment' && row) {
           row.walletCharge = row.finalQuote || row.initialQuote || '-';
           row.paymentStatus = '已扣款';
-          row.status = '已付款待开户';
+          row.openingStatus = '已付款待开户';
+          row.status = '处理中';
           row.result = '待开户';
-          row.rechargeRecord = row.rechargeRecord && row.rechargeRecord.includes('首充预缴记录')
-            ? row.rechargeRecord
-            : `首充预缴记录：PRE-${row.applyId}`;
+          row.openingFeeRecord = `FEE-${row.applyId}-01${Number(row.accountCount || 1) > 1 ? ` / 02` : ''}`;
+          row.rechargeRecord = `AD-OPEN-${row.applyId}-01 开户首充（待绑定账户）`;
           renderPage(pageId);
           closeModal();
           modalContext.type = null;
@@ -1083,8 +1224,10 @@
     document.addEventListener('change', (event) => {
       const openingInput = event.target.closest('[data-opening-budget], [data-opening-count]');
       const bmInput = event.target.closest('[data-opening-bm-ids]');
+      const mediaInput = event.target.closest('[data-opening-media]');
       if (openingInput) syncOpeningEstimate(openingInput.closest('[data-opening-apply-modal]') || document);
       if (bmInput) syncBmPreview(bmInput.closest('[data-opening-apply-modal]') || document);
+      if (mediaInput) syncOpeningMediaFields(mediaInput.closest('[data-opening-apply-modal]') || document);
     });
   }
 

@@ -698,6 +698,7 @@
     if (status === '待客户确认付款') return ['查看详情', '取消开户', '重开审核'];
     if (status === '已付款待开户') return ['开户成功', '开户失败', '查看详情', '取消开户'];
     if (status === '开户成功') return ['查看详情'];
+    if (status === '部分成功') return ['查看详情'];
     if (status === '开户取消') return ['查看详情'];
     return ['查看详情'];
   }
@@ -734,7 +735,9 @@
     ];
     const configuredOrFallback = configured.length ? configured : fallback;
     const enabled = configuredOrFallback.filter(item => item.status !== '停用');
-    const rulePool = enabled.length ? enabled : fallback;
+    const media = String(row?.mediaChannel || '');
+    const mediaMatched = enabled.filter(item => !media || !item.mediaChannel || item.mediaChannel === media);
+    const rulePool = mediaMatched.length ? mediaMatched : (enabled.length ? enabled : fallback);
     const tokenMatches = (source, target) => {
       const textValue = String(source || '').trim();
       if (!textValue || textValue === '全部') return true;
@@ -810,15 +813,41 @@
     return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '审核开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack"><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>投放URL</dt><dd><a class="admin-inline-link" href="${esc(row?.url || '#')}" target="_blank" rel="noopener noreferrer">${esc(row?.url || '-')}</a></dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>识别品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>初始报价</dt><dd>${esc(row?.initialQuote || '-')}</dd></div><div><dt>报价版本</dt><dd>${esc(row?.quoteVersion || '-')}</dd></div></dl><div class="form-grid" data-opening-audit-modal><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 代理</label><select data-opening-agent>${options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.agent)}</option>`).join('')}</select></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户类型</label><select data-opening-type>${options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.accountType)}</option>`).join('')}</select></div><div class="form-field full"><label>规则报价</label><div class="opening-rule-preview" data-opening-rule-preview data-opening-rule-options="${esc(JSON.stringify(options))}"><div><span>开户费</span><strong data-opening-fee>${esc(formatAmountOnly(selected.openingFee))}</strong></div><div><span>首充</span><strong data-opening-precharge>${esc(formatAmountOnly(selected.precharge))}</strong></div><div><span>最终报价</span><strong data-opening-final-quote>${esc(formatAmountOnly(selected.total))}</strong></div><div><span>处理方式</span><strong data-opening-outcome>${esc(outcome.label)}</strong></div><p data-opening-outcome-note>${esc(outcome.note)}</p></div></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-danger" data-opening-audit-cancel>取消开户</button><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认审核</button></div></section></div>`;
   }
 
+  function openingAccountCount(row) {
+    return Math.max(1, Number(row?.accountCount || 1) || 1);
+  }
+
+  function openingItemNo(index) {
+    return String(index).padStart(2, '0');
+  }
+
+  function openingPlaceholderRecords(applyId, count, prefix, suffix) {
+    const id = applyId || 'AO';
+    return Array.from({ length: count }, (_, i) => `${prefix}${id}-${openingItemNo(i + 1)}${suffix || ''}`).join(' / ');
+  }
+
+  function normalizeOpeningRate(value) {
+    const text = String(value || '').trim().replace(/%/g, '');
+    if (!/^\d+(\.\d{1,4})?$/.test(text)) return '';
+    return `${text}%`;
+  }
+
+  function openingAccountSlotsHtml(row, syncedAccounts) {
+    const count = openingAccountCount(row);
+    const options = syncedAccounts.map(account => `<option value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-currency="${esc(account.currency)}">${esc(account.id)} / ${esc(account.name)} / ${esc(account.currency)}</option>`).join('');
+    return `<div class="opening-account-slots" data-opening-result-modal data-opening-result-kind="success">${Array.from({ length: count }, (_, i) => {
+      const index = i + 1;
+      return `<section class="opening-account-slot" data-opening-account-slot data-slot-index="${index}"><div class="opening-account-slot__head"><strong>账户 ${index}</strong><label class="opening-slot-fail"><input type="checkbox" data-opening-slot-failed> 本账户开户失败</label></div><div class="form-grid" data-opening-slot-success><div class="form-field full"><label>账户来源</label><select data-opening-account-source><option value="synced">选择已同步广告账户</option><option value="manual">录入广告账户</option></select></div><div class="form-field full" data-opening-synced-panel><label><span style="color:var(--admin-danger)">*</span> 已同步广告账户</label><select data-opening-synced-account><option value="">请选择广告账户</option>${options}</select></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户ID</label><input data-opening-account-id placeholder="请输入广告账户ID"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户名称</label><input data-opening-account-name placeholder="请输入广告账户名称"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 币种</label><select data-opening-account-currency><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户服务费率</label><input data-opening-service-rate placeholder="例如 3.00"></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 预收税费费率</label><input data-opening-pre-tax-rate placeholder="例如 0.00"></div></div></section>`;
+    }).join('')}</div>`;
+  }
+
   function openingResultModal(modal, row, kind) {
-    const accountId = row?.accountInfo?.includes('/') ? row.accountInfo.split('/')[0].trim() : '';
-    const accountName = row?.accountInfo?.includes('/') ? row.accountInfo.split('/')[1]?.trim() || '' : '';
-    const accountCurrency = row?.accountInfo?.includes('/') ? row.accountInfo.split('/')[2]?.trim() || 'USD' : 'USD';
     const headline = kind === 'success' ? '开户成功' : '开户失败';
     const syncedAccounts = openingSyncedAccounts(row);
-    const failedResult = kind === 'failed' ? '<div><dt>处理方式</dt><dd>开户取消并退回开户费和首充</dd></div>' : '';
-    const successControls = kind === 'success' ? `<div class="form-grid" data-opening-result-modal data-opening-result-kind="${esc(kind)}"><div class="form-field full"><label>账户来源</label><select data-opening-account-source><option value="synced">选择已同步广告账户</option><option value="manual">录入广告账户</option></select></div><div class="form-field full" data-opening-synced-panel><label><span style="color:var(--admin-danger)">*</span> 已同步广告账户</label><select data-opening-synced-account><option value="">请选择广告账户</option>${syncedAccounts.map(account => `<option value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-currency="${esc(account.currency)}"${account.id === accountId ? ' selected' : ''}>${esc(account.id)} / ${esc(account.name)} / ${esc(account.currency)}</option>`).join('')}</select></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户ID</label><input data-opening-account-id value="${esc(accountId)}" placeholder="请输入广告账户ID"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户名称</label><input data-opening-account-name value="${esc(accountName || (row?.customerName && row.customerName !== '-' ? `${row.customerName}-Account` : ''))}" placeholder="请输入广告账户名称"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 币种</label><select data-opening-account-currency><option value="USD"${accountCurrency === 'USD' ? ' selected' : ''}>USD</option><option value="EUR"${accountCurrency === 'EUR' ? ' selected' : ''}>EUR</option><option value="GBP"${accountCurrency === 'GBP' ? ' selected' : ''}>GBP</option><option value="HKD"${accountCurrency === 'HKD' ? ' selected' : ''}>HKD</option></select></div></div>` : `<div data-opening-result-modal data-opening-result-kind="${esc(kind)}" hidden></div>`;
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(headline)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack"><dl class="readonly-context"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>首充预缴</dt><dd>${esc(row?.precharge || '-')}</dd></div><div><dt>首充记录</dt><dd>${esc(row?.prechargeRecord || '-')}</dd></div>${failedResult}</dl>${successControls}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认</button></div></section></div>`;
+    const failedResult = kind === 'failed' ? '<div><dt>处理方式</dt><dd>开户取消；开户费走其他扣费回退，首充充值单失败退款</dd></div>' : '';
+    const successControls = kind === 'success' ? openingAccountSlotsHtml(row, syncedAccounts) : `<div data-opening-result-modal data-opening-result-kind="${esc(kind)}" hidden></div>`;
+    const modalSize = kind === 'success' ? 'modal-lg' : 'modal-md';
+    return `<div class="modal-backdrop"><section class="modal ${modalSize}"><div class="modal__header"><h2 class="modal__title">${esc(headline)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack"><dl class="readonly-context"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>首充充值金额</dt><dd>${esc(row?.precharge || '-')}</dd></div><div><dt>开户费扣费单</dt><dd>${esc(row?.openingFeeRecord || '-')}</dd></div><div><dt>首充充值单</dt><dd>${esc(row?.prechargeRecord || '-')}</dd></div>${failedResult}</dl>${successControls}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认</button></div></section></div>`;
   }
 
   function openingReopenModal(modal, row) {
@@ -827,7 +856,14 @@
 
   function openingCancelModal(modal, row) {
     const paid = row?.paymentStatus === '已扣款';
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '取消开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><dl class="readonly-context" data-opening-cancel-modal><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>当前状态</dt><dd>${esc(row?.status || '-')}</dd></div><div><dt>付款状态</dt><dd>${esc(row?.paymentStatus || '-')}</dd></div><div><dt>处理方式</dt><dd>${paid ? '退回开户费和首充' : '不产生扣费和充值记录'}</dd></div>${paid ? `<div><dt>开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>首充预缴</dt><dd>${esc(row?.precharge || '-')}</dd></div>` : ''}</dl></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-danger" data-modal-submit>确认取消开户</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '取消开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><dl class="readonly-context" data-opening-cancel-modal><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>当前状态</dt><dd>${esc(row?.status || '-')}</dd></div><div><dt>付款状态</dt><dd>${esc(row?.paymentStatus || '-')}</dd></div><div><dt>处理方式</dt><dd>${paid ? '开户费走其他扣费回退，首充充值单失败退款' : '不产生扣费和充值记录'}</dd></div>${paid ? `<div><dt>开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>首充充值金额</dt><dd>${esc(row?.precharge || '-')}</dd></div>` : ''}</dl></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-danger" data-modal-submit>确认取消开户</button></div></section></div>`;
+  }
+
+  function openingAssetIdLabel(media) {
+    if (media === 'Google') return 'MCC';
+    if (media === 'TikTok') return 'BC';
+    if (media === 'Facebook') return 'BM ID';
+    return '';
   }
 
   function openingDetailModal(title, row) {
@@ -839,8 +875,10 @@
         item('申请ID', row?.applyId),
         item('客户', visible(row?.customerName) ? `${row.customerName}（${row.customerId || '-'}）` : row?.customerId),
         item('商户ID', row?.merchantId),
+        item('媒体渠道', row?.mediaChannel),
         item('申请时间', row?.applyAt),
         item('投放URL', url, true),
+        item(openingAssetIdLabel(row?.mediaChannel), row?.assetIds || row?.bmIds),
         item('投放国家', row?.country),
         item('时区', row?.timezone),
         item('日预算', row?.dailyBudget),
@@ -852,9 +890,10 @@
         item('最终报价', row?.finalQuote),
         item('报价版本', row?.quoteVersion),
         item('开户费', row?.openingFee),
-        item('首充预缴', row?.precharge),
+        item('首充充值金额', row?.precharge),
         item('付款状态', row?.paymentStatus),
-        item('首充记录', row?.prechargeRecord)
+        item('开户费扣费单', row?.openingFeeRecord),
+        item('首充充值单', row?.prechargeRecord)
       ]],
       ['处理结果', [
         item('开户状态', row?.status),
@@ -1175,11 +1214,18 @@
       if (outcome) outcome.textContent = nextOutcome.label;
       if (outcomeNote) outcomeNote.textContent = nextOutcome.note;
     }
-    function toggleOpeningAccountSource(modalRoot) {
-      if (!modalRoot) return;
-      const source = modalRoot.querySelector('[data-opening-account-source]')?.value || 'synced';
-      modalRoot.querySelectorAll('[data-opening-synced-panel]').forEach(node => { node.hidden = source !== 'synced'; });
-      modalRoot.querySelectorAll('[data-opening-manual-panel]').forEach(node => { node.hidden = source !== 'manual'; });
+    function toggleOpeningAccountSource(sourceSelect) {
+      const slot = sourceSelect?.closest('[data-opening-account-slot]') || sourceSelect?.closest('[data-opening-result-modal]');
+      if (!slot) return;
+      const source = sourceSelect?.value || slot.querySelector('[data-opening-account-source]')?.value || 'synced';
+      slot.querySelectorAll('[data-opening-synced-panel]').forEach(node => { node.hidden = source !== 'synced'; });
+      slot.querySelectorAll('[data-opening-manual-panel]').forEach(node => { node.hidden = source !== 'manual'; });
+    }
+    function toggleOpeningSlotFailed(checkbox) {
+      const slot = checkbox?.closest('[data-opening-account-slot]');
+      if (!slot) return;
+      const success = slot.querySelector('[data-opening-slot-success]');
+      if (success) success.hidden = Boolean(checkbox.checked);
     }
     function refreshRechargeAmounts(modalRoot) {
       if (!modalRoot) return;
@@ -1605,6 +1651,11 @@
     function openingRuleIdPrefix(mediaChannel) {
       if (mediaChannel === 'Google') return 'OR-GG';
       if (mediaChannel === 'TikTok') return 'OR-TT';
+      if (mediaChannel === 'Snapchat') return 'OR-SC';
+      if (mediaChannel === 'AppLovin') return 'OR-AL';
+      if (mediaChannel === 'Taboola') return 'OR-TB';
+      if (mediaChannel === 'Outbrain') return 'OR-OB';
+      if (mediaChannel === 'X') return 'OR-X';
       if (mediaChannel === '其他媒体') return 'OR-OM';
       return 'OR-FB';
     }
@@ -1656,15 +1707,18 @@
       row.quoteVersion = openingVersion(row, outcome.type === 'auto' ? 'locked' : 'confirm');
       row.remark = outcome.type === 'auto' ? '金额一致，已按客户授权自动扣款' : '总额不一致，已邮件通知客户回系统确认付款';
       if (outcome.type === 'auto') {
+        const count = openingAccountCount(row);
         row.status = '已付款待开户';
         row.paymentStatus = '已扣款';
         row.walletCharge = finalQuote;
-        row.prechargeRecord = `PRE-${row.applyId}-01${Number(row.accountCount || 1) > 1 ? ` / ${String(row.accountCount).padStart(2, '0')}` : ''}`;
+        row.openingFeeRecord = openingPlaceholderRecords(row.applyId, count, 'FEE-');
+        row.prechargeRecord = openingPlaceholderRecords(row.applyId, count, 'AD-OPEN-', ' 待绑定账户');
       } else {
         row.status = '待客户确认付款';
         row.paymentStatus = '待客户确认';
         row.walletCharge = '-';
-        row.prechargeRecord = '客户付款后生成';
+        row.openingFeeRecord = '客户付款后生成';
+        row.prechargeRecord = '客户付款后生成占位充值单';
       }
       refreshOpeningRow(row);
       state.processingRow = null;
@@ -1678,46 +1732,89 @@
       if (!row) { showToast('未找到开户申请', 'error'); return false; }
       const kind = modalRoot.dataset.openingResultKind || 'success';
       if (kind === 'success') {
-        const source = modalRoot.querySelector('[data-opening-account-source]')?.value || 'synced';
-        const syncedSelect = modalRoot.querySelector('[data-opening-synced-account]');
-        const selectedSynced = syncedSelect?.selectedOptions?.[0];
-        const manualId = modalRoot.querySelector('[data-opening-account-id]')?.value.trim();
-        const manualName = modalRoot.querySelector('[data-opening-account-name]')?.value.trim();
-        const manualCurrency = modalRoot.querySelector('[data-opening-account-currency]')?.value || 'USD';
-        const accountId = source === 'manual' ? manualId : syncedSelect?.value;
-        const accountName = source === 'manual' ? manualName : selectedSynced?.dataset.accountName;
-        const currency = source === 'manual' ? manualCurrency : selectedSynced?.dataset.currency || 'USD';
-        if (!accountId) { showToast('请输入广告账户ID', 'error'); return false; }
-        if (!accountName) { showToast('请输入广告账户名称', 'error'); return false; }
-        row.status = '开户成功';
-        row.paymentStatus = '已扣款';
-        row.accountInfo = `${accountId} / ${accountName} / ${currency}`;
-        const prechargeId = /^PRE-/.test(String(row.prechargeRecord || '')) ? row.prechargeRecord : `PRE-${row.applyId}-01`;
-        row.prechargeRecord = `${prechargeId} 已补充广告账户ID ${accountId} 并转为正式充值记录`;
-        row.remark = source === 'manual' ? '开户成功，已录入广告账户并自动分配给客户' : '开户成功，已选择同步账户并自动分配给客户';
+        const slots = Array.from(modalRoot.querySelectorAll('[data-opening-account-slot]'));
+        if (!slots.length) { showToast('未找到开户账户槽位', 'error'); return false; }
+        const results = [];
+        for (const slot of slots) {
+          const failed = Boolean(slot.querySelector('[data-opening-slot-failed]')?.checked);
+          const index = Number(slot.dataset.slotIndex || results.length + 1);
+          if (failed) {
+            results.push({ failed: true, index });
+            continue;
+          }
+          const source = slot.querySelector('[data-opening-account-source]')?.value || 'synced';
+          const syncedSelect = slot.querySelector('[data-opening-synced-account]');
+          const selectedSynced = syncedSelect?.selectedOptions?.[0];
+          const accountId = source === 'manual' ? slot.querySelector('[data-opening-account-id]')?.value.trim() : syncedSelect?.value;
+          const accountName = source === 'manual' ? slot.querySelector('[data-opening-account-name]')?.value.trim() : selectedSynced?.dataset.accountName;
+          const currency = source === 'manual' ? (slot.querySelector('[data-opening-account-currency]')?.value || 'USD') : (selectedSynced?.dataset.currency || 'USD');
+          const serviceRate = normalizeOpeningRate(slot.querySelector('[data-opening-service-rate]')?.value);
+          const preTaxRate = normalizeOpeningRate(slot.querySelector('[data-opening-pre-tax-rate]')?.value);
+          if (!accountId) { showToast(`请填写账户 ${index} 的广告账户ID`, 'error'); return false; }
+          if (!accountName) { showToast(`请填写账户 ${index} 的广告账户名称`, 'error'); return false; }
+          if (!serviceRate) { showToast(`请填写账户 ${index} 的账户服务费率`, 'error'); return false; }
+          if (!preTaxRate) { showToast(`请填写账户 ${index} 的预收税费费率`, 'error'); return false; }
+          results.push({ failed: false, index, source, accountId, accountName, currency, serviceRate, preTaxRate });
+        }
+        const successItems = results.filter(item => !item.failed);
+        const failedItems = results.filter(item => item.failed);
+        const successIds = successItems.map(item => item.accountId);
+        if (new Set(successIds).size !== successIds.length) {
+          showToast('成功账户的广告账户ID不能重复', 'error');
+          return false;
+        }
+        if (!successItems.length) {
+          row.status = '开户取消';
+          row.paymentStatus = '已退款';
+          row.accountInfo = '-';
+          row.openingFeeRecord = results.map(item => `FEE-${row.applyId}-${openingItemNo(item.index)} 已回退`).join(' / ');
+          row.prechargeRecord = results.map(item => `AD-OPEN-${row.applyId}-${openingItemNo(item.index)} 失败退款`).join(' / ');
+          row.remark = '全部账户开户失败，开户费已回退，首充充值单已失败退款';
+          refreshOpeningRow(row);
+          state.processingRow = null;
+          closeModal();
+          render();
+          showToast('全部账户开户失败，已取消开户并退款（原型）', 'success');
+          return true;
+        }
+        row.status = failedItems.length ? '部分成功' : '开户成功';
+        row.paymentStatus = failedItems.length ? '部分退款' : '已扣款';
+        row.accountInfo = successItems.map(item => `${item.accountId} / ${item.accountName} / ${item.currency}（服务费率 ${item.serviceRate}，预收税率 ${item.preTaxRate}）`).join('；') + (failedItems.length ? `；${failedItems.length} 个账户失败已退款` : '');
+        row.openingFeeRecord = results.map(item => {
+          const id = `FEE-${row.applyId}-${openingItemNo(item.index)}`;
+          return item.failed ? `${id} 已回退` : id;
+        }).join(' / ');
+        row.prechargeRecord = results.map(item => {
+          const id = `AD-OPEN-${row.applyId}-${openingItemNo(item.index)}`;
+          return item.failed ? `${id} 失败退款` : `${id} 已绑定 ${item.accountId} 并已发起充值`;
+        }).join(' / ');
+        row.remark = failedItems.length
+          ? `部分成功：${successItems.length} 成功 ${failedItems.length} 失败；成功账户已写入费率并发起充值`
+          : '已写入服务费率和预收税率，系统已发起广告账户充值';
         refreshOpeningRow(row);
         state.processingRow = null;
         closeModal();
         render();
-        showToast('开户成功，已回填广告账户ID并补齐首充充值记录（原型）', 'success');
+        showToast(failedItems.length ? '部分成功：成功账户已发起充值，失败账户已回退开户费和首充（原型）' : '已写入服务费率和预收税率，系统已发起广告账户充值（原型）', 'success');
         return true;
       }
       row.status = '开户取消';
       row.paymentStatus = '已退款';
       row.accountInfo = '-';
-      row.prechargeRecord = `开户失败退款：开户费 ${row.openingFee || '-'} USD + 首充 ${row.precharge || '-'} USD 已退回钱包`;
-      row.remark = '开户失败，开户已取消并退回开户费和首充';
+      row.openingFeeRecord = `FEE-${row.applyId}-01 已回退`;
+      row.prechargeRecord = `AD-OPEN-${row.applyId}-01 失败退款`;
+      row.remark = '开户失败，开户费已回退，首充充值单已失败退款';
       refreshOpeningRow(row);
       state.processingRow = null;
       closeModal();
       render();
-      showToast('开户失败，已取消开户并退回开户费和首充（原型）', 'success');
+      showToast('开户失败，已取消开户；开户费回退、首充充值单失败退款（原型）', 'success');
       return true;
     }
     function submitOpeningCancel(modalRoot) {
       const row = state.processingRow;
       if (!row) { showToast('未找到开户申请', 'error'); return false; }
-      if (row.status === '开户成功' || row.status === '开户取消') {
+      if (row.status === '开户成功' || row.status === '部分成功' || row.status === '开户取消') {
         showToast('当前状态已是终态，不支持取消开户', 'error');
         return false;
       }
@@ -1727,10 +1824,12 @@
       row.walletCharge = '-';
       if (paid) {
         row.paymentStatus = '已退款';
-        row.prechargeRecord = `取消退款：开户费 ${row.openingFee || '-'} USD + 首充 ${row.precharge || '-'} USD 已退回钱包`;
-        row.remark = '开户取消，已退回开户费和首充';
+        row.openingFeeRecord = `FEE-${row.applyId}-01 已回退`;
+        row.prechargeRecord = `AD-OPEN-${row.applyId}-01 失败退款`;
+        row.remark = '开户取消，开户费已回退，首充充值单已失败退款';
       } else {
         row.paymentStatus = '未扣款';
+        row.openingFeeRecord = '未扣款，无扣费记录';
         row.prechargeRecord = '未扣款，无充值记录';
         row.remark = '开户取消，未产生扣费和充值记录';
       }
@@ -1738,7 +1837,7 @@
       state.processingRow = null;
       closeModal();
       render();
-      showToast(paid ? '已取消开户，并退回开户费和首充（原型）' : '已取消开户，未产生扣费和充值记录（原型）', 'success');
+      showToast(paid ? '已取消开户；开户费回退、首充充值单失败退款（原型）' : '已取消开户，未产生扣费和充值记录（原型）', 'success');
       return true;
     }
     function submitOpeningReopen(modalRoot) {
@@ -1757,6 +1856,7 @@
       row.openingFee = '-';
       row.precharge = '-';
       row.walletCharge = '-';
+      row.openingFeeRecord = '-';
       row.prechargeRecord = '-';
       row.accountInfo = '-';
       row.quoteVersion = openingVersion(row, 'reopen');
@@ -2467,7 +2567,12 @@
       }
       const openingAccountSource = event.target.closest('[data-opening-account-source]');
       if (openingAccountSource) {
-        toggleOpeningAccountSource(openingAccountSource.closest('[data-opening-result-modal]'));
+        toggleOpeningAccountSource(openingAccountSource);
+        return;
+      }
+      const openingSlotFailed = event.target.closest('[data-opening-slot-failed]');
+      if (openingSlotFailed) {
+        toggleOpeningSlotFailed(openingSlotFailed);
         return;
       }
       const openingRuleConfigInput = event.target.closest('[data-opening-rule-config-modal] input, [data-opening-rule-config-modal] select, [data-opening-rule-config-modal] textarea');

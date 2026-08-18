@@ -73,6 +73,7 @@
       icon: 'video',
       items: [
         page('tt-account-management', '账户管理', 'tt-business/account-management.html', 'sync'),
+        page('tt-account-opening', '开户管理', 'tt-business/account-opening.html', 'plus-circle'),
         page('tt-account-allocation', '账户分配', 'tt-business/account-allocation.html', 'clipboard-list'),
         page('tt-recharge-management', '账户充值', 'tt-business/recharge-management.html', 'dollar-sign'),
         page('tt-deduction-management', '账户减款', 'tt-business/deduction-management.html', 'minus-circle'),
@@ -86,6 +87,7 @@
       icon: 'globe',
       items: [
         page('google-account-management', '账户管理', 'google-business/account-management.html', 'sync'),
+        page('google-account-opening', '开户管理', 'google-business/account-opening.html', 'plus-circle'),
         page('google-account-allocation', '账户分配', 'google-business/account-allocation.html', 'clipboard-list'),
         page('google-recharge-management', '账户充值', 'google-business/recharge-management.html', 'dollar-sign'),
         page('google-deduction-management', '账户减款', 'google-business/deduction-management.html', 'minus-circle'),
@@ -99,6 +101,7 @@
       icon: 'layer-group',
       items: [
         page('other-account-management', '账户管理', 'other-media-business/account-management.html', 'sync'),
+        page('other-account-opening', '开户管理', 'other-media-business/account-opening.html', 'plus-circle'),
         page('other-account-allocation', '账户分配', 'other-media-business/account-allocation.html', 'clipboard-list'),
         page('other-recharge-management', '账户充值', 'other-media-business/recharge-management.html', 'dollar-sign'),
         page('other-clear-management', '账户清零', 'other-media-business/clear-management.html', 'eraser'),
@@ -189,5 +192,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-13.2';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-18.1';
 })();

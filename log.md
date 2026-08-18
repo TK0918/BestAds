@@ -1,3 +1,76 @@
+#### 2026-08-18 - V2.42 开户自动化：原型入库并推送 GitHub Pages
+
+将 V2.42 开户自动化相关原型、PRD v0.4 和运营端 kit 版本戳提交到 `main`，供公网 Pages 刷新。
+
+- 客户端：`account-management.html`、`operation-records.html`、`js/client-shell.js`、`js/client-pages.js`、`css/client-shell.css`
+- 运营端：TT / GG / 其他媒体开户管理页、开户成功费率槽位、开户费与占位首充 mock、`SHELL_VERSION=20260818-file-menu-nav`
+- PRD：`PRD/V 2.42 开户自动化.md`
+- 公网：`https://tk0918.github.io/BestAds/`
+
+#### 2026-08-18 - V2.41 账户余额通知：评审裁剪与绑卡户余额口径
+
+按飞书未解决评论和已锁定口径，统一调整原型、本地 PRD、飞书 PRD。
+
+- 原型：客户端「邮件与邮箱」改为六类开关；运营端模板去掉版本库，日志去掉归因，用量去掉 72h 归因和预估费用；续航预览补绑卡户样例。
+- 本地：`PRD/V 2.41 账户余额通知.md` 升至 v0.5。
+- 飞书：Wiki `https://bestfulfill.feishu.cn/wiki/EIXgwUXJ2iOL12kKdvqcwl3Gnbf`，修订痕迹紫色删除线 + 紫色新文；补充 9.1 绑卡户余额判定。
+- 口径：余额用当前使用卡可用额度；消耗用广告账户日消耗；卡数据 30 分钟更新；建议充值和钱包判断与普通户一致；待验卡 / 冻结 / 关闭 / 无使用卡不发续航不足。
+
+#### 2026-08-18 - V2.41 账户余额通知：各页面补充公网原型地址
+
+在每个页面需求的「页面信息」中增加公网原型链接，便于对照 PRD 与可点击原型。
+
+- 更新：`PRD/V 2.41 账户余额通知.md`（v0.4）
+- 更新：飞书 Wiki `https://bestfulfill.feishu.cn/wiki/EIXgwUXJ2iOL12kKdvqcwl3Gnbf`
+- 公网原型：
+  - 提醒邮件模板：`https://tk0918.github.io/BestAds/admin-system/email-notifications/templates.html`
+  - 邮件发送日志：`https://tk0918.github.io/BestAds/admin-system/email-notifications/send-logs.html`
+  - 邮件发送用量统计：`https://tk0918.github.io/BestAds/admin-system/email-notifications/usage.html`
+  - 客户端邮件与邮箱：`https://tk0918.github.io/BestAds/bestads-client-styled/index.html?emailSettings=1`
+
+#### 2026-08-18 - 运营端原型：file:// 菜单跳转兜底
+
+- 原因：Cursor 内置浏览器打开 `file://` 时，侧栏 `<a href>` 的默认跳转常被拦截，看起来像菜单点不了。
+- 更新：`prototype-kit/admin-shell/admin-shell.js`——菜单和 Logo 点击改为 `location.assign` 兜底；`SHELL_VERSION` 升为 `20260818-file-menu-nav` 并同步 HTML。
+- 说明：一级菜单仍只负责展开/收起，真正跳转的是展开后的二级页面项。系统 Chrome 或公网 `https://tk0918.github.io/BestAds/` 不受此限制。
+
+#### 2026-08-18 - V2.42 开户自动化：PRD 对齐原型并补充公网地址
+
+- 更新：`PRD/V 2.42 开户自动化.md` 至 v0.4。
+- 口径：开户首充不新增广告账户充值状态枚举，占位阶段复用「充值中」，失败复用「失败」，后续按现网充值状态机流转。
+- 对齐：客户端必须选择媒体渠道；Facebook / Google / TikTok 分别输入 BM ID / MCC / BC。
+- 各页面「页面信息」和「13. 原型与 PRD 映射」补充公网原型，例如：
+  - [账户管理](https://tk0918.github.io/BestAds/bestads-client-styled/account-management.html)
+  - [操作记录](https://tk0918.github.io/BestAds/bestads-client-styled/operation-records.html)
+  - [Facebook 开户管理](https://tk0918.github.io/BestAds/admin-system/fb-business/account-opening.html)
+  - [账户规则配置](https://tk0918.github.io/BestAds/admin-system/system-configuration/account-opening-rules.html)
+  - [Facebook 账户充值](https://tk0918.github.io/BestAds/admin-system/fb-business/recharge-management.html)
+  - [其他扣费](https://tk0918.github.io/BestAds/admin-system/main-functions/deduction-details.html)
+
+#### 2026-08-18 - V2.42 开户自动化：Google MCC / TikTok BC 与 BM ID 同交互
+
+- 更新：`bestads-client-styled/account-management.html`——申请开户弹窗随媒体切换资产 ID 字段：Facebook 为 BM ID，Google 为 MCC，TikTok 为 BC；输入、逗号/空格解析、chips 预览与非必填规则保持一致；其他媒体不展示。
+- 更新：`bestads-client-styled/js/client-shell.js`、`bestads-client-styled/js/client-pages.js`、`bestads-client-styled/css/client-shell.css`、`bestads-client-styled/operation-records.html`——薄页面申请/详情/确认付款同步上述交互，并避免 `hidden` 被 `display:flex` 覆盖。
+- 更新：运营端开户详情按媒体展示 BM ID / MCC / BC；开户 mock 补资产 ID。
+- 更新：`PRD/V 2.42 开户自动化.md` v0.3。
+
+#### 2026-08-18 - V2.42 开户自动化：客户端申请开户媒体渠道改为必选
+
+- 修复：`bestads-client-styled/js/client-shell.js`——薄页面申请开户弹窗媒体渠道 `<select>` 默认改为空占位"请选择媒体渠道"（去掉 Facebook 默认选中）；BM ID 行初始隐藏；提交时未选媒体则红框高亮 + Toast 拦截；选中媒体后自动清除红框。
+- 修复：`bestads-client-styled/account-management.html`——巨型内联原型申请开户弹窗新增"媒体渠道"必选 `<select>`（含 Facebook/Google/TikTok/Snapchat/AppLovin/Taboola/Outbrain/X），默认空占位；BM ID 初始隐藏，仅 Facebook 时显示；提交校验未选则红框 + Toast 拦截；中英 i18n 已补齐。
+- 修复：`bestads-client-styled/account-management.html`——补 `.bm-id-input-wrap[hidden] { display: none !important; }`，避免 `.bm-id-input-wrap { display: grid; }` 覆盖 `hidden`，导致 BM ID 区块视觉上未隐藏。
+
+#### 2026-08-18 - V2.42 开户自动化：客户端四态映射与开户成功真充值
+
+按评审收口：客户端开户状态只用处理中 / 待确认 / 完成 / 失败，并与运营端状态建映射表；开户成功槽位补账户服务费率和预收税费费率后真正发起充值；其他扣费增加开户费样例。
+
+- 更新：`PRD/V 2.42 开户自动化.md`（v0.2 口径扫尾：状态映射、C3 真充值、去掉首充预缴）
+- 更新：`bestads-client-styled/js/client-shell.js`、`bestads-client-styled/js/client-pages.js`（客户端四态、不展示服务费）
+- 更新：运营端开户管理成功弹窗按账户数槽位填写费率并发起充值；TT / GG / 其他媒体增加开户管理入口
+- 更新：其他扣费、账户充值 mock 增加开户费和开户首充样例
+
+---
+
 #### 2026-08-18 - 同步 Codex V2.42 文档口径与协作规则
 
 将 Codex 已入库的 V2.42 开户自动化补进导航文档，并把工作区里未提交的 Agent 协作规则一并整理：进度看板区分「现网开户工单」与「V2.42 报价/扣费闭环尚未研发」。

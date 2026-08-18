@@ -14,7 +14,7 @@
   const repoRootUrl = new URL('../../', shellUrl);
   // 运营端原型公共资源统一版本号。
   // admin-system/**/*.html 中 prototype-kit/admin-shell/* 的 ?v= 应与此值保持一致。
-  const SHELL_VERSION = '20260817-opening-rules-fee-help';
+  const SHELL_VERSION = '20260818-file-menu-nav';
   const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
   const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
   cssUrlObj.searchParams.set('v', SHELL_VERSION);
@@ -67,6 +67,26 @@
 
   function absolutePath(path) {
     return path ? new URL(path, repoRootUrl).href : null;
+  }
+
+  function navigateTo(url) {
+    if (!url) return;
+    window.location.assign(url);
+  }
+
+  function bindLocalLinkNavigation(root) {
+    if (!root || root.dataset.adminLinkNav === 'true') return;
+    root.dataset.adminLinkNav = 'true';
+    root.addEventListener('click', event => {
+      const link = event.target.closest('a[href]');
+      if (!link || event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (link.target && link.target !== '_self') return;
+      const href = link.href;
+      if (!href || href === window.location.href) return;
+      event.preventDefault();
+      navigateTo(href);
+    });
   }
 
   function normalizePath(url) {
@@ -151,6 +171,7 @@
         if (icon) icon.className = `admin-shell-group-caret fas fa-chevron-${nextCollapsed ? 'right' : 'down'}`;
       });
     });
+    bindLocalLinkNavigation(sidebar);
 
     if (currentItem) sidebar.dataset.adminCurrent = currentItem.id;
   }
@@ -236,7 +257,7 @@
       tab.dataset.path = target;
       tab.addEventListener('click', event => {
         if (event.target.closest('i')) return;
-        window.location.href = target;
+        navigateTo(target);
       });
     }
   }

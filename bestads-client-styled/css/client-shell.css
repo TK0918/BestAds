@@ -972,6 +972,11 @@ button {
   gap: 6px;
 }
 
+.client-form-field[hidden],
+.client-bm-field[hidden] {
+  display: none !important;
+}
+
 .client-form-field.full {
   grid-column: 1 / -1;
 }

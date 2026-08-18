@@ -775,6 +775,10 @@
       gap: 8px;
     }
 
+    .bm-id-input-wrap[hidden] {
+      display: none !important;
+    }
+
     .bm-id-preview {
       display: flex;
       flex-wrap: wrap;
@@ -1207,14 +1211,28 @@
       </header>
       <div class="modal-body">
         <div class="apply-form-grid">
-          <label class="field full">
+          <label class="field">
+            <span class="form-title"><span data-i18n="apply_media_channel">Media Channel</span> <span style="color:var(--danger)">*</span></span>
+            <select id="applyMediaChannel" class="select">
+              <option value="" data-i18n="placeholder_media_channel">Please select media channel</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Google">Google</option>
+              <option value="TikTok">TikTok</option>
+              <option value="Snapchat">Snapchat</option>
+              <option value="AppLovin">AppLovin</option>
+              <option value="Taboola">Taboola</option>
+              <option value="Outbrain">Outbrain</option>
+              <option value="X">X</option>
+            </select>
+          </label>
+          <label class="field">
             <span class="form-title" data-i18n="url_label">Delivery URL</span>
             <input id="applyUrl" class="input" type="text" value="https://www.luminara-home.com" placeholder="Please enter delivery URL" data-i18n-placeholder="placeholder_url">
           </label>
-          <label class="field full bm-id-input-wrap">
-            <span class="form-title" data-i18n="apply_bm_ids">BM ID</span>
-            <input id="applyBmIds" class="input" type="text" value="121212345678901, 898989765432101" placeholder="Enter multiple BM IDs separated by comma or space" data-i18n-placeholder="placeholder_bm_ids">
-            <span class="form-tip" data-i18n="apply_bm_tip">Multiple BM IDs can be separated by comma or space.</span>
+          <label id="applyBmWrap" class="field full bm-id-input-wrap" hidden>
+            <span id="applyAssetLabel" class="form-title">BM ID</span>
+            <input id="applyBmIds" class="input" type="text" value="" placeholder="Enter multiple BM IDs separated by comma or space">
+            <span id="applyAssetTip" class="form-tip">Multiple BM IDs can be separated by comma or space.</span>
             <span id="applyBmPreview" class="bm-id-preview" aria-live="polite"></span>
           </label>
           <label class="field">
@@ -1580,8 +1598,16 @@
         apply_estimated_quote: 'Estimated opening cost',
         apply_estimated_quote_desc: 'Estimated by URL, country, daily budget and account count. Final amount is subject to review.',
         apply_bm_ids: 'BM ID',
-        apply_bm_tip: 'Multiple BM IDs can be separated by comma or space.',
+        apply_bm_tip: 'Facebook only. Multiple BM IDs can be separated by comma or space.',
         apply_bm_empty: 'No BM ID parsed yet',
+        apply_mcc_ids: 'MCC',
+        apply_mcc_tip: 'Google only. Multiple MCCs can be separated by comma or space.',
+        apply_mcc_empty: 'No MCC parsed yet',
+        placeholder_mcc_ids: 'Enter multiple MCCs separated by comma or space',
+        apply_bc_ids: 'BC',
+        apply_bc_tip: 'TikTok only. Multiple BCs can be separated by comma or space.',
+        apply_bc_empty: 'No BC parsed yet',
+        placeholder_bc_ids: 'Enter multiple BCs separated by comma or space',
         apply_opening_fee_subtotal: 'Opening fee',
         apply_precharge_subtotal: 'Initial top-up',
         apply_quote_total: 'Total',
@@ -1638,7 +1664,10 @@
         toast_quantity_limit: 'Account count must be between 1 and 20',
         toast_apply_done: 'Account opening request submitted. Initial quote is generated and can be viewed in Operation Records.',
         toast_url_limit: 'At most 20 URLs',
-        toast_page_limit: 'At most 20 Facebook Pages'
+        toast_page_limit: 'At most 20 Facebook Pages',
+        toast_media_required: 'Please select a media channel',
+        apply_media_channel: 'Media Channel',
+        placeholder_media_channel: 'Please select media channel'
       },
       'zh-CN': {
         mode_ad_management: '广告管理',
@@ -1715,8 +1744,16 @@
         apply_estimated_quote: '预估开户费用',
         apply_estimated_quote_desc: '系统根据 URL、投放国家、日预算和账户数预估。最终金额以运营审核结果为准。',
         apply_bm_ids: 'BM ID',
-        apply_bm_tip: '支持输入多个 BM ID，可用逗号或空格分隔。',
+        apply_bm_tip: '仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。',
         apply_bm_empty: '暂未识别到 BM ID',
+        apply_mcc_ids: 'MCC',
+        apply_mcc_tip: '仅 Google 需要。支持输入多个 MCC，可用逗号或空格分隔。',
+        apply_mcc_empty: '暂未识别到 MCC',
+        placeholder_mcc_ids: '请输入 MCC，多个可用逗号或空格分隔',
+        apply_bc_ids: 'BC',
+        apply_bc_tip: '仅 TikTok 需要。支持输入多个 BC，可用逗号或空格分隔。',
+        apply_bc_empty: '暂未识别到 BC',
+        placeholder_bc_ids: '请输入 BC，多个可用逗号或空格分隔',
         apply_opening_fee_subtotal: '开户费',
         apply_precharge_subtotal: '首充',
         apply_quote_total: '合计',
@@ -1773,7 +1810,10 @@
         toast_quantity_limit: '账户数需在 1 到 20 之间',
         toast_apply_done: '开户申请已提交，系统已生成初始报价，可在操作记录查看。',
         toast_url_limit: '最多 20 个 URL',
-        toast_page_limit: '最多 20 个 Facebook Page'
+        toast_page_limit: '最多 20 个 Facebook Page',
+        toast_media_required: '请选择媒体渠道',
+        apply_media_channel: '媒体渠道',
+        placeholder_media_channel: '请选择媒体渠道'
       }
     };
 
@@ -1942,13 +1982,57 @@
       return Array.from(new Set(String(value || '').split(/[\s,，]+/).map(item => item.trim()).filter(Boolean)));
     }
 
+    const OPENING_ASSET_SAMPLES = {
+      Facebook: '121212345678901, 898989765432101',
+      Google: '123-456-7890, 987-654-3210',
+      TikTok: '7012345678901234567, 7098765432109876543'
+    };
+
+    function openingAssetMeta(media) {
+      if (media === 'Facebook') {
+        return {
+          label: t('apply_bm_ids'),
+          placeholder: t('placeholder_bm_ids'),
+          tip: t('apply_bm_tip'),
+          empty: t('apply_bm_empty'),
+          sample: OPENING_ASSET_SAMPLES.Facebook
+        };
+      }
+      if (media === 'Google') {
+        return {
+          label: t('apply_mcc_ids'),
+          placeholder: t('placeholder_mcc_ids'),
+          tip: t('apply_mcc_tip'),
+          empty: t('apply_mcc_empty'),
+          sample: OPENING_ASSET_SAMPLES.Google
+        };
+      }
+      if (media === 'TikTok') {
+        return {
+          label: t('apply_bc_ids'),
+          placeholder: t('placeholder_bc_ids'),
+          tip: t('apply_bc_tip'),
+          empty: t('apply_bc_empty'),
+          sample: OPENING_ASSET_SAMPLES.TikTok
+        };
+      }
+      return null;
+    }
+
+    function isKnownAssetSample(value) {
+      const normalized = String(value || '').trim();
+      return !normalized || Object.values(OPENING_ASSET_SAMPLES).includes(normalized);
+    }
+
     function updateApplyBmPreview() {
       const preview = document.getElementById('applyBmPreview');
       if (!preview) return;
+      const media = document.getElementById('applyMediaChannel')?.value || '';
+      const meta = openingAssetMeta(media);
       const bmIds = parseBmIds(document.getElementById('applyBmIds')?.value || '');
       preview.innerHTML = bmIds.length
         ? bmIds.map(id => `<span class="bm-id-chip">${escapeHtml(id)}</span>`).join('')
-        : `<span class="bm-id-empty">${escapeHtml(t('apply_bm_empty'))}</span>`;
+        : `<span class="bm-id-empty">${escapeHtml(meta?.empty || t('apply_bm_empty'))}</span>`;
     }
 
     function applyI18n() {
@@ -1972,7 +2056,7 @@
       applyTheme(localStorage.getItem(THEME_KEY) || 'light');
       renderAccounts();
       updateApplyEstimate();
-      updateApplyBmPreview();
+      syncApplyMediaFields();
       ['recharge', 'deduct', 'clear'].forEach(mode => {
         if (document.getElementById(`${mode}Modal`).classList.contains('open')) {
           updateBatchSummary(mode);
@@ -2053,6 +2137,9 @@
     function openModal(id) {
       document.getElementById(id).classList.add('open');
       document.body.style.overflow = 'hidden';
+      if (id === 'applyModal') {
+        syncApplyMediaFields();
+      }
       if (id === 'rechargeModal') {
         renderBatchRows('recharge');
       }
@@ -2307,7 +2394,34 @@
       closeModal(`${mode}Modal`);
     }
 
+    function syncApplyMediaFields() {
+      const media = document.getElementById('applyMediaChannel')?.value || '';
+      const bmWrap = document.getElementById('applyBmWrap');
+      const sel = document.getElementById('applyMediaChannel');
+      const input = document.getElementById('applyBmIds');
+      const label = document.getElementById('applyAssetLabel');
+      const tip = document.getElementById('applyAssetTip');
+      const meta = openingAssetMeta(media);
+      if (media && sel) sel.style.outline = '';
+      if (bmWrap) bmWrap.hidden = !meta;
+      if (!meta) return;
+      if (label) label.textContent = meta.label;
+      if (tip) tip.textContent = meta.tip;
+      if (input) {
+        input.placeholder = meta.placeholder;
+        if (isKnownAssetSample(input.value)) input.value = meta.sample;
+      }
+      updateApplyBmPreview();
+    }
+
     function submitApply() {
+      const mediaChannel = document.getElementById('applyMediaChannel')?.value || '';
+      if (!mediaChannel) {
+        const sel = document.getElementById('applyMediaChannel');
+        if (sel) { sel.style.outline = '2px solid var(--danger)'; sel.focus(); }
+        showToast(t('toast_media_required'), 'warning');
+        return;
+      }
       const url = document.getElementById('applyUrl')?.value.trim();
       const country = document.getElementById('applyCountry')?.value.trim();
       const timezone = document.getElementById('applyTimezone')?.value.trim();
@@ -2414,6 +2528,7 @@
 
     document.getElementById('applyBmIds')?.addEventListener('input', updateApplyBmPreview);
     document.getElementById('applyBmIds')?.addEventListener('change', updateApplyBmPreview);
+    document.getElementById('applyMediaChannel')?.addEventListener('change', syncApplyMediaFields);
 
     document.querySelectorAll('[data-confirm-batch]').forEach(button => {
       button.addEventListener('click', () => confirmBatch(button.dataset.confirmBatch));
@@ -2451,7 +2566,7 @@
     if (document.getElementById('timezoneRows')) createTimezoneRow(false);
     if (document.getElementById('pageList')) createTextRow('pageList', t('placeholder_page'), false);
   </script>
-  <script src="./js/client-shell.js?v=20260817-opening-automation"></script>
+  <script src="./js/client-shell.js?v=20260818-opening-asset-ids"></script>
   <script src="./js/common.js?v=20260811-email-settings-simple-v3"></script>
 </body>
 </html>

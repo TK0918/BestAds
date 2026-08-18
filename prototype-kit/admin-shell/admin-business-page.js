@@ -104,8 +104,8 @@
     }
   });
 
-  const openingMediaChannels = ['Facebook', 'Google', 'TikTok', '其他媒体'];
-  const openingAccountTypes = ['Facebook-绿通户', 'Facebook-企业户', 'Facebook-三不限', 'Google-海外户', 'TikTok-企业户', '其他媒体账户'];
+  const openingMediaChannels = ['Facebook', 'Google', 'TikTok', 'Snapchat', 'AppLovin', 'Taboola', 'Outbrain', 'X'];
+  const openingAccountTypes = ['Facebook-绿通户', 'Facebook-企业户', 'Facebook-三不限', 'Google-海外户', 'TikTok-企业户', 'Snapchat-企业户', 'AppLovin-企业户', '其他媒体账户'];
   const openingRuleRows = [
     { ruleId: 'OR-FB-001', mediaChannel: 'Facebook', priority: '10', status: '启用', agent: 'Madhouse', accountType: 'Facebook-绿通户', countryMatch: '美国 / 加拿大 / 英国 / 法国 / 荷兰', categoryMatch: '服饰配件 / 家居收纳 / 美妆个护', minDailyBudget: '0', maxDailyBudget: '500', dailyBudgetRange: '0 - 500 USD', openingFeePerAccount: '150.00', prechargeBasePerAccount: '550.00', currency: 'USD', quoteVersion: 'RULE-20260813-A', updatedAt: '2026-08-13 11:20:18', updatedBy: owners.amLi, remark: '常规品类优先规则，审核时只锁定代理和账户类型。', ops: ['编辑', '复制', '停用', '查看详情'] },
     { ruleId: 'OR-FB-002', mediaChannel: 'Facebook', priority: '20', status: '启用', agent: 'Gimc', accountType: 'Facebook-企业户', countryMatch: '美国 / 加拿大 / 英国 / 法国', categoryMatch: '宠物用品 / 家居收纳 / 服饰配件', minDailyBudget: '0', maxDailyBudget: '800', dailyBudgetRange: '0 - 800 USD', openingFeePerAccount: '150.00', prechargeBasePerAccount: '650.00', currency: 'USD', quoteVersion: 'RULE-20260813-B', updatedAt: '2026-08-13 11:18:02', updatedBy: owners.amZhao, remark: '标准企业户规则，适合常规地区和标准品类。', ops: ['编辑', '复制', '停用', '查看详情'] },
@@ -113,6 +113,8 @@
     { ruleId: 'OR-FB-004', mediaChannel: 'Facebook', priority: '40', status: '启用', agent: 'Panda', accountType: 'Facebook-企业户', countryMatch: '荷兰 / 英国 / 法国', categoryMatch: '美妆个护 / 服饰配件 / 家居收纳', minDailyBudget: '0', maxDailyBudget: '300', dailyBudgetRange: '0 - 300 USD', openingFeePerAccount: '150.00', prechargeBasePerAccount: '650.00', currency: 'USD', quoteVersion: 'RULE-20260813-D', updatedAt: '2026-08-13 10:52:34', updatedBy: owners.bdQian, remark: '低预算欧洲投放兜底规则。', ops: ['编辑', '复制', '停用', '查看详情'] },
     { ruleId: 'OR-GG-001', mediaChannel: 'Google', priority: '50', status: '启用', agent: 'Gimc', accountType: 'Google-海外户', countryMatch: '美国 / 英国 / 加拿大', categoryMatch: '全部', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '120.00', prechargeBasePerAccount: '500.00', currency: 'USD', quoteVersion: 'RULE-20260813-GG', updatedAt: '2026-08-13 10:40:12', updatedBy: owners.amLi, remark: 'Google 开户预留规则，供跨媒体方案评审。', ops: ['编辑', '复制', '停用', '查看详情'] },
     { ruleId: 'OR-TT-001', mediaChannel: 'TikTok', priority: '60', status: '启用', agent: 'Madhouse', accountType: 'TikTok-企业户', countryMatch: '美国 / 英国 / 法国', categoryMatch: '服饰配件 / 美妆个护', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '130.00', prechargeBasePerAccount: '600.00', currency: 'USD', quoteVersion: 'RULE-20260813-TT', updatedAt: '2026-08-13 10:30:51', updatedBy: owners.amZhao, remark: 'TikTok 开户预留规则，供跨媒体方案评审。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-AL-001', mediaChannel: 'AppLovin', priority: '70', status: '启用', agent: 'it-test', accountType: 'AppLovin-企业户', countryMatch: '美国 / 加拿大', categoryMatch: '全部', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '120.00', prechargeBasePerAccount: '500.00', currency: 'USD', quoteVersion: 'RULE-20260818-AL', updatedAt: '2026-08-18 10:12:08', updatedBy: owners.amLi, remark: 'AppLovin 开户规则。', ops: ['编辑', '复制', '停用', '查看详情'] },
+    { ruleId: 'OR-SC-001', mediaChannel: 'Snapchat', priority: '80', status: '启用', agent: 'it-test', accountType: 'Snapchat-企业户', countryMatch: '美国 / 英国', categoryMatch: '全部', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '110.00', prechargeBasePerAccount: '400.00', currency: 'USD', quoteVersion: 'RULE-20260818-SC', updatedAt: '2026-08-18 10:08:41', updatedBy: owners.amZhao, remark: 'Snapchat 开户规则。', ops: ['编辑', '复制', '停用', '查看详情'] },
     { ruleId: 'OR-FB-005', mediaChannel: 'Facebook', priority: '90', status: '停用', agent: 'MeetSocial', accountType: 'Facebook-企业户', countryMatch: '全部', categoryMatch: '全部', minDailyBudget: '0', maxDailyBudget: '', dailyBudgetRange: '0 - 不限 USD', openingFeePerAccount: '180.00', prechargeBasePerAccount: '700.00', currency: 'USD', quoteVersion: 'RULE-20260801-LEGACY', updatedAt: '2026-08-01 18:16:21', updatedBy: owners.amSun, remark: '旧代理规则，已停用，不参与自动报价。', ops: ['编辑', '复制', '启用', '查看详情'] }
   ];
   const openingRuleFields = [
@@ -126,7 +128,7 @@
     { key: 'minDailyBudget', label: '日预算下限', placeholder: '输入金额' },
     { key: 'maxDailyBudget', label: '日预算上限', required: false, placeholder: '为空表示不限' },
     { key: 'openingFeePerAccount', label: '开户费/账户', placeholder: '输入开户费，0 表示不收取开户费', help: '填写 0 表示该规则不收取开户费。开户审核时按账户数计算开户费小计。' },
-    { key: 'prechargeBasePerAccount', label: '账户首充金额', placeholder: '输入账户首充金额，0 表示无首充要求', help: '填写 0 表示该规则没有首充要求。开户审核时按账户数计算首充小计。' },
+    { key: 'prechargeBasePerAccount', label: '账户首充金额', placeholder: '输入现网充值金额 R，0 表示无首充要求', help: '填写现网充值金额 R。0 表示该规则没有首充要求，不创建充值单。开户审核时按账户数计算首充小计。本期客户端不展示服务费。' },
     { key: 'currency', label: '币种', control: 'select', options: currencies, placeholder: '选择币种' },
     { key: 'remark', label: '备注', control: 'textarea', full: true, required: false, placeholder: '仅运营端可见' }
   ];
@@ -160,7 +162,7 @@
       { key: 'categoryMatch', label: '品类匹配', align: 'left', width: 220, format: text },
       { key: 'dailyBudgetRange', label: '日预算范围', width: 150 },
       { key: 'openingFeePerAccount', label: '开户费/账户', width: 120, num: true, format: amount, help: '0 表示该规则不收取开户费。开户审核时按账户数计算开户费小计。' },
-      { key: 'prechargeBasePerAccount', label: '账户首充金额', width: 140, num: true, format: amount, help: '0 表示该规则没有首充要求。开户审核时按账户数计算首充小计。' },
+      { key: 'prechargeBasePerAccount', label: '账户首充金额', width: 140, num: true, format: amount, help: '等于现网充值金额 R。0 表示该规则没有首充要求，不创建充值单。' },
       { key: 'currency', label: '币种', width: 80 },
       { key: 'quoteVersion', label: '报价版本', width: 160 },
       { key: 'updatedBy', label: '最后修改人', align: 'left', width: 240, format: person },
@@ -179,11 +181,12 @@
     title: '开户管理',
     filters: [
       dateRange('申请时间'),
+      select('mediaChannel', '媒体渠道', openingMediaChannels, '选择媒体渠道'),
       input('customerId', '客户ID', '输入客户ID'),
       input('merchantId', '商户ID', '输入商户ID'),
       input('customerName', '客户名称', '输入客户名称'),
-      select('status', '开户状态', ['待运营审核', '审核不通过', '待客户确认付款', '已付款待开户', '开户成功', '开户取消'], '选择开户状态'),
-      select('paymentStatus', '付款状态', ['未扣款', '待客户确认', '已扣款', '已退款'], '选择付款状态')
+      select('status', '开户状态', ['待运营审核', '审核不通过', '待客户确认付款', '已付款待开户', '开户成功', '部分成功', '开户取消'], '选择开户状态'),
+      select('paymentStatus', '付款状态', ['未扣款', '待客户确认', '已扣款', '部分退款', '已退款'], '选择付款状态')
     ],
     actions: [
       { id: 'create', label: '新建开户申请', icon: 'plus', primary: true },
@@ -198,6 +201,7 @@
       { key: 'customerId', label: '客户ID', width: 100 },
       { key: 'customerName', label: '客户名称', align: 'left', width: 170 },
       { key: 'merchantId', label: '商户ID', width: 110 },
+      { key: 'mediaChannel', label: '媒体渠道', width: 120 },
       { key: 'applyAt', label: '申请时间', width: 170, sort: true },
       { key: 'status', label: '开户状态', width: 140, format: tag },
       { key: 'paymentStatus', label: '付款状态', width: 120, format: tag },
@@ -213,20 +217,24 @@
       { key: 'agent', label: '开户代理', width: 120 },
       { key: 'accountType', label: '账户类型', width: 140 },
       { key: 'openingFee', label: '开户费', width: 110, num: true, format: amount },
-      { key: 'precharge', label: '首充预缴', width: 120, num: true, format: amount },
-      { key: 'prechargeRecord', label: '首充预缴记录', align: 'left', width: 230, format: text },
+      { key: 'precharge', label: '首充充值金额', width: 130, num: true, format: amount },
+      { key: 'openingFeeRecord', label: '开户费扣费单', align: 'left', width: 220, format: text },
+      { key: 'prechargeRecord', label: '首充充值单', align: 'left', width: 260, format: text },
       { key: 'accountInfo', label: '开户结果账户', align: 'left', width: 210, format: text },
       { key: 'remark', label: '备注', align: 'left', width: 220, format: text }
     ],
     rows: [
-      { applyId: 'AO20260813001', customerId: '102', customerName: 'adstest', merchantId: '1128', applyAt: '2026-08-13 10:26:18', status: '待运营审核', paymentStatus: '未扣款', url: 'https://www.luminara-home.com', country: '美国 / 加拿大', timezone: 'America/Los_Angeles', dailyBudget: '300 USD', accountCount: '2', category: '家居收纳', initialQuote: '1700.00', finalQuote: '-', quoteVersion: 'Q-20260813-001', agent: '-', accountType: '-', openingFee: '-', precharge: '-', prechargeRecord: '-', accountInfo: '-', remark: '客户已同意金额一致时自动扣款', ops: ['审核开户', '查看详情'] },
-      { applyId: 'AO20260812008', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', applyAt: '2026-08-12 16:42:09', status: '待客户确认付款', paymentStatus: '待客户确认', url: 'https://www.breeze-pet.co', country: '美国', timezone: 'America/New_York', dailyBudget: '500 USD', accountCount: '3', category: '宠物用品', initialQuote: '2250.00', finalQuote: '2450.00', quoteVersion: 'Q-20260812-008-v2', agent: 'Gimc', accountType: 'Facebook-企业户', openingFee: '450.00', precharge: '2000.00', prechargeRecord: '客户付款后生成', accountInfo: '-', remark: '总额不一致，已邮件通知客户回系统确认付款', ops: ['查看详情', '取消开户', '重开审核'] },
-      { applyId: 'AO20260812002', customerId: '2688', customerName: '测试用户_1777106273', merchantId: '11894', applyAt: '2026-08-12 11:08:42', status: '已付款待开户', paymentStatus: '已扣款', url: 'https://www.furora-style.com', country: '英国 / 法国', timezone: 'Europe/London', dailyBudget: '200 USD', accountCount: '2', category: '服饰配件', initialQuote: '1400.00', finalQuote: '1400.00', quoteVersion: 'Q-20260812-002', agent: 'Madhouse', accountType: 'Facebook-绿通户', openingFee: '300.00', precharge: '1100.00', prechargeRecord: 'PRE-AO20260812002-01 / 02', accountInfo: '-', remark: '金额一致，已按客户授权自动扣款', ops: ['开户成功', '开户失败', '查看详情', '取消开户'] },
-      { applyId: 'AO20260811005', customerId: '2658', customerName: '测试何', merchantId: '13328', applyAt: '2026-08-11 09:33:21', status: '开户成功', paymentStatus: '已扣款', url: 'https://www.oliva-amsterdam.nl', country: '荷兰', timezone: 'Europe/Amsterdam', dailyBudget: '150 USD', accountCount: '1', category: '美妆个护', initialQuote: '800.00', finalQuote: '800.00', quoteVersion: 'Q-20260811-005', agent: 'Panda', accountType: 'Facebook-企业户', openingFee: '150.00', precharge: '650.00', prechargeRecord: 'PRE-AO20260811005-01 已补充广告账户ID并转为正式充值记录', accountInfo: '1002116215352952 / Oliva-Amsterdam / EUR', remark: '-', ops: ['查看详情'] },
-      { applyId: 'AO20260810003', customerId: '4770', customerName: '-', merchantId: '17794', applyAt: '2026-08-10 14:12:37', status: '开户取消', paymentStatus: '已退款', url: 'https://www.example-health-supplement.com', country: '美国', timezone: 'America/Chicago', dailyBudget: '250 USD', accountCount: '1', category: '保健品', initialQuote: '950.00', finalQuote: '950.00', quoteVersion: 'Q-20260810-003', agent: 'Rockads', accountType: 'Facebook-企业户', openingFee: '150.00', precharge: '800.00', prechargeRecord: '开户失败退款：开户费 150.00 USD + 首充 800.00 USD 已退回钱包', accountInfo: '-', remark: '代理拒绝开户，开户已取消', ops: ['查看详情'] }
+      { applyId: 'AO20260813001', customerId: '102', customerName: 'adstest', merchantId: '1128', mediaChannel: 'Facebook', applyAt: '2026-08-13 10:26:18', status: '待运营审核', paymentStatus: '未扣款', url: 'https://www.luminara-home.com', assetIds: '121212345678901 / 898989765432101', country: '美国 / 加拿大', timezone: 'America/Los_Angeles', dailyBudget: '300 USD', accountCount: '2', category: '家居收纳', initialQuote: '1700.00', finalQuote: '-', quoteVersion: 'Q-20260813-001', agent: '-', accountType: '-', openingFee: '-', precharge: '-', openingFeeRecord: '-', prechargeRecord: '-', accountInfo: '-', remark: '客户已同意金额一致时自动扣款', ops: ['审核开户', '查看详情'] },
+      { applyId: 'AO20260812008', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', mediaChannel: 'Facebook', applyAt: '2026-08-12 16:42:09', status: '待客户确认付款', paymentStatus: '待客户确认', url: 'https://www.breeze-pet.co', assetIds: '121212345678901', country: '美国', timezone: 'America/New_York', dailyBudget: '500 USD', accountCount: '3', category: '宠物用品', initialQuote: '2250.00', finalQuote: '2450.00', quoteVersion: 'Q-20260812-008-v2', agent: 'Gimc', accountType: 'Facebook-企业户', openingFee: '450.00', precharge: '2000.00', openingFeeRecord: '客户付款后生成', prechargeRecord: '客户付款后生成占位充值单', accountInfo: '-', remark: '总额不一致，已邮件通知客户回系统确认付款', ops: ['查看详情', '取消开户', '重开审核'] },
+      { applyId: 'AO20260812002', customerId: '2688', customerName: '测试用户_1777106273', merchantId: '11894', mediaChannel: 'Facebook', applyAt: '2026-08-12 11:08:42', status: '已付款待开户', paymentStatus: '已扣款', url: 'https://www.furora-style.com', assetIds: '121212345678901 / 898989765432101', country: '英国 / 法国', timezone: 'Europe/London', dailyBudget: '200 USD', accountCount: '2', category: '服饰配件', initialQuote: '1400.00', finalQuote: '1400.00', quoteVersion: 'Q-20260812-002', agent: 'Madhouse', accountType: 'Facebook-绿通户', openingFee: '300.00', precharge: '1100.00', openingFeeRecord: 'FEE-AO20260812002-01 / 02', prechargeRecord: 'AD-OPEN-AO20260812002-01 / 02 待绑定账户', accountInfo: '-', remark: '金额一致，已按客户授权扣开户费和首充', ops: ['开户成功', '开户失败', '查看详情', '取消开户'] },
+      { applyId: 'AO20260811005', customerId: '2658', customerName: '测试何', merchantId: '13328', mediaChannel: 'Facebook', applyAt: '2026-08-11 09:33:21', status: '开户成功', paymentStatus: '已扣款', url: 'https://www.oliva-amsterdam.nl', assetIds: '121212345678901', country: '荷兰', timezone: 'Europe/Amsterdam', dailyBudget: '150 USD', accountCount: '1', category: '美妆个护', initialQuote: '800.00', finalQuote: '800.00', quoteVersion: 'Q-20260811-005', agent: 'Panda', accountType: 'Facebook-企业户', openingFee: '150.00', precharge: '650.00', openingFeeRecord: 'FEE-AO20260811005-01', prechargeRecord: 'AD-OPEN-AO20260811005-01 已绑定并充值', accountInfo: '1002116215352952 / Oliva-Amsterdam / EUR', remark: '已写入服务费率 3%、预收税率 0%，系统已发起充值', ops: ['查看详情'] },
+      { applyId: 'AO20260814001', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', mediaChannel: 'TikTok', applyAt: '2026-08-14 09:20:11', status: '待运营审核', paymentStatus: '未扣款', url: 'https://www.furora-style.com', assetIds: '7012345678901234567', country: '美国', timezone: 'America/Los_Angeles', dailyBudget: '180 USD', accountCount: '1', category: '服饰配件', initialQuote: '730.00', finalQuote: '-', quoteVersion: 'Q-20260814-001', agent: '-', accountType: '-', openingFee: '-', precharge: '-', openingFeeRecord: '-', prechargeRecord: '-', accountInfo: '-', remark: 'TikTok 开户申请，等待运营审核', ops: ['审核开户', '查看详情'] },
+      { applyId: 'AO20260814002', customerId: '102', customerName: 'adstest', merchantId: '1128', mediaChannel: 'Google', applyAt: '2026-08-14 10:05:44', status: '已付款待开户', paymentStatus: '已扣款', url: 'https://www.luminara-home.com', assetIds: '123-456-7890 / 987-654-3210', country: '英国', timezone: 'Europe/London', dailyBudget: '220 USD', accountCount: '1', category: '家居收纳', initialQuote: '620.00', finalQuote: '620.00', quoteVersion: 'Q-20260814-002', agent: 'Gimc', accountType: 'Google-海外户', openingFee: '120.00', precharge: '500.00', openingFeeRecord: 'FEE-AO20260814002-01', prechargeRecord: 'AD-OPEN-AO20260814002-01 待绑定账户', accountInfo: '-', remark: '金额一致，已按客户授权扣开户费和首充', ops: ['开户成功', '开户失败', '查看详情', '取消开户'] },
+      { applyId: 'AO20260813020', customerId: '2853', customerName: '-', merchantId: '12059', mediaChannel: 'AppLovin', applyAt: '2026-08-13 15:18:02', status: '部分成功', paymentStatus: '部分退款', url: 'https://www.luminara-home.com', country: '美国', timezone: 'America/Los_Angeles', dailyBudget: '400 USD', accountCount: '2', category: '家居收纳', initialQuote: '1240.00', finalQuote: '1240.00', quoteVersion: 'Q-20260813-020', agent: 'it-test', accountType: 'AppLovin-企业户', openingFee: '240.00', precharge: '1000.00', openingFeeRecord: 'FEE-AO20260813020-01 成功 / 02 已回退', prechargeRecord: 'AD-OPEN-AO20260813020-01 已充值 / 02 已退款', accountInfo: '1983200478 成功；1 个账户失败已退款', remark: '部分成功：1 成功 1 失败', ops: ['查看详情'] },
+      { applyId: 'AO20260810003', customerId: '4770', customerName: '-', merchantId: '17794', mediaChannel: 'Facebook', applyAt: '2026-08-10 14:12:37', status: '开户取消', paymentStatus: '已退款', url: 'https://www.example-health-supplement.com', assetIds: '121212345678901', country: '美国', timezone: 'America/Chicago', dailyBudget: '250 USD', accountCount: '1', category: '保健品', initialQuote: '950.00', finalQuote: '950.00', quoteVersion: 'Q-20260810-003', agent: 'Rockads', accountType: 'Facebook-企业户', openingFee: '150.00', precharge: '800.00', openingFeeRecord: 'FEE-AO20260810003-01 已回退', prechargeRecord: 'AD-OPEN-AO20260810003-01 失败退款', accountInfo: '-', remark: '代理拒绝开户，开户费回退、首充充值单失败退款', ops: ['查看详情'] }
     ],
     modals: {
-      '新建开户申请': { title: '新建开户申请', fields: [{ key: 'customerId', label: '客户ID', placeholder: '请输入客户ID' }, { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'country', label: '投放国家', placeholder: '请输入投放国家' }, { key: 'timezone', label: '时区', placeholder: '请选择时区' }, { key: 'dailyBudget', label: '日预算', placeholder: '请输入日预算' }, { key: 'accountCount', label: '账户数', placeholder: '请输入账户数' }, { key: 'url', label: 'URL', placeholder: '请输入开户链接', full: true }] },
+      '新建开户申请': { title: '新建开户申请', fields: [{ key: 'mediaChannel', label: '媒体渠道', control: 'select', options: openingMediaChannels, placeholder: '选择媒体渠道' }, { key: 'customerId', label: '客户ID', placeholder: '请输入客户ID' }, { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'country', label: '投放国家', placeholder: '请输入投放国家' }, { key: 'timezone', label: '时区', placeholder: '请选择时区' }, { key: 'dailyBudget', label: '日预算', placeholder: '请输入日预算' }, { key: 'accountCount', label: '账户数', placeholder: '请输入账户数' }, { key: 'url', label: 'URL', placeholder: '请输入开户链接', full: true }] },
       '审核开户': { type: 'opening-audit', title: '审核开户' },
       '审核报价': { type: 'opening-audit', title: '审核开户' },
       '开户成功': { type: 'opening-result-success', title: '开户成功' },
@@ -527,16 +535,20 @@
 
   const rechargeRows = {
     fb: [
+      { orderId: 'AD-OPEN-AO20260812002-01', customerId: '2688', customerName: '测试用户_1777106273', merchantId: '11894', submitter: '系统-开户首充', submittedAt: '2026-08-12 11:08:50', accountId: 'PENDING-AO20260812002-01', accountName: '开户首充（待绑定账户）', bindCard: '否', card: '-', currency: 'USD', agent: 'Madhouse', amount: '550', preTaxRate: '-', preTaxFee: '-', accountFeeRate: '-', agentFeeRate: '-', totalFee: '-', companyFee: '-', agentFee: '-', actualAmount: '-', walletCurrency: 'USD', walletAmount: '550', status: '充值中', completedAt: '-', remark: '开户首充，钱包已扣，待绑定广告账户', ops: ['标记状态'] },
+      { orderId: 'AD-OPEN-AO20260811005-01', customerId: '2658', customerName: '测试何', merchantId: '13328', submitter: '系统-开户首充', submittedAt: '2026-08-11 09:33:40', accountId: '1002116215352952', accountName: 'Oliva-Amsterdam', bindCard: '否', card: '-', currency: 'EUR', agent: 'Panda', amount: '650', preTaxRate: '0.00%', preTaxFee: '0', accountFeeRate: '3.00%', agentFeeRate: '0.00%', totalFee: '19.50', companyFee: '19.50', agentFee: '0', actualAmount: '630.50', walletCurrency: 'USD', walletAmount: '650', status: '完成', completedAt: '2026-08-11 10:02:18', remark: '开户成功后补账户 ID、服务费率和预收税率，系统已发起充值', ops: ['标记状态'] },
       { orderId: 'AD20260808104110277646364', customerId: '4770', customerName: '-', merchantId: '17794', submitter: 'Hiroto', submittedAt: '2026-08-08 10:41:10', accountId: '27648062301520359', accountName: '#6775 - hanaleave 261 - PP - RHKA', bindCard: '否', card: '-', currency: 'USD', agent: 'Rockads', amount: '200', preTaxRate: '-', preTaxFee: '-', accountFeeRate: '3.00%', agentFeeRate: '1.00%', totalFee: '6', companyFee: '4', agentFee: '2', actualAmount: '194', walletCurrency: 'USD', walletAmount: '200', status: '完成', completedAt: '2026-08-08 10:41:13', remark: '-', ops: ['标记状态', '重试', '人工取消'] },
       { orderId: 'AD20260808101929844051755', customerId: '2688', customerName: '测试用户_1777106273', merchantId: '11894', submitter: 'Brandon Bardwell', submittedAt: '2026-08-08 10:19:30', accountId: '965724766105259', accountName: 'simmple-us 6-GB', bindCard: '否', card: '-', currency: 'USD', agent: 'Madhouse', amount: '600', preTaxRate: '-', preTaxFee: '-', accountFeeRate: '10.00%', agentFeeRate: '0.00%', totalFee: '60', companyFee: '60', agentFee: '0', actualAmount: '540', walletCurrency: 'USD', walletAmount: '600', status: '完成', completedAt: '2026-08-08 10:31:00', remark: '-', ops: ['标记状态'] }
     ],
     gg: [
+      { orderId: 'AD-OPEN-AO20260814002-01', customerId: '102', customerName: 'adstest', merchantId: '1128', submitter: '系统-开户首充', submittedAt: '2026-08-14 10:06:02', accountId: 'PENDING-AO20260814002-01', accountName: '开户首充（待绑定账户）', bindCard: '否', card: '-', currency: 'USD', agent: 'Gimc', amount: '500', preTaxRate: '-', preTaxFee: '-', accountFeeRate: '-', agentFeeRate: '-', totalFee: '-', companyFee: '-', agentFee: '-', actualAmount: '-', walletCurrency: 'USD', walletAmount: '500', status: '充值中', completedAt: '-', remark: '开户首充，钱包已扣，待绑定广告账户', ops: ['标记状态'] },
       { orderId: 'AD20260808083507969754755', customerId: '3063', customerName: '-', merchantId: '12361', submitter: 'Lucas D-12361', submittedAt: '2026-08-08 08:35:08', accountId: '6077344284', accountName: 'muxue-HTX0P', bindCard: '否', card: '-', currency: 'USD', agent: 'Gimc', amount: '500', preTaxRate: '-', preTaxFee: '-', accountFeeRate: '1.00%', agentFeeRate: '0.00%', totalFee: '5', companyFee: '5', agentFee: '0', actualAmount: '495', walletCurrency: 'USD', walletAmount: '500', status: '完成', completedAt: '2026-08-08 08:36:03', remark: '-', ops: ['标记状态'] }
     ],
     tt: [
       { orderId: 'AD20260808044015355079868', customerId: '4750', customerName: '-', merchantId: '17720', submitter: 'Jad', submittedAt: '2026-08-08 04:40:15', accountId: '7665996521594257429', accountName: 'HUACHAO-B-TT-paris-indescents', bindCard: '否', card: '-', currency: 'USD', agent: 'Madhouse', amount: '800', preTaxRate: '', preTaxFee: '', accountFeeRate: '1.00%', agentFeeRate: '0.00%', totalFee: '8', companyFee: '8', agentFee: '0', actualAmount: '792', walletCurrency: 'USD', walletAmount: '800', status: '完成', completedAt: '2026-08-08 04:41:00', remark: '-', ops: ['标记状态'] }
     ],
     other: [
+      { media: 'AppLovin', orderId: 'AD-OPEN-AO20260813020-01', customerId: '2853', customerName: '-', merchantId: '12059', submitter: '系统-开户首充', submittedAt: '2026-08-13 15:18:20', accountId: '1983200478', accountName: 'Lucas De Souza 1', bindCard: '是', card: 'c_1ihrvn24fl49c(3992)', currency: 'USD', agent: 'it-test', amount: '500', accountFeeRate: '3.00%', agentFeeRate: '0.00%', totalFee: '15', companyFee: '15', agentFee: '0', actualAmount: '485', walletCurrency: 'USD', walletAmount: '500', status: '完成', completedAt: '2026-08-13 16:02:11', remark: '开户成功后补账户 ID、服务费率和预收税率，系统已发起充值', ops: ['标记状态'] },
       { media: 'Applovin', orderId: 'AD20260808055833544414472', customerId: '2853', customerName: '-', merchantId: '12059', submitter: 'Lucas De Souza 1', submittedAt: '2026-08-08 05:58:34', accountId: '1983200478', accountName: '-', bindCard: '是', card: 'c_1ihrvn24fl49c(3992)', currency: 'USD', agent: '-', amount: '3,000', accountFeeRate: '3.00%', agentFeeRate: '0.00%', totalFee: '90', companyFee: '90', agentFee: '0', actualAmount: '2,910', walletCurrency: 'USD', walletAmount: '3,000', status: '完成', completedAt: '2026-08-08 09:12:30', remark: '运营标记媒体调额完成', ops: ['标记状态'] }
     ]
   };
@@ -593,6 +605,9 @@
     ...(window.BESTADS_ADMIN_MODULE_CONFIGS || {}),
     'fb-account-management': accountPage('fb', fbAccounts, { bm: true, tableMinWidth: 2500 }),
     'fb-account-opening': openingPage,
+    'tt-account-opening': openingPage,
+    'google-account-opening': openingPage,
+    'other-account-opening': openingPage,
     'account-opening-rules': openingRulesPage,
     'fb-account-allocation': assignPage(false, fbAssign),
     'fb-recharge-management': orderPage('充值', rechargeRows.fb),
