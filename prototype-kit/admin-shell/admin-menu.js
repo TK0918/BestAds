@@ -157,7 +157,7 @@
         page('consumption-distribution', '消耗分布', 'reports/consume-analysis-report.html', 'chart-area'),
         page('customer-reconciliation-daily-report', '客户对账日报', 'reports/customer-reconciliation-daily-report.html', 'clipboard-check'),
         page('weekly-ad-data-report', '广告周数据', 'reports/weekly-ad-data-report.html', 'calendar-week'),
-        page('it-biweekly-data', 'IT双周会数据', 'reports/it-biweekly-data.html', 'calendar-alt'),
+        page('it-biweekly-data', 'IT双周会报表', 'reports/it-biweekly-data.html', 'calendar-alt'),
         page('ad-customer-performance-report', '广告客户表现', 'reports/ad-customer-performance-report.html', 'trophy'),
         page('bind-card-account', '绑卡户管理', 'reports/account-card-reconciliation-report.html', 'credit-card'),
         page('acct-txn-summary', '综合充值清零减款', 'reports/acct-txn-summary.html', 'receipt'),
@@ -193,5 +193,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-20.1';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-20.2';
 })();

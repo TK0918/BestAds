@@ -1,5 +1,5 @@
 /*
- * BestAds 运营端「IT双周会数据」看板。
+ * BestAds 运营端「IT双周会报表」看板。
  * 独立于报表表格契约，不走 admin-reports-page.js。
  */
 (function () {
@@ -85,7 +85,6 @@
   const cls = (n) => (n > 0.0005 ? 'up' : n < -0.0005 ? 'down' : 'flat');
   const share = (part, total) => total ? part / total : 0;
   const moneyDelta = (n) => (n > 0 ? '+' : '') + money(n);
-  const DEFAULT_DATE = '2026-08-18';
   const pad2 = (n) => String(n).padStart(2, '0');
   const parseDate = (value) => {
     const [y, m, d] = String(value).split('-').map(Number);
@@ -94,6 +93,7 @@
   const addDays = (date, days) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
   const formatYMD = (date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
   const formatMD = (date) => `${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+  const DEFAULT_DATE = formatYMD(new Date());
   const windowsFromStatDate = (value) => {
     const stat = parseDate(value);
     return {
@@ -138,7 +138,6 @@
   async function capturePage() {
     const button = document.getElementById('itbCaptureBtn');
     const target = document.getElementById('itbCapture');
-    const statDate = document.getElementById('itbStatDate').value || DEFAULT_DATE;
     button.disabled = true;
     button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i>截图中';
     try {
@@ -163,22 +162,13 @@
       const blob = await new Promise((resolve, reject) => {
         canvas.toBlob((result) => result ? resolve(result) : reject(new Error('生成截图失败')), 'image/png');
       });
-      let copied = false;
-      if (navigator.clipboard && window.ClipboardItem) {
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-          copied = true;
-        } catch (error) { /* 无剪贴板权限时改为下载 */ }
+      if (!navigator.clipboard || !window.ClipboardItem) {
+        throw new Error('当前浏览器不支持复制图片');
       }
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `IT双周会数据-${statDate.replace(/-/g, '')}.png`;
-      link.click();
-      URL.revokeObjectURL(url);
-      showToast(copied ? '已复制并下载截图' : '已下载截图');
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      showToast('已复制截图');
     } catch (error) {
-      showToast('截图失败，请检查网络后重试');
+      showToast('复制失败，请检查浏览器剪贴板权限后重试');
     } finally {
       button.disabled = false;
       button.innerHTML = '<i class="fas fa-camera" aria-hidden="true"></i>一键截图';
@@ -191,7 +181,7 @@
       <div class="itb-toolbar">
         <div class="filter-field itb-date-field">
           <label for="itbStatDate">统计日期</label>
-          <input id="itbStatDate" type="date" value="${DEFAULT_DATE}">
+          <input id="itbStatDate" type="date" value="${DEFAULT_DATE}" max="${DEFAULT_DATE}">
         </div>
         <button class="btn btn-primary" type="button" id="itbCaptureBtn"><i class="fas fa-camera" aria-hidden="true"></i>一键截图</button>
       </div>
