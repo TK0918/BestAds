@@ -806,11 +806,56 @@
       : { type: 'confirm', status: '待客户确认付款', label: '金额不一致，客户确认付款', note: '确认审核后邮件通知客户回系统确认付款。' };
   }
 
+  function openingAuditQuoteValues(modalRoot, rule) {
+    const preview = modalRoot?.querySelector('[data-opening-rule-preview]');
+    const editing = Boolean(preview?.classList.contains('is-editing'));
+    const openingFee = editing ? numAmount(modalRoot.querySelector('[data-opening-fee-input]')?.value) : Number(rule?.openingFee || 0);
+    const precharge = editing ? numAmount(modalRoot.querySelector('[data-opening-precharge-input]')?.value) : Number(rule?.precharge || 0);
+    const edited = Math.abs(openingFee - Number(rule?.openingFee || 0)) > 0.001 || Math.abs(precharge - Number(rule?.precharge || 0)) > 0.001;
+    return { openingFee, precharge, total: openingFee + precharge, edited };
+  }
+
+  function setOpeningFeeEditing(modalRoot, editing) {
+    const preview = modalRoot?.querySelector('[data-opening-rule-preview]');
+    preview?.classList.toggle('is-editing', editing);
+    const editBtn = modalRoot?.querySelector('[data-opening-edit-fee]');
+    const resetBtn = modalRoot?.querySelector('[data-opening-reset-fee]');
+    if (editBtn) editBtn.hidden = editing;
+    if (resetBtn) resetBtn.hidden = !editing;
+  }
+
+  function applyOpeningAuditQuote(modalRoot, rule, row, options = {}) {
+    if (!modalRoot || !rule) return;
+    if (options.reset) setOpeningFeeEditing(modalRoot, false);
+    const feeInput = modalRoot.querySelector('[data-opening-fee-input]');
+    const prechargeInput = modalRoot.querySelector('[data-opening-precharge-input]');
+    const preview = modalRoot.querySelector('[data-opening-rule-preview]');
+    const editing = Boolean(preview?.classList.contains('is-editing'));
+    if (options.reset || !editing) {
+      if (feeInput) feeInput.value = formatAmountOnly(rule.openingFee);
+      if (prechargeInput) prechargeInput.value = formatAmountOnly(rule.precharge);
+    }
+    const quote = openingAuditQuoteValues(modalRoot, rule);
+    const fee = modalRoot.querySelector('[data-opening-fee]');
+    const precharge = modalRoot.querySelector('[data-opening-precharge]');
+    const finalQuote = modalRoot.querySelector('[data-opening-final-quote]');
+    const outcome = modalRoot.querySelector('[data-opening-outcome]');
+    const outcomeNote = modalRoot.querySelector('[data-opening-outcome-note]');
+    const changed = modalRoot.querySelector('[data-opening-fee-changed]');
+    if (fee) fee.textContent = formatAmountOnly(quote.openingFee);
+    if (precharge) precharge.textContent = formatAmountOnly(quote.precharge);
+    if (finalQuote) finalQuote.textContent = formatAmountOnly(quote.total);
+    const nextOutcome = openingAuditOutcome(row, { ...rule, total: quote.total });
+    if (outcome) outcome.textContent = nextOutcome.label;
+    if (outcomeNote) outcomeNote.textContent = nextOutcome.note;
+    if (changed) changed.hidden = !quote.edited;
+  }
+
   function openingAuditModal(modal, row) {
     const options = openingRuleOptions(row);
     const selected = options.find(option => option.agent === row?.agent && option.accountType === row?.accountType) || options[0];
     const outcome = openingAuditOutcome(row, selected);
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '审核开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack"><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>投放URL</dt><dd><a class="admin-inline-link" href="${esc(row?.url || '#')}" target="_blank" rel="noopener noreferrer">${esc(row?.url || '-')}</a></dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>识别品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>初始报价</dt><dd>${esc(row?.initialQuote || '-')}</dd></div><div><dt>报价版本</dt><dd>${esc(row?.quoteVersion || '-')}</dd></div></dl><div class="form-grid" data-opening-audit-modal><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 代理</label><select data-opening-agent>${options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.agent)}</option>`).join('')}</select></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户类型</label><select data-opening-type>${options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.accountType)}</option>`).join('')}</select></div><div class="form-field full"><label>规则报价</label><div class="opening-rule-preview" data-opening-rule-preview data-opening-rule-options="${esc(JSON.stringify(options))}"><div><span>开户费</span><strong data-opening-fee>${esc(formatAmountOnly(selected.openingFee))}</strong></div><div><span>首充</span><strong data-opening-precharge>${esc(formatAmountOnly(selected.precharge))}</strong></div><div><span>最终报价</span><strong data-opening-final-quote>${esc(formatAmountOnly(selected.total))}</strong></div><div><span>处理方式</span><strong data-opening-outcome>${esc(outcome.label)}</strong></div><p data-opening-outcome-note>${esc(outcome.note)}</p></div></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-danger" data-opening-audit-cancel>取消开户</button><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认审核</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '审核开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack"><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>投放URL</dt><dd><a class="admin-inline-link" href="${esc(row?.url || '#')}" target="_blank" rel="noopener noreferrer">${esc(row?.url || '-')}</a></dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>识别品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>初始报价</dt><dd>${esc(row?.initialQuote || '-')}</dd></div><div><dt>报价版本</dt><dd>${esc(row?.quoteVersion || '-')}</dd></div></dl><div class="form-grid" data-opening-audit-modal><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 代理</label><select data-opening-agent>${options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.agent)}</option>`).join('')}</select></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户类型</label><select data-opening-type>${options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.accountType)}</option>`).join('')}</select></div><div class="form-field full"><div class="opening-quote-label"><label>规则报价</label><div class="command-group"><button type="button" class="btn btn-link" data-opening-edit-fee>修改</button><button type="button" class="btn btn-link" data-opening-reset-fee hidden>恢复规则金额</button></div></div><div class="opening-rule-preview" data-opening-rule-preview data-opening-rule-options="${esc(JSON.stringify(options))}"><div><span>开户费</span><strong data-opening-fee>${esc(formatAmountOnly(selected.openingFee))}</strong><input data-opening-fee-input inputmode="decimal" min="0" step="0.01" value="${esc(formatAmountOnly(selected.openingFee))}"></div><div><span>首充</span><strong data-opening-precharge>${esc(formatAmountOnly(selected.precharge))}</strong><input data-opening-precharge-input inputmode="decimal" min="0" step="0.01" value="${esc(formatAmountOnly(selected.precharge))}"></div><div><span>最终报价</span><strong data-opening-final-quote>${esc(formatAmountOnly(selected.total))}</strong></div><div><span>处理方式</span><strong data-opening-outcome>${esc(outcome.label)}</strong></div><p data-opening-outcome-note>${esc(outcome.note)}</p><p data-opening-fee-hint>默认带出规则金额，按账户数合计。点击「修改」后可改开户费和首充。</p><em data-opening-fee-changed hidden>已改规则金额，最终报价将按修改后的开户费和首充计算。</em></div></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-danger" data-opening-audit-cancel>取消开户</button><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认审核</button></div></section></div>`;
   }
 
   function openingAccountCount(row) {
@@ -1199,20 +1244,7 @@
       const selectedKey = openingRuleKey(selected);
       if (agentSelect) agentSelect.value = selectedKey;
       if (typeSelect) typeSelect.value = selectedKey;
-      const fee = modalRoot.querySelector('[data-opening-fee]');
-      const precharge = modalRoot.querySelector('[data-opening-precharge]');
-      const finalQuote = modalRoot.querySelector('[data-opening-final-quote]');
-      const note = modalRoot.querySelector('[data-opening-rule-note]');
-      const outcome = modalRoot.querySelector('[data-opening-outcome]');
-      const outcomeNote = modalRoot.querySelector('[data-opening-outcome-note]');
-      if (fee) fee.textContent = formatAmountOnly(selected.openingFee);
-      if (precharge) precharge.textContent = formatAmountOnly(selected.precharge);
-      if (finalQuote) finalQuote.textContent = formatAmountOnly(selected.total);
-      if (note) note.textContent = selected.note || '';
-      const row = state.processingRow;
-      const nextOutcome = openingAuditOutcome(row, selected);
-      if (outcome) outcome.textContent = nextOutcome.label;
-      if (outcomeNote) outcomeNote.textContent = nextOutcome.note;
+      applyOpeningAuditQuote(modalRoot, selected, state.processingRow, { reset: true });
     }
     function toggleOpeningAccountSource(sourceSelect) {
       const slot = sourceSelect?.closest('[data-opening-account-slot]') || sourceSelect?.closest('[data-opening-result-modal]');
@@ -1697,12 +1729,17 @@
       const row = state.processingRow;
       if (!row) { showToast('未找到开户申请', 'error'); return false; }
       const rule = openingSelectedRule(row, modalRoot);
-      const outcome = openingAuditOutcome(row, rule);
-      const finalQuote = formatAmountOnly(rule.total);
+      const quote = openingAuditQuoteValues(modalRoot, rule);
+      if (quote.openingFee < 0 || quote.precharge < 0) {
+        showToast('开户费和首充不能为负数', 'error');
+        return false;
+      }
+      const outcome = openingAuditOutcome(row, { ...rule, total: quote.total });
+      const finalQuote = formatAmountOnly(quote.total);
       row.agent = rule.agent;
       row.accountType = rule.accountType;
-      row.openingFee = formatAmountOnly(rule.openingFee);
-      row.precharge = formatAmountOnly(rule.precharge);
+      row.openingFee = formatAmountOnly(quote.openingFee);
+      row.precharge = formatAmountOnly(quote.precharge);
       row.finalQuote = finalQuote;
       row.quoteVersion = openingVersion(row, outcome.type === 'auto' ? 'locked' : 'confirm');
       row.remark = outcome.type === 'auto' ? '金额一致，已按客户授权自动扣款' : '总额不一致，已邮件通知客户回系统确认付款';
@@ -2356,6 +2393,17 @@
         if (openingAuditRoot) submitOpeningCancel(openingAuditRoot);
         return;
       }
+      if (event.target.closest('[data-opening-edit-fee]')) {
+        const modalRoot = event.target.closest('[data-opening-audit-modal]');
+        setOpeningFeeEditing(modalRoot, true);
+        applyOpeningAuditQuote(modalRoot, openingSelectedRule(state.processingRow, modalRoot), state.processingRow);
+        return;
+      }
+      if (event.target.closest('[data-opening-reset-fee]')) {
+        const modalRoot = event.target.closest('[data-opening-audit-modal]');
+        applyOpeningAuditQuote(modalRoot, openingSelectedRule(state.processingRow, modalRoot), state.processingRow, { reset: true });
+        return;
+      }
       if (event.target.closest('[data-modal-submit]')) {
         const backdrop = event.target.closest('.modal-backdrop');
         const tab = activeTab();
@@ -2602,6 +2650,10 @@
       if (event.target.closest('[data-adjustment-account-search]')) refreshAdjustmentModal(event.target.closest('[data-adjustment-modal]'));
       if (event.target.closest('[data-adjustment-amount-input]')) recalculateAdjustmentAmounts(event.target.closest('[data-adjustment-modal]'));
       if (event.target.closest('[data-opening-rule-config-modal] input, [data-opening-rule-config-modal] textarea')) syncOpeningRuleConfigPreview(event.target.closest('[data-opening-rule-config-modal]'));
+      if (event.target.closest('[data-opening-fee-input], [data-opening-precharge-input]')) {
+        const modalRoot = event.target.closest('[data-opening-audit-modal]');
+        applyOpeningAuditQuote(modalRoot, openingSelectedRule(state.processingRow, modalRoot), state.processingRow);
+      }
     });
     document.body.addEventListener('dragstart', event => {
       const item = event.target.closest('[data-field-key]');

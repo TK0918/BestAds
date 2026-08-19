@@ -268,11 +268,18 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .opening-account-slot__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .opening-account-slot__head strong { font-size: 13px; }
 .opening-slot-fail { display: inline-flex; align-items: center; gap: 6px; color: var(--admin-secondary); font-size: 12px; cursor: pointer; }
+.opening-quote-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.opening-quote-label label { margin-bottom: 0; }
 .opening-rule-preview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 12px; border: 1px solid var(--admin-border); border-radius: 6px; background: color-mix(in srgb, var(--admin-page-bg) 56%, var(--admin-surface)); }
 .opening-rule-preview div { min-width: 0; padding: 10px 12px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); }
 .opening-rule-preview span { display: block; color: var(--admin-muted); font-size: 12px; line-height: 18px; }
 .opening-rule-preview strong { display: block; margin-top: 4px; color: var(--admin-text); font-size: 14px; font-variant-numeric: tabular-nums; }
+.opening-rule-preview input { display: none; margin-top: 4px; }
+.opening-rule-preview.is-editing input { display: block; }
+.opening-rule-preview.is-editing [data-opening-fee],
+.opening-rule-preview.is-editing [data-opening-precharge] { display: none; }
 .opening-rule-preview p { grid-column: 1 / -1; margin: 0; color: var(--admin-secondary); font-size: 12px; line-height: 18px; }
+.opening-rule-preview em { grid-column: 1 / -1; margin: 0; color: var(--admin-warning); font-size: 12px; line-height: 18px; font-style: normal; }
 .opening-detail-stack { display: grid; gap: 16px; }
 .opening-detail-section { display: grid; gap: 8px; }
 .opening-detail-section h3 { margin: 0; color: var(--admin-text); font-size: 13px; font-weight: 600; }
