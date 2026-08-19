@@ -3,240 +3,748 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bestads Contact Us - WhatsApp Country Code Prototype</title>
+  <title>Bestads Contact Us</title>
   <style>
     :root {
-      --ink: #171717;
-      --muted: #656b76;
+      --brand-red: #c01400;
+      --brand-navy: #1f1f4a;
+      --text-main: #000000;
+      --text-muted: #595959;
+      --text-light: #b3b3b3;
       --line: #e6e6e6;
-      --soft-line: #f0f1f3;
-      --surface: #ffffff;
-      --surface-soft: #f7f9fb;
-      --accent: #18a574;
-      --accent-dark: #087152;
-      --focus: rgba(24, 165, 116, 0.18);
-      --shadow: 0 18px 44px rgba(20, 31, 45, 0.12);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      --footer: #1f1f47;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
-      min-height: 100vh;
+      width: 100%;
+      min-height: 100%;
       margin: 0;
-      color: var(--ink);
-      background:
-        linear-gradient(180deg, rgba(247, 249, 251, 0.92) 0%, rgba(255, 255, 255, 0) 42%),
-        var(--surface);
+    }
+
+    body {
+      color: var(--text-main);
+      background: #ffffff;
+      -webkit-font-smoothing: antialiased;
     }
 
     button,
     input,
     textarea {
+      color: inherit;
       font: inherit;
+    }
+
+    button,
+    a {
+      touch-action: manipulation;
     }
 
     button {
       cursor: pointer;
     }
 
-    .contact-page {
-      width: min(1180px, calc(100% - 40px));
-      margin: 0 auto;
-      padding: 72px 0 88px;
+    a {
+      color: inherit;
     }
 
-    .contact-kicker {
-      margin: 0 0 12px;
-      color: var(--accent-dark);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0;
-      text-transform: uppercase;
+    img {
+      border: 0;
+      vertical-align: middle;
     }
 
-    .contact-heading {
-      max-width: 780px;
+    p {
       margin: 0;
-      font-size: clamp(38px, 5vw, 72px);
-      line-height: 1.02;
-      font-weight: 800;
-      letter-spacing: 0;
     }
 
-    .contact-intro {
-      max-width: 640px;
-      margin: 20px 0 0;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1.65;
+    .pc {
+      display: block;
     }
 
-    .contact-shell {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 76px;
-      align-items: start;
-      margin-top: 72px;
+    .m {
+      display: none;
     }
 
-    .contact-form {
-      display: grid;
-      gap: 18px;
-      max-width: 620px;
+    .page-header-spacer {
+      height: 0;
     }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
+    .page-header {
+      align-items: center;
+      -webkit-backdrop-filter: blur(clamp(0px, .26042vw, 5.00006px));
+      backdrop-filter: blur(clamp(0px, .26042vw, 5.00006px));
+      background-color: rgba(255, 255, 255, .9);
+      border-radius: clamp(0px, .52083vw, 9.99994px);
+      box-shadow: 0 clamp(0px, .625vw, 12px) clamp(0px, 1.5625vw, 30px) rgba(0, 0, 0, .08);
+      display: flex;
+      height: clamp(0px, 3.75vw, 72px);
+      justify-content: space-between;
+      left: 0;
+      margin: 0 auto;
+      padding: 0 clamp(0px, 2.08333vw, 39.99994px);
+      position: fixed;
+      right: 0;
+      top: clamp(0px, 2.8125vw, 54px);
+      width: clamp(0px, 81.35417vw, 1562.00006px);
+      z-index: 1000;
     }
 
-    .field {
-      display: grid;
-      gap: 8px;
-      min-width: 0;
+    .page-header a {
+      color: var(--text-muted);
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      line-height: 1;
+      position: relative;
+      text-decoration: none;
     }
 
-    .field label {
-      color: #25282d;
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 1.4;
+    .page-header a::after {
+      background: transparent;
+      bottom: clamp(-3.99994px, -.20833vw, 0px);
+      content: "";
+      height: clamp(0px, .10417vw, 2.00006px);
+      left: 0;
+      position: absolute;
+      right: 0;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .2s ease, background-color .2s ease;
     }
 
-    .field input,
-    .field textarea {
+    .page-header a.active,
+    .page-header a:hover {
+      color: var(--brand-red);
+      text-shadow: .35px 0 0 currentColor, -.35px 0 0 currentColor;
+    }
+
+    .page-header a.active::after,
+    .page-header a:hover::after {
+      background: var(--brand-red);
+      transform: scaleX(1);
+    }
+
+    .page-header-left {
+      align-items: center;
+      display: flex;
+      height: clamp(0px, 2vw, 38.4px);
+      width: clamp(0px, 9.375vw, 180px);
+    }
+
+    .page-header-left img {
+      display: block;
+      height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      width: auto;
+    }
+
+    .page-header-right {
+      align-items: center;
+      display: flex;
+      gap: clamp(0px, 3.125vw, 60px);
+    }
+
+    .page-header-core-service {
+      position: relative;
+    }
+
+    .page-header-core-service-card {
+      background: #ffffff;
+      border-radius: clamp(0px, .41667vw, 8.00006px);
+      box-shadow: 0 clamp(0px, .20833vw, 3.99994px) clamp(0px, .83333vw, 15.99994px) rgba(0, 0, 0, .08);
+      box-sizing: border-box;
+      margin-top: clamp(0px, 1.77083vw, 33.99994px);
+      opacity: 0;
+      padding: clamp(0px, 1.5625vw, 30px);
+      position: absolute;
+      right: 0;
+      top: clamp(0px, 2.60417vw, 50.00006px);
+      transform: translateY(clamp(-8.00006px, -.41667vw, 0px));
+      transition: all .2s ease;
+      visibility: hidden;
+      width: clamp(0px, 25vw, 480px);
+      z-index: 10;
+    }
+
+    .page-header-core-service-card::before {
+      bottom: 100%;
+      content: "";
+      height: clamp(0px, 1.77083vw, 33.99994px);
+      left: 0;
+      position: absolute;
+      right: 0;
+    }
+
+    .page-header-core-service:hover .page-header-core-service-card {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+    }
+
+    .page-header-core-service-item {
+      color: var(--text-muted);
+      display: block;
+      font-size: clamp(0px, .9375vw, 18px);
+      margin-bottom: clamp(0px, 1.35417vw, 26.00006px);
+      padding: clamp(0px, .41667vw, 8.00006px) 0 clamp(0px, .41667vw, 8.00006px) clamp(0px, .83333vw, 15.99994px);
+      position: relative;
+      text-align: left;
+      transition: all .2s ease;
+      white-space: nowrap;
+    }
+
+    .page-header-core-service-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .page-header-core-service-item::after {
+      display: none;
+    }
+
+    .page-header-core-service-item::before {
+      background: var(--text-muted);
+      border-radius: 50%;
+      bottom: 0;
+      content: "";
+      height: clamp(0px, .20833vw, 3.99994px);
+      left: 0;
+      margin: auto;
+      position: absolute;
+      top: 0;
+      width: clamp(0px, .20833vw, 3.99994px);
+    }
+
+    .page-header-core-service-item:hover {
+      color: var(--brand-red);
+      transform: translateX(clamp(0px, .52083vw, 9.99994px));
+    }
+
+    .page-header-core-service-item:hover::before {
+      background: var(--brand-red);
+    }
+
+    .page-header-login {
+      align-items: center;
+      border: 1px solid #9da6b2;
+      border-radius: clamp(0px, .41667vw, 8.00006px);
+      box-sizing: border-box;
+      color: var(--text-muted);
+      display: inline-flex;
+      font-size: clamp(0px, .9375vw, 18px);
+      height: clamp(0px, 2.08333vw, 39.99994px);
+      justify-content: center;
+      line-height: 1;
+      text-shadow: none;
+      transition: border-color .2s ease, color .2s ease, background-color .2s ease;
+      width: clamp(0px, 4.79167vw, 92.00006px);
+    }
+
+    .page-header-login::after {
+      display: none;
+    }
+
+    .page-header-login:hover {
+      background-color: rgba(192, 20, 0, .06);
+      border-color: var(--brand-red);
+      color: var(--brand-red);
+      text-shadow: none;
+    }
+
+    .mobile-header {
+      display: none;
+    }
+
+    .contact-page-card {
       width: 100%;
-      min-width: 0;
+    }
+
+    .contact-page-card .part-1-bg.pc,
+    .contact-page-card .part-1-content-title.pc,
+    .contact-page-card .part-1-content-desc.pc,
+    .contact-page-card .pc-address {
+      display: block;
+    }
+
+    .contact-page-card .part-1-bg.m,
+    .contact-page-card .part-1-content-title.m,
+    .contact-page-card .part-1-content-desc.m,
+    .contact-page-card .m-address {
+      display: none;
+    }
+
+    .contact-page-card .part-1 {
+      height: clamp(0px, 49.21875vw, 945px);
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+
+    .contact-page-card .part-1-bg {
+      bottom: 0;
+      height: 100%;
+      left: 0;
+      margin: auto;
+      object-fit: cover;
+      object-position: center;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+      z-index: -1;
+    }
+
+    .contact-page-card .part-1-content {
+      margin: 0 auto;
+      max-width: clamp(0px, 78.38542vw, 1505.00006px);
+      padding-left: clamp(0px, 6.25vw, 120px);
+      padding-top: clamp(0px, 10.41667vw, 200.00006px);
+    }
+
+    .contact-page-card .part-1-content-title {
+      color: var(--brand-navy);
+      font-size: clamp(0px, 2.08333vw, 39.99994px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: clamp(0px, .10417vw, 2.00006px);
+    }
+
+    .contact-page-card .part-1-content-desc {
+      color: var(--brand-navy);
+      font-size: clamp(0px, 2.08333vw, 39.99994px);
+      font-weight: lighter;
+      line-height: 1.1;
+      margin-bottom: clamp(0px, 1.875vw, 36px);
+    }
+
+    .contact-page-card .part-1-content-cta {
+      background-color: var(--brand-red);
+      border: 0;
+      border-radius: clamp(0px, 1.14583vw, 21.99994px);
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-block;
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      height: clamp(0px, 2.29167vw, 44.00006px);
+      line-height: clamp(0px, 2.29167vw, 44.00006px);
+      padding: 0;
+      text-align: center;
+      text-decoration: none;
+      transition: transform .2s ease, background-color .2s ease;
+      width: clamp(0px, 8.4375vw, 162px);
+    }
+
+    .contact-page-card .part-1-content-cta:hover {
+      background-color: #a41100;
+      transform: translateY(-1px);
+    }
+
+    .contact-page-card .part-2 {
+      background: url("https://www.bestads.com/common/home-work-bg.a9b4c38b5f.png") no-repeat center clamp(0px, 15.625vw, 300px) / cover;
+      min-height: clamp(0px, 65.41667vw, 1256.00006px);
+      padding-bottom: clamp(0px, 4.16667vw, 80px);
+      width: 100%;
+    }
+
+    .contact-page-card .part-2-container {
+      align-items: flex-start;
+      display: flex;
+      gap: clamp(0px, 1.35417vw, 26.00006px);
+      justify-content: center;
+      margin: 0 auto;
+      max-width: clamp(0px, 78.38542vw, 1505.00006px);
+    }
+
+    .contact-page-card .part-2-card {
+      background-color: #ffffff;
       border: 1px solid var(--line);
-      border-radius: 4px;
-      background: var(--surface);
-      color: #000000;
-      font-size: 17px;
+      border-radius: clamp(0px, .52083vw, 9.99994px);
+      color: inherit;
+      display: block;
+      height: clamp(0px, 10.15625vw, 195px);
+      padding: clamp(0px, 1.5625vw, 30px);
+      text-decoration: none;
+      width: clamp(0px, 25.20833vw, 483.99994px);
+    }
+
+    .contact-page-card .part-2-card-title {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .contact-page-card .part-2-card-title-text {
+      color: var(--text-main);
+      font-size: clamp(0px, 1.25vw, 24px);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .contact-page-card .part-2-card-title-icon {
+      align-items: center;
+      background-color: #f6f6f6;
+      border-radius: clamp(0px, .9375vw, 18px);
+      display: flex;
+      flex-shrink: 0;
+      height: clamp(0px, 3.85417vw, 74.00006px);
+      justify-content: center;
+      width: clamp(0px, 3.85417vw, 74.00006px);
+    }
+
+    .contact-page-card .part-2-card-title-icon img {
+      object-fit: contain;
+    }
+
+    .contact-page-card .part-2-card-title-icon .wa {
+      height: clamp(0px, 2.44792vw, 47.00006px);
+      width: clamp(0px, 2.44792vw, 47.00006px);
+    }
+
+    .contact-page-card .card-symbol {
+      align-items: center;
+      color: var(--brand-navy);
+      display: inline-flex;
+      font-size: clamp(0px, 1.66667vw, 32.00006px);
+      font-weight: 700;
+      height: 100%;
+      justify-content: center;
+      line-height: 1;
+      width: 100%;
+    }
+
+    .contact-page-card .part-2-card-content {
+      color: var(--text-muted);
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      font-weight: lighter;
+      line-height: 1.35;
+      margin-top: clamp(0px, 1.25vw, 24px);
+    }
+
+    .contact-page-card .part-2-form {
+      align-items: flex-start;
+      background-color: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: clamp(0px, .52083vw, 9.99994px);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin: 0 auto;
+      padding: clamp(0px, 3.75vw, 72px) clamp(0px, 2.60417vw, 50.00006px);
+      width: clamp(0px, 78.48958vw, 1506.99994px);
+    }
+
+    .contact-page-card .part-2-form-left {
+      flex: 1 1;
+      margin-right: clamp(0px, 2.08333vw, 39.99994px);
+      min-width: 0;
+    }
+
+    .contact-page-card .part-2-form-left-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contact-page-card .part-2-form-left-row {
+      display: flex;
+      gap: clamp(0px, 1.35417vw, 26.00006px);
+      margin-bottom: clamp(0px, 1.14583vw, 21.99994px);
+    }
+
+    .contact-page-card .part-2-form-left-row .part-2-form-left-item {
+      margin-bottom: 0;
+    }
+
+    .contact-page-card .part-2-form-left-item {
+      display: flex;
+      flex: 1 1;
+      flex-direction: column;
+      gap: clamp(0px, .20833vw, 3.99994px);
+      margin-bottom: clamp(0px, 1.25vw, 24px);
+      min-width: 0;
+    }
+
+    .contact-page-card .part-2-form-left-item:nth-child(5) {
+      margin-bottom: clamp(0px, 1.97917vw, 38.00006px);
+    }
+
+    .contact-page-card .part-2-form-left-item-label {
+      color: var(--text-main);
+      font-size: clamp(0px, 1.25vw, 24px);
+      line-height: 1.35;
+    }
+
+    .contact-page-card .part-2-form-left-item-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .contact-page-card .part-2-form-left-item-input {
+      border: 1px solid var(--line);
+      border-radius: clamp(0px, .20833vw, 3.99994px);
+      box-sizing: border-box;
+      color: var(--text-main);
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      height: clamp(0px, 2.55208vw, 48.99994px);
       outline: none;
-      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+      padding: 0 clamp(0px, 2.5vw, 48px) 0 clamp(0px, .9375vw, 18px);
+      width: 100%;
     }
 
-    .field input {
-      height: 46px;
-      padding: 0 16px;
+    .contact-page-card .part-2-form-left-item-input::placeholder,
+    .contact-page-card .part-2-form-left-item-textarea::placeholder {
+      color: var(--text-light);
     }
 
-    .field textarea {
-      min-height: 150px;
-      resize: vertical;
-      padding: 14px 16px;
-      line-height: 1.5;
-    }
-
-    .field input:focus,
-    .field textarea:focus,
+    .contact-page-card .part-2-form-left-item-input:focus,
+    .contact-page-card .part-2-form-left-item-textarea:focus,
     .country-trigger:focus-visible,
-    .country-search input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px var(--focus);
+    .country-search-input:focus {
+      border-color: var(--brand-red);
+      box-shadow: 0 0 0 clamp(0px, .10417vw, 2.00006px) rgba(192, 20, 0, .12);
+    }
+
+    .contact-page-card .part-2-form-left-item-textarea {
+      border: 1px solid var(--line);
+      border-radius: clamp(0px, .20833vw, 3.99994px);
+      box-sizing: border-box;
+      color: var(--text-main);
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      height: clamp(0px, 8.59375vw, 165px);
+      line-height: 1.5;
+      outline: none;
+      padding: clamp(0px, .72917vw, 14.00006px) clamp(0px, 2.5vw, 48px) clamp(0px, .72917vw, 14.00006px) clamp(0px, .9375vw, 18px);
+      resize: none;
+      width: 100%;
+    }
+
+    .contact-page-card .part-2-form-left-item-error {
+      color: #ff4d4f;
+      display: none;
+      font-size: clamp(0px, .78125vw, 15px);
+      line-height: 1.2;
+      padding-top: clamp(0px, .20833vw, 3.99994px);
+      white-space: nowrap;
+    }
+
+    .contact-page-card .part-2-form-left-item-error.is-visible {
+      display: block;
+    }
+
+    .contact-page-card .part-2-form-left-agree {
+      align-items: center;
+      display: flex;
+      margin-bottom: clamp(0px, 2.1875vw, 42px);
+      position: relative;
+    }
+
+    .contact-page-card .part-2-form-left-agree-label {
+      align-items: center;
+      color: var(--text-light);
+      cursor: pointer;
+      display: inline-flex;
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      gap: clamp(0px, .52083vw, 9.99994px);
+      line-height: 1.2;
+      user-select: none;
+    }
+
+    .contact-page-card .part-2-form-left-agree-checkbox {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: clamp(0px, .20833vw, 3.99994px);
+      display: inline-grid;
+      flex-shrink: 0;
+      height: clamp(0px, 1.35417vw, 26.00006px);
+      margin: 0;
+      place-content: center;
+      width: clamp(0px, 1.35417vw, 26.00006px);
+    }
+
+    .contact-page-card .part-2-form-left-agree-checkbox::after {
+      border-bottom: clamp(0px, .15625vw, 3px) solid transparent;
+      border-right: clamp(0px, .15625vw, 3px) solid transparent;
+      content: "";
+      height: clamp(0px, .83333vw, 15.99994px);
+      transform: translateY(-1px) rotate(45deg);
+      width: clamp(0px, .52083vw, 9.99994px);
+    }
+
+    .contact-page-card .part-2-form-left-agree-checkbox:checked {
+      background: var(--brand-red);
+      border-color: var(--brand-red);
+    }
+
+    .contact-page-card .part-2-form-left-agree-checkbox:checked::after {
+      border-bottom-color: #ffffff;
+      border-right-color: #ffffff;
+    }
+
+    .contact-page-card .part-2-form-left-agree-link {
+      color: var(--text-light);
+      text-decoration: none;
+    }
+
+    .contact-page-card .part-2-form-left-agree-link:hover {
+      color: var(--brand-red);
+    }
+
+    .contact-page-card .part-2-form-left-submit {
+      background: var(--brand-red);
+      border: none;
+      border-radius: clamp(0px, .52083vw, 9.99994px);
+      color: #ffffff;
+      cursor: pointer;
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      height: clamp(0px, 2.39583vw, 45.99994px);
+      transform-origin: center;
+      transition: transform .2s ease, background-color .2s ease;
+      width: 100%;
+      will-change: transform;
+    }
+
+    .contact-page-card .part-2-form-left-submit:hover {
+      background: #a41100;
+      transform: scale(1.05);
+    }
+
+    .contact-page-card .part-2-form-right {
+      border-radius: clamp(0px, .52083vw, 9.99994px);
+      height: clamp(0px, 42.34375vw, 813px);
+      overflow: hidden;
+      position: relative;
+      width: clamp(0px, 38.80208vw, 744.99994px);
+    }
+
+    .contact-page-card .part-2-form-right .map-picture {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+
+    .contact-page-card .part-2-form-right .map {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      width: 100%;
+    }
+
+    .contact-page-card .part-2-form-right .map-local {
+      height: clamp(0px, 1.66667vw, 32.00006px);
+      left: clamp(0px, 18.125vw, 348px);
+      object-fit: contain;
+      object-position: center;
+      pointer-events: none;
+      position: absolute;
+      top: clamp(0px, 15.3125vw, 294px);
+      width: clamp(0px, 1.66667vw, 32.00006px);
+    }
+
+    .contact-page-card .address-label {
+      background: #ffffff;
+      border-radius: clamp(0px, .41667vw, 8.00006px);
+      box-shadow: 0 clamp(0px, .26042vw, 5.00006px) clamp(0px, .9375vw, 18px) rgba(0, 0, 0, .12);
+      color: var(--brand-navy);
+      font-size: clamp(0px, .72917vw, 14.00006px);
+      left: clamp(0px, 20.10417vw, 386.00006px);
+      line-height: 1.25;
+      padding: clamp(0px, .46875vw, 9px) clamp(0px, .72917vw, 14.00006px);
+      position: absolute;
+      top: clamp(0px, 15.15625vw, 291px);
+      white-space: nowrap;
     }
 
     .whatsapp-control {
-      position: relative;
       display: grid;
-      grid-template-columns: 190px minmax(0, 1fr);
-      align-items: stretch;
+      grid-template-columns: clamp(0px, 9.58333vw, 184px) minmax(0, 1fr);
       min-width: 0;
+      position: relative;
+      width: 100%;
     }
 
     .country-trigger {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      height: 46px;
-      min-width: 0;
+      background: #ffffff;
       border: 1px solid var(--line);
+      border-radius: clamp(0px, .20833vw, 3.99994px) 0 0 clamp(0px, .20833vw, 3.99994px);
       border-right: 0;
-      border-radius: 4px 0 0 4px;
-      background: var(--surface-soft);
-      color: var(--ink);
-      padding: 0 12px;
+      color: var(--text-main);
+      display: flex;
+      gap: clamp(0px, .41667vw, 8.00006px);
+      height: clamp(0px, 2.55208vw, 48.99994px);
+      justify-content: space-between;
+      min-width: 0;
       outline: none;
-      transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
-    }
-
-    .country-trigger:hover {
-      background: #f0f7f4;
+      padding: 0 clamp(0px, .72917vw, 14.00006px) 0 clamp(0px, .9375vw, 18px);
     }
 
     .country-trigger.is-selected {
-      background: #eefbf6;
+      background: #fff8f7;
     }
 
     .country-trigger-content {
-      display: flex;
       align-items: center;
-      gap: 8px;
+      display: flex;
+      gap: clamp(0px, .41667vw, 8.00006px);
       min-width: 0;
       overflow: hidden;
       white-space: nowrap;
     }
 
-    .country-flag {
-      width: 24px;
-      flex: 0 0 auto;
-      font-size: 20px;
-      line-height: 1;
-      text-align: center;
+    .country-placeholder,
+    .country-name {
+      color: var(--text-light);
+      font-size: clamp(0px, .88542vw, 17.00006px);
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .country-placeholder {
-      overflow: hidden;
-      color: #8a9099;
-      font-size: 15px;
-      text-overflow: ellipsis;
+    .country-flag {
+      flex: 0 0 auto;
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      line-height: 1;
+      text-align: center;
+      width: clamp(0px, 1.25vw, 24px);
     }
 
     .country-code {
       flex: 0 0 auto;
-      font-size: 15px;
+      font-size: clamp(0px, .9375vw, 18px);
       font-weight: 700;
     }
 
-    .country-name {
-      min-width: 0;
-      overflow: hidden;
-      color: var(--muted);
-      font-size: 13px;
-      text-overflow: ellipsis;
-    }
-
     .country-arrow {
+      color: var(--text-muted);
       flex: 0 0 auto;
-      color: #6f7680;
-      font-size: 12px;
-      transition: transform 0.16s ease;
+      font-size: clamp(0px, .72917vw, 14.00006px);
+      transition: transform .16s ease;
     }
 
     .country-trigger[aria-expanded="true"] .country-arrow {
       transform: rotate(180deg);
     }
 
-    .whatsapp-control > input {
-      border-radius: 0 4px 4px 0;
+    .whatsapp-control .part-2-form-left-item-input {
+      border-radius: 0 clamp(0px, .20833vw, 3.99994px) clamp(0px, .20833vw, 3.99994px) 0;
     }
 
     .country-popover {
-      position: absolute;
-      z-index: 20;
-      top: calc(100% + 8px);
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: clamp(0px, .52083vw, 9.99994px);
+      box-shadow: 0 clamp(0px, .625vw, 12px) clamp(0px, 1.5625vw, 30px) rgba(0, 0, 0, .12);
       left: 0;
-      width: min(430px, 100%);
-      border: 1px solid #dde4ea;
-      border-radius: 8px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
       overflow: hidden;
+      position: absolute;
+      top: calc(100% + clamp(0px, .41667vw, 8.00006px));
+      width: min(100%, clamp(0px, 22.39583vw, 430px));
+      z-index: 50;
     }
 
     .country-popover[hidden] {
@@ -244,345 +752,983 @@
     }
 
     .country-search {
-      padding: 12px;
-      border-bottom: 1px solid var(--soft-line);
-      background: #fbfcfd;
+      background: #ffffff;
+      border-bottom: 1px solid #f0f0f0;
+      padding: clamp(0px, .625vw, 12px);
     }
 
-    .country-search input {
-      width: 100%;
-      height: 40px;
+    .country-search-input {
       border: 1px solid var(--line);
-      border-radius: 4px;
+      border-radius: clamp(0px, .20833vw, 3.99994px);
+      color: var(--text-main);
+      font-size: clamp(0px, .88542vw, 17.00006px);
+      height: clamp(0px, 2.1875vw, 42px);
       outline: none;
-      padding: 0 12px;
-      font-size: 15px;
+      padding: 0 clamp(0px, .72917vw, 14.00006px);
+      width: 100%;
     }
 
     .country-list {
-      max-height: 278px;
+      max-height: clamp(0px, 15.625vw, 300px);
       overflow-y: auto;
-      padding: 6px;
+      padding: clamp(0px, .3125vw, 6px);
     }
 
     .country-option {
-      display: grid;
-      grid-template-columns: 28px 1fr auto;
-      gap: 10px;
       align-items: center;
-      width: 100%;
-      min-height: 42px;
-      border: 0;
-      border-radius: 6px;
       background: transparent;
-      color: var(--ink);
-      padding: 8px 10px;
+      border: 0;
+      border-radius: clamp(0px, .3125vw, 6px);
+      color: var(--text-main);
+      display: grid;
+      gap: clamp(0px, .52083vw, 9.99994px);
+      grid-template-columns: clamp(0px, 1.45833vw, 27.99994px) minmax(0, 1fr) auto;
+      min-height: clamp(0px, 2.29167vw, 44.00006px);
+      padding: clamp(0px, .41667vw, 8.00006px) clamp(0px, .52083vw, 9.99994px);
       text-align: left;
+      width: 100%;
     }
 
     .country-option:hover,
     .country-option.is-active {
-      background: #eefbf6;
-    }
-
-    .country-option .country-flag {
-      width: 28px;
+      background: #fff1f0;
     }
 
     .country-option-name {
+      font-size: clamp(0px, .88542vw, 17.00006px);
       min-width: 0;
       overflow: hidden;
-      font-size: 15px;
-      font-weight: 600;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     .country-option-code {
-      color: var(--accent-dark);
-      font-size: 15px;
-      font-weight: 800;
+      color: var(--brand-red);
+      font-size: clamp(0px, .88542vw, 17.00006px);
+      font-weight: 700;
       white-space: nowrap;
     }
 
     .country-empty {
-      padding: 18px 16px;
-      color: var(--muted);
-      font-size: 14px;
+      color: var(--text-muted);
+      font-size: clamp(0px, .83333vw, 15.99994px);
+      padding: clamp(0px, .9375vw, 18px);
       text-align: center;
     }
 
     .country-footer {
-      display: flex;
       align-items: center;
+      background: #fafafa;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      gap: clamp(0px, .625vw, 12px);
       justify-content: space-between;
-      gap: 12px;
-      border-top: 1px solid var(--soft-line);
-      padding: 10px 12px;
-      background: #fbfcfd;
+      padding: clamp(0px, .52083vw, 9.99994px) clamp(0px, .625vw, 12px);
     }
 
     .country-current {
+      color: var(--text-muted);
+      font-size: clamp(0px, .78125vw, 15px);
       min-width: 0;
       overflow: hidden;
-      color: var(--muted);
-      font-size: 13px;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     .clear-code {
-      border: 0;
       background: transparent;
-      color: var(--accent-dark);
-      font-size: 13px;
-      font-weight: 700;
-      padding: 4px 0;
-    }
-
-    .agreement {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-      color: #343840;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .agreement input {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--accent);
-    }
-
-    .send-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      height: 46px;
       border: 0;
-      border-radius: 4px;
-      background: var(--accent);
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 800;
-      transition: background-color 0.16s ease, transform 0.16s ease;
-    }
-
-    .send-button:hover {
-      background: var(--accent-dark);
-      transform: translateY(-1px);
-    }
-
-    .contact-aside {
-      display: grid;
-      gap: 24px;
-      padding-top: 38px;
-    }
-
-    .contact-photo {
-      min-height: 230px;
-      border-radius: 8px;
-      background:
-        linear-gradient(135deg, rgba(8, 113, 82, 0.9), rgba(24, 165, 116, 0.55)),
-        url("data:image/svg+xml,%3Csvg width='720' height='460' viewBox='0 0 720 460' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='720' height='460' fill='%23e9f3f1'/%3E%3Cpath d='M0 342c78-26 145-19 203 19 77 51 140 48 223-10 74-52 154-65 294-36v145H0V342Z' fill='%23c7e3db'/%3E%3Crect x='84' y='80' width='220' height='154' rx='16' fill='%23ffffff' fill-opacity='.86'/%3E%3Crect x='108' y='112' width='125' height='14' rx='7' fill='%2318a574' fill-opacity='.8'/%3E%3Crect x='108' y='148' width='168' height='10' rx='5' fill='%238fb2a8'/%3E%3Crect x='108' y='174' width='142' height='10' rx='5' fill='%238fb2a8'/%3E%3Ccircle cx='548' cy='144' r='58' fill='%23ffffff' fill-opacity='.82'/%3E%3Cpath d='M522 143l19 19 36-43' stroke='%2318a574' stroke-width='12' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Crect x='404' y='254' width='198' height='76' rx='14' fill='%23ffffff' fill-opacity='.86'/%3E%3Crect x='430' y='281' width='98' height='12' rx='6' fill='%2318a574' fill-opacity='.8'/%3E%3Crect x='430' y='307' width='132' height='9' rx='4.5' fill='%238fb2a8'/%3E%3C/svg%3E");
-      background-size: cover;
-      background-position: center;
-    }
-
-    .aside-block {
-      display: grid;
-      gap: 10px;
-      border-left: 3px solid var(--accent);
-      padding-left: 18px;
-    }
-
-    .aside-title {
-      margin: 0;
-      color: #1f2328;
-      font-size: 20px;
-      font-weight: 800;
-      line-height: 1.3;
-    }
-
-    .aside-copy {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    .contact-points {
-      display: grid;
-      gap: 12px;
-      margin: 0;
+      color: var(--brand-red);
+      flex: 0 0 auto;
+      font-size: clamp(0px, .78125vw, 15px);
+      font-weight: 700;
       padding: 0;
-      list-style: none;
-    }
-
-    .contact-points li {
-      display: grid;
-      grid-template-columns: 22px 1fr;
-      gap: 10px;
-      align-items: start;
-      color: #343840;
-      font-size: 15px;
-      line-height: 1.55;
-    }
-
-    .point-mark {
-      display: inline-grid;
-      place-items: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #e8f8f2;
-      color: var(--accent-dark);
-      font-size: 13px;
-      font-weight: 900;
     }
 
     .sr-only {
-      position: absolute;
-      width: 1px;
+      border: 0;
+      clip: rect(0, 0, 0, 0);
       height: 1px;
-      padding: 0;
       margin: -1px;
       overflow: hidden;
-      clip: rect(0, 0, 0, 0);
+      padding: 0;
+      position: absolute;
       white-space: nowrap;
-      border: 0;
+      width: 1px;
     }
 
-    @media (max-width: 920px) {
-      .contact-page {
-        width: min(100% - 28px, 680px);
-        padding: 44px 0 64px;
-      }
-
-      .contact-shell {
-        grid-template-columns: 1fr;
-        gap: 38px;
-        margin-top: 44px;
-      }
-
-      .contact-aside {
-        padding-top: 0;
-      }
+    .page-footer {
+      background-color: var(--footer);
+      box-sizing: border-box;
+      color: #ffffff;
+      display: block;
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      min-height: clamp(0px, 32.39583vw, 621.99994px);
+      overflow: hidden;
+      padding: clamp(0px, 11.09375vw, 213px) 0 clamp(0px, 3.54167vw, 68.00006px);
+      position: relative;
     }
 
-    @media (max-width: 640px) {
-      .form-row {
-        grid-template-columns: 1fr;
+    .page-footer-inner {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      margin: 0 auto;
+      max-width: clamp(0px, 78.38542vw, 1505.00006px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .page-footer-brand {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      margin-right: clamp(0px, 6.25vw, 120px);
+      width: clamp(0px, 13.02083vw, 249.99994px);
+    }
+
+    .page-footer-brand-logo {
+      align-items: center;
+      display: flex;
+      margin-bottom: clamp(0px, 2.29167vw, 44.00006px);
+    }
+
+    .page-footer-brand-logo-img {
+      display: block;
+      height: clamp(0px, 2.60417vw, 50.00006px);
+      object-fit: contain;
+      width: clamp(0px, 11.97917vw, 230.00006px);
+    }
+
+    .page-footer-brand-copy {
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      font-weight: lighter;
+      line-height: clamp(0px, 1.5625vw, 30px);
+      margin: 0 auto clamp(0px, 3.02083vw, 57.99994px);
+      padding-left: clamp(0px, .52083vw, 9.99994px);
+    }
+
+    .page-footer-brand-copy strong {
+      font-weight: 700;
+    }
+
+    .page-footer-follow {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0px, .41667vw, 8.00006px);
+      padding-left: clamp(0px, .52083vw, 9.99994px);
+    }
+
+    .page-footer-follow-title {
+      color: #ffffff;
+      font-size: clamp(0px, 1.66667vw, 32.00006px);
+      margin-bottom: clamp(0px, .41667vw, 8.00006px);
+    }
+
+    .page-footer-follow-icons {
+      align-items: center;
+      display: flex;
+      gap: clamp(0px, .41667vw, 8.00006px);
+    }
+
+    .page-footer-follow-icon-img {
+      display: block;
+      height: clamp(0px, 2.13542vw, 41.00006px);
+      object-fit: contain;
+      width: clamp(0px, 2.13542vw, 41.00006px);
+    }
+
+    .page-footer-col {
+      flex-shrink: 0;
+      margin-right: clamp(0px, 2.08333vw, 39.99994px);
+    }
+
+    .page-footer-col-title {
+      color: #ffffff;
+      font-size: clamp(0px, 1.66667vw, 32.00006px);
+      font-weight: 400;
+      margin: 0 clamp(0px, 9.375vw, 180px) clamp(0px, 2.13542vw, 41.00006px) 0;
+    }
+
+    .page-footer-col-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page-footer-col-list li {
+      margin-bottom: clamp(0px, 1.04167vw, 20.00006px);
+    }
+
+    .page-footer-col-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .page-footer-col-link {
+      color: #ffffff;
+      font-weight: lighter;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: clamp(0px, .20833vw, 3.99994px);
+    }
+
+    .page-footer-newsletter-desc {
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      font-weight: lighter;
+      line-height: clamp(0px, 1.25vw, 24px);
+      margin: clamp(0px, 1.04167vw, 20.00006px) 0 clamp(0px, 1.5625vw, 30px);
+      max-width: clamp(0px, 23.95833vw, 459.99994px);
+    }
+
+    .page-footer-newsletter-form {
+      align-items: stretch;
+      background: #ffffff;
+      border-radius: clamp(0px, 1.25vw, 24px);
+      box-sizing: border-box;
+      display: flex;
+      height: clamp(0px, 2.5vw, 48px);
+      overflow: hidden;
+      padding: 0 clamp(0px, .625vw, 12px);
+      width: clamp(0px, 23.95833vw, 459.99994px);
+    }
+
+    .page-footer-newsletter-input {
+      background: #ffffff;
+      border: none;
+      color: var(--text-light);
+      flex: 1 1;
+      font-size: clamp(0px, 1.04167vw, 20.00006px);
+      min-width: 0;
+      outline: none;
+      padding: 0 clamp(0px, .52083vw, 9.99994px);
+    }
+
+    .page-footer-newsletter-btn {
+      align-items: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex: 0 0 clamp(0px, 2.29167vw, 44.00006px);
+      justify-content: center;
+      padding: 0;
+      width: clamp(0px, 2.29167vw, 44.00006px);
+    }
+
+    .page-footer-newsletter-btn-img {
+      display: block;
+      height: clamp(0px, 1.25vw, 24px);
+      object-fit: contain;
+      width: clamp(0px, 1.25vw, 24px);
+    }
+
+    .page-footer-newsletter-arrow {
+      color: var(--footer);
+      font-size: clamp(0px, 1.25vw, 24px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .page-footer-global {
+      bottom: clamp(0px, 3.54167vw, 68.00006px);
+      height: 100%;
+      left: 0;
+      margin: auto;
+      object-fit: cover;
+      opacity: .3;
+      position: absolute;
+      right: 0;
+      width: clamp(0px, 88.54167vw, 1700.00006px);
+    }
+
+    @media screen and (max-width: 768px) {
+      .pc,
+      .page-header {
+        display: none !important;
       }
 
-      .whatsapp-control {
-        grid-template-columns: 1fr;
+      .m {
+        display: block;
+      }
+
+      .mobile-header {
+        align-items: center;
+        -webkit-backdrop-filter: blur(clamp(0px, .66667vw, 5.00002px));
+        backdrop-filter: blur(clamp(0px, .66667vw, 5.00002px));
+        background-color: rgba(255, 255, 255, .9);
+        box-shadow: 0 clamp(0px, 1.6vw, 12px) clamp(0px, 4vw, 30px) rgba(0, 0, 0, .08);
+        display: flex;
+        height: clamp(0px, 13.33333vw, 99.99997px);
+        justify-content: space-between;
+        left: 0;
+        margin: 0 auto;
+        padding: 0 clamp(0px, 5.33333vw, 39.99997px);
+        position: fixed;
+        right: 0;
+        top: clamp(0px, 14.66667vw, 110.00003px);
+        width: 100%;
+        z-index: 1000;
+      }
+
+      .mobile-header-left {
+        align-items: center;
+        display: flex;
+        height: clamp(0px, 6.82667vw, 51.20002px);
+        width: clamp(0px, 32vw, 240px);
+      }
+
+      .mobile-header-left img {
+        display: block;
+        height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        width: auto;
+      }
+
+      .mobile-header-actions {
+        align-items: center;
+        display: flex;
+        gap: clamp(0px, 2.66667vw, 20.00002px);
+      }
+
+      .mobile-header-login {
+        align-items: center;
+        border: 1px solid #9da6b2;
+        border-radius: clamp(0px, 1.06667vw, 8.00003px);
+        box-sizing: border-box;
+        color: var(--text-muted);
+        display: inline-flex;
+        font-size: clamp(0px, 3.46667vw, 26.00003px);
+        height: clamp(0px, 7.06667vw, 53.00003px);
+        justify-content: center;
+        line-height: 1;
+        text-decoration: none;
+        width: clamp(0px, 17.46667vw, 131.00002px);
+      }
+
+      .mobile-header-right {
+        background: url("https://www.bestads.com/common/m-menu.62860168e8.png") no-repeat 50% / contain;
+        display: inline-block;
+        height: clamp(0px, 8vw, 60px);
+        width: clamp(0px, 8vw, 60px);
+      }
+
+      .contact-page-card .part-1-bg.pc,
+      .contact-page-card .part-1-content-title.pc,
+      .contact-page-card .part-1-content-desc.pc,
+      .contact-page-card .pc-address {
+        display: none;
+      }
+
+      .contact-page-card .part-1-bg.m,
+      .contact-page-card .part-1-content-title.m,
+      .contact-page-card .part-1-content-desc.m,
+      .contact-page-card .m-address {
+        display: block;
+      }
+
+      .contact-page-card .part-1 {
+        height: clamp(0px, 124.13333vw, 930.99997px);
+      }
+
+      .contact-page-card .part-1-content {
+        margin: 0 auto;
+        max-width: clamp(0px, 200.66667vw, 1505.00003px);
+        padding-left: 0;
+        padding-top: clamp(0px, 26.66667vw, 200.00002px);
+        text-align: center;
+      }
+
+      .contact-page-card .part-1-content-title {
+        color: var(--brand-navy);
+        font-size: clamp(0px, 5.33333vw, 39.99997px);
+        font-weight: 700;
+        line-height: 1.1;
+        margin-bottom: clamp(0px, .26667vw, 2.00003px);
+        text-align: center;
+      }
+
+      .contact-page-card .part-1-content-desc {
+        color: var(--brand-navy);
+        font-size: clamp(0px, 5.33333vw, 39.99997px);
+        font-weight: lighter;
+        line-height: 1.1;
+        margin-bottom: clamp(0px, 8vw, 60px);
+        text-align: center;
+      }
+
+      .contact-page-card .part-1-content-cta {
+        border-radius: clamp(0px, 2.93333vw, 21.99997px);
+        display: inline-block;
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        height: clamp(0px, 5.86667vw, 44.00002px);
+        line-height: clamp(0px, 5.86667vw, 44.00002px);
+        width: clamp(0px, 21.6vw, 162px);
+      }
+
+      .contact-page-card .part-2 {
+        background-position: center clamp(0px, 134.26667vw, 1007.00003px);
+        min-height: clamp(0px, 208vw, 1560px);
+        padding-bottom: clamp(0px, 16vw, 120px);
+        padding-top: clamp(0px, 8.53333vw, 63.99997px);
+        position: relative;
+        scroll-margin-top: clamp(0px, 21.33333vw, 159.99998px);
+      }
+
+      .contact-page-card .part-2::before {
+        background-image: linear-gradient(180deg, #ebeff4, #fdfeff 38%, #f6f9fc 100%);
+        content: "";
+        height: 100%;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: -1;
+      }
+
+      .contact-page-card .part-2-container {
+        align-items: center;
+        flex-direction: column;
+        gap: clamp(0px, 3.46667vw, 26.00003px);
+        max-width: 100%;
+      }
+
+      .contact-page-card .part-2-card {
+        border-radius: clamp(0px, 1.33333vw, 9.99997px);
+        height: clamp(0px, 26vw, 195px);
+        padding: clamp(0px, 5.33333vw, 39.99997px) clamp(0px, 5.6vw, 42px);
+        width: clamp(0px, 88.8vw, 666px);
+      }
+
+      .contact-page-card .part-2-card-title {
+        align-items: flex-start;
+      }
+
+      .contact-page-card .part-2-card-title-text {
+        font-size: clamp(0px, 4.26667vw, 32.00003px);
+      }
+
+      .contact-page-card .part-2-card-title-icon {
+        border-radius: clamp(0px, 2.4vw, 18px);
+        height: clamp(0px, 9.86667vw, 74.00002px);
+        width: clamp(0px, 9.86667vw, 74.00002px);
+      }
+
+      .contact-page-card .part-2-card-title-icon .wa {
+        height: clamp(0px, 6.26667vw, 47.00003px);
+        width: clamp(0px, 6.26667vw, 47.00003px);
+      }
+
+      .contact-page-card .card-symbol {
+        font-size: clamp(0px, 4.26667vw, 32.00003px);
+      }
+
+      .contact-page-card .part-2-card-content {
+        font-size: clamp(0px, 3.2vw, 24px);
+        font-weight: 400;
+        margin-top: clamp(0px, 2.4vw, 18px);
+      }
+
+      .contact-page-card .part-2-form {
+        align-items: center;
+        background-image: linear-gradient(180deg, #ebeff4 0, #fdfeff 10%, #f6f9fc 20%, #ffffff 30%, #ffffff);
+        border-radius: clamp(0px, 1.33333vw, 9.99997px);
+        flex-direction: column-reverse;
+        justify-content: center;
+        padding: clamp(0px, 5.33333vw, 39.99997px) clamp(0px, 5.6vw, 42px) clamp(0px, 10.66667vw, 80.00002px);
+        scroll-margin-top: clamp(0px, 21.33333vw, 159.99998px);
+        width: clamp(0px, 89.33333vw, 669.99997px);
+      }
+
+      .contact-page-card .part-2-form-left {
+        box-sizing: border-box;
+        margin-right: 0;
+        margin-top: clamp(0px, 10.26667vw, 77.00002px);
+        width: clamp(0px, 80vw, 600px);
+      }
+
+      .contact-page-card .part-2-form-left-row {
+        gap: clamp(0px, 3.46667vw, 26.00003px);
+        margin-bottom: clamp(0px, 2.93333vw, 21.99997px);
+      }
+
+      .contact-page-card .part-2-form-left-item {
+        gap: clamp(0px, .53333vw, 3.99998px);
+        margin-bottom: clamp(0px, 3.2vw, 24px);
+      }
+
+      .contact-page-card .part-2-form-left-item-label {
+        font-size: clamp(0px, 3.2vw, 24px);
+        font-weight: 700;
+      }
+
+      .contact-page-card .part-2-form-left-item-input,
+      .country-trigger {
+        border-color: var(--text-muted);
+        border-radius: clamp(0px, .53333vw, 3.99998px);
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        height: clamp(0px, 9.33333vw, 69.99998px);
+        padding: 0 clamp(0px, 6.4vw, 48px) 0 clamp(0px, 2.4vw, 18px);
       }
 
       .country-trigger {
-        border-right: 1px solid var(--line);
-        border-radius: 4px 4px 0 0;
+        border-right: 0;
+        border-radius: clamp(0px, .53333vw, 3.99998px) 0 0 clamp(0px, .53333vw, 3.99998px);
+        padding-right: clamp(0px, 1.86667vw, 14.00003px);
       }
 
-      .whatsapp-control > input {
-        border-top: 0;
-        border-radius: 0 0 4px 4px;
+      .whatsapp-control .part-2-form-left-item-input {
+        border-radius: 0 clamp(0px, .53333vw, 3.99998px) clamp(0px, .53333vw, 3.99998px) 0;
+      }
+
+      .contact-page-card .part-2-form-left-item-textarea {
+        border-color: var(--text-muted);
+        border-radius: clamp(0px, .53333vw, 3.99998px);
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        height: clamp(0px, 22vw, 165px);
+        padding: clamp(0px, 1.86667vw, 14.00003px) clamp(0px, 6.4vw, 48px) clamp(0px, 1.86667vw, 14.00003px) clamp(0px, 2.4vw, 18px);
+      }
+
+      .contact-page-card .part-2-form-left-item-error {
+        font-size: clamp(0px, 2vw, 15px);
+        padding-top: clamp(0px, .53333vw, 3.99998px);
+        white-space: normal;
+      }
+
+      .contact-page-card .part-2-form-left-agree {
+        margin-bottom: clamp(0px, 5.6vw, 42px);
+      }
+
+      .contact-page-card .part-2-form-left-agree-label {
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        gap: clamp(0px, 1.33333vw, 9.99997px);
+      }
+
+      .contact-page-card .part-2-form-left-agree-checkbox {
+        border-radius: clamp(0px, .53333vw, 3.99998px);
+        height: clamp(0px, 3.46667vw, 26.00003px);
+        width: clamp(0px, 3.46667vw, 26.00003px);
+      }
+
+      .contact-page-card .part-2-form-left-submit {
+        border-radius: clamp(0px, 1.33333vw, 9.99997px);
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        height: clamp(0px, 6.13333vw, 45.99998px);
+      }
+
+      .contact-page-card .part-2-form-right {
+        border: 1px solid var(--line);
+        border-radius: clamp(0px, 1.33333vw, 9.99997px);
+        height: clamp(0px, 48vw, 360px);
+        width: clamp(0px, 80vw, 600px);
+      }
+
+      .contact-page-card .part-2-form-right .map-local {
+        height: clamp(0px, 3.46667vw, 26.00003px);
+        left: clamp(0px, 38.66667vw, 290.00003px);
+        top: clamp(0px, 12vw, 90px);
+        width: clamp(0px, 3.46667vw, 26.00003px);
+      }
+
+      .contact-page-card .address-label {
+        border-radius: clamp(0px, 1.06667vw, 8.00003px);
+        font-size: clamp(0px, 1.86667vw, 14.00003px);
+        left: clamp(0px, 31.2vw, 234px);
+        padding: clamp(0px, 1.2vw, 9px) clamp(0px, 1.86667vw, 14.00003px);
+        top: clamp(0px, 17.33333vw, 129.99998px);
+      }
+
+      .whatsapp-control {
+        grid-template-columns: clamp(0px, 30vw, 225px) minmax(0, 1fr);
+      }
+
+      .country-placeholder,
+      .country-name,
+      .country-option-name,
+      .country-option-code,
+      .country-search-input,
+      .country-current,
+      .clear-code {
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+      }
+
+      .country-flag {
+        font-size: clamp(0px, 3.2vw, 24px);
+        width: clamp(0px, 4vw, 30px);
+      }
+
+      .country-code {
+        font-size: clamp(0px, 2.93333vw, 21.99997px);
+      }
+
+      .country-arrow {
+        font-size: clamp(0px, 2.4vw, 18px);
       }
 
       .country-popover {
+        border-radius: clamp(0px, 1.33333vw, 9.99997px);
+        top: calc(100% + clamp(0px, 1.06667vw, 8.00003px));
         width: 100%;
+      }
+
+      .country-search {
+        padding: clamp(0px, 2.13333vw, 15.99997px);
+      }
+
+      .country-search-input {
+        border-radius: clamp(0px, .53333vw, 3.99998px);
+        height: clamp(0px, 8.53333vw, 63.99997px);
+        padding: 0 clamp(0px, 2.4vw, 18px);
+      }
+
+      .country-list {
+        max-height: clamp(0px, 53.33333vw, 400px);
+        padding: clamp(0px, 1.06667vw, 8.00003px);
+      }
+
+      .country-option {
+        border-radius: clamp(0px, 1.06667vw, 8.00003px);
+        gap: clamp(0px, 2.13333vw, 15.99997px);
+        grid-template-columns: clamp(0px, 5.33333vw, 39.99997px) minmax(0, 1fr) auto;
+        min-height: clamp(0px, 9.33333vw, 69.99998px);
+        padding: clamp(0px, 1.86667vw, 14.00003px) clamp(0px, 2.13333vw, 15.99997px);
+      }
+
+      .country-footer {
+        padding: clamp(0px, 2.13333vw, 15.99997px);
+      }
+
+      .page-footer {
+        font-size: clamp(0px, 4.26667vw, 32.00003px);
+        min-height: 0;
+        padding: clamp(0px, 15.46667vw, 116.00003px) 0 0;
+      }
+
+      .page-footer-inner {
+        box-sizing: border-box;
+        flex-direction: column;
+        max-width: 100%;
+        padding: 0 clamp(0px, 9.73333vw, 72.99998px);
+      }
+
+      .page-footer-brand {
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        margin-right: 0;
+        width: 100%;
+      }
+
+      .page-footer-brand-logo {
+        margin-bottom: clamp(0px, 8vw, 60px);
+      }
+
+      .page-footer-brand-logo-img {
+        height: clamp(0px, 8.26667vw, 62.00002px);
+        width: clamp(0px, 38.4vw, 288px);
+      }
+
+      .page-footer-brand-copy {
+        align-items: center;
+        background-color: #ffffff;
+        box-sizing: border-box;
+        color: var(--footer);
+        display: flex;
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        justify-content: center;
+        line-height: clamp(0px, 4vw, 30px);
+        margin: clamp(0px, 13.33333vw, 99.99997px) auto 0;
+        min-height: clamp(0px, 24vw, 180px);
+        padding: clamp(0px, 3.2vw, 24px) clamp(0px, 4.26667vw, 32.00003px);
+        text-align: center;
+      }
+
+      .page-footer-follow-title {
+        display: none;
+      }
+
+      .page-footer-follow-icons {
+        gap: clamp(0px, 2.66667vw, 20.00002px);
+      }
+
+      .page-footer-follow-icon-img {
+        height: clamp(0px, 9.46667vw, 71.00003px);
+        width: clamp(0px, 9.46667vw, 71.00003px);
+      }
+
+      .page-footer-col {
+        margin-top: clamp(0px, 10.8vw, 81px);
+      }
+
+      .page-footer-col-title {
+        font-size: clamp(0px, 4.26667vw, 32.00003px);
+      }
+
+      .page-footer-newsletter-desc {
+        font-size: clamp(0px, 4.26667vw, 32.00003px);
+        line-height: 1.2;
+        margin-bottom: clamp(0px, 4vw, 30px);
+        margin-top: clamp(0px, 10.8vw, 81px);
+        max-width: 100%;
+      }
+
+      .page-footer-newsletter-form {
+        border-radius: clamp(0px, 4.53333vw, 33.99998px);
+        height: clamp(0px, 9.06667vw, 68.00003px);
+        padding: 0 clamp(0px, 1.6vw, 12px);
+        width: 100%;
+      }
+
+      .page-footer-newsletter-input {
+        font-size: clamp(0px, 2.66667vw, 20.00002px);
+        padding: 0 clamp(0px, 1.33333vw, 9.99997px);
+      }
+
+      .page-footer-newsletter-btn {
+        flex: 0 0 clamp(0px, 5.86667vw, 44.00002px);
+        width: clamp(0px, 5.86667vw, 44.00002px);
+      }
+
+      .page-footer-newsletter-btn-img {
+        height: clamp(0px, 3.2vw, 24px);
+        width: clamp(0px, 3.2vw, 24px);
+      }
+
+      .page-footer-newsletter-arrow {
+        font-size: clamp(0px, 3.2vw, 24px);
+      }
+
+      .page-footer-global {
+        height: clamp(0px, 100.53333vw, 753.99997px);
+        object-fit: contain;
+        top: 0;
+        transform: rotate(-90deg);
+        width: clamp(0px, 160vw, 1200px);
       }
     }
   </style>
 </head>
 <body>
-  <main class="contact-page">
-    <p class="contact-kicker">Unlock your solution</p>
-    <h1 class="contact-heading">Contact our experts</h1>
-    <p class="contact-intro">Tell us what you need for global advertising growth. The team will review your information and get back to you within 24 hours.</p>
+  <header class="page-header light">
+    <a class="page-header-left" href="https://www.bestads.com/" aria-label="Bestads Home">
+      <img src="https://www.bestads.com/common/logo.2b4890003c.png" alt="Bestads">
+    </a>
+    <nav class="page-header-right" aria-label="Primary navigation">
+      <a href="https://www.bestads.com/">Home</a>
+      <span class="page-header-core-service">
+        <a class="page-header-core-service-trigger" href="https://www.bestads.com/service">Core Service</a>
+        <span class="page-header-core-service-card">
+          <a class="page-header-core-service-item" href="https://www.bestads.com/services/creatives-services">Creatives Service</a>
+          <a class="page-header-core-service-item" href="https://www.bestads.com/service">Advertising Agency</a>
+          <a class="page-header-core-service-item" href="https://www.bestads.com/services/tiktok-shop">TikTok Shop Partner</a>
+          <a class="page-header-core-service-item" href="https://www.bestads.com/services/website-building">Website Building</a>
+        </span>
+      </span>
+      <a href="https://www.bestads.com/solutions">Solutions</a>
+      <a class="active" href="https://www.bestads.com/contact">Contact Us</a>
+      <a class="page-header-login" href="https://client.bestads.com/">Login</a>
+    </nav>
+  </header>
 
-    <section class="contact-shell" aria-label="Contact us form">
-      <form class="contact-form">
-        <div class="form-row">
-          <div class="field">
-            <label for="contact-firstName">Your Name</label>
-            <input id="contact-firstName" type="text" autocomplete="given-name">
+  <header class="mobile-header">
+    <a class="mobile-header-left" href="https://www.bestads.com/" aria-label="Bestads Home">
+      <img src="https://www.bestads.com/common/logo.2b4890003c.png" alt="Bestads">
+    </a>
+    <div class="mobile-header-actions">
+      <a class="mobile-header-login" href="https://client.bestads.com/">Login</a>
+      <span class="mobile-header-right" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <main class="contact-page-card">
+    <section class="part-1" aria-label="Contact Bestads">
+      <img class="part-1-bg pc" src="https://www.bestads.com/common/contact-bg.703afba1ab.jpg" alt="">
+      <img class="part-1-bg m" src="https://www.bestads.com/common/contact-bg.703afba1ab.jpg" alt="">
+      <div class="part-1-content">
+        <p class="part-1-content-title pc">UNLOCK YOUR SOLUTION</p>
+        <p class="part-1-content-title m">UNLOCK YOUR<br>SOLUTION</p>
+        <p class="part-1-content-desc pc">CONTACT OUR EXPERTS</p>
+        <p class="part-1-content-desc m">CONTACT OUR<br>EXPERTS</p>
+        <a class="part-1-content-cta" href="#contact-form">Contact Us</a>
+      </div>
+    </section>
+
+    <section class="part-2" id="contact-form" aria-label="Contact information and form">
+      <div class="part-2-container">
+        <article class="part-2-card">
+          <div class="part-2-card-title">
+            <p class="part-2-card-title-text">Office</p>
+            <span class="part-2-card-title-icon" aria-hidden="true">
+              <span class="card-symbol">HQ</span>
+            </span>
           </div>
+          <p class="part-2-card-content">Hong Kong<br>Global growth team</p>
+        </article>
 
-          <div class="field">
-            <label for="contact-lastName">Last Name</label>
-            <input id="contact-lastName" type="text" autocomplete="family-name">
+        <a class="part-2-card" href="https://wa.me/85270710809" target="_blank" rel="noreferrer">
+          <div class="part-2-card-title">
+            <p class="part-2-card-title-text">WhatsApp</p>
+            <span class="part-2-card-title-icon" aria-hidden="true">
+              <img class="wa" src="https://www.bestads.com/common/icon-wa.174b781f57.png" alt="">
+            </span>
           </div>
-        </div>
+          <p class="part-2-card-content">+852 7071 0809<br>Talk to our experts</p>
+        </a>
 
-        <div class="field">
-          <label for="contact-email">Email</label>
-          <input id="contact-email" type="email" autocomplete="email">
-        </div>
+        <a class="part-2-card" href="mailto:service@bestads.com">
+          <div class="part-2-card-title">
+            <p class="part-2-card-title-text">Email</p>
+            <span class="part-2-card-title-icon" aria-hidden="true">
+              <span class="card-symbol">@</span>
+            </span>
+          </div>
+          <p class="part-2-card-content">service@bestads.com<br>Contact sales support</p>
+        </a>
+      </div>
 
-        <div class="field">
-          <label for="contact-whatsapp">WhatsApp</label>
-          <div class="whatsapp-control" data-country-select>
-            <button class="country-trigger" id="country-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="country-popover">
-              <span class="country-trigger-content" data-selected-country>
-                <span class="country-placeholder">Select code</span>
-              </span>
-              <span class="country-arrow" aria-hidden="true">⌄</span>
-            </button>
-            <input id="contact-whatsapp" type="tel" inputmode="tel" autocomplete="tel-national" name="whatsappNumber" placeholder="WhatsApp number">
-            <input id="contact-country-code" type="hidden" name="whatsappCountryCode" value="">
-            <input id="contact-country-iso" type="hidden" name="whatsappCountryIso" value="">
-            <input id="contact-country-name" type="hidden" name="whatsappCountryName" value="">
-
-            <div class="country-popover" id="country-popover" hidden>
-              <div class="country-search">
-                <label class="sr-only" for="country-search">Search country code</label>
-                <input id="country-search" type="search" placeholder="Search country / region or code" autocomplete="off">
+      <div class="part-2-form">
+        <div class="part-2-form-left">
+          <form class="part-2-form-left-form" novalidate>
+            <div class="part-2-form-left-row">
+              <div class="part-2-form-left-item">
+                <label class="part-2-form-left-item-label" for="contact-firstName">Your Name</label>
+                <div class="part-2-form-left-item-input-wrapper">
+                  <input class="part-2-form-left-item-input" id="contact-firstName" type="text" autocomplete="given-name">
+                </div>
               </div>
-              <div class="country-list" id="country-list" role="listbox" aria-label="WhatsApp country code"></div>
-              <div class="country-footer">
-                <span class="country-current" id="country-current">No code selected</span>
-                <button class="clear-code" type="button" id="clear-code">Clear</button>
+
+              <div class="part-2-form-left-item">
+                <label class="part-2-form-left-item-label" for="contact-lastName">Last Name</label>
+                <div class="part-2-form-left-item-input-wrapper">
+                  <input class="part-2-form-left-item-input" id="contact-lastName" type="text" autocomplete="family-name">
+                </div>
               </div>
             </div>
-          </div>
+
+            <div class="part-2-form-left-item">
+              <label class="part-2-form-left-item-label" for="contact-email">Email</label>
+              <div class="part-2-form-left-item-input-wrapper">
+                <input class="part-2-form-left-item-input" id="contact-email" type="email" autocomplete="email">
+              </div>
+            </div>
+
+            <div class="part-2-form-left-item">
+              <label class="part-2-form-left-item-label" for="contact-whatsapp">WhatsApp</label>
+              <div class="part-2-form-left-item-input-wrapper">
+                <div class="whatsapp-control" data-country-select>
+                  <button class="country-trigger" id="country-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="country-popover">
+                    <span class="country-trigger-content" data-selected-country>
+                      <span class="country-placeholder">Select code</span>
+                    </span>
+                    <span class="country-arrow" aria-hidden="true">⌄</span>
+                  </button>
+                  <input class="part-2-form-left-item-input" id="contact-whatsapp" type="tel" inputmode="tel" autocomplete="tel-national" name="whatsappNumber" placeholder="WhatsApp number">
+                  <input id="contact-country-code" type="hidden" name="whatsappCountryCode" value="">
+                  <input id="contact-country-iso" type="hidden" name="whatsappCountryIso" value="">
+                  <input id="contact-country-name" type="hidden" name="whatsappCountryName" value="">
+
+                  <div class="country-popover" id="country-popover" hidden>
+                    <div class="country-search">
+                      <label class="sr-only" for="country-search">Search country code</label>
+                      <input class="country-search-input" id="country-search" type="search" placeholder="Search country / region or code" autocomplete="off">
+                    </div>
+                    <div class="country-list" id="country-list" role="listbox" aria-label="WhatsApp country code"></div>
+                    <div class="country-footer">
+                      <span class="country-current" id="country-current">No code selected</span>
+                      <button class="clear-code" type="button" id="clear-code">Clear</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="part-2-form-left-item-error" id="whatsapp-error" aria-live="polite"></div>
+            </div>
+
+            <div class="part-2-form-left-item">
+              <label class="part-2-form-left-item-label" for="contact-productLink">Product Link</label>
+              <div class="part-2-form-left-item-input-wrapper">
+                <input class="part-2-form-left-item-input" id="contact-productLink" type="url" placeholder="website/aliexpress/1688">
+              </div>
+            </div>
+
+            <div class="part-2-form-left-item">
+              <label class="part-2-form-left-item-label" for="contact-userMessage">Your Message</label>
+              <div class="part-2-form-left-item-input-wrapper">
+                <textarea class="part-2-form-left-item-textarea" id="contact-userMessage" placeholder="Please submit your requirements. My team and I will contact you within 24 hours."></textarea>
+              </div>
+            </div>
+
+            <div class="part-2-form-left-agree">
+              <label class="part-2-form-left-agree-label">
+                <input class="part-2-form-left-agree-checkbox" type="checkbox">
+                <span>You Agree To Our Friendly <a class="part-2-form-left-agree-link" href="https://www.bestads.com/privacy" target="_blank" rel="noreferrer">Privacy Policy</a></span>
+              </label>
+            </div>
+
+            <button class="part-2-form-left-submit" type="submit">Send message →</button>
+          </form>
         </div>
 
-        <div class="field">
-          <label for="contact-productLink">Product Link</label>
-          <input id="contact-productLink" type="url" placeholder="website/aliexpress/1688">
+        <div class="part-2-form-right" aria-label="Bestads location map">
+          <picture class="map-picture">
+            <source media="(max-width: 768px)" srcset="https://www.bestads.com/common/m-map.4909d42629.jpg">
+            <img class="map" src="https://www.bestads.com/common/pc-map.2c08dd6cf7.jpg" alt="">
+          </picture>
+          <img class="map-local" src="https://www.bestads.com/common/local.3b24ae8f23.png" alt="">
+          <span class="address-label pc-address">Bestads Global Office</span>
+          <span class="address-label m-address">Bestads Office</span>
         </div>
-
-        <div class="field">
-          <label for="contact-userMessage">Your Message</label>
-          <textarea id="contact-userMessage" placeholder="Please submit your requirements. My team and I will contact you within 24 hours."></textarea>
-        </div>
-
-        <label class="agreement">
-          <input type="checkbox">
-          <span>You Agree To Our Friendly Privacy Policy</span>
-        </label>
-
-        <button class="send-button" type="submit">Send message <span aria-hidden="true">→</span></button>
-      </form>
-
-      <aside class="contact-aside" aria-label="Bestads contact support">
-        <div class="contact-photo" role="img" aria-label="Advertising consultation workspace"></div>
-        <div class="aside-block">
-          <h2 class="aside-title">Fast routing by region</h2>
-          <p class="aside-copy">Choosing a WhatsApp country code helps the contact team identify the right regional owner before the first reply.</p>
-        </div>
-        <ul class="contact-points">
-          <li><span class="point-mark">1</span><span>Country code starts empty, so users make an explicit choice when WhatsApp is provided.</span></li>
-          <li><span class="point-mark">2</span><span>Search supports country name, region keywords, ISO code, and dialing code.</span></li>
-          <li><span class="point-mark">3</span><span>Only one code can be selected; selecting another code replaces the previous one.</span></li>
-        </ul>
-      </aside>
+      </div>
     </section>
   </main>
+
+  <footer class="page-footer">
+    <img class="page-footer-global" src="https://www.bestads.com/common/footer-global.dfe3a264b0.png" alt="">
+    <div class="page-footer-inner">
+      <section class="page-footer-brand">
+        <a class="page-footer-brand-logo" href="https://www.bestads.com/" aria-label="Bestads Home">
+          <img class="page-footer-brand-logo-img" src="https://www.bestads.com/common/icon-logo-white.f9c79aa3e1.png" alt="Bestads">
+        </a>
+        <p class="page-footer-brand-copy pc"><strong>Bestads</strong><br>Make global advertising easier.</p>
+        <div class="page-footer-follow">
+          <p class="page-footer-follow-title">Follow us</p>
+          <div class="page-footer-follow-icons">
+            <a href="https://www.facebook.com/" aria-label="Facebook"><img class="page-footer-follow-icon-img" src="https://www.bestads.com/common/icon-fb.45db3700c4.png" alt=""></a>
+            <a href="https://www.linkedin.com/" aria-label="LinkedIn"><img class="page-footer-follow-icon-img" src="https://www.bestads.com/common/icon-in.7f85da030a.png" alt=""></a>
+            <a href="https://wa.me/85270710809" aria-label="WhatsApp"><img class="page-footer-follow-icon-img" src="https://www.bestads.com/common/icon-wa.174b781f57.png" alt=""></a>
+          </div>
+        </div>
+        <p class="page-footer-brand-copy m"><strong>Bestads</strong> Make global advertising easier.</p>
+      </section>
+
+      <section class="page-footer-col">
+        <h2 class="page-footer-col-title">Core Service</h2>
+        <ul class="page-footer-col-list">
+          <li><a class="page-footer-col-link" href="https://www.bestads.com/services/creatives-services">Creatives Service</a></li>
+          <li><a class="page-footer-col-link" href="https://www.bestads.com/service">Advertising Agency</a></li>
+          <li><a class="page-footer-col-link" href="https://www.bestads.com/services/tiktok-shop">TikTok Shop Partner</a></li>
+          <li><a class="page-footer-col-link" href="https://www.bestads.com/services/website-building">Website Building</a></li>
+        </ul>
+      </section>
+
+      <section class="page-footer-col">
+        <h2 class="page-footer-col-title">Solutions</h2>
+        <ul class="page-footer-col-list">
+          <li><a class="page-footer-col-link" href="https://www.bestads.com/solutions">For Brand</a></li>
+          <li><a class="page-footer-col-link" href="https://www.bestads.com/solutions">For Seller</a></li>
+          <li><a class="page-footer-col-link" href="https://www.bestads.com/contact">Contact Us</a></li>
+        </ul>
+      </section>
+
+      <section class="page-footer-col">
+        <h2 class="page-footer-col-title">Newsletter</h2>
+        <p class="page-footer-newsletter-desc">Get latest digital marketing insights.</p>
+        <form class="page-footer-newsletter-form">
+          <input class="page-footer-newsletter-input" type="email" placeholder="Enter your email">
+          <button class="page-footer-newsletter-btn" type="submit" aria-label="Subscribe">
+            <span class="page-footer-newsletter-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+      </section>
+    </div>
+  </footer>
 
   <script>
     const COUNTRY_DATA_URLS = [
@@ -629,6 +1775,8 @@
     const hiddenCode = document.getElementById("contact-country-code");
     const hiddenIso = document.getElementById("contact-country-iso");
     const hiddenName = document.getElementById("contact-country-name");
+    const whatsappInput = document.getElementById("contact-whatsapp");
+    const whatsappError = document.getElementById("whatsapp-error");
     const current = document.getElementById("country-current");
     const clearButton = document.getElementById("clear-code");
     let selectedCountry = null;
@@ -642,24 +1790,27 @@
     function toDialCode(iso, phones) {
       const values = Array.isArray(phones) ? phones : [phones];
       if (iso === "XK" && values.includes(383)) return "+383";
-      const first = values.find((item) => item != null);
+      const first = values.find((item) => item != null && item !== "");
       if (first == null) return "";
-      const raw = String(first);
+      const raw = String(first).split(",")[0].trim();
+      if (!raw) return "";
       if (raw.length >= 4 && raw.startsWith("1")) return "+1";
-      return `+${raw}`;
+      return raw.startsWith("+") ? raw : `+${raw}`;
     }
 
-    function mapCountryData(data) {
+    function mapCountryData(payload) {
+      const data = payload && payload.countries ? payload.countries : payload;
+      if (!data || typeof data !== "object") return [];
       return Object.entries(data)
         .map(([iso, item]) => {
           const code = toDialCode(iso, item && item.phone);
           if (!code) return null;
           return {
             flag: emojiFlag(iso),
-            name: item.name,
+            name: item.name || iso,
             iso,
             code,
-            keywords: [item.native, item.capital, iso].filter(Boolean).join(" ")
+            keywords: [item.native, item.capital, iso, item.continent].filter(Boolean).join(" ")
           };
         })
         .filter(Boolean)
@@ -684,8 +1835,7 @@
     async function loadCountries() {
       for (const url of COUNTRY_DATA_URLS) {
         try {
-          const data = await fetchCountryJson(url);
-          const mapped = mapCountryData(data);
+          const mapped = mapCountryData(await fetchCountryJson(url));
           if (mapped.length) return mapped;
         } catch (error) {
           console.warn("Country code source unavailable:", url, error);
@@ -695,7 +1845,7 @@
     }
 
     function normalize(value) {
-      return value.toLowerCase().replace(/[^a-z0-9+]+/g, "");
+      return String(value || "").toLowerCase().replace(/[^a-z0-9+]+/g, "");
     }
 
     function fuzzyMatch(source, query) {
@@ -714,6 +1864,11 @@
 
     function countryText(country) {
       return `${country.name} ${country.iso} ${country.code} ${country.keywords}`;
+    }
+
+    function clearWhatsAppError() {
+      whatsappError.classList.remove("is-visible");
+      whatsappError.textContent = "";
     }
 
     function renderSelected() {
@@ -737,6 +1892,7 @@
       hiddenIso.value = selectedCountry.iso;
       hiddenName.value = selectedCountry.name;
       current.textContent = `${selectedCountry.flag} ${selectedCountry.name} ${selectedCountry.code}`;
+      clearWhatsAppError();
     }
 
     function renderList() {
@@ -819,10 +1975,33 @@
       search.focus();
     });
 
+    whatsappInput.addEventListener("input", clearWhatsAppError);
+
     document.addEventListener("click", (event) => {
       if (!root.contains(event.target) && !popover.hidden) {
         closePopover();
       }
+    });
+
+    document.querySelector(".part-2-form-left-form").addEventListener("submit", (event) => {
+      const hasNumber = whatsappInput.value.trim().length > 0;
+      const hasCode = Boolean(selectedCountry);
+      if (hasNumber !== hasCode) {
+        event.preventDefault();
+        whatsappError.textContent = hasNumber ? "Please select WhatsApp country code." : "Please enter WhatsApp number.";
+        whatsappError.classList.add("is-visible");
+        if (hasNumber) {
+          trigger.focus();
+        } else {
+          whatsappInput.focus();
+        }
+        return;
+      }
+      event.preventDefault();
+    });
+
+    document.querySelector(".page-footer-newsletter-form").addEventListener("submit", (event) => {
+      event.preventDefault();
     });
 
     renderSelected();
