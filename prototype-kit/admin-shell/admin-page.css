@@ -88,6 +88,7 @@ body.admin-prototype-page.theme-dark {
 .filter-actions { display: flex; grid-column: -2 / -1; justify-content: flex-end; align-items: center; align-self: end; justify-self: end; gap: 8px; padding-top: 2px; }
 
 .btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 32px; padding: 0 15px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--admin-text); cursor: pointer; font: inherit; white-space: nowrap; transition: background .16s ease, border-color .16s ease, color .16s ease; }
+.btn[hidden] { display: none !important; }
 .btn:disabled { cursor: not-allowed; opacity: .55; }
 .btn-primary { border-color: var(--admin-primary); background: var(--admin-primary); color: #fff; }
 .btn-primary:hover:not(:disabled) { background: #005bc4; border-color: #005bc4; }
@@ -318,6 +319,20 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .recharge-amount-meta b { color: var(--admin-text); font-weight: 500; font-variant-numeric: tabular-nums; }
 .recharge-total-row { display: flex; justify-content: flex-end; gap: 24px; padding-top: 4px; color: var(--admin-secondary); font-size: 13px; }
 .recharge-total-row strong { color: var(--admin-text); }
+.debit-form { display: grid; gap: 16px; }
+.debit-wallet { margin: 0; }
+.debit-wallet[hidden] { display: none; }
+.debit-wallet dd.debit-balance-danger { color: var(--admin-danger); font-weight: 600; }
+.debit-item-panel { display: grid; gap: 10px; }
+.debit-item-list { display: grid; gap: 10px; }
+.debit-item-card { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--admin-border); border-radius: 6px; background: color-mix(in srgb, var(--admin-page-bg) 48%, var(--admin-surface)); }
+.debit-item-card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.debit-item-card__head strong { color: var(--admin-text); font-size: 13px; }
+.debit-item-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) 120px minmax(0, 1fr); gap: 10px; }
+.debit-item-card .form-field { min-width: 0; }
+.debit-item-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.debit-total-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 24px; padding-top: 2px; color: var(--admin-secondary); font-size: 13px; }
+.debit-total-row strong { color: var(--admin-text); font-variant-numeric: tabular-nums; }
 .risk-confirm { display: grid; gap: 12px; color: var(--admin-text); }
 .risk-confirm__sub { margin: 0; color: var(--admin-secondary); font-size: 13px; }
 .risk-confirm__line { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; }

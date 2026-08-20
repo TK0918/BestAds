@@ -611,6 +611,7 @@
     if (modal?.type === 'opening-cancel') return openingCancelModal(modal, row);
     if (modal?.type === 'opening-reopen') return openingReopenModal(modal, row);
     if (modal?.type === 'opening-rule-config') return openingRuleConfigModal(modal, row);
+    if (modal?.type === 'batch-debit') return batchDebitModal(modal);
     const fields = modal?.fields || [];
     const transferAttrs = fields.some(field => /transfer-card-select|transfer-warning/.test(field.control || '')) ? ' data-transfer-modal' : '';
     const hasRow = row && Object.keys(row).length > 0;
@@ -654,6 +655,22 @@
   function monitorAlertPreviewModal(modal) {
     const lines = modal.lines || ['【监控告警】示例消息', '命中记录：3 条', '请相关负责人进入运营端处理。'];
     return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '飞书告警示意')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="risk-summary">${lines.map(line => `<span>${esc(line)}</span>`).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+  }
+
+  function debitSelectOptions(options, placeholder, selected) {
+    return `<option value="">${esc(placeholder)}</option>${(options || []).map(option => `<option value="${esc(option)}"${String(option) === String(selected || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}`;
+  }
+
+  function batchDebitItemHtml(modal, item = {}) {
+    const types = modal.feeTypes || [];
+    const currencies = modal.currencies || ['USD', 'EUR', 'GBP'];
+    return `<div class="debit-item-card" data-debit-item><div class="debit-item-card__head"><strong data-debit-item-label>扣费 1</strong><button type="button" class="btn btn-link btn-link-danger" data-debit-remove hidden>删除</button></div><div class="debit-item-grid"><div class="form-field"><label>扣费类型 <span style="color:var(--admin-danger)">*</span></label><select data-debit-type>${debitSelectOptions(types, '请选择扣费类型', item.feeType)}</select></div><div class="form-field"><label>扣费币种 <span style="color:var(--admin-danger)">*</span></label><select data-debit-currency>${debitSelectOptions(currencies, '请选择币种', item.currency || 'USD')}</select></div><div class="form-field"><label>扣费金额 <span style="color:var(--admin-danger)">*</span></label><input type="text" inputmode="decimal" data-debit-amount placeholder="请输入扣费金额" value="${esc(item.feeAmount || '')}"></div></div><div class="form-field"><label>备注</label><input type="text" data-debit-remark placeholder="请输入备注" value="${esc(item.remark || '')}"></div></div>`;
+  }
+
+  function batchDebitModal(modal) {
+    const customers = modal.customers || [];
+    const customerOptions = customers.map(customer => `<option value="${esc(customer.id)}" data-customer-name="${esc(customer.name)}" data-merchant-id="${esc(customer.merchantId)}" data-wallet-currency="${esc(customer.walletCurrency || 'USD')}" data-current-balance="${esc(customer.currentBalance || '0')}" data-available-amount="${esc(customer.availableAmount || '0')}" data-real-amount="${esc(customer.realAmount || '0')}" data-credit-limit="${esc(customer.creditLimit || '0')}" data-used-limit="${esc(customer.usedLimit || '0')}">${esc(customer.name)}（商户ID: ${esc(customer.merchantId)}）</option>`).join('');
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '新增其他扣费')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="debit-form" data-debit-modal><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 客户（单选）</label><select data-debit-customer><option value="">请选择客户</option>${customerOptions}</select></div><div class="readonly-context debit-wallet" data-debit-wallet hidden><div><dt>钱包币种</dt><dd data-debit-wallet-currency>-</dd></div><div><dt>当前余额</dt><dd class="debit-balance-danger" data-debit-current-balance>-</dd></div><div><dt>可用金额</dt><dd data-debit-available-amount>-</dd></div><div><dt>真实金额</dt><dd data-debit-real-amount>-</dd></div><div><dt>信用额度</dt><dd data-debit-credit-limit>-</dd></div><div><dt>已用额度</dt><dd data-debit-used-limit>-</dd></div><div><dt>剩余额度</dt><dd data-debit-remaining-limit>-</dd></div></div><div class="form-field full debit-item-panel"><label>扣费明细 <span style="color:var(--admin-danger)">*</span></label><div class="debit-item-list" data-debit-item-list>${batchDebitItemHtml(modal)}</div><div class="debit-item-toolbar"><button type="button" class="btn btn-default" data-debit-add>${icon('plus')}添加一条扣费</button><div class="debit-total-row"><span>本次总扣费：<strong data-debit-total>0.00</strong></span><span>预计钱包扣款：<strong data-debit-wallet-total>-</strong></span></div></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
 
   function rechargeRequestModal(modal) {
@@ -1513,6 +1530,178 @@
       const now = new Date();
       const pad = value => String(value).padStart(2, '0');
       return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
+    function debitFxToUsd(currency) {
+      return ({ USD: 1, EUR: 1.143, GBP: 1.27 }[currency] || 1);
+    }
+    function convertDebitToWallet(amount, fromCurrency, walletCurrency) {
+      const usd = Number(amount || 0) * debitFxToUsd(fromCurrency);
+      const wallet = usd / debitFxToUsd(walletCurrency);
+      return Math.round(wallet * 100) / 100;
+    }
+    function formatDebitListAmount(value) {
+      const amount = Number(value || 0);
+      if (!Number.isFinite(amount)) return '0';
+      return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+    }
+    function formatDebitTotalByCurrency(amounts) {
+      const entries = Object.entries(amounts).filter(([, value]) => value > 0);
+      if (!entries.length) return '0.00';
+      return entries.map(([currency, value]) => `${formatAmountOnly(value)} ${currency}`).join(' + ');
+    }
+    function selectedDebitCustomer(modalRoot) {
+      const option = modalRoot?.querySelector('[data-debit-customer]')?.selectedOptions?.[0];
+      if (!option || !option.value) return null;
+      return {
+        id: option.value,
+        name: option.dataset.customerName || '-',
+        merchantId: option.dataset.merchantId || option.value,
+        walletCurrency: option.dataset.walletCurrency || 'USD',
+        currentBalance: numAmount(option.dataset.currentBalance),
+        availableAmount: numAmount(option.dataset.availableAmount),
+        realAmount: numAmount(option.dataset.realAmount),
+        creditLimit: numAmount(option.dataset.creditLimit),
+        usedLimit: numAmount(option.dataset.usedLimit)
+      };
+    }
+    function debitItemValues(card) {
+      return {
+        feeType: card.querySelector('[data-debit-type]')?.value || '',
+        currency: card.querySelector('[data-debit-currency]')?.value || '',
+        feeAmount: parseAmount(card.querySelector('[data-debit-amount]')?.value),
+        remark: card.querySelector('[data-debit-remark]')?.value.trim() || '-'
+      };
+    }
+    function syncBatchDebitItems(modalRoot) {
+      if (!modalRoot) return;
+      const cards = Array.from(modalRoot.querySelectorAll('[data-debit-item]'));
+      cards.forEach((card, index) => {
+        const label = card.querySelector('[data-debit-item-label]');
+        if (label) label.textContent = `扣费 ${index + 1}`;
+        const remove = card.querySelector('[data-debit-remove]');
+        if (remove) remove.hidden = cards.length <= 1;
+      });
+    }
+    function refreshBatchDebitWallet(modalRoot) {
+      if (!modalRoot) return;
+      const customer = selectedDebitCustomer(modalRoot);
+      const wallet = modalRoot.querySelector('[data-debit-wallet]');
+      if (wallet) wallet.hidden = !customer;
+      if (!customer) {
+        refreshBatchDebitTotal(modalRoot);
+        return;
+      }
+      const setText = (selector, value) => {
+        const node = modalRoot.querySelector(selector);
+        if (node) node.textContent = value;
+      };
+      setText('[data-debit-wallet-currency]', customer.walletCurrency);
+      setText('[data-debit-current-balance]', formatAmountOnly(customer.currentBalance));
+      setText('[data-debit-available-amount]', formatAmountOnly(customer.availableAmount));
+      setText('[data-debit-real-amount]', formatAmountOnly(customer.realAmount));
+      setText('[data-debit-credit-limit]', formatAmountOnly(customer.creditLimit));
+      setText('[data-debit-used-limit]', formatAmountOnly(customer.usedLimit));
+      setText('[data-debit-remaining-limit]', formatAmountOnly(Math.max(0, customer.creditLimit - customer.usedLimit)));
+      modalRoot.querySelectorAll('[data-debit-item]').forEach(card => {
+        const amount = card.querySelector('[data-debit-amount]')?.value.trim();
+        const select = card.querySelector('[data-debit-currency]');
+        if (select && !amount) select.value = customer.walletCurrency;
+      });
+      refreshBatchDebitTotal(modalRoot);
+    }
+    function refreshBatchDebitTotal(modalRoot) {
+      if (!modalRoot) return;
+      const customer = selectedDebitCustomer(modalRoot);
+      const totals = {};
+      let walletTotal = 0;
+      let count = 0;
+      modalRoot.querySelectorAll('[data-debit-item]').forEach(card => {
+        const item = debitItemValues(card);
+        if (!item.feeAmount || !item.currency) return;
+        totals[item.currency] = (totals[item.currency] || 0) + item.feeAmount;
+        walletTotal += convertDebitToWallet(item.feeAmount, item.currency, customer?.walletCurrency || item.currency);
+        count += 1;
+      });
+      const totalNode = modalRoot.querySelector('[data-debit-total]');
+      const walletNode = modalRoot.querySelector('[data-debit-wallet-total]');
+      if (totalNode) totalNode.textContent = count ? `${formatDebitTotalByCurrency(totals)}（${count} 笔）` : '0.00';
+      if (walletNode) walletNode.textContent = customer && count ? `${formatAmountOnly(walletTotal)} ${customer.walletCurrency}` : '-';
+    }
+    function addBatchDebitItem(modalRoot) {
+      const list = modalRoot?.querySelector('[data-debit-item-list]');
+      const last = list?.querySelector('[data-debit-item]:last-child');
+      if (!list || !last) return;
+      const clone = last.cloneNode(true);
+      clone.querySelectorAll('input, select').forEach(node => {
+        if (node.matches('[data-debit-currency]')) {
+          const customer = selectedDebitCustomer(modalRoot);
+          node.value = customer?.walletCurrency || node.value || 'USD';
+          return;
+        }
+        node.value = '';
+      });
+      list.appendChild(clone);
+      syncBatchDebitItems(modalRoot);
+      refreshBatchDebitTotal(modalRoot);
+    }
+    function removeBatchDebitItem(button) {
+      const modalRoot = button.closest('[data-debit-modal]');
+      const card = button.closest('[data-debit-item]');
+      const list = modalRoot?.querySelector('[data-debit-item-list]');
+      if (!modalRoot || !card || !list || list.querySelectorAll('[data-debit-item]').length <= 1) return;
+      card.remove();
+      syncBatchDebitItems(modalRoot);
+      refreshBatchDebitTotal(modalRoot);
+    }
+    function submitBatchDebitModal(modalRoot, tab) {
+      const customer = selectedDebitCustomer(modalRoot);
+      if (!customer) { showToast('请先选择客户', 'error'); return false; }
+      const cards = Array.from(modalRoot.querySelectorAll('[data-debit-item]'));
+      const items = [];
+      for (const [index, card] of cards.entries()) {
+        const type = card.querySelector('[data-debit-type]')?.value || '';
+        const currency = card.querySelector('[data-debit-currency]')?.value || '';
+        const amountText = card.querySelector('[data-debit-amount]')?.value.trim() || '';
+        const amount = parseAmount(amountText);
+        if (!type) { showToast(`请选择第 ${index + 1} 笔扣费类型`, 'error'); return false; }
+        if (!currency) { showToast(`请选择第 ${index + 1} 笔扣费币种`, 'error'); return false; }
+        if (!amountText || !amount) { showToast(`请输入第 ${index + 1} 笔大于 0 的扣费金额`, 'error'); return false; }
+        items.push({
+          feeType: type,
+          currency,
+          feeAmount: amount,
+          remark: card.querySelector('[data-debit-remark]')?.value.trim() || '-'
+        });
+      }
+      if (!items.length) { showToast('请至少添加一笔扣费', 'error'); return false; }
+      const walletTotal = items.reduce((sum, item) => sum + convertDebitToWallet(item.feeAmount, item.currency, customer.walletCurrency), 0);
+      if (walletTotal > customer.availableAmount) {
+        showToast(`预计钱包扣款 ${formatAmountOnly(walletTotal)} ${customer.walletCurrency} 超过可用金额 ${formatAmountOnly(customer.availableAmount)} ${customer.walletCurrency}`, 'error');
+        return false;
+      }
+      const time = currentTimestamp();
+      const newRows = items.map(item => ({
+        merchantId: customer.merchantId,
+        customerName: customer.name,
+        feeTime: time,
+        feeType: item.feeType,
+        currency: item.currency,
+        feeAmount: formatDebitListAmount(item.feeAmount),
+        walletCurrency: customer.walletCurrency,
+        walletAmount: formatDebitListAmount(convertDebitToWallet(item.feeAmount, item.currency, customer.walletCurrency)),
+        status: '扣费成功',
+        remark: item.remark,
+        operator: '管理员',
+        rollbackTime: '-',
+        rollbackOperator: '-',
+        rollbackReason: '-',
+        ops: ['查看详情', '回退']
+      }));
+      tab.rows = newRows.concat(tab.rows || []);
+      selectedSet(tab).clear();
+      render();
+      showToast(`已生成 ${newRows.length} 笔其他扣费（原型）`, 'success');
+      return true;
     }
     function submitAssignModal(modalRoot, tab) {
       const select = modalRoot.querySelector('[data-assign-customer]');
@@ -2430,6 +2619,11 @@
           if (submitRechargeModal(rechargeModal, tab)) closeModal();
           return;
         }
+        const debitModal = backdrop?.querySelector('[data-debit-modal]');
+        if (debitModal) {
+          if (submitBatchDebitModal(debitModal, tab)) closeModal();
+          return;
+        }
         const assignModal = backdrop?.querySelector('[data-assign-modal]');
         if (assignModal) {
           if (submitAssignModal(assignModal, tab)) closeModal();
@@ -2524,6 +2718,14 @@
       if (event.target.closest('[data-recharge-query]')) {
         refreshRechargeModal(event.target.closest('[data-recharge-modal]'));
       }
+      if (event.target.closest('[data-debit-add]')) {
+        addBatchDebitItem(event.target.closest('[data-debit-modal]'));
+        return;
+      }
+      if (event.target.closest('[data-debit-remove]')) {
+        removeBatchDebitItem(event.target.closest('[data-debit-remove]'));
+        return;
+      }
       if (event.target.closest('[data-assign-query]')) {
         refreshAssignModal(event.target.closest('[data-assign-modal]'));
       }
@@ -2591,6 +2793,15 @@
         refreshRechargeModal(modalRoot);
         return;
       }
+      const debitCustomer = event.target.closest('[data-debit-customer]');
+      if (debitCustomer) {
+        refreshBatchDebitWallet(debitCustomer.closest('[data-debit-modal]'));
+        return;
+      }
+      if (event.target.closest('[data-debit-type], [data-debit-currency]')) {
+        refreshBatchDebitTotal(event.target.closest('[data-debit-modal]'));
+        return;
+      }
       const rechargeAccount = event.target.closest('[data-recharge-account]');
       if (rechargeAccount) {
         refreshRechargeAmounts(rechargeAccount.closest('[data-recharge-modal]'));
@@ -2646,6 +2857,7 @@
     document.body.addEventListener('input', event => {
       if (event.target.closest('[data-recharge-account-search]')) refreshRechargeModal(event.target.closest('[data-recharge-modal]'));
       if (event.target.closest('[data-recharge-amount-input]')) recalculateRechargeAmounts(event.target.closest('[data-recharge-modal]'));
+      if (event.target.closest('[data-debit-amount]')) refreshBatchDebitTotal(event.target.closest('[data-debit-modal]'));
       if (event.target.closest('[data-assign-account-search]')) refreshAssignModal(event.target.closest('[data-assign-modal]'));
       if (event.target.closest('[data-adjustment-account-search]')) refreshAdjustmentModal(event.target.closest('[data-adjustment-modal]'));
       if (event.target.closest('[data-adjustment-amount-input]')) recalculateAdjustmentAmounts(event.target.closest('[data-adjustment-modal]'));
