@@ -268,16 +268,27 @@ body.theme-dark .itb-tag-old { background: #34363b; color: var(--admin-muted); }
 
 .itb-funnel-wrap {
   display: grid;
-  grid-template-columns: minmax(120px, 0.85fr) minmax(0, 1.4fr);
-  gap: 16px;
+  grid-template-columns: minmax(140px, 1fr) minmax(0, 1.15fr);
+  gap: 10px;
   align-items: stretch;
 }
 
-.itb-funnel-chart,
-.itb-funnel-legend {
+.itb-funnel-chart {
   display: grid;
   grid-template-rows: 18px repeat(9, minmax(26px, 1fr));
   gap: 3px;
+}
+
+.itb-funnel-legend {
+  display: grid;
+  grid-template-columns: max-content 8.4em 8em 3.2em;
+  grid-template-rows: 18px repeat(9, minmax(26px, 1fr));
+  column-gap: 10px;
+  row-gap: 3px;
+  justify-content: start;
+  align-items: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .itb-funnel-slice {
@@ -294,10 +305,7 @@ body.theme-dark .itb-tag-old { background: #34363b; color: var(--admin-muted); }
 }
 
 .itb-funnel-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.3fr) 4.6em 3.8em 3.8em;
-  gap: 8px;
-  align-items: center;
+  display: contents;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -305,12 +313,18 @@ body.theme-dark .itb-tag-old { background: #34363b; color: var(--admin-muted); }
 .itb-funnel-row b {
   min-width: 0;
   font-weight: 650;
+  padding-right: 2px;
 }
 
 .itb-funnel-row span:not(:first-child) {
   text-align: right;
   color: var(--admin-muted);
+  white-space: nowrap;
 }
+
+.itb-funnel-row .itb-wow.up { color: var(--itb-up); }
+.itb-funnel-row .itb-wow.down { color: var(--itb-down); }
+.itb-funnel-row .itb-wow.flat { color: var(--admin-muted); }
 
 .itb-funnel-row-head {
   font-size: 11px;

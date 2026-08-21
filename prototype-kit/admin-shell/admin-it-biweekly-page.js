@@ -48,15 +48,15 @@
       }
     },
     funnel: [
-      { name: '注册', count: 1864 },
-      { name: '打款', count: 1420 },
-      { name: '下户', count: 1288 },
-      { name: '首次账户充值', count: 1196 },
-      { name: '首次账户消耗', count: 1084 },
-      { name: '累计消耗 1k', count: 742 },
-      { name: '累计消耗 5k', count: 418 },
-      { name: '累计消耗 10k', count: 286 },
-      { name: '累计消耗 100k', count: 52 }
+      { name: '注册', count: 1864, prevCount: 1764 },
+      { name: '打款', count: 1420, prevCount: 1310 },
+      { name: '下户', count: 1288, prevCount: 1230 },
+      { name: '首次账户充值', count: 1196, prevCount: 1110 },
+      { name: '首次账户消耗', count: 1084, prevCount: 1005 },
+      { name: '累计消耗 1k', count: 742, prevCount: 690 },
+      { name: '累计消耗 5k', count: 418, prevCount: 400 },
+      { name: '累计消耗 10k', count: 286, prevCount: 260 },
+      { name: '累计消耗 100k', count: 52, prevCount: 48 }
     ],
     up: [
       { name: 'Arthur-10', neu: false, spendPrev: 361492.91, spendCur: 506609.51, spendDelta: 145116.60, fundPrev: 303517.25, fundCur: 586968.84, recPrev: 360998.30, recCur: 562238.96 },
@@ -115,6 +115,18 @@
       ? `${formatMD(w.prevStart)} 至 ${formatMD(w.prevEnd)}`
       : `${formatYMD(w.prevStart)} 至 ${formatMD(w.prevEnd)}`;
     return `本期 ${formatYMD(w.currentStart)} 至 ${formatMD(w.currentEnd)}，对比上期 ${prevText}。新客 = ${formatYMD(cutoff)} 及以后注册；老客 = ${formatYMD(oldEnd)} 及以前注册。`;
+  };
+  const funnelHintText = (statDate) => {
+    const w = windowsFromStatDate(statDate);
+    const yearStart = `${parseDate(statDate).getFullYear()}-01-01`;
+    return `人群为 ${yearStart} 至各时点已注册的商户ID。对比 ${formatYMD(w.prevEnd)} 与 ${formatYMD(w.currentEnd)}。注册看商户ID数变化；其他事件看整体转化率（相对当时注册）变化。`;
+  };
+  const signedInt = (n) => (n > 0 ? '+' : '') + num(n);
+  const ppDelta = (curRate, prevRate) => {
+    if (curRate == null || prevRate == null || !isFinite(curRate) || !isFinite(prevRate)) return '—';
+    const delta = (curRate - prevRate) * 100;
+    const sign = delta > 0 ? '+' : '';
+    return sign + delta.toFixed(1) + 'pp';
   };
 
   function showToast(message) {
@@ -203,7 +215,7 @@
             </article>
             <article class="itb-card">
               <h2>客户生命周期漏斗</h2>
-              <p class="itb-hint">9 个转化事件。截至本期结束日已达成该事件的商户ID数；占比相对注册，上步为相对上一事件转化。</p>
+              <p class="itb-hint" id="itbFunnelHint"></p>
               <div id="lifecycleFunnel"></div>
             </article>
           </div>
@@ -216,6 +228,7 @@
   function updateFootnote() {
     const statDate = document.getElementById('itbStatDate').value || DEFAULT_DATE;
     document.getElementById('itbFootnote').textContent = footnoteText(statDate);
+    document.getElementById('itbFunnelHint').textContent = funnelHintText(statDate);
   }
 
   function renderGroups() {
@@ -346,22 +359,33 @@
   function renderFunnel() {
     const stages = M.funnel;
     const base = stages[0] ? stages[0].count : 0;
+    const prevBase = stages[0] ? stages[0].prevCount : 0;
+    const rateValue = (part, total) => (total ? part / total : null);
     const rateText = (part, total) => {
-      if (!total) return '—';
-      return (part / total * 100).toFixed(1) + '%';
+      const value = rateValue(part, total);
+      if (value == null) return '—';
+      return (value * 100).toFixed(1) + '%';
     };
+    const pairText = (prev, cur) => `${prev} → ${cur}`;
     const slices = stages.map((stage) => {
       const width = base ? Math.max(6, stage.count / base * 100) : 0;
       return `<div class="itb-funnel-slice" title="${stage.name}"><span style="width:${width}%"></span></div>`;
     }).join('');
     const rows = stages.map((stage, index) => {
-      const prev = index === 0 ? null : stages[index - 1].count;
+      const isRegister = index === 0;
+      const countDelta = stage.count - stage.prevCount;
+      const curRate = rateValue(stage.count, base);
+      const prevRate = rateValue(stage.prevCount, prevBase);
+      const changeText = isRegister ? signedInt(countDelta) : ppDelta(curRate, prevRate);
+      const changeCls = isRegister
+        ? cls(countDelta)
+        : (curRate == null || prevRate == null ? 'flat' : cls(curRate - prevRate));
       return `
         <div class="itb-funnel-row">
           <b>${stage.name}</b>
-          <span>${num(stage.count)}</span>
-          <span>${rateText(stage.count, base)}</span>
-          <span>${index === 0 ? '—' : rateText(stage.count, prev)}</span>
+          <span>${pairText(num(stage.prevCount), num(stage.count))}</span>
+          <span>${pairText(rateText(stage.prevCount, prevBase), rateText(stage.count, base))}</span>
+          <span class="itb-wow ${changeCls}">${changeText}</span>
         </div>
       `;
     }).join('');
@@ -376,7 +400,7 @@
             <span>事件</span>
             <span>商户ID数</span>
             <span>整体</span>
-            <span>上步</span>
+            <span>变化</span>
           </div>
           ${rows}
         </div>
