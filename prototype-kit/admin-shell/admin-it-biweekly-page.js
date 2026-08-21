@@ -47,13 +47,16 @@
         newPeople: 256, oldPeople: 298, newAccounts: 358, oldAccounts: 687
       }
     },
-    platform: [
-      ['facebook', 10444071.31, 9719064.59],
-      ['applovin', 984571.96, 1164091.45],
-      ['google', 284023.88, 271042.58],
-      ['tiktok', 94726.04, 104852.97],
-      ['newsbreak', 13658.57, 25062.90],
-      ['snapchat', 11731.21, 12046.17]
+    funnel: [
+      { name: '注册', count: 1864 },
+      { name: '打款', count: 1420 },
+      { name: '下户', count: 1288 },
+      { name: '首次账户充值', count: 1196 },
+      { name: '首次账户消耗', count: 1084 },
+      { name: '累计消耗 1k', count: 742 },
+      { name: '累计消耗 5k', count: 418 },
+      { name: '累计消耗 10k', count: 286 },
+      { name: '累计消耗 100k', count: 52 }
     ],
     up: [
       { name: 'Arthur-10', neu: false, spendPrev: 361492.91, spendCur: 506609.51, spendDelta: 145116.60, fundPrev: 303517.25, fundCur: 586968.84, recPrev: 360998.30, recCur: 562238.96 },
@@ -151,9 +154,14 @@
           const slot = doc.querySelector('.itb-kpi-slot');
           if (slot) {
             slot.style.display = 'grid';
-            slot.style.gridColumn = '1 / span 3';
             slot.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
             slot.style.gap = '16px';
+          }
+          const bottom = doc.querySelector('.itb-bottom');
+          if (bottom) {
+            bottom.style.display = 'grid';
+            bottom.style.gridTemplateColumns = 'minmax(0, 1.2fr) minmax(0, 1fr)';
+            bottom.style.gap = '16px';
           }
           const capture = doc.querySelector('#itbCapture');
           if (capture) capture.style.padding = '16px';
@@ -188,15 +196,17 @@
       <div class="itb-capture" id="itbCapture">
         <div class="itb-dash">
           <section class="itb-kpi-slot" id="kpiGroups"></section>
-          <article class="itb-card itb-span-2">
-            <h2>投放涨跌 Top</h2>
-            <div class="itb-movers" id="movers"></div>
-          </article>
-          <article class="itb-card">
-            <h2>消耗结构 · 占比变化</h2>
-            <p class="itb-hint">每条媒体看本期金额、本期 / 上期占比，以及占比变动（百分点）。</p>
-            <div id="platformBars"></div>
-          </article>
+          <div class="itb-bottom">
+            <article class="itb-card">
+              <h2>投放涨跌 Top</h2>
+              <div class="itb-movers" id="movers"></div>
+            </article>
+            <article class="itb-card">
+              <h2>客户生命周期漏斗</h2>
+              <p class="itb-hint">9 个转化事件。截至本期结束日已达成该事件的商户ID数；占比相对注册，上步为相对上一事件转化。</p>
+              <div id="lifecycleFunnel"></div>
+            </article>
+          </div>
         </div>
         <p class="itb-footnote" id="itbFootnote"></p>
       </div>
@@ -219,9 +229,8 @@
         split: M.fund.current,
         prevSplit: M.fund.prev,
         extra: [
-          { label: '入账次数', val: num(M.fund.current.count), sub: '环比 ' + pct(wow(M.fund.current.count, M.fund.prev.count)), w: wow(M.fund.current.count, M.fund.prev.count) },
-          { label: '入账人数', val: num(M.fund.current.people), sub: '环比 ' + pct(wow(M.fund.current.people, M.fund.prev.people)), w: wow(M.fund.current.people, M.fund.prev.people) },
-          { html: `<div class="itb-mini"><div class="itb-mini-head"><span class="itb-label">本期退回</span><span class="itb-subv">${M.fund.current.refundN} 笔</span></div><div class="itb-val">${money(M.fund.current.refund)}</div><div class="itb-mini-head" style="margin-top:8px"><span class="itb-label">上期</span><span class="itb-subv">${M.fund.prev.refundN} 笔</span></div><div class="itb-val">${money(M.fund.prev.refund)}</div></div>` }
+          { label: '总入账次数', val: num(M.fund.current.count), w: wow(M.fund.current.count, M.fund.prev.count) },
+          { label: '总入账商户ID数', val: num(M.fund.current.people), w: wow(M.fund.current.people, M.fund.prev.people) }
         ],
         note: '毛入账 ' + money(M.fund.current.gross) + '<br>线下 ' + money(M.fund.current.offline) + ' · 在线 ' + money(M.fund.current.online)
       },
@@ -234,25 +243,24 @@
         split: M.rec.current,
         prevSplit: M.rec.prev,
         extra: [
-          { label: '充值次数', val: num(M.rec.current.count), sub: '环比 ' + pct(wow(M.rec.current.count, M.rec.prev.count)), w: wow(M.rec.current.count, M.rec.prev.count) },
-          { label: '充值人数', val: num(M.rec.current.people), sub: '环比 ' + pct(wow(M.rec.current.people, M.rec.prev.people)), w: wow(M.rec.current.people, M.rec.prev.people) },
-          { label: '清零 + 减款', val: money(M.rec.current.clear + M.rec.current.reduce), sub: '环比 ' + pct(wow(M.rec.current.clear + M.rec.current.reduce, M.rec.prev.clear + M.rec.prev.reduce)), w: wow(M.rec.current.clear + M.rec.current.reduce, M.rec.prev.clear + M.rec.prev.reduce) }
+          { label: '总充值次数', val: num(M.rec.current.count), w: wow(M.rec.current.count, M.rec.prev.count) },
+          { label: '总充值商户ID数', val: num(M.rec.current.people), w: wow(M.rec.current.people, M.rec.prev.people) },
+          { label: '清零 + 减款', val: money(M.rec.current.clear + M.rec.current.reduce), w: wow(M.rec.current.clear + M.rec.current.reduce, M.rec.prev.clear + M.rec.prev.reduce) }
         ],
         note: '毛充值 ' + money(M.rec.current.recharge) + '<br>清零 ' + money(M.rec.current.clear) + ' · 减款 ' + money(M.rec.current.reduce)
       },
       {
         title: '广告账户消耗',
-        desc: '只计消耗 > 0 的人数 / 账户数',
+        desc: '只计消耗 > 0 的商户ID数 / 账户数',
         cur: M.spend.current.amount,
         prev: M.spend.prev.amount,
         wowv: wow(M.spend.current.amount, M.spend.prev.amount),
         split: M.spend.current,
         prevSplit: M.spend.prev,
         extra: [
-          { label: '消耗账户数', val: num(M.spend.current.accounts), sub: '环比 ' + pct(wow(M.spend.current.accounts, M.spend.prev.accounts)), w: wow(M.spend.current.accounts, M.spend.prev.accounts) },
-          { label: '消耗人数', val: num(M.spend.current.people), sub: '环比 ' + pct(wow(M.spend.current.people, M.spend.prev.people)), w: wow(M.spend.current.people, M.spend.prev.people) }
-        ],
-        note: '新客消耗 16.8%，老客 83.2%'
+          { label: '总消耗账户数', val: num(M.spend.current.accounts), w: wow(M.spend.current.accounts, M.spend.prev.accounts) },
+          { label: '总消耗商户ID数', val: num(M.spend.current.people), w: wow(M.spend.current.people, M.spend.prev.people) }
+        ]
       }
     ];
     document.getElementById('kpiGroups').innerHTML = groups.map((g) => {
@@ -260,7 +268,7 @@
       const os = share(g.split.oldAmt, g.cur);
       const us = share(g.split.unknownAmt || 0, g.cur);
       const newWow = wow(g.split.newAmt, g.prevSplit.newAmt);
-      const oldWow = wow(g.split.oldAmt, g.prevSplit.oldAmt);
+      const newPeopleWow = wow(g.split.newPeople, g.prevSplit.newPeople);
       return `
         <article class="itb-card">
           <div class="itb-group-head">
@@ -281,24 +289,30 @@
             <span style="width:${us * 100}%;background:var(--itb-pending)"></span>
           </div>
           <div class="itb-legend">
-            <span><i class="itb-dot" style="background:var(--itb-new)"></i>新客 ${pct(ns).replace('+', '')} · ${g.split.newPeople} 人</span>
-            <span><i class="itb-dot" style="background:var(--itb-old)"></i>老客 ${pct(os).replace('+', '')} · ${g.split.oldPeople} 人</span>
+            <span><i class="itb-dot" style="background:var(--itb-new)"></i>新客 ${pct(ns).replace('+', '')} · ${g.split.newPeople}</span>
+            <span><i class="itb-dot" style="background:var(--itb-old)"></i>老客 ${pct(os).replace('+', '')} · ${g.split.oldPeople}</span>
           </div>
-          <div class="itb-metric-row">
-            <div class="itb-mini"><div class="itb-label">新客金额</div><div class="itb-val">${money(g.split.newAmt)}</div><div class="itb-subv">${g.split.newPeople} 人</div></div>
-            <div class="itb-mini"><div class="itb-label">老客金额</div><div class="itb-val">${money(g.split.oldAmt)}</div><div class="itb-subv">${g.split.oldPeople} 人</div></div>
-            <div class="itb-mini"><div class="itb-label">新客环比</div><div class="itb-val itb-wow ${cls(newWow)}">${pct(newWow)}</div><div class="itb-subv itb-wow ${cls(oldWow)}">老客 ${pct(oldWow)}</div></div>
-          </div>
-          <div class="itb-metric-row" style="grid-template-columns:repeat(${g.extra.length}, 1fr)">
+          <div class="itb-metric-row" style="grid-template-columns:${g.extra.length === 3 ? 'minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr)' : `repeat(${g.extra.length}, minmax(0, 1fr))`}">
             ${g.extra.map((item) => item.html || `
               <div class="itb-mini">
                 <div class="itb-label">${item.label}</div>
-                <div class="itb-val">${item.val}</div>
-                <div class="itb-subv ${item.w == null ? '' : 'itb-wow ' + cls(item.w)}">${item.sub}</div>
+                <div class="itb-val itb-val-with-wow">${item.val}${item.w == null ? '' : `<span class="itb-wow ${cls(item.w)}">${pct(item.w)}</span>`}</div>
               </div>
             `).join('')}
           </div>
-          <p class="itb-note">${g.note}</p>
+          <div class="itb-metric-row itb-metric-row-1">
+            <div class="itb-mini itb-mini-split">
+              <div>
+                <div class="itb-label">新客金额</div>
+                <div class="itb-val itb-val-with-wow">${money(g.split.newAmt)}<span class="itb-wow ${cls(newWow)}">${pct(newWow)}</span></div>
+              </div>
+              <div>
+                <div class="itb-label">新客商户ID数</div>
+                <div class="itb-val itb-val-with-wow">${num(g.split.newPeople)}<span class="itb-wow ${cls(newPeopleWow)}">${pct(newPeopleWow)}</span></div>
+              </div>
+            </div>
+          </div>
+          ${g.note ? `<p class="itb-note">${g.note}</p>` : ''}
         </article>
       `;
     }).join('');
@@ -311,7 +325,7 @@
         <div class="itb-mover">
           <div>
             <b>${item.name}</b><span class="itb-tag ${item.neu ? 'itb-tag-ok' : 'itb-tag-old'}">${item.neu ? '新客' : '老客'}</span>
-            <div class="itb-meta"><div>消耗 ${money(item.spendPrev)} → ${money(item.spendCur)}</div><div>净入账 ${money(item.fundPrev)} → ${money(item.fundCur)}</div><div>广告充值 ${money(item.recPrev)} → ${money(item.recCur)}</div></div>
+            <div class="itb-meta"><div>消耗 ${money(item.spendPrev)} → ${money(item.spendCur)}</div></div>
           </div>
           <div class="itb-delta itb-wow ${cls(item.spendDelta)}">${moneyDelta(item.spendDelta)}<span class="itb-sub">${pct(w)}</span></div>
         </div>
@@ -329,36 +343,50 @@
     `;
   }
 
-  function renderPlatform() {
-    const curTotal = M.spend.current.amount;
-    const prevTotal = M.spend.prev.amount;
-    const pp = (curShare, prevShare) => {
-      const d = (curShare - prevShare) * 100;
-      if (!isFinite(d)) return '—';
-      const sign = d > 0.005 ? '+' : '';
-      return sign + d.toFixed(2) + 'pp';
+  function renderFunnel() {
+    const stages = M.funnel;
+    const base = stages[0] ? stages[0].count : 0;
+    const rateText = (part, total) => {
+      if (!total) return '—';
+      return (part / total * 100).toFixed(1) + '%';
     };
-    document.getElementById('platformBars').innerHTML = M.platform.map(([name, cur, prev]) => {
-      const cs = share(cur, curTotal);
-      const ps = share(prev, prevTotal);
-      const dpp = cs - ps;
+    const slices = stages.map((stage) => {
+      const width = base ? Math.max(6, stage.count / base * 100) : 0;
+      return `<div class="itb-funnel-slice" title="${stage.name}"><span style="width:${width}%"></span></div>`;
+    }).join('');
+    const rows = stages.map((stage, index) => {
+      const prev = index === 0 ? null : stages[index - 1].count;
       return `
-        <div class="itb-plat">
-          <div class="itb-line"><b>${name}</b><span>${money(cur)}</span></div>
-          <div class="itb-sub">
-            <span><i class="itb-dot" style="background:var(--itb-new)"></i>本期 ${pct(cs).replace('+', '')} · <i class="itb-dot" style="background:var(--itb-old)"></i>上期 ${pct(ps).replace('+', '')}</span>
-            <span class="itb-wow ${cls(dpp)}">${pp(cs, ps)}</span>
-          </div>
-          <div class="itb-bar thin" title="本期占比"><span style="width:${cs * 100}%;background:var(--itb-new)"></span></div>
-          <div class="itb-bar thin" style="margin-top:3px" title="上期占比"><span style="width:${ps * 100}%;background:var(--itb-old)"></span></div>
+        <div class="itb-funnel-row">
+          <b>${stage.name}</b>
+          <span>${num(stage.count)}</span>
+          <span>${rateText(stage.count, base)}</span>
+          <span>${index === 0 ? '—' : rateText(stage.count, prev)}</span>
         </div>
       `;
     }).join('');
+    document.getElementById('lifecycleFunnel').innerHTML = `
+      <div class="itb-funnel-wrap">
+        <div class="itb-funnel-chart">
+          <div class="itb-funnel-chart-head" aria-hidden="true"></div>
+          ${slices}
+        </div>
+        <div class="itb-funnel-legend">
+          <div class="itb-funnel-row itb-funnel-row-head">
+            <span>事件</span>
+            <span>商户ID数</span>
+            <span>整体</span>
+            <span>上步</span>
+          </div>
+          ${rows}
+        </div>
+      </div>
+    `;
   }
 
   renderGroups();
   renderMovers();
-  renderPlatform();
+  renderFunnel();
   updateFootnote();
   document.getElementById('itbStatDate').addEventListener('change', updateFootnote);
   document.getElementById('itbCaptureBtn').addEventListener('click', capturePage);
