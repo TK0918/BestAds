@@ -877,14 +877,6 @@
     return window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
   }
 
-  function snapshotOpeningFx() {
-    return { ...openingLiveFx() };
-  }
-
-  function openingRowFx(row) {
-    return row?.fxSnapshot && typeof row.fxSnapshot === 'object' ? row.fxSnapshot : openingLiveFx();
-  }
-
   function convertOpeningAmount(amount, from, to, rates) {
     const fx = rates || openingLiveFx();
     const fromRate = Number(fx[from] || 1);
@@ -892,30 +884,38 @@
     return Number(amount || 0) * (toRate / fromRate);
   }
 
-  function openingWalletTotalByFx(openingFeeUsd, precharge, accountCurrency, merchantId, rates) {
-    const wallet = openingWalletCurrency(merchantId);
-    return convertOpeningAmount(openingFeeUsd, 'USD', wallet, rates)
-      + convertOpeningAmount(precharge, accountCurrency || 'USD', wallet, rates);
-  }
-
-  function openingFxGapExceedsLimit(snapshotTotal, liveTotal) {
-    return Math.abs(Number(liveTotal || 0) - Number(snapshotTotal || 0)) > 0.01;
-  }
-
   function openingFeeCaptured(row) {
     const rec = String(row?.openingFeeRecord || '');
     return numAmount(row?.openingFee) > 0 && /FEE-/.test(rec) && !/失败|待重试|未扣款|客户付款后|已回退/.test(rec);
   }
 
+  function openingPrechargeItemList(row) {
+    const rec = String(row?.prechargeRecord || '').trim();
+    if (!rec || rec === '-' || /客户付款后|无充值记录/.test(rec)) return [];
+    return rec.split(/\s*\/\s*/).map(item => item.trim()).filter(Boolean);
+  }
+
+  function openingPrechargeItemFailed(text) {
+    return /失败待重试|扣款失败|未扣款/.test(String(text || ''));
+  }
+
+  function openingPrechargeItemCaptured(text) {
+    const rec = String(text || '');
+    return /AD-OPEN-/.test(rec) && !openingPrechargeItemFailed(rec) && !/失败退款|未扣成功/.test(rec);
+  }
+
   function openingPrechargeCaptured(row) {
-    const rec = String(row?.prechargeRecord || '');
-    if (!/AD-OPEN-/.test(rec)) return false;
-    if (/失败退款|失败待重试|未扣款|客户付款后|无充值记录/.test(rec)) return false;
-    return true;
+    const items = openingPrechargeItemList(row);
+    if (!items.length) return false;
+    return items.every(openingPrechargeItemCaptured);
+  }
+
+  function openingAnyPrechargeCaptured(row) {
+    return openingPrechargeItemList(row).some(openingPrechargeItemCaptured);
   }
 
   function openingPrechargeFailed(row) {
-    return /失败待重试|扣款失败/.test(String(row?.prechargeRecord || ''));
+    return openingPrechargeItemList(row).some(openingPrechargeItemFailed) || /失败待重试|扣款失败/.test(String(row?.prechargeRecord || ''));
   }
 
   function openingFeeFailed(row) {
@@ -923,7 +923,23 @@
   }
 
   function openingHasCapturedFunds(row) {
-    return row?.paymentStatus === '已扣款' || openingFeeCaptured(row) || openingPrechargeCaptured(row);
+    return row?.paymentStatus === '已扣款' || openingFeeCaptured(row) || openingAnyPrechargeCaptured(row);
+  }
+
+  function openingFailedPrechargeWalletAmount(row) {
+    const wallet = openingWalletCurrency(row?.merchantId);
+    const currency = row?.currency || 'USD';
+    const items = openingAccountFeeItems(row);
+    const records = openingPrechargeItemList(row);
+    if (!records.length) {
+      return (!openingPrechargeCaptured(row) && numAmount(row?.precharge) > 0)
+        ? convertOpeningAmount(numAmount(row.precharge), currency, wallet)
+        : 0;
+    }
+    return records.reduce((sum, text, i) => {
+      if (openingPrechargeItemCaptured(text)) return sum;
+      return sum + convertOpeningAmount(items[i]?.precharge || 0, currency, wallet);
+    }, 0);
   }
 
   function formatOpeningFeeLabel(openingFeeUsd, walletCurrency) {
@@ -974,7 +990,7 @@
     const precharge = item ? numAmount(item.prechargeBasePerAccount) * count : 0;
     const walletCurrency = openingWalletCurrency(row?.merchantId);
     const accountCurrency = String(row?.currency || 'USD');
-    const fx = openingRowFx(row);
+    const fx = openingLiveFx();
     const walletOpeningFee = convertOpeningAmount(openingFee, 'USD', walletCurrency, fx);
     const walletPrecharge = convertOpeningAmount(precharge, accountCurrency, walletCurrency, fx);
     return {
@@ -1130,7 +1146,7 @@
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户数</label><input data-opening-count type="text" inputmode="numeric" value="2" placeholder="请输入账户数"></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放品类</label><select data-opening-category><option value="">请选择投放品类</option><option value="家居收纳">家居收纳</option><option value="美妆个护">美妆个护</option><option value="服饰配件">服饰配件</option><option value="宠物用品">宠物用品</option><option value="保健品">保健品</option></select></div>
       <div class="form-field full"><div class="opening-apply-estimate" aria-live="polite"><div><p class="opening-apply-estimate__title">预估开户费用</p><p class="opening-apply-estimate__desc">开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。</p><div class="opening-apply-estimate__breakdown"><span>开户费：<b data-opening-estimate-opening>-</b></span><span>首充（广告账户充值）：<b data-opening-estimate-precharge>-</b></span></div></div><div class="opening-apply-estimate__total"><span>合计</span><strong data-opening-estimate>-</strong></div></div></div>
-      <label class="opening-apply-consent full"><input data-opening-auto-pay type="checkbox" checked><span>代客户确认：若最终金额与初始报价一致，同意系统直接扣除开户费和首充；不一致时再通知客户确认。</span></label>
+      <label class="opening-apply-consent full"><input data-opening-auto-pay type="checkbox" checked><span>代客户确认：若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知客户确认。</span></label>
     </div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>提交申请</button></div></section></div>`;
   }
 
@@ -1319,7 +1335,7 @@
     const edited = Math.abs(openingFee - Number(rule?.openingFee || 0)) > 0.001 || Math.abs(precharge - Number(rule?.precharge || 0)) > 0.001;
     const walletCurrency = openingWalletCurrency(row?.merchantId || rule?.merchantId);
     const accountCurrency = String(row?.currency || 'USD');
-    const fx = openingRowFx(row);
+    const fx = openingLiveFx();
     const walletOpeningFee = convertOpeningAmount(openingFee, 'USD', walletCurrency, fx);
     const walletPrecharge = convertOpeningAmount(precharge, accountCurrency, walletCurrency, fx);
     return { openingFee, precharge, total: walletOpeningFee + walletPrecharge, walletOpeningFee, walletPrecharge, walletTotal: walletOpeningFee + walletPrecharge, walletCurrency, accountCurrency, edited };
@@ -1391,9 +1407,35 @@
     return String(index).padStart(2, '0');
   }
 
-  function openingPlaceholderRecords(applyId, count, prefix, suffix) {
+  function openingPlaceholderRecords(applyId, count, prefix, suffix, prechargeAmount) {
+    if (!(Number(prechargeAmount) > 0)) return '无充值记录';
     const id = applyId || 'AO';
     return Array.from({ length: count }, (_, i) => `${prefix}${id}-${openingItemNo(i + 1)}${suffix || ''}`).join(' / ');
+  }
+
+  function retryOpeningPrechargeRecords(row) {
+    if (!(numAmount(row?.precharge) > 0)) return '无充值记录';
+    const count = openingAccountCount(row);
+    const items = openingPrechargeItemList(row);
+    if (!items.length) return openingPlaceholderRecords(row.applyId, count, 'AD-OPEN-', ' 待绑定账户', numAmount(row.precharge));
+    return Array.from({ length: count }, (_, i) => {
+      const text = items[i] || '';
+      if (openingPrechargeItemCaptured(text)) return text;
+      return `AD-OPEN-${row.applyId}-${openingItemNo(i + 1)} 待绑定账户`;
+    }).join(' / ');
+  }
+
+  function refundOpeningPrechargeRecords(row) {
+    if (!(numAmount(row?.precharge) > 0)) return '无充值记录';
+    const count = openingAccountCount(row);
+    const items = openingPrechargeItemList(row);
+    return Array.from({ length: count }, (_, i) => {
+      const text = items[i] || '';
+      const id = `AD-OPEN-${row.applyId}-${openingItemNo(i + 1)}`;
+      if (openingPrechargeItemCaptured(text)) return `${id} 失败退款`;
+      if (openingPrechargeItemFailed(text)) return `${id} 未扣成功，无退款`;
+      return text || `${id} 未扣成功，无退款`;
+    }).join(' / ');
   }
 
   function parseOpeningRate(value) {
@@ -2599,7 +2641,6 @@
         initialQuote: breakdown.matched ? Number(breakdown.walletTotal).toFixed(2) : '-（待审核定价）',
         initialWalletTotal: breakdown.matched ? Number(breakdown.walletTotal).toFixed(2) : '-',
         walletCurrency,
-        fxSnapshot: snapshotOpeningFx(),
         finalQuote: '-',
         quoteVersion: `Q-${date}-${seq}`,
         agent: '-',
@@ -2623,7 +2664,6 @@
       const row = state.processingRow;
       if (!row) { showToast('未找到开户申请', 'error'); return false; }
       const mode = modalRoot?.dataset.openingAuditMode || 'matched';
-      if (!row.fxSnapshot) row.fxSnapshot = snapshotOpeningFx();
       const rule = openingSelectedRule(row, modalRoot);
       const quote = openingAuditQuoteValues(modalRoot, rule, row);
       if (quote.openingFee < 0 || quote.precharge < 0) {
@@ -2666,28 +2706,12 @@
       row.openingFeeStatus = liveQuote.status;
       row.remark = outcome.type === 'auto' ? '金额一致，已按客户授权自动扣款' : (outcome.note || '总额不一致，已邮件通知客户回系统确认付款');
       if (outcome.type === 'auto') {
-        const liveTotal = openingWalletTotalByFx(nextQuote.openingFee, nextQuote.precharge, row.currency, row.merchantId, openingLiveFx());
-        if (openingFxGapExceedsLimit(nextQuote.walletTotal, liveTotal)) {
-          const count = openingAccountCount(row);
-          row.status = '扣款异常';
-          row.paymentStatus = '部分扣款失败';
-          row.walletCharge = '-';
-          row.openingFeeRecord = nextQuote.openingFee > 0 ? '开户费扣款失败待重试（汇率差额）' : '无开户费';
-          row.prechargeRecord = openingPlaceholderRecords(row.applyId, count, 'AD-OPEN-', ' 扣款失败待重试');
-          row.remark = 'Fund 现网折算与快照授权合计差额超过 0.01，进入扣款异常，不静默多退少补';
-          refreshOpeningRow(row);
-          state.processingRow = null;
-          closeModal();
-          render();
-          showToast('现网折算差额超过 0.01，已进入扣款异常（原型）', 'error');
-          return true;
-        }
         const count = openingAccountCount(row);
         row.status = '已付款待开户';
         row.paymentStatus = '已扣款';
         row.walletCharge = finalQuote;
         row.openingFeeRecord = openingFeeRecordLabel(nextQuote.openingFee, row.applyId);
-        row.prechargeRecord = openingPlaceholderRecords(row.applyId, count, 'AD-OPEN-', ' 待绑定账户');
+        row.prechargeRecord = openingPlaceholderRecords(row.applyId, count, 'AD-OPEN-', ' 待绑定账户', nextQuote.precharge);
         if (nextQuote.openingFee > 0) {
           openingFeeHelpers().markCharged(row.merchantId, nextQuote.openingFee);
           row.openingFeeStatus = openingFeeHelpers().merchantStatus(row.merchantId);
@@ -2750,7 +2774,9 @@
         row.paymentStatus = chargedOpeningFee > 0 ? '部分退款' : '已退款';
         row.accountInfo = '-';
         row.openingFeeRecord = openingFeeRecordLabel(chargedOpeningFee, row.applyId);
-        row.prechargeRecord = results.map(item => `AD-OPEN-${row.applyId}-${openingItemNo(item.index)} 失败退款`).join(' / ');
+        row.prechargeRecord = numAmount(row.precharge) > 0
+          ? results.map(item => `AD-OPEN-${row.applyId}-${openingItemNo(item.index)} 失败退款`).join(' / ')
+          : '无充值记录';
         row.remark = `全部账户开户失败，已退回${refundCopy}；开户费不随账户失败回退`;
         refreshOpeningRow(row);
         state.processingRow = null;
@@ -2790,16 +2816,14 @@
       row.walletCharge = '-';
       if (paid) {
         const feeCaptured = openingFeeCaptured(row);
-        const preCaptured = openingPrechargeCaptured(row);
+        const anyPreCaptured = openingAnyPrechargeCaptured(row);
         const chargedOpeningFee = feeCaptured ? numAmount(row.openingFee) : 0;
         row.openingFeeRecord = chargedOpeningFee > 0 ? openingFeeRecordLabel(chargedOpeningFee, row.applyId, '已回退') : (numAmount(row.openingFee) > 0 && openingFeeFailed(row) ? '开户费未扣成功，无回退' : row.openingFeeRecord);
-        row.prechargeRecord = preCaptured
-          ? openingPlaceholderRecords(row.applyId, openingAccountCount(row), 'AD-OPEN-', ' 失败退款')
-          : (openingPrechargeFailed(row) ? '首充未扣成功，无退款' : row.prechargeRecord);
-        row.paymentStatus = (chargedOpeningFee > 0 || preCaptured) ? '已退款' : '未扣款';
+        row.prechargeRecord = refundOpeningPrechargeRecords(row);
+        row.paymentStatus = (chargedOpeningFee > 0 || anyPreCaptured) ? '已退款' : '未扣款';
         row.remark = chargedOpeningFee > 0
-          ? (preCaptured ? '开户取消，已退开户费和首充；商户开户费状态不自动回退' : '开户取消，已退开户费；首充未扣成功无需退款；商户开户费状态不自动回退')
-          : (preCaptured ? '开户取消，已退首充；无开户费' : '开户取消，未产生需回退的成功扣款');
+          ? (anyPreCaptured ? '开户取消，已退开户费和已成功的首充；失败侧不重复退；商户开户费状态不自动回退' : '开户取消，已退开户费；首充未扣成功无需退款；商户开户费状态不自动回退')
+          : (anyPreCaptured ? '开户取消，已退成功侧首充；无开户费或开户费未扣成功' : '开户取消，未产生需回退的成功扣款');
       } else {
         row.paymentStatus = '未扣款';
         row.openingFeeRecord = '未扣款，无扣费记录';
@@ -3168,28 +3192,17 @@
       if (/重试扣款/.test(action)) {
         const feeNeed = openingFeeFailed(row);
         const preNeed = openingPrechargeFailed(row) || (!openingPrechargeCaptured(row) && numAmount(row.precharge) > 0 && row.status === '扣款异常');
-        const remainWallet = (feeNeed ? convertOpeningAmount(numAmount(row.openingFee), 'USD', openingWalletCurrency(row.merchantId), openingRowFx(row)) : 0)
-          + (preNeed ? convertOpeningAmount(numAmount(row.precharge), row.currency || 'USD', openingWalletCurrency(row.merchantId), openingRowFx(row)) : 0);
+        const remainWallet = (feeNeed ? convertOpeningAmount(numAmount(row.openingFee), 'USD', openingWalletCurrency(row.merchantId)) : 0)
+          + (preNeed ? openingFailedPrechargeWalletAmount(row) : 0);
         if (openingWalletAvailable(row.merchantId) + 0.001 < remainWallet) {
-          row.status = '待客户确认付款';
-          row.paymentStatus = '待客户确认';
-          row.remark = '重试扣款时钱包余额不足，转待客户确认付款';
+          row.remark = '重试扣款时钱包余额不足，保持扣款异常。请客户把钱包充够后，再由运营重试失败侧，避免按整单再付一遍开户费';
           refreshOpeningRow(row);
           render();
-          showToast('钱包可用余额不足，已转为待客户确认付款（原型）', 'error');
-          return;
-        }
-        const liveTotal = openingWalletTotalByFx(numAmount(row.openingFee), numAmount(row.precharge), row.currency, row.merchantId, openingLiveFx());
-        const snapshotTotal = numAmount(row.finalQuote || row.initialWalletTotal || row.initialQuote);
-        if (openingFxGapExceedsLimit(snapshotTotal, liveTotal)) {
-          row.remark = '重试时 Fund 现网折算与快照授权合计差额仍超过 0.01，保持扣款异常，待运营人工确认';
-          refreshOpeningRow(row);
-          render();
-          showToast('现网折算差额超过 0.01，未静默多退少补（原型）', 'error');
+          showToast('钱包可用余额不足，仍停在扣款异常。请充值后再重试失败侧（原型）', 'error');
           return;
         }
         if (feeNeed) row.openingFeeRecord = openingFeeRecordLabel(numAmount(row.openingFee), row.applyId);
-        if (preNeed) row.prechargeRecord = openingPlaceholderRecords(row.applyId, openingAccountCount(row), 'AD-OPEN-', ' 待绑定账户');
+        if (preNeed) row.prechargeRecord = retryOpeningPrechargeRecords(row);
         if (numAmount(row.openingFee) > 0 && openingFeeCaptured(row)) {
           openingFeeHelpers().markCharged(row.merchantId, numAmount(row.openingFee));
           row.openingFeeStatus = openingFeeHelpers().merchantStatus(row.merchantId);

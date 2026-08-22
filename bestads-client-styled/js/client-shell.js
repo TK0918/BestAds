@@ -829,7 +829,7 @@
         </div>
         <label class="client-checkbox-row client-form-field full client-opening-consent">
           <input data-opening-auto-pay type="checkbox" checked>
-          <span>若最终金额与初始报价一致，同意系统直接扣除开户费和首充；不一致时再通知确认。</span>
+          <span>若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知确认。</span>
         </label>
       </div>
       <div class="client-note" style="margin-top:16px;">
@@ -877,6 +877,15 @@
     `;
   }
 
+  function openingPaymentNote(row, forDetail) {
+    if (openingIsPaymentProcessing(row)) {
+      return forDetail
+        ? '付款处理中，请勿重复支付。确认付款或自动扣款时其中任一笔失败，等待运营重试，请勿重复支付。'
+        : '付款处理中，请勿重复支付。';
+    }
+    return '确认付款后会分开扣款：开户费 1 笔（金额大于 0 时），每个有首充的广告账户各 1 笔。例如申请 2 个账户且有首充，一共 3 笔。页面展示金额按当前汇率折算，实际扣款以 Fund 执行时的汇率为准，可能与展示金额有微小差异。开户失败时只退对应账户首充，开户费不随账户失败回退。开户成功表示账户已开出并已发起加款，到账以充值记录为准。';
+  }
+
   function openingPaymentFields(row) {
     const openingFee = row?.openingFee || '-';
     const precharge = row?.precharge || '-';
@@ -902,7 +911,7 @@
       ])}
       <div class="client-note" style="margin-top:16px;">
         <div class="client-note-title">扣款说明</div>
-        <p>${openingIsPaymentProcessing(row) ? '付款处理中，请勿重复支付。' : '确认付款后会分开扣除开户费和首充。开户失败时只退对应账户首充，开户费不随账户失败回退。开户成功表示账户已开出并已发起加款，到账以充值记录为准。'}</p>
+        <p>${openingPaymentNote(row, false)}</p>
       </div>
     `;
   }
@@ -932,7 +941,7 @@
       </div>
       <div class="client-note" style="margin-top:16px;">
         <div class="client-note-title">流程说明</div>
-        <p>${openingIsPaymentProcessing(row) ? '付款处理中，请勿重复支付。确认付款或自动扣款时其中一笔失败，等待运营重试，请勿重复支付。' : '确认付款后会分开扣除开户费和首充。开户失败时只退对应账户首充，开户费不随账户失败回退。开户成功表示账户已开出并已发起加款，到账以充值记录为准。'}</p>
+        <p>${openingPaymentNote(row, true)}</p>
       </div>
     `;
   }
@@ -1320,7 +1329,6 @@
             openingFeeRecord: '确认费用后生成其他扣费单',
             rechargeRecord: '确认费用后生成占位充值单',
             quoteVersion,
-            fxSnapshot: { ...(window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 }) },
             initialNote: bmIds.length ? `${assetMeta.label}：${bmIds.join(' / ')}` : ''
           });
           renderPage(pageId);
@@ -1343,9 +1351,12 @@
           row.status = '处理中';
           row.result = '待开户';
           const openingFeeAmount = numberFromText(row.openingFee);
+          const prechargeAmount = numberFromText(row.precharge);
           row.openingFeeRecord = openingFeeAmount > 0 ? `FEE-${row.applyId}` : '无开户费';
           const count = Math.max(1, Number(row.accountCount || 1) || 1);
-          row.rechargeRecord = Array.from({ length: count }, (_, i) => `AD-OPEN-${row.applyId}-${String(i + 1).padStart(2, '0')} 开户首充（待绑定账户）`).join(' / ');
+          row.rechargeRecord = prechargeAmount > 0
+            ? Array.from({ length: count }, (_, i) => `AD-OPEN-${row.applyId}-${String(i + 1).padStart(2, '0')} 开户首充（待绑定账户）`).join(' / ')
+            : '无充值记录';
           renderPage(pageId);
           closeModal();
           modalContext.type = null;
