@@ -14,7 +14,7 @@
   const repoRootUrl = new URL('../../', shellUrl);
   // 运营端原型公共资源统一版本号。
   // admin-system/**/*.html 中 prototype-kit/admin-shell/* 的 ?v= 应与此值保持一致。
-  const SHELL_VERSION = '20260821-it-biweekly-funnel-gap';
+  const SHELL_VERSION = '20260822-opening-review-fix';
   const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
   const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
   cssUrlObj.searchParams.set('v', SHELL_VERSION);
@@ -308,6 +308,54 @@
   function toggleTheme() {
     applyTheme(document.body.classList.contains('theme-dark') ? 'light' : 'dark');
   }
+
+  window.BESTADS_OPENING_FEE = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+  window.BESTADS_MERCHANT_OPENING_FEE_STATUS = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {
+    '11894': '已收取',
+    '18888': '不收取',
+    '19901': '未收取'
+  };
+  window.BESTADS_OPENING_FEE_HELPERS = {
+    siteFee() {
+      const fee = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+      return { amount: Number(fee.amount) || 0, currency: fee.currency || 'USD' };
+    },
+    merchantStatus(merchantId) {
+      const map = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {};
+      return map[String(merchantId)] || '已收取';
+    },
+    setMerchantStatus(merchantId, status) {
+      window.BESTADS_MERCHANT_OPENING_FEE_STATUS = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {};
+      window.BESTADS_MERCHANT_OPENING_FEE_STATUS[String(merchantId)] = status;
+    },
+    quoteForMerchant(merchantId) {
+      const status = this.merchantStatus(merchantId);
+      const fee = this.siteFee();
+      return { status, amount: status === '未收取' ? fee.amount : 0, currency: fee.currency };
+    },
+    markCharged(merchantId, amount) {
+      if (!(Number(amount) > 0)) return;
+      if (this.merchantStatus(merchantId) !== '未收取') return;
+      this.setMerchantStatus(merchantId, '已收取');
+    },
+    formatAmount(amount, withCurrency) {
+      const fee = this.siteFee();
+      const value = Number(amount);
+      const text = Number.isFinite(value) ? value.toFixed(2) : '0.00';
+      return withCurrency === false ? text : `${text} ${fee.currency}`;
+    },
+    currentLabel() {
+      const fee = this.siteFee();
+      return `当前开户费：${this.formatAmount(fee.amount)}`;
+    }
+  };
+  window.BESTADS_WALLET_FX = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
+  window.BESTADS_CUSTOMER_WALLET = window.BESTADS_CUSTOMER_WALLET || {
+    default: { currency: 'USD', available: 5000 },
+    '1128': { currency: 'USD', available: 5000 },
+    '14229': { currency: 'USD', available: 8000 },
+    '19901': { currency: 'USD', available: 1200 }
+  };
 
   window.BESTADS_ADMIN_SHELL = window.BESTADS_ADMIN_SHELL || {};
   window.BESTADS_ADMIN_SHELL.version = SHELL_VERSION;

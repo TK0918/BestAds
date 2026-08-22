@@ -361,7 +361,8 @@
       '已付款待开户': 'Paid, Opening',
       '开户成功': 'Opened',
       '部分成功': 'Partial Success',
-      '开户取消': 'Canceled'
+      '开户取消': 'Canceled',
+      '扣款异常': 'Payment Exception'
     };
     return map[status] || status;
   }
@@ -372,6 +373,10 @@
     if (status === '开户成功' || status === '部分成功' || status === '完成') return '完成';
     if (status === '开户取消' || status === '失败' || status === '审核不通过') return '失败';
     return '处理中';
+  }
+
+  function openingIsPaymentProcessing(row) {
+    return row?.openingStatus === '扣款异常' || row?.paymentStatus === '部分扣款失败';
   }
 
   function renderCell(cell) {
@@ -512,34 +517,132 @@
     return Number.isFinite(amount) ? amount : 0;
   }
 
-  function estimateOpeningQuote(dailyBudget, accountCount) {
-    return estimateOpeningQuoteBreakdown(dailyBudget, accountCount).total;
+  window.BESTADS_OPENING_FEE = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+  window.BESTADS_CLIENT_MERCHANT_ID = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
+  window.BESTADS_MERCHANT_OPENING_FEE_STATUS = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {
+    '11894': '已收取',
+    '18888': '不收取',
+    '19901': '未收取'
+  };
+  window.BESTADS_WALLET_FX = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
+  window.BESTADS_CLIENT_WALLET = window.BESTADS_CLIENT_WALLET || { currency: 'USD', available: 5000 };
+
+  const CLIENT_OPENING_RULES = [
+    { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['服饰配件', '家居收纳', '美妆个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
+    { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居收纳', '服饰配件'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
+    { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['保健品'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
+    { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆个护', '服饰配件', '家居收纳'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
+    { mediaChannel: 'Google', priority: 50, countryMatch: ['美国', '英国', '加拿大'], categoryMatch: '全部', minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 500, currency: '不限' },
+    { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['服饰配件', '美妆个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
+  ];
+
+  function clientWalletCurrency() {
+    return window.BESTADS_CLIENT_WALLET?.currency || 'USD';
   }
 
-  function estimateOpeningQuoteBreakdown(dailyBudget, accountCount) {
-    const budget = numberFromText(dailyBudget);
-    const count = Math.min(20, Math.max(1, Number(accountCount) || 1));
-    const prechargePerAccount = Math.max(550, Math.ceil(budget * 1.5 / 50) * 50);
-    const openingFee = 150 * count;
-    const precharge = prechargePerAccount * count;
-    return { openingFee, precharge, total: openingFee + precharge };
+  function convertClientAmount(amount, from, to) {
+    const rates = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
+    return Number(amount || 0) * ((Number(rates[to] || 1)) / (Number(rates[from] || 1)));
   }
 
-  function formatQuoteAmount(amount) {
-    return `${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+  function clientOpeningFeeQuote() {
+    const merchantId = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
+    const map = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {};
+    const status = map[String(merchantId)] || '已收取';
+    const fee = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+    return { status, amount: status === '未收取' ? Number(fee.amount) || 0 : 0, currency: fee.currency || 'USD' };
+  }
+
+  function matchClientOpeningRule(media, country, category, budget, currency) {
+    const inSet = (source, target) => {
+      if (!source || source === '全部' || source === '不限') return true;
+      const tokens = Array.isArray(source) ? source : String(source).split(/[、/|,，]+/).map((item) => item.trim()).filter(Boolean);
+      return tokens.includes(String(target || '').trim());
+    };
+    return CLIENT_OPENING_RULES.filter((item) => {
+      if (item.mediaChannel !== media) return false;
+      if (!inSet(item.countryMatch, country)) return false;
+      if (!inSet(item.categoryMatch, category)) return false;
+      if (!inSet(item.currency, currency || 'USD')) return false;
+      if (item.minDailyBudget && budget < item.minDailyBudget) return false;
+      if (item.maxDailyBudget != null && budget > item.maxDailyBudget) return false;
+      return true;
+    }).sort((a, b) => a.priority - b.priority)[0] || null;
+  }
+
+  function estimateOpeningQuoteBreakdown(root = document) {
+    const modal = root.querySelector?.('[data-opening-apply-modal]') || root;
+    const category = modal.querySelector?.('[data-opening-category]')?.value || '';
+    const merchantQuote = clientOpeningFeeQuote();
+    if (!category) return { ready: false, matched: false, openingFee: 0, precharge: 0, total: 0, feeStatus: merchantQuote.status };
+    const media = modal.querySelector?.('[data-opening-media]')?.value || '';
+    const country = modal.querySelector?.('[data-opening-country]')?.value || '';
+    const budget = numberFromText(modal.querySelector?.('[data-opening-budget]')?.value);
+    const currency = modal.querySelector?.('[data-opening-currency]')?.value || 'USD';
+    const count = Math.min(20, Math.max(1, Number(modal.querySelector?.('[data-opening-count]')?.value) || 1));
+    const rule = matchClientOpeningRule(media, country, category, budget, currency);
+    const openingFee = merchantQuote.amount;
+    const wallet = clientWalletCurrency();
+    if (!rule) {
+      return { ready: true, matched: false, openingFee, precharge: 0, total: 0, walletCurrency: wallet, feeStatus: merchantQuote.status };
+    }
+    const precharge = Number(rule.prechargeBasePerAccount) * count;
+    const walletTotal = convertClientAmount(openingFee, 'USD', wallet) + convertClientAmount(precharge, currency, wallet);
+    return { ready: true, matched: true, openingFee, precharge, total: walletTotal, walletCurrency: wallet, feeStatus: merchantQuote.status };
+  }
+
+  function estimateOpeningQuote(dailyBudget, accountCount, category) {
+    return estimateOpeningQuoteBreakdown().total;
+  }
+
+  function formatQuoteAmount(amount, currency) {
+    const unit = currency || document.querySelector('[data-opening-currency]')?.value || 'USD';
+    return `${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+  }
+
+  function openingAccountCurrency(root = document) {
+    return root.querySelector('[data-opening-currency]')?.value || 'USD';
+  }
+
+  function openingDailyBudgetValue(root = document) {
+    return String(root.querySelector('[data-opening-budget]')?.value || '').trim() || '300';
+  }
+
+  function syncOpeningBudgetCurrency(root = document) {
+    const suffix = root.querySelector('[data-opening-budget-currency]');
+    if (suffix) suffix.textContent = openingAccountCurrency(root);
   }
 
   function syncOpeningEstimate(root = document) {
     const target = root.querySelector('[data-opening-estimate]');
     if (!target) return;
-    const budget = root.querySelector('[data-opening-budget]')?.value || '300 USD';
-    const count = root.querySelector('[data-opening-count]')?.value || '1';
-    const breakdown = estimateOpeningQuoteBreakdown(budget, count);
-    target.textContent = formatQuoteAmount(breakdown.total);
+    const modal = root.querySelector('[data-opening-apply-modal]') || root;
+    const currency = openingAccountCurrency(modal);
+    const wallet = clientWalletCurrency();
+    syncOpeningBudgetCurrency(modal);
+    const breakdown = estimateOpeningQuoteBreakdown(modal);
     const openingFeeTarget = root.querySelector('[data-opening-estimate-opening]');
     const prechargeTarget = root.querySelector('[data-opening-estimate-precharge]');
-    if (openingFeeTarget) openingFeeTarget.textContent = formatQuoteAmount(breakdown.openingFee);
-    if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(breakdown.precharge);
+    const categorySel = modal.querySelector('[data-opening-category]');
+    if (categorySel?.value) categorySel.style.outline = '';
+    if (!breakdown.ready) {
+      target.textContent = '-';
+      if (openingFeeTarget) openingFeeTarget.textContent = '-';
+      if (prechargeTarget) prechargeTarget.textContent = '-';
+      return;
+    }
+    if (openingFeeTarget) {
+      openingFeeTarget.textContent = breakdown.openingFee > 0
+        ? (wallet === 'USD' ? formatQuoteAmount(breakdown.openingFee, 'USD') : `${formatQuoteAmount(convertClientAmount(breakdown.openingFee, 'USD', wallet), wallet)}（标价 ${formatQuoteAmount(breakdown.openingFee, 'USD')}）`)
+        : `${formatQuoteAmount(0, wallet)}（本次不收取开户费）`;
+    }
+    if (!breakdown.matched) {
+      target.textContent = '-（待审核定价）';
+      if (prechargeTarget) prechargeTarget.textContent = '-';
+      return;
+    }
+    target.textContent = formatQuoteAmount(breakdown.total, wallet);
+    if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(convertClientAmount(breakdown.precharge, currency, wallet), wallet);
   }
 
   function parseBmIds(value) {
@@ -661,11 +764,11 @@
         <label class="client-form-field">
           <span class="client-label">投放国家 <span class="client-required">*</span></span>
           <select class="client-select" data-opening-country>
-            <option value="美国 / 加拿大" selected>美国 / 加拿大</option>
-            <option value="美国">美国</option>
-            <option value="英国 / 法国">英国 / 法国</option>
-            <option value="荷兰">荷兰</option>
+            <option value="美国" selected>美国</option>
+            <option value="加拿大">加拿大</option>
             <option value="英国">英国</option>
+            <option value="法国">法国</option>
+            <option value="荷兰">荷兰</option>
           </select>
         </label>
         <label class="client-form-field">
@@ -676,28 +779,52 @@
             <option value="Europe/London">Europe/London</option>
             <option value="Europe/Amsterdam">Europe/Amsterdam</option>
             <option value="America/Chicago">America/Chicago</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </label>
+        <label class="client-form-field">
+          <span class="client-label">账户币种 <span class="client-required">*</span></span>
+          <select class="client-select" data-opening-currency>
+            <option value="USD" selected>USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="HKD">HKD</option>
           </select>
         </label>
         <label class="client-form-field">
           <span class="client-label">日预算 <span class="client-required">*</span></span>
-          <input class="client-input" data-opening-budget type="text" value="300 USD">
+          <div class="client-input-with-suffix">
+            <input class="client-input" data-opening-budget type="text" inputmode="decimal" value="300" placeholder="请输入日预算">
+            <span class="client-input-suffix" data-opening-budget-currency>USD</span>
+          </div>
         </label>
         <label class="client-form-field">
           <span class="client-label">账户数 <span class="client-required">*</span></span>
           <input class="client-input" data-opening-count type="text" value="2">
         </label>
+        <label class="client-form-field">
+          <span class="client-label">投放品类 <span class="client-required">*</span></span>
+          <select class="client-select" data-opening-category>
+            <option value="">请选择投放品类</option>
+            <option value="家居收纳">家居收纳</option>
+            <option value="美妆个护">美妆个护</option>
+            <option value="服饰配件">服饰配件</option>
+            <option value="宠物用品">宠物用品</option>
+            <option value="保健品">保健品</option>
+          </select>
+        </label>
         <div class="client-opening-estimate full" aria-live="polite">
           <div>
             <p class="client-opening-estimate-title">预估开户费用</p>
-            <p class="client-opening-estimate-desc">系统根据媒体、URL、投放国家、日预算和账户数预估。提交时不扣款。运营确认费用后，开户费和首充分开从钱包扣除。最终金额以运营审核结果为准。</p>
+            <p class="client-opening-estimate-desc">开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。</p>
             <div class="client-opening-breakdown">
-              <span>开户费：<b data-opening-estimate-opening>${html(formatQuoteAmount(300))}</b></span>
-              <span>首充（广告账户充值）：<b data-opening-estimate-precharge>${html(formatQuoteAmount(1100))}</b></span>
+              <span>开户费：<b data-opening-estimate-opening>-</b></span>
+              <span>首充（广告账户充值）：<b data-opening-estimate-precharge>-</b></span>
             </div>
           </div>
           <div class="client-opening-estimate-total">
             <span>合计</span>
-            <strong class="client-opening-estimate-amount" data-opening-estimate>${html(formatQuoteAmount(estimateOpeningQuote('300 USD', 2)))}</strong>
+            <strong class="client-opening-estimate-amount" data-opening-estimate>-</strong>
           </div>
         </div>
         <label class="client-checkbox-row client-form-field full client-opening-consent">
@@ -763,15 +890,20 @@
         readonlyItem('时区', row?.timezone),
         readonlyItem('日预算', row?.dailyBudget),
         readonlyItem('账户数', row?.accountCount),
-        readonlyItem('识别品类', row?.category)
+        readonlyItem('投放品类', row?.category),
+        readonlyItem('账户币种', row?.currency || 'USD')
       ])}
       ${readonlySection('报价与余额', [
         readonlyItem('初始报价', row?.initialQuote, { emphasis: true }),
         readonlyItem('最终报价', row?.finalQuote || row?.initialQuote, { emphasis: true }),
         readonlyItem('开户费', openingFee),
         readonlyItem('首充（广告账户充值）', precharge),
-        readonlyItem('可用余额', '5,000.00 USD', { emphasis: true })
+        readonlyItem('可用余额', `${Number(window.BESTADS_CLIENT_WALLET?.available || 5000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${clientWalletCurrency()}`, { emphasis: true })
       ])}
+      <div class="client-note" style="margin-top:16px;">
+        <div class="client-note-title">扣款说明</div>
+        <p>${openingIsPaymentProcessing(row) ? '付款处理中，请勿重复支付。' : '确认付款后会分开扣除开户费和首充。开户失败时只退对应账户首充，开户费不随账户失败回退。开户成功表示账户已开出并已发起加款，到账以充值记录为准。'}</p>
+      </div>
     `;
   }
 
@@ -786,6 +918,8 @@
         ${formInput('国家 / 时区', `${row.country || '-'} / ${row.timezone || '-'}`, false)}
         ${formInput('日预算', row.dailyBudget || '-', false)}
         ${formInput('账户数', row.accountCount || '-', false)}
+        ${formInput('投放品类', row.category || '-', false)}
+        ${formInput('账户币种', row.currency || 'USD', false)}
         ${formInput('初始报价', row.initialQuote || '-', false)}
         ${formInput('最终报价', row.finalQuote || '-', false)}
         ${formInput('开户费', row.openingFee || '-', false)}
@@ -798,7 +932,7 @@
       </div>
       <div class="client-note" style="margin-top:16px;">
         <div class="client-note-title">流程说明</div>
-        <p>确认付款后会分开扣除开户费和首充。开户失败时，开户费回退、首充充值单失败退款。</p>
+        <p>${openingIsPaymentProcessing(row) ? '付款处理中，请勿重复支付。确认付款或自动扣款时其中一笔失败，等待运营重试，请勿重复支付。' : '确认付款后会分开扣除开户费和首充。开户失败时只退对应账户首充，开户费不随账户失败回退。开户成功表示账户已开出并已发起加款，到账以充值记录为准。'}</p>
       </div>
     `;
   }
@@ -1139,17 +1273,26 @@
             showToast('请选择媒体渠道', 'error');
             return;
           }
+          const category = applyRoot?.querySelector('[data-opening-category]')?.value || '';
+          if (!category) {
+            const sel = applyRoot?.querySelector('[data-opening-category]');
+            if (sel) { sel.style.outline = '2px solid var(--client-danger, #f53f3f)'; sel.focus(); }
+            showToast('请选择投放品类', 'error');
+            return;
+          }
           const url = applyRoot?.querySelector('[data-opening-url]')?.value.trim() || 'https://www.example.com';
           const country = applyRoot?.querySelector('[data-opening-country]')?.value.trim() || '美国';
           const timezone = applyRoot?.querySelector('[data-opening-timezone]')?.value.trim() || 'America/Los_Angeles';
-          const dailyBudget = applyRoot?.querySelector('[data-opening-budget]')?.value.trim() || '300 USD';
+          const dailyBudget = openingDailyBudgetValue(applyRoot);
           const accountCount = applyRoot?.querySelector('[data-opening-count]')?.value.trim() || '1';
+          const currency = openingAccountCurrency(applyRoot);
           const assetMeta = openingAssetMeta(mediaChannel);
           const bmIds = assetMeta ? parseBmIds(applyRoot?.querySelector('[data-opening-bm-ids]')?.value || '') : [];
           const autoPay = Boolean(applyRoot?.querySelector('[data-opening-auto-pay]')?.checked);
           syncOpeningEstimate(applyRoot);
-          const breakdown = estimateOpeningQuoteBreakdown(dailyBudget, accountCount);
-          const initialQuote = applyRoot?.querySelector('[data-opening-estimate]')?.textContent.trim() || formatQuoteAmount(breakdown.total);
+          const breakdown = estimateOpeningQuoteBreakdown(applyRoot);
+          const wallet = clientWalletCurrency();
+          const initialQuote = breakdown.matched ? formatQuoteAmount(breakdown.total, wallet) : '-（待审核定价）';
           const quoteVersion = `Q-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(rows.length + 1).padStart(3, '0')}`;
           rows.unshift({
             applyId: `AO${Date.now()}`,
@@ -1160,10 +1303,11 @@
             timezone,
             dailyBudget,
             accountCount,
-            category: 'AI 识别中',
+            category,
+            currency,
             initialQuote,
-            openingFee: formatQuoteAmount(breakdown.openingFee),
-            precharge: formatQuoteAmount(breakdown.precharge),
+            openingFee: breakdown.openingFee > 0 ? formatQuoteAmount(breakdown.openingFee, 'USD') : formatQuoteAmount(0, 'USD'),
+            precharge: breakdown.matched ? formatQuoteAmount(breakdown.precharge, currency) : '-',
             finalQuote: '待运营确认',
             walletCharge: '-',
             paymentStatus: '未扣款',
@@ -1176,6 +1320,7 @@
             openingFeeRecord: '确认费用后生成其他扣费单',
             rechargeRecord: '确认费用后生成占位充值单',
             quoteVersion,
+            fxSnapshot: { ...(window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 }) },
             initialNote: bmIds.length ? `${assetMeta.label}：${bmIds.join(' / ')}` : ''
           });
           renderPage(pageId);
@@ -1186,13 +1331,21 @@
           return;
         }
         if (modalContext.type === 'opening-payment' && row) {
+          const payable = numberFromText(row.finalQuote || row.initialQuote);
+          const available = Number(window.BESTADS_CLIENT_WALLET?.available || 5000);
+          if (payable > available) {
+            showToast('钱包可用余额不足，请先充值后再确认付款', 'error');
+            return;
+          }
           row.walletCharge = row.finalQuote || row.initialQuote || '-';
           row.paymentStatus = '已扣款';
           row.openingStatus = '已付款待开户';
           row.status = '处理中';
           row.result = '待开户';
-          row.openingFeeRecord = `FEE-${row.applyId}-01${Number(row.accountCount || 1) > 1 ? ` / 02` : ''}`;
-          row.rechargeRecord = `AD-OPEN-${row.applyId}-01 开户首充（待绑定账户）`;
+          const openingFeeAmount = numberFromText(row.openingFee);
+          row.openingFeeRecord = openingFeeAmount > 0 ? `FEE-${row.applyId}` : '无开户费';
+          const count = Math.max(1, Number(row.accountCount || 1) || 1);
+          row.rechargeRecord = Array.from({ length: count }, (_, i) => `AD-OPEN-${row.applyId}-${String(i + 1).padStart(2, '0')} 开户首充（待绑定账户）`).join(' / ');
           renderPage(pageId);
           closeModal();
           modalContext.type = null;
@@ -1216,13 +1369,13 @@
       if (event.key === 'Escape') closeModal();
     });
     document.addEventListener('input', (event) => {
-      const openingInput = event.target.closest('[data-opening-budget], [data-opening-count]');
+      const openingInput = event.target.closest('[data-opening-budget], [data-opening-count], [data-opening-category], [data-opening-currency], [data-opening-country], [data-opening-media]');
       const bmInput = event.target.closest('[data-opening-bm-ids]');
       if (openingInput) syncOpeningEstimate(openingInput.closest('[data-opening-apply-modal]') || document);
       if (bmInput) syncBmPreview(bmInput.closest('[data-opening-apply-modal]') || document);
     });
     document.addEventListener('change', (event) => {
-      const openingInput = event.target.closest('[data-opening-budget], [data-opening-count]');
+      const openingInput = event.target.closest('[data-opening-budget], [data-opening-count], [data-opening-category], [data-opening-currency], [data-opening-country], [data-opening-media]');
       const bmInput = event.target.closest('[data-opening-bm-ids]');
       const mediaInput = event.target.closest('[data-opening-media]');
       if (openingInput) syncOpeningEstimate(openingInput.closest('[data-opening-apply-modal]') || document);

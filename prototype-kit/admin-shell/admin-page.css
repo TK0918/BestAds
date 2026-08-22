@@ -75,7 +75,15 @@ body.admin-prototype-page.theme-dark {
 .multi-select-trigger span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .multi-select-trigger .fa { flex: 0 0 auto; color: var(--admin-muted); font-size: 11px; }
 .multi-select-menu { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; display: none; max-height: 220px; overflow: auto; padding: 6px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); box-shadow: 0 8px 20px rgba(0, 0, 0, .12); }
-.filter-field--multi.is-open .multi-select-menu { display: grid; gap: 2px; }
+.filter-field--multi.is-open .multi-select-menu,
+.form-multiselect.is-open .multi-select-menu { display: grid; gap: 2px; }
+.form-multiselect { position: relative; }
+.budget-range { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.form-field .budget-range__mode { width: 148px; flex: 0 0 148px; }
+.budget-range__inputs { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.budget-range__inputs[hidden], .budget-range [hidden] { display: none !important; }
+.budget-range__inputs input { min-width: 0; flex: 1; }
+.budget-range__suffix { color: var(--admin-secondary); white-space: nowrap; font-size: 13px; }
 /* 多选下拉选项必须覆盖 .filter-field label 的块级标题样式，避免 checkbox 与文案分行或基线错位。 */
 .multi-select-menu .multi-select-option { display: grid; grid-template-columns: 14px minmax(0, 1fr); align-items: center; column-gap: 8px; min-height: 32px; margin: 0; padding: 0 8px; border-radius: 4px; color: var(--admin-text); font-size: 13px; line-height: 18px; cursor: pointer; }
 .multi-select-menu .multi-select-option:hover { background: rgba(0, 107, 230, .06); }
@@ -228,6 +236,24 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .modal__body > .form-grid + .notice { margin-top: 16px; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .form-grid .full { grid-column: 1 / -1; }
+.form-field[hidden] { display: none !important; }
+.input-with-suffix { display: flex; align-items: center; min-height: 32px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); overflow: hidden; }
+.form-field .input-with-suffix input { border: 0; box-shadow: none; flex: 1; min-width: 0; width: auto; }
+.form-field .input-with-suffix:focus-within { border-color: var(--admin-primary); box-shadow: 0 0 0 2px rgba(0, 107, 230, .12); }
+.input-suffix { flex: 0 0 auto; padding: 0 12px 0 0; color: var(--admin-secondary); font-size: 13px; white-space: nowrap; }
+.opening-bm-preview { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; margin-top: 8px; }
+.opening-bm-chip { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border: 1px solid color-mix(in srgb, var(--admin-primary) 28%, var(--admin-border)); border-radius: 4px; background: color-mix(in srgb, var(--admin-primary) 8%, var(--admin-surface)); color: var(--admin-primary); font-size: 12px; font-variant-numeric: tabular-nums; }
+.opening-bm-empty { color: var(--admin-muted); font-size: 12px; line-height: 24px; }
+.opening-apply-estimate { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; padding: 12px; border: 1px solid color-mix(in srgb, var(--admin-primary) 22%, var(--admin-border)); border-radius: 6px; background: color-mix(in srgb, var(--admin-primary) 6%, var(--admin-surface)); }
+.opening-apply-estimate__title { margin: 0 0 4px; color: var(--admin-text); font-size: 13px; font-weight: 600; }
+.opening-apply-estimate__desc { margin: 0; color: var(--admin-muted); font-size: 12px; line-height: 18px; }
+.opening-apply-estimate__breakdown { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 8px; color: var(--admin-muted); font-size: 12px; line-height: 18px; }
+.opening-apply-estimate__breakdown b { color: var(--admin-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.opening-apply-estimate__total { display: grid; gap: 4px; justify-items: end; text-align: right; }
+.opening-apply-estimate__total span { color: var(--admin-muted); font-size: 12px; }
+.opening-apply-estimate__total strong { color: var(--admin-primary); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.opening-apply-consent { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: var(--admin-text); font-size: 13px; line-height: 20px; cursor: pointer; }
+.opening-apply-consent input { width: 14px; height: 14px; margin-top: 3px; flex: 0 0 auto; accent-color: var(--admin-primary); }
 .account-check-list { display: grid; gap: 8px; min-height: 32px; padding: 6px 10px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); }
 .account-check { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--admin-text); font-size: 13px; line-height: 20px; cursor: pointer; }
 .account-check input { width: auto; height: auto; flex: 0 0 auto; margin: 0; accent-color: var(--admin-primary); }
@@ -266,9 +292,21 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .opening-modal-stack { display: grid; gap: 16px; }
 .opening-account-slots { display: grid; gap: 12px; }
 .opening-account-slot { border: 1px solid var(--admin-border); border-radius: 6px; padding: 12px; background: var(--admin-surface); }
+.opening-account-slot.is-failed { border-color: color-mix(in srgb, var(--admin-danger) 28%, var(--admin-border)); }
 .opening-account-slot__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .opening-account-slot__head strong { font-size: 13px; }
+.opening-fee-current { display: inline-flex; align-items: center; min-height: 32px; color: var(--admin-secondary); font-size: 13px; line-height: 20px; white-space: nowrap; }
+.opening-account-slot__fees { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+.opening-account-slot__fees div { min-width: 0; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 4px; background: color-mix(in srgb, var(--admin-page-bg) 56%, var(--admin-surface)); }
+.opening-account-slot__fees span { display: block; color: var(--admin-muted); font-size: 12px; line-height: 18px; }
+.opening-account-slot__fees strong { display: block; margin-top: 2px; color: var(--admin-text); font-size: 13px; font-variant-numeric: tabular-nums; }
+.opening-account-slot.is-failed .opening-account-slot__fees [data-opening-slot-refund] { color: var(--admin-danger); }
 .opening-slot-fail { display: inline-flex; align-items: center; gap: 6px; color: var(--admin-secondary); font-size: 12px; cursor: pointer; }
+.opening-account-slot.is-failed .opening-slot-fail { color: var(--admin-danger); }
+.opening-result-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.opening-result-toolbar p { margin: 0; color: var(--admin-secondary); font-size: 12px; line-height: 18px; }
+.opening-result-refund { margin: 0; padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--admin-warning) 28%, var(--admin-border)); border-radius: 6px; background: color-mix(in srgb, var(--admin-warning) 8%, var(--admin-surface)); color: var(--admin-text); font-size: 12px; line-height: 18px; }
+.opening-result-all-fail { margin: 0; padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--admin-danger) 28%, var(--admin-border)); border-radius: 6px; background: color-mix(in srgb, var(--admin-danger) 8%, var(--admin-surface)); color: var(--admin-danger); font-size: 12px; line-height: 18px; }
 .opening-quote-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .opening-quote-label label { margin-bottom: 0; }
 .opening-rule-preview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 12px; border: 1px solid var(--admin-border); border-radius: 6px; background: color-mix(in srgb, var(--admin-page-bg) 56%, var(--admin-surface)); }

@@ -770,6 +770,46 @@
       grid-column: 1 / -1;
     }
 
+    .input-with-suffix {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .input-with-suffix .input {
+      border: 0;
+      box-shadow: none;
+      height: 100%;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .input-with-suffix:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(39, 89, 255, 0.1);
+    }
+
+    .input-suffix {
+      flex: 0 0 auto;
+      padding: 0 12px 0 0;
+      color: #86909c;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    body.theme-dark .input-with-suffix {
+      background: var(--panel);
+      border-color: var(--border);
+    }
+
+    body.theme-dark .input-suffix {
+      color: var(--muted, #86909c);
+    }
+
     .bm-id-input-wrap {
       display: grid;
       gap: 8px;
@@ -1237,7 +1277,13 @@
           </label>
           <label class="field">
             <span class="form-title" data-i18n="apply_country">Delivery Country</span>
-            <input id="applyCountry" class="input" type="text" value="United States / Canada" placeholder="Please enter delivery country" data-i18n-placeholder="placeholder_country">
+            <select id="applyCountry" class="select">
+              <option value="美国" selected>美国</option>
+              <option value="加拿大">加拿大</option>
+              <option value="英国">英国</option>
+              <option value="法国">法国</option>
+              <option value="荷兰">荷兰</option>
+            </select>
           </label>
           <label class="field">
             <span class="form-title" data-i18n="apply_timezone">Time Zone</span>
@@ -1246,34 +1292,58 @@
               <option value="America/New_York">America/New_York</option>
               <option value="Europe/London">Europe/London</option>
               <option value="Europe/Amsterdam">Europe/Amsterdam</option>
+              <option value="America/Chicago">America/Chicago</option>
               <option value="UTC">UTC</option>
             </select>
           </label>
           <label class="field">
+            <span class="form-title"><span data-i18n="apply_account_currency">Account Currency</span> <span style="color:var(--danger)">*</span></span>
+            <select id="applyCurrency" class="select">
+              <option value="USD" selected>USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="HKD">HKD</option>
+            </select>
+          </label>
+          <label class="field">
             <span class="form-title" data-i18n="apply_daily_budget">Daily Budget</span>
-            <input id="applyDailyBudget" class="input" type="text" value="300 USD" placeholder="Please enter daily budget" data-i18n-placeholder="placeholder_daily_budget">
+            <div class="input-with-suffix">
+              <input id="applyDailyBudget" class="input" type="text" inputmode="decimal" value="300" placeholder="Please enter daily budget" data-i18n-placeholder="placeholder_daily_budget">
+              <span id="applyDailyBudgetCurrency" class="input-suffix">USD</span>
+            </div>
           </label>
           <label class="field">
             <span class="form-title" data-i18n="apply_account_count">Account Count</span>
             <input id="applyAccountCount" class="input" type="number" min="1" max="20" value="2">
           </label>
+          <label class="field">
+            <span class="form-title"><span data-i18n="apply_category">Delivery Category</span> <span style="color:var(--danger)">*</span></span>
+            <select id="applyCategory" class="select">
+              <option value="" data-i18n="placeholder_category">Please select category</option>
+              <option value="家居收纳" data-i18n="category_home_storage">Home Storage</option>
+              <option value="美妆个护" data-i18n="category_beauty">Beauty</option>
+              <option value="服饰配件" data-i18n="category_apparel">Apparel Accessories</option>
+              <option value="宠物用品" data-i18n="category_pets">Pet Supplies</option>
+              <option value="保健品" data-i18n="category_supplements">Supplements</option>
+            </select>
+          </label>
           <div class="quote-estimate full" aria-live="polite">
             <div>
               <p class="quote-estimate-title" data-i18n="apply_estimated_quote">Estimated opening cost</p>
-              <p class="quote-estimate-desc" data-i18n="apply_estimated_quote_desc">Estimated by URL, country, daily budget and account count. Final amount is subject to review.</p>
+              <p class="quote-estimate-desc" data-i18n="apply_estimated_quote_desc">Opening fee is a one-time merchant fee in USD. Wallet total and actual deduction use the default wallet currency. Initial top-up equals min precharge times account count. Daily budget is only used for rule matching. If no rule matches, total shows - (pending review pricing). No deduction on submit. Final amount is subject to review.</p>
               <div class="quote-breakdown">
-                <span><span data-i18n="apply_opening_fee_subtotal">Opening fee</span>：<b id="applyOpeningFeeSubtotal">300.00 USD</b></span>
-                <span><span data-i18n="apply_precharge_subtotal">Initial top-up</span>：<b id="applyPrechargeSubtotal">1,100.00 USD</b></span>
+                <span><span data-i18n="apply_opening_fee_subtotal">Opening fee</span>：<b id="applyOpeningFeeSubtotal">-</b></span>
+                <span><span data-i18n="apply_precharge_subtotal">Initial top-up</span>：<b id="applyPrechargeSubtotal">-</b></span>
               </div>
             </div>
             <div class="quote-estimate-total">
               <span data-i18n="apply_quote_total">Total</span>
-              <strong id="applyEstimatedQuote" class="quote-estimate-amount">1,400.00 USD</strong>
+              <strong id="applyEstimatedQuote" class="quote-estimate-amount">-</strong>
             </div>
           </div>
           <label class="consent-row full">
             <input id="applyAutoPay" type="checkbox" checked>
-            <span data-i18n="apply_auto_pay">If the final amount is the same as the initial quote, authorize automatic wallet deduction.</span>
+            <span data-i18n="apply_auto_pay">If the final amount matches the initial quote, authorize automatic deduction of opening fee and initial top-up. Confirm later if they differ.</span>
           </label>
         </div>
       </div>
@@ -1595,8 +1665,16 @@
         apply_timezone: 'Time Zone',
         apply_daily_budget: 'Daily Budget',
         apply_account_count: 'Account Count',
+        apply_category: 'Delivery Category',
+        apply_account_currency: 'Account Currency',
+        placeholder_category: 'Please select category',
+        category_home_storage: 'Home Storage',
+        category_beauty: 'Beauty',
+        category_apparel: 'Apparel Accessories',
+        category_pets: 'Pet Supplies',
+        category_supplements: 'Supplements',
         apply_estimated_quote: 'Estimated opening cost',
-        apply_estimated_quote_desc: 'Estimated by URL, country, daily budget and account count. Final amount is subject to review.',
+        apply_estimated_quote_desc: 'Opening fee is a one-time merchant fee in USD. Wallet total and actual deduction use the default wallet currency. Initial top-up equals min precharge times account count. Daily budget is only used for rule matching. If no rule matches, total shows - (pending review pricing). No deduction on submit. Final amount is subject to review.',
         apply_bm_ids: 'BM ID',
         apply_bm_tip: 'Facebook only. Multiple BM IDs can be separated by comma or space.',
         apply_bm_empty: 'No BM ID parsed yet',
@@ -1611,7 +1689,7 @@
         apply_opening_fee_subtotal: 'Opening fee',
         apply_precharge_subtotal: 'Initial top-up',
         apply_quote_total: 'Total',
-        apply_auto_pay: 'If the final amount is the same as the initial quote, authorize automatic wallet deduction.',
+        apply_auto_pay: 'If the final amount matches the initial quote, authorize automatic deduction of opening fee and initial top-up. Confirm later if they differ.',
         url_tip: 'At least 1 and at most 20 URLs',
         btn_add_url: 'Add URL',
         timezone_quantity: 'Time Zone and Quantity',
@@ -1659,13 +1737,14 @@
         toast_deduct_done: 'Batch deduction request submitted',
         toast_clear_done: 'Batch clear request submitted',
         toast_url_required: 'Please enter delivery URL',
-        toast_country_required: 'Please enter delivery country',
+        toast_country_required: 'Please select delivery country',
         toast_budget_required: 'Please enter daily budget',
         toast_quantity_limit: 'Account count must be between 1 and 20',
         toast_apply_done: 'Account opening request submitted. Initial quote is generated and can be viewed in Operation Records.',
         toast_url_limit: 'At most 20 URLs',
         toast_page_limit: 'At most 20 Facebook Pages',
         toast_media_required: 'Please select a media channel',
+        toast_category_required: 'Please select a delivery category',
         apply_media_channel: 'Media Channel',
         placeholder_media_channel: 'Please select media channel'
       },
@@ -1741,8 +1820,16 @@
         apply_timezone: '时区',
         apply_daily_budget: '日预算',
         apply_account_count: '账户数',
+        apply_category: '投放品类',
+        apply_account_currency: '账户币种',
+        placeholder_category: '请选择投放品类',
+        category_home_storage: '家居收纳',
+        category_beauty: '美妆个护',
+        category_apparel: '服饰配件',
+        category_pets: '宠物用品',
+        category_supplements: '保健品',
         apply_estimated_quote: '预估开户费用',
-        apply_estimated_quote_desc: '系统根据 URL、投放国家、日预算和账户数预估。最终金额以运营审核结果为准。',
+        apply_estimated_quote_desc: '开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。',
         apply_bm_ids: 'BM ID',
         apply_bm_tip: '仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。',
         apply_bm_empty: '暂未识别到 BM ID',
@@ -1757,7 +1844,7 @@
         apply_opening_fee_subtotal: '开户费',
         apply_precharge_subtotal: '首充',
         apply_quote_total: '合计',
-        apply_auto_pay: '若最终金额与初始报价一致，同意系统直接从钱包扣款。',
+        apply_auto_pay: '若最终金额与初始报价一致，同意系统直接扣除开户费和首充；不一致时再通知确认。',
         url_tip: '至少 1 个，最多 20 个 URL',
         btn_add_url: '添加 URL',
         timezone_quantity: '时区和数量',
@@ -1805,13 +1892,14 @@
         toast_deduct_done: '批量减款申请已提交',
         toast_clear_done: '批量清零申请已提交',
         toast_url_required: '请输入投放 URL',
-        toast_country_required: '请输入投放国家',
+        toast_country_required: '请选择投放国家',
         toast_budget_required: '请输入日预算',
         toast_quantity_limit: '账户数需在 1 到 20 之间',
         toast_apply_done: '开户申请已提交，系统已生成初始报价，可在操作记录查看。',
         toast_url_limit: '最多 20 个 URL',
         toast_page_limit: '最多 20 个 Facebook Page',
         toast_media_required: '请选择媒体渠道',
+        toast_category_required: '请选择投放品类',
         apply_media_channel: '媒体渠道',
         placeholder_media_channel: '请选择媒体渠道'
       }
@@ -1948,34 +2036,130 @@
       return Number.isFinite(amount) ? amount : 0;
     }
 
-    function estimateOpeningQuote(dailyBudget, accountCount) {
-      return estimateOpeningQuoteBreakdown(dailyBudget, accountCount).total;
+    window.BESTADS_OPENING_FEE = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+    window.BESTADS_CLIENT_MERCHANT_ID = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
+    window.BESTADS_MERCHANT_OPENING_FEE_STATUS = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {
+      '11894': '已收取',
+      '18888': '不收取',
+      '19901': '未收取'
+    };
+    window.BESTADS_WALLET_FX = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
+    window.BESTADS_CLIENT_WALLET = window.BESTADS_CLIENT_WALLET || { currency: 'USD', available: 5000 };
+
+    const CLIENT_OPENING_RULES = [
+      { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['服饰配件', '家居收纳', '美妆个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
+      { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居收纳', '服饰配件'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
+      { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['保健品'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
+      { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆个护', '服饰配件', '家居收纳'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
+      { mediaChannel: 'Google', priority: 50, countryMatch: ['美国', '英国', '加拿大'], categoryMatch: '全部', minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 500, currency: '不限' },
+      { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['服饰配件', '美妆个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
+    ];
+
+    function clientWalletCurrency() {
+      return window.BESTADS_CLIENT_WALLET?.currency || 'USD';
     }
 
-    function estimateOpeningQuoteBreakdown(dailyBudget, accountCount) {
-      const budget = numberFromText(dailyBudget);
-      const count = Math.min(20, Math.max(1, Number(accountCount) || 1));
-      const prechargePerAccount = Math.max(550, Math.ceil(budget * 1.5 / 50) * 50);
-      const openingFee = 150 * count;
-      const precharge = prechargePerAccount * count;
-      return { openingFee, precharge, total: openingFee + precharge };
+    function convertClientAmount(amount, from, to) {
+      const rates = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
+      return Number(amount || 0) * ((Number(rates[to] || 1)) / (Number(rates[from] || 1)));
     }
 
-    function formatQuoteAmount(amount) {
-      return `${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+    function clientOpeningFeeQuote() {
+      const merchantId = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
+      const map = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {};
+      const status = map[String(merchantId)] || '已收取';
+      const fee = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+      return { status, amount: status === '未收取' ? Number(fee.amount) || 0 : 0, currency: fee.currency || 'USD' };
+    }
+
+    function matchClientOpeningRule(media, country, category, budget, currency) {
+      const inSet = (source, target) => {
+        if (!source || source === '全部' || source === '不限') return true;
+        const tokens = Array.isArray(source) ? source : String(source).split(/[、/|,，]+/).map((item) => item.trim()).filter(Boolean);
+        return tokens.includes(String(target || '').trim());
+      };
+      return CLIENT_OPENING_RULES.filter((item) => {
+        if (item.mediaChannel !== media) return false;
+        if (!inSet(item.countryMatch, country)) return false;
+        if (!inSet(item.categoryMatch, category)) return false;
+        if (!inSet(item.currency, currency || 'USD')) return false;
+        if (item.minDailyBudget && budget < item.minDailyBudget) return false;
+        if (item.maxDailyBudget != null && budget > item.maxDailyBudget) return false;
+        return true;
+      }).sort((a, b) => a.priority - b.priority)[0] || null;
+    }
+
+    function estimateOpeningQuote(dailyBudget, accountCount, category) {
+      return estimateOpeningQuoteBreakdown().total;
+    }
+
+    function estimateOpeningQuoteBreakdown() {
+      const category = document.getElementById('applyCategory')?.value || '';
+      const merchantQuote = clientOpeningFeeQuote();
+      if (!category) return { ready: false, matched: false, openingFee: 0, precharge: 0, total: 0, feeStatus: merchantQuote.status };
+      const media = document.getElementById('applyMediaChannel')?.value || '';
+      const country = document.getElementById('applyCountry')?.value || '';
+      const budget = numberFromText(document.getElementById('applyDailyBudget')?.value);
+      const currency = document.getElementById('applyCurrency')?.value || 'USD';
+      const count = Math.min(20, Math.max(1, Number(document.getElementById('applyAccountCount')?.value) || 1));
+      const rule = matchClientOpeningRule(media, country, category, budget, currency);
+      const openingFee = merchantQuote.amount;
+      const wallet = clientWalletCurrency();
+      if (!rule) {
+        return { ready: true, matched: false, openingFee, precharge: 0, total: 0, walletCurrency: wallet, feeStatus: merchantQuote.status };
+      }
+      const precharge = Number(rule.prechargeBasePerAccount) * count;
+      const walletTotal = convertClientAmount(openingFee, 'USD', wallet) + convertClientAmount(precharge, currency, wallet);
+      return { ready: true, matched: true, openingFee, precharge, total: walletTotal, walletCurrency: wallet, feeStatus: merchantQuote.status };
+    }
+
+    function formatQuoteAmount(amount, currency) {
+      const unit = currency || applyAccountCurrency();
+      return `${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+    }
+
+    function applyAccountCurrency() {
+      return document.getElementById('applyCurrency')?.value || 'USD';
+    }
+
+    function applyDailyBudgetValue() {
+      return String(document.getElementById('applyDailyBudget')?.value || '').trim() || '300';
+    }
+
+    function syncApplyBudgetCurrency() {
+      const suffix = document.getElementById('applyDailyBudgetCurrency');
+      if (suffix) suffix.textContent = applyAccountCurrency();
     }
 
     function updateApplyEstimate() {
       const target = document.getElementById('applyEstimatedQuote');
       if (!target) return;
-      const dailyBudget = document.getElementById('applyDailyBudget')?.value || '300 USD';
-      const accountCount = document.getElementById('applyAccountCount')?.value || '1';
-      const breakdown = estimateOpeningQuoteBreakdown(dailyBudget, accountCount);
-      target.textContent = formatQuoteAmount(breakdown.total);
+      syncApplyBudgetCurrency();
+      const currency = applyAccountCurrency();
+      const wallet = clientWalletCurrency();
+      const breakdown = estimateOpeningQuoteBreakdown();
       const openingFeeTarget = document.getElementById('applyOpeningFeeSubtotal');
       const prechargeTarget = document.getElementById('applyPrechargeSubtotal');
-      if (openingFeeTarget) openingFeeTarget.textContent = formatQuoteAmount(breakdown.openingFee);
-      if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(breakdown.precharge);
+      const categorySel = document.getElementById('applyCategory');
+      if (categorySel?.value) categorySel.style.outline = '';
+      if (!breakdown.ready) {
+        target.textContent = '-';
+        if (openingFeeTarget) openingFeeTarget.textContent = '-';
+        if (prechargeTarget) prechargeTarget.textContent = '-';
+        return;
+      }
+      if (openingFeeTarget) {
+        openingFeeTarget.textContent = breakdown.openingFee > 0
+          ? (wallet === 'USD' ? formatQuoteAmount(breakdown.openingFee, 'USD') : `${formatQuoteAmount(convertClientAmount(breakdown.openingFee, 'USD', wallet), wallet)}（标价 ${formatQuoteAmount(breakdown.openingFee, 'USD')}）`)
+          : `${formatQuoteAmount(0, wallet)}（本次不收取开户费）`;
+      }
+      if (!breakdown.matched) {
+        target.textContent = '-（待审核定价）';
+        if (prechargeTarget) prechargeTarget.textContent = '-';
+        return;
+      }
+      target.textContent = formatQuoteAmount(breakdown.total, wallet);
+      if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(convertClientAmount(breakdown.precharge, currency, wallet), wallet);
     }
 
     function parseBmIds(value) {
@@ -2422,10 +2606,19 @@
         showToast(t('toast_media_required'), 'warning');
         return;
       }
+      const category = document.getElementById('applyCategory')?.value || '';
+      const categorySel = document.getElementById('applyCategory');
+      if (!category) {
+        if (categorySel) { categorySel.style.outline = '2px solid var(--danger)'; categorySel.focus(); }
+        showToast(t('toast_category_required'), 'warning');
+        return;
+      }
+      if (categorySel) categorySel.style.outline = '';
       const url = document.getElementById('applyUrl')?.value.trim();
       const country = document.getElementById('applyCountry')?.value.trim();
       const timezone = document.getElementById('applyTimezone')?.value.trim();
-      const dailyBudget = document.getElementById('applyDailyBudget')?.value.trim();
+      const budgetAmount = String(document.getElementById('applyDailyBudget')?.value || '').trim();
+      const dailyBudget = applyDailyBudgetValue();
       const accountCount = Number(document.getElementById('applyAccountCount')?.value) || 0;
       if (!url) {
         showToast(t('toast_url_required'), 'warning');
@@ -2439,7 +2632,7 @@
         showToast(t('placeholder_timezone'), 'warning');
         return;
       }
-      if (!dailyBudget) {
+      if (!budgetAmount) {
         showToast(t('toast_budget_required'), 'warning');
         return;
       }
@@ -2521,7 +2714,7 @@
       button.addEventListener('click', () => applyQuickAmount(button.dataset.applyQuick));
     });
 
-    ['applyDailyBudget', 'applyAccountCount'].forEach(id => {
+    ['applyDailyBudget', 'applyAccountCount', 'applyCategory', 'applyCurrency', 'applyCountry', 'applyMediaChannel'].forEach(id => {
       document.getElementById(id)?.addEventListener('input', updateApplyEstimate);
       document.getElementById(id)?.addEventListener('change', updateApplyEstimate);
     });

@@ -436,9 +436,38 @@ button {
 .client-input:focus,
 .client-select:focus,
 .client-textarea:focus,
-.client-range:focus-within {
+.client-range:focus-within,
+.client-input-with-suffix:focus-within {
   border-color: var(--client-primary);
   box-shadow: 0 0 0 2px rgba(39, 89, 255, 0.1);
+}
+
+.client-input-with-suffix {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 32px;
+  border: 1px solid var(--client-control-border);
+  border-radius: 8px;
+  background: var(--client-panel);
+  overflow: hidden;
+}
+
+.client-input-with-suffix .client-input {
+  width: auto;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  box-shadow: none;
+}
+
+.client-input-suffix {
+  flex: 0 0 auto;
+  padding: 0 12px 0 0;
+  color: var(--client-muted, #86909c);
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .client-range {

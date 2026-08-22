@@ -8,6 +8,7 @@ if (customerPageRoot) {
               <label class="admin-field"><span>客户名称</span><input id="filterCustomerName" type="text" placeholder="请输入客户名称" /></label>
               <label class="admin-field"><span>登录账号</span><input id="filterLoginAccount" type="text" placeholder="请输入登录账号" /></label>
               <label class="admin-field"><span>客户状态</span><select id="filterCustomerStatus"><option value="">全部</option><option value="enabled">启用</option><option value="disabled">停用</option></select></label>
+              <label class="admin-field"><span>开户费状态</span><select id="filterOpeningFeeStatus"><option value="">全部</option><option value="未收取">未收取</option><option value="已收取">已收取</option><option value="不收取">不收取</option></select></label>
               <label class="admin-field"><span>客户级别</span><select id="filterCustomerLevel"><option value="">全部</option><option value="S">S</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></label>
               <label class="admin-field"><span>BD</span><input id="filterBd" type="text" placeholder="请选择BD" /></label>
               <label class="admin-field"><span>AM</span><input id="filterAm" type="text" placeholder="请选择AM" /></label>
@@ -628,7 +629,50 @@ if (customerPageRoot) {
             <button type="submit" class="admin-button admin-button--primary">确 定</button>
           </div>
         </form>
-      </div>`);
+      </div>
+    </div>
+  </div>
+
+  <div id="openingFeeStatusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full animate-fadeIn">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">修改开户费状态</h3>
+            <button type="button" onclick="closeModal('openingFeeStatusModal')" class="text-gray-400 hover:text-gray-600" aria-label="关闭">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <form class="px-6 py-4" onsubmit="submitOpeningFeeStatus(event)">
+          <input type="hidden" id="openingFeeStatusCustomerId">
+          <div class="grid grid-cols-1 gap-4">
+            <p class="text-sm text-gray-500">按商户计，同一商户下所有客户共用一次开户费。回退其他扣费只退钱，不会改这个状态。</p>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">商户ID</label>
+              <div id="openingFeeStatusMerchantId" class="text-sm text-gray-900">-</div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">客户名称</label>
+              <div id="openingFeeStatusCustomerName" class="text-sm text-gray-900">-</div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">开户费状态</label>
+              <select id="openingFeeStatusSelect" required class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                <option value="未收取">未收取</option>
+                <option value="已收取">已收取</option>
+                <option value="不收取">不收取</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" onclick="closeModal('openingFeeStatusModal')" class="admin-button">取 消</button>
+            <button type="submit" class="admin-button admin-button--primary">确 定</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>`);
 }
 
     // 全局变量
@@ -636,6 +680,7 @@ if (customerPageRoot) {
       { key: 'customerId', label: '客户ID', width: '100px', sortable: true },
       { key: 'customerName', label: '客户名称', width: '150px' },
       { key: 'merchantId', label: '商户ID', width: '180px', sortable: true },
+      { key: 'openingFeeStatus', label: '开户费状态', width: '120px' },
       { key: 'customerLevel', label: '客户级别', width: '100px' },
       { key: 'bd', label: 'BD', width: '220px' },
       { key: 'am', label: 'AM', width: '220px' },
@@ -651,7 +696,7 @@ if (customerPageRoot) {
       { key: 'frozenAmount', label: '冻结金额', width: '100px', align: 'right', sortable: true },
       { key: 'registerTime', label: '注册时间', width: '150px' },
       { key: 'lastLoginTime', label: '最近登录', width: '150px' },
-      { key: 'actions', label: '操作', width: '280px' }
+      { key: 'actions', label: '操作', width: '360px' }
     ];
 
     // 默认显示真实运营端客户列表的 19 个业务列，选择列由表格渲染器固定追加
@@ -750,7 +795,40 @@ if (customerPageRoot) {
       remainingCredit: 0
     };
 
+    function merchantOpeningFeeStatusOf(merchantId) {
+      return window.BESTADS_OPENING_FEE_HELPERS ? window.BESTADS_OPENING_FEE_HELPERS.merchantStatus(merchantId) : '已收取';
+    }
+
+    function openOpeningFeeStatusModal(customerId) {
+      const customer = customerData.find(item => item.customerId === customerId);
+      if (!customer) return;
+      document.getElementById('openingFeeStatusCustomerId').value = customerId;
+      document.getElementById('openingFeeStatusMerchantId').textContent = customer.merchantId || '-';
+      document.getElementById('openingFeeStatusCustomerName').textContent = customer.customerName || '-';
+      document.getElementById('openingFeeStatusSelect').value = merchantOpeningFeeStatusOf(customer.merchantId);
+      document.getElementById('openingFeeStatusModal').classList.remove('hidden');
+    }
+
+    function submitOpeningFeeStatus(event) {
+      event.preventDefault();
+      const customerId = document.getElementById('openingFeeStatusCustomerId').value;
+      const customer = customerData.find(item => item.customerId === customerId);
+      const status = document.getElementById('openingFeeStatusSelect').value;
+      if (customer && window.BESTADS_OPENING_FEE_HELPERS) {
+        window.BESTADS_OPENING_FEE_HELPERS.setMerchantStatus(customer.merchantId, status);
+      }
+      closeModal('openingFeeStatusModal');
+      renderTable();
+      showNotification('已更新商户开户费状态（原型）。退钱不会自动改这个状态。', 'success');
+    }
+
     let customerData = [
+      { ...mockCustomerDefaults, customerId: '4901', merchantId: '19901', customerName: '新客首次开户', customerLevel: 'B', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 800, usedCredit: 0, creditLimit: 0, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 800, realAmount: 800, frozenAmount: 0, registerTime: '2026-08-22 09:08:16', lastLoginTime: '-' },
+      { ...mockCustomerDefaults, customerId: '4801', merchantId: '18888', customerName: '内部免开户费', customerLevel: 'A', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 2600, usedCredit: 0, creditLimit: 0, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 2600, realAmount: 2600, frozenAmount: 0, registerTime: '2026-08-20 10:12:08', lastLoginTime: '-' },
+      { ...mockCustomerDefaults, customerId: '2688', merchantId: '11894', customerName: '测试用户_1777106273', customerLevel: 'B', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 3260, usedCredit: 820, creditLimit: 2000, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 2980, realAmount: 2800, frozenAmount: 0, registerTime: '2026-08-12 10:20:11', lastLoginTime: '2026-08-12 11:08:42' },
+      { ...mockCustomerDefaults, customerId: '102', merchantId: '1128', customerName: 'adstest', customerLevel: 'A', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 860, usedCredit: 0, creditLimit: 0, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 640, realAmount: 640, frozenAmount: 0, registerTime: '2026-07-01 09:12:00', lastLoginTime: '2026-08-14 10:05:44' },
+      { ...mockCustomerDefaults, customerId: '3472', merchantId: '14229', customerName: 'test金额变动', customerLevel: 'B', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 12480, usedCredit: 1320, creditLimit: 5000, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 11200, realAmount: 10800, frozenAmount: 0, registerTime: '2026-07-18 14:20:00', lastLoginTime: '2026-08-14 09:20:11' },
+      { ...mockCustomerDefaults, customerId: '4770', merchantId: '17794', customerName: '开户取消样例', customerLevel: '', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 420, usedCredit: 0, creditLimit: 0, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 420, realAmount: 420, frozenAmount: 0, registerTime: '2026-08-01 11:16:20', lastLoginTime: '2026-08-10 16:08:02' },
       { ...mockCustomerDefaults, customerId: '3599', merchantId: '14656', customerName: '测试用户_1786008619', customerLevel: '', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 0, usedCredit: 0, creditLimit: 0, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 0, realAmount: 0, frozenAmount: 0, registerTime: '2026-08-06 17:30:19', lastLoginTime: '-' },
       { ...mockCustomerDefaults, customerId: '3596', merchantId: '14651', customerName: '测试用户_1785922215', customerLevel: '', bd: '', am: '', defaultCurrency: 'USD', currentBalance: 0, usedCredit: 0, creditLimit: 0, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 0, realAmount: 0, frozenAmount: 0, registerTime: '2026-08-05 17:30:15', lastLoginTime: '-' },
       { ...mockCustomerDefaults, customerId: '3594', merchantId: '14633', customerName: '测试用户_1785749411', customerLevel: '', bd: '', am: '李志伟 (lizhiwei@bestfulfill.com)', defaultCurrency: 'USD', currentBalance: -1, usedCredit: 0, creditLimit: 0, prepaidLimit: 0, remainingPrepaidAmount: 0, availableBalance: 0, realAmount: 0, frozenAmount: 0, registerTime: '2026-08-03 17:30:11', lastLoginTime: '-' },
@@ -882,6 +960,11 @@ if (customerPageRoot) {
             case 'merchantId':
               td.innerHTML = `<span>${customer.merchantId || '-'}</span>`;
               break;
+            case 'openingFeeStatus':
+              const openingFeeStatus = merchantOpeningFeeStatusOf(customer.merchantId);
+              const openingFeeStatusClass = openingFeeStatus === '未收取' ? 'admin-tag--danger' : openingFeeStatus === '不收取' ? 'admin-tag--level' : 'admin-tag--success';
+              td.innerHTML = `<span class="admin-tag ${openingFeeStatusClass}">${openingFeeStatus}</span>`;
+              break;
             case 'customerLevel':
               const levelMap = { S: 'S', A: 'A', B: 'B', C: 'C', D: 'D', normal: '普通', vip: 'VIP', svip: 'SVIP' };
               td.innerHTML = `<span class="admin-tag admin-tag--level">${levelMap[customer.customerLevel] || customer.customerLevel || '-'}</span>`;
@@ -917,6 +1000,7 @@ if (customerPageRoot) {
               td.innerHTML = `
                 <div>
                   <button type="button" onclick="editCustomer('${customer.customerId}')">编辑</button>
+                  <button type="button" onclick="openOpeningFeeStatusModal('${customer.customerId}')">修改开户费状态</button>
                   <button type="button" onclick="modifyCustomerAccount('${customer.customerId}')">修改账号</button>
                   <button type="button" onclick="managePermissions('${customer.customerId}')">权限管理</button>
                   <a href="customer-sub-account-management.html?merchantId=${customer.merchantId}">子账号管理</a>
@@ -1119,7 +1203,7 @@ if (customerPageRoot) {
         const input = document.getElementById(id);
         if (input) input.value = '';
       });
-      ['filterCustomerStatus', 'filterCustomerLevel'].forEach(id => {
+      ['filterCustomerStatus', 'filterOpeningFeeStatus', 'filterCustomerLevel'].forEach(id => {
         const select = document.getElementById(id);
         if (select) select.value = '';
       });
@@ -1141,6 +1225,7 @@ if (customerPageRoot) {
       const customerName = document.getElementById('filterCustomerName').value.trim().toLowerCase();
       const loginAccount = document.getElementById('filterLoginAccount').value.trim().toLowerCase();
       const customerStatus = document.getElementById('filterCustomerStatus').value;
+      const openingFeeStatus = document.getElementById('filterOpeningFeeStatus').value;
       const customerLevel = document.getElementById('filterCustomerLevel').value;
       const bd = document.getElementById('filterBd').value.trim().toLowerCase();
       const am = document.getElementById('filterAm').value.trim().toLowerCase();
@@ -1150,10 +1235,11 @@ if (customerPageRoot) {
         const customerNameMatched = !customerName || (customer.customerName || customer.merchantName || '').toLowerCase().includes(customerName);
         const loginAccountMatched = !loginAccount || (customer.loginAccount || customer.email || '').toLowerCase().includes(loginAccount);
         const customerStatusMatched = !customerStatus || customer.customerStatus === customerStatus;
+        const openingFeeStatusMatched = !openingFeeStatus || merchantOpeningFeeStatusOf(customer.merchantId) === openingFeeStatus;
         const customerLevelMatched = !customerLevel || customer.customerLevel === customerLevel;
         const bdMatched = !bd || (customer.bd || '').toLowerCase().includes(bd);
         const amMatched = !am || (customer.am || '').toLowerCase().includes(am);
-        return merchantMatched && customerNameMatched && loginAccountMatched && customerStatusMatched && customerLevelMatched && bdMatched && amMatched;
+        return merchantMatched && customerNameMatched && loginAccountMatched && customerStatusMatched && openingFeeStatusMatched && customerLevelMatched && bdMatched && amMatched;
       });
 
       const displayedIds = new Set(filteredCustomerData.map(item => item.customerId));
