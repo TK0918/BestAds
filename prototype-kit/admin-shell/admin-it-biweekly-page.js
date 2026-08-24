@@ -119,7 +119,7 @@
   const funnelHintText = (statDate) => {
     const w = windowsFromStatDate(statDate);
     const yearStart = `${parseDate(statDate).getFullYear()}-01-01`;
-    return `人群为 ${yearStart} 至各时点已注册的商户ID。对比 ${formatYMD(w.prevEnd)} 与 ${formatYMD(w.currentEnd)}。注册看商户ID数变化；其他事件看整体转化率（相对当时注册）变化。`;
+    return `人群为 ${yearStart} 至各时点已注册的商户ID。对比 ${formatYMD(w.prevEnd)} 与 ${formatYMD(w.currentEnd)}。商户ID数看上期 → 本期及数量变化；整体看上期 → 本期转化率及百分点变化。`;
   };
   const signedInt = (n) => (n > 0 ? '+' : '') + num(n);
   const ppDelta = (curRate, prevRate) => {
@@ -171,9 +171,9 @@
           }
           const bottom = doc.querySelector('.itb-bottom');
           if (bottom) {
-            bottom.style.display = 'grid';
-            bottom.style.gridTemplateColumns = 'minmax(0, 1.2fr) minmax(0, 1fr)';
-            bottom.style.gap = '16px';
+            bottom.style.display = 'block';
+            bottom.style.gridTemplateColumns = 'minmax(0, 1fr)';
+            bottom.style.gap = '0';
           }
           const capture = doc.querySelector('#itbCapture');
           if (capture) capture.style.padding = '16px';
@@ -209,10 +209,6 @@
         <div class="itb-dash">
           <section class="itb-kpi-slot" id="kpiGroups"></section>
           <div class="itb-bottom">
-            <article class="itb-card">
-              <h2>投放涨跌 Top</h2>
-              <div class="itb-movers" id="movers"></div>
-            </article>
             <article class="itb-card">
               <h2>客户生命周期漏斗</h2>
               <p class="itb-hint" id="itbFunnelHint"></p>
@@ -332,6 +328,9 @@
   }
 
   function renderMovers() {
+    // 本期暂不展示投放涨跌 Top，保留渲染函数便于后续打开。
+    const host = document.getElementById('movers');
+    if (!host) return;
     const row = (item) => {
       const w = wow(item.spendCur, item.spendPrev);
       return `
@@ -371,21 +370,18 @@
       const width = base ? Math.max(6, stage.count / base * 100) : 0;
       return `<div class="itb-funnel-slice" title="${stage.name}"><span style="width:${width}%"></span></div>`;
     }).join('');
-    const rows = stages.map((stage, index) => {
-      const isRegister = index === 0;
+    const rows = stages.map((stage) => {
       const countDelta = stage.count - stage.prevCount;
       const curRate = rateValue(stage.count, base);
       const prevRate = rateValue(stage.prevCount, prevBase);
-      const changeText = isRegister ? signedInt(countDelta) : ppDelta(curRate, prevRate);
-      const changeCls = isRegister
-        ? cls(countDelta)
-        : (curRate == null || prevRate == null ? 'flat' : cls(curRate - prevRate));
+      const rateCls = (curRate == null || prevRate == null) ? 'flat' : cls(curRate - prevRate);
       return `
         <div class="itb-funnel-row">
           <b>${stage.name}</b>
           <span>${pairText(num(stage.prevCount), num(stage.count))}</span>
+          <span class="itb-wow ${cls(countDelta)}">${signedInt(countDelta)}</span>
           <span>${pairText(rateText(stage.prevCount, prevBase), rateText(stage.count, base))}</span>
-          <span class="itb-wow ${changeCls}">${changeText}</span>
+          <span class="itb-wow ${rateCls}">${ppDelta(curRate, prevRate)}</span>
         </div>
       `;
     }).join('');
@@ -399,6 +395,7 @@
           <div class="itb-funnel-row itb-funnel-row-head">
             <span>事件</span>
             <span>商户ID数</span>
+            <span>数量变化</span>
             <span>整体</span>
             <span>变化</span>
           </div>
@@ -409,7 +406,6 @@
   }
 
   renderGroups();
-  renderMovers();
   renderFunnel();
   updateFootnote();
   document.getElementById('itbStatDate').addEventListener('change', updateFootnote);

@@ -71,18 +71,21 @@
     ];
   }
 
-  function dictTab(id, label, rows) {
+  function dictTab(id, label, rows, options = {}) {
+    const columnLabels = options.columnLabels || ['ID', '名称', '状态', '更新时间', '操作人'];
+    const columnOptions = options.columnOptions || { left: ['名称', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 260, 110, 180, 260] };
+    const fields = options.fields || dictFields(label);
     return {
       id,
       label,
       actions: [{ id: `create-${id}`, label: `新增${label}`, icon: 'plus', primary: true }],
-      tableMinWidth: 1120,
+      tableMinWidth: options.tableMinWidth || 1120,
       opsWidth: 130,
-      columns: columns(['ID', '名称', '状态', '更新时间', '操作人'], { left: ['名称', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 260, 110, 180, 260] }),
+      columns: columns(columnLabels, columnOptions),
       rows,
       modals: {
-        [`新增${label}`]: { title: `新增${label}`, fields: dictFields(label) },
-        '编辑': { title: `编辑${label}`, fields: dictFields(label) },
+        [`新增${label}`]: { title: `新增${label}`, fields },
+        '编辑': { title: `编辑${label}`, fields },
         ...commonModals
       }
     };
@@ -168,19 +171,38 @@
           row(['21', 'Google', '启用', '2026-06-18 17:19:44', people.cheng], { status: '启用', ops: ['编辑', '禁用'] })
         ]),
         dictTab('delivery-country', '投放国家', [
-          row(['901', 'US / 美国', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['902', 'CA / 加拿大', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['903', 'GB / 英国', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['904', 'FR / 法国', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['905', 'NL / 荷兰', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] })
-        ]),
+          row(['901', '美国', 'United States', 'US', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['902', '加拿大', 'Canada', 'CA', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['903', '英国', 'United Kingdom', 'GB', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['904', '法国', 'France', 'FR', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['905', '荷兰', 'Netherlands', 'NL', '启用', '2026-08-14 10:12:30', people.ou], { status: '启用', ops: ['编辑', '禁用'] })
+        ], {
+          columnLabels: ['ID', '国家名称', '国家名称(英文)', '国家简称', '状态', '更新时间', '操作人'],
+          columnOptions: { left: ['国家名称', '国家名称(英文)', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 140, 180, 120, 110, 180, 260] },
+          tableMinWidth: 1280,
+          fields: [
+            { key: 'c1', label: '国家名称', placeholder: '输入国家名称' },
+            { key: 'c2', label: '国家名称(英文)', placeholder: '输入国家英文名称' },
+            { key: 'c3', label: '国家简称', placeholder: '输入国家简称，如 US' },
+            { key: 'c4', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
+          ]
+        }),
         dictTab('opening-category', '品类匹配', [
-          row(['921', '家居收纳', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['922', '美妆个护', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['923', '服饰配件', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['924', '宠物用品', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['925', '保健品', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] })
-        ]),
+          row(['921', '家居收纳', 'Home Storage', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['922', '美妆个护', 'Beauty & Personal Care', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['923', '服饰配件', 'Apparel & Accessories', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['924', '宠物用品', 'Pet Supplies', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['925', '保健品', 'Health Supplements', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] })
+        ], {
+          columnLabels: ['ID', '品类名称', '品类名称(英)', '状态', '更新时间', '操作人'],
+          columnOptions: { left: ['品类名称', '品类名称(英)', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 160, 220, 110, 180, 260] },
+          tableMinWidth: 1220,
+          fields: [
+            { key: 'c1', label: '品类名称', placeholder: '输入品类名称' },
+            { key: 'c2', label: '品类名称(英)', placeholder: '输入品类英文名称' },
+            { key: 'c3', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
+          ]
+        }),
         dictTab('bd', 'BD', [
           row(['669', '吴文锐 (wuwenrui@bestfulfill.com)', '启用', '2026-06-29 15:01:46', people.tan], { status: '启用', ops: ['编辑', '禁用'] }),
           row(['667', '程允良 (chengyunliang@bestfulfill.com)', '停用', '2026-06-29 14:59:29', people.tan], { status: '停用', ops: ['编辑', '启用'] }),
