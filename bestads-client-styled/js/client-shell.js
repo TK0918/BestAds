@@ -3,6 +3,7 @@
   const THEME_KEY = 'bestadsClientTheme';
   const activeTabByPage = {};
   const modalContext = {};
+  let openingHighlightApplyId = '';
 
   const menuConfig = [
     {
@@ -421,7 +422,7 @@
     const rows = data.rows || [];
     const columns = ['申请ID', '媒体', '投放信息', '账户数', '初始报价', '最终报价', '钱包扣款', '状态', '操作'];
     return renderTable(columns, rows, (row, index) => `
-      <tr>
+      <tr${row.applyId === openingHighlightApplyId ? ' id="opening-apply-highlight" class="is-highlight"' : ''}>
         <td>${html(row.applyId || '-')}</td>
         <td>${html(row.mediaChannel || '-')}</td>
         <td class="client-wrap-cell">
@@ -1397,12 +1398,22 @@
 
   function initShell() {
     const pageId = pageIdFromDocument();
+    if (pageId === 'operation-records') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      const applyId = params.get('applyId');
+      if (tab) activeTabByPage[pageId] = tab;
+      openingHighlightApplyId = applyId || '';
+    }
     applyLanguageToDocument();
     const shellMounted = renderShell(pageId);
     applyTheme(theme());
     if (!shellMounted) return;
     updateShellLabels(pageId);
     renderPage(pageId);
+    if (openingHighlightApplyId) {
+      document.getElementById('opening-apply-highlight')?.scrollIntoView({ block: 'center' });
+    }
     bindEvents(pageId);
   }
 

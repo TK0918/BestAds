@@ -732,6 +732,7 @@
     if (modal?.type === 'opening-rule-config') return openingRuleConfigModal(modal, row);
     if (modal?.type === 'opening-fee-config') return openingFeeConfigModal(modal);
     if (modal?.type === 'opening-apply-create') return openingApplyCreateModal(modal);
+    if (modal?.type === 'opening-email-preview') return openingEmailPreviewModal(modal);
     if (modal?.type === 'batch-debit') return batchDebitModal(modal);
     const fields = modal?.fields || [];
     const transferAttrs = fields.some(field => /transfer-card-select|transfer-warning/.test(field.control || '')) ? ' data-transfer-modal' : '';
@@ -1148,6 +1149,78 @@
       <div class="form-field full"><div class="opening-apply-estimate" aria-live="polite"><div><p class="opening-apply-estimate__title">预估开户费用</p><p class="opening-apply-estimate__desc">开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。</p><div class="opening-apply-estimate__breakdown"><span>开户费：<b data-opening-estimate-opening>-</b></span><span>首充（广告账户充值）：<b data-opening-estimate-precharge>-</b></span></div></div><div class="opening-apply-estimate__total"><span>合计</span><strong data-opening-estimate>-</strong></div></div></div>
       <label class="opening-apply-consent full"><input data-opening-auto-pay type="checkbox" checked><span>代客户确认：若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知客户确认。</span></label>
     </div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>提交申请</button></div></section></div>`;
+  }
+
+  const OPENING_CONFIRM_EMAIL_SAMPLE = {
+    customerName: 'test金额变动',
+    applyId: 'AO20260812008',
+    submittedAt: '2026-08-12 16:42:09',
+    openingRecordsUrl: '../../bestads-client-styled/operation-records.html?tab=opening&applyId=AO20260812008'
+  };
+
+  function openingConfirmEmailCopy(lang) {
+    const sample = OPENING_CONFIRM_EMAIL_SAMPLE;
+    if (lang === 'zh') {
+      return {
+        kicker: '开户通知',
+        subject: '请确认您的 BestAds 开户申请',
+        title: '请确认开户申请',
+        intro: `您好，${sample.customerName}。您有一笔 BestAds 开户申请待确认付款。请登录系统，进入操作记录中的开户记录查看最新信息并完成确认。出于安全考虑，本邮件不展示费用明细，具体金额请以 BestAds 系统为准。如您已完成确认，请忽略本邮件。`,
+        idLabel: '申请ID',
+        timeLabel: '申请时间',
+        cta: '前往开户记录',
+        footer: '本邮件由 BestAds 自动发送，请勿直接回复。'
+      };
+    }
+    return {
+      kicker: 'Account Opening',
+      subject: 'Action needed: please confirm your BestAds account opening request',
+      title: 'Please confirm your account opening request',
+      intro: `Hi ${sample.customerName}, your BestAds account opening request is ready for confirmation. Please sign in and open Opening Records to review the latest details and complete payment confirmation. For security, this email does not include fee details. Please confirm the amount in BestAds. If you have already completed confirmation, please ignore this email.`,
+      idLabel: 'Application ID',
+      timeLabel: 'Submitted at',
+      cta: 'Review Opening Records',
+      footer: 'This email was sent by BestAds. Please do not reply to this message.'
+    };
+  }
+
+  function openingConfirmEmailHtml(lang) {
+    const copy = openingConfirmEmailCopy(lang);
+    const sample = OPENING_CONFIRM_EMAIL_SAMPLE;
+    return `<article class="email-rendered">
+      <header class="email-rendered__brand">
+        <div class="email-rendered__logo">B</div>
+        <div><strong>BestAds</strong><span>${esc(copy.kicker)}</span></div>
+      </header>
+      <main class="email-rendered__body">
+        <p class="email-rendered__subject">${esc(copy.subject)}</p>
+        <h1>${esc(copy.title)}</h1>
+        <p class="email-rendered__intro">${esc(copy.intro)}</p>
+        <table class="opening-email-meta">
+          <tbody>
+            <tr><th>${esc(copy.idLabel)}</th><td>${esc(sample.applyId)}</td></tr>
+            <tr><th>${esc(copy.timeLabel)}</th><td>${esc(sample.submittedAt)}</td></tr>
+          </tbody>
+        </table>
+        <div class="email-rendered__actions">
+          <a class="email-rendered__cta" href="${esc(sample.openingRecordsUrl)}" target="_blank" rel="noopener noreferrer">${esc(copy.cta)}</a>
+        </div>
+      </main>
+      <footer class="email-rendered__footer">${esc(copy.footer)}</footer>
+    </article>`;
+  }
+
+  function openingEmailPreviewModal(modal) {
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '确认付款邮件原型')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-email-preview" data-opening-email-preview>
+      <div class="opening-email-toolbar">
+        <div class="opening-email-tabs">
+          <button class="is-active" type="button" data-opening-email-lang="en">English</button>
+          <button type="button" data-opening-email-lang="zh">中文</button>
+        </div>
+        <span class="muted">原型预览，不发送真实邮件</span>
+      </div>
+      <div class="opening-email-frame" data-opening-email-frame>${openingConfirmEmailHtml('en')}</div>
+    </div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>关闭</button></div></section></div>`;
   }
 
   function monitorFollowModal(modal, row) {
@@ -3348,6 +3421,17 @@
       }
     });
     document.body.addEventListener('click', event => {
+      const emailLang = event.target.closest('[data-opening-email-lang]');
+      if (emailLang) {
+        const root = emailLang.closest('[data-opening-email-preview]');
+        const lang = emailLang.dataset.openingEmailLang || 'en';
+        root?.querySelectorAll('[data-opening-email-lang]').forEach(button => {
+          button.classList.toggle('is-active', button === emailLang);
+        });
+        const frame = root?.querySelector('[data-opening-email-frame]');
+        if (frame) frame.innerHTML = openingConfirmEmailHtml(lang);
+        return;
+      }
       const modalMultiToggle = event.target.closest('.modal-backdrop [data-multiselect-toggle]');
       if (modalMultiToggle) {
         const current = modalMultiToggle.closest('[data-multiselect]');

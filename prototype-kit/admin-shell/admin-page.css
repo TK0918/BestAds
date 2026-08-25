@@ -442,3 +442,26 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 }
 
 .filter-grid--four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.opening-email-preview { display: grid; gap: 12px; }
+.opening-email-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.opening-email-tabs { display: inline-flex; align-items: center; padding: 2px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); }
+.opening-email-tabs button { height: 28px; padding: 0 12px; border: 0; border-radius: 3px; background: transparent; color: var(--admin-secondary); cursor: pointer; font: inherit; }
+.opening-email-tabs button.is-active { background: var(--admin-primary); color: #fff; }
+.opening-email-frame { display: grid; justify-items: center; padding: 20px; border: 1px solid var(--admin-border); border-radius: 6px; background: #e9edf3; }
+.email-rendered { width: 100%; max-width: 640px; border: 1px solid #d8dde8; border-radius: 6px; background: #fff; color: #1f2937; font-family: Arial, Helvetica, sans-serif; box-shadow: 0 10px 28px rgba(31, 41, 55, .12); overflow: hidden; }
+.email-rendered__brand { display: flex; align-items: center; gap: 12px; padding: 22px 28px; border-bottom: 1px solid #e5e7eb; background: #f8fafc; }
+.email-rendered__brand strong, .email-rendered__brand span { display: block; }
+.email-rendered__brand strong { font-size: 18px; line-height: 24px; color: #111827; }
+.email-rendered__brand span { margin-top: 2px; color: #6b7280; font-size: 12px; line-height: 18px; }
+.email-rendered__logo { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 4px; background: #006be6; color: #fff; font-size: 18px; font-weight: 700; }
+.email-rendered__body { padding: 28px; }
+.email-rendered__subject { margin: 0 0 12px; color: #006be6; font-size: 13px; line-height: 20px; font-weight: 600; }
+.email-rendered h1 { margin: 0 0 14px; color: #111827; font-size: 24px; line-height: 32px; font-weight: 700; }
+.email-rendered__intro { margin: 0; color: #4b5563; font-size: 14px; line-height: 22px; }
+.opening-email-meta { width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 13px; }
+.opening-email-meta th, .opening-email-meta td { padding: 10px; border: 1px solid #e5e7eb; text-align: left; line-height: 18px; }
+.opening-email-meta th { width: 160px; background: #f3f4f6; color: #4b5563; font-weight: 600; }
+.email-rendered__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.email-rendered__cta { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 18px; border-radius: 4px; background: #006be6; color: #fff; text-decoration: none; font-weight: 600; }
+.email-rendered__footer { padding: 16px 28px; border-top: 1px solid #e5e7eb; background: #f8fafc; color: #6b7280; font-size: 12px; line-height: 18px; }

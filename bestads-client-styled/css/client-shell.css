@@ -770,6 +770,11 @@ button {
   background: #fafcff;
 }
 
+.client-table tbody tr.is-highlight td,
+.client-table tbody tr.is-highlight:hover td {
+  background: #eef3ff;
+}
+
 .client-empty {
   height: 168px;
   display: flex;

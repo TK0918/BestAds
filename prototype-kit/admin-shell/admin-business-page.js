@@ -209,6 +209,7 @@
     ],
     actions: [
       { id: 'create', label: '新建开户申请', icon: 'plus', primary: true },
+      { id: 'email-preview', label: '邮件原型', icon: 'envelope' },
       { id: 'custom-fields', label: '自定义字段', icon: 'sliders-h', align: 'right' },
       { id: 'export', label: '导出数据', icon: 'download', primary: true, align: 'right' }
     ],
@@ -260,6 +261,7 @@
     ],
     modals: {
       '新建开户申请': { type: 'opening-apply-create', title: '新建开户申请' },
+      '邮件原型': { type: 'opening-email-preview', title: '确认付款邮件原型' },
       '审核开户': { type: 'opening-audit', title: '审核开户' },
       '审核报价': { type: 'opening-audit', title: '审核开户' },
       '登记开户结果': { type: 'opening-result', title: '登记开户结果' },
