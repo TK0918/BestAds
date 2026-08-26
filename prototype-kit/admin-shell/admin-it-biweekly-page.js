@@ -52,7 +52,7 @@
       { name: '打款', count: 1420, prevCount: 1310 },
       { name: '下户', count: 1288, prevCount: 1230 },
       { name: '首次账户充值', count: 1196, prevCount: 1110 },
-      { name: '首次账户消耗', count: 1084, prevCount: 1005 },
+      { name: '新客成交率（首次消耗）', count: 1084, prevCount: 1005 },
       { name: '累计消耗 1k', count: 742, prevCount: 690 },
       { name: '累计消耗 5k', count: 418, prevCount: 400 },
       { name: '累计消耗 10k', count: 286, prevCount: 260 },

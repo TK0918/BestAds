@@ -278,7 +278,7 @@ body.theme-dark .itb-tag-old { background: #34363b; color: var(--admin-muted); }
 
 .itb-funnel-legend {
   display: grid;
-  grid-template-columns: minmax(7em, 1.15fr) minmax(10em, 1.2fr) 5em minmax(10em, 1.2fr) 4.8em;
+  grid-template-columns: minmax(11em, 1.35fr) minmax(10em, 1.2fr) 5em minmax(10em, 1.2fr) 4.8em;
   grid-template-rows: 22px repeat(9, minmax(32px, 1fr));
   column-gap: 20px;
   row-gap: 6px;
