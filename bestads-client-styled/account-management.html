@@ -1320,11 +1320,20 @@
             <span class="form-title"><span data-i18n="apply_category">Delivery Category</span> <span style="color:var(--danger)">*</span></span>
             <select id="applyCategory" class="select">
               <option value="" data-i18n="placeholder_category">Please select category</option>
-              <option value="家居收纳" data-i18n="category_home_storage">Home Storage</option>
-              <option value="美妆个护" data-i18n="category_beauty">Beauty</option>
-              <option value="服饰配件" data-i18n="category_apparel">Apparel Accessories</option>
+              <option value="健身与运动" data-i18n="category_fitness_sports">Fitness & Sports</option>
+              <option value="母婴与亲子" data-i18n="category_baby_kids">Baby Kids & Parenting</option>
+              <option value="时尚与服装" data-i18n="category_fashion_apparel">Fashion & Apparel</option>
+              <option value="户外园艺与 DIY" data-i18n="category_outdoor_garden">Outdoor Garden & DIY</option>
+              <option value="玩具与游戏" data-i18n="category_toys_games">Toys & Games</option>
               <option value="宠物用品" data-i18n="category_pets">Pet Supplies</option>
-              <option value="保健品" data-i18n="category_supplements">Supplements</option>
+              <option value="电子产品与智能设备" data-i18n="category_electronics">Electronics & Smart Gadgets</option>
+              <option value="美妆与个护" data-i18n="category_beauty">Beauty & Personal Care</option>
+              <option value="汽配与工具" data-i18n="category_automotive">Automotive & Tools</option>
+              <option value="珠宝腕表与配饰" data-i18n="category_jewelry">Jewelry Watches & Accessories</option>
+              <option value="家居厨房与生活" data-i18n="category_home_living">Home Kitchen & Living</option>
+              <option value="口服健康保健与营养" data-i18n="category_oral_health">Oral Health Wellness & Nutrition</option>
+              <option value="非口服健康保健与营养" data-i18n="category_non_oral_health">Non-Oral Health Wellness & Nutrition</option>
+              <option value="其他" data-i18n="category_other">Other</option>
             </select>
           </label>
           <div class="quote-estimate full" aria-live="polite">
@@ -1668,11 +1677,20 @@
         apply_category: 'Delivery Category',
         apply_account_currency: 'Account Currency',
         placeholder_category: 'Please select category',
-        category_home_storage: 'Home Storage',
-        category_beauty: 'Beauty',
-        category_apparel: 'Apparel Accessories',
+        category_fitness_sports: 'Fitness & Sports',
+        category_baby_kids: 'Baby Kids & Parenting',
+        category_fashion_apparel: 'Fashion & Apparel',
+        category_outdoor_garden: 'Outdoor Garden & DIY',
+        category_toys_games: 'Toys & Games',
         category_pets: 'Pet Supplies',
-        category_supplements: 'Supplements',
+        category_electronics: 'Electronics & Smart Gadgets',
+        category_beauty: 'Beauty & Personal Care',
+        category_automotive: 'Automotive & Tools',
+        category_jewelry: 'Jewelry Watches & Accessories',
+        category_home_living: 'Home Kitchen & Living',
+        category_oral_health: 'Oral Health Wellness & Nutrition',
+        category_non_oral_health: 'Non-Oral Health Wellness & Nutrition',
+        category_other: 'Other',
         apply_estimated_quote: 'Estimated opening cost',
         apply_estimated_quote_desc: 'Opening fee is a one-time merchant fee in USD. Wallet total and actual deduction use the default wallet currency. Initial top-up equals min precharge times account count. Daily budget is only used for rule matching. If no rule matches, total shows - (pending review pricing). No deduction on submit. Final amount is subject to review.',
         apply_bm_ids: 'BM ID',
@@ -1823,11 +1841,20 @@
         apply_category: '投放品类',
         apply_account_currency: '账户币种',
         placeholder_category: '请选择投放品类',
-        category_home_storage: '家居收纳',
-        category_beauty: '美妆个护',
-        category_apparel: '服饰配件',
+        category_fitness_sports: '健身与运动',
+        category_baby_kids: '母婴与亲子',
+        category_fashion_apparel: '时尚与服装',
+        category_outdoor_garden: '户外园艺与 DIY',
+        category_toys_games: '玩具与游戏',
         category_pets: '宠物用品',
-        category_supplements: '保健品',
+        category_electronics: '电子产品与智能设备',
+        category_beauty: '美妆与个护',
+        category_automotive: '汽配与工具',
+        category_jewelry: '珠宝腕表与配饰',
+        category_home_living: '家居厨房与生活',
+        category_oral_health: '口服健康保健与营养',
+        category_non_oral_health: '非口服健康保健与营养',
+        category_other: '其他',
         apply_estimated_quote: '预估开户费用',
         apply_estimated_quote_desc: '开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。',
         apply_bm_ids: 'BM ID',
@@ -2047,12 +2074,12 @@
     window.BESTADS_CLIENT_WALLET = window.BESTADS_CLIENT_WALLET || { currency: 'USD', available: 5000 };
 
     const CLIENT_OPENING_RULES = [
-      { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['服饰配件', '家居收纳', '美妆个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
-      { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居收纳', '服饰配件'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
-      { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['保健品'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
-      { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆个护', '服饰配件', '家居收纳'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
+      { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['时尚与服装', '家居厨房与生活', '美妆与个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
+      { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居厨房与生活', '时尚与服装'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
+      { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['口服健康保健与营养', '非口服健康保健与营养', '其他'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
+      { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆与个护', '时尚与服装', '家居厨房与生活'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
       { mediaChannel: 'Google', priority: 50, countryMatch: ['美国', '英国', '加拿大'], categoryMatch: '全部', minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 500, currency: '不限' },
-      { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['服饰配件', '美妆个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
+      { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['时尚与服装', '美妆与个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
     ];
 
     function clientWalletCurrency() {
@@ -2759,7 +2786,7 @@
     if (document.getElementById('timezoneRows')) createTimezoneRow(false);
     if (document.getElementById('pageList')) createTextRow('pageList', t('placeholder_page'), false);
   </script>
-  <script src="./js/client-shell.js?v=20260818-opening-asset-ids"></script>
+  <script src="./js/client-shell.js?v=20260827-opening-categories"></script>
   <script src="./js/common.js?v=20260811-email-settings-simple-v3"></script>
 </body>
 </html>

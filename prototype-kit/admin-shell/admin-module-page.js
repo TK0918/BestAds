@@ -859,6 +859,14 @@
     return openingApplyCountries().map(item => `<option value="${esc(item)}"${item === current ? ' selected' : ''}>${esc(item)}</option>`).join('');
   }
 
+  function openingApplyCategories() {
+    return ['健身与运动', '母婴与亲子', '时尚与服装', '户外园艺与 DIY', '玩具与游戏', '宠物用品', '电子产品与智能设备', '美妆与个护', '汽配与工具', '珠宝腕表与配饰', '家居厨房与生活', '口服健康保健与营养', '非口服健康保健与营养', '其他'];
+  }
+
+  function openingApplyCategoryOptions() {
+    return `<option value="">请选择投放品类</option>${openingApplyCategories().map(item => `<option value="${esc(item)}">${esc(item)}</option>`).join('')}`;
+  }
+
   function openingWalletCurrency(merchantId) {
     const map = window.BESTADS_CUSTOMER_WALLET || {};
     return (map[String(merchantId)] || map.default || { currency: 'USD' }).currency;
@@ -1145,7 +1153,7 @@
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户币种</label><select data-opening-currency><option value="USD" selected>USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 日预算</label><div class="input-with-suffix"><input data-opening-budget type="text" inputmode="decimal" value="300" placeholder="请输入日预算"><span class="input-suffix" data-opening-budget-currency>USD</span></div></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户数</label><input data-opening-count type="text" inputmode="numeric" value="2" placeholder="请输入账户数"></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放品类</label><select data-opening-category><option value="">请选择投放品类</option><option value="家居收纳">家居收纳</option><option value="美妆个护">美妆个护</option><option value="服饰配件">服饰配件</option><option value="宠物用品">宠物用品</option><option value="保健品">保健品</option></select></div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放品类</label><select data-opening-category>${openingApplyCategoryOptions()}</select></div>
       <div class="form-field full"><div class="opening-apply-estimate" aria-live="polite"><div><p class="opening-apply-estimate__title">预估开户费用</p><p class="opening-apply-estimate__desc">开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。</p><div class="opening-apply-estimate__breakdown"><span>开户费：<b data-opening-estimate-opening>-</b></span><span>首充（广告账户充值）：<b data-opening-estimate-precharge>-</b></span></div></div><div class="opening-apply-estimate__total"><span>合计</span><strong data-opening-estimate>-</strong></div></div></div>
       <label class="opening-apply-consent full"><input data-opening-auto-pay type="checkbox" checked><span>代客户确认：若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知客户确认。</span></label>
     </div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>提交申请</button></div></section></div>`;

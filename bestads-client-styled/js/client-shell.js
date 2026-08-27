@@ -429,7 +429,7 @@
           <div class="client-cell-stack">
             <strong>${html(row.url || '-')}</strong>
             <span>${html([row.country, row.timezone].filter(Boolean).join(' · ') || '-')}</span>
-            <span>${html([row.dailyBudget, row.category].filter(Boolean).join(' · ') || '-')}</span>
+            <span>${html([row.dailyBudget, openingCategoryLabel(row.category)].filter(Boolean).join(' · ') || '-')}</span>
           </div>
         </td>
         <td>${html(row.accountCount || '-')}</td>
@@ -528,13 +528,41 @@
   window.BESTADS_WALLET_FX = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
   window.BESTADS_CLIENT_WALLET = window.BESTADS_CLIENT_WALLET || { currency: 'USD', available: 5000 };
 
+  const OPENING_CATEGORIES = [
+    { zh: '健身与运动', en: 'Fitness & Sports' },
+    { zh: '母婴与亲子', en: 'Baby Kids & Parenting' },
+    { zh: '时尚与服装', en: 'Fashion & Apparel' },
+    { zh: '户外园艺与 DIY', en: 'Outdoor Garden & DIY' },
+    { zh: '玩具与游戏', en: 'Toys & Games' },
+    { zh: '宠物用品', en: 'Pet Supplies' },
+    { zh: '电子产品与智能设备', en: 'Electronics & Smart Gadgets' },
+    { zh: '美妆与个护', en: 'Beauty & Personal Care' },
+    { zh: '汽配与工具', en: 'Automotive & Tools' },
+    { zh: '珠宝腕表与配饰', en: 'Jewelry Watches & Accessories' },
+    { zh: '家居厨房与生活', en: 'Home Kitchen & Living' },
+    { zh: '口服健康保健与营养', en: 'Oral Health Wellness & Nutrition' },
+    { zh: '非口服健康保健与营养', en: 'Non-Oral Health Wellness & Nutrition' },
+    { zh: '其他', en: 'Other' }
+  ];
+
+  function openingCategoryLabel(value) {
+    const item = OPENING_CATEGORIES.find((entry) => entry.zh === value);
+    if (!item) return value || '-';
+    return lang() === 'zh-CN' ? item.zh : item.en;
+  }
+
+  function openingCategoryOptions() {
+    const empty = lang() === 'zh-CN' ? '请选择投放品类' : 'Please select category';
+    return `<option value="">${html(empty)}</option>${OPENING_CATEGORIES.map((item) => `<option value="${html(item.zh)}">${html(openingCategoryLabel(item.zh))}</option>`).join('')}`;
+  }
+
   const CLIENT_OPENING_RULES = [
-    { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['服饰配件', '家居收纳', '美妆个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
-    { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居收纳', '服饰配件'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
-    { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['保健品'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
-    { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆个护', '服饰配件', '家居收纳'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
+    { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['时尚与服装', '家居厨房与生活', '美妆与个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
+    { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居厨房与生活', '时尚与服装'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
+    { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['口服健康保健与营养', '非口服健康保健与营养', '其他'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
+    { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆与个护', '时尚与服装', '家居厨房与生活'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
     { mediaChannel: 'Google', priority: 50, countryMatch: ['美国', '英国', '加拿大'], categoryMatch: '全部', minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 500, currency: '不限' },
-    { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['服饰配件', '美妆个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
+    { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['时尚与服装', '美妆与个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
   ];
 
   function clientWalletCurrency() {
@@ -806,12 +834,7 @@
         <label class="client-form-field">
           <span class="client-label">投放品类 <span class="client-required">*</span></span>
           <select class="client-select" data-opening-category>
-            <option value="">请选择投放品类</option>
-            <option value="家居收纳">家居收纳</option>
-            <option value="美妆个护">美妆个护</option>
-            <option value="服饰配件">服饰配件</option>
-            <option value="宠物用品">宠物用品</option>
-            <option value="保健品">保健品</option>
+            ${openingCategoryOptions()}
           </select>
         </label>
         <div class="client-opening-estimate full" aria-live="polite">
@@ -900,7 +923,7 @@
         readonlyItem('时区', row?.timezone),
         readonlyItem('日预算', row?.dailyBudget),
         readonlyItem('账户数', row?.accountCount),
-        readonlyItem('投放品类', row?.category),
+        readonlyItem('投放品类', openingCategoryLabel(row?.category)),
         readonlyItem('账户币种', row?.currency || 'USD')
       ])}
       ${readonlySection('报价与余额', [
@@ -928,7 +951,7 @@
         ${formInput('国家 / 时区', `${row.country || '-'} / ${row.timezone || '-'}`, false)}
         ${formInput('日预算', row.dailyBudget || '-', false)}
         ${formInput('账户数', row.accountCount || '-', false)}
-        ${formInput('投放品类', row.category || '-', false)}
+        ${formInput('投放品类', openingCategoryLabel(row.category) || '-', false)}
         ${formInput('账户币种', row.currency || 'USD', false)}
         ${formInput('初始报价', row.initialQuote || '-', false)}
         ${formInput('最终报价', row.finalQuote || '-', false)}

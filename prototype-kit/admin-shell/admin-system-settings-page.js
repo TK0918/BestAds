@@ -188,11 +188,20 @@
           ]
         }),
         dictTab('opening-category', '品类匹配', [
-          row(['921', '家居收纳', 'Home Storage', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['922', '美妆个护', 'Beauty & Personal Care', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['923', '服饰配件', 'Apparel & Accessories', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['924', '宠物用品', 'Pet Supplies', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
-          row(['925', '保健品', 'Health Supplements', '启用', '2026-08-14 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] })
+          row(['921', '健身与运动', 'Fitness & Sports', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['922', '母婴与亲子', 'Baby Kids & Parenting', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['923', '时尚与服装', 'Fashion & Apparel', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['924', '户外园艺与 DIY', 'Outdoor Garden & DIY', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['925', '玩具与游戏', 'Toys & Games', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['926', '宠物用品', 'Pet Supplies', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['927', '电子产品与智能设备', 'Electronics & Smart Gadgets', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['928', '美妆与个护', 'Beauty & Personal Care', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['929', '汽配与工具', 'Automotive & Tools', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['930', '珠宝腕表与配饰', 'Jewelry Watches & Accessories', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['931', '家居厨房与生活', 'Home Kitchen & Living', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['932', '口服健康保健与营养', 'Oral Health Wellness & Nutrition', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['933', '非口服健康保健与营养', 'Non-Oral Health Wellness & Nutrition', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] }),
+          row(['934', '其他', 'Other', '启用', '2026-08-27 10:16:08', people.ou], { status: '启用', ops: ['编辑', '禁用'] })
         ], {
           columnLabels: ['ID', '品类名称', '品类名称(英)', '状态', '更新时间', '操作人'],
           columnOptions: { left: ['品类名称', '品类名称(英)', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 160, 220, 110, 180, 260] },
