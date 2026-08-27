@@ -11,15 +11,15 @@
   const M = {
     fund: {
       current: {
-        net: 10951193.04, gross: 10954855.03, refund: 3661.99, refundN: 5, count: 2479, people: 452,
-        online: 610489.93, offline: 10344365.10,
-        newAmt: 1307939.09, oldAmt: 9643253.95, unknownAmt: 0,
+        net: 11004193.04, gross: 11039855.03, refund: 3661.99, refundN: 5, count: 2479, people: 452,
+        online: 610489.93, offline: 10344365.10, transferIn: 85000.00, transferOut: 32000.00,
+        newAmt: 1307939.09, oldAmt: 9696253.95, unknownAmt: 0,
         newPeople: 214, oldPeople: 238, newCount: 838, oldCount: 1641
       },
       prev: {
-        net: 10465753.56, gross: 10511150.74, refund: 45397.18, refundN: 6, count: 2395, people: 444,
-        online: 777434.01, offline: 9733716.73,
-        newAmt: 1198282.24, oldAmt: 9267471.32, unknownAmt: 0,
+        net: 10496753.56, gross: 10583150.74, refund: 45397.18, refundN: 6, count: 2395, people: 444,
+        online: 777434.01, offline: 9733716.73, transferIn: 72000.00, transferOut: 41000.00,
+        newAmt: 1198282.24, oldAmt: 9298471.32, unknownAmt: 0,
         newPeople: 208, oldPeople: 236, newCount: 763, oldCount: 1632
       }
     },
@@ -231,7 +231,7 @@
     const groups = [
       {
         title: '钱包净入账',
-        desc: '在线 + 线下 − 转账审核退回',
+        desc: '在线 + 线下 − 转账审核退回 + 调拨转入 − 调拨转出',
         cur: M.fund.current.net,
         prev: M.fund.prev.net,
         wowv: wow(M.fund.current.net, M.fund.prev.net),
@@ -241,7 +241,7 @@
           { label: '总入账次数', val: num(M.fund.current.count), w: wow(M.fund.current.count, M.fund.prev.count) },
           { label: '总入账商户ID数', val: num(M.fund.current.people), w: wow(M.fund.current.people, M.fund.prev.people) }
         ],
-        note: '毛入账 ' + money(M.fund.current.gross) + '<br>线下 ' + money(M.fund.current.offline) + ' · 在线 ' + money(M.fund.current.online)
+        note: '毛入账 ' + money(M.fund.current.gross) + '<br>线下 ' + money(M.fund.current.offline) + ' · 在线 ' + money(M.fund.current.online) + '<br>调拨转入 ' + money(M.fund.current.transferIn) + ' · 调拨转出 ' + money(M.fund.current.transferOut)
       },
       {
         title: '广告账户净充值',
