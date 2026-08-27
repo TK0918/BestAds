@@ -292,110 +292,6 @@
     autoRechargeUrl: '../../bestads-client-styled/auto-recharge-rules.html'
   };
 
-  const templateSampleProfiles = [
-    {
-      key: 'runway',
-      name: '续航不足样例',
-      values: {
-        customerName: 'Zephyr Commerce',
-        merchantId: '14229',
-        walletBalance: '$2,864.50',
-        adAccountName: 'FB-8921 | Zephyr-US-Main',
-        adAccountBalance: '$126.40',
-        riskAccountCount: '2',
-        estimatedDaysLeft: '2.7',
-        avgDailySpend: '$46.80',
-        last7DaysSpend: '$7,420.00',
-        suggestedTopUpAmount: '$1,500.00',
-        rechargeAmount: '$1,000.00',
-        walletShortfall: '$713.88',
-        forecastDemand: '$3,200.00',
-        failureReason: 'Wallet balance is insufficient',
-        triggerTime: '2026-08-13 10:18:42',
-        rechargeOrderNo: 'AO20260813042',
-        creditedAmount: '$5,000.00',
-        paymentMethod: 'Online top-up',
-        creditedTime: '2026-08-13 11:22:08'
-      }
-    },
-    {
-      key: 'shortfall',
-      name: '钱包不足样例',
-      values: {
-        customerName: 'Umair-Simos',
-        merchantId: '13185',
-        walletBalance: '$286.12',
-        adAccountName: 'FB-7742 | Umair-Scale',
-        adAccountBalance: '$54.70',
-        riskAccountCount: '3',
-        estimatedDaysLeft: '1.4',
-        avgDailySpend: '$39.10',
-        last7DaysSpend: '$5,980.00',
-        suggestedTopUpAmount: '$2,000.00',
-        rechargeAmount: '$1,000.00',
-        walletShortfall: '$713.88',
-        forecastDemand: '$2,600.00',
-        failureReason: 'Wallet balance is insufficient',
-        triggerTime: '2026-08-13 09:44:16',
-        rechargeOrderNo: 'AO20260813031',
-        creditedAmount: '$2,000.00',
-        paymentMethod: 'Offline transfer',
-        creditedTime: '2026-08-13 16:04:51'
-      }
-    },
-    {
-      key: 'failure',
-      name: '充值失败样例',
-      values: {
-        customerName: 'Tobias Brand',
-        merchantId: '12816',
-        walletBalance: '$4,208.22',
-        adAccountName: 'FB-3370 | Tobias-Remarketing',
-        adAccountBalance: '$19.08',
-        riskAccountCount: '1',
-        estimatedDaysLeft: '0.8',
-        avgDailySpend: '$23.85',
-        last7DaysSpend: '$4,860.00',
-        suggestedTopUpAmount: '$800.00',
-        rechargeAmount: '$800.00',
-        walletShortfall: '$0.00',
-        forecastDemand: '$1,400.00',
-        failureReason: 'Media account recharge rejected',
-        triggerTime: '2026-08-12 22:08:07',
-        rechargeOrderNo: 'AO20260812018',
-        creditedAmount: '$0.00',
-        paymentMethod: 'Wallet balance',
-        creditedTime: '-'
-      }
-    },
-    {
-      key: 'credited',
-      name: '钱包到账样例',
-      values: {
-        customerName: 'WFRS Brand',
-        merchantId: '12013',
-        walletBalance: '$7,864.50',
-        adAccountName: 'FB-9016 | WFRS-US',
-        adAccountBalance: '$312.48',
-        riskAccountCount: '1',
-        estimatedDaysLeft: '5.2',
-        avgDailySpend: '$60.10',
-        last7DaysSpend: '$3,780.00',
-        suggestedTopUpAmount: '$1,000.00',
-        rechargeAmount: '$1,000.00',
-        walletShortfall: '$0.00',
-        forecastDemand: '$1,800.00',
-        failureReason: '-',
-        triggerTime: '2026-08-13 10:11:03',
-        rechargeOrderNo: 'AO20260813025',
-        creditedAmount: '$5,000.00',
-        paymentMethod: 'Online top-up',
-        creditedTime: '2026-08-13 11:22:08'
-      }
-    }
-  ];
-
-  let activeSampleProfile = templateSampleProfiles[0];
   let activePreviewLanguage = 'en';
 
   const templatePreviewTables = {
@@ -637,7 +533,7 @@
   }
 
   function renderSampleText(text) {
-    const values = { ...templateSampleValues, ...(activeSampleProfile?.values || {}) };
+    const values = { ...templateSampleValues };
     return String(text || '').replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (_, key) => values[key] || `{{${key}}}`);
   }
 
@@ -758,9 +654,6 @@
             </div>
           </div>
           <div class="template-preview-tools">
-            <select data-preview-sample>
-              ${templateSampleProfiles.map(item => `<option value="${esc(item.key)}"${item.key === activeSampleProfile.key ? ' selected' : ''}>${esc(item.name)}</option>`).join('')}
-            </select>
             <button class="btn btn-default" type="button" data-action="refresh-template-preview"><i class="fas fa-rotate"></i>刷新预览</button>
           </div>
         </div>
@@ -815,10 +708,6 @@
     frame.innerHTML = renderEmailPreview(draft, frame.dataset.previewMode || (editor ? 'edit' : 'preview'));
   }
 
-  function setActiveSampleProfile(key) {
-    activeSampleProfile = templateSampleProfiles.find(item => item.key === key) || templateSampleProfiles[0];
-  }
-
   function renderEmailPreview(draft, mode = 'preview') {
     const content = previewContent(draft);
     const tableData = previewTableFor(content.sceneKey, activePreviewLanguage);
@@ -866,7 +755,7 @@
   }
 
   function previewTableFor(sceneKey, language = 'en') {
-    const values = { ...templateSampleValues, ...(activeSampleProfile?.values || {}) };
+    const values = { ...templateSampleValues };
     if (language === 'zh') {
       const zhDefaults = {
         account_runway: {
@@ -955,7 +844,7 @@
     return `<div class="form-grid">
       <div class="form-field full"><label>测试收件邮箱</label><input value="product-review@bestfulfill.com"></div>
       <div class="form-field full"><label>测试模板</label><input value="${esc(template.id)} / ${esc(template.name)}" disabled></div>
-      <div class="form-field full"><label>样例变量</label><textarea rows="8">${esc(JSON.stringify(activeSampleProfile.values, null, 2))}</textarea></div>
+      <div class="form-field full"><label>样例变量</label><textarea rows="8">${esc(JSON.stringify(templateSampleValues, null, 2))}</textarea></div>
     </div>`;
   }
 
@@ -1207,10 +1096,6 @@
       if (event.target.matches('[data-range-start], [data-range-end]')) {
         readUsageFilters();
         renderUsage();
-      }
-      if (event.target.matches('[data-preview-sample]')) {
-        setActiveSampleProfile(event.target.value);
-        refreshTemplatePreview();
       }
       if (event.target.matches('[data-template-input]')) {
         if (event.target.dataset.templateInput === 'sceneKey') {
