@@ -18,7 +18,8 @@
     { key: 'wallet_shortfall_predict', name: '钱包不足·预测', category: '钱包不足·预测', color: '#f59e0b' },
     { key: 'auto_recharge_fail', name: '自动充失败', category: '自动充失败', color: '#ef4444' },
     { key: 'account_recharge_fail', name: '账户充失败', category: '账户充失败', color: '#8b5cf6' },
-    { key: 'wallet_credited', name: '钱包到账', category: '钱包到账', color: '#06b6d4' }
+    { key: 'wallet_credited', name: '钱包到账', category: '钱包到账', color: '#06b6d4' },
+    { key: 'clear_reduce_success', name: '清零/减款成功', category: '清零/减款成功', color: '#14b8a6' }
   ];
 
   const previewLanguages = [
@@ -228,6 +229,39 @@
         ctaUrl: '{{walletManagementUrl}}',
         footer: '您可以使用钱包余额进行广告账户充值。'
       }
+    },
+    clear_reduce_success: {
+      name: 'Ad account clear / deduction completed',
+      subject: '{{operationType}} completed for {{adAccountName}}',
+      preheader: '{{refundedAmount}} has been returned to your BestAds wallet.',
+      title: 'Ad account {{operationType}} completed',
+      intro: 'Hi {{customerName}}, the {{operationType}} request for {{adAccountName}} has been completed. The corresponding amount has been returned to your BestAds wallet. You can review the record in BestAds.',
+      metricOneLabel: 'Operation type',
+      metricOneValue: '{{operationType}}',
+      metricTwoLabel: 'Amount returned',
+      metricTwoValue: '{{refundedAmount}}',
+      metricThreeLabel: 'Wallet balance',
+      metricThreeValue: '{{walletBalance}}',
+      tableTitle: 'Operation record',
+      ctaText: 'View Operation Records',
+      ctaUrl: '{{operationRecordsUrl}}',
+      footer: 'Funds returned to the wallet can be used for ad account recharge.',
+      zh: {
+        subject: '{{adAccountName}} 广告账户{{operationType}}成功',
+        preheader: '{{refundedAmount}} 已退回您的 BestAds 钱包。',
+        title: '广告账户{{operationType}}已完成',
+        intro: '您好，{{customerName}}。广告账户 {{adAccountName}} 的{{operationType}}已完成，对应金额已退回 BestAds 钱包。您可以在 BestAds 查看操作记录。',
+        metricOneLabel: '操作类型',
+        metricOneValue: '{{operationType}}',
+        metricTwoLabel: '退回钱包金额',
+        metricTwoValue: '{{refundedAmount}}',
+        metricThreeLabel: '钱包余额',
+        metricThreeValue: '{{walletBalance}}',
+        tableTitle: '操作记录',
+        ctaText: '查看操作记录',
+        ctaUrl: '{{operationRecordsUrl}}',
+        footer: '退回钱包的金额可用于广告账户充值。'
+      }
     }
   };
 
@@ -237,7 +271,8 @@
     templateRow('TPL-ADS-003', 'wallet_shortfall_predict', '启用', '是', '草稿', '李志伟', '2026-08-12 18:26:41'),
     templateRow('TPL-ADS-004', 'auto_recharge_fail', '启用', '是', '已发布', '欧伟权', '2026-08-12 15:08:49'),
     templateRow('TPL-ADS-005', 'account_recharge_fail', '启用', '是', '已发布', '王荣荣', '2026-08-12 14:53:20'),
-    templateRow('TPL-ADS-006', 'wallet_credited', '启用', '是', '已发布', '程允良', '2026-08-13 11:18:32')
+    templateRow('TPL-ADS-006', 'wallet_credited', '启用', '是', '已发布', '程允良', '2026-08-13 11:18:32'),
+    templateRow('TPL-ADS-007', 'clear_reduce_success', '启用', '是', '已发布', '欧伟权', '2026-08-31 10:20:16')
   ];
 
   const templateVariables = [
@@ -260,10 +295,16 @@
     { token: '{{creditedAmount}}', label: '到账金额', scenes: ['wallet_credited'] },
     { token: '{{paymentMethod}}', label: '付款方式', scenes: ['wallet_credited'] },
     { token: '{{creditedTime}}', label: '到账时间', scenes: ['wallet_credited'] },
+    { token: '{{operationType}}', label: '操作类型', scenes: ['clear_reduce_success'] },
+    { token: '{{operationAmount}}', label: '操作金额', scenes: ['clear_reduce_success'] },
+    { token: '{{refundedAmount}}', label: '退回钱包金额', scenes: ['clear_reduce_success'] },
+    { token: '{{operationOrderNo}}', label: '单据号', scenes: ['clear_reduce_success'] },
+    { token: '{{completedTime}}', label: '完成时间', scenes: ['clear_reduce_success'] },
     { token: '{{accountManagementUrl}}', label: '账户管理链接', scenes: ['account_runway'] },
     { token: '{{walletManagementUrl}}', label: '钱包管理链接', scenes: ['wallet_shortfall_event', 'wallet_shortfall_predict', 'wallet_credited'] },
     { token: '{{rechargeRecordsUrl}}', label: '充值记录链接', scenes: ['auto_recharge_fail', 'account_recharge_fail'] },
-    { token: '{{autoRechargeUrl}}', label: '自动充值链接', scenes: ['auto_recharge_fail'] }
+    { token: '{{autoRechargeUrl}}', label: '自动充值链接', scenes: ['auto_recharge_fail'] },
+    { token: '{{operationRecordsUrl}}', label: '操作记录链接', scenes: ['clear_reduce_success'] }
   ];
 
   const templateSampleValues = {
@@ -286,10 +327,16 @@
     creditedAmount: '$5,000.00',
     paymentMethod: 'Online top-up',
     creditedTime: '2026-08-13 11:22:08',
+    operationType: 'Clear',
+    operationAmount: '$126.40',
+    refundedAmount: '$126.40',
+    operationOrderNo: 'CL20260831018',
+    completedTime: '2026-08-31 10:18:42',
     accountManagementUrl: '../../bestads-client-styled/account-management.html',
     walletManagementUrl: '../../bestads-client-styled/wallet.html',
     rechargeRecordsUrl: '../../bestads-client-styled/operation-records.html',
-    autoRechargeUrl: '../../bestads-client-styled/auto-recharge-rules.html'
+    autoRechargeUrl: '../../bestads-client-styled/auto-recharge-rules.html',
+    operationRecordsUrl: '../../bestads-client-styled/operation-records.html'
   };
 
   let activePreviewLanguage = 'en';
@@ -318,6 +365,10 @@
     wallet_credited: {
       headers: ['Transaction', 'Credited amount', 'Wallet balance'],
       rows: [['Online top-up W20260813009', '$5,000.00', '$7,864.50']]
+    },
+    clear_reduce_success: {
+      headers: ['Order', 'Ad account', 'Operation', 'Amount returned'],
+      rows: [['CL20260831018', 'FB-8921 | Zephyr-US-Main', 'Clear', '$126.40']]
     }
   };
 
@@ -329,7 +380,8 @@
     { time: '2026-08-11 10:35:18', scene: '钱包到账', merchant: '1128', customer: 'adstest', recipient: 'a***@test.com', status: '受理失败', reason: 'Sender domain daily limit', messageId: '-', template: 'TPL-ADS-006', operator: 'system' },
     { time: '2026-08-11 09:21:46', scene: '账户充失败', merchant: '14606', customer: 'BestAds接口测试', recipient: 'b***@merchant.com', status: '已抑制', reason: '无可用通知邮箱', messageId: '-', template: 'TPL-ADS-005', operator: 'system' },
     { time: '2026-08-10 22:12:07', scene: '自动充失败', merchant: '13249', customer: '产品验收0112', recipient: 'p***@shop.com', status: '受理成功', reason: '-', messageId: 'M01-20260810221207-770923', template: 'TPL-ADS-004', operator: 'system' },
-    { time: '2026-08-10 18:02:54', scene: '钱包不足·预测', merchant: '12816', customer: 'Tobias', recipient: 't***@brand.com', status: '已抑制', reason: '钱包不足·预测已关闭', messageId: '-', template: 'TPL-ADS-003', operator: 'system' }
+    { time: '2026-08-10 18:02:54', scene: '钱包不足·预测', merchant: '12816', customer: 'Tobias', recipient: 't***@brand.com', status: '已抑制', reason: '钱包不足·预测已关闭', messageId: '-', template: 'TPL-ADS-003', operator: 'system' },
+    { time: '2026-08-31 10:18:42', scene: '清零/减款成功', merchant: '14229', customer: 'Zephyr Commerce', recipient: 'm***@zephyr.com', status: '受理成功', reason: '-', messageId: 'M01-20260831101842-441208', template: 'TPL-ADS-007', operator: 'system' }
   ];
 
   const merchants = [
@@ -392,7 +444,8 @@
       wallet_shortfall_predict: 4,
       auto_recharge_fail: 2,
       account_recharge_fail: 1,
-      wallet_credited: 6
+      wallet_credited: 6,
+      clear_reduce_success: 2
     };
     for (let date = new Date(start), index = 0; date <= end; date.setDate(date.getDate() + 1), index += 1) {
       const iso = date.toISOString().slice(0, 10);
@@ -534,6 +587,9 @@
 
   function renderSampleText(text) {
     const values = { ...templateSampleValues };
+    if (activePreviewLanguage === 'zh') {
+      values.operationType = '清零';
+    }
     return String(text || '').replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (_, key) => values[key] || `{{${key}}}`);
   }
 
@@ -788,6 +844,10 @@
         wallet_credited: {
           headers: ['到账类型', '到账金额', '到账时间', '钱包余额'],
           rows: [[values.paymentMethod, values.creditedAmount, values.creditedTime, values.walletBalance]]
+        },
+        clear_reduce_success: {
+          headers: ['单据号', '广告账户', '操作类型', '操作金额', '退回钱包金额', '完成时间'],
+          rows: [[values.operationOrderNo, values.adAccountName, '清零', values.operationAmount, values.refundedAmount, values.completedTime]]
         }
       };
       return zhDefaults[sceneKey] || zhDefaults.account_runway;
@@ -823,6 +883,10 @@
       wallet_credited: {
         headers: ['Payment method', 'Credited amount', 'Credited time', 'Wallet balance'],
         rows: [[values.paymentMethod, values.creditedAmount, values.creditedTime, values.walletBalance]]
+      },
+      clear_reduce_success: {
+        headers: ['Order', 'Ad account', 'Operation type', 'Requested amount', 'Amount returned', 'Completed at'],
+        rows: [[values.operationOrderNo, values.adAccountName, values.operationType, values.operationAmount, values.refundedAmount, values.completedTime]]
       }
     };
     return defaults[sceneKey] || templatePreviewTables[sceneKey] || defaults.account_runway;
@@ -1226,7 +1290,7 @@
       .email-trend__bar:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(31,41,55,.16)}
       .email-trend__bar i{display:block;width:100%;transition:filter .16s ease,opacity .16s ease}.email-trend__bar i:hover{filter:brightness(1.12)}.email-trend__day span{color:var(--admin-muted);font-size:12px}
       .email-trend-xaxis{position:absolute;right:8px;bottom:0;color:var(--admin-muted);font-size:12px}
-      .scene-account_runway{background:#2f6bff}.scene-wallet_shortfall_event{background:#16a34a}.scene-wallet_shortfall_predict{background:#f59e0b}.scene-auto_recharge_fail{background:#ef4444}.scene-account_recharge_fail{background:#8b5cf6}.scene-wallet_credited{background:#06b6d4}
+      .scene-account_runway{background:#2f6bff}.scene-wallet_shortfall_event{background:#16a34a}.scene-wallet_shortfall_predict{background:#f59e0b}.scene-auto_recharge_fail{background:#ef4444}.scene-account_recharge_fail{background:#8b5cf6}.scene-wallet_credited{background:#06b6d4}.scene-clear_reduce_success{background:#14b8a6}
       .email-merchant-bars{display:grid;gap:12px}.email-merchant-bars div{display:grid;grid-template-columns:180px minmax(0,1fr)64px;gap:12px;align-items:center}.email-merchant-bars span{color:var(--admin-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.email-merchant-bars i{height:12px;border-radius:999px;background:color-mix(in srgb,var(--admin-page-bg) 82%,var(--admin-surface));overflow:hidden}.email-merchant-bars b{display:block;height:100%;border-radius:inherit;background:var(--admin-primary)}.email-merchant-bars em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
       [data-tooltip]{position:relative}
       [data-tooltip]:hover::after{content:attr(data-tooltip);position:absolute;z-index:50;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);max-width:260px;padding:7px 10px;border-radius:4px;background:rgba(17,24,39,.94);color:#fff;font-size:12px;line-height:18px;white-space:nowrap;box-shadow:0 8px 18px rgba(0,0,0,.18)}

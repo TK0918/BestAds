@@ -289,6 +289,7 @@ function mountClientEmailSettingsModal() {
             ${emailToggleItem('自动充失败', '自动充值失败，且原因不是钱包不足', true)}
             ${emailToggleItem('账户充失败', '手动账户充值提交后链路失败', true)}
             ${emailToggleItem('钱包到账', '在线充值成功或转账审核通过后入账', true)}
+            ${emailToggleItem('清零/减款成功', '广告账户清零或减款成功后，余额已退回钱包', true)}
           </div>
         </section>
       </div>
