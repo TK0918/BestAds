@@ -8,7 +8,8 @@
   const root = document.getElementById('page-root');
   if (!root) return;
 
-  // 8 月 18 日三张 KPI 只来自第一份飞书明细；9 月 1 日只来自第二份。漏斗仍是占位，不入 KPI。
+  // 8 月 18 日三张 KPI 只来自第一份飞书明细；9 月 1 日只来自第二份。
+  // 漏斗来自第二份表「客户生命周期」事件日期，按各时点截断；源表无首次账户充值日期，该层不统计。
   const KPI = {
     '2026-08-18': {
       fund: {
@@ -92,18 +93,30 @@
     }
   };
 
-  const M = {
-    funnel: [
-      { name: '注册', count: 1864, prevCount: 1764 },
-      { name: '打款', count: 1420, prevCount: 1310 },
-      { name: '下户', count: 1288, prevCount: 1230 },
-      { name: '首次账户充值', count: 1196, prevCount: 1110 },
-      { name: '新客成交率（首次消耗）', count: 1084, prevCount: 1005 },
-      { name: '累计消耗 1k', count: 742, prevCount: 690 },
-      { name: '累计消耗 5k', count: 418, prevCount: 400 },
-      { name: '累计消耗 10k', count: 286, prevCount: 260 },
-      { name: '累计消耗 100k', count: 52, prevCount: 48 }
+  const FUNNEL = {
+    '2026-08-18': [
+      { name: '注册', count: 943, prevCount: 901 },
+      { name: '打款', count: 821, prevCount: 774 },
+      { name: '下户', count: 820, prevCount: 772 },
+      { name: '新客成交率（首次消耗）', count: 717, prevCount: 673 },
+      { name: '累计消耗 1k', count: 428, prevCount: 406 },
+      { name: '累计消耗 5k', count: 219, prevCount: 200 },
+      { name: '累计消耗 10k', count: 155, prevCount: 137 },
+      { name: '累计消耗 100k', count: 29, prevCount: 28 }
     ],
+    '2026-09-01': [
+      { name: '注册', count: 988, prevCount: 943 },
+      { name: '打款', count: 861, prevCount: 821 },
+      { name: '下户', count: 868, prevCount: 820 },
+      { name: '新客成交率（首次消耗）', count: 750, prevCount: 717 },
+      { name: '累计消耗 1k', count: 447, prevCount: 428 },
+      { name: '累计消耗 5k', count: 235, prevCount: 219 },
+      { name: '累计消耗 10k', count: 170, prevCount: 155 },
+      { name: '累计消耗 100k', count: 33, prevCount: 29 }
+    ]
+  };
+
+  const M = {
     up: [
       { name: 'Arthur-10', neu: false, spendPrev: 361492.91, spendCur: 506609.51, spendDelta: 145116.60, fundPrev: 303517.25, fundCur: 586968.84, recPrev: 360998.30, recCur: 562238.96 },
       { name: 'Saamir Mithwani', neu: false, spendPrev: 229360.54, spendCur: 343023.93, spendDelta: 113663.39, fundPrev: 130000.00, fundCur: 220000.00, recPrev: 219000.00, recCur: 335867.55 },
@@ -153,14 +166,16 @@
     };
   };
   const newCustomerCutoff = (periodEnd) => new Date(periodEnd.getFullYear(), periodEnd.getMonth() - 6, 1);
-  const kpiFor = (statDate) => {
-    const dates = Object.keys(KPI).sort();
+  const snapshotFor = (table, statDate) => {
+    const dates = Object.keys(table).sort();
     let key = dates[0];
     dates.forEach((d) => {
       if (d <= statDate) key = d;
     });
-    return KPI[key];
+    return table[key];
   };
+  const kpiFor = (statDate) => snapshotFor(KPI, statDate);
+  const funnelFor = (statDate) => snapshotFor(FUNNEL, statDate);
   const footnoteText = (statDate) => {
     const w = windowsFromStatDate(statDate);
     const cutoff = newCustomerCutoff(w.currentEnd);
@@ -173,7 +188,7 @@
   const funnelHintText = (statDate) => {
     const w = windowsFromStatDate(statDate);
     const yearStart = `${parseDate(statDate).getFullYear()}-01-01`;
-    return `人群为 ${yearStart} 至各时点已注册的商户ID。对比 ${formatYMD(w.prevEnd)} 与 ${formatYMD(w.currentEnd)}。商户ID数看上期 → 本期及数量变化；整体看上期 → 本期转化率及百分点变化。`;
+    return `人群为 ${yearStart} 至各时点已注册的商户ID。对比 ${formatYMD(w.prevEnd)} 与 ${formatYMD(w.currentEnd)}。商户ID数看上期 → 本期及数量变化；整体看上期 → 本期转化率及百分点变化。源表无首次账户充值日期，该层未统计。`;
   };
   const signedInt = (n) => (n > 0 ? '+' : '') + num(n);
   const ppDelta = (curRate, prevRate) => {
@@ -411,7 +426,7 @@
   }
 
   function renderFunnel() {
-    const stages = M.funnel;
+    const stages = funnelFor(document.getElementById('itbStatDate').value || DEFAULT_DATE);
     const base = stages[0] ? stages[0].count : 0;
     const prevBase = stages[0] ? stages[0].prevCount : 0;
     const rateValue = (part, total) => (total ? part / total : null);
