@@ -1,3 +1,32 @@
+#### 2026-09-01 - IT双周会 KPI 改回两份飞书原表各自汇总
+
+8 月 18 日三张卡只按第一份明细统计，9 月 1 日只按第二份统计；去掉把后一份重叠窗口套到前一期的做法。漏斗仍是占位 Mock。`SHELL_VERSION` 升为 `20260901-it-biweekly-source-only`。
+
+#### 2026-09-01 - IT双周会对齐重叠窗口 KPI
+
+8 月 18 日本期与 9 月 1 日上期同为 08-04~08-17，改用同一份飞书明细；去掉 8 月 18 日快照里为展示口径临时加的 Mock 调拨。`SHELL_VERSION` 升为 `20260901-it-biweekly-window-align`。
+
+#### 2026-09-01 - IT双周会支持切换 8 月 18 日与 9 月 1 日两套 KPI
+
+切统计日期时三张 KPI 卡按快照重算：`2026-08-18` 为上一期数据，`2026-09-01` 为本次飞书明细。漏斗数字不变，底部窗口说明仍随日期变化。`SHELL_VERSION` 升为 `20260901-it-biweekly-date-switch`。
+
+#### 2026-09-01 - IT双周会三张 KPI 按 9 月 1 日窗口重算
+
+按飞书「9月1日广告双周数据」明细重算钱包净入账、广告账户净充值、广告账户消耗。统计日期 D = 2026-09-01，本期 08-18 至 08-31，上期 08-04 至 08-17。净入账含调拨转入 / 调拨转出；客户生命周期漏斗数字不变。`SHELL_VERSION` 升为 `20260901-it-biweekly-sep1-kpi`。
+
+#### 2026-09-01 - 运营端新增「一代资金核对」原型
+
+财务把代理后台导出跟系统充值/减款/清零核对的工作台。菜单在「主要功能 → 代理管理」下新增「一代资金核对」「核对规则」，不改其它业务页内容和交互。`SHELL_VERSION` 升为 `20260901-agency-recon1`。
+
+- 新增：`admin-system/main-functions/agency-recon.html`
+- 新增：`admin-system/main-functions/agency-recon-rules.html`
+- 新增：`prototype-kit/admin-shell/admin-agency-recon-page.js`
+- 更新：`prototype-kit/admin-shell/admin-menu.js`
+- 更新：`prototype-kit/admin-shell/admin-shell.js`
+- 更新：`prototype-kit/admin-shell/admin-module-page.js`
+
+---
+
 #### 2026-09-01 - 总览筛选增加 BD / AM
 
 运营端「客户预估税费&预收池总览」筛选在客户名称后增加 BD、AM 下拉，与列表归属列一致。`SHELL_VERSION` 升为 `20260901-location-fee9`。`PRD/V 2.45 地区税费增量.md` 升至 v0.3。

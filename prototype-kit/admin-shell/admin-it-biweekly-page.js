@@ -8,45 +8,91 @@
   const root = document.getElementById('page-root');
   if (!root) return;
 
+  // 8 月 18 日三张 KPI 只来自第一份飞书明细；9 月 1 日只来自第二份。漏斗仍是占位，不入 KPI。
+  const KPI = {
+    '2026-08-18': {
+      fund: {
+        current: {
+          net: 10951194.19, gross: 10954857.18, refund: 3661.99, refundN: 5, count: 2479, people: 452,
+          online: 610489.93, offline: 10344365.10, transferIn: 2.15, transferOut: 1.00,
+          newAmt: 1307939.09, oldAmt: 9643255.10, unknownAmt: 0,
+          newPeople: 214, oldPeople: 238, newCount: 838, oldCount: 1641
+        },
+        prev: {
+          net: 10465753.56, gross: 10511150.74, refund: 45397.18, refundN: 6, count: 2395, people: 444,
+          online: 777434.01, offline: 9733716.73, transferIn: 0, transferOut: 0,
+          newAmt: 1198282.24, oldAmt: 9267471.32, unknownAmt: 0,
+          newPeople: 208, oldPeople: 236, newCount: 763, oldCount: 1632
+        }
+      },
+      rec: {
+        current: {
+          net: 11638269.58, recharge: 11752153.91, clear: 95819.48, reduce: 18064.85, count: 5752, people: 490,
+          newAmt: 1677045.27, oldAmt: 9961224.31, unknownAmt: 0,
+          newPeople: 227, oldPeople: 263, newCount: 1466, oldCount: 4286
+        },
+        prev: {
+          net: 10998699.69, recharge: 11300396.69, clear: 252806.86, reduce: 48890.14, count: 5616, people: 486,
+          newAmt: 1520921.12, oldAmt: 9477778.57, unknownAmt: 0,
+          newPeople: 219, oldPeople: 267, newCount: 1365, oldCount: 4251
+        }
+      },
+      spend: {
+        current: {
+          amount: 11835794.46, people: 549, accounts: 1015,
+          newAmt: 1984755.57, oldAmt: 9844228.03, unknownAmt: 6810.86,
+          newPeople: 258, oldPeople: 291, newAccounts: 358, oldAccounts: 657
+        },
+        prev: {
+          amount: 11299859.04, people: 554, accounts: 1045,
+          newAmt: 1839657.92, oldAmt: 9452483.17, unknownAmt: 7717.95,
+          newPeople: 256, oldPeople: 298, newAccounts: 358, oldAccounts: 687
+        }
+      }
+    },
+    '2026-09-01': {
+      fund: {
+        current: {
+          net: 11007695.33, gross: 11011159.62, refund: 2579.42, refundN: 2, count: 2458, people: 461,
+          online: 685807.62, offline: 10248515.93, transferIn: 76836.07, transferOut: 884.87,
+          newAmt: 1680272.87, oldAmt: 9327422.46, unknownAmt: 0,
+          newPeople: 221, oldPeople: 240, newCount: 794, oldCount: 1664
+        },
+        prev: {
+          net: 10951194.19, gross: 10954857.18, refund: 3661.99, refundN: 5, count: 2479, people: 452,
+          online: 610489.93, offline: 10344365.10, transferIn: 2.15, transferOut: 1.00,
+          newAmt: 1307939.09, oldAmt: 9643255.10, unknownAmt: 0,
+          newPeople: 214, oldPeople: 238, newCount: 838, oldCount: 1641
+        }
+      },
+      rec: {
+        current: {
+          net: 11403410.45, recharge: 11635570.70, clear: 151664.21, reduce: 80496.04, count: 5421, people: 496,
+          newAmt: 1991671.22, oldAmt: 9411739.23, unknownAmt: 0,
+          newPeople: 229, oldPeople: 267, newCount: 1364, oldCount: 4057
+        },
+        prev: {
+          net: 11636642.52, recharge: 11752153.91, clear: 97446.54, reduce: 18064.85, count: 5752, people: 490,
+          newAmt: 1677045.27, oldAmt: 9959597.25, unknownAmt: 0,
+          newPeople: 227, oldPeople: 263, newCount: 1466, oldCount: 4286
+        }
+      },
+      spend: {
+        current: {
+          amount: 11855216.26, people: 560, accounts: 1027,
+          newAmt: 2047281.35, oldAmt: 9795888.80, unknownAmt: 12046.11,
+          newPeople: 257, oldPeople: 303, newAccounts: 353, oldAccounts: 674
+        },
+        prev: {
+          amount: 11838571.20, people: 550, accounts: 1017,
+          newAmt: 1984769.50, oldAmt: 9847032.65, unknownAmt: 6769.05,
+          newPeople: 259, oldPeople: 291, newAccounts: 359, oldAccounts: 658
+        }
+      }
+    }
+  };
+
   const M = {
-    fund: {
-      current: {
-        net: 11004193.04, gross: 11039855.03, refund: 3661.99, refundN: 5, count: 2479, people: 452,
-        online: 610489.93, offline: 10344365.10, transferIn: 85000.00, transferOut: 32000.00,
-        newAmt: 1307939.09, oldAmt: 9696253.95, unknownAmt: 0,
-        newPeople: 214, oldPeople: 238, newCount: 838, oldCount: 1641
-      },
-      prev: {
-        net: 10496753.56, gross: 10583150.74, refund: 45397.18, refundN: 6, count: 2395, people: 444,
-        online: 777434.01, offline: 9733716.73, transferIn: 72000.00, transferOut: 41000.00,
-        newAmt: 1198282.24, oldAmt: 9298471.32, unknownAmt: 0,
-        newPeople: 208, oldPeople: 236, newCount: 763, oldCount: 1632
-      }
-    },
-    rec: {
-      current: {
-        net: 11638269.58, recharge: 11752153.91, clear: 95819.48, reduce: 18064.85, count: 5752, people: 490,
-        newAmt: 1677045.27, oldAmt: 9961224.31, unknownAmt: 0,
-        newPeople: 227, oldPeople: 263, newCount: 1466, oldCount: 4286
-      },
-      prev: {
-        net: 10998699.69, recharge: 11300396.69, clear: 252806.86, reduce: 48890.14, count: 5616, people: 486,
-        newAmt: 1520921.12, oldAmt: 9477778.57, unknownAmt: 0,
-        newPeople: 219, oldPeople: 267, newCount: 1365, oldCount: 4251
-      }
-    },
-    spend: {
-      current: {
-        amount: 11835794.46, people: 549, accounts: 1015,
-        newAmt: 1984755.57, oldAmt: 9844228.03, unknownAmt: 6810.86,
-        newPeople: 258, oldPeople: 291, newAccounts: 358, oldAccounts: 657
-      },
-      prev: {
-        amount: 11299859.04, people: 554, accounts: 1045,
-        newAmt: 1839657.92, oldAmt: 9452483.17, unknownAmt: 7717.95,
-        newPeople: 256, oldPeople: 298, newAccounts: 358, oldAccounts: 687
-      }
-    },
     funnel: [
       { name: '注册', count: 1864, prevCount: 1764 },
       { name: '打款', count: 1420, prevCount: 1310 },
@@ -107,6 +153,14 @@
     };
   };
   const newCustomerCutoff = (periodEnd) => new Date(periodEnd.getFullYear(), periodEnd.getMonth() - 6, 1);
+  const kpiFor = (statDate) => {
+    const dates = Object.keys(KPI).sort();
+    let key = dates[0];
+    dates.forEach((d) => {
+      if (d <= statDate) key = d;
+    });
+    return KPI[key];
+  };
   const footnoteText = (statDate) => {
     const w = windowsFromStatDate(statDate);
     const cutoff = newCustomerCutoff(w.currentEnd);
@@ -228,47 +282,48 @@
   }
 
   function renderGroups() {
+    const kpi = kpiFor(document.getElementById('itbStatDate').value || DEFAULT_DATE);
     const groups = [
       {
         title: '钱包净入账',
         desc: '在线 + 线下 − 转账审核退回 + 调拨转入 − 调拨转出',
-        cur: M.fund.current.net,
-        prev: M.fund.prev.net,
-        wowv: wow(M.fund.current.net, M.fund.prev.net),
-        split: M.fund.current,
-        prevSplit: M.fund.prev,
+        cur: kpi.fund.current.net,
+        prev: kpi.fund.prev.net,
+        wowv: wow(kpi.fund.current.net, kpi.fund.prev.net),
+        split: kpi.fund.current,
+        prevSplit: kpi.fund.prev,
         extra: [
-          { label: '总入账次数', val: num(M.fund.current.count), w: wow(M.fund.current.count, M.fund.prev.count) },
-          { label: '总入账商户ID数', val: num(M.fund.current.people), w: wow(M.fund.current.people, M.fund.prev.people) }
+          { label: '总入账次数', val: num(kpi.fund.current.count), w: wow(kpi.fund.current.count, kpi.fund.prev.count) },
+          { label: '总入账商户ID数', val: num(kpi.fund.current.people), w: wow(kpi.fund.current.people, kpi.fund.prev.people) }
         ],
-        note: '毛入账 ' + money(M.fund.current.gross) + '<br>线下 ' + money(M.fund.current.offline) + ' · 在线 ' + money(M.fund.current.online) + '<br>调拨转入 ' + money(M.fund.current.transferIn) + ' · 调拨转出 ' + money(M.fund.current.transferOut)
+        note: '毛入账 ' + money(kpi.fund.current.gross) + '<br>线下 ' + money(kpi.fund.current.offline) + ' · 在线 ' + money(kpi.fund.current.online) + '<br>调拨转入 ' + money(kpi.fund.current.transferIn) + ' · 调拨转出 ' + money(kpi.fund.current.transferOut)
       },
       {
         title: '广告账户净充值',
         desc: '充值 − 清零 − 减款 · 提交时间',
-        cur: M.rec.current.net,
-        prev: M.rec.prev.net,
-        wowv: wow(M.rec.current.net, M.rec.prev.net),
-        split: M.rec.current,
-        prevSplit: M.rec.prev,
+        cur: kpi.rec.current.net,
+        prev: kpi.rec.prev.net,
+        wowv: wow(kpi.rec.current.net, kpi.rec.prev.net),
+        split: kpi.rec.current,
+        prevSplit: kpi.rec.prev,
         extra: [
-          { label: '总充值次数', val: num(M.rec.current.count), w: wow(M.rec.current.count, M.rec.prev.count) },
-          { label: '总充值商户ID数', val: num(M.rec.current.people), w: wow(M.rec.current.people, M.rec.prev.people) },
-          { label: '清零 + 减款', val: money(M.rec.current.clear + M.rec.current.reduce), w: wow(M.rec.current.clear + M.rec.current.reduce, M.rec.prev.clear + M.rec.prev.reduce) }
+          { label: '总充值次数', val: num(kpi.rec.current.count), w: wow(kpi.rec.current.count, kpi.rec.prev.count) },
+          { label: '总充值商户ID数', val: num(kpi.rec.current.people), w: wow(kpi.rec.current.people, kpi.rec.prev.people) },
+          { label: '清零 + 减款', val: money(kpi.rec.current.clear + kpi.rec.current.reduce), w: wow(kpi.rec.current.clear + kpi.rec.current.reduce, kpi.rec.prev.clear + kpi.rec.prev.reduce) }
         ],
-        note: '毛充值 ' + money(M.rec.current.recharge) + '<br>清零 ' + money(M.rec.current.clear) + ' · 减款 ' + money(M.rec.current.reduce)
+        note: '毛充值 ' + money(kpi.rec.current.recharge) + '<br>清零 ' + money(kpi.rec.current.clear) + ' · 减款 ' + money(kpi.rec.current.reduce)
       },
       {
         title: '广告账户消耗',
         desc: '只计消耗 > 0 的商户ID数 / 账户数',
-        cur: M.spend.current.amount,
-        prev: M.spend.prev.amount,
-        wowv: wow(M.spend.current.amount, M.spend.prev.amount),
-        split: M.spend.current,
-        prevSplit: M.spend.prev,
+        cur: kpi.spend.current.amount,
+        prev: kpi.spend.prev.amount,
+        wowv: wow(kpi.spend.current.amount, kpi.spend.prev.amount),
+        split: kpi.spend.current,
+        prevSplit: kpi.spend.prev,
         extra: [
-          { label: '总消耗账户数', val: num(M.spend.current.accounts), w: wow(M.spend.current.accounts, M.spend.prev.accounts) },
-          { label: '总消耗商户ID数', val: num(M.spend.current.people), w: wow(M.spend.current.people, M.spend.prev.people) }
+          { label: '总消耗账户数', val: num(kpi.spend.current.accounts), w: wow(kpi.spend.current.accounts, kpi.spend.prev.accounts) },
+          { label: '总消耗商户ID数', val: num(kpi.spend.current.people), w: wow(kpi.spend.current.people, kpi.spend.prev.people) }
         ]
       }
     ];
@@ -405,9 +460,12 @@
     `;
   }
 
-  renderGroups();
-  renderFunnel();
-  updateFootnote();
-  document.getElementById('itbStatDate').addEventListener('change', updateFootnote);
+  const refreshBoard = () => {
+    renderGroups();
+    renderFunnel();
+    updateFootnote();
+  };
+  refreshBoard();
+  document.getElementById('itbStatDate').addEventListener('change', refreshBoard);
   document.getElementById('itbCaptureBtn').addEventListener('click', capturePage);
 })();
