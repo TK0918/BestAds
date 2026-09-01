@@ -157,6 +157,8 @@
           filters: [
             { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' },
             { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' },
+            { key: 'bd', label: 'BD', type: 'select', options: ['谭英就', '吴文锐', '欧伟权'] },
+            { key: 'am', label: 'AM', type: 'select', options: ['李志伟', '邓港', '管理员'] },
             { key: 'compareStatus', label: '对比状态', type: 'select', options: ['充足', '临界', '不足'] },
             { key: 'currency', label: '币种', type: 'select', options: ['USD', 'EUR', 'GBP'] }
           ],

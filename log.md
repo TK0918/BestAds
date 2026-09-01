@@ -1,3 +1,7 @@
+#### 2026-09-01 - 总览筛选增加 BD / AM
+
+运营端「客户预估税费&预收池总览」筛选在客户名称后增加 BD、AM 下拉，与列表归属列一致。`SHELL_VERSION` 升为 `20260901-location-fee9`。`PRD/V 2.45 地区税费增量.md` 升至 v0.3。
+
 #### 2026-08-31 - PRD 规则：原型地址只用公网链接
 
 后续 PRD 文首和页面信息只写已推送到 Git 的 `https://tk0918.github.io/BestAds/...`。尚未推送则填 `空`，禁止仓库相对路径。已写入 `ads-prd-rule.mdc`、`PRD/_template.md`、`AGENTS.md`、`CLAUDE.md`。
