@@ -15,7 +15,7 @@ const PAGE_CONFIG = {
   'role-edit': { title: '编辑角色', description: '修改系统角色及权限' },
   'auto-recharge-rules': { title: '自动充值规则', description: '管理广告账户的自动充值规则, 当账户余额低于设定阈值时自动充值' },
   'introducer-daily-consume': { title: '推荐返佣', description: '按季度查看被介绍客户广告账户消耗、吐点比例与佣金' },
-  'location-fee': { title: '地区税费', description: '查看广告账户按投放国家估算的地区税费（以 Meta 账单为准）' }
+  'location-fee': { title: '地区税费', description: '查看地区税费估算、预收池余额与预收池流水（实际费用以 Meta 账单为准）' }
 };
 
 var CLIENT_NAV_I18N = {

@@ -46,6 +46,7 @@
       },
       'location-fee': {
         title: '税费明细',
+        tabs: ['税费明细', '预收池流水'],
         prepaidPool: '预收池余额',
         last7Days: '近 7 天估算税费',
         taxableConsume: '应税消耗合计',
@@ -53,6 +54,8 @@
         referenceTotal: '参考合计',
         countryAccount: '涉及国家 / 账户',
         noticeTitle: '重要说明',
+        noticeReserve: '系统会在充值时按比例预留地区税费，实际费用以 Meta 账单为准；预留不是服务费。',
+        noticeOfficial: 'Meta 官方说明',
         notice1: '本页地区税费为估算金额，仅供参考；实际费用以 Meta 账单为准。',
         notice2: 'Meta 消耗存在延迟，系统会每日更新最近 9 天的消耗与税费估算，数据可能变化。',
         notice3: '金额按广告账户币种展示；税费不计入广告消耗，不等于扣款。',
@@ -60,7 +63,13 @@
         endDate: '结束日期',
         accountId: '请输入广告账户ID',
         accountName: '请输入广告账户名称',
-        country: '请选择国家/地区'
+        country: '请选择国家/地区',
+        flowType: '请选择类型',
+        flowAll: '全部类型',
+        flowRecharge: '充值预留',
+        flowDeduct: '税费扣减',
+        flowTopup: '钱包补入',
+        flowRelease: '退回钱包'
       },
       'introducer-daily-consume': {
         title: '推荐返佣',
@@ -168,6 +177,7 @@
       },
       'location-fee': {
         title: 'Tax Details',
+        tabs: ['Tax Details', 'Prepaid Pool Ledger'],
         prepaidPool: 'Prepaid Pool',
         last7Days: 'Last 7 Days Estimated Tax',
         taxableConsume: 'Taxable Spend',
@@ -175,6 +185,8 @@
         referenceTotal: 'Reference Total',
         countryAccount: 'Countries / Accounts',
         noticeTitle: 'Important',
+        noticeReserve: 'Location fees are reserved from recharge at a set rate. Actual charges follow Meta billing. This reserve is not a service fee.',
+        noticeOfficial: 'Meta official help',
         notice1: 'Location tax on this page is an estimate only. Actual fees are subject to Meta billing.',
         notice2: 'Meta spend may be delayed. The system updates the latest 9 days of spend and tax estimates daily, so data may change.',
         notice3: 'Amounts are shown in the ad account currency. Tax is not ad spend and is not equal to a deduction.',
@@ -182,7 +194,13 @@
         endDate: 'End Date',
         accountId: 'Enter Ad Account ID',
         accountName: 'Enter Ad Account Name',
-        country: 'Select Country/Region'
+        country: 'Select Country/Region',
+        flowType: 'Select type',
+        flowAll: 'All types',
+        flowRecharge: 'Recharge reserve',
+        flowDeduct: 'Tax offset',
+        flowTopup: 'Wallet top-up',
+        flowRelease: 'Returned to wallet'
       },
       'introducer-daily-consume': {
         title: 'Referral',
@@ -550,25 +568,54 @@
       ]
     },
     'location-fee': {
+      defaultTab: 'detail',
       summary: [
-        ['prepaidPool', '3.00 USD'],
-        ['last7Days', '0.00 USD'],
-        ['taxableConsume', '-'],
-        ['estimatedTax', '-']
+        ['prepaidPool', '500.00 USD'],
+        ['last7Days', '84.00 USD'],
+        ['taxableConsume', '18,650 USD'],
+        ['estimatedTax', '624.50 USD']
       ],
       reference: [
-        ['referenceTotal', '-'],
-        ['countryAccount', '0 / 0']
+        ['referenceTotal', '624.50 USD'],
+        ['countryAccount', '4 / 2']
       ],
-      toolbar: [
-        { type: 'range', start: '2026-07-30', end: '2026-08-12', startKey: 'startDate', endKey: 'endDate' },
-        { type: 'input', key: 'accountId' },
-        { type: 'input', key: 'accountName' },
-        { type: 'select', key: 'country', options: ['', 'US', 'BR', 'IN', 'GB', 'FR'] }
-      ],
-      actions: [{ kind: 'query' }, { kind: 'export' }],
-      columns: ['消耗日期', '广告账户ID', '广告账户名称', '国家/地区', '币种', '应税消耗', '税率', '估算税费'],
-      rows: []
+      tabs: [
+        {
+          id: 'detail',
+          labelKey: 0,
+          toolbar: [
+            { type: 'range', start: '2026-07-01', end: '2026-07-14', startKey: 'startDate', endKey: 'endDate' },
+            { type: 'input', key: 'accountId' },
+            { type: 'input', key: 'accountName' },
+            { type: 'select', key: 'country', options: ['', 'AT', 'FR', 'GB', 'TR'] }
+          ],
+          actions: [{ kind: 'query' }, { kind: 'export' }],
+          columns: ['消耗日期', '广告账户ID', '广告账户名称', '国家/地区', '币种', '应税消耗', '税率', '估算税费'],
+          rows: [
+            ['2026-07-13', '238401982', 'AT-Prospecting', '奥地利', 'USD', '1,200.00', '5%', '60.00'],
+            ['2026-07-13', '238401982', 'AT-Prospecting', '法国', 'USD', '800.00', '3%', '24.00'],
+            ['2026-07-12', '555000111', 'EU-Brand', '英国', 'EUR', '2,450.00', '2%', '49.00'],
+            ['2026-07-05', '555000111', 'EU-Brand', '土耳其', 'EUR', '1,000.00', '5%', '50.00']
+          ]
+        },
+        {
+          id: 'pool',
+          labelKey: 1,
+          toolbar: [
+            { type: 'range', start: '2026-07-01', end: '2026-08-12', startKey: 'startDate', endKey: 'endDate' },
+            { type: 'select', key: 'flowType', options: ['', '充值预留', '税费扣减', '钱包补入', '退回钱包'] }
+          ],
+          actions: [{ kind: 'query' }, { kind: 'export' }],
+          columns: ['时间', '出/入账', '类型', '变动币种', '变动金额', '预收池币种', '预收池变动金额', '汇率', '关联账户'],
+          rows: [
+            ['2026-08-12 11:20:08', '入账', '充值预留', 'USD', '+50.00', 'USD', '+50.00', '1', '238401982'],
+            ['2026-08-10 09:16:03', '出账', '税费扣减', 'USD', '-84.00', 'USD', '-84.00', '1', '238401982'],
+            ['2026-08-07 14:20:00', '入账', '钱包补入', 'USD', '+30.00', 'USD', '+30.00', '1', '—'],
+            ['2026-08-06 16:08:02', '出账', '退回钱包', 'USD', '-20.00', 'USD', '-20.00', '1', '—'],
+            ['2026-08-05 11:02:18', '出账', '税费扣减', 'EUR', '-49.00', 'USD', '-53.26', '1.087', '555000111']
+          ]
+        }
+      ]
     },
     'introducer-daily-consume': {
       toolbar: [

@@ -15,7 +15,7 @@
   };
   const status = value => {
     const text = String(value == null || value === '' ? '-' : value);
-    const cls = /启用|成功|充足|正常|已完成|可下载|完成/.test(text) ? 'status-success' : /失败|停用|不足|回退|禁用|异常/.test(text) ? 'status-danger' : /处理中|待/.test(text) ? 'status-warning' : 'status-info';
+    const cls = /启用|成功|充足|正常|已完成|可下载|完成|账户覆盖/.test(text) ? 'status-success' : /失败|停用|不足|回退|禁用|异常/.test(text) ? 'status-danger' : /处理中|待|临界|客户规则|未配置/.test(text) ? 'status-warning' : 'status-info';
     return `<span class="status-tag ${cls}">${text}</span>`;
   };
   const countWithUnit = value => {
@@ -148,13 +148,203 @@
         } }]
     },
     'location-fee': {
-      title: '地区税费', subtitle: '管理客户预收池、税费比例、流水和税率范围。',
+      title: '地区税费',
+      subtitle: '管理客户预收池、税费比例、流水和税率范围。',
       tabs: [
-        { id: 'overview', label: '客户预估税费&预收池总览', filters: [{ key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' }, { key: 'compareStatus', label: '对比状态', type: 'select', options: ['充足', '不足'] }, { key: 'currency', label: '币种', type: 'select', options: ['USD', 'EUR', 'GBP'] }], actions: [{ id: 'export', label: '导出数据', icon: 'download' }], columns: [{ key: 'merchantId', label: '商户ID', format: merchant }, { key: 'customerName', label: '客户名称', align: 'left' }, { key: 'currency', label: '币种' }, { key: 'estimatedTax', label: '预估税费', format: money, num: true }, { key: 'poolBalance', label: '预收池余额', format: money, num: true }, { key: 'difference', label: '差额', format: money, num: true }, { key: 'compareStatus', label: '对比状态', format: status }, { key: 'balanceTax', label: '余额税费', format: money, num: true }, { key: 'releasable', label: '可释放', format: money, num: true }], rows: [{ merchantId: '1128', customerName: 'adstest', currency: 'USD', estimatedTax: '150', poolBalance: '-120', difference: '-270', compareStatus: '不足', balanceTax: '-', releasable: '0', ops: ['查看明细', '预收补入'] }, { merchantId: '14229', customerName: 'test金额变动', currency: 'USD', estimatedTax: '60', poolBalance: '96.85', difference: '36.85', compareStatus: '充足', balanceTax: '13.83', releasable: '23.02', ops: ['查看明细', '释放'] }] },
-        { id: 'ratio', label: '税费预收比例', filters: [{ key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' }, { key: 'status', label: '状态', type: 'select', options: ['启用', '停用'] }], actions: [{ id: 'create', label: '新增配置', icon: 'plus', primary: true }], columns: [{ key: 'merchantId', label: '商户ID', format: merchant }, { key: 'customerName', label: '客户名称', align: 'left' }, { key: 'ratio', label: '预收比例', num: true }, { key: 'status', label: '状态', format: status }, { key: 'updatedAt', label: '更新时间' }], rows: [{ merchantId: '14229', customerName: 'test金额变动', ratio: '15.00%', status: '启用', updatedAt: '2026-08-06 16:00:00', ops: ['编辑'] }, { merchantId: '14656', customerName: 'test测试币种GBP', ratio: '10.00%', status: '启用', updatedAt: '2026-08-05 11:20:05', ops: ['编辑'] }] },
-        { id: 'pool', label: '预收池流水', filters: [{ key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'flowType', label: '流水类型', type: 'select', options: ['预收补入', '税费释放'] }, { key: 'currency', label: '币种', type: 'select', options: ['USD', 'EUR', 'GBP'] }], actions: [{ id: 'export', label: '导出数据', icon: 'download' }], columns: [{ key: 'merchantId', label: '商户ID', format: merchant }, { key: 'customerName', label: '客户名称', align: 'left' }, { key: 'flowType', label: '流水类型' }, { key: 'currency', label: '币种' }, { key: 'amount', label: '金额', format: money, num: true }, { key: 'createdAt', label: '发生时间' }, { key: 'operator', label: '操作人' }], rows: [{ merchantId: '14229', customerName: 'test金额变动', flowType: '预收补入', currency: 'USD', amount: '30', createdAt: '2026-08-07 14:20:00', operator: '欧伟权', ops: ['查看详情'] }, { merchantId: '14229', customerName: 'test金额变动', flowType: '税费释放', currency: 'USD', amount: '-30', createdAt: '2026-08-07 09:16:03', operator: '管理员', ops: ['查看详情'] }] },
-        { id: 'detail', label: '税费明细', filters: [{ key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' }, { key: 'country', label: '国家/地区', placeholder: '请输入国家/地区' }, { key: 'currency', label: '币种', type: 'select', options: ['USD', 'EUR', 'GBP'] }], actions: [{ id: 'export', label: '导出数据', icon: 'download' }], columns: [{ key: 'merchantId', label: '商户ID', format: merchant }, { key: 'customerName', label: '客户名称', align: 'left' }, { key: 'country', label: '国家/地区' }, { key: 'taxableAmount', label: '计税金额', format: money, num: true }, { key: 'taxAmount', label: '税费金额', format: money, num: true }, { key: 'currency', label: '币种' }, { key: 'createdAt', label: '统计时间' }], rows: [{ merchantId: '14229', customerName: 'test金额变动', country: '美国', taxableAmount: '460.00', taxAmount: '60.00', currency: 'USD', createdAt: '2026-08-07 23:59:59', ops: ['查看详情'] }, { merchantId: '14656', customerName: 'test测试币种GBP', country: '英国', taxableAmount: '1,020.00', taxAmount: '102.00', currency: 'GBP', createdAt: '2026-08-07 23:59:59', ops: ['查看详情'] }] },
-        { id: 'config', label: '税率与范围配置', filters: [{ key: 'country', label: '国家/地区', placeholder: '请输入国家/地区' }, { key: 'status', label: '状态', type: 'select', options: ['启用', '停用'] }], actions: [{ id: 'create', label: '新增配置', icon: 'plus', primary: true }], columns: [{ key: 'country', label: '国家/地区' }, { key: 'scope', label: '计税范围', align: 'left' }, { key: 'rate', label: '税率', num: true }, { key: 'status', label: '状态', format: status }, { key: 'updatedAt', label: '更新时间' }], rows: [{ country: '美国', scope: '广告消耗', rate: '13.00%', status: '启用', updatedAt: '2026-08-06 15:10:10', ops: ['编辑'] }, { country: '英国', scope: '广告消耗', rate: '20.00%', status: '启用', updatedAt: '2026-08-05 09:32:45', ops: ['编辑'] }] }
+        {
+          id: 'overview',
+          label: '客户预估税费&预收池总览',
+          filters: [
+            { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' },
+            { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' },
+            { key: 'compareStatus', label: '对比状态', type: 'select', options: ['充足', '临界', '不足'] },
+            { key: 'currency', label: '币种', type: 'select', options: ['USD', 'EUR', 'GBP'] }
+          ],
+          actions: [
+            { id: 'feishu-notice', label: '飞书通知示意', icon: 'bell' },
+            { id: 'export', label: '导出数据', icon: 'download', align: 'right' }
+          ],
+          footerNote: '每日估算跑完后，对对比状态为临界、不足的客户按商户ID各发一条飞书消息，并同时 @ 对应 BD 和 AM。差额 = 0 仍为充足，不发送。',
+          columns: [
+            { key: 'merchantId', label: '商户ID', format: merchant },
+            { key: 'customerName', label: '客户名称', align: 'left' },
+            { key: 'bd', label: 'BD' },
+            { key: 'am', label: 'AM' },
+            { key: 'currency', label: '币种' },
+            { key: 'estimatedTax', label: '预估税费', format: money, num: true },
+            { key: 'poolBalance', label: '预收池余额', format: money, num: true },
+            { key: 'difference', label: '差额', format: money, num: true },
+            { key: 'compareStatus', label: '对比状态', format: status },
+            { key: 'balanceTax', label: '余额税费', format: money, num: true },
+            { key: 'releasable', label: '可释放', format: money, num: true }
+          ],
+          rows: [
+            { merchantId: '1128', customerName: 'adstest', currency: 'USD', estimatedTax: '150.00', poolBalance: '-120.00', difference: '-270.00', compareStatus: '不足', balanceTax: '-', releasable: '0.00', bd: '谭英就', am: '李志伟', ops: ['查看明细', '预收补入'] },
+            { merchantId: '14566', customerName: 'Alpine EU', currency: 'USD', estimatedTax: '920.00', poolBalance: '890.00', difference: '-30.00', compareStatus: '临界', balanceTax: '50.00', releasable: '0.00', bd: '吴文锐', am: '邓港', ops: ['查看明细', '预收补入'] },
+            { merchantId: '14229', customerName: 'test金额变动', currency: 'USD', estimatedTax: '60.00', poolBalance: '96.85', difference: '36.85', compareStatus: '充足', balanceTax: '13.83', releasable: '23.02', bd: '欧伟权', am: '管理员', ops: ['查看明细', '释放'] }
+          ]
+        },
+        {
+          id: 'ratio-customer',
+          navGroup: '税费预收比例',
+          label: '客户',
+          filters: [
+            { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' },
+            { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' },
+            { key: 'media', label: '媒体', type: 'select', options: ['Meta', 'Google'] },
+            { key: 'accountType', label: '账户类型', type: 'select', options: ['海外户', '企业户'] }
+          ],
+          actions: [{ id: 'create', label: '新增客户预收比例', icon: 'plus', primary: true }],
+          columns: [
+            { key: 'merchantId', label: '商户ID', format: merchant },
+            { key: 'customerName', label: '客户名称', align: 'left' },
+            { key: 'media', label: '媒体' },
+            { key: 'accountType', label: '账户类型' },
+            { key: 'ratio', label: '预收比例 K%', num: true },
+            { key: 'updatedBy', label: '更新人' },
+            { key: 'updatedAt', label: '更新时间' }
+          ],
+          rows: [
+            { merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '15.00%', updatedBy: '欧伟权', updatedAt: '2026-08-06 16:00:00', ops: ['编辑'] },
+            { merchantId: '14656', customerName: 'test测试币种GBP', media: 'Meta', accountType: '海外户', ratio: '10.00%', updatedBy: '管理员', updatedAt: '2026-08-05 11:20:05', ops: ['编辑'] }
+          ],
+          modal: {
+            title: '新增客户预收比例',
+            editTitle: '编辑客户预收比例',
+            fields: [
+              { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' },
+              { key: 'media', label: '媒体', control: 'select', options: ['Meta', 'Google'] },
+              { key: 'accountType', label: '账户类型', control: 'select', options: ['海外户', '企业户'] },
+              { key: 'ratio', label: '预收比例 K%', placeholder: '例如 5，0 表示显式不预收' }
+            ]
+          }
+        },
+        {
+          id: 'ratio-account',
+          navGroup: '税费预收比例',
+          label: '广告账户',
+          filterClass: 'cols-5',
+          selectable: true,
+          filters: [
+            { key: 'accountIds', label: '广告账户ID', type: 'textarea', match: 'ids', rowKey: 'accountId', placeholder: '粘贴广告账户ID，一行一个，或用逗号/空格分隔' },
+            { key: 'merchantId', label: '当前商户ID', type: 'textarea', match: 'ids', rowKey: 'merchantId', placeholder: '粘贴当前商户ID，一行一个，或用逗号分隔' },
+            { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' },
+            { key: 'accountName', label: '广告账户名称', placeholder: '请输入广告账户名称' },
+            { key: 'source', label: '配置来源', type: 'select', options: ['账户覆盖', '客户规则', '未配置'] }
+          ],
+          actions: [
+            { id: 'create', label: '新增账户预收比例', icon: 'plus', primary: true },
+            { id: 'batch-ratio', label: '批量设置比例', icon: 'percent', requiresSelection: true },
+            { id: 'batch-delete-ratio', label: '批量删除', icon: 'trash', requiresSelection: true }
+          ],
+          footerNote: '列表来自广告账户，不是仅已配置行。删除账户覆盖后回退客户规则（或未配置）；某个户明确不预收请设显式 0%。',
+          columns: [
+            { key: 'accountId', label: '广告账户ID', align: 'left' },
+            { key: 'accountName', label: '广告账户名称', align: 'left' },
+            { key: 'merchantId', label: '当前商户ID', format: merchant },
+            { key: 'customerName', label: '客户名称', align: 'left' },
+            { key: 'media', label: '媒体' },
+            { key: 'accountType', label: '账户类型' },
+            { key: 'ratio', label: '预收比例 K%', num: true },
+            { key: 'source', label: '配置来源', format: status },
+            { key: 'updatedAt', label: '更新时间' }
+          ],
+          rows: [
+            { accountId: '238401982', accountName: 'AT-Prospecting', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '8.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, updatedAt: '2026-08-12 11:20:08', ops: ['编辑', '删除'] },
+            { accountId: '987654321', accountName: 'US-Prospecting', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '15.00%', customerRatio: '15.00%', source: '客户规则', hasOverride: false, updatedAt: '2026-08-06 16:00:00', ops: ['编辑'] },
+            { accountId: '555000111', accountName: 'EU-Brand', merchantId: '14566', customerName: 'Alpine EU', media: 'Meta', accountType: '海外户', ratio: '—', customerRatio: '', source: '未配置', hasOverride: false, updatedAt: '-', ops: ['编辑'] },
+            { accountId: '720911004', accountName: 'TR-Scale', merchantId: '1128', customerName: 'adstest', media: 'Meta', accountType: '海外户', ratio: '0.00%', customerRatio: '', source: '账户覆盖', hasOverride: true, updatedAt: '2026-08-08 09:12:00', ops: ['编辑', '删除'] }
+          ],
+          modal: {
+            title: '新增账户预收比例',
+            editTitle: '编辑账户预收比例',
+            createSize: 'md',
+            createFields: [
+              { key: 'accountId', label: '广告账户ID', control: 'textarea', full: true, placeholder: '粘贴广告账户ID，一行一个，或用空格分隔', help: '支持一次填写多个广告账户ID，用换行或空格分隔。提交后会列出本次新增与覆盖结果。' },
+              { key: 'ratio', label: '预收比例 K%', placeholder: '例如 5，0 表示显式不预收' }
+            ],
+            fields: [
+              { key: 'accountId', label: '广告账户ID', control: 'readonly' },
+              { key: 'ratio', label: '预收比例 K%', placeholder: '例如 5，0 表示显式不预收' }
+            ]
+          }
+        },
+        {
+          id: 'pool',
+          label: '预收池流水',
+          filters: [
+            { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' },
+            { key: 'flowType', label: '类型', type: 'select', options: ['账户充值', '税费扣除', '人工补入', '释放回钱包'] },
+            { key: 'direction', label: '出/入账', type: 'select', options: ['入账', '出账'] },
+            { key: 'currency', label: '变动币种', type: 'select', options: ['USD', 'EUR', 'GBP'] }
+          ],
+          actions: [{ id: 'export', label: '导出数据', icon: 'download' }],
+          columns: [
+            { key: 'occurredAt', label: '时间' },
+            { key: 'merchantId', label: '商户ID', format: merchant },
+            { key: 'customerName', label: '客户名称', align: 'left' },
+            { key: 'direction', label: '出/入账' },
+            { key: 'flowType', label: '类型' },
+            { key: 'changeCurrency', label: '变动币种' },
+            { key: 'changeAmount', label: '变动金额', format: money, num: true },
+            { key: 'poolCurrency', label: '预收池币种' },
+            { key: 'poolChangeAmount', label: '预收池变动金额', format: money, num: true },
+            { key: 'fxRate', label: '汇率', num: true },
+            { key: 'accountId', label: '关联账户' },
+            { key: 'refNo', label: '关联单号' },
+            { key: 'operator', label: '操作人' }
+          ],
+          rows: [
+            { occurredAt: '2026-08-12 11:20:08', merchantId: '14229', customerName: 'test金额变动', direction: '入账', flowType: '账户充值', changeCurrency: 'USD', changeAmount: '50.00', poolCurrency: 'USD', poolChangeAmount: '50.00', fxRate: '1', accountId: '238401982', refNo: 'RC20260812001', operator: '系统-充值', ops: ['查看详情'] },
+            { occurredAt: '2026-08-10 09:16:03', merchantId: '14229', customerName: 'test金额变动', direction: '出账', flowType: '税费扣除', changeCurrency: 'USD', changeAmount: '-84.00', poolCurrency: 'USD', poolChangeAmount: '-84.00', fxRate: '1', accountId: '238401982', refNo: 'TX20260810003', operator: '系统-冲抵', ops: ['查看详情'] },
+            { occurredAt: '2026-08-07 14:20:00', merchantId: '14229', customerName: 'test金额变动', direction: '入账', flowType: '人工补入', changeCurrency: 'USD', changeAmount: '30.00', poolCurrency: 'USD', poolChangeAmount: '30.00', fxRate: '1', accountId: '—', refNo: 'DD20260807014', operator: '欧伟权', ops: ['查看详情'] },
+            { occurredAt: '2026-08-06 16:08:02', merchantId: '14229', customerName: 'test金额变动', direction: '出账', flowType: '释放回钱包', changeCurrency: 'USD', changeAmount: '-20.00', poolCurrency: 'USD', poolChangeAmount: '-20.00', fxRate: '1', accountId: '—', refNo: 'RL20260806002', operator: '管理员', ops: ['查看详情'] },
+            { occurredAt: '2026-08-05 11:02:18', merchantId: '14566', customerName: 'Alpine EU', direction: '出账', flowType: '税费扣除', changeCurrency: 'EUR', changeAmount: '-49.00', poolCurrency: 'USD', poolChangeAmount: '-53.26', fxRate: '1.087', accountId: '555000111', refNo: 'TX20260805011', operator: '系统-冲抵', ops: ['查看详情'] }
+          ]
+        },
+        {
+          id: 'detail',
+          label: '税费明细',
+          filters: [
+            { key: 'merchantId', label: '商户ID', placeholder: '请输入商户ID' },
+            { key: 'country', label: '国家/地区', placeholder: '请输入国家/地区' },
+            { key: 'currency', label: '币种', type: 'select', options: ['USD', 'EUR', 'GBP'] }
+          ],
+          actions: [{ id: 'export', label: '导出数据', icon: 'download' }],
+          columns: [
+            { key: 'merchantId', label: '商户ID', format: merchant },
+            { key: 'customerName', label: '客户名称', align: 'left' },
+            { key: 'country', label: '国家/地区' },
+            { key: 'taxableAmount', label: '计税金额', format: money, num: true },
+            { key: 'taxAmount', label: '税费金额', format: money, num: true },
+            { key: 'currency', label: '币种' },
+            { key: 'createdAt', label: '统计时间' }
+          ],
+          rows: [
+            { merchantId: '14229', customerName: 'test金额变动', country: '奥地利', taxableAmount: '1,200.00', taxAmount: '60.00', currency: 'USD', createdAt: '2026-07-13', ops: ['查看详情'] },
+            { merchantId: '14566', customerName: 'Alpine EU', country: '英国', taxableAmount: '2,450.00', taxAmount: '49.00', currency: 'EUR', createdAt: '2026-07-12', ops: ['查看详情'] }
+          ]
+        },
+        {
+          id: 'config',
+          label: '税率与范围配置',
+          filters: [
+            { key: 'country', label: '国家/地区', placeholder: '请输入国家/地区' },
+            { key: 'status', label: '状态', type: 'select', options: ['启用', '停用'] }
+          ],
+          actions: [{ id: 'create', label: '新增配置', icon: 'plus', primary: true }],
+          columns: [
+            { key: 'country', label: '国家/地区' },
+            { key: 'scope', label: '计税范围', align: 'left' },
+            { key: 'rate', label: '税率', num: true },
+            { key: 'status', label: '状态', format: status },
+            { key: 'updatedAt', label: '更新时间' }
+          ],
+          rows: [
+            { country: '奥地利', scope: 'Meta × 海外户', rate: '5.00%', status: '启用', updatedAt: '2026-08-06 15:10:10', ops: ['编辑'] },
+            { country: '英国', scope: 'Meta × 海外户', rate: '2.00%', status: '启用', updatedAt: '2026-08-05 09:32:45', ops: ['编辑'] }
+          ]
+        }
       ]
     },
     'export-center': {

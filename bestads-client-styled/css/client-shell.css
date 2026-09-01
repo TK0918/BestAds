@@ -1054,6 +1054,21 @@ button {
   padding: 12px 14px;
 }
 
+.client-summary-item.is-clickable {
+  cursor: pointer;
+}
+
+.client-summary-item.is-clickable:hover {
+  border-color: var(--client-primary);
+}
+
+.client-summary-hint {
+  margin-left: 8px;
+  color: var(--client-primary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
 .client-summary-label {
   color: var(--client-muted);
   margin-bottom: 6px;
@@ -1087,6 +1102,16 @@ button {
 
 .client-note p + p {
   margin-top: 4px;
+}
+
+.client-note-link {
+  color: var(--client-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.client-note-link:hover {
+  text-decoration: underline;
 }
 
 .client-switch-control {

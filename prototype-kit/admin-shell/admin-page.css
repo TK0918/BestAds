@@ -42,10 +42,19 @@ body.admin-prototype-page.theme-dark {
 .admin-page__title { margin: 0; color: var(--admin-text); font-size: 18px; line-height: 26px; font-weight: 600; }
 .admin-page__subtitle { margin: 4px 0 0; color: var(--admin-muted); font-size: 12px; }
 
+.tab-nav-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin: 0 0 16px; }
+.tab-nav-stack .business-tabs,
+.tab-nav-stack .sub-tabs { margin: 0; }
+
 .page-tabs, .business-tabs { display: flex; align-items: center; gap: 4px; margin: 0 0 16px; padding: 0 4px; border-bottom: 1px solid var(--admin-border); overflow-x: auto; }
 .page-tab, .business-tab { appearance: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 0 16px; min-height: 42px; background: transparent; color: var(--admin-secondary); cursor: pointer; white-space: nowrap; font: inherit; }
 .page-tab:hover, .business-tab:hover { color: var(--admin-primary); background: rgba(0, 107, 230, .05); }
 .page-tab.is-active, .business-tab.is-active { border-bottom-color: var(--admin-primary); color: var(--admin-primary); font-weight: 600; }
+
+.sub-tabs { display: flex; align-items: center; gap: 4px; margin: 0 0 16px; }
+.sub-tab { appearance: none; border: 1px solid var(--admin-border); background: var(--admin-surface); color: var(--admin-secondary); border-radius: 4px; min-height: 28px; padding: 0 12px; cursor: pointer; font: inherit; font-size: 13px; }
+.sub-tab:hover { color: var(--admin-primary); border-color: var(--admin-primary); }
+.sub-tab.is-active { border-color: var(--admin-primary); color: var(--admin-primary); background: rgba(0, 107, 230, .08); font-weight: 600; }
 
 .admin-card { border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); box-shadow: none; }
 .admin-card + .admin-card { margin-top: 16px; }
@@ -70,6 +79,16 @@ body.admin-prototype-page.theme-dark {
 .filter-field input, .filter-field select, .filter-field textarea, .form-field input, .form-field select, .form-field textarea { width: 100%; height: 32px; border: 1px solid var(--admin-border); border-radius: 4px; outline: none; padding: 0 10px; background: var(--admin-surface); color: var(--admin-text); font: inherit; transition: border-color .16s ease, box-shadow .16s ease; }
 .filter-field textarea { height: 32px; min-height: 32px; padding-top: 5px; resize: none; overflow: hidden; }
 .filter-field--textarea { align-self: stretch; }
+.filter-field--textarea textarea { height: 72px; min-height: 72px; padding-top: 8px; resize: vertical; overflow: auto; line-height: 18px; }
+.feishu-digest-list { display: flex; flex-direction: column; gap: 12px; }
+.feishu-digest { border: 1px solid var(--admin-border); border-radius: 8px; overflow: hidden; background: var(--admin-surface); }
+.feishu-digest__head { background: #3370ff; color: #fff; padding: 12px 14px; }
+.feishu-digest__head strong { display: block; font-size: 14px; }
+.feishu-digest__head span { font-size: 12px; opacity: .9; }
+.feishu-digest__item { padding: 12px 14px; border-top: 1px solid var(--admin-border); font-size: 13px; line-height: 20px; }
+.feishu-digest__item p { margin: 4px 0 0; }
+.feishu-digest__at { color: #3370ff; font-weight: 600; }
+.module-page > .notice { margin: 0 0 12px; }
 .filter-field--multi { position: relative; }
 .multi-select-trigger { width: 100%; height: 32px; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--admin-border); border-radius: 4px; padding: 0 10px; background: var(--admin-surface); color: var(--admin-text); cursor: pointer; font: inherit; text-align: left; }
 .multi-select-trigger span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -115,6 +134,10 @@ body.admin-prototype-page.theme-dark {
 
 .table-scroll { overflow: auto; }
 .admin-table { width: 100%; min-width: 980px; border-collapse: separate; border-spacing: 0; table-layout: auto; color: var(--admin-text); }
+.result-table { min-width: 0; }
+.modal .result-table th, .modal .result-table td { height: 40px; }
+.modal .result-table .ops { min-width: 72px; }
+.modal .pagination { padding: 8px 0 0; min-height: 40px; }
 .admin-table--fixed { table-layout: fixed; }
 .admin-table th, .admin-table td { height: 64px; padding: 0 12px; border-bottom: 1px solid var(--admin-border); vertical-align: middle; white-space: nowrap; }
 .admin-table th { height: 40px; background: color-mix(in srgb, var(--admin-page-bg) 78%, var(--admin-surface)); color: var(--admin-secondary); font-size: 13px; font-weight: 500; text-align: center; }

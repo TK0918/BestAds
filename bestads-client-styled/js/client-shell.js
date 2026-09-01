@@ -142,6 +142,15 @@
     if (option === '3 小时') return lang() === 'zh-CN' ? option : '3 hours';
     if (option === '1 小时') return lang() === 'zh-CN' ? option : '1 hour';
     if (option === '3 次/日') return lang() === 'zh-CN' ? option : '3 / day';
+    const flowMap = {
+      '充值预留': 'Recharge reserve',
+      '税费扣减': 'Tax offset',
+      '钱包补入': 'Wallet top-up',
+      '退回钱包': 'Returned to wallet',
+      '入账': 'Credit',
+      '出账': 'Debit'
+    };
+    if (lang() !== 'zh-CN' && flowMap[option]) return flowMap[option];
     return option;
   }
 
@@ -460,18 +469,25 @@
 
   function renderLocationFee(pageId, data) {
     const page = pagePack(pageId);
+    const tabId = activeTabByPage[pageId] || data.defaultTab || 'detail';
+    const tabs = data.tabs || [];
+    const active = tabs.find((tab) => tab.id === tabId) || tabs[0] || {};
+    const labels = page.tabs || [];
+    const metaHelpUrl = 'https://business.facebook.com/business/help/1238737454289085';
     return `
       <div class="client-page-stack">
         <div class="client-summary-grid four">
           ${data.summary.map(([key, value]) => `
-            <div class="client-summary-item">
-              <div class="client-summary-label">${html(page[key])}</div>
+            <div class="client-summary-item${key === 'prepaidPool' ? ' is-clickable' : ''}"${key === 'prepaidPool' ? ' data-client-tab="pool" role="button" tabindex="0"' : ''}>
+              <div class="client-summary-label">${html(page[key])}${key === 'prepaidPool' ? `<span class="client-summary-hint">${html(labels[1] || '')}</span>` : ''}</div>
               <div class="client-summary-value">${html(value)}</div>
             </div>
           `).join('')}
         </div>
         <div class="client-note">
           <div class="client-note-title">${html(page.noticeTitle)}</div>
+          <p>${html(page.noticeReserve)}</p>
+          <p><a class="client-note-link" href="${html(metaHelpUrl)}" target="_blank" rel="noopener noreferrer">${html(page.noticeOfficial)}</a></p>
           <p>${html(page.notice1)}</p>
           <p>${html(page.notice2)}</p>
           <p>${html(page.notice3)}</p>
@@ -484,8 +500,11 @@
             </div>
           `).join('')}
         </div>
-        ${renderToolbar(pageId, data.toolbar, data.actions)}
-        ${renderTable(data.columns, data.rows)}
+        <div class="client-tabs">
+          ${tabs.map((tab) => `<button class="client-tab ${tab.id === active.id ? 'active' : ''}" type="button" data-client-tab="${tab.id}">${html(labels[tab.labelKey] || tab.id)}</button>`).join('')}
+        </div>
+        ${renderToolbar(pageId, active.toolbar, active.actions)}
+        ${renderTable(active.columns || [], (active.rows || []).map((row) => row.map((cell) => optionLabel(cell))))}
       </div>
     `;
   }

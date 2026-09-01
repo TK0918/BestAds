@@ -470,6 +470,19 @@ body.figma-ops-page .admin-page__subtitle {
   line-height: 20px;
 }
 
+body.figma-ops-page .tab-nav-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+body.figma-ops-page .tab-nav-stack .business-tabs,
+body.figma-ops-page .tab-nav-stack .sub-tabs {
+  margin: 0;
+}
+
 body.figma-ops-page .business-tabs {
   display: inline-flex;
   align-items: center;
@@ -505,6 +518,38 @@ body.figma-ops-page .business-tab.is-active {
   background: var(--ops-active);
   color: #fff;
   font-weight: 500;
+}
+
+body.figma-ops-page .sub-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 3px;
+  border: 1px solid var(--ops-border);
+  border-radius: var(--ops-radius-xl);
+  background: var(--ops-muted-surface);
+}
+
+body.figma-ops-page .sub-tab {
+  min-height: 26px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--ops-radius-lg);
+  background: transparent;
+  color: var(--ops-secondary);
+  font-size: 13px;
+}
+
+body.figma-ops-page .sub-tab:hover {
+  color: var(--ops-foreground);
+}
+
+body.figma-ops-page .sub-tab.is-active {
+  background: var(--ops-surface);
+  color: var(--ops-foreground);
+  font-weight: 500;
+  box-shadow: var(--ops-shadow-xs);
 }
 
 body.figma-ops-page .admin-card {
@@ -911,6 +956,7 @@ body.figma-ops-page.theme-dark .page-number:hover:not(:disabled) {
 
 body.figma-ops-page.theme-dark .admin-card,
 body.figma-ops-page.theme-dark .business-tabs,
+body.figma-ops-page.theme-dark .sub-tabs,
 body.figma-ops-page.theme-dark .modal,
 body.figma-ops-page.theme-dark .toast,
 body.figma-ops-page.theme-dark .account-check-list {

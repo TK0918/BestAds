@@ -737,7 +737,9 @@
     const fields = modal?.fields || [];
     const transferAttrs = fields.some(field => /transfer-card-select|transfer-warning/.test(field.control || '')) ? ' data-transfer-modal' : '';
     const hasRow = row && Object.keys(row).length > 0;
-    return `<div class="modal-backdrop"><section class="modal"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid"${transferAttrs}>${fields.map(field => { const required = hasRow && field.editRequired !== undefined ? field.editRequired : field.required !== false; return `<div class="form-field${field.full ? ' full' : ''}"><label>${fieldLabel(field, required)}</label>${modalControl(field, row?.[field.key], row)}</div>`; }).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+    const sizeClass = modal?.size === 'lg' ? ' modal-lg' : modal?.size === 'md' ? ' modal-md' : '';
+    const backdropAttr = modal?.backdropAttr ? ` ${modal.backdropAttr}` : '';
+    return `<div class="modal-backdrop"${backdropAttr}><section class="modal${sizeClass}"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid"${transferAttrs}>${fields.map(field => { const required = hasRow && field.editRequired !== undefined ? field.editRequired : field.required !== false; return `<div class="form-field${field.full ? ' full' : ''}"><label>${fieldLabel(field, required)}</label>${modalControl(field, row?.[field.key], row)}${field.help ? `<p class="field-help">${esc(field.help)}</p>` : ''}</div>`; }).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
 
   function offlineTransferAuditModal(modal, row) {
@@ -1648,6 +1650,56 @@
     return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(title || '查看详情')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><dl class="readonly-context readonly-context--wide">${items.map(([label, value]) => `<div><dt>${esc(label)}</dt><dd>${esc(asText(value))}</dd></div>`).join('')}</dl></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
+  function locationFeeFormatRatio(raw) {
+    const num = Number(String(raw == null ? '' : raw).replace(/%/g, '').trim());
+    if (!Number.isFinite(num) || num < 0) return '';
+    return `${num.toFixed(2)}%`;
+  }
+
+  function locationFeeSuggestTopup(row) {
+    const diff = Number(String(row?.difference || '0').replace(/,/g, ''));
+    return Math.max(0, Number.isFinite(diff) ? -diff : 0).toFixed(2);
+  }
+
+  function locationFeeFeishuModal(rows) {
+    const seen = new Set();
+    const items = [];
+    (rows || []).forEach(row => {
+      if (row.compareStatus !== '临界' && row.compareStatus !== '不足') return;
+      const merchantId = String(row.merchantId || '');
+      if (seen.has(merchantId)) return;
+      seen.add(merchantId);
+      items.push(row);
+    });
+    const notice = '每日估算跑完后发送。每个商户ID单独发一条飞书消息，并同时 @ 对应 BD 和 AM，便于在该条消息中回复跟进。只含对比状态为临界、不足的客户；差额 = 0 仍为充足，不发送。';
+    const cards = items.length
+      ? items.map((row, index) => `<div class="feishu-digest"><div class="feishu-digest__head"><strong>地区税费差额日报</strong><span>2026-08-31 09:05 · 消息 ${index + 1} / ${items.length} · 商户ID ${esc(row.merchantId || '-')} · ${esc(row.compareStatus)}</span></div><div class="feishu-digest__item"><div class="feishu-digest__at">@${esc(row.bd || '-')} @${esc(row.am || '-')}</div><p><strong>${esc(row.customerName || '-')}</strong> · 商户ID ${esc(row.merchantId || '-')} · ${esc(row.currency || '-')}</p><p>预估 ${esc(row.estimatedTax)} · 池 ${esc(row.poolBalance)} · 差额 ${esc(row.difference)} · ${esc(row.compareStatus)}</p><p>建议补入 ${esc(locationFeeSuggestTopup(row))} ${esc(row.currency || '')} · 入口：地区税费 / 客户预估税费&amp;预收池总览</p></div></div>`).join('')
+      : '<div class="feishu-digest"><div class="feishu-digest__head"><strong>地区税费差额日报</strong><span>2026-08-31 09:05 · 今日无需发送</span></div><div class="feishu-digest__item">当前没有临界或不足客户，不发送。</div></div>';
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">飞书通知示意</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">${notice}</div><div class="feishu-digest-list">${cards}</div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+  }
+
+  function locationFeeCreateResultModal(results, ratioText, page) {
+    const pageSize = 5;
+    const list = results || [];
+    const created = list.filter(item => item.action === '本次新增').length;
+    const overwritten = list.filter(item => item.action === '覆盖现有配置').length;
+    const missing = list.filter(item => item.action === '未找到').length;
+    const pages = Math.max(1, Math.ceil(list.length / pageSize));
+    const current = Math.min(Math.max(1, Number(page) || 1), pages);
+    const slice = list.slice((current - 1) * pageSize, current * pageSize);
+    const rowsHtml = slice.map(item => `<tr><td class="left">${esc(item.accountId)}</td><td class="left">${esc(item.accountName)}</td><td class="left"><span class="merchant-id">${esc(item.merchantId)}</span></td><td class="left">${esc(item.customerName)}</td><td>${esc(item.before)}</td><td>${esc(item.action)}</td><td class="ops"><button type="button" class="op-link op-link--danger" data-location-fee-result-remove="${esc(item.accountId)}">移除</button></td></tr>`).join('');
+    const pageButtons = Array.from({ length: pages }, (_, index) => {
+      const num = index + 1;
+      return `<button class="page-number${num === current ? ' is-active' : ''}" type="button" data-location-fee-result-page="${num}">${num}</button>`;
+    }).join('');
+    const summary = `预收比例 ${esc(ratioText)}。本次新增 ${created} 个，覆盖现有配置 ${overwritten} 个${missing ? `，未找到 ${missing} 个` : ''}。`;
+    return `<div class="modal-backdrop" data-location-fee-create-result><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">账户预收比例提交结果</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">${summary}</div><div class="table-scroll"><table class="admin-table result-table"><thead><tr><th class="left">广告账户ID</th><th class="left">广告账户名称</th><th class="left">当前商户ID</th><th class="left">客户名称</th><th>原配置</th><th>操作结果</th><th class="ops">操作</th></tr></thead><tbody>${rowsHtml || '<tr><td class="empty-state" colspan="7">没有可处理的广告账户</td></tr>'}</tbody></table></div><div class="pagination"><span>共 ${list.length} 条记录</span><div class="pagination__actions"><button class="page-number" type="button" data-location-fee-result-page="${current - 1}"${current <= 1 ? ' disabled' : ''}>‹</button>${pageButtons}<button class="page-number" type="button" data-location-fee-result-page="${current + 1}"${current >= pages ? ' disabled' : ''}>›</button></div></div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+  }
+
+  function locationFeeBatchRatioModal(count) {
+    return `<div class="modal-backdrop" data-location-fee-batch-ratio><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">批量设置预收比例</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><p class="confirm-copy">将对已选 <strong>${count}</strong> 个广告账户设置预收比例。已有账户覆盖将被覆盖。</p><div class="form-grid"><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 预收比例 K%</label><input name="ratio" data-location-fee-ratio placeholder="例如 5，0 表示显式不预收"></div><p class="field-help">0% 为显式不预收，与删除（回退客户规则）不同。</p></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+  }
+
   function confirmModal(title, copy, danger, action, options = {}) {
     const confirmText = options.confirmText || '确定';
     const cancelText = options.cancelText || '取消';
@@ -1750,10 +1802,28 @@
     if (!root) return;
     const config = pageConfig();
     const tabs = config.tabs || [{ id: 'list', label: '', ...config }];
-    const state = { tab: tabs[0].id, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null };
+    const state = { tab: tabs[0].id, groupTab: {}, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null, locationFeeCreateResult: null };
     runtimeState = state;
 
     function activeTab() { return tabs.find(item => item.id === state.tab) || tabs[0]; }
+    function navGroups() {
+      const groups = [];
+      const indexByKey = new Map();
+      tabs.forEach(tab => {
+        if (!tab.label && !tab.navGroup) return;
+        const key = tab.navGroup || tab.id;
+        if (!indexByKey.has(key)) {
+          indexByKey.set(key, groups.length);
+          groups.push({ key, label: tab.navGroup || tab.label, tabs: [] });
+        }
+        groups[indexByKey.get(key)].tabs.push(tab);
+      });
+      return groups;
+    }
+    function rememberGroupTab(tabId) {
+      const tab = tabs.find(item => item.id === tabId);
+      if (tab?.navGroup) state.groupTab[tab.navGroup] = tabId;
+    }
     function selectedSet(tab) { if (!state.selected[tab.id]) state.selected[tab.id] = new Set(); return state.selected[tab.id]; }
     function expandedSet(tab) { if (!state.expanded[tab.id]) state.expanded[tab.id] = new Set(tab.defaultExpandedKeys || []); return state.expanded[tab.id]; }
     function defaultFieldPref(tab) {
@@ -1777,9 +1847,17 @@
       const contentWidth = columns.reduce((sum, column) => sum + (column.width || 160), 0) + (tab.selectable ? 52 : 0) + (showOps ? (tab.opsWidth || 180) : 0);
       return Math.max(980, contentWidth);
     }
-    function rowMatches(row, values, rangeFields, rangeValueKeys) {
+    function rowMatches(row, values, rangeFields, rangeValueKeys, tab) {
+      const filterByKey = new Map((tab?.filters || []).map(field => [field.key, field]));
       const matchedTextFilters = Object.keys(values).every(key => {
         if (rangeValueKeys.has(key)) return true;
+        const field = filterByKey.get(key);
+        if (field?.match === 'ids') {
+          const tokens = parseMatchTokens(values[key]).map(item => item.toLowerCase());
+          if (!tokens.length) return true;
+          const rowValue = String(row[field.rowKey || field.key] || '').toLowerCase();
+          return tokens.includes(rowValue);
+        }
         if (!(key in row)) return true;
         if (!values[key]) return true;
         const rowValue = String(row[key] || '').toLowerCase();
@@ -1832,12 +1910,12 @@
       const sorter = (a, b) => String(a[sort.key] || '').localeCompare(String(b[sort.key] || ''), 'zh-CN', { numeric: true }) * (sort.dir === 'desc' ? -1 : 1);
       if (tab.treeRows) {
         const expanded = expandedSet(tab);
-        let parents = normalizedTreeRows(tab).filter(parent => rowMatches(parent, values, rangeFields, rangeValueKeys) || (parent.children || []).some(child => rowMatches(child, values, rangeFields, rangeValueKeys)));
+        let parents = normalizedTreeRows(tab).filter(parent => rowMatches(parent, values, rangeFields, rangeValueKeys, tab) || (parent.children || []).some(child => rowMatches(child, values, rangeFields, rangeValueKeys, tab)));
         if (sort) parents = parents.slice().sort(sorter);
         return parents.map((parent, parentIndex) => {
           const key = treeKey(parent, parentIndex);
-          const parentMatches = rowMatches(parent, values, rangeFields, rangeValueKeys);
-          const childRows = parentMatches ? (parent.children || []) : (parent.children || []).filter(child => rowMatches(child, values, rangeFields, rangeValueKeys));
+          const parentMatches = rowMatches(parent, values, rangeFields, rangeValueKeys, tab);
+          const childRows = parentMatches ? (parent.children || []) : (parent.children || []).filter(child => rowMatches(child, values, rangeFields, rangeValueKeys, tab));
           parent._treeLevel = 0;
           parent._treeKey = key;
           parent._treeToggleColumn = tab.treeToggleColumnKey || 'c0';
@@ -1854,7 +1932,7 @@
           return parent;
         });
       }
-      let result = (tab.rows || []).filter(row => rowMatches(row, values, rangeFields, rangeValueKeys));
+      let result = (tab.rows || []).filter(row => rowMatches(row, values, rangeFields, rangeValueKeys, tab));
       if (sort) result = result.slice().sort(sorter);
       return result;
     }
@@ -3139,7 +3217,51 @@
       showToast(`已更新验卡额度状态：${row.c22 || row.verifyStatus}（原型）`, 'success');
       return true;
     }
-  function readFilters(tab) {
+    function unmatchedIdsNotice(tab) {
+      const fields = (tab.filters || []).filter(item => item.match === 'ids');
+      return fields.map(field => {
+        const tokens = parseMatchTokens((state.values[tab.id] || {})[field.key]);
+        if (!tokens.length) return '';
+        const rowKey = field.rowKey || field.key;
+        const found = new Set((tab.rows || []).map(row => String(row[rowKey] || '').toLowerCase()));
+        const missing = tokens.filter(id => !found.has(id.toLowerCase()));
+        if (!missing.length) return '';
+        return `<div class="notice notice--warning">未找到 ${missing.length} 个${esc(field.label)}：${esc(missing.join('、'))}</div>`;
+      }).join('');
+    }
+    function applyLocationFeeOverride(row, ratioText) {
+      row.ratio = ratioText;
+      row.hasOverride = true;
+      row.source = '账户覆盖';
+      row.updatedAt = currentTimestamp();
+      row.ops = ['编辑', '删除'];
+    }
+    function clearLocationFeeOverride(row) {
+      row.hasOverride = false;
+      row.ratio = row.customerRatio ? row.customerRatio : '—';
+      row.source = row.customerRatio ? '客户规则' : '未配置';
+      row.updatedAt = currentTimestamp();
+      row.ops = ['编辑'];
+    }
+    function restoreLocationFeeCreateItem(item) {
+      if (!item?.row || item.action === '未找到' || !item.snapshot) return;
+      const snap = item.snapshot;
+      item.row.hasOverride = snap.hasOverride;
+      item.row.ratio = snap.ratio;
+      item.row.source = snap.source;
+      item.row.updatedAt = snap.updatedAt;
+      item.row.ops = (snap.ops || []).slice();
+    }
+    function refreshLocationFeeCreateResultModal(renderList) {
+      const payload = state.locationFeeCreateResult;
+      if (!payload) return;
+      const pages = Math.max(1, Math.ceil((payload.results || []).length / 5));
+      payload.page = Math.min(Math.max(1, payload.page || 1), pages);
+      closeModal();
+      if (renderList) render();
+      openModal(locationFeeCreateResultModal(payload.results, payload.ratioText, payload.page));
+    }
+    function readFilters(tab) {
     const values = {};
     root.querySelectorAll('[data-filter]').forEach(node => {
         values[node.dataset.filter] = node.value.trim();
@@ -3148,8 +3270,16 @@
     }
     function render() {
       const tab = activeTab();
-      const hasTabs = tabs.filter(item => item.label).length > 1;
-      const tabHtml = hasTabs ? `<div class="business-tabs" role="tablist">${tabs.filter(item => item.label).map(item => `<button type="button" class="business-tab${item.id === state.tab ? ' is-active' : ''}" data-tab="${esc(item.id)}">${esc(item.label)}</button>`).join('')}</div>` : '';
+      const groups = navGroups();
+      const hasTabs = groups.length > 1;
+      const tabHtml = hasTabs ? `<div class="business-tabs" role="tablist">${groups.map(group => {
+        const active = group.tabs.some(item => item.id === state.tab);
+        const targetId = active ? state.tab : (state.groupTab[group.key] || group.tabs[0].id);
+        return `<button type="button" class="business-tab${active ? ' is-active' : ''}" data-tab="${esc(targetId)}">${esc(group.label)}</button>`;
+      }).join('')}</div>` : '';
+      const activeGroup = groups.find(group => group.tabs.some(item => item.id === state.tab));
+      const subTabHtml = activeGroup && activeGroup.tabs.length > 1 ? `<div class="sub-tabs" role="tablist">${activeGroup.tabs.map(item => `<button type="button" class="sub-tab${item.id === state.tab ? ' is-active' : ''}" data-tab="${esc(item.id)}">${esc(item.label)}</button>`).join('')}</div>` : '';
+      const navHtml = (tabHtml || subTabHtml) ? `<div class="tab-nav-stack">${tabHtml}${subTabHtml}</div>` : '';
       const kpis = tab.kpis || config.kpis || [];
       const kpiHtml = kpis.length ? `<section class="kpi-grid" aria-label="${esc(tab.title || config.title || '统计')}">${kpis.map(item => `<div class="admin-card kpi-card"><p class="kpi-card__label">${esc(item.label)}</p><div class="kpi-card__value">${esc(item.value)}</div><p class="kpi-card__hint">${esc(item.hint || '')}</p></div>`).join('')}</section>` : '';
       const filterHtml = tab.filters?.length ? `<section class="admin-card filter-card"><div class="admin-card__body"><div class="filter-grid ${tab.filterClass || (tab.filters.length >= 5 ? 'cols-5' : tab.filters.length === 3 ? 'cols-3' : '')}">${tab.filters.map(field => fieldHtml(field, state.values[tab.id] || {})).join('')}<div class="filter-actions"><button class="btn btn-primary" type="button" data-action="search">${icon('search')}搜 索</button><button class="btn btn-default" type="button" data-action="reset">重 置</button></div></div></div></section>` : '';
@@ -3188,11 +3318,16 @@
       const colgroup = `<colgroup>${tab.selectable ? '<col style="width:52px">' : ''}${columns.map(column => `<col style="width:${column.width || 160}px">`).join('')}${showOps ? `<col style="width:${tab.opsWidth || 180}px">` : ''}</colgroup>`;
       const footerNote = tab.footerNote ? `<div class="notice module-footer-note">${esc(tab.footerNote)}</div>` : '';
       const cardHeader = leftActions || rightActions ? `<div class="admin-card__header"><div class="command-bar command-bar--split"><div class="command-group command-group--primary">${leftActions}</div><div class="command-group command-group--secondary">${rightActions}</div></div></div>` : '';
-      root.innerHTML = `<div class="admin-page module-page">${tabHtml}${kpiHtml}${filterHtml}${dimensionSelectorHtml(tab)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
+      root.innerHTML = `<div class="admin-page module-page">${navHtml}${kpiHtml}${filterHtml}${unmatchedIdsNotice(tab)}${dimensionSelectorHtml(tab)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
       root.querySelectorAll('[data-requires-selection]').forEach(button => { button.disabled = selected.size === 0; });
     }
     function handleRowAction(action, row) {
       const tab = activeTab();
+      if (action === '删除' && tab.id === 'ratio-account') {
+        state.processingRow = row;
+        openModal(confirmModal('删除账户预收比例', `删除后回退客户规则（或未配置）。不预收请设显式 0%，不要用删除。<br><br>广告账户 <strong>${esc(row.accountId || '-')}</strong> 当前来源：${esc(row.source || '-')}。`, true, 'location-fee-row-delete', { size: 'md' }));
+        return;
+      }
       const modal = tab.modals?.[action] || config.modals?.[action];
       if (modal) {
         state.processingRow = row;
@@ -3217,6 +3352,8 @@
         return;
       }
       if (action === '编辑' && tab.modal) {
+        state.processingRow = row;
+        state.processingAction = action;
         openModal(formModal({ ...tab.modal, title: tab.modal.editTitle || tab.modal.title || '编辑' }, row));
         return;
       }
@@ -3361,13 +3498,30 @@
         return;
       }
       const tabButton = event.target.closest('[data-tab]');
-      if (tabButton) { state.tab = tabButton.dataset.tab; render(); return; }
+      if (tabButton) { state.tab = tabButton.dataset.tab; rememberGroupTab(state.tab); render(); return; }
       const actionButton = event.target.closest('[data-action]');
       if (actionButton) {
         const tab = activeTab();
         if (actionButton.dataset.action === 'search') { readFilters(tab); render(); showToast('已按当前条件更新列表（原型）', 'success'); return; }
         if (actionButton.dataset.action === 'reset') { state.values[tab.id] = {}; state.sort[tab.id] = null; selectedSet(tab).clear(); render(); showToast('筛选条件已重置', 'info'); return; }
         if (actionButton.dataset.action === 'export') { showToast('导出任务已创建，可在导出中心查看进度（原型）', 'success'); return; }
+        if (actionButton.dataset.action === 'feishu-notice') {
+          const overview = tabs.find(item => item.id === 'overview');
+          openModal(locationFeeFeishuModal(overview?.rows || []));
+          return;
+        }
+        if (actionButton.dataset.action === 'batch-ratio') {
+          const count = selectedSet(tab).size;
+          if (!count) { showToast('请先勾选需要批量处理的记录', 'error'); return; }
+          openModal(locationFeeBatchRatioModal(count));
+          return;
+        }
+        if (actionButton.dataset.action === 'batch-delete-ratio') {
+          const count = selectedSet(tab).size;
+          if (!count) { showToast('请先勾选需要批量处理的记录', 'error'); return; }
+          openModal(confirmModal('批量删除账户覆盖', `删除后回退客户规则（或未配置）。不预收请设显式 0%，不要用删除。<br><br>将对已选 <strong>${count}</strong> 条执行删除。`, true, 'location-fee-batch-delete', { size: 'md' }));
+          return;
+        }
         if (actionButton.dataset.action === 'download-template') { showToast('已开始下载导入模版（原型）', 'success'); return; }
         if (actionButton.dataset.action === 'custom-fields') { openModal(customFieldsModal(tab, fieldPref(tab))); return; }
         if (actionButton.dataset.action === 'upload') { const input = root.querySelector('[data-file-upload]'); if (input) { input.value = ''; input.click(); } showToast(actionButton.dataset.uploadToast || `请选择本地文件执行“${actionButton.dataset.actionLabel || actionButton.textContent.trim()}”（原型）`, 'info'); return; }
@@ -3387,7 +3541,18 @@
           syncOpeningRuleConfigPreview(document.querySelector('[data-opening-rule-config-modal]'));
           syncOpeningApplyCreateModal(document.querySelector('[data-opening-apply-create-modal]'));
         }
-        else if ((/^create/.test(actionButton.dataset.action || '') || /新增|创建/.test(actionLabel)) && tab.modal) openModal(formModal({ ...tab.modal, title: tab.modal.title || actionLabel }, {}));
+        else if ((/^create/.test(actionButton.dataset.action || '') || /新增|创建/.test(actionLabel)) && tab.modal) {
+          state.processingRow = null;
+          state.processingAction = 'create';
+          const createModal = {
+            ...tab.modal,
+            title: tab.modal.title || actionLabel,
+            fields: tab.modal.createFields || tab.modal.fields,
+            size: tab.modal.createSize || tab.modal.size
+          };
+          if (tab.id === 'ratio-account') createModal.backdropAttr = 'data-location-fee-create-ratio';
+          openModal(formModal(createModal, {}));
+        }
         else showToast(`${actionLabel}操作已触发（原型）`, 'success');
         return;
       }
@@ -3461,9 +3626,27 @@
           return;
         }
       }
+      const resultRemove = event.target.closest('[data-location-fee-result-remove]');
+      if (resultRemove) {
+        const payload = state.locationFeeCreateResult;
+        const accountId = resultRemove.getAttribute('data-location-fee-result-remove');
+        const item = payload?.results?.find(entry => String(entry.accountId) === accountId);
+        if (item) restoreLocationFeeCreateItem(item);
+        if (payload) payload.results = (payload.results || []).filter(entry => String(entry.accountId) !== accountId);
+        refreshLocationFeeCreateResultModal(true);
+        return;
+      }
+      const resultPage = event.target.closest('[data-location-fee-result-page]');
+      if (resultPage && !resultPage.disabled) {
+        const payload = state.locationFeeCreateResult;
+        if (payload) payload.page = Number(resultPage.getAttribute('data-location-fee-result-page')) || 1;
+        refreshLocationFeeCreateResultModal(false);
+        return;
+      }
       const closeButton = event.target.closest('[data-modal-close]');
       if (closeButton) {
         const backdrop = closeButton.closest('.modal-backdrop');
+        if (backdrop?.matches('[data-location-fee-create-result]')) state.locationFeeCreateResult = null;
         if (backdrop?.dataset.confirmAction === 'confirm-process-success' && state.pendingProcess) {
           const pending = state.pendingProcess;
           state.processingRow = pending.row;
@@ -3517,6 +3700,80 @@
       if (event.target.closest('[data-modal-submit]')) {
         const backdrop = event.target.closest('.modal-backdrop');
         const tab = activeTab();
+        if (backdrop?.dataset.confirmAction === 'location-fee-batch-delete') {
+          const current = rows(tab);
+          const selected = Array.from(selectedSet(tab)).map(index => current[index]).filter(Boolean);
+          let deleted = 0;
+          let skipped = 0;
+          selected.forEach(row => {
+            if (row.hasOverride) {
+              clearLocationFeeOverride(row);
+              deleted += 1;
+            } else skipped += 1;
+          });
+          selectedSet(tab).clear();
+          closeModal();
+          render();
+          showToast(`已删除 ${deleted} 条账户覆盖${skipped ? `，${skipped} 条无覆盖已跳过` : ''}（原型）`, 'success');
+          return;
+        }
+        if (backdrop?.dataset.confirmAction === 'location-fee-row-delete') {
+          const row = state.processingRow;
+          const had = Boolean(row?.hasOverride);
+          if (had) clearLocationFeeOverride(row);
+          state.processingRow = null;
+          closeModal();
+          render();
+          showToast(had ? '已删除账户覆盖，已回退客户规则（原型）' : '当前无账户覆盖，无需删除（原型）', had ? 'success' : 'info');
+          return;
+        }
+        if (backdrop?.matches('[data-location-fee-batch-ratio]') || backdrop?.querySelector('[data-location-fee-batch-ratio]')) {
+          const ratioText = locationFeeFormatRatio(backdrop.querySelector('[data-location-fee-ratio]')?.value);
+          if (!ratioText) { showToast('请输入有效的预收比例', 'error'); return; }
+          const current = rows(tab);
+          const selected = Array.from(selectedSet(tab)).map(index => current[index]).filter(Boolean);
+          selected.forEach(row => applyLocationFeeOverride(row, ratioText));
+          selectedSet(tab).clear();
+          closeModal();
+          render();
+          showToast(`已为 ${selected.length} 个广告账户设置预收比例 ${ratioText}（原型）`, 'success');
+          return;
+        }
+        if (backdrop?.matches('[data-location-fee-create-ratio]')) {
+          const ratioText = locationFeeFormatRatio(backdrop.querySelector('[name="ratio"]')?.value);
+          if (!ratioText) { showToast('请输入有效的预收比例', 'error'); return; }
+          const ids = [...new Set(parseMatchTokens(backdrop.querySelector('[name="accountId"]')?.value))];
+          if (!ids.length) { showToast('请输入广告账户ID', 'error'); return; }
+          const results = ids.map(accountId => {
+            const row = (tab.rows || []).find(item => String(item.accountId) === accountId);
+            if (!row) {
+              return { accountId, accountName: '—', merchantId: '—', customerName: '—', before: '—', action: '未找到' };
+            }
+            const action = row.hasOverride ? '覆盖现有配置' : '本次新增';
+            const before = row.hasOverride ? (row.ratio || '—') : '无';
+            const snapshot = { hasOverride: row.hasOverride, ratio: row.ratio, source: row.source, updatedAt: row.updatedAt, ops: (row.ops || []).slice() };
+            applyLocationFeeOverride(row, ratioText);
+            return { accountId, accountName: row.accountName || '—', merchantId: row.merchantId || '—', customerName: row.customerName || '—', before, action, row, snapshot };
+          });
+          state.processingRow = null;
+          state.locationFeeCreateResult = { results, ratioText, page: 1 };
+          closeModal();
+          render();
+          openModal(locationFeeCreateResultModal(results, ratioText, 1));
+          return;
+        }
+        if (tab.id === 'ratio-account' && backdrop?.querySelector('[name="ratio"]')) {
+          const ratioText = locationFeeFormatRatio(backdrop.querySelector('[name="ratio"]')?.value);
+          if (!ratioText) { showToast('请输入有效的预收比例', 'error'); return; }
+          const row = state.processingRow;
+          if (!row) { showToast('请选择要编辑的广告账户', 'error'); return; }
+          applyLocationFeeOverride(row, ratioText);
+          state.processingRow = null;
+          closeModal();
+          render();
+          showToast(`已更新账户预收比例 ${ratioText}（原型）`, 'success');
+          return;
+        }
         if (backdrop?.dataset.confirmAction === 'confirm-submit-adjustment') {
           commitPendingAdjustment();
           return;

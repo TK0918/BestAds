@@ -53,7 +53,16 @@
     body.theme-dark .text-gray-300 { color: #CBD5E1 !important; }
     body.theme-dark .text-gray-900 { color: #F8FAFC !important; }
     .fee-notice { background: #FFF7E8; border: 1px solid #FFE4BA; color: #873800; border-radius: 12px; padding: 10px 12px; font-size: 12px; line-height: 1.5; }
+    .fee-notice a { color: #2759ff; font-weight: 600; text-decoration: none; }
+    .fee-notice p + p { margin-top: 4px; }
     body.theme-dark .fee-notice { background: rgba(245,158,11,0.12); border-color: #F59E0B; color: #FBBF24; }
+    body.theme-dark .fee-notice a { color: #93b4ff; }
+    #feePrepaidCard { cursor: pointer; }
+    .fee-tab-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+    .fee-tab-bar .filter-btn { flex: 1; }
+    .fee-pool-amt { font-variant-numeric: tabular-nums; font-weight: 600; }
+    .fee-pool-amt.in { color: #00BF85; }
+    .fee-pool-amt.out { color: #f53f3f; }
     .fee-item .fee-amt { color: #00BF85; font-weight: 700; font-variant-numeric: tabular-nums; }
     body.theme-dark .fee-item .fee-amt { color: #00FFB0; }
     .bottom-nav .nav-btn { padding: 4px 6px; }
@@ -194,12 +203,14 @@
       <div class="fee-notice mb-3" id="i18n_fee_soft_alert" style="border-width:2px;">
         【软提醒】近 7 天估算税费约 84 USD，预收池余额 500 USD。若持续投应税国家，请联系运营补预收。本提醒不扣款。
       </div>
-      <div class="fee-notice mb-3" id="i18n_fee_notice">
-        估算金额，仅供参考，实际以 Meta 账单为准。近 7 天数据每日更新，可能变化。充值时预收从充值额内拆分。
+      <div class="fee-notice mb-3">
+        <p id="i18n_fee_reserve">系统会在充值时按比例预留地区税费，实际费用以 Meta 账单为准；预留不是服务费。</p>
+        <p><a id="i18n_fee_official" href="https://business.facebook.com/business/help/1238737454289085" target="_blank" rel="noopener noreferrer">Meta 官方说明</a></p>
+        <p id="i18n_fee_notice">估算金额，仅供参考，实际费用以 Meta 账单为准。近 7 天数据每日更新，可能变化。</p>
       </div>
 
       <div class="grid grid-cols-2 gap-2 mb-3">
-        <div class="card p-3">
+        <div class="card p-3" id="feePrepaidCard" role="button" tabindex="0" onclick="switchFeeTab('pool')">
           <div id="i18n_fee_prepaid_label" class="text-xs text-gray-500">预收池余额</div>
           <div class="text-lg font-bold mt-1" style="color:#00BF85;font-variant-numeric:tabular-nums;">500.00<span class="text-xs font-medium text-gray-500 ml-1">USD</span></div>
         </div>
@@ -217,6 +228,12 @@
         </div>
       </div>
 
+      <div class="fee-tab-bar">
+        <button type="button" class="filter-btn active" data-fee-tab="detail" id="i18n_fee_tab_detail" onclick="switchFeeTab('detail')">税费明细</button>
+        <button type="button" class="filter-btn" data-fee-tab="pool" id="i18n_fee_tab_pool" onclick="switchFeeTab('pool')">预收池流水</button>
+      </div>
+
+      <div id="feeDetailPane">
       <div class="card p-3 mb-3 space-y-2">
         <div class="flex gap-2">
           <input type="date" value="2026-07-01" class="input flex-1 px-2 py-2 text-sm min-w-0">
@@ -258,6 +275,48 @@
             <div class="fee-amt text-sm">+50.00 EUR</div>
           </div>
           <div class="text-xs text-gray-500">2026-07-05 · EU-Brand · <span data-fee-spend>消耗</span> <b class="text-gray-900">1,000</b> · 5%</div>
+        </div>
+      </div>
+      </div>
+
+      <div id="feePoolPane" hidden>
+        <p id="i18n_fee_pool_tip" class="text-xs text-gray-500 mb-2 px-0.5">与运营端预收池流水同一口径；类型已转为客户用语。</p>
+        <div class="space-y-2" id="feePoolList">
+          <div class="card p-3" data-pool-type="recharge">
+            <div class="flex justify-between items-baseline gap-2 mb-1">
+              <div class="font-semibold text-sm" data-pool-type-label>充值预留</div>
+              <div class="fee-pool-amt in">+50.00 USD</div>
+            </div>
+            <div class="text-xs text-gray-500">2026-08-12 11:20:08 · 入账 · 238401982 · <span data-pool-fx>汇率</span> 1</div>
+          </div>
+          <div class="card p-3" data-pool-type="deduct">
+            <div class="flex justify-between items-baseline gap-2 mb-1">
+              <div class="font-semibold text-sm" data-pool-type-label>税费扣减</div>
+              <div class="fee-pool-amt out">-84.00 USD</div>
+            </div>
+            <div class="text-xs text-gray-500">2026-08-10 09:16:03 · 出账 · 238401982 · <span data-pool-fx>汇率</span> 1</div>
+          </div>
+          <div class="card p-3" data-pool-type="topup">
+            <div class="flex justify-between items-baseline gap-2 mb-1">
+              <div class="font-semibold text-sm" data-pool-type-label>钱包补入</div>
+              <div class="fee-pool-amt in">+30.00 USD</div>
+            </div>
+            <div class="text-xs text-gray-500">2026-08-07 14:20:00 · 入账 · — · <span data-pool-fx>汇率</span> 1</div>
+          </div>
+          <div class="card p-3" data-pool-type="release">
+            <div class="flex justify-between items-baseline gap-2 mb-1">
+              <div class="font-semibold text-sm" data-pool-type-label>退回钱包</div>
+              <div class="fee-pool-amt out">-20.00 USD</div>
+            </div>
+            <div class="text-xs text-gray-500">2026-08-06 16:08:02 · 出账 · — · <span data-pool-fx>汇率</span> 1</div>
+          </div>
+          <div class="card p-3" data-pool-type="deduct">
+            <div class="flex justify-between items-baseline gap-2 mb-1">
+              <div class="font-semibold text-sm" data-pool-type-label>税费扣减</div>
+              <div class="fee-pool-amt out">-49.00 EUR</div>
+            </div>
+            <div class="text-xs text-gray-500">2026-08-05 11:02:18 · 出账 · 555000111 · <span data-pool-fx>汇率</span> 1.087</div>
+          </div>
         </div>
       </div>
     </section>
@@ -470,6 +529,18 @@
 
         // 地区税费
         fee_notice: '估算金额，仅供参考，实际以 Meta 账单为准。近 7 天数据每日更新，可能变化。',
+        fee_reserve: '系统会在充值时按比例预留地区税费，实际费用以 Meta 账单为准；预留不是服务费。',
+        fee_official: 'Meta 官方说明',
+        fee_prepaid_label: '预收池余额',
+        fee_est7_label: '近7天估算税费',
+        fee_tab_detail: '税费明细',
+        fee_tab_pool: '预收池流水',
+        fee_pool_tip: '与运营端预收池流水同一口径；类型已转为客户用语。',
+        fee_pool_recharge: '充值预留',
+        fee_pool_deduct: '税费扣减',
+        fee_pool_topup: '钱包补入',
+        fee_pool_release: '退回钱包',
+        fee_pool_fx: '汇率',
         fee_taxable_label: '应税消耗',
         fee_est_label: '估算税费',
         fee_search_btn: '查询',
@@ -554,6 +625,18 @@
 
         // Location fees
         fee_notice: 'Estimates only — actual charges follow Meta invoice. Last 7 days refresh daily and may change.',
+        fee_reserve: 'Location fees are reserved from recharge at a set rate. Actual charges follow Meta billing. This reserve is not a service fee.',
+        fee_official: 'Meta official help',
+        fee_prepaid_label: 'Prepaid pool',
+        fee_est7_label: 'Last 7 days estimate',
+        fee_tab_detail: 'Tax details',
+        fee_tab_pool: 'Prepaid ledger',
+        fee_pool_tip: 'Same calculation as the ops prepaid pool ledger; type names are mapped for customers.',
+        fee_pool_recharge: 'Recharge reserve',
+        fee_pool_deduct: 'Tax offset',
+        fee_pool_topup: 'Wallet top-up',
+        fee_pool_release: 'Returned to wallet',
+        fee_pool_fx: 'FX',
         fee_taxable_label: 'Taxable spend',
         fee_est_label: 'Est. fees',
         fee_search_btn: 'Go',
@@ -734,10 +817,20 @@
     function switchRecordFilter(type) {
       currentRecordFilter = type;
       // 更新筛选按钮状态
-      document.querySelectorAll('.filter-btn').forEach(btn => {
+      document.querySelectorAll('.filter-btn[data-type]').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-type') === type);
       });
       renderRecords();
+    }
+
+    function switchFeeTab(tab) {
+      const detailPane = document.getElementById('feeDetailPane');
+      const poolPane = document.getElementById('feePoolPane');
+      if (detailPane) detailPane.hidden = tab !== 'detail';
+      if (poolPane) poolPane.hidden = tab !== 'pool';
+      document.querySelectorAll('[data-fee-tab]').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-fee-tab') === tab);
+      });
     }
 
     function renderRecords() {
@@ -1324,6 +1417,13 @@
       const n4 = document.getElementById('i18n_nav_wallet'); if (n4) n4.textContent = lang.nav_wallet;
 
       const feeNotice = document.getElementById('i18n_fee_notice'); if (feeNotice) feeNotice.textContent = lang.fee_notice;
+      const feeReserve = document.getElementById('i18n_fee_reserve'); if (feeReserve) feeReserve.textContent = lang.fee_reserve;
+      const feeOfficial = document.getElementById('i18n_fee_official'); if (feeOfficial) feeOfficial.textContent = lang.fee_official;
+      const feePrepaid = document.getElementById('i18n_fee_prepaid_label'); if (feePrepaid) feePrepaid.textContent = lang.fee_prepaid_label;
+      const feeEst7 = document.getElementById('i18n_fee_est7_label'); if (feeEst7) feeEst7.textContent = lang.fee_est7_label;
+      const feeTabDetail = document.getElementById('i18n_fee_tab_detail'); if (feeTabDetail) feeTabDetail.textContent = lang.fee_tab_detail;
+      const feeTabPool = document.getElementById('i18n_fee_tab_pool'); if (feeTabPool) feeTabPool.textContent = lang.fee_tab_pool;
+      const feePoolTip = document.getElementById('i18n_fee_pool_tip'); if (feePoolTip) feePoolTip.textContent = lang.fee_pool_tip;
       const feeTaxable = document.getElementById('i18n_fee_taxable_label'); if (feeTaxable) feeTaxable.textContent = lang.fee_taxable_label;
       const feeEst = document.getElementById('i18n_fee_est_label'); if (feeEst) feeEst.textContent = lang.fee_est_label;
       const feeSearchBtn = document.getElementById('i18n_fee_search_btn'); if (feeSearchBtn) feeSearchBtn.textContent = lang.fee_search_btn;
@@ -1335,6 +1435,17 @@
         const key = el.getAttribute('data-fee-country');
         if (countryMap[key]) el.textContent = countryMap[key];
       });
+      const poolTypeMap = {
+        recharge: lang.fee_pool_recharge,
+        deduct: lang.fee_pool_deduct,
+        topup: lang.fee_pool_topup,
+        release: lang.fee_pool_release
+      };
+      document.querySelectorAll('[data-pool-type-label]').forEach(function (el) {
+        const type = el.closest('[data-pool-type]')?.getAttribute('data-pool-type');
+        if (poolTypeMap[type]) el.textContent = poolTypeMap[type];
+      });
+      document.querySelectorAll('[data-pool-fx]').forEach(function (el) { el.textContent = lang.fee_pool_fx; });
       
       // 更新报告页面
       const r1 = document.getElementById('i18n_report_monthly'); if (r1) r1.textContent = lang.report_monthly;
@@ -1343,7 +1454,7 @@
       const rt2 = document.getElementById('rankTabYesterday'); if (rt2) rt2.textContent = lang.rank_yesterday;
       
       // 更新记录页面筛选按钮
-      const filterButtons = document.querySelectorAll('.filter-btn');
+      const filterButtons = document.querySelectorAll('.filter-btn[data-type]');
       filterButtons.forEach(btn => {
         const type = btn.getAttribute('data-type');
         if (type === 'all') btn.textContent = lang.filter_all;
