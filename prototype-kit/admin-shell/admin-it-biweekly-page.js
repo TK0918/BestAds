@@ -9,7 +9,7 @@
   if (!root) return;
 
   // 8 月 18 日三张 KPI 只来自第一份飞书明细；9 月 1 日只来自第二份。
-  // 漏斗来自第二份表「客户生命周期」事件日期，按各时点截断；源表无首次账户充值日期，该层不统计。
+  // 漏斗来自第二份表「客户生命周期」9 个事件日期，按各时点截断，不改原表。
   const KPI = {
     '2026-08-18': {
       fund: {
@@ -98,6 +98,7 @@
       { name: '注册', count: 943, prevCount: 901 },
       { name: '打款', count: 821, prevCount: 774 },
       { name: '下户', count: 820, prevCount: 772 },
+      { name: '首次账户充值', count: 733, prevCount: 690 },
       { name: '新客成交率（首次消耗）', count: 717, prevCount: 673 },
       { name: '累计消耗 1k', count: 428, prevCount: 406 },
       { name: '累计消耗 5k', count: 219, prevCount: 200 },
@@ -108,6 +109,7 @@
       { name: '注册', count: 988, prevCount: 943 },
       { name: '打款', count: 861, prevCount: 821 },
       { name: '下户', count: 868, prevCount: 820 },
+      { name: '首次账户充值', count: 768, prevCount: 733 },
       { name: '新客成交率（首次消耗）', count: 750, prevCount: 717 },
       { name: '累计消耗 1k', count: 447, prevCount: 428 },
       { name: '累计消耗 5k', count: 235, prevCount: 219 },
@@ -188,7 +190,7 @@
   const funnelHintText = (statDate) => {
     const w = windowsFromStatDate(statDate);
     const yearStart = `${parseDate(statDate).getFullYear()}-01-01`;
-    return `人群为 ${yearStart} 至各时点已注册的商户ID。对比 ${formatYMD(w.prevEnd)} 与 ${formatYMD(w.currentEnd)}。商户ID数看上期 → 本期及数量变化；整体看上期 → 本期转化率及百分点变化。源表无首次账户充值日期，该层未统计。`;
+    return `人群为 ${yearStart} 至各时点已注册的商户ID。对比 ${formatYMD(w.prevEnd)} 与 ${formatYMD(w.currentEnd)}。商户ID数看上期 → 本期及数量变化；整体看上期 → 本期转化率及百分点变化。`;
   };
   const signedInt = (n) => (n > 0 ? '+' : '') + num(n);
   const ppDelta = (curRate, prevRate) => {
