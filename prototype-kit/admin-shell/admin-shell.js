@@ -14,7 +14,7 @@
   const repoRootUrl = new URL('../../', shellUrl);
   // 运营端原型公共资源统一版本号。
   // admin-system/**/*.html 中 prototype-kit/admin-shell/* 的 ?v= 应与此值保持一致。
-  const SHELL_VERSION = '20260902-it-biweekly-funnel-9';
+  const SHELL_VERSION = '20260904-it-biweekly-newold';
   const cssUrlObj = new URL('admin-shell.css', shellDirUrl);
   const figmaCssUrlObj = new URL('figma-ops.css', shellDirUrl);
   cssUrlObj.searchParams.set('v', SHELL_VERSION);
@@ -147,10 +147,13 @@
       const itemsHtml = items.map(item => {
         const active = item.path && isCurrentPage(item.path);
         const planned = item.status === 'planned' || !item.path;
+        const badgeCount = Number(item.badge);
+        const badgeText = badgeCount > 99 ? '99+' : String(badgeCount);
+        const badgeHtml = badgeCount > 0 ? `<span class="admin-shell-badge" aria-label="待办 ${escapeHtml(badgeText)}">${escapeHtml(badgeText)}</span>` : '';
         if (planned) {
-          return `<li><span class="sidebar-item admin-shell-item is-planned" aria-disabled="true" title="待建设"><span>${escapeHtml(item.label)}</span><span class="admin-shell-planned">待建设</span></span></li>`;
+          return `<li><span class="sidebar-item admin-shell-item is-planned" aria-disabled="true" title="待建设"><span class="admin-shell-item-text">${escapeHtml(item.label)}</span><span class="admin-shell-planned">待建设</span></span></li>`;
         }
-        return `<li><a class="sidebar-item admin-shell-item${active ? ' is-active active' : ''}" href="${escapeHtml(absolutePath(item.path))}" data-admin-menu-id="${escapeHtml(item.id)}"${active ? ' aria-current="page"' : ''}><span>${escapeHtml(item.label)}</span></a></li>`;
+        return `<li><a class="sidebar-item admin-shell-item${active ? ' is-active active' : ''}${badgeCount > 0 ? ' has-badge' : ''}" href="${escapeHtml(absolutePath(item.path))}" data-admin-menu-id="${escapeHtml(item.id)}"${active ? ' aria-current="page"' : ''}><span class="admin-shell-item-text">${escapeHtml(item.label)}</span>${badgeHtml}</a></li>`;
       }).join('');
       return `<section class="admin-shell-group" data-admin-menu-group="${escapeHtml(group.id)}"><button type="button" class="admin-shell-group-toggle" aria-controls="${listId}" aria-expanded="${!isCollapsed}"><span class="admin-shell-group-label"><i class="${groupIconClass}" aria-hidden="true"></i><span>${escapeHtml(group.label)}</span></span><i class="admin-shell-group-caret fas fa-chevron-${isCollapsed ? 'right' : 'down'}" aria-hidden="true"></i></button><ul id="${listId}" class="admin-shell-group-list"${isCollapsed ? ' hidden' : ''}>${itemsHtml}</ul></section>`;
     }).join('');

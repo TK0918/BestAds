@@ -9,7 +9,8 @@
   if (!root) return;
 
   // 8 月 18 日三张 KPI 只来自第一份飞书明细；9 月 1 日只来自第二份。
-  // 漏斗来自第二份表「客户生命周期」9 个事件日期，按各时点截断，不改原表。
+  // 新老客：1 日注册从注册月起算 6 个完整自然月，否则从次月起算；满 6 个月后次月 1 日起为老客。
+  // 本期用本期结束日判定，上期用上期结束日判定。漏斗不按新老客拆。
   const KPI = {
     '2026-08-18': {
       fund: {
@@ -167,7 +168,6 @@
       prevEnd: addDays(stat, -15)
     };
   };
-  const newCustomerCutoff = (periodEnd) => new Date(periodEnd.getFullYear(), periodEnd.getMonth() - 6, 1);
   const snapshotFor = (table, statDate) => {
     const dates = Object.keys(table).sort();
     let key = dates[0];
@@ -180,12 +180,10 @@
   const funnelFor = (statDate) => snapshotFor(FUNNEL, statDate);
   const footnoteText = (statDate) => {
     const w = windowsFromStatDate(statDate);
-    const cutoff = newCustomerCutoff(w.currentEnd);
-    const oldEnd = addDays(cutoff, -1);
     const prevText = w.prevStart.getFullYear() === w.currentStart.getFullYear()
       ? `${formatMD(w.prevStart)} 至 ${formatMD(w.prevEnd)}`
       : `${formatYMD(w.prevStart)} 至 ${formatMD(w.prevEnd)}`;
-    return `本期 ${formatYMD(w.currentStart)} 至 ${formatMD(w.currentEnd)}，对比上期 ${prevText}。新客 = ${formatYMD(cutoff)} 及以后注册；老客 = ${formatYMD(oldEnd)} 及以前注册。`;
+    return `本期 ${formatYMD(w.currentStart)} 至 ${formatMD(w.currentEnd)}，对比上期 ${prevText}。新老客按各窗口最后一天判定（本期 ${formatMD(w.currentEnd)}，上期 ${formatMD(w.prevEnd)}）：注册日为 1 日则从注册月起算 6 个完整自然月，2 日及以后从次月起算；满 6 个月后次月 1 日起为老客。`;
   };
   const funnelHintText = (statDate) => {
     const w = windowsFromStatDate(statDate);
