@@ -321,7 +321,7 @@
     rechargeAmount: '$1,000.00',
     walletShortfall: '$713.88',
     forecastDemand: '$3,200.00',
-    failureReason: 'Wallet balance is insufficient',
+    failureReason: 'Media rejected the recharge request',
     triggerTime: '2026-08-13 10:18:42',
     rechargeOrderNo: 'AO20260813042',
     creditedAmount: '$5,000.00',
@@ -339,12 +339,86 @@
     operationRecordsUrl: '../../bestads-client-styled/operation-records.html'
   };
 
+  const templateSampleValuesByScene = {
+    account_runway: {
+      riskAccountCount: '3',
+      estimatedDaysLeft: '0.2',
+      avgDailySpend: '$500.00',
+      suggestedTopUpAmount: '$3,363.74'
+    },
+    wallet_shortfall_event: {
+      walletBalance: '$286.12',
+      rechargeAmount: '$1,000.00',
+      walletShortfall: '$713.88'
+    },
+    wallet_shortfall_predict: {
+      last7DaysSpend: '$10,500.00',
+      forecastDemand: '$3,363.74'
+    },
+    auto_recharge_fail: {
+      failureReason: 'Media rejected the recharge request'
+    },
+    account_recharge_fail: {
+      rechargeAmount: '$800.00',
+      failureReason: 'Media account recharge rejected'
+    },
+    wallet_credited: {
+      walletBalance: '$7,864.50'
+    },
+    clear_reduce_success: {
+      walletBalance: '$2,990.90'
+    }
+  };
+
+  const templateSampleValuesBySceneZh = {
+    auto_recharge_fail: {
+      failureReason: '媒体侧拒绝本次充值'
+    },
+    account_recharge_fail: {
+      failureReason: '媒体账户充值被拒绝'
+    },
+    wallet_credited: {
+      paymentMethod: '在线充值'
+    }
+  };
+
+  function parseUsd(text) {
+    return Number(String(text || '').replace(/[^0-9.-]/g, '')) || 0;
+  }
+
+  function formatUsd(amount) {
+    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  const walletPredictSampleRows = [
+    { name: 'FB-8921 | Zephyr-US-Main', balance: '$126.40', spend7d: '$3,500.00', days: '0.3', topup: '$1,373.60' },
+    { name: 'FB-9016 | Zephyr-CA-Scale', balance: '$84.12', spend7d: '$2,800.00', days: '0.2', topup: '$1,115.88' },
+    { name: 'TT-3318 | Zephyr-SEA', balance: '$205.74', spend7d: '$2,520.00', days: '0.6', topup: '$874.26' }
+  ];
+
+  const accountRunwaySampleRows = walletPredictSampleRows.map(row => ({
+    name: row.name,
+    balance: row.balance,
+    avg: formatUsd(parseUsd(row.spend7d) / 7),
+    days: row.days,
+    topup: row.topup
+  }));
+
+  function sampleValuesFor(sceneKey) {
+    const values = { ...templateSampleValues, ...(templateSampleValuesByScene[sceneKey] || {}) };
+    if (activePreviewLanguage === 'zh') {
+      values.operationType = '清零';
+      Object.assign(values, templateSampleValuesBySceneZh[sceneKey] || {});
+    }
+    return values;
+  }
+
   let activePreviewLanguage = 'en';
 
   const templatePreviewTables = {
     account_runway: {
       headers: ['Ad account', 'Current balance', 'Estimated days left'],
-      rows: [['FB-8921 | Zephyr-US-Main', '$126.40', '2.7 days'], ['AL-2201 | Zephyr-AL-iOS', '$519.00', '3.1 days']]
+      rows: accountRunwaySampleRows.map(row => [row.name, row.balance, `${row.days} days`])
     },
     wallet_shortfall_event: {
       headers: ['Recharge request', 'Required amount', 'Wallet balance', 'Shortfall'],
@@ -352,11 +426,11 @@
     },
     wallet_shortfall_predict: {
       headers: ['Forecast window', 'Forecast demand', 'Wallet balance', 'Suggested top-up'],
-      rows: [['Next 72 hours', '$3,200.00', '$2,864.50', '$1,500.00']]
+      rows: [['Next 3 days', '$3,363.74', '$2,864.50', '$499.24']]
     },
     auto_recharge_fail: {
       headers: ['Ad account', 'Recharge amount', 'Failure reason'],
-      rows: [['FB-8921 | Zephyr-US-Main', '$1,000.00', 'Wallet balance is insufficient']]
+      rows: [['FB-8921 | Zephyr-US-Main', '$1,000.00', 'Media rejected the recharge request']]
     },
     account_recharge_fail: {
       headers: ['Ad account', 'Requested amount', 'Failure reason'],
@@ -570,7 +644,7 @@
   }
 
   function renderTemplates() {
-    const rows = templates.map(item => `<tr><td>${esc(item.id)}</td><td class="left">${esc(item.scenario)}</td><td class="left"><span class="template-list-title">${esc(item.name)}</span><span class="template-list-sub">${esc(renderSampleText(item.subject))}</span></td><td>${statusTag(item.publishStatus)}</td><td>${esc(item.updatedBy)}</td><td>${esc(item.updatedAt)}</td><td class="ops"><div class="command-group"><button class="btn btn-link" data-action="preview-template" data-id="${esc(item.id)}">预览</button><button class="btn btn-link" data-action="edit-template" data-id="${esc(item.id)}">编辑</button><button class="btn btn-link" data-action="test-template" data-id="${esc(item.id)}">测试发送</button></div></td></tr>`).join('');
+    const rows = templates.map(item => `<tr><td>${esc(item.id)}</td><td class="left">${esc(item.scenario)}</td><td class="left"><span class="template-list-title">${esc(item.name)}</span><span class="template-list-sub">${esc(renderSampleText(item.subject, item.sceneKey))}</span></td><td>${statusTag(item.publishStatus)}</td><td>${esc(item.updatedBy)}</td><td>${esc(item.updatedAt)}</td><td class="ops"><div class="command-group"><button class="btn btn-link" data-action="preview-template" data-id="${esc(item.id)}">预览</button><button class="btn btn-link" data-action="edit-template" data-id="${esc(item.id)}">编辑</button><button class="btn btn-link" data-action="test-template" data-id="${esc(item.id)}">测试发送</button></div></td></tr>`).join('');
     root.innerHTML = pageHeader('提醒邮件模板', '维护 Ads 自定义 HTML 事务邮件模板，业务通过结构化模块配置，发送时由 Ads 渲染 HTML 后调用 Bestreach。')
       + filters([{ label: '场景', type: 'select', options: scenarios.map(s => s.name) }, { label: '模板编码', placeholder: '输入模板编码' }, { label: '发布状态', type: 'select', options: ['草稿', '已发布'] }], 'template')
       + table([{ label: '模板编码' }, { label: '场景', left: true }, { label: '模板名称 / 主题', left: true }, { label: '发布状态' }, { label: '更新人' }, { label: '更新时间' }, { label: '操作', left: true }], rows, 1240, 'email-template-table')
@@ -585,11 +659,8 @@
     return templateVariables.filter(item => !item.scenes || item.scenes.includes(sceneKey));
   }
 
-  function renderSampleText(text) {
-    const values = { ...templateSampleValues };
-    if (activePreviewLanguage === 'zh') {
-      values.operationType = '清零';
-    }
+  function renderSampleText(text, sceneKey) {
+    const values = sampleValuesFor(sceneKey);
     return String(text || '').replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, (_, key) => values[key] || `{{${key}}}`);
   }
 
@@ -774,29 +845,29 @@
       content.secondaryCtaText ? { text: content.secondaryCtaText, url: content.secondaryCtaUrl } : null
     ].filter(Boolean);
     return `<article class="email-rendered ${mode === 'edit' ? 'email-rendered--edit' : ''}">
-      <div class="email-rendered__preheader">${esc(renderSampleText(content.preheader || ''))}</div>
+      <div class="email-rendered__preheader">${esc(renderSampleText(content.preheader || '', content.sceneKey))}</div>
       <header class="email-rendered__brand">
         <div class="email-rendered__logo">B</div>
         <div><strong>BestAds</strong><span>${activePreviewLanguage === 'zh' ? '账户通知' : 'Account Notification'}</span></div>
       </header>
       <main class="email-rendered__body">
-        <p class="email-rendered__subject">${esc(renderSampleText(content.subject || ''))}</p>
-        <h1>${esc(renderSampleText(content.title || ''))}</h1>
-        <p class="email-rendered__intro">${esc(renderSampleText(content.intro || ''))}</p>
+        <p class="email-rendered__subject">${esc(renderSampleText(content.subject || '', content.sceneKey))}</p>
+        <h1>${esc(renderSampleText(content.title || '', content.sceneKey))}</h1>
+        <p class="email-rendered__intro">${esc(renderSampleText(content.intro || '', content.sceneKey))}</p>
         <div class="email-rendered__metrics">
-          ${emailMetric(content.metricOneLabel, content.metricOneValue)}
-          ${emailMetric(content.metricTwoLabel, content.metricTwoValue)}
-          ${emailMetric(content.metricThreeLabel, content.metricThreeValue)}
+          ${emailMetric(content.metricOneLabel, content.metricOneValue, content.sceneKey)}
+          ${emailMetric(content.metricTwoLabel, content.metricTwoValue, content.sceneKey)}
+          ${emailMetric(content.metricThreeLabel, content.metricThreeValue, content.sceneKey)}
         </div>
         <section class="email-rendered__table">
-          <h2>${esc(renderSampleText(content.tableTitle || (activePreviewLanguage === 'zh' ? '明细' : 'Detail')))}</h2>
+          <h2>${esc(renderSampleText(content.tableTitle || (activePreviewLanguage === 'zh' ? '明细' : 'Detail'), content.sceneKey))}</h2>
           <table><thead><tr>${tableHeaders}</tr></thead><tbody>${tableRows}</tbody></table>
         </section>
         <div class="email-rendered__actions">
-          ${actions.map((item, index) => `<a class="email-rendered__cta ${index > 0 ? 'email-rendered__cta--secondary' : ''}" href="${esc(renderSampleText(item.url || '#'))}">${esc(renderSampleText(item.text || (activePreviewLanguage === 'zh' ? '打开 BestAds' : 'Open BestAds')))}</a>`).join('')}
+          ${actions.map((item, index) => `<a class="email-rendered__cta ${index > 0 ? 'email-rendered__cta--secondary' : ''}" href="${esc(renderSampleText(item.url || '#', content.sceneKey))}">${esc(renderSampleText(item.text || (activePreviewLanguage === 'zh' ? '打开 BestAds' : 'Open BestAds'), content.sceneKey))}</a>`).join('')}
         </div>
       </main>
-      <footer class="email-rendered__footer">${esc(renderSampleText(content.footer || ''))}</footer>
+      <footer class="email-rendered__footer">${esc(renderSampleText(content.footer || '', content.sceneKey))}</footer>
     </article>`;
   }
 
@@ -806,20 +877,17 @@
     return { ...base, ...(templateDefaults[draft.sceneKey]?.zh || {}), sceneKey: draft.sceneKey };
   }
 
-  function emailMetric(label, value) {
-    return `<div><span>${esc(renderSampleText(label || '-'))}</span><b>${esc(renderSampleText(value || '-'))}</b></div>`;
+  function emailMetric(label, value, sceneKey) {
+    return `<div><span>${esc(renderSampleText(label || '-', sceneKey))}</span><b>${esc(renderSampleText(value || '-', sceneKey))}</b></div>`;
   }
 
   function previewTableFor(sceneKey, language = 'en') {
-    const values = { ...templateSampleValues };
+    const values = sampleValuesFor(sceneKey);
     if (language === 'zh') {
       const zhDefaults = {
         account_runway: {
           headers: ['广告账户', '当前余额', '近7天日均消耗', '预计可用天数', '建议充值金额'],
-          rows: [
-            [values.adAccountName, values.adAccountBalance, values.avgDailySpend, `${values.estimatedDaysLeft} 天`, values.suggestedTopUpAmount],
-            ['FB-9016 | Zephyr-CA-Scale', '$84.12', '$44.27', '1.9 天', '$1,000.00']
-          ]
+          rows: accountRunwaySampleRows.map(row => [row.name, row.balance, row.avg, `${row.days} 天`, row.topup])
         },
         wallet_shortfall_event: {
           headers: ['自动充值任务', '广告账户', '需充值金额', '钱包余额', '钱包缺口', '触发时间'],
@@ -827,11 +895,7 @@
         },
         wallet_shortfall_predict: {
           headers: ['广告账户', '当前余额', '近7天消耗', '预计可用天数', '未来3天建议充值'],
-          rows: [
-            [values.adAccountName, values.adAccountBalance, '$1,260.00', `${values.estimatedDaysLeft} 天`, values.suggestedTopUpAmount],
-            ['FB-9016 | Zephyr-CA-Scale', '$84.12', '$980.00', '1.9 天', '$1,000.00'],
-            ['TT-3318 | Zephyr-SEA', '$205.74', '$1,440.00', '2.4 天', '$700.00']
-          ]
+          rows: walletPredictSampleRows.map(row => [row.name, row.balance, row.spend7d, `${row.days} 天`, row.topup])
         },
         auto_recharge_fail: {
           headers: ['广告账户', '充值金额', '触发时间', '失败原因'],
@@ -855,10 +919,7 @@
     const defaults = {
       account_runway: {
         headers: ['Ad account', 'Current balance', '7-day avg daily spend', 'Estimated days left', 'Suggested top-up'],
-        rows: [
-          [values.adAccountName, values.adAccountBalance, values.avgDailySpend, `${values.estimatedDaysLeft} days`, values.suggestedTopUpAmount],
-          ['FB-9016 | Zephyr-CA-Scale', '$84.12', '$44.27', '1.9 days', '$1,000.00']
-        ]
+        rows: accountRunwaySampleRows.map(row => [row.name, row.balance, row.avg, `${row.days} days`, row.topup])
       },
       wallet_shortfall_event: {
         headers: ['Auto recharge task', 'Ad account', 'Required recharge', 'Wallet balance', 'Shortfall', 'Trigger time'],
@@ -866,11 +927,7 @@
       },
       wallet_shortfall_predict: {
         headers: ['Ad account', 'Current balance', 'Last 7 days spend', 'Estimated days left', 'Suggested 3-day top-up'],
-        rows: [
-          [values.adAccountName, values.adAccountBalance, '$1,260.00', `${values.estimatedDaysLeft} days`, values.suggestedTopUpAmount],
-          ['FB-9016 | Zephyr-CA-Scale', '$84.12', '$980.00', '1.9 days', '$1,000.00'],
-          ['TT-3318 | Zephyr-SEA', '$205.74', '$1,440.00', '2.4 days', '$700.00']
-        ]
+        rows: walletPredictSampleRows.map(row => [row.name, row.balance, row.spend7d, `${row.days} days`, row.topup])
       },
       auto_recharge_fail: {
         headers: ['Ad account', 'Recharge amount', 'Trigger time', 'Failure reason'],
@@ -908,7 +965,7 @@
     return `<div class="form-grid">
       <div class="form-field full"><label>测试收件邮箱</label><input value="product-review@bestfulfill.com"></div>
       <div class="form-field full"><label>测试模板</label><input value="${esc(template.id)} / ${esc(template.name)}" disabled></div>
-      <div class="form-field full"><label>样例变量</label><textarea rows="8">${esc(JSON.stringify(templateSampleValues, null, 2))}</textarea></div>
+      <div class="form-field full"><label>样例变量</label><textarea rows="8">${esc(JSON.stringify(sampleValuesFor(template.sceneKey), null, 2))}</textarea></div>
     </div>`;
   }
 
