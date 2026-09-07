@@ -23,6 +23,7 @@
         page('customer-sub-account', '客户子账号管理', 'main-functions/customer-sub-account-management.html', 'user-friends'),
         page('agent-management', '代理管理', 'main-functions/agent_management.html', 'user-shield'),
         page('introducer-spitpoint', '介绍人和吐点', 'main-functions/introducer-spitpoint.html', 'handshake'),
+        page('customer-rebate', '客户返点', 'main-functions/customer-rebate.html', 'hand-holding-usd'),
         page('rebate-config', '返点配置', 'main-functions/rebate-config.html', 'percent'),
         page('deduction-details', '其他扣费', 'main-functions/deduction-details.html', 'list-alt'),
         page('location-fee', '地区税费', 'main-functions/location-fee.html', 'globe'),
@@ -193,5 +194,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-08-20.2';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-09-07.1';
 })();

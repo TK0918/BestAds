@@ -699,7 +699,14 @@
       return `<div class="account-search-picker" data-account-picker><input type="search" data-account-picker-search placeholder="${esc(field.placeholder || '输入广告账户ID或名称搜索')}"><div class="account-search-results">${options.map(option => `<label class="account-search-option" data-account-picker-option data-account-key="${esc(String(option).toLowerCase())}"><input type="radio" name="${esc(field.key)}" value="${esc(option)}"><span>${esc(option)}</span></label>`).join('')}</div></div>`;
     }
     if (control === 'checkbox' || control === 'account-multi-select') return `<div class="account-check-list">${(field.options || []).map((option, index) => `<label class="account-check"><input type="checkbox" name="${esc(field.key)}" value="${esc(option)}" ${String(value || '').includes(option) ? 'checked' : ''}><span>${esc(option)}</span></label>`).join('')}</div>`;
-    if (control === 'upload') return `<div class="upload-dropzone" data-upload-zone data-upload-max="${esc(field.max || 10)}" tabindex="0"><input type="file" name="${esc(field.key)}" data-upload-input hidden multiple accept="${esc(field.accept || 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip')}"><div class="upload-dropzone__icon">${icon('cloud-upload-alt')}</div><div class="upload-dropzone__copy"><strong>${esc(field.placeholder || '拖拽文件到此处，或点击上传')}</strong><span>支持直接粘贴、本地上传、拖拽上传；最多 ${esc(field.max || 10)} 个文件。</span></div><button class="btn btn-default" type="button" data-upload-browse>选择文件</button><ul class="upload-file-list" data-upload-list></ul></div>`;
+    if (control === 'upload') {
+      const max = Number(field.max || 10);
+      const multiple = field.multiple !== false && max > 1;
+      const hint = field.hint || `支持直接粘贴、本地上传、拖拽上传；最多 ${max} 个文件。`;
+      const disabledClass = field.startDisabled ? ' is-disabled' : '';
+      const unlockBy = field.unlockBy ? ` data-upload-unlock-by="${esc(field.unlockBy)}"` : '';
+      return `<div class="upload-dropzone${disabledClass}" data-upload-zone data-upload-max="${esc(max)}"${unlockBy} tabindex="0"><input type="file" name="${esc(field.key)}" data-upload-input hidden${multiple ? ' multiple' : ''} accept="${esc(field.accept || 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip')}"><div class="upload-dropzone__icon">${icon('cloud-upload-alt')}</div><div class="upload-dropzone__copy"><strong>${esc(field.placeholder || '拖拽文件到此处，或点击上传')}</strong><span>${esc(hint)}</span></div><button class="btn btn-default" type="button" data-upload-browse>选择文件</button><ul class="upload-file-list" data-upload-list></ul></div>`;
+    }
     if (control === 'card-context') {
       const items = [
         ['媒体', row?.media || row?.c1],
@@ -739,7 +746,8 @@
     const hasRow = row && Object.keys(row).length > 0;
     const sizeClass = modal?.size === 'lg' ? ' modal-lg' : modal?.size === 'md' ? ' modal-md' : '';
     const backdropAttr = modal?.backdropAttr ? ` ${modal.backdropAttr}` : '';
-    return `<div class="modal-backdrop"${backdropAttr}><section class="modal${sizeClass}"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid"${transferAttrs}>${fields.map(field => { const required = hasRow && field.editRequired !== undefined ? field.editRequired : field.required !== false; return `<div class="form-field${field.full ? ' full' : ''}"><label>${fieldLabel(field, required)}</label>${modalControl(field, row?.[field.key], row)}${field.help ? `<p class="field-help">${esc(field.help)}</p>` : ''}</div>`; }).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
+    const notice = modal?.notice ? `<div class="notice">${modal.notice}</div>` : '';
+    return `<div class="modal-backdrop"${backdropAttr}><section class="modal${sizeClass}"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '操作')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body">${notice}<div class="form-grid"${transferAttrs}>${fields.map(field => { const required = hasRow && field.editRequired !== undefined ? field.editRequired : field.required !== false; return `<div class="form-field${field.full ? ' full' : ''}"><label>${fieldLabel(field, required)}</label>${modalControl(field, row?.[field.key], row)}${field.help ? `<p class="field-help">${esc(field.help)}</p>` : ''}</div>`; }).join('')}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
 
   function offlineTransferAuditModal(modal, row) {
@@ -1277,7 +1285,7 @@
       const blocked = rechargeBlockedStatus(statusText);
       const reason = account.gateReason || (blocked ? `使用卡验卡任务处于${statusText}，需先标记媒体已验证后再充值` : '-');
       const statusClass = blocked ? 'status-danger' : /已验卡|已充值关单|已回收/.test(statusText) ? 'status-success' : 'status-info';
-      return `<tr data-recharge-account-row data-customer-id="${esc(account.customerId)}" data-account-key="${esc(`${account.name} ${account.id}`.toLowerCase())}" hidden${blocked ? ' class="is-disabled-row"' : ''}><td class="select-cell"><input type="checkbox" data-recharge-account value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-customer-id="${esc(account.customerId)}" data-customer-name="${esc(account.customerName)}" data-merchant-id="${esc(account.merchantId)}" data-currency="${esc(account.currency)}" data-balance="${esc(account.balance)}" data-wallet-balance="${esc(account.walletBalance)}" data-service-rate="${esc(account.serviceRate ?? 0)}" data-pre-tax-rate="${esc(account.preTaxRate ?? 0)}" data-verify-status="${esc(statusText)}" data-card-id="${esc(account.cardId || '')}" data-card-label="${esc(account.cardLabel || '')}" data-other-cards="${esc(account.otherCards || '')}" data-gate-reason="${esc(reason)}"${blocked ? ' disabled' : ''}></td><td class="left">${esc(account.name)}(${esc(account.id)})</td><td>${esc(account.currency)}</td><td class="num">${esc(account.balance)}</td><td><span class="status-tag ${statusClass}">${esc(statusText)}</span></td><td class="left">${esc(reason)}</td></tr>`;
+      return `<tr data-recharge-account-row data-customer-id="${esc(account.customerId)}" data-account-key="${esc(`${account.name} ${account.id}`.toLowerCase())}" hidden${blocked ? ' class="is-disabled-row"' : ''}><td class="select-cell"><input type="checkbox" data-recharge-account value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-media="${esc(account.media || '')}" data-customer-id="${esc(account.customerId)}" data-customer-name="${esc(account.customerName)}" data-merchant-id="${esc(account.merchantId)}" data-currency="${esc(account.currency)}" data-balance="${esc(account.balance)}" data-wallet-balance="${esc(account.walletBalance)}" data-service-rate="${esc(account.serviceRate ?? 0)}" data-pre-tax-rate="${esc(account.preTaxRate ?? 0)}" data-verify-status="${esc(statusText)}" data-card-id="${esc(account.cardId || '')}" data-card-label="${esc(account.cardLabel || '')}" data-other-cards="${esc(account.otherCards || '')}" data-gate-reason="${esc(reason)}"${blocked ? ' disabled' : ''}></td><td class="left">${esc(account.name)}${account.media ? ` · ${esc(account.media)}` : ''}(${esc(account.id)})</td><td>${esc(account.currency)}</td><td class="num">${esc(account.balance)}</td><td><span class="status-tag ${statusClass}">${esc(statusText)}</span></td><td class="left">${esc(reason)}</td></tr>`;
     }).join('');
     return `<div class="modal-backdrop"><section class="modal modal-recharge"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '发起充值')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="recharge-form" data-recharge-modal><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 客户（单选）</label><select data-recharge-customer><option value="">选择客户</option>${customers.map(customer => `<option value="${esc(customer.id)}" data-customer-name="${esc(customer.name)}" data-merchant-id="${esc(customer.merchantId)}">${esc(customer.id)} ${esc(customer.name)}（商户ID: ${esc(customer.merchantId)}）</option>`).join('')}</select></div><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 广告账户（多选）</label><div class="recharge-account-toolbar"><input type="text" data-recharge-account-search placeholder="输入广告账户"><button type="button" class="btn btn-primary" data-recharge-query>${icon('search')}查 询</button></div><div class="table-scroll recharge-account-table recharge-account-table--fit"><table class="admin-table admin-table--fixed"><colgroup><col style="width:44px"><col style="width:28%"><col style="width:12%"><col style="width:13%"><col style="width:16%"><col style="width:27%"></colgroup><thead><tr><th class="select-cell"></th><th class="left">账户名称</th><th>币种</th><th class="num">当前余额</th><th>验卡状态</th><th class="left">不可充值原因</th></tr></thead><tbody>${rowsHtml}</tbody></table><div class="empty-state recharge-empty" data-recharge-empty>暂无数据</div></div><div class="pagination recharge-account-pagination"><span data-recharge-count>共 0 条记录</span><div class="pagination__actions"><button type="button" class="page-number" disabled>‹</button><button type="button" class="page-number is-active">1</button><button type="button" class="page-number" disabled>›</button></div></div></div><div class="form-field full recharge-amount-panel" data-recharge-amount-panel><label>充值金额设置</label><div class="notice recharge-select-notice" data-recharge-select-notice>请至少选择一个广告账户</div><div class="recharge-amount-list" data-recharge-amount-list></div><div class="recharge-total-row"><span>总充值金额：<strong data-recharge-total>0.00 USD</strong></span><span>可用余额：<strong data-recharge-wallet>-</strong></span></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取 消</button><button type="button" class="btn btn-primary" data-modal-submit>确 定</button></div></section></div>`;
   }
@@ -1298,9 +1306,13 @@
     const rows = accounts.map(account => {
       const spendValue = account.spend2d == null ? '-' : account.spend2d;
       const spendAmount = Number(String(spendValue).replace(/,/g, ''));
-      const blocked = kind === '清零' && Number.isFinite(spendAmount) && spendAmount > 0;
-      const reason = blocked ? '近 2 天有消耗，不可清零' : '-';
-      return `<tr data-adjustment-account-row data-customer-id="${esc(account.customerId)}" data-account-key="${esc(`${account.name} ${account.id}`.toLowerCase())}" hidden${blocked ? ' class="is-disabled-row"' : ''}><td class="select-cell"><input type="checkbox" data-adjustment-account value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-currency="${esc(account.currency || 'USD')}" data-balance="${esc(account.balance || '')}" data-spend2d="${esc(spendValue)}"${blocked ? ' disabled title="近 2 天有消耗，不可清零"' : ''}></td><td class="left">${esc(account.name)}(${esc(account.id)})</td><td>${esc(account.currency || 'USD')}</td><td class="num">${esc(account.balance || '-')}</td>${kind === '清零' ? `<td class="num">${esc(spendValue)}</td><td class="left">${esc(reason)}</td>` : ''}</tr>`;
+      const otherMediaNoDeduction = /^(Taboola|Applovin|AppLovin|Snapchat|Outbrain|X)$/i.test(account.media || '');
+      const deductionBlocked = kind === '减款' && (account.deductionDisabled || otherMediaNoDeduction);
+      const clearBlocked = kind === '清零' && Number.isFinite(spendAmount) && spendAmount > 0;
+      const blocked = clearBlocked || deductionBlocked;
+      const reason = clearBlocked ? '近 2 天有消耗，不可清零' : deductionBlocked ? '其他媒体无法获取余额，不支持减款' : '-';
+      const blockTitle = blocked ? ` title="${esc(reason)}"` : '';
+      return `<tr data-adjustment-account-row data-customer-id="${esc(account.customerId)}" data-account-key="${esc(`${account.name} ${account.id}`.toLowerCase())}" hidden${blocked ? ' class="is-disabled-row"' : ''}><td class="select-cell"><input type="checkbox" data-adjustment-account value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-media="${esc(account.media || '')}" data-currency="${esc(account.currency || 'USD')}" data-balance="${esc(account.balance || '')}" data-spend2d="${esc(spendValue)}"${blocked ? ' disabled' : ''}${blockTitle}></td><td class="left">${esc(account.name)}${account.media ? ` · ${esc(account.media)}` : ''}(${esc(account.id)})</td><td>${esc(account.currency || 'USD')}</td><td class="num">${esc(account.balance || '-')}</td>${kind === '清零' ? `<td class="num">${esc(spendValue)}</td><td class="left">${esc(reason)}</td>` : ''}</tr>`;
     }).join('');
     return `<div class="modal-backdrop"><section class="modal modal-recharge"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || `发起${kind}`)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="recharge-form" data-adjustment-modal data-adjustment-kind="${esc(kind)}"><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 客户（单选）</label><select data-adjustment-customer><option value="">选择客户</option>${customers.map(customer => `<option value="${esc(customer.id)}" data-customer-name="${esc(customer.name)}" data-merchant-id="${esc(customer.merchantId)}">${esc(customer.id)} ${esc(customer.name)}（商户ID: ${esc(customer.merchantId)}）</option>`).join('')}</select></div><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 广告账户（多选）</label><div class="recharge-account-toolbar"><input type="text" data-adjustment-account-search placeholder="输入广告账户"><button type="button" class="btn btn-primary" data-adjustment-query>${icon('search')}查 询</button></div><div class="table-scroll recharge-account-table"><table class="admin-table admin-table--fixed"><colgroup><col style="width:52px"><col style="width:390px"><col style="width:120px"><col style="width:180px">${clearCols}</colgroup><thead><tr><th class="select-cell"></th><th class="left">账户名称</th><th>账户币种</th><th class="num">${esc(amountLabel)}</th>${clearHead}</tr></thead><tbody>${rows}</tbody></table><div class="empty-state recharge-empty" data-adjustment-empty>暂无数据</div></div><div class="pagination recharge-account-pagination"><span data-adjustment-count>共 0 条记录</span><div class="pagination__actions"><button type="button" class="page-number" disabled>‹</button><button type="button" class="page-number is-active">1</button><button type="button" class="page-number" disabled>›</button></div></div></div><div class="form-field full recharge-amount-panel"><label>${esc(kind)}金额设置</label><div class="notice recharge-select-notice" data-adjustment-select-notice>请至少选择一个广告账户</div><div class="recharge-amount-list" data-adjustment-amount-list></div><div class="recharge-total-row"><span>总${esc(kind)}金额：<strong data-adjustment-total>0.00 USD</strong></span></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取 消</button><button type="button" class="btn btn-primary" data-modal-submit>确 定</button></div></section></div>`;
   }
@@ -1700,11 +1712,38 @@
     return `<div class="modal-backdrop" data-location-fee-batch-ratio><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">批量设置预收比例</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><p class="confirm-copy">将对已选 <strong>${count}</strong> 个广告账户设置预收比例。已有账户覆盖将被覆盖。</p><div class="form-grid"><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 预收比例 K%</label><input name="ratio" data-location-fee-ratio placeholder="例如 5，0 表示显式不预收"></div><p class="field-help">0% 为显式不预收，与删除（回退客户规则）不同。</p></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确定</button></div></section></div>`;
   }
 
+  function mediaMixSummary(rows) {
+    const counts = {};
+    (rows || []).forEach(row => {
+      const media = row.media || row.mediaChannel;
+      if (!media) return;
+      counts[media] = (counts[media] || 0) + 1;
+    });
+    return Object.keys(counts).map(key => `${key} ${counts[key]}`).join('、');
+  }
+
   function confirmModal(title, copy, danger, action, options = {}) {
     const confirmText = options.confirmText || '确定';
     const cancelText = options.cancelText || '取消';
     const sizeClass = options.size === 'md' ? ' modal-md' : ' modal-sm';
     return `<div class="modal-backdrop"${action ? ` data-confirm-action="${esc(action)}"` : ''}><section class="modal${sizeClass}"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="confirm-copy">${copy}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>${esc(cancelText)}</button><button type="button" class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-modal-submit>${esc(confirmText)}</button></div></section></div>`;
+  }
+
+  function agencyReconDetailModal(row) {
+    const pair = [
+      ['归类代理', row.agency],
+      ['广告账户ID', row.accountId],
+      ['商户ID / 客户', `${row.merchantId || '-'} / ${row.customerName || '-'}`],
+      ['完成日', row.bizDate],
+      ['类型 / 币种', `${row.txnType || '-'} / ${row.currency || '-'}`],
+      ['代理金额', row.agencyAmount],
+      ['系统金额', row.systemAmount],
+      ['差额', row.diff],
+      ['分类', row.category],
+      ['配对轮次', row.matchRound],
+      ['隔日配对日', row.pairedDate || '-']
+    ];
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">例外对照</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">原型只展示双方原始行，不改充值单、不调钱包。真实环境可从系统单号跳到综合充值清零减款。</div><dl class="detail-grid">${pair.map(([label, value]) => `<div><dt>${esc(label)}</dt><dd>${esc(asText(value))}</dd></div>`).join('')}</dl><div class="readonly-context" style="margin-top:12px"><div><dt>代理原始行</dt><dd>${esc(asText(row.agencyLine))}</dd></div><div><dt>系统记账行</dt><dd>${esc(asText(row.systemLine))}</dd></div></div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
   function isSlashTransferRecord(row) {
@@ -1792,7 +1831,7 @@
 
   function rowActionClass(action) {
     if (/解绑|冻结|取消|删除|失败|驳回|作废/.test(action)) return 'op-link--danger';
-    if (/申请|标记|确认|新增|绑定|重试|审核|开户成功|登记开户结果/.test(action)) return 'op-link--primary';
+    if (/申请|标记|确认|新增|绑定|重试|审核|开户成功|登记开户结果|留痕|查看例外/.test(action)) return 'op-link--primary';
     if (/转移|转出|修改|换转入|退回|重开/.test(action)) return 'op-link--warning';
     return 'op-link--info';
   }
@@ -1802,7 +1841,12 @@
     if (!root) return;
     const config = pageConfig();
     const tabs = config.tabs || [{ id: 'list', label: '', ...config }];
-    const state = { tab: tabs[0].id, groupTab: {}, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null, locationFeeCreateResult: null };
+    const state = { tab: tabs[0].id, groupTab: {}, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null, locationFeeCreateResult: null, rebateMerchant: null };
+    const hashTab = String(window.location.hash || '').replace('#', '');
+    if (tabs.some(item => item.id === hashTab)) state.tab = hashTab;
+    tabs.forEach(tab => {
+      state.values[tab.id] = Object.assign({}, tab.defaultFilters || {});
+    });
     runtimeState = state;
 
     function activeTab() { return tabs.find(item => item.id === state.tab) || tabs[0]; }
@@ -1838,6 +1882,18 @@
       const pref = fieldPref(tab);
       const columnsByKey = new Map((tab.columns || []).map(column => [column.key, column]));
       return pref.order.map(key => columnsByKey.get(key)).filter(column => column && pref.visible.has(column.key));
+    }
+    function refreshAgencyReconKpis() {
+      const exceptions = tabs.find(item => item.id === 'exceptions');
+      if (!exceptions || !config.kpis) return;
+      const pending = (exceptions.rows || []).filter(row => row.handleStatus !== '已留痕');
+      const countOf = label => pending.filter(row => row.category === label).length;
+      const mismatch = pending.filter(row => !/口径差|疑似时间差/.test(row.category || '')).length;
+      config.kpis.forEach(item => {
+        if (item.label === '口径差') item.value = String(countOf('口径差'));
+        if (item.label === '疑似时间差') item.value = String(countOf('疑似时间差'));
+        if (item.label === '真差异') item.value = String(mismatch);
+      });
     }
     function refreshFieldDrawer(tab) {
       const drawer = document.querySelector('[data-field-drawer]');
@@ -1941,6 +1997,93 @@
       if (!stack) { stack = document.createElement('div'); stack.className = 'toast-stack'; document.body.appendChild(stack); }
       const node = document.createElement('div'); node.className = `toast ${type || 'info'}`; node.textContent = message; stack.appendChild(node);
       setTimeout(() => node.remove(), 2400);
+    }
+    function isExcelFile(file) {
+      return Boolean(file && /\.(xlsx|xls)$/i.test(file.name || ''));
+    }
+    function downloadImportTemplate(template) {
+      const headers = template?.headers || [];
+      const csv = `\ufeff${headers.join(',')}\n`;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = template?.filename || '导入模版.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('已开始下载导入模版（原型）', 'success');
+    }
+    function syncAccountUploadZone(modalRoot) {
+      const media = modalRoot?.querySelector('[name="media"]')?.value;
+      const zone = modalRoot?.querySelector('[data-upload-zone]');
+      if (!zone) return;
+      const unlocked = Boolean(media);
+      zone.classList.toggle('is-disabled', !unlocked);
+      if (unlocked) return;
+      const input = zone.querySelector('[data-upload-input]');
+      const list = zone.querySelector('[data-upload-list]');
+      if (input) input.value = '';
+      if (list) list.innerHTML = '';
+    }
+    function isExcelFile(file) {
+      return Boolean(file && /\.(xlsx|xls)$/i.test(file.name || ''));
+    }
+    function downloadImportTemplate(template) {
+      const headers = template?.headers || [];
+      const csv = `\ufeff${headers.join(',')}\n`;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = template?.filename || '导入模版.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('已开始下载导入模版（原型）', 'success');
+    }
+    function syncAccountUploadZone(modalRoot) {
+      const media = modalRoot?.querySelector('[name="media"]')?.value;
+      const zone = modalRoot?.querySelector('[data-upload-zone]');
+      if (!zone) return;
+      const unlocked = Boolean(media);
+      zone.classList.toggle('is-disabled', !unlocked);
+      if (unlocked) return;
+      const input = zone.querySelector('[data-upload-input]');
+      const list = zone.querySelector('[data-upload-list]');
+      if (input) input.value = '';
+      if (list) list.innerHTML = '';
+    }
+    function isExcelFile(file) {
+      return Boolean(file && /\.(xlsx|xls)$/i.test(file.name || ''));
+    }
+    function downloadImportTemplate(template) {
+      const headers = template?.headers || [];
+      const csv = `\ufeff${headers.join(',')}\n`;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = template?.filename || '导入模版.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('已开始下载导入模版（原型）', 'success');
+    }
+    function syncAccountUploadZone(modalRoot) {
+      const media = modalRoot?.querySelector('[name="media"]')?.value;
+      const zone = modalRoot?.querySelector('[data-upload-zone]');
+      if (!zone) return;
+      const unlocked = Boolean(media);
+      zone.classList.toggle('is-disabled', !unlocked);
+      if (unlocked) return;
+      const input = zone.querySelector('[data-upload-input]');
+      const list = zone.querySelector('[data-upload-list]');
+      if (input) input.value = '';
+      if (list) list.innerHTML = '';
     }
     function openModal(html) { document.body.insertAdjacentHTML('beforeend', html); }
     function closeModal() { document.querySelector('.modal-backdrop')?.remove(); }
@@ -2065,7 +2208,7 @@
       const checked = Array.from(modalRoot.querySelectorAll('[data-recharge-account]:checked'));
       if (notice) notice.hidden = checked.length > 0;
       if (list) {
-        list.innerHTML = checked.map(input => `<div class="recharge-amount-card" data-recharge-amount-card data-account-id="${esc(input.value)}" data-account-name="${esc(input.dataset.accountName || '')}" data-customer-id="${esc(input.dataset.customerId || '')}" data-customer-name="${esc(input.dataset.customerName || '')}" data-merchant-id="${esc(input.dataset.merchantId || '')}" data-currency="${esc(input.dataset.currency || 'USD')}" data-service-rate="${esc(input.dataset.serviceRate || '0')}" data-pre-tax-rate="${esc(input.dataset.preTaxRate || '0')}" data-verify-status="${esc(input.dataset.verifyStatus || '')}" data-card-label="${esc(input.dataset.cardLabel || '')}" data-other-cards="${esc(input.dataset.otherCards || '')}"><div class="recharge-amount-info"><strong>${esc(input.dataset.accountName || input.value)}</strong><div class="recharge-amount-meta"><span>当前余额：${esc(input.dataset.balance || '-')} ${esc(input.dataset.currency || '')}</span><span>服务费：<b data-service-fee>-</b></span><span>预收税费：<b data-pre-tax-fee>-</b></span><span>实际到账：<b data-actual-amount>-</b></span></div></div><input type="text" inputmode="decimal" placeholder="输入充值金额" data-recharge-amount-input></div>`).join('');
+        list.innerHTML = checked.map(input => `<div class="recharge-amount-card" data-recharge-amount-card data-account-id="${esc(input.value)}" data-account-name="${esc(input.dataset.accountName || '')}" data-media="${esc(input.dataset.media || '')}" data-customer-id="${esc(input.dataset.customerId || '')}" data-customer-name="${esc(input.dataset.customerName || '')}" data-merchant-id="${esc(input.dataset.merchantId || '')}" data-currency="${esc(input.dataset.currency || 'USD')}" data-service-rate="${esc(input.dataset.serviceRate || '0')}" data-pre-tax-rate="${esc(input.dataset.preTaxRate || '0')}" data-verify-status="${esc(input.dataset.verifyStatus || '')}" data-card-label="${esc(input.dataset.cardLabel || '')}" data-other-cards="${esc(input.dataset.otherCards || '')}"><div class="recharge-amount-info"><strong>${esc(input.dataset.accountName || input.value)}</strong><div class="recharge-amount-meta"><span>当前余额：${esc(input.dataset.balance || '-')} ${esc(input.dataset.currency || '')}</span><span>服务费：<b data-service-fee>-</b></span><span>预收税费：<b data-pre-tax-fee>-</b></span><span>实际到账：<b data-actual-amount>-</b></span></div></div><input type="text" inputmode="decimal" placeholder="输入充值金额" data-recharge-amount-input></div>`).join('');
       }
       recalculateRechargeAmounts(modalRoot);
       if (wallet) wallet.textContent = checked[0]?.dataset.walletBalance || '-';
@@ -2218,7 +2361,7 @@
         list.innerHTML = checked.map(input => {
           const amount = kind === '清零' ? parseAmount(input.dataset.balance) : 0;
           const spendText = kind === '清零' ? `<span>近 2 天消耗：<b>${esc(input.dataset.spend2d || '0.00')} ${esc(input.dataset.currency || 'USD')}</b></span>` : '';
-          return `<div class="recharge-amount-card" data-adjustment-amount-card data-account-id="${esc(input.value)}" data-currency="${esc(input.dataset.currency || 'USD')}" data-balance="${esc(input.dataset.balance || '')}" data-kind="${esc(kind)}"><div class="recharge-amount-info"><strong>${esc(input.dataset.accountName || input.value)}</strong><div class="recharge-amount-meta"><span>${esc(kind === '清零' ? '可清零金额' : '可减款金额')}：${esc(input.dataset.balance || '-')} ${esc(input.dataset.currency || 'USD')}</span>${spendText}</div></div><input type="text" inputmode="decimal" placeholder="${kind === '清零' ? '由媒体结算确认' : `输入${esc(kind)}金额`}" data-adjustment-amount-input value="${amount ? esc(amount) : ''}"${kind === '清零' ? ' readonly' : ''}></div>`;
+          return `<div class="recharge-amount-card" data-adjustment-amount-card data-account-id="${esc(input.value)}" data-media="${esc(input.dataset.media || '')}" data-currency="${esc(input.dataset.currency || 'USD')}" data-balance="${esc(input.dataset.balance || '')}" data-kind="${esc(kind)}"><div class="recharge-amount-info"><strong>${esc(input.dataset.accountName || input.value)}</strong><div class="recharge-amount-meta"><span>${esc(kind === '清零' ? '可清零金额' : '可减款金额')}：${esc(input.dataset.balance || '-')} ${esc(input.dataset.currency || 'USD')}</span>${spendText}</div></div><input type="text" inputmode="decimal" placeholder="${kind === '清零' ? '由媒体结算确认' : `输入${esc(kind)}金额`}" data-adjustment-amount-input value="${amount ? esc(amount) : ''}"${kind === '清零' ? ' readonly' : ''}></div>`;
         }).join('');
       }
       recalculateAdjustmentAmounts(modalRoot);
@@ -2238,7 +2381,9 @@
       const lines = kind === '清零'
         ? ['建议账户停止投放 48 小时后再来清零，金额会更加准确。', '最终清零金额以结算时的金额为准。', '近 2 天（昨天与当天）有消耗的账户不可勾选、不可清零。']
         : ['建议账户停止投放 48 小时后再来减款，金额会更加准确。', '最终减款金额以结算时的金额为准。'];
-      return `<div class="risk-confirm"><p class="risk-confirm__sub">请阅读以下说明后再确认。批量操作仅弹一次。</p>${lines.map((line, index) => `<div class="risk-confirm__line"><span>${index + 1}</span><p>${esc(line)}</p></div>`).join('')}<div class="notice risk-confirm__count">本次将提交 ${count} 个账户的${esc(kind)}申请。</div></div>`;
+      const mix = mediaMixSummary(state.pendingAdjustment?.rows || []);
+      const mixHtml = mix ? `<div class="notice risk-confirm__count">媒体分布：${esc(mix)}。</div>` : '';
+      return `<div class="risk-confirm"><p class="risk-confirm__sub">请阅读以下说明后再确认。批量操作仅弹一次。</p>${lines.map((line, index) => `<div class="risk-confirm__line"><span>${index + 1}</span><p>${esc(line)}</p></div>`).join('')}${mixHtml}<div class="notice risk-confirm__count">本次将提交 ${count} 个账户的${esc(kind)}申请。</div></div>`;
     }
     function openAdjustmentRiskConfirm(kind, count) {
       closeModal();
@@ -2547,6 +2692,7 @@
           submittedAt: time,
           accountId: card.dataset.accountId || '-',
           accountName: card.dataset.accountName || '-',
+          media: card.dataset.media || undefined,
           bindCard: cardLabel && cardLabel !== '-' ? '是' : '否',
           card: cardLabel,
           otherCards,
@@ -2601,6 +2747,7 @@
           submittedAt: time,
           accountId: card.dataset.accountId || '-',
           accountName,
+          media: card.dataset.media || undefined,
           bindCard: '否',
           cardSnapshot: '-',
           currency: card.dataset.currency || 'USD',
@@ -3318,11 +3465,80 @@
       const colgroup = `<colgroup>${tab.selectable ? '<col style="width:52px">' : ''}${columns.map(column => `<col style="width:${column.width || 160}px">`).join('')}${showOps ? `<col style="width:${tab.opsWidth || 180}px">` : ''}</colgroup>`;
       const footerNote = tab.footerNote ? `<div class="notice module-footer-note">${esc(tab.footerNote)}</div>` : '';
       const cardHeader = leftActions || rightActions ? `<div class="admin-card__header"><div class="command-bar command-bar--split"><div class="command-group command-group--primary">${leftActions}</div><div class="command-group command-group--secondary">${rightActions}</div></div></div>` : '';
+      if (config.customerRebate && state.tab === 'rules' && state.rebateMerchant && window.BESTADS_CUSTOMER_REBATE) {
+        root.innerHTML = window.BESTADS_CUSTOMER_REBATE.merchantDetailHtml(state.rebateMerchant, navHtml);
+        return;
+      }
       root.innerHTML = `<div class="admin-page module-page">${navHtml}${kpiHtml}${filterHtml}${unmatchedIdsNotice(tab)}${dimensionSelectorHtml(tab)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
       root.querySelectorAll('[data-requires-selection]').forEach(button => { button.disabled = selected.size === 0; });
     }
     function handleRowAction(action, row) {
       const tab = activeTab();
+      const rebateApi = window.BESTADS_CUSTOMER_REBATE;
+      if (config.customerRebate && rebateApi) {
+        if (action === '规则配置') {
+          state.rebateMerchant = row.merchantId;
+          render();
+          return;
+        }
+        if (action === '详情') {
+          openModal(rebateApi.settlementDetailHtml(row));
+          return;
+        }
+        if (action === '业务审核') {
+          state.processingRow = row;
+          openModal(rebateApi.auditModalHtml(row, 'biz'));
+          return;
+        }
+        if (action === '财务审核') {
+          if (row.bizApprover === rebateApi.currentUser) {
+            showToast('同一账号不能自审自批', 'error');
+            return;
+          }
+          state.processingRow = row;
+          openModal(rebateApi.auditModalHtml(row, 'finance'));
+          return;
+        }
+        if (action === '重试入账') {
+          const result = rebateApi.retryPosting(row);
+          render();
+          showToast(result.message, result.ok ? 'success' : 'error');
+          return;
+        }
+      }
+      if (action === '查看例外' && row.agency) {
+        state.tab = 'exceptions';
+        state.values.exceptions = Object.assign({}, state.values.exceptions || {}, { agency: row.agency });
+        render();
+        showToast(`已筛选 ${row.agency} 的例外（原型）`, 'info');
+        return;
+      }
+      if (action === '留痕' && row.reconDetail) {
+        if (row.handleStatus === '已留痕') {
+          showToast('该例外已经留痕', 'info');
+          return;
+        }
+        state.processingRow = row;
+        state.processingAction = '留痕';
+        openModal(formModal({
+          title: '例外留痕',
+          size: 'md',
+          backdropAttr: 'data-agency-recon-trace',
+          fields: [
+            { key: 'traceReason', label: '原因', control: 'select', options: ['确认时间差', '确认口径差', '漏记', '多记', '待查'] },
+            { key: 'traceRemark', label: '备注', control: 'textarea', full: true, required: false, placeholder: '可选，不改账' }
+          ]
+        }, row));
+        return;
+      }
+      if (action === '试解析') {
+        openModal(confirmModal('试解析', `将用当前模板试读 <strong>${esc(row.agency || '该代理')}</strong> 的样例文件。原型直接给出解析结果，不上传真实文件。`, false, 'agency-recon-try-parse'));
+        return;
+      }
+      if (row.reconDetail && /查看详情/.test(action)) {
+        openModal(agencyReconDetailModal(row));
+        return;
+      }
       if (action === '删除' && tab.id === 'ratio-account') {
         state.processingRow = row;
         openModal(confirmModal('删除账户预收比例', `删除后回退客户规则（或未配置）。不预收请设显式 0%，不要用删除。<br><br>广告账户 <strong>${esc(row.accountId || '-')}</strong> 当前来源：${esc(row.source || '-')}。`, true, 'location-fee-row-delete', { size: 'md' }));
@@ -3497,13 +3713,79 @@
         render();
         return;
       }
+      const rebateApi = window.BESTADS_CUSTOMER_REBATE;
+      if (config.customerRebate && rebateApi) {
+        if (event.target.closest('[data-rebate-back]')) {
+          state.rebateMerchant = null;
+          render();
+          return;
+        }
+        if (event.target.closest('[data-rebate-add-type]')) {
+          openModal(rebateApi.typeRuleModalHtml(null, state.rebateMerchant));
+          return;
+        }
+        if (event.target.closest('[data-rebate-add-override]')) {
+          openModal(rebateApi.overrideModalHtml(null, state.rebateMerchant));
+          return;
+        }
+        const typeAction = event.target.closest('[data-rebate-type-action]');
+        if (typeAction) {
+          const rule = rebateApi.findType(typeAction.dataset.rebateId);
+          const action = typeAction.getAttribute('data-rebate-type-action');
+          if (action === '编辑') {
+            openModal(rebateApi.typeRuleModalHtml(rule, state.rebateMerchant));
+            return;
+          }
+          const result = rebateApi.toggleRule('type', typeAction.dataset.rebateId, action === '启用' ? '启用' : '停用');
+          render();
+          showToast(result.ok ? `类型规则已${action}` : result.message, result.ok ? 'success' : 'error');
+          return;
+        }
+        const overrideAction = event.target.closest('[data-rebate-override-action]');
+        if (overrideAction) {
+          const rule = rebateApi.findOverride(overrideAction.dataset.rebateId);
+          const action = overrideAction.getAttribute('data-rebate-override-action');
+          if (action === '编辑') {
+            openModal(rebateApi.overrideModalHtml(rule, state.rebateMerchant));
+            return;
+          }
+          const result = rebateApi.toggleRule('override', overrideAction.dataset.rebateId, action === '启用' ? '启用' : '停用');
+          render();
+          showToast(result.ok ? `账户覆盖已${action}` : result.message, result.ok ? 'success' : 'error');
+          return;
+        }
+      }
       const tabButton = event.target.closest('[data-tab]');
-      if (tabButton) { state.tab = tabButton.dataset.tab; rememberGroupTab(state.tab); render(); return; }
+      if (tabButton) {
+        state.tab = tabButton.dataset.tab;
+        if (config.customerRebate) state.rebateMerchant = null;
+        rememberGroupTab(state.tab);
+        render();
+        return;
+      }
       const actionButton = event.target.closest('[data-action]');
       if (actionButton) {
         const tab = activeTab();
         if (actionButton.dataset.action === 'search') { readFilters(tab); render(); showToast('已按当前条件更新列表（原型）', 'success'); return; }
-        if (actionButton.dataset.action === 'reset') { state.values[tab.id] = {}; state.sort[tab.id] = null; selectedSet(tab).clear(); render(); showToast('筛选条件已重置', 'info'); return; }
+        if (actionButton.dataset.action === 'reset') { state.values[tab.id] = Object.assign({}, tab.defaultFilters || {}); state.sort[tab.id] = null; selectedSet(tab).clear(); render(); showToast('筛选条件已重置', 'info'); return; }
+        if (actionButton.dataset.action === 'goto-customer-rebate') {
+          window.location.assign(new URL('customer-rebate.html', window.location.href).href);
+          return;
+        }
+        if (config.customerRebate && window.BESTADS_CUSTOMER_REBATE) {
+          if (actionButton.dataset.action === 'trigger-settlement') {
+            openModal(window.BESTADS_CUSTOMER_REBATE.triggerModalHtml());
+            return;
+          }
+          if (actionButton.dataset.action === 'batch-biz-approve') {
+            const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+            const pending = selectedRows.filter(item => item.status === '待业务');
+            if (!pending.length) { showToast('请勾选待业务的结算单', 'error'); return; }
+            openModal(confirmModal('批量业务通过', `将对已选 <strong>${pending.length}</strong> 张待业务结算单执行业务通过，进入待财务。`, false, 'rebate-batch-biz', { size: 'md' }));
+            return;
+          }
+        }
+        if (actionButton.dataset.action === 'reset') { state.values[tab.id] = Object.assign({}, tab.defaultFilters || {}); state.sort[tab.id] = null; selectedSet(tab).clear(); render(); showToast('筛选条件已重置', 'info'); return; }
         if (actionButton.dataset.action === 'export') { showToast('导出任务已创建，可在导出中心查看进度（原型）', 'success'); return; }
         if (actionButton.dataset.action === 'feishu-notice') {
           const overview = tabs.find(item => item.id === 'overview');
@@ -3522,9 +3804,44 @@
           openModal(confirmModal('批量删除账户覆盖', `删除后回退客户规则（或未配置）。不预收请设显式 0%，不要用删除。<br><br>将对已选 <strong>${count}</strong> 条执行删除。`, true, 'location-fee-batch-delete', { size: 'md' }));
           return;
         }
-        if (actionButton.dataset.action === 'download-template') { showToast('已开始下载导入模版（原型）', 'success'); return; }
+        if (actionButton.dataset.action === 'upload-agency') {
+          openModal(formModal(tab.modal || { title: '上传代理文件', fields: [] }, {}));
+          return;
+        }
+        if (actionButton.dataset.action === 'batch-confirm') {
+          const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+          if (!selectedRows.length) { showToast('请先勾选需要确认的例外', 'error'); return; }
+          const blocked = selectedRows.filter(row => !/口径差|疑似时间差/.test(row.category || ''));
+          if (blocked.length) {
+            showToast('批量确认只适用于口径差和疑似时间差，真差异请逐条留痕', 'error');
+            return;
+          }
+          const pending = selectedRows.filter(row => row.handleStatus !== '已留痕');
+          if (!pending.length) { showToast('所选例外均已留痕', 'info'); return; }
+          openModal(confirmModal('批量确认', `将把已选 <strong>${pending.length}</strong> 条口径差 / 疑似时间差标为已留痕。不改充值单。`, false, 'agency-recon-batch', { size: 'md' }));
+          return;
+        }
+        if (actionButton.dataset.action === 'download-template') {
+          if (tab.importTemplate) {
+            downloadImportTemplate(tab.importTemplate);
+            return;
+          }
+          showToast('已开始下载导入模版（原型）', 'success');
+          return;
+        }
         if (actionButton.dataset.action === 'custom-fields') { openModal(customFieldsModal(tab, fieldPref(tab))); return; }
-        if (actionButton.dataset.action === 'upload') { const input = root.querySelector('[data-file-upload]'); if (input) { input.value = ''; input.click(); } showToast(actionButton.dataset.uploadToast || `请选择本地文件执行“${actionButton.dataset.actionLabel || actionButton.textContent.trim()}”（原型）`, 'info'); return; }
+        if (actionButton.dataset.action === 'upload') {
+          const actionLabel = actionButton.dataset.actionLabel || actionButton.textContent.trim();
+          const uploadModal = tab.modals?.[actionLabel] || config.modals?.[actionLabel];
+          if (uploadModal?.selectMediaFirst) {
+            openModal(formModal(uploadModal, {}));
+            return;
+          }
+          const input = root.querySelector('[data-file-upload]');
+          if (input) { input.value = ''; input.click(); }
+          showToast(actionButton.dataset.uploadToast || `请选择本地文件执行“${actionButton.dataset.actionLabel || actionButton.textContent.trim()}”（原型）`, 'info');
+          return;
+        }
         if (actionButton.hasAttribute('data-requires-selection') && selectedSet(tab).size === 0) { showToast('请先勾选需要操作的广告账户', 'error'); return; }
         const actionLabel = actionButton.dataset.actionLabel || actionButton.textContent.trim();
         const modal = tab.modals?.[actionLabel] || config.modals?.[actionLabel];
@@ -3534,9 +3851,18 @@
           openModal(confirmModal(actionLabel, `将对已选 <strong>${count}</strong> 条记录执行“${esc(actionLabel)}”。提交前请确认影响范围。`, false));
           return;
         }
-        if (/confirm/.test(modal?.type || '')) openModal(confirmModal(modalTextWithSelection(modal.title, tab), modalTextWithSelection(modal.copy, tab), modal.danger, modal.type));
+        if (/confirm/.test(modal?.type || '')) {
+          const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+          const mix = tab.confirmMediaMix && /处理失败/.test(actionLabel) ? mediaMixSummary(selectedRows) : '';
+          const extra = mix ? `<div class="notice" style="margin-top:8px">本次 ${selectedRows.length} 单。媒体分布：${esc(mix)}。</div>` : '';
+          openModal(confirmModal(modalTextWithSelection(modal.title, tab), `${modalTextWithSelection(modal.copy, tab)}${extra}`, modal.danger, modal.type));
+        }
         else if (modal) {
-          openModal(formModal(modal, {}));
+          const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+          const shouldMix = tab.confirmMediaMix && /人工处理/.test(actionLabel);
+          const mix = shouldMix ? mediaMixSummary(selectedRows) : '';
+          const notice = mix ? `本次将处理 ${selectedRows.length} 单。媒体分布：${esc(mix)}。请确认后再提交。` : '';
+          openModal(formModal(notice ? { ...modal, notice } : modal, {}));
           syncOpeningBudgetRange(document.querySelector('[data-opening-rule-config-modal]'));
           syncOpeningRuleConfigPreview(document.querySelector('[data-opening-rule-config-modal]'));
           syncOpeningApplyCreateModal(document.querySelector('[data-opening-apply-create-modal]'));
@@ -3594,6 +3920,12 @@
       }
     });
     document.body.addEventListener('click', event => {
+      const downloadCsv = event.target.closest('[data-rebate-download-csv]');
+      if (downloadCsv && window.BESTADS_CUSTOMER_REBATE) {
+        window.BESTADS_CUSTOMER_REBATE.downloadCsv(downloadCsv.dataset.rebateOrder);
+        showToast('已开始下载分段明细 CSV（原型）', 'success');
+        return;
+      }
       const emailLang = event.target.closest('[data-opening-email-lang]');
       if (emailLang) {
         const root = emailLang.closest('[data-opening-email-preview]');
@@ -3620,6 +3952,10 @@
       const uploadBrowse = event.target.closest('[data-upload-browse], [data-upload-zone]');
       if (uploadBrowse && !event.target.closest('[data-upload-list]')) {
         const zone = uploadBrowse.closest('[data-upload-zone]');
+        if (zone?.classList.contains('is-disabled')) {
+          showToast('请先选择媒体', 'error');
+          return;
+        }
         const input = zone?.querySelector('[data-upload-input]');
         if (input && event.target !== input) {
           input.click();
@@ -3700,6 +4036,72 @@
       if (event.target.closest('[data-modal-submit]')) {
         const backdrop = event.target.closest('.modal-backdrop');
         const tab = activeTab();
+        const rebateApi = window.BESTADS_CUSTOMER_REBATE;
+        if (config.customerRebate && rebateApi) {
+          if (backdrop?.dataset.confirmAction === 'rebate-batch-biz') {
+            const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+            const result = rebateApi.batchBizApprove(selectedRows);
+            selectedSet(tab).clear();
+            closeModal();
+            render();
+            showToast(result.message, result.ok ? 'success' : 'error');
+            return;
+          }
+          if (backdrop?.matches('[data-rebate-type-modal]')) {
+            const result = rebateApi.saveTypeRule(state.rebateMerchant, {
+              id: backdrop.dataset.rebateId || '',
+              accountType: backdrop.querySelector('[name="accountType"]')?.value || '',
+              rate: backdrop.querySelector('[name="rate"]')?.value || '',
+              startDate: backdrop.querySelector('[name="startDate"]')?.value || '',
+              endDate: backdrop.querySelector('[name="endDate"]')?.value || '',
+              status: backdrop.querySelector('[name="status"]')?.value || '启用'
+            });
+            if (!result.ok) { showToast(result.message, 'error'); return; }
+            closeModal();
+            render();
+            showToast('类型规则已保存（原型）', 'success');
+            return;
+          }
+          if (backdrop?.matches('[data-rebate-override-modal]')) {
+            const result = rebateApi.saveOverride(state.rebateMerchant, {
+              id: backdrop.dataset.rebateId || '',
+              accountId: backdrop.querySelector('[name="accountId"]')?.value || '',
+              rate: backdrop.querySelector('[name="rate"]')?.value || '',
+              startDate: backdrop.querySelector('[name="startDate"]')?.value || '',
+              endDate: backdrop.querySelector('[name="endDate"]')?.value || '',
+              status: backdrop.querySelector('[name="status"]')?.value || '启用'
+            });
+            if (!result.ok) { showToast(result.message, 'error'); return; }
+            closeModal();
+            render();
+            showToast('账户覆盖已保存（原型）', 'success');
+            return;
+          }
+          if (backdrop?.matches('[data-rebate-trigger-modal]')) {
+            const merchantIds = Array.from(backdrop.querySelectorAll('[data-multiselect-option]:checked')).map(input => input.value);
+            const result = rebateApi.triggerSettlement(merchantIds, backdrop.querySelector('[name="period"]')?.value || '');
+            if (!result.ok) { showToast(result.message, 'error'); return; }
+            closeModal();
+            state.tab = 'settlement';
+            render();
+            showToast(result.message, 'success');
+            return;
+          }
+          if (backdrop?.matches('[data-rebate-audit-modal]')) {
+            const result = rebateApi.applyAudit(
+              state.processingRow,
+              backdrop.dataset.rebateAudit,
+              backdrop.querySelector('[name="decision"]')?.value,
+              backdrop.querySelector('[name="remark"]')?.value
+            );
+            if (!result.ok) { showToast(result.message, 'error'); return; }
+            state.processingRow = null;
+            closeModal();
+            render();
+            showToast(result.message, 'success');
+            return;
+          }
+        }
         if (backdrop?.dataset.confirmAction === 'location-fee-batch-delete') {
           const current = rows(tab);
           const selected = Array.from(selectedSet(tab)).map(index => current[index]).filter(Boolean);
@@ -3725,6 +4127,84 @@
           closeModal();
           render();
           showToast(had ? '已删除账户覆盖，已回退客户规则（原型）' : '当前无账户覆盖，无需删除（原型）', had ? 'success' : 'info');
+          return;
+        }
+        if (backdrop?.dataset.confirmAction === 'agency-recon-batch') {
+          const current = rows(tab);
+          let updated = 0;
+          Array.from(selectedSet(tab)).forEach(index => {
+            const row = current[index];
+            if (row && /口径差|疑似时间差/.test(row.category || '') && row.handleStatus !== '已留痕') {
+              row.handleStatus = '已留痕';
+              row.ops = ['查看详情'];
+              updated += 1;
+            }
+          });
+          selectedSet(tab).clear();
+          refreshAgencyReconKpis();
+          closeModal();
+          render();
+          showToast(`已批量留痕 ${updated} 条（原型）`, 'success');
+          return;
+        }
+        if (backdrop?.dataset.confirmAction === 'agency-recon-try-parse') {
+          closeModal();
+          showToast('样例解析成功：抽出 20 行标准流水，丢弃失败单 1 行（原型）', 'success');
+          return;
+        }
+        if (backdrop?.matches('[data-agency-recon-trace]')) {
+          const row = state.processingRow;
+          const reason = backdrop.querySelector('[name="traceReason"]')?.value;
+          if (!row) { showToast('未找到例外', 'error'); return; }
+          if (!reason) { showToast('请选择原因', 'error'); return; }
+          row.handleStatus = '已留痕';
+          row.traceReason = reason;
+          row.traceRemark = backdrop.querySelector('[name="traceRemark"]')?.value || '';
+          row.ops = ['查看详情'];
+          state.processingRow = null;
+          refreshAgencyReconKpis();
+          closeModal();
+          render();
+          showToast(`已留痕：${reason}（原型）`, 'success');
+          return;
+        }
+        if (backdrop?.matches('[data-agency-recon-upload]')) {
+          const agency = backdrop.querySelector('[name="agency"]')?.value;
+          const hasFile = Boolean(backdrop.querySelector('[data-upload-list] li'));
+          if (!agency) { showToast('请选择归类代理', 'error'); return; }
+          if (!hasFile) { showToast('请上传代理导出文件', 'error'); return; }
+          const overview = tabs.find(item => item.id === 'overview');
+          const uploads = tabs.find(item => item.id === 'uploads');
+          const target = (overview?.rows || []).find(item => item.agency === agency);
+          const now = currentTimestamp();
+          const cleared = agency === 'MeetSocial';
+          if (uploads) {
+            uploads.rows.unshift({
+              fileName: `${agency.toLowerCase()}_upload.xlsx`,
+              agency,
+              coverRange: '2026-08-29 ~ 2026-08-31',
+              okCount: cleared ? '86' : '40',
+              dropCount: '1',
+              result: cleared ? '已平' : (target?.reconStatus || '有例外'),
+              operator: '财务',
+              uploadedAt: now
+            });
+          }
+          if (target) {
+            target.uploadedAt = now;
+            target.fileCovered = '2026-08-31';
+            if (cleared) {
+              target.reconStatus = '已平';
+              target.matched = '86';
+              target.caliber = '0';
+              target.timeShift = '0';
+              target.mismatch = '0';
+              target.ops = [];
+            }
+          }
+          closeModal();
+          render();
+          showToast(cleared ? '解析成功 86 行，已丢弃失败单 1 行。MeetSocial 昨日已平（原型）' : `已接收 ${agency} 文件并重跑最近 3 天（原型）`, 'success');
           return;
         }
         if (backdrop?.matches('[data-location-fee-batch-ratio]') || backdrop?.querySelector('[data-location-fee-batch-ratio]')) {
@@ -3898,6 +4378,18 @@
         }
         const bindCardResult = submitBindCardPrototypeAction(backdrop);
         if (bindCardResult) return;
+        if (backdrop?.matches('[data-account-upload-modal]')) {
+          const media = backdrop.querySelector('[name="media"]')?.value;
+          const file = backdrop.querySelector('[data-upload-input]')?.files?.[0];
+          if (!media) { showToast('请先选择媒体', 'error'); return; }
+          if (!file) { showToast('请选择本地 Excel 文件', 'error'); return; }
+          if (!isExcelFile(file)) { showToast('请上传 .xls 或 .xlsx 文件', 'error'); return; }
+          closeModal();
+          state.processingRow = null;
+          state.processingAction = null;
+          showToast(`已上传 ${file.name}（${media}）（原型）`, 'success');
+          return;
+        }
         closeModal();
         state.processingRow = null;
         state.processingAction = null;

@@ -44,7 +44,8 @@
     { flowId: 'AF202608080014', ...customers.amount, time: '2026-08-08 16:20:45', reason: '广告账户充值', typeCode: 'AD_ACCOUNT_RECHARGE', currency: 'USD', changeAmount: '-500.00', beforeBalance: '1,580.00', afterBalance: '1,080.00', relatedOrder: 'AD202608080014', remark: '充值至 FB 广告账户 821285917232112', ops: ['查看详情'] },
     { flowId: 'AF202608070026', ...customers.arne, time: '2026-08-07 11:08:22', reason: '广告账户减款退回', typeCode: 'AD_ACCOUNT_REDUCED', currency: 'USD', changeAmount: '+120.50', beforeBalance: '860.00', afterBalance: '980.50', relatedOrder: 'AD20260807002833682397944', remark: '媒体已完成减款，回补客户钱包', ops: ['查看详情'] },
     { flowId: 'AF202608060008', ...customers.demo, time: '2026-08-06 15:44:03', reason: '线下转账入账', typeCode: 'OFFLINE_TRANSFER', currency: 'EUR', changeAmount: '+800.00', beforeBalance: '0.00', afterBalance: '800.00', relatedOrder: 'OT202608060008', remark: 'Wise 水单审核通过', ops: ['查看详情'] },
-    { flowId: 'AF202608050011', ...customers.amount, time: '2026-08-05 09:18:10', reason: '其他扣费', typeCode: 'OTHER_DEDUCTION', currency: 'USD', changeAmount: '-36.00', beforeBalance: '1,116.00', afterBalance: '1,080.00', relatedOrder: 'OD202608050011', remark: '手工扣费：素材处理服务', ops: ['查看详情'] }
+    { flowId: 'AF202608050011', ...customers.amount, time: '2026-08-05 09:18:10', reason: '其他扣费', typeCode: 'OTHER_DEDUCTION', currency: 'USD', changeAmount: '-36.00', beforeBalance: '1,116.00', afterBalance: '1,080.00', relatedOrder: 'OD202608050011', remark: '手工扣费：素材处理服务', ops: ['查看详情'] },
+    { flowId: 'AF202607160021', ...customers.amount, time: '2026-08-16 10:08:22', reason: '客户返点结算', typeCode: 'CUSTOMER_REBATE', currency: 'USD', changeAmount: '+736.00', beforeBalance: '1,080.00', afterBalance: '1,816.00', relatedOrder: 'CR20260714656001', remark: '2026-07 客户返点入账', ops: ['查看详情'] }
   ];
 
   const onlineRows = [
@@ -120,7 +121,7 @@
     'transaction-detail': {
       title: '交易明细',
       filters: [{ key: 'time', label: '交易时间', type: 'date' }].concat(identityFilters, [
-        { key: 'reason', label: '变动原因', type: 'select', options: ['在线充值入账', '线下转账入账', '广告账户充值', '广告账户减款退回', '广告账户清零退回', '介绍人吐点结算', '其他扣费'], placeholder: '请选择变动原因' },
+        { key: 'reason', label: '变动原因', type: 'select', options: ['在线充值入账', '线下转账入账', '广告账户充值', '广告账户减款退回', '广告账户清零退回', '介绍人吐点结算', '客户返点结算', '其他扣费'], placeholder: '请选择变动原因' },
         { key: 'relatedOrder', label: '关联业务单号', placeholder: '请输入关联业务单号' }
       ]),
       actions: [{ id: 'export', label: '导出数据', icon: 'download', primary: true, align: 'right' }],

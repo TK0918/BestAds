@@ -1,3 +1,13 @@
+#### 2026-09-07 - 客户返点版本号改为 V2.50 并推送原型
+
+需求版本由 V2.46 调整为 V2.50。本地 PRD 改为 `PRD/V 2.50 客户返点.md`，飞书 Wiki 改为 https://bestfulfill.feishu.cn/wiki/MBcCwhaCbiN1RLkmKrccr11Kn4e。
+
+#### 2026-09-07 - 客户返点独立模块原型与 PRD
+
+按已确认方案落地运营端独立「客户返点」：菜单加在介绍人和吐点与返点配置之间；薄页 `admin-system/main-functions/customer-rebate.html` + `prototype-kit/admin-shell/admin-customer-rebate-page.js`。规则 Tab 按商户维护类型规则 / 账户覆盖，结算 Tab 手动发起、业务财务双审、入账失败可幂等重试。旧「返点配置 → 客户返点」改为只读跳转；交易明细增加 `CUSTOMER_REBATE`。`SHELL_VERSION` 为 `20260907-customer-rebate`。
+
+---
+
 #### 2026-09-05 - 核对其余邮件模板预览样例
 
 续航不足、自动充失败、账户充失败、钱包到账、清零/减款成功按公式和场景口径改了预览样例。续航不足与预测邮件共用三户：建议充值 = max(0, 3×日均−余额)，合计 $3,363.74，最短天数 0.2。自动充/账户充失败原因改为媒体拒绝，不再用钱包不足。钱包到账后余额 $7,864.50 = 原余额 + $5,000。清零后退回 $126.40，钱包变为 $2,990.90。
@@ -10,6 +20,10 @@
 
 「钱包不足·事件」预览改为钱包余额 $286.12、本次需充值 $1,000.00、钱包缺口 $713.88，满足缺口 = 需充值 − 钱包余额。其它场景仍用原来的共享样例。
 
+#### 2026-09-05 - 续航不足真实邮件预览
+
+把一封真实「续航不足」发送请求还原成 HTML 预览（发件人、收件人、主题 + 原 HTML 正文），文件在 `.tmp-email-preview/runway-insufficient.html`。未改 PRD 或原型。
+
 #### 2026-09-04 - IT双周会 PRD 新老客改为完整自然月口径
 
 本地 `PRD/V 2.42.1 IT双周会报表 PRD.md` 升至 0.26。新客按 6 个完整自然月判定：1 日注册从注册月起算，2 日及以后从次月起算；本期用本期结束日，上期用上期结束日。窗口跨月不按发生日拆。漏斗仍不按新老客拆。
@@ -17,6 +31,29 @@
 #### 2026-09-04 - IT双周会新老客改按窗口结束日和完整自然月
 
 KPI 新老客改为：1 日注册从注册月起算 6 个完整自然月，2 日及以后从次月起算；满 6 个月后次月 1 日起为老客。本期用本期结束日，上期用上期结束日。8 月 18 日与 9 月 1 日两套窗口结束日都在 8 月，原表无 2 月 1 日注册客户，三张卡新客金额 / 人数与上次相同。漏斗不按新老客拆。`SHELL_VERSION` 升为 `20260904-it-biweekly-newold`。
+
+#### 2026-09-02 - 新增「日常工作」跨媒体处理入口
+
+按功能合并开户 / 账户 / 充值 / 减款 / 清零 / 服务费入口，一级菜单为「日常工作」。四个媒体目录下的旧原型文件不改业务内容。有角标的页面默认只看待处理；角标挂在二级菜单。`SHELL_VERSION` 升为 `20260902-daily-work1`。
+
+- 新增：`admin-system/daily-work/` 七个 HTML
+- 新增：`prototype-kit/admin-shell/admin-daily-work-page.js`
+- 更新：`prototype-kit/admin-shell/admin-menu.js`
+- 更新：`prototype-kit/admin-shell/admin-shell.js`
+- 更新：`prototype-kit/admin-shell/admin-shell.css`
+- 更新：`prototype-kit/admin-shell/figma-ops.css`
+- 更新：`prototype-kit/admin-shell/admin-module-page.js`
+
+---
+
+#### 2026-09-02 - 核对规则「开户代理别名」改为下拉多选
+
+编辑 / 新增归类时，「开户代理别名」不再手填逗号，改为从开户代理名单多选。保存后仍用顿号展示。`SHELL_VERSION` 升为 `20260902-agency-recon2`。
+
+- 更新：`prototype-kit/admin-shell/admin-agency-recon-page.js`
+- 更新：`prototype-kit/admin-shell/admin-shell.js`
+
+---
 
 #### 2026-09-02 - IT双周会漏斗补回首次账户充值
 
