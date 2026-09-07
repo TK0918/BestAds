@@ -1,6 +1,6 @@
 #### 2026-09-07 - 客户返点版本号改为 V2.50 并推送原型
 
-需求版本由 V2.46 调整为 V2.50。本地 PRD 改为 `PRD/V 2.50 客户返点.md`，飞书 Wiki 改为 https://bestfulfill.feishu.cn/wiki/MBcCwhaCbiN1RLkmKrccr11Kn4e。
+需求版本由 V2.46 调整为 V2.50。本地 PRD 改为 `PRD/V 2.50 客户返点.md`，飞书 Wiki 改为 https://bestfulfill.feishu.cn/wiki/MBcCwhaCbiN1RLkmKrccr11Kn4e。原型已推送，公网地址为 https://tk0918.github.io/BestAds/admin-system/main-functions/customer-rebate.html。
 
 #### 2026-09-07 - 客户返点独立模块原型与 PRD
 
