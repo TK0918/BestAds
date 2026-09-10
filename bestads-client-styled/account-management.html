@@ -1339,10 +1339,11 @@
           <div class="quote-estimate full" aria-live="polite">
             <div>
               <p class="quote-estimate-title" data-i18n="apply_estimated_quote">Estimated opening cost</p>
-              <p class="quote-estimate-desc" data-i18n="apply_estimated_quote_desc">Opening fee is a one-time merchant fee in USD. Wallet total and actual deduction use the default wallet currency. Initial top-up equals min precharge times account count. Daily budget is only used for rule matching. If no rule matches, total shows - (pending review pricing). No deduction on submit. Final amount is subject to review.</p>
+              <p class="quote-estimate-desc" data-i18n="apply_estimated_quote_desc">Opening fee is always USD, multiplied by account count. The top-up number is global; its currency follows the ad account. Wallet total uses the default wallet currency. Daily budget, country and category are application data only. No deduction on submit. Final amount is the quote issued after agent selection.</p>
               <div class="quote-breakdown">
-                <span><span data-i18n="apply_opening_fee_subtotal">Opening fee</span>：<b id="applyOpeningFeeSubtotal">-</b></span>
-                <span><span data-i18n="apply_precharge_subtotal">Initial top-up</span>：<b id="applyPrechargeSubtotal">-</b></span>
+                <span><span data-i18n="apply_opening_fee_subtotal">Opening fee (USD)</span>：<b id="applyOpeningFeeSubtotal">-</b></span>
+                <span><span data-i18n="apply_precharge_subtotal">Initial top-up (ad account currency)</span>：<b id="applyPrechargeSubtotal">-</b></span>
+                <span><span data-i18n="apply_rate_after_success">Service fee / prepaid tax</span>：<span data-i18n="apply_rate_after_success_value">Shown after opening succeeds</span></span>
               </div>
             </div>
             <div class="quote-estimate-total">
@@ -1352,7 +1353,7 @@
           </div>
           <label class="consent-row full">
             <input id="applyAutoPay" type="checkbox" checked>
-            <span data-i18n="apply_auto_pay">If the final amount matches the initial quote, authorize automatic deduction of the opening fee and each account initial top-up. Confirm later if they differ.</span>
+            <span data-i18n="apply_auto_pay">If the actual deduction is not higher than the submitted estimate, authorize automatic deduction of the opening fee and each account initial top-up. Confirm later only if it is higher.</span>
           </label>
         </div>
       </div>
@@ -1692,7 +1693,7 @@
         category_non_oral_health: 'Non-Oral Health Wellness & Nutrition',
         category_other: 'Other',
         apply_estimated_quote: 'Estimated opening cost',
-        apply_estimated_quote_desc: 'Opening fee is a one-time merchant fee in USD. Wallet total and actual deduction use the default wallet currency. Initial top-up equals min precharge times account count. Daily budget is only used for rule matching. If no rule matches, total shows - (pending review pricing). No deduction on submit. Final amount is subject to review.',
+        apply_estimated_quote_desc: 'Opening fee is always USD, multiplied by account count. The top-up number is global; its currency follows the ad account (USD accounts top up in USD, EUR accounts in EUR). Wallet total uses the default wallet currency. Daily budget, country and category are application data only. No deduction on submit. Final amount is the quote issued after agent selection.',
         apply_bm_ids: 'BM ID',
         apply_bm_tip: 'Facebook only. Multiple BM IDs can be separated by comma or space.',
         apply_bm_empty: 'No BM ID parsed yet',
@@ -1704,10 +1705,12 @@
         apply_bc_tip: 'TikTok only. Multiple BCs can be separated by comma or space.',
         apply_bc_empty: 'No BC parsed yet',
         placeholder_bc_ids: 'Enter multiple BCs separated by comma or space',
-        apply_opening_fee_subtotal: 'Opening fee',
-        apply_precharge_subtotal: 'Initial top-up',
+        apply_opening_fee_subtotal: 'Opening fee (USD)',
+        apply_precharge_subtotal: 'Initial top-up (ad account currency)',
         apply_quote_total: 'Total',
-        apply_auto_pay: 'If the final amount matches the initial quote, authorize automatic deduction of the opening fee and each account initial top-up. Confirm later if they differ.',
+        apply_rate_after_success: 'Service fee / prepaid tax',
+        apply_rate_after_success_value: 'Shown after opening succeeds',
+        apply_auto_pay: 'If the actual deduction is not higher than the submitted estimate, authorize automatic deduction of the opening fee and each account initial top-up. Confirm later only if it is higher.',
         url_tip: 'At least 1 and at most 20 URLs',
         btn_add_url: 'Add URL',
         timezone_quantity: 'Time Zone and Quantity',
@@ -1758,7 +1761,7 @@
         toast_country_required: 'Please select delivery country',
         toast_budget_required: 'Please enter daily budget',
         toast_quantity_limit: 'Account count must be between 1 and 20',
-        toast_apply_done: 'Account opening request submitted. Initial quote is generated and can be viewed in Operation Records.',
+        toast_apply_done: 'Account opening request submitted. Check Operation Records for status. Fee details appear after the final quote is issued.',
         toast_url_limit: 'At most 20 URLs',
         toast_page_limit: 'At most 20 Facebook Pages',
         toast_media_required: 'Please select a media channel',
@@ -1856,7 +1859,7 @@
         category_non_oral_health: '非口服健康保健与营养',
         category_other: '其他',
         apply_estimated_quote: '预估开户费用',
-        apply_estimated_quote_desc: '开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。',
+        apply_estimated_quote_desc: '开户费固定 USD，按单账户金额乘以账户数。最低首充数值全站统一，币种跟随广告账户：美元户按 USD 首充，欧元户按 EUR 首充。合计按钱包默认币种折算。日预算、投放国家、投放品类只作开户资料，不参与定价。提交时不扣款，最终金额以开户组发出的最终报价为准。',
         apply_bm_ids: 'BM ID',
         apply_bm_tip: '仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。',
         apply_bm_empty: '暂未识别到 BM ID',
@@ -1868,10 +1871,12 @@
         apply_bc_tip: '仅 TikTok 需要。支持输入多个 BC，可用逗号或空格分隔。',
         apply_bc_empty: '暂未识别到 BC',
         placeholder_bc_ids: '请输入 BC，多个可用逗号或空格分隔',
-        apply_opening_fee_subtotal: '开户费',
-        apply_precharge_subtotal: '首充',
+        apply_opening_fee_subtotal: '开户费（USD）',
+        apply_precharge_subtotal: '首充（账户币种）',
         apply_quote_total: '合计',
-        apply_auto_pay: '若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知确认。',
+        apply_rate_after_success: '服务费 / 预收税费费率',
+        apply_rate_after_success_value: '开户成功后展示',
+        apply_auto_pay: '同意扣费：若实际扣款不超过提交时预估，同意系统直接扣除开户费和各账户首充；高于预估时再通知确认。',
         url_tip: '至少 1 个，最多 20 个 URL',
         btn_add_url: '添加 URL',
         timezone_quantity: '时区和数量',
@@ -1922,7 +1927,7 @@
         toast_country_required: '请选择投放国家',
         toast_budget_required: '请输入日预算',
         toast_quantity_limit: '账户数需在 1 到 20 之间',
-        toast_apply_done: '开户申请已提交，系统已生成初始报价，可在操作记录查看。',
+        toast_apply_done: '开户申请已提交。可在操作记录查看进度；费用明细在发出最终报价后展示。',
         toast_url_limit: '最多 20 个 URL',
         toast_page_limit: '最多 20 个 Facebook Page',
         toast_media_required: '请选择媒体渠道',
@@ -2063,24 +2068,11 @@
       return Number.isFinite(amount) ? amount : 0;
     }
 
-    window.BESTADS_OPENING_FEE = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+    window.BESTADS_OPENING_FEE = window.BESTADS_OPENING_FEE || { openingFeePerAccount: 30, prechargePerAccount: 550, currency: 'USD' };
     window.BESTADS_CLIENT_MERCHANT_ID = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
-    window.BESTADS_MERCHANT_OPENING_FEE_STATUS = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {
-      '11894': '已收取',
-      '18888': '不收取',
-      '19901': '未收取'
-    };
     window.BESTADS_WALLET_FX = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
     window.BESTADS_CLIENT_WALLET = window.BESTADS_CLIENT_WALLET || { currency: 'USD', available: 5000 };
 
-    const CLIENT_OPENING_RULES = [
-      { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['时尚与服装', '家居厨房与生活', '美妆与个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
-      { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居厨房与生活', '时尚与服装'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
-      { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['口服健康保健与营养', '非口服健康保健与营养', '其他'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
-      { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆与个护', '时尚与服装', '家居厨房与生活'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
-      { mediaChannel: 'Google', priority: 50, countryMatch: ['美国', '英国', '加拿大'], categoryMatch: '全部', minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 500, currency: '不限' },
-      { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['时尚与服装', '美妆与个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
-    ];
 
     function clientWalletCurrency() {
       return window.BESTADS_CLIENT_WALLET?.currency || 'USD';
@@ -2091,53 +2083,34 @@
       return Number(amount || 0) * ((Number(rates[to] || 1)) / (Number(rates[from] || 1)));
     }
 
-    function clientOpeningFeeQuote() {
-      const merchantId = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
-      const map = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {};
-      const status = map[String(merchantId)] || '已收取';
-      const fee = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
-      return { status, amount: status === '未收取' ? Number(fee.amount) || 0 : 0, currency: fee.currency || 'USD' };
-    }
-
-    function matchClientOpeningRule(media, country, category, budget, currency) {
-      const inSet = (source, target) => {
-        if (!source || source === '全部' || source === '不限') return true;
-        const tokens = Array.isArray(source) ? source : String(source).split(/[、/|,，]+/).map((item) => item.trim()).filter(Boolean);
-        return tokens.includes(String(target || '').trim());
+    function clientOpeningFeeQuote(count) {
+      const fee = window.BESTADS_OPENING_FEE || {};
+      const n = Math.max(1, Number(count) || 1);
+      const openingFeePerAccount = Number(fee.openingFeePerAccount != null ? fee.openingFeePerAccount : fee.amount) || 0;
+      const prechargePerAccount = Number(fee.prechargePerAccount) || 0;
+      return {
+        openingFeePerAccount,
+        prechargePerAccount,
+        openingFee: openingFeePerAccount * n,
+        precharge: prechargePerAccount * n,
+        currency: fee.currency || 'USD'
       };
-      return CLIENT_OPENING_RULES.filter((item) => {
-        if (item.mediaChannel !== media) return false;
-        if (!inSet(item.countryMatch, country)) return false;
-        if (!inSet(item.categoryMatch, category)) return false;
-        if (!inSet(item.currency, currency || 'USD')) return false;
-        if (item.minDailyBudget && budget < item.minDailyBudget) return false;
-        if (item.maxDailyBudget != null && budget > item.maxDailyBudget) return false;
-        return true;
-      }).sort((a, b) => a.priority - b.priority)[0] || null;
     }
 
-    function estimateOpeningQuote(dailyBudget, accountCount, category) {
+    function estimateOpeningQuote() {
       return estimateOpeningQuoteBreakdown().total;
     }
 
     function estimateOpeningQuoteBreakdown() {
-      const category = document.getElementById('applyCategory')?.value || '';
-      const merchantQuote = clientOpeningFeeQuote();
-      if (!category) return { ready: false, matched: false, openingFee: 0, precharge: 0, total: 0, feeStatus: merchantQuote.status };
-      const media = document.getElementById('applyMediaChannel')?.value || '';
-      const country = document.getElementById('applyCountry')?.value || '';
-      const budget = numberFromText(document.getElementById('applyDailyBudget')?.value);
       const currency = document.getElementById('applyCurrency')?.value || 'USD';
-      const count = Math.min(20, Math.max(1, Number(document.getElementById('applyAccountCount')?.value) || 1));
-      const rule = matchClientOpeningRule(media, country, category, budget, currency);
-      const openingFee = merchantQuote.amount;
+      const countRaw = document.getElementById('applyAccountCount')?.value || '';
+      const count = Number(String(countRaw).trim());
+      const ready = Number.isInteger(count) && count >= 1 && count <= 20;
+      if (!ready) return { ready: false, matched: false, openingFee: 0, precharge: 0, total: 0 };
+      const site = clientOpeningFeeQuote(count);
       const wallet = clientWalletCurrency();
-      if (!rule) {
-        return { ready: true, matched: false, openingFee, precharge: 0, total: 0, walletCurrency: wallet, feeStatus: merchantQuote.status };
-      }
-      const precharge = Number(rule.prechargeBasePerAccount) * count;
-      const walletTotal = convertClientAmount(openingFee, 'USD', wallet) + convertClientAmount(precharge, currency, wallet);
-      return { ready: true, matched: true, openingFee, precharge, total: walletTotal, walletCurrency: wallet, feeStatus: merchantQuote.status };
+      const walletTotal = convertClientAmount(site.openingFee, 'USD', wallet) + convertClientAmount(site.precharge, currency, wallet);
+      return { ready: true, matched: true, openingFee: site.openingFee, precharge: site.precharge, total: walletTotal, walletCurrency: wallet };
     }
 
     function formatQuoteAmount(amount, currency) {
@@ -2176,17 +2149,12 @@
         return;
       }
       if (openingFeeTarget) {
-        openingFeeTarget.textContent = breakdown.openingFee > 0
-          ? (wallet === 'USD' ? formatQuoteAmount(breakdown.openingFee, 'USD') : `${formatQuoteAmount(convertClientAmount(breakdown.openingFee, 'USD', wallet), wallet)}（标价 ${formatQuoteAmount(breakdown.openingFee, 'USD')}）`)
-          : `${formatQuoteAmount(0, wallet)}（本次不收取开户费）`;
-      }
-      if (!breakdown.matched) {
-        target.textContent = '-（待审核定价）';
-        if (prechargeTarget) prechargeTarget.textContent = '-';
-        return;
+        openingFeeTarget.textContent = wallet === 'USD'
+          ? formatQuoteAmount(breakdown.openingFee, 'USD')
+          : `${formatQuoteAmount(convertClientAmount(breakdown.openingFee, 'USD', wallet), wallet)}（标价 ${formatQuoteAmount(breakdown.openingFee, 'USD')}）`;
       }
       target.textContent = formatQuoteAmount(breakdown.total, wallet);
-      if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(convertClientAmount(breakdown.precharge, currency, wallet), wallet);
+      if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(breakdown.precharge, currency);
     }
 
     function parseBmIds(value) {
@@ -2350,6 +2318,7 @@
       document.body.style.overflow = 'hidden';
       if (id === 'applyModal') {
         syncApplyMediaFields();
+        updateApplyEstimate();
       }
       if (id === 'rechargeModal') {
         renderBatchRows('recharge');
@@ -2786,7 +2755,7 @@
     if (document.getElementById('timezoneRows')) createTimezoneRow(false);
     if (document.getElementById('pageList')) createTextRow('pageList', t('placeholder_page'), false);
   </script>
-  <script src="./js/client-shell.js?v=20260827-opening-categories"></script>
+  <script src="./js/client-shell.js?v=20260909-opening-autodeduct"></script>
   <script src="./js/common.js?v=20260831-v241-clear-reduce"></script>
 </body>
 </html>

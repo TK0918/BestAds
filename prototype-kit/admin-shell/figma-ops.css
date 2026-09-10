@@ -101,6 +101,25 @@ body.figma-ops-page #sidebar .admin-shell-item.is-active i {
   color: #fff;
 }
 
+body.figma-ops-page #sidebar .admin-shell-item .admin-shell-badge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #f53f3f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+body.figma-ops-page #sidebar .admin-shell-item.is-active .admin-shell-badge {
+  background: #fff;
+  color: #f53f3f;
+}
+
 /* Header 与 Legacy Tabs 使用 Figma 的轻边框、紧凑高度。 */
 body.figma-ops-page > .flex.h-screen > .flex.flex-col.flex-1 > header,
 body.figma-ops-page [data-admin-shell="header"] {

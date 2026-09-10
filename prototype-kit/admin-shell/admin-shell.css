@@ -227,6 +227,32 @@ body.admin-shell-ready #sidebar .admin-shell-item .admin-shell-planned {
   white-space: nowrap;
 }
 
+body.admin-shell-ready #sidebar .admin-shell-item .admin-shell-item-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.admin-shell-ready #sidebar .admin-shell-item .admin-shell-badge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #f53f3f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+body.admin-shell-ready #sidebar .admin-shell-item.is-active .admin-shell-badge {
+  background: #ff4d4f;
+  color: #fff;
+}
+
 /* Header */
 body.admin-shell-ready > .flex.h-screen > .flex.flex-col.flex-1 > header,
 body.admin-shell-ready [data-admin-shell="header"] {

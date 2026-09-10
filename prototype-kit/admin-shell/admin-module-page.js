@@ -732,7 +732,9 @@
     if (modal?.type === 'monitor-history') return monitorHistoryModal(modal, row);
     if (modal?.type === 'monitor-alert-preview') return monitorAlertPreviewModal(modal);
     if (modal?.type === 'card-secret') return cardSecretModal(modal, row);
-    if (modal?.type === 'opening-audit') return openingAuditModal(modal, row);
+    if (modal?.type === 'opening-bd-confirm') return openingBdConfirmModal(modal, row);
+    if (modal?.type === 'opening-select-agent') return openingSelectAgentModal(modal, row);
+    if (modal?.type === 'opening-audit') return openingBdConfirmModal(modal, row);
     if (modal?.type === 'opening-result' || modal?.type === 'opening-result-success' || modal?.type === 'opening-result-failed') return openingResultModal(modal, row);
     if (modal?.type === 'opening-cancel') return openingCancelModal(modal, row);
     if (modal?.type === 'opening-reopen') return openingReopenModal(modal, row);
@@ -771,37 +773,58 @@
 
   function openingFeeHelpers() {
     return window.BESTADS_OPENING_FEE_HELPERS || {
-      siteFee: () => ({ amount: 30, currency: 'USD' }),
-      merchantStatus: () => '已收取',
-      quoteForMerchant: () => ({ status: '已收取', amount: 0, currency: 'USD' }),
-      markCharged() {},
-      formatAmount: (amount) => `${Number(amount || 0).toFixed(2)} USD`,
-      currentLabel: () => '当前开户费：30.00 USD'
+      siteFee: () => ({ openingFeePerAccount: 30, prechargePerAccount: 550, currency: 'USD' }),
+      quoteForCount: (count) => {
+        const n = Math.max(1, Number(count) || 1);
+        return { openingFeePerAccount: 30, prechargePerAccount: 550, openingFee: 30 * n, precharge: 550 * n, currency: 'USD' };
+      },
+      formatAmount: (amount) => `${Number(amount || 0).toFixed(2)} USD`
     };
   }
 
-  function openingFeeRecordLabel(amount, applyId, suffix) {
+  function openingFeeRecordLabel(amount, applyId, suffix, count) {
+    const n = Math.max(1, Number(count || 1) || 1);
     if (!(Number(amount) > 0)) return '无开户费';
-    return `FEE-${applyId || 'AO'}${suffix ? ` ${suffix}` : ''}`;
+    const id = applyId || 'AO';
+    return Array.from({ length: n }, (_, i) => `FEE-${id}-${String(i + 1).padStart(2, '0')}${suffix ? ` ${suffix}` : ''}`).join(' / ');
   }
 
-  function syncOpeningFeeStatusOnRows(rows, merchantId) {
-    const status = openingFeeHelpers().merchantStatus(merchantId);
-    (rows || []).forEach(item => {
-      if (String(item?.merchantId) === String(merchantId)) item.openingFeeStatus = status;
-    });
+  function openingFeeRecordsForRow(row, suffix) {
+    return openingFeeRecordLabel(numAmount(row?.openingFee), row?.applyId, suffix, openingAccountCount(row));
+  }
+
+  function syncOpeningFeeStatusOnRows() {}
+
+  function syncOpeningFeeConfigPreview(modalRoot) {
+    const root = modalRoot || document.querySelector('[data-opening-fee-config-modal]');
+    if (!root) return;
+    const openingFee = Number(numAmount(root.querySelector('[data-opening-fee-amount]')?.value) || 0).toFixed(2);
+    const precharge = Number(numAmount(root.querySelector('[data-opening-precharge-amount]')?.value) || 0).toFixed(2);
+    const usd = root.querySelector('[data-opening-fee-example-usd]');
+    const eur = root.querySelector('[data-opening-fee-example-eur]');
+    if (usd) usd.textContent = `开户费 ${openingFee} USD + 首充 ${precharge} USD`;
+    if (eur) eur.textContent = `开户费 ${openingFee} USD + 首充 ${precharge} EUR`;
   }
 
   function openingFeeConfigModal(modal) {
     const fee = openingFeeHelpers().siteFee();
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '修改开户费')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid" data-opening-fee-config-modal><div class="form-field full"><p class="field-help">只影响之后「未收取」商户的新报价。已提交快照、已扣单据不变。</p></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 全站开户费</label><input data-opening-fee-amount inputmode="decimal" min="0" step="0.01" value="${esc(openingFeeHelpers().formatAmount(fee.amount, false))}"></div><div class="form-field"><label>币种</label><select data-opening-fee-currency><option value="USD"${fee.currency === 'USD' ? ' selected' : ''}>USD</option></select></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>保存</button></div></section></div>`;
+    const format = (value) => openingFeeHelpers().formatAmount(value, false);
+    const openingFee = format(fee.openingFeePerAccount);
+    const precharge = format(fee.prechargePerAccount);
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '修改开户费用')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid" data-opening-fee-config-modal><div class="form-field full"><p class="field-help">开户费固定 USD，与广告账户币种无关。最低首充只设数值，币种跟随广告账户。只影响之后的新报价。已提交快照、已扣单据不变。审核时仍可改本单金额。</p></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 单账户开户费</label><div class="input-with-suffix"><input data-opening-fee-amount inputmode="decimal" min="0" step="0.01" value="${esc(openingFee)}"><span class="input-suffix">USD</span></div><p class="field-help">不管开美元、欧元还是其他币种账户，开户费都按这个 USD 金额收取。</p></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 单账户最低首充</label><div class="input-with-suffix"><input data-opening-precharge-amount inputmode="decimal" min="0" step="0.01" value="${esc(precharge)}"><span class="input-suffix">账户币种</span></div><p class="field-help">只设数值。开美元户按 USD 首充，开欧元户按 EUR 首充，其他币种同理。</p></div><div class="form-field full"><label>按 1 个账户的示例</label><dl class="readonly-context opening-fee-example"><div><dt>开 USD 账户</dt><dd data-opening-fee-example-usd>开户费 ${esc(openingFee)} USD + 首充 ${esc(precharge)} USD</dd></div><div><dt>开 EUR 账户</dt><dd data-opening-fee-example-eur>开户费 ${esc(openingFee)} USD + 首充 ${esc(precharge)} EUR</dd></div></dl></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>保存</button></div></section></div>`;
   }
 
+  const OPENING_TYPE_OPTIONS = ['Facebook-绿通户', 'Facebook-企业户', 'Facebook-三不限', 'Google-海外户', 'TikTok-企业户', 'Snapchat-企业户', 'AppLovin-企业户', '其他媒体账户'];
+  const OPENING_AGENT_OPTIONS = ['Madhouse', 'Gimc', 'Rockads', 'Panda', 'Wezonet', 'MeetSocial', 'it-test'];
   const OPENING_ASSET_SAMPLES = {
     Facebook: '121212345678901, 898989765432101',
     Google: '123-456-7890, 987-654-3210',
     TikTok: '7012345678901234567, 7098765432109876543'
   };
+
+  function isGenericConfirmModal(type) {
+    return /^(confirm)(-|$)/.test(String(type || ''));
+  }
 
   function openingApplyCustomers() {
     return [
@@ -827,10 +850,7 @@
       seen.add(item.merchantId);
       return true;
     });
-    return `<option value="">请选择商户ID</option>${merchants.map(item => {
-      const status = openingFeeHelpers().merchantStatus(item.merchantId);
-      return `<option value="${esc(item.merchantId)}"${String(item.merchantId) === String(selectedId || '') ? ' selected' : ''}>${esc(item.merchantId)}（${esc(status)}）</option>`;
-    }).join('')}`;
+    return `<option value="">请选择商户ID</option>${merchants.map(item => `<option value="${esc(item.merchantId)}"${String(item.merchantId) === String(selectedId || '') ? ' selected' : ''}>${esc(item.merchantId)}</option>`).join('')}`;
   }
 
   function openingApplyCustomerOptions(merchantId, selectedId) {
@@ -962,7 +982,6 @@
   }
 
   function formatOpeningFeeLabel(openingFeeUsd, walletCurrency) {
-    if (!(Number(openingFeeUsd) > 0)) return `${formatOpeningApplyAmount(0, walletCurrency)}（本次不收取开户费）`;
     const usdText = formatOpeningApplyAmount(openingFeeUsd, 'USD');
     if ((walletCurrency || 'USD') === 'USD') return usdText;
     return `${formatOpeningApplyAmount(convertOpeningAmount(openingFeeUsd, 'USD', walletCurrency), walletCurrency)}（标价 ${usdText}）`;
@@ -1002,34 +1021,67 @@
       .sort((a, b) => numAmount(a.priority) - numAmount(b.priority));
   }
 
-  function openingQuoteFromRule(row, item, openingFeeOverride) {
-    const count = Math.max(1, Number(row?.accountCount || 1) || 1);
-    const merchantQuote = openingFeeHelpers().quoteForMerchant(row?.merchantId);
-    const openingFee = openingFeeOverride != null ? Number(openingFeeOverride) : merchantQuote.amount;
-    const precharge = item ? numAmount(item.prechargeBasePerAccount) * count : 0;
+  function openingHasSavedAmount(value) {
+    const text = String(value ?? '').trim();
+    return text !== '' && text !== '-';
+  }
+
+  function roundOpeningAmount(value) {
+    return Math.round((Number(value) || 0) * 100) / 100;
+  }
+
+  function openingPerAccountAmounts(row, openingFeeOverride, prechargeOverride) {
+    const count = openingAccountCount(row);
+    const site = openingFeeHelpers().siteFee();
+    const openingFeePerAccount = openingFeeOverride != null
+      ? Number(openingFeeOverride)
+      : (openingHasSavedAmount(row?.openingFeePerAccount)
+        ? numAmount(row.openingFeePerAccount)
+        : (openingHasSavedAmount(row?.openingFee) ? roundOpeningAmount(numAmount(row.openingFee) / count) : Number(site.openingFeePerAccount || 0)));
+    const prechargePerAccount = prechargeOverride != null
+      ? Number(prechargeOverride)
+      : (openingHasSavedAmount(row?.prechargePerAccount)
+        ? numAmount(row.prechargePerAccount)
+        : (openingHasSavedAmount(row?.precharge) ? roundOpeningAmount(numAmount(row.precharge) / count) : Number(site.prechargePerAccount || 0)));
+    return {
+      count,
+      openingFeePerAccount,
+      prechargePerAccount,
+      openingFee: roundOpeningAmount(openingFeePerAccount * count),
+      precharge: roundOpeningAmount(prechargePerAccount * count)
+    };
+  }
+
+  function openingFeeBreakdownText(row, quote) {
+    const count = Number(quote?.count || openingAccountCount(row));
+    const currency = quote?.accountCurrency || row?.currency || 'USD';
+    return `当前 ${count} 个账户。单账户开户费 ${formatAmountOnly(quote.openingFeePerAccount)} USD × ${count} = 本单 ${formatAmountOnly(quote.openingFee)} USD；单账户首充 ${formatAmountOnly(quote.prechargePerAccount)} ${currency} × ${count} = 本单 ${formatAmountOnly(quote.precharge)} ${currency}。`;
+  }
+
+  function openingQuoteFromRule(row, item, openingFeeOverride, prechargeOverride) {
+    const amounts = openingPerAccountAmounts(row, openingFeeOverride, prechargeOverride);
     const walletCurrency = openingWalletCurrency(row?.merchantId);
     const accountCurrency = String(row?.currency || 'USD');
     const fx = openingLiveFx();
-    const walletOpeningFee = convertOpeningAmount(openingFee, 'USD', walletCurrency, fx);
-    const walletPrecharge = convertOpeningAmount(precharge, accountCurrency, walletCurrency, fx);
+    const walletOpeningFee = convertOpeningAmount(amounts.openingFee, 'USD', walletCurrency, fx);
+    const walletPrecharge = convertOpeningAmount(amounts.precharge, accountCurrency, walletCurrency, fx);
     return {
       ...(item || {}),
-      agent: item?.agent || '',
-      accountType: item?.accountType || '',
-      merchantOpeningFeeStatus: merchantQuote.status,
-      openingFee,
-      prechargePerAccount: item ? numAmount(item.prechargeBasePerAccount) : 0,
-      precharge,
+      agent: item?.agent || row?.agent || '',
+      accountType: item?.accountType || row?.accountType || '',
+      count: amounts.count,
+      openingFeePerAccount: amounts.openingFeePerAccount,
+      prechargePerAccount: amounts.prechargePerAccount,
+      openingFee: amounts.openingFee,
+      precharge: amounts.precharge,
       total: walletOpeningFee + walletPrecharge,
       walletCurrency,
       walletOpeningFee,
       walletPrecharge,
-      walletTotal: walletOpeningFee + walletPrecharge
+      walletTotal: walletOpeningFee + walletPrecharge,
+      accountCurrency
     };
   }
-
-  const OPENING_AGENT_OPTIONS = ['Madhouse', 'Gimc', 'Rockads', 'Panda', 'Wezonet', 'MeetSocial', 'it-test'];
-  const OPENING_TYPE_OPTIONS = ['Facebook-绿通户', 'Facebook-企业户', 'Facebook-三不限', 'Google-海外户', 'TikTok-企业户', 'Snapchat-企业户', 'AppLovin-企业户', '其他媒体账户'];
 
   function formatOpeningApplyAmount(amount, currency) {
     return `${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency || 'USD'}`;
@@ -1037,29 +1089,24 @@
 
   function estimateOpeningApplyQuote(modalRoot) {
     const merchantId = modalRoot?.querySelector('[data-opening-merchant]')?.value || '';
-    const category = modalRoot?.querySelector('[data-opening-category]')?.value || '';
-    const merchantQuote = openingFeeHelpers().quoteForMerchant(merchantId);
-    if (!merchantId || !category) return { ready: false, matched: false, openingFee: merchantQuote.amount, precharge: 0, total: 0, walletTotal: 0, feeStatus: merchantQuote.status };
-    const row = {
-      merchantId,
-      mediaChannel: modalRoot.querySelector('[data-opening-media]')?.value || '',
-      country: modalRoot.querySelector('[data-opening-country]')?.value || '',
-      category,
-      dailyBudget: modalRoot.querySelector('[data-opening-budget]')?.value || '',
-      currency: modalRoot.querySelector('[data-opening-currency]')?.value || 'USD',
-      accountCount: modalRoot.querySelector('[data-opening-count]')?.value || '1'
-    };
-    const matched = matchOpeningRules(row)[0];
-    const quote = openingQuoteFromRule(row, matched || null);
+    const currency = modalRoot?.querySelector('[data-opening-currency]')?.value || 'USD';
+    const countRaw = modalRoot?.querySelector('[data-opening-count]')?.value || '';
+    const accountCount = Number(String(countRaw).trim());
+    const ready = Number.isInteger(accountCount) && accountCount >= 1 && accountCount <= 20;
+    if (!ready) return { ready: false, matched: false, openingFee: 0, precharge: 0, total: 0, walletTotal: 0 };
+    const site = openingFeeHelpers().quoteForCount(accountCount);
+    const walletCurrency = openingWalletCurrency(merchantId);
+    const fx = openingLiveFx();
+    const walletOpeningFee = convertOpeningAmount(site.openingFee, 'USD', walletCurrency, fx);
+    const walletPrecharge = convertOpeningAmount(site.precharge, currency, walletCurrency, fx);
     return {
       ready: true,
-      matched: Boolean(matched),
-      openingFee: quote.openingFee,
-      precharge: quote.precharge,
-      total: quote.walletTotal,
-      walletTotal: quote.walletTotal,
-      walletCurrency: quote.walletCurrency,
-      feeStatus: merchantQuote.status
+      matched: true,
+      openingFee: site.openingFee,
+      precharge: site.precharge,
+      total: walletOpeningFee + walletPrecharge,
+      walletTotal: walletOpeningFee + walletPrecharge,
+      walletCurrency
     };
   }
 
@@ -1134,13 +1181,8 @@
     if (openingFeeTarget) {
       openingFeeTarget.textContent = formatOpeningFeeLabel(breakdown.openingFee, wallet);
     }
-    if (!breakdown.matched) {
-      if (total) total.textContent = '-（待审核定价）';
-      if (prechargeTarget) prechargeTarget.textContent = '-';
-      return;
-    }
     if (total) total.textContent = formatOpeningApplyAmount(breakdown.walletTotal, wallet);
-    if (prechargeTarget) prechargeTarget.textContent = formatOpeningApplyAmount(convertOpeningAmount(breakdown.precharge, currency, wallet), wallet);
+    if (prechargeTarget) prechargeTarget.textContent = formatOpeningApplyAmount(breakdown.precharge, currency);
   }
 
   function syncOpeningApplyCreateModal(modalRoot) {
@@ -1164,8 +1206,8 @@
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 日预算</label><div class="input-with-suffix"><input data-opening-budget type="text" inputmode="decimal" value="300" placeholder="请输入日预算"><span class="input-suffix" data-opening-budget-currency>USD</span></div></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户数</label><input data-opening-count type="text" inputmode="numeric" value="2" placeholder="请输入账户数"></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放品类</label><select data-opening-category>${openingApplyCategoryOptions()}</select></div>
-      <div class="form-field full"><div class="opening-apply-estimate" aria-live="polite"><div><p class="opening-apply-estimate__title">预估开户费用</p><p class="opening-apply-estimate__desc">开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。</p><div class="opening-apply-estimate__breakdown"><span>开户费：<b data-opening-estimate-opening>-</b></span><span>首充（广告账户充值）：<b data-opening-estimate-precharge>-</b></span></div></div><div class="opening-apply-estimate__total"><span>合计</span><strong data-opening-estimate>-</strong></div></div></div>
-      <label class="opening-apply-consent full"><input data-opening-auto-pay type="checkbox" checked><span>代客户确认：若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知客户确认。</span></label>
+      <div class="form-field full"><div class="opening-apply-estimate" aria-live="polite"><div><p class="opening-apply-estimate__title">预估开户费用</p><p class="opening-apply-estimate__desc">开户费固定 USD，按单账户金额乘以账户数。最低首充数值全站统一，币种跟随广告账户：美元户按 USD 首充，欧元户按 EUR 首充。合计按钱包默认币种折算。日预算、投放国家、投放品类只作开户资料，不参与定价。提交时不扣款，最终金额以开户组发出的最终报价为准。</p><div class="opening-apply-estimate__breakdown"><span>开户费（USD）：<b data-opening-estimate-opening>-</b></span><span>首充（账户币种）：<b data-opening-estimate-precharge>-</b></span><span>服务费 / 预收税费费率：开户成功后展示</span></div></div><div class="opening-apply-estimate__total"><span>合计</span><strong data-opening-estimate>-</strong></div></div></div>
+      <label class="opening-apply-consent full"><input data-opening-auto-pay type="checkbox" checked><span>代客户确认同意扣费：若实际扣款不超过提交时预估，同意系统直接扣除开户费和各账户首充；高于预估时再通知客户确认。</span></label>
     </div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>提交申请</button></div></section></div>`;
   }
 
@@ -1174,6 +1216,17 @@
     applyId: 'AO20260812008',
     submittedAt: '2026-08-12 16:42:09',
     openingRecordsUrl: '../../bestads-client-styled/operation-records.html?tab=opening&applyId=AO20260812008'
+  };
+
+  const OPENING_OPENED_EMAIL_SAMPLE = {
+    customerName: '测试何',
+    applyId: 'AO20260811005',
+    openedAt: '2026-08-13 11:20:00',
+    openingRecordsUrl: '../../bestads-client-styled/operation-records.html?tab=opening&applyId=AO20260811005',
+    accounts: [
+      { name: 'Oliva-Amsterdam', id: '1002116215352952', serviceRate: '3.00%', preTaxRate: '0.00%' },
+      { name: 'TL-G-12-712', id: '1001765238416132', serviceRate: '3.00%', preTaxRate: '0.00%' }
+    ]
   };
 
   function openingConfirmEmailCopy(lang) {
@@ -1197,6 +1250,41 @@
       intro: `Hi ${sample.customerName}, your BestAds account opening request is ready for confirmation. Please sign in and open Opening Records to review the latest details and complete payment confirmation. For security, this email does not include fee details. Please confirm the amount in BestAds. If you have already completed confirmation, please ignore this email.`,
       idLabel: 'Application ID',
       timeLabel: 'Submitted at',
+      cta: 'Review Opening Records',
+      footer: 'This email was sent by BestAds. Please do not reply to this message.'
+    };
+  }
+
+  function openingOpenedEmailCopy(lang) {
+    const sample = OPENING_OPENED_EMAIL_SAMPLE;
+    const count = sample.accounts.length;
+    if (lang === 'zh') {
+      return {
+        kicker: '开户通知',
+        subject: '您的 BestAds 广告账户已开通',
+        title: '广告账户已开通',
+        intro: `您好，${sample.customerName}。您的 BestAds 开户申请已完成下户，本次成功开通 ${count} 个广告账户。请保存以下账户信息，并登录系统在开户记录中查看。`,
+        idLabel: '申请ID',
+        timeLabel: '下户时间',
+        nameLabel: '广告账户名称',
+        accountIdLabel: '广告账户 ID',
+        serviceLabel: '服务费率',
+        preTaxLabel: '预收税费费率',
+        cta: '前往开户记录',
+        footer: '本邮件由 BestAds 自动发送，请勿直接回复。'
+      };
+    }
+    return {
+      kicker: 'Account Opening',
+      subject: 'Your BestAds ad accounts are ready',
+      title: 'Your ad accounts are ready',
+      intro: `Hi ${sample.customerName}, your BestAds account opening request is complete. ${count} ad account${count > 1 ? 's have' : ' has'} been opened. Please save the account details below and sign in to Opening Records for the full record.`,
+      idLabel: 'Application ID',
+      timeLabel: 'Opened at',
+      nameLabel: 'Ad account name',
+      accountIdLabel: 'Ad account ID',
+      serviceLabel: 'Service fee rate',
+      preTaxLabel: 'Prepaid tax rate',
       cta: 'Review Opening Records',
       footer: 'This email was sent by BestAds. Please do not reply to this message.'
     };
@@ -1228,12 +1316,73 @@
     </article>`;
   }
 
+  function openingOpenedEmailHtml(lang) {
+    const copy = openingOpenedEmailCopy(lang);
+    const sample = OPENING_OPENED_EMAIL_SAMPLE;
+    const rows = sample.accounts.map(item => `<tr>
+      <td>${esc(item.name)}</td>
+      <td>${esc(item.id)}</td>
+      <td>${esc(item.serviceRate)}</td>
+      <td>${esc(item.preTaxRate)}</td>
+    </tr>`).join('');
+    return `<article class="email-rendered">
+      <header class="email-rendered__brand">
+        <div class="email-rendered__logo">B</div>
+        <div><strong>BestAds</strong><span>${esc(copy.kicker)}</span></div>
+      </header>
+      <main class="email-rendered__body">
+        <p class="email-rendered__subject">${esc(copy.subject)}</p>
+        <h1>${esc(copy.title)}</h1>
+        <p class="email-rendered__intro">${esc(copy.intro)}</p>
+        <table class="opening-email-meta">
+          <tbody>
+            <tr><th>${esc(copy.idLabel)}</th><td>${esc(sample.applyId)}</td></tr>
+            <tr><th>${esc(copy.timeLabel)}</th><td>${esc(sample.openedAt)}</td></tr>
+          </tbody>
+        </table>
+        <table class="opening-email-accounts">
+          <thead>
+            <tr>
+              <th>${esc(copy.nameLabel)}</th>
+              <th>${esc(copy.accountIdLabel)}</th>
+              <th>${esc(copy.serviceLabel)}</th>
+              <th>${esc(copy.preTaxLabel)}</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="email-rendered__actions">
+          <a class="email-rendered__cta" href="${esc(sample.openingRecordsUrl)}" target="_blank" rel="noopener noreferrer">${esc(copy.cta)}</a>
+        </div>
+      </main>
+      <footer class="email-rendered__footer">${esc(copy.footer)}</footer>
+    </article>`;
+  }
+
+  function openingEmailHtml(kind, lang) {
+    return kind === 'opened' ? openingOpenedEmailHtml(lang) : openingConfirmEmailHtml(lang);
+  }
+
+  function renderOpeningEmailPreview(root) {
+    if (!root) return;
+    const kind = root.dataset.currentEmailKind || 'confirm';
+    const lang = root.dataset.currentEmailLang || 'en';
+    const frame = root.querySelector('[data-opening-email-frame]');
+    if (frame) frame.innerHTML = openingEmailHtml(kind, lang);
+  }
+
   function openingEmailPreviewModal(modal) {
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '确认付款邮件原型')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-email-preview" data-opening-email-preview>
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '开户邮件原型')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-email-preview" data-opening-email-preview data-current-email-kind="confirm" data-current-email-lang="en">
       <div class="opening-email-toolbar">
-        <div class="opening-email-tabs">
-          <button class="is-active" type="button" data-opening-email-lang="en">English</button>
-          <button type="button" data-opening-email-lang="zh">中文</button>
+        <div class="opening-email-toolbar__groups">
+          <div class="opening-email-tabs">
+            <button class="is-active" type="button" data-opening-email-kind="confirm">确认付款</button>
+            <button type="button" data-opening-email-kind="opened">下户通知</button>
+          </div>
+          <div class="opening-email-tabs">
+            <button class="is-active" type="button" data-opening-email-lang="en">English</button>
+            <button type="button" data-opening-email-lang="zh">中文</button>
+          </div>
         </div>
         <span class="muted">原型预览，不发送真实邮件</span>
       </div>
@@ -1326,7 +1475,8 @@
   }
 
   function openingOpsForStatus(status) {
-    if (status === '待运营审核') return ['审核开户', '查看详情'];
+    if (status === '待确认账户类型和金额' || status === '待运营审核') return ['确认账户类型', '查看详情'];
+    if (status === '待选择代理') return ['选择代理', '查看详情'];
     if (status === '审核不通过') return ['查看详情'];
     if (status === '待客户确认付款') return ['查看详情', '取消开户', '重开审核'];
     if (status === '扣款异常') return ['重试扣款', '查看详情', '取消开户'];
@@ -1368,17 +1518,10 @@
   }
 
   function openingSelectedRule(row, modalRoot) {
-    const choices = openingAuditChoices(row);
-    if (choices.mode === 'manual') {
-      const quote = openingQuoteFromRule(row, null);
-      quote.agent = modalRoot?.querySelector('[data-opening-agent]')?.value || '';
-      quote.accountType = modalRoot?.querySelector('[data-opening-type]')?.value || '';
-      return quote;
-    }
-    const options = choices.options;
-    const agentValue = modalRoot?.querySelector('[data-opening-agent]')?.value || '';
-    if (agentValue) return options.find(option => openingRuleKey(option) === agentValue) || options[0];
-    return options[0];
+    const quote = openingQuoteFromRule(row, null);
+    quote.agent = modalRoot?.querySelector('[data-opening-agent]')?.value || row?.agent || '';
+    quote.accountType = modalRoot?.querySelector('[data-opening-type]')?.value || row?.accountType || '';
+    return quote;
   }
 
   function openingRuleKey(option) {
@@ -1392,23 +1535,26 @@
   function openingHasAutoPayAuth(row) {
     const auth = String(row?.paymentAuth || '');
     if (/未授权/.test(auth)) return false;
-    return /已同意金额一致|自动扣款/.test(auth);
+    return /已同意|自动扣款/.test(auth);
   }
 
   function openingAuditOutcome(row, quote) {
+    if (!(Number(quote?.openingFee || 0) > 0) && !(Number(quote?.precharge || 0) > 0)) {
+      return { type: 'auto', status: '已付款待开户', label: '合计为 0，跳过扣款', note: '开户费和首充均为 0，直接进入已付款待开户，不创建资金单据。', skipCharge: true };
+    }
     const authorized = openingHasAutoPayAuth(row);
     const initialText = String(row?.initialQuote || '').trim();
     const hasInitial = initialText && initialText !== '-';
     const initialWallet = numAmount(row?.initialWalletTotal || row?.initialQuote);
     const finalWallet = Number(quote?.walletTotal != null ? quote.walletTotal : quote?.total || 0);
-    const sameQuote = hasInitial && Math.abs(initialWallet - finalWallet) < 0.015;
+    const amountIncreased = !hasInitial || finalWallet - initialWallet > 0.015;
+    if (amountIncreased) {
+      return { type: 'confirm', status: '待客户确认付款', label: '实际扣款高于报价，客户确认付款', note: '实际扣款大于提交时的报价，即使已同意扣费也需客户确认。确认后邮件通知客户回系统确认付款。比对按钱包默认币种折算后的合计。' };
+    }
     if (!authorized) {
-      return { type: 'confirm', status: '待客户确认付款', label: '未授权自动扣款，客户确认付款', note: '客户未授权金额一致时自动扣款，确认审核后需客户回系统确认付款。' };
+      return { type: 'confirm', status: '待客户确认付款', label: '未同意扣费，客户确认付款', note: '客户提交时未勾选同意扣费。实际扣款未超过报价，仍需客户确认后才能扣款。' };
     }
-    if (!hasInitial || !sameQuote) {
-      return { type: 'confirm', status: '待客户确认付款', label: '金额不一致，客户确认付款', note: '确认审核后邮件通知客户回系统确认付款。比对按钱包默认币种折算后的合计。' };
-    }
-    return { type: 'auto', status: '已付款待开户', label: '金额一致，自动扣款', note: '确认审核后直接从客户钱包扣款，并进入已付款待开户。' };
+    return { type: 'auto', status: '已付款待开户', label: '未超过报价，自动扣款', note: '实际扣款小于等于提交时的报价，且已勾选同意扣费。确认后直接从客户钱包扣款，不打扰客户。' };
   }
 
   function openingSyncedAccounts(row) {
@@ -1423,17 +1569,35 @@
   }
 
   function openingAuditQuoteValues(modalRoot, rule, row) {
+    const count = openingAccountCount(row);
     const preview = modalRoot?.querySelector('[data-opening-rule-preview]');
     const editing = Boolean(preview?.classList.contains('is-editing'));
-    const openingFee = editing ? numAmount(modalRoot.querySelector('[data-opening-fee-input]')?.value) : Number(rule?.openingFee || 0);
-    const precharge = editing ? numAmount(modalRoot.querySelector('[data-opening-precharge-input]')?.value) : Number(rule?.precharge || 0);
-    const edited = Math.abs(openingFee - Number(rule?.openingFee || 0)) > 0.001 || Math.abs(precharge - Number(rule?.precharge || 0)) > 0.001;
+    const defaultFeeEach = Number(rule?.openingFeePerAccount || 0);
+    const defaultPreEach = Number(rule?.prechargePerAccount || 0);
+    const openingFeePerAccount = editing ? numAmount(modalRoot.querySelector('[data-opening-fee-input]')?.value) : defaultFeeEach;
+    const prechargePerAccount = editing ? numAmount(modalRoot.querySelector('[data-opening-precharge-input]')?.value) : defaultPreEach;
+    const openingFee = roundOpeningAmount(openingFeePerAccount * count);
+    const precharge = roundOpeningAmount(prechargePerAccount * count);
+    const edited = Math.abs(openingFeePerAccount - defaultFeeEach) > 0.001 || Math.abs(prechargePerAccount - defaultPreEach) > 0.001;
     const walletCurrency = openingWalletCurrency(row?.merchantId || rule?.merchantId);
     const accountCurrency = String(row?.currency || 'USD');
     const fx = openingLiveFx();
     const walletOpeningFee = convertOpeningAmount(openingFee, 'USD', walletCurrency, fx);
     const walletPrecharge = convertOpeningAmount(precharge, accountCurrency, walletCurrency, fx);
-    return { openingFee, precharge, total: walletOpeningFee + walletPrecharge, walletOpeningFee, walletPrecharge, walletTotal: walletOpeningFee + walletPrecharge, walletCurrency, accountCurrency, edited };
+    return {
+      count,
+      openingFeePerAccount,
+      prechargePerAccount,
+      openingFee,
+      precharge,
+      total: walletOpeningFee + walletPrecharge,
+      walletOpeningFee,
+      walletPrecharge,
+      walletTotal: walletOpeningFee + walletPrecharge,
+      walletCurrency,
+      accountCurrency,
+      edited
+    };
   }
 
   function setOpeningFeeEditing(modalRoot, editing) {
@@ -1453,45 +1617,99 @@
     const preview = modalRoot.querySelector('[data-opening-rule-preview]');
     const editing = Boolean(preview?.classList.contains('is-editing'));
     if (options.reset || !editing) {
-      if (feeInput) feeInput.value = formatAmountOnly(rule.openingFee);
-      if (prechargeInput) prechargeInput.value = formatAmountOnly(rule.precharge);
+      if (feeInput) feeInput.value = formatAmountOnly(rule.openingFeePerAccount);
+      if (prechargeInput) prechargeInput.value = formatAmountOnly(rule.prechargePerAccount);
     }
     const quote = openingAuditQuoteValues(modalRoot, rule, row);
     const fee = modalRoot.querySelector('[data-opening-fee]');
     const precharge = modalRoot.querySelector('[data-opening-precharge]');
     const finalQuote = modalRoot.querySelector('[data-opening-final-quote]');
+    const breakdown = modalRoot.querySelector('[data-opening-fee-breakdown]');
     const outcome = modalRoot.querySelector('[data-opening-outcome]');
     const outcomeNote = modalRoot.querySelector('[data-opening-outcome-note]');
     const changed = modalRoot.querySelector('[data-opening-fee-changed]');
-    if (fee) fee.textContent = `${formatAmountOnly(quote.openingFee)} USD`;
-    if (precharge) precharge.textContent = `${formatAmountOnly(quote.precharge)} ${quote.accountCurrency || row?.currency || 'USD'}`;
+    if (fee) fee.textContent = `${formatAmountOnly(quote.openingFeePerAccount)} USD`;
+    if (precharge) precharge.textContent = `${formatAmountOnly(quote.prechargePerAccount)} ${quote.accountCurrency || row?.currency || 'USD'}`;
     if (finalQuote) finalQuote.textContent = `${formatAmountOnly(quote.walletTotal)} ${quote.walletCurrency || 'USD'}`;
-    const nextOutcome = openingAuditOutcome(row, quote);
+    if (breakdown) breakdown.textContent = openingFeeBreakdownText(row, quote);
+    const nextOutcome = modalRoot.dataset.openingStep === 'bd'
+      ? { label: '本步不发给客户', note: '确认后进入待选择代理。金额不作为最终报价发给客户，也不扣款。' }
+      : openingAuditOutcome(row, quote);
     if (outcome) outcome.textContent = nextOutcome.label;
     if (outcomeNote) outcomeNote.textContent = nextOutcome.note;
     if (changed) changed.hidden = !quote.edited;
   }
 
-  function openingAuditModal(modal, row) {
-    const choices = openingAuditChoices(row);
-    const manual = choices.mode === 'manual';
-    const options = choices.options;
-    const selected = manual ? openingQuoteFromRule(row, null) : (options.find(option => option.agent === row?.agent && option.accountType === row?.accountType) || options[0]);
+  function openingApplyContextHtml(row, extras = []) {
+    const site = openingFeeHelpers().siteFee();
+    const applyUrl = row?.url && /^https?:\/\//i.test(String(row.url))
+      ? `<a class="admin-inline-link" href="${esc(row.url)}" target="_blank" rel="noopener noreferrer">${esc(row.url)}</a>`
+      : esc(row?.url || '-');
+    const items = [
+      ['申请ID', esc(row?.applyId || '-')],
+      ['客户', esc(`${row?.customerName || '-'}（${row?.customerId || '-'}）`)],
+      ['单账户开户费', esc(`${openingFeeHelpers().formatAmount(site.openingFeePerAccount, false)} USD`)],
+      ['单账户最低首充', esc(`${openingFeeHelpers().formatAmount(site.prechargePerAccount, false)}（跟随账户币种）`)],
+      ['投放URL', applyUrl],
+      ['投放国家', esc(row?.country || '-')],
+      ['时区', esc(row?.timezone || '-')],
+      ['账户币种', esc(row?.currency || 'USD')],
+      ['日预算', esc(row?.dailyBudget || '-')],
+      ['账户数', esc(row?.accountCount || '-')],
+      ['投放品类', esc(row?.category || '-')],
+      ['弹窗快照', esc(row?.initialQuote || '-')],
+      ['报价版本', esc(row?.quoteVersion || '-')],
+      ['自动扣款授权', esc(row?.paymentAuth || '未记录')],
+      ['钱包默认币种', esc(openingWalletCurrency(row?.merchantId))],
+      ...extras
+    ];
+    return `<dl class="readonly-context readonly-context--wide">${items.map(([dt, dd]) => `<div><dt>${dt}</dt><dd>${dd}</dd></div>`).join('')}</dl>`;
+  }
+
+  function openingFeePreviewHtml(row, selected, outcome, hint, options = {}) {
+    const wallet = selected.walletCurrency || openingWalletCurrency(row?.merchantId);
+    const currency = selected.accountCurrency || row?.currency || 'USD';
+    const count = selected.count || openingAccountCount(row);
+    const editable = options.editable !== false;
+    const actions = editable
+      ? `<div class="command-group"><button type="button" class="btn btn-link" data-opening-edit-fee>修改单账户金额</button><button type="button" class="btn btn-link" data-opening-reset-fee hidden>恢复默认金额</button></div>`
+      : '';
+    const note = editable
+      ? `这里改的是<strong>单个账户</strong>的开户费和首充，不是整单合计。所有账户按同一金额收取。本单合计 = 单账户金额 × 账户数（当前 ${esc(String(count))} 个）。`
+      : `以下为 BD 确认后的<strong>单个账户</strong>金额，本步只读。所有账户按同一金额收取。本单合计 = 单账户金额 × 账户数（当前 ${esc(String(count))} 个）。如需改金额或账户类型，请退回选择账户类型。`;
+    const feeInput = editable
+      ? `<input data-opening-fee-input inputmode="decimal" min="0" step="0.01" value="${esc(formatAmountOnly(selected.openingFeePerAccount))}" aria-label="单账户开户费">`
+      : '';
+    const prechargeInput = editable
+      ? `<input data-opening-precharge-input inputmode="decimal" min="0" step="0.01" value="${esc(formatAmountOnly(selected.prechargePerAccount))}" aria-label="单账户首充">`
+      : '';
+    const changed = editable
+      ? '<em data-opening-fee-changed hidden>已改单账户金额。本单合计按单账户金额 × 账户数重算。</em>'
+      : '';
+    return `<div class="form-field full"><div class="opening-quote-label"><label>${editable ? '单账户费用' : '单账户费用（只读）'}</label>${actions}</div><p class="opening-fee-edit-note">${note}</p><div class="opening-rule-preview" data-opening-rule-preview data-opening-rule-options="[]"><div><span>单账户开户费（USD）</span><strong data-opening-fee>${esc(formatAmountOnly(selected.openingFeePerAccount))} USD</strong>${feeInput}</div><div><span>单账户首充（${esc(currency)}）</span><strong data-opening-precharge>${esc(formatAmountOnly(selected.prechargePerAccount))} ${esc(currency)}</strong>${prechargeInput}</div><div><span>本单合计（${esc(wallet)}）</span><strong data-opening-final-quote>${esc(formatAmountOnly(selected.walletTotal != null ? selected.walletTotal : selected.total))} ${esc(wallet)}</strong></div><div><span>处理方式</span><strong data-opening-outcome>${esc(outcome.label)}</strong></div><p data-opening-fee-breakdown>${esc(openingFeeBreakdownText(row, selected))}</p><p data-opening-outcome-note>${esc(outcome.note)}</p><p data-opening-fee-hint>${esc(hint)}</p>${changed}</div></div>`;
+  }
+
+  function openingBdConfirmModal(modal, row) {
+    const selected = openingQuoteFromRule(row, null);
+    const outcome = { label: '本步不发给客户', note: '确认后进入待选择代理。金额不作为最终报价发给客户，也不扣款。' };
+    const currentType = openingHasSavedAmount(row?.accountType) ? row.accountType : '';
+    const typeOptions = OPENING_TYPE_OPTIONS.map(item => `<option value="${esc(item)}"${item === currentType ? ' selected' : ''}>${esc(item)}</option>`).join('');
+    const hint = '默认带出全局单账户开户费和最低首充。修改的是单个账户金额，本单再乘以账户数。必须选择账户类型。';
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '确认账户类型')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack">${openingApplyContextHtml(row)}<div class="form-grid" data-opening-audit-modal data-opening-step="bd" data-opening-audit-mode="manual"><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户类型</label><select data-opening-type><option value="">请选择账户类型</option>${typeOptions}</select></div>${openingFeePreviewHtml(row, selected, outcome, hint, { editable: true })}</div></div></div><div class="modal__footer"><button type="button" class="btn btn-danger" data-opening-audit-cancel>取消开户</button><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认账户类型</button></div></section></div>`;
+  }
+
+  function openingSelectAgentModal(modal, row) {
+    const selected = openingQuoteFromRule(row, null);
     const outcome = openingAuditOutcome(row, selected);
-    const merchantQuote = openingFeeHelpers().quoteForMerchant(row?.merchantId);
-    const siteFee = openingFeeHelpers().siteFee();
-    const agentOptions = manual
-      ? OPENING_AGENT_OPTIONS.map(item => `<option value="${esc(item)}">${esc(item)}</option>`).join('')
-      : options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.agent)}</option>`).join('');
-    const typeOptions = manual
-      ? OPENING_TYPE_OPTIONS.map(item => `<option value="${esc(item)}">${esc(item)}</option>`).join('')
-      : options.map(option => `<option value="${esc(openingRuleKey(option))}"${openingRuleKey(option) === openingRuleKey(selected) ? ' selected' : ''}>${esc(option.accountType)}</option>`).join('');
-    const hint = manual
-      ? '当前申请未命中启用规则，且该媒体没有可带出的规则。请选择代理和账户类型，并点击「修改」后填写首充。'
-      : choices.mode === 'media'
-        ? '当前申请未命中规则。下列为该媒体启用规则，选择后带出金额；最终报价需与初始报价比对。'
-        : '开户费按商户首次一口价收取，不乘账户数。未收取带出全站开户费；已收取或不收取默认为 0。本单仍可修改开户费和首充。';
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '审核开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack"><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>商户开户费状态</dt><dd>${esc(merchantQuote.status)}</dd></div><div><dt>全站开户费</dt><dd>${esc(openingFeeHelpers().formatAmount(siteFee.amount))}</dd></div><div><dt>投放URL</dt><dd><a class="admin-inline-link" href="${esc(row?.url || '#')}" target="_blank" rel="noopener noreferrer">${esc(row?.url || '-')}</a></dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>投放品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>初始报价</dt><dd>${esc(row?.initialQuote || '-')}</dd></div><div><dt>报价版本</dt><dd>${esc(row?.quoteVersion || '-')}</dd></div><div><dt>自动扣款授权</dt><dd>${esc(row?.paymentAuth || '未记录')}</dd></div><div><dt>钱包默认币种</dt><dd>${esc(openingWalletCurrency(row?.merchantId))}</dd></div></dl><div class="form-grid" data-opening-audit-modal data-opening-audit-mode="${esc(choices.mode)}"><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 代理</label><select data-opening-agent>${agentOptions}</select></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户类型</label><select data-opening-type>${typeOptions}</select></div><div class="form-field full"><div class="opening-quote-label"><label>规则报价</label><div class="command-group"><button type="button" class="btn btn-link" data-opening-edit-fee>修改</button><button type="button" class="btn btn-link" data-opening-reset-fee hidden>恢复规则金额</button></div></div><div class="opening-rule-preview" data-opening-rule-preview data-opening-rule-options="${esc(JSON.stringify(options))}"><div><span>开户费（USD）</span><strong data-opening-fee>${esc(formatAmountOnly(selected.openingFee))} USD</strong><input data-opening-fee-input inputmode="decimal" min="0" step="0.01" value="${esc(formatAmountOnly(selected.openingFee))}"></div><div><span>首充（${esc(row?.currency || 'USD')}）</span><strong data-opening-precharge>${esc(formatAmountOnly(selected.precharge))} ${esc(row?.currency || 'USD')}</strong><input data-opening-precharge-input inputmode="decimal" min="0" step="0.01" value="${esc(formatAmountOnly(selected.precharge))}"></div><div><span>最终报价（${esc(selected.walletCurrency || openingWalletCurrency(row?.merchantId))}）</span><strong data-opening-final-quote>${esc(formatAmountOnly(selected.walletTotal != null ? selected.walletTotal : selected.total))} ${esc(selected.walletCurrency || openingWalletCurrency(row?.merchantId))}</strong></div><div><span>处理方式</span><strong data-opening-outcome>${esc(outcome.label)}</strong></div><p data-opening-outcome-note>${esc(outcome.note)}</p><p data-opening-fee-hint>${esc(hint)}</p><em data-opening-fee-changed hidden>已改规则金额，最终报价将按修改后的开户费和首充计算。</em></div></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-danger" data-opening-audit-cancel>取消开户</button><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认审核</button></div></section></div>`;
+    const currentAgent = openingHasSavedAmount(row?.agent) ? row.agent : '';
+    const agentOptions = OPENING_AGENT_OPTIONS.map(item => `<option value="${esc(item)}"${item === currentAgent ? ' selected' : ''}>${esc(item)}</option>`).join('');
+    const hint = '金额沿用 BD 确认后的单账户开户费和首充，本步不可改。确认后发出最终报价。账户类型只读；如需改金额或账户类型，请退回选择账户类型。';
+    const extras = [['账户类型', esc(row?.accountType || '-')]];
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '选择代理')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack">${openingApplyContextHtml(row, extras)}<div class="form-grid" data-opening-audit-modal data-opening-step="agent" data-opening-audit-mode="manual"><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 开户代理</label><select data-opening-agent><option value="">请选择代理</option>${agentOptions}</select></div>${openingFeePreviewHtml(row, selected, outcome, hint, { editable: false })}</div></div></div><div class="modal__footer"><button type="button" class="btn btn-danger" data-opening-audit-cancel>取消开户</button><button type="button" class="btn btn-default" data-opening-return-bd>退回选择账户类型</button><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认并报价</button></div></section></div>`;
+  }
+
+  function openingAuditModal(modal, row) {
+    return openingBdConfirmModal(modal, row);
   }
 
   function openingAccountCount(row) {
@@ -1541,15 +1759,12 @@
   }
 
   function openingAccountFeeItems(row) {
-    const count = openingAccountCount(row);
-    const prechargeCents = Math.round(numAmount(row?.precharge) * 100);
-    const prechargeEach = Math.floor(prechargeCents / count);
-    const prechargeRemainder = prechargeCents - prechargeEach * count;
-    return Array.from({ length: count }, (_, i) => {
-      const last = i === count - 1;
-      const precharge = (prechargeEach + (last ? prechargeRemainder : 0)) / 100;
-      return { precharge, refund: precharge };
-    });
+    const amounts = openingPerAccountAmounts(row);
+    return Array.from({ length: amounts.count }, () => ({
+      openingFee: amounts.openingFeePerAccount,
+      precharge: amounts.prechargePerAccount,
+      refund: roundOpeningAmount(amounts.openingFeePerAccount + amounts.prechargePerAccount)
+    }));
   }
 
   function openingAccountSlotsHtml(row, syncedAccounts) {
@@ -1557,9 +1772,10 @@
     const options = syncedAccounts.map(account => `<option value="${esc(account.id)}" data-account-name="${esc(account.name)}" data-currency="${esc(account.currency)}">${esc(account.id)} / ${esc(account.name)} / ${esc(account.currency)}</option>`).join('');
     return `<div class="opening-account-slots">${feeItems.map((item, i) => {
       const index = i + 1;
+      const openingFee = formatAmountOnly(item.openingFee);
       const precharge = formatAmountOnly(item.precharge);
       const refund = formatAmountOnly(item.refund);
-      return `<section class="opening-account-slot" data-opening-account-slot data-slot-index="${index}" data-opening-precharge="${esc(precharge)}"><div class="opening-account-slot__head"><strong>账户 ${index}</strong><label class="opening-slot-fail"><input type="checkbox" data-opening-slot-failed> 本账户开户失败</label></div><div class="opening-account-slot__fees"><div><span>首充金额</span><strong>${esc(precharge)}</strong></div><div><span>失败将退回</span><strong data-opening-slot-refund>${esc(refund)}</strong></div></div><div class="form-grid" data-opening-slot-success><div class="form-field full"><label>账户来源</label><select data-opening-account-source><option value="synced">选择已同步广告账户</option><option value="manual">录入广告账户</option></select></div><div class="form-field full" data-opening-synced-panel><label><span style="color:var(--admin-danger)">*</span> 已同步广告账户</label><select data-opening-synced-account><option value="">请选择广告账户</option>${options}</select></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户ID</label><input data-opening-account-id placeholder="请输入广告账户ID"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户名称</label><input data-opening-account-name placeholder="请输入广告账户名称"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 币种</label><select data-opening-account-currency><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select></div><div class="form-field"><label>账户服务费率</label><input data-opening-service-rate placeholder="选填，例如 3.00"><p class="field-help">不填则不设置该账户服务费率；填 0 会新增费率为 0 的配置。</p></div><div class="form-field"><label>预收税费费率</label><input data-opening-pre-tax-rate placeholder="选填，例如 0.00"><p class="field-help">不填则不设置该账户预收税费费率；填 0 会新增费率为 0 的配置。</p></div></div></section>`;
+      return `<section class="opening-account-slot" data-opening-account-slot data-slot-index="${index}" data-opening-fee="${esc(openingFee)}" data-opening-precharge="${esc(precharge)}"><div class="opening-account-slot__head"><strong>账户 ${index}</strong><label class="opening-slot-fail"><input type="checkbox" data-opening-slot-failed> 本账户开户失败</label></div><div class="opening-account-slot__fees"><div><span>开户费</span><strong>${esc(openingFee)}</strong></div><div><span>首充金额</span><strong>${esc(precharge)}</strong></div><div><span>失败将退回</span><strong data-opening-slot-refund>${esc(refund)}</strong></div></div><div class="form-grid" data-opening-slot-success><div class="form-field full"><label>账户来源</label><select data-opening-account-source><option value="synced">选择已同步广告账户</option><option value="manual">录入广告账户</option></select></div><div class="form-field full" data-opening-synced-panel><label><span style="color:var(--admin-danger)">*</span> 已同步广告账户</label><select data-opening-synced-account><option value="">请选择广告账户</option>${options}</select></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户ID</label><input data-opening-account-id placeholder="请输入广告账户ID"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 广告账户名称</label><input data-opening-account-name placeholder="请输入广告账户名称"></div><div class="form-field" data-opening-manual-panel hidden><label><span style="color:var(--admin-danger)">*</span> 币种</label><select data-opening-account-currency><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户服务费率</label><input data-opening-service-rate placeholder="必填，允许 0，例如 3.00"><p class="field-help">成功槽位必填。允许 0，不允许空。填 0 会写入费率为 0 的配置。</p></div><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 预收税费费率</label><input data-opening-pre-tax-rate placeholder="必填，允许 0，例如 0.00"><p class="field-help">成功槽位必填。允许 0，不允许空。填 0 会写入费率为 0 的配置。</p></div></div></section>`;
     }).join('')}</div>`;
   }
 
@@ -1568,12 +1784,11 @@
     const applyUrl = row?.url && /^https?:\/\//i.test(String(row.url))
       ? `<a class="admin-inline-link" href="${esc(row.url)}" target="_blank" rel="noopener noreferrer">${esc(row.url)}</a>`
       : esc(row?.url || '-');
-    const merchantStatus = openingFeeHelpers().merchantStatus(row?.merchantId);
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '登记开户结果')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack" data-opening-result-modal><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>商户开户费状态</dt><dd>${esc(merchantStatus)}</dd></div><div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>媒体渠道</dt><dd>${esc(row?.mediaChannel || '-')}</dd></div><div><dt>URL</dt><dd>${applyUrl}</dd></div><div><dt>投放品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>首充合计</dt><dd>${esc(row?.precharge || '-')}</dd></div></dl><div class="opening-result-toolbar"><p>按账户登记开户结果。失败只退该账户首充，不退本单开户费。</p><button type="button" class="btn btn-default" data-opening-fail-all>全部失败并退款</button></div><p class="opening-result-refund" data-opening-refund-summary hidden></p><p class="opening-result-all-fail" data-opening-all-fail-hint hidden>全部账户将记为开户取消，只退各账户首充，开户费不随账户失败回退。</p>${openingAccountSlotsHtml(row, syncedAccounts)}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit data-opening-result-confirm>确认</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '登记开户结果')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack" data-opening-result-modal><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>媒体渠道</dt><dd>${esc(row?.mediaChannel || '-')}</dd></div><div><dt>URL</dt><dd>${applyUrl}</dd></div><div><dt>投放品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>代理</dt><dd>${esc(row?.agent || '-')}</dd></div><div><dt>账户类型</dt><dd>${esc(row?.accountType || '-')}</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>首充合计</dt><dd>${esc(row?.precharge || '-')}</dd></div></dl><div class="opening-result-toolbar"><p>按账户登记开户结果。失败退该账户开户费和该账户首充。</p><button type="button" class="btn btn-default" data-opening-fail-all>全部失败并退款</button></div><p class="opening-result-refund" data-opening-refund-summary hidden></p><p class="opening-result-all-fail" data-opening-all-fail-hint hidden>全部账户将记为开户取消，退回各账户开户费和首充，付款状态为已退款。</p>${openingAccountSlotsHtml(row, syncedAccounts)}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit data-opening-result-confirm>确认</button></div></section></div>`;
   }
 
   function openingReopenModal(modal, row) {
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '重开审核')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><dl class="readonly-context" data-opening-reopen-modal><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>当前状态</dt><dd>${esc(row?.status || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>报价版本</dt><dd>${esc(row?.quoteVersion || '-')}</dd></div><div><dt>重开后状态</dt><dd>待运营审核</dd></div></dl></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认重开</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '重开审核')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><dl class="readonly-context" data-opening-reopen-modal><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>当前状态</dt><dd>${esc(row?.status || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>账户类型</dt><dd>${esc(row?.accountType || '-')}</dd></div><div><dt>报价版本</dt><dd>${esc(row?.quoteVersion || '-')}</dd></div><div><dt>重开后状态</dt><dd>待选择代理</dd></div></dl></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认重开</button></div></section></div>`;
   }
 
   function openingCancelModal(modal, row) {
@@ -1582,10 +1797,10 @@
     const preCaptured = openingPrechargeCaptured(row);
     const method = captured
       ? (row?.status === '扣款异常'
-        ? `扣款异常取消：${feeCaptured ? '已成功的开户费走其他扣费回退' : '开户费未成功不退'}；${preCaptured ? '已成功的首充走充值失败退款' : '首充未成功不退'}。商户开户费状态不自动回退。`
-        : '开户费走其他扣费回退（只退钱，不改商户开户费状态），首充充值单失败退款')
+        ? `扣款异常取消：${feeCaptured ? '已成功的开户费走其他扣费回退' : '开户费未成功不退'}；${preCaptured ? '已成功的首充走充值失败退款' : '首充未成功不退'}。`
+        : '开户费走其他扣费回退，首充充值单失败退款')
       : '不产生扣费和充值记录';
-    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '取消开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><dl class="readonly-context" data-opening-cancel-modal><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>当前状态</dt><dd>${esc(row?.status || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>付款状态</dt><dd>${esc(row?.paymentStatus || '-')}</dd></div><div><dt>处理方式</dt><dd>${esc(method)}</dd></div>${captured ? `<div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>商户开户费状态</dt><dd>${esc(openingFeeHelpers().merchantStatus(row?.merchantId))}</dd></div><div><dt>首充充值金额</dt><dd>${esc(row?.precharge || '-')}</dd></div>` : ''}</dl></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-danger" data-modal-submit>确认取消开户</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '取消开户')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><dl class="readonly-context" data-opening-cancel-modal><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>当前状态</dt><dd>${esc(row?.status || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>付款状态</dt><dd>${esc(row?.paymentStatus || '-')}</dd></div><div><dt>处理方式</dt><dd>${esc(method)}</dd></div>${captured ? `<div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>首充充值金额</dt><dd>${esc(row?.precharge || '-')}</dd></div>` : ''}</dl></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-danger" data-modal-submit>确认取消开户</button></div></section></div>`;
   }
 
   function openingAssetIdLabel(media) {
@@ -1601,7 +1816,6 @@
         item('申请ID', row?.applyId),
         item('客户', visible(row?.customerName) ? `${row.customerName}（${row.customerId || '-'}）` : row?.customerId),
         item('商户ID', row?.merchantId),
-        item('开户费状态', row?.openingFeeStatus || openingFeeHelpers().merchantStatus(row?.merchantId)),
         item('媒体渠道', row?.mediaChannel),
         item('申请时间', row?.applyAt),
         item('投放URL', url, true),
@@ -1631,6 +1845,8 @@
         item('开户代理', row?.agent),
         item('账户类型', row?.accountType),
         item('开户结果账户', row?.accountInfo),
+        item('服务费率', row?.serviceRate),
+        item('预收税费费率', row?.preTaxRate),
         item('处理备注', row?.remark)
       ]]
     ];
@@ -2119,26 +2335,9 @@
       if (count) count.textContent = `共 ${visibleCount} 条记录`;
       refreshRechargeAmounts(modalRoot);
     }
-    function syncOpeningRulePreview(modalRoot, changedSelect) {
+    function syncOpeningRulePreview(modalRoot) {
       if (!modalRoot) return;
-      if (modalRoot.dataset.openingAuditMode === 'manual') {
-        applyOpeningAuditQuote(modalRoot, openingSelectedRule(state.processingRow, modalRoot), state.processingRow);
-        return;
-      }
-      const preview = modalRoot.querySelector('[data-opening-rule-preview]');
-      const options = JSON.parse(preview?.dataset.openingRuleOptions || '[]');
-      if (!options.length) return;
-      const agentSelect = modalRoot.querySelector('[data-opening-agent]');
-      const typeSelect = modalRoot.querySelector('[data-opening-type]');
-      const changedKey = changedSelect?.value || changedSelect?.selectedOptions?.[0]?.dataset.ruleKey;
-      const fallback = agentSelect?.value || typeSelect?.value || '';
-      const selected = options.find(option => openingRuleKey(option) === changedKey)
-        || options.find(option => openingRuleKey(option) === fallback)
-        || options[0];
-      const selectedKey = openingRuleKey(selected);
-      if (agentSelect) agentSelect.value = selectedKey;
-      if (typeSelect) typeSelect.value = selectedKey;
-      applyOpeningAuditQuote(modalRoot, selected, state.processingRow, { reset: true });
+      applyOpeningAuditQuote(modalRoot, openingSelectedRule(state.processingRow, modalRoot), state.processingRow);
     }
     function toggleOpeningAccountSource(sourceSelect) {
       const slot = sourceSelect?.closest('[data-opening-account-slot]') || sourceSelect?.closest('[data-opening-result-modal]');
@@ -2156,20 +2355,21 @@
         if (!failed) return sum;
         return {
           count: sum.count + 1,
+          openingFee: sum.openingFee + numAmount(slot.dataset.openingFee),
           precharge: sum.precharge + numAmount(slot.dataset.openingPrecharge)
         };
-      }, { count: 0, precharge: 0 });
+      }, { count: 0, openingFee: 0, precharge: 0 });
       const allFailed = slots.length > 0 && refund.count === slots.length;
       const hint = modalRoot.querySelector('[data-opening-all-fail-hint]');
       if (hint) {
         hint.hidden = !allFailed;
-        if (allFailed) hint.textContent = `全部账户将记为开户取消，只退回首充 ${formatAmountOnly(refund.precharge)}。开户费不随账户失败回退。`;
+        if (allFailed) hint.textContent = `全部账户将记为开户取消，退回开户费 ${formatAmountOnly(refund.openingFee)} 和首充 ${formatAmountOnly(refund.precharge)}，付款状态为已退款。`;
       }
       const summary = modalRoot.querySelector('[data-opening-refund-summary]');
       if (summary) {
         const showPartial = refund.count > 0 && !allFailed;
         summary.hidden = !showPartial;
-        if (showPartial) summary.textContent = `已标记 ${refund.count} 个失败账户，将退回首充 ${formatAmountOnly(refund.precharge)}。开户费不随账户失败回退。`;
+        if (showPartial) summary.textContent = `已标记 ${refund.count} 个失败账户，将退回开户费 ${formatAmountOnly(refund.openingFee)} 和首充 ${formatAmountOnly(refund.precharge)}。`;
       }
       const failAllBtn = modalRoot.querySelector('[data-opening-fail-all]');
       if (failAllBtn) failAllBtn.textContent = allFailed ? '取消全部失败标记' : '全部失败并退款';
@@ -2870,18 +3070,27 @@
       return true;
     }
     function submitOpeningFeeConfig(modalRoot) {
-      const amount = numAmount(modalRoot?.querySelector('[data-opening-fee-amount]')?.value);
-      const currency = modalRoot?.querySelector('[data-opening-fee-currency]')?.value || 'USD';
-      if (amount < 0) {
-        showToast('开户费不能为负数', 'error');
+      const openingFeePerAccount = numAmount(modalRoot?.querySelector('[data-opening-fee-amount]')?.value);
+      const prechargePerAccount = numAmount(modalRoot?.querySelector('[data-opening-precharge-amount]')?.value);
+      if (openingFeePerAccount < 0 || prechargePerAccount < 0) {
+        showToast('开户费和最低首充不能为负数', 'error');
         return false;
       }
-      window.BESTADS_OPENING_FEE = { amount, currency };
+      window.BESTADS_OPENING_FEE = { openingFeePerAccount, prechargePerAccount, currency: 'USD' };
+      const tab = activeTab();
+      if (tab?.rows?.[0] && 'openingFeePerAccount' in tab.rows[0]) {
+        tab.rows[0].openingFeePerAccount = openingFeePerAccount.toFixed(2);
+        tab.rows[0].prechargePerAccount = prechargePerAccount.toFixed(2);
+        tab.rows[0].currency = 'USD';
+        tab.rows[0].updatedAt = currentTimestamp();
+        tab.rows[0].updatedBy = '管理员(admin@bestfulfill.com)';
+      }
       closeModal();
       render();
-      showToast('已更新全站开户费。只影响之后未收取商户的新报价（原型）', 'success');
+      showToast('已更新全局开户费用。只影响之后的新报价（原型）', 'success');
       return true;
     }
+
     function submitOpeningApplyCreate(modalRoot) {
       const tab = activeTab();
       const merchantSel = modalRoot?.querySelector('[data-opening-merchant]');
@@ -2918,23 +3127,15 @@
       const date = currentTimestamp().slice(0, 10).replace(/-/g, '');
       const seq = String((tab.rows || []).length + 1).padStart(3, '0');
       const applyId = `AO${date}${seq}`;
-      const merchantQuote = openingFeeHelpers().quoteForMerchant(merchantId);
       const walletCurrency = openingWalletCurrency(merchantId);
-      const feeNote = merchantQuote.status === '未收取'
-        ? `商户未收取开户费，本单预估带出全站开户费 ${openingFeeHelpers().formatAmount(merchantQuote.amount)}`
-        : merchantQuote.status === '不收取'
-          ? '商户开户费状态为不收取，本单开户费默认为 0'
-          : '该商户已收取过开户费';
-      const matchNote = breakdown.matched ? '' : '；未命中账户规则，预估合计为 -（待审核定价），由审核确认最终费用';
       const row = {
         applyId,
         customerId,
         customerName,
         merchantId,
-        openingFeeStatus: merchantQuote.status,
         mediaChannel,
         applyAt: currentTimestamp(),
-        status: '待运营审核',
+        status: '待确认账户类型和金额',
         paymentStatus: '未扣款',
         url,
         assetIds: assetIds || '-',
@@ -2944,8 +3145,8 @@
         currency,
         accountCount: String(accountCount),
         category,
-        initialQuote: breakdown.matched ? Number(breakdown.walletTotal).toFixed(2) : '-（待审核定价）',
-        initialWalletTotal: breakdown.matched ? Number(breakdown.walletTotal).toFixed(2) : '-',
+        initialQuote: Number(breakdown.walletTotal || 0).toFixed(2),
+        initialWalletTotal: Number(breakdown.walletTotal || 0).toFixed(2),
         walletCurrency,
         finalQuote: '-',
         quoteVersion: `Q-${date}-${seq}`,
@@ -2956,8 +3157,10 @@
         openingFeeRecord: '-',
         prechargeRecord: '-',
         accountInfo: '-',
-        paymentAuth: autoPay ? '已同意金额一致时自动扣款' : '未授权自动扣款，待最终报价后确认',
-        remark: `内部代客户提交；${autoPay ? '客户已同意金额一致时自动扣款' : '未授权自动扣款，待最终报价后确认'}；${feeNote}${matchNote}`
+        serviceRate: '-',
+        preTaxRate: '-',
+        paymentAuth: autoPay ? '已同意不超过报价时自动扣款' : '未同意扣费，待最终报价后确认',
+        remark: `内部代客户提交；弹窗快照 ${Number(breakdown.walletTotal || 0).toFixed(2)} ${walletCurrency}；${autoPay ? '客户已同意不超过报价时自动扣款' : '未同意扣费，待最终报价后确认'}`
       };
       refreshOpeningRow(row);
       tab.rows = [row].concat(tab.rows || []);
@@ -2969,74 +3172,85 @@
     function submitOpeningAudit(modalRoot) {
       const row = state.processingRow;
       if (!row) { showToast('未找到开户申请', 'error'); return false; }
-      const mode = modalRoot?.dataset.openingAuditMode || 'matched';
+      const step = modalRoot?.dataset.openingStep || 'bd';
       const rule = openingSelectedRule(row, modalRoot);
       const quote = openingAuditQuoteValues(modalRoot, rule, row);
       if (quote.openingFee < 0 || quote.precharge < 0) {
         showToast('开户费和首充不能为负数', 'error');
         return false;
       }
-      if (mode === 'manual' && !quote.edited) {
-        showToast('当前无命中规则，请点击修改后确认首充金额', 'error');
-        return false;
+      if (step === 'bd') {
+        const accountType = modalRoot.querySelector('[data-opening-type]')?.value || '';
+        if (!accountType) { showToast('请选择账户类型', 'error'); return false; }
+        row.accountType = accountType;
+        row.openingFeePerAccount = formatAmountOnly(quote.openingFeePerAccount);
+        row.prechargePerAccount = formatAmountOnly(quote.prechargePerAccount);
+        row.openingFee = formatAmountOnly(quote.openingFee);
+        row.precharge = formatAmountOnly(quote.precharge);
+        row.feeEdited = Boolean(quote.edited);
+        row.status = '待选择代理';
+        row.paymentStatus = '未扣款';
+        row.finalQuote = '-';
+        row.agent = '-';
+        row.remark = 'BD 已确认账户类型，等待开户组选择代理';
+        refreshOpeningRow(row);
+        state.processingRow = null;
+        closeModal();
+        render();
+        showToast('已确认账户类型，等待开户组选择代理（原型）', 'success');
+        return true;
       }
-      if (mode === 'manual' && !(rule.agent && rule.accountType)) {
-        showToast('请选择代理和账户类型', 'error');
-        return false;
-      }
+      const agent = modalRoot.querySelector('[data-opening-agent]')?.value || '';
+      if (!agent) { showToast('请选择代理', 'error'); return false; }
       let nextQuote = { ...quote, edited: quote.edited };
-      const liveQuote = openingFeeHelpers().quoteForMerchant(row.merchantId);
-      if (!quote.edited && liveQuote.status === '已收取' && quote.openingFee > 0) {
-        nextQuote = openingAuditQuoteValues(modalRoot, { ...rule, openingFee: 0, precharge: quote.precharge }, row);
-        nextQuote.openingFee = 0;
-        nextQuote.edited = false;
-        nextQuote.forcedConfirm = true;
-      }
       let outcome = openingAuditOutcome(row, nextQuote);
-      if (nextQuote.forcedConfirm) {
-        outcome = { type: 'confirm', status: '待客户确认付款', label: '开户费已改 0，客户确认付款', note: '扣款时商户已收取开户费，本单开户费改为 0，需客户确认。' };
-      }
-      if (outcome.type === 'auto' && !openingHasDefaultWallet(row.merchantId)) {
+      if (outcome.type === 'auto' && !outcome.skipCharge && !openingHasDefaultWallet(row.merchantId)) {
         outcome = { type: 'confirm', status: '待客户确认付款', label: '无默认钱包，客户确认付款', note: '无默认钱包，不允许自动扣款，转待客户确认付款。' };
       }
-      if (outcome.type === 'auto' && openingWalletAvailable(row.merchantId) + 0.001 < Number(nextQuote.walletTotal || 0)) {
+      if (outcome.type === 'auto' && !outcome.skipCharge && openingWalletAvailable(row.merchantId) + 0.001 < Number(nextQuote.walletTotal || 0)) {
         outcome = { type: 'confirm', status: '待客户确认付款', label: '余额不足，客户确认付款', note: '钱包可用余额不足，保持待客户确认付款，请客户充值后再确认。' };
       }
       const finalQuote = formatAmountOnly(nextQuote.walletTotal);
-      row.agent = rule.agent || modalRoot.querySelector('[data-opening-agent]')?.value || '-';
-      row.accountType = rule.accountType || modalRoot.querySelector('[data-opening-type]')?.value || '-';
+      const count = openingAccountCount(row);
+      row.agent = agent;
+      row.accountType = row.accountType || modalRoot.querySelector('[data-opening-type]')?.value || '-';
+      row.openingFeePerAccount = formatAmountOnly(nextQuote.openingFeePerAccount);
+      row.prechargePerAccount = formatAmountOnly(nextQuote.prechargePerAccount);
       row.openingFee = formatAmountOnly(nextQuote.openingFee);
       row.precharge = formatAmountOnly(nextQuote.precharge);
       row.finalQuote = finalQuote;
       row.feeEdited = Boolean(quote.edited);
-      row.openingFeeStatus = liveQuote.status;
-      row.remark = outcome.type === 'auto' ? '金额一致，已按客户授权自动扣款' : (outcome.note || '总额不一致，已邮件通知客户回系统确认付款');
+      row.remark = outcome.skipCharge
+        ? '合计为 0，已跳过扣款，进入已付款待开户'
+        : (outcome.type === 'auto' ? '实际扣款未超过报价，已按同意扣费自动扣款' : (outcome.note || '已邮件通知客户回系统确认付款'));
       if (outcome.type === 'auto') {
-        const count = openingAccountCount(row);
         row.status = '已付款待开户';
-        row.paymentStatus = '已扣款';
-        row.walletCharge = finalQuote;
-        row.openingFeeRecord = openingFeeRecordLabel(nextQuote.openingFee, row.applyId);
-        row.prechargeRecord = openingPlaceholderRecords(row.applyId, count, 'AD-OPEN-', ' 待绑定账户', nextQuote.precharge);
-        if (nextQuote.openingFee > 0) {
-          openingFeeHelpers().markCharged(row.merchantId, nextQuote.openingFee);
-          row.openingFeeStatus = openingFeeHelpers().merchantStatus(row.merchantId);
-          syncOpeningFeeStatusOnRows(activeTab()?.rows, row.merchantId);
+        if (outcome.skipCharge) {
+          row.paymentStatus = '未扣款';
+          row.walletCharge = '0.00';
+          row.openingFeeRecord = '无开户费';
+          row.prechargeRecord = '无充值记录';
+        } else {
+          row.paymentStatus = '已扣款';
+          row.walletCharge = finalQuote;
+          row.openingFeeRecord = openingFeeRecordLabel(nextQuote.openingFee, row.applyId, '', count);
+          row.prechargeRecord = openingPlaceholderRecords(row.applyId, count, 'AD-OPEN-', ' 待绑定账户', nextQuote.precharge);
         }
       } else {
         row.status = '待客户确认付款';
         row.paymentStatus = '待客户确认';
         row.walletCharge = '-';
         row.openingFeeRecord = nextQuote.openingFee > 0 ? '客户付款后生成' : '无开户费';
-        row.prechargeRecord = '客户付款后生成占位充值单';
+        row.prechargeRecord = nextQuote.precharge > 0 ? '客户付款后生成占位充值单' : '无充值记录';
       }
       refreshOpeningRow(row);
       state.processingRow = null;
       closeModal();
       render();
-      showToast(outcome.type === 'auto' ? '已完成审核并扣款，等待开户结果（原型）' : '已邮件通知客户确认付款（原型）', 'success');
+      showToast(outcome.skipCharge ? '合计为 0，已进入已付款待开户（原型）' : (outcome.type === 'auto' ? '已发出最终报价并扣款，等待开户结果（原型）' : '已发出最终报价并邮件通知客户确认付款（原型）'), 'success');
       return true;
     }
+
     function submitOpeningResult(modalRoot) {
       const row = state.processingRow;
       if (!row) { showToast('未找到开户申请', 'error'); return false; }
@@ -3046,9 +3260,10 @@
       for (const slot of slots) {
         const failed = Boolean(slot.querySelector('[data-opening-slot-failed]')?.checked);
         const index = Number(slot.dataset.slotIndex || results.length + 1);
+        const openingFee = numAmount(slot.dataset.openingFee);
         const precharge = numAmount(slot.dataset.openingPrecharge);
         if (failed) {
-          results.push({ failed: true, index, precharge });
+          results.push({ failed: true, index, openingFee, precharge });
           continue;
         }
         const source = slot.querySelector('[data-opening-account-source]')?.value || 'synced';
@@ -3061,29 +3276,36 @@
         const preTaxRate = parseOpeningRate(slot.querySelector('[data-opening-pre-tax-rate]')?.value);
         if (!accountId) { showToast(`请填写账户 ${index} 的广告账户ID`, 'error'); return false; }
         if (!accountName) { showToast(`请填写账户 ${index} 的广告账户名称`, 'error'); return false; }
-        if (!serviceRate.ok) { showToast(`账户 ${index} 的账户服务费率格式不正确`, 'error'); return false; }
-        if (!preTaxRate.ok) { showToast(`账户 ${index} 的预收税费费率格式不正确`, 'error'); return false; }
-        results.push({ failed: false, index, source, accountId, accountName, currency, serviceRate, preTaxRate, precharge });
+        if (!serviceRate.ok || !serviceRate.set) { showToast(`请填写账户 ${index} 的账户服务费率，允许 0`, 'error'); return false; }
+        if (!preTaxRate.ok || !preTaxRate.set) { showToast(`请填写账户 ${index} 的预收税费费率，允许 0`, 'error'); return false; }
+        results.push({ failed: false, index, source, accountId, accountName, currency, serviceRate, preTaxRate, openingFee, precharge });
       }
       const successItems = results.filter(item => !item.failed);
       const failedItems = results.filter(item => item.failed);
+      const refundOpeningFee = failedItems.reduce((sum, item) => sum + Number(item.openingFee || 0), 0);
       const refundPrecharge = failedItems.reduce((sum, item) => sum + Number(item.precharge || 0), 0);
-      const refundCopy = `首充 ${formatAmountOnly(refundPrecharge)}`;
-      const chargedOpeningFee = numAmount(row.openingFee);
+      const refundCopy = `开户费 ${formatAmountOnly(refundOpeningFee)} + 首充 ${formatAmountOnly(refundPrecharge)}`;
       const successIds = successItems.map(item => item.accountId);
       if (new Set(successIds).size !== successIds.length) {
         showToast('成功账户的广告账户ID不能重复', 'error');
         return false;
       }
+      const feeRecords = results.map(item => {
+        if (!(item.openingFee > 0) && !(numAmount(row.openingFee) > 0)) return '无开户费';
+        const id = `FEE-${row.applyId}-${openingItemNo(item.index)}`;
+        return item.failed ? `${id} 已回退` : id;
+      }).join(' / ');
       if (!successItems.length) {
         row.status = '开户取消';
-        row.paymentStatus = chargedOpeningFee > 0 ? '部分退款' : '已退款';
+        row.paymentStatus = '已退款';
         row.accountInfo = '-';
-        row.openingFeeRecord = openingFeeRecordLabel(chargedOpeningFee, row.applyId);
+        row.serviceRate = '-';
+        row.preTaxRate = '-';
+        row.openingFeeRecord = feeRecords;
         row.prechargeRecord = numAmount(row.precharge) > 0
           ? results.map(item => `AD-OPEN-${row.applyId}-${openingItemNo(item.index)} 失败退款`).join(' / ')
           : '无充值记录';
-        row.remark = `全部账户开户失败，已退回${refundCopy}；开户费不随账户失败回退`;
+        row.remark = `全部账户开户失败，已退回${refundCopy}`;
         refreshOpeningRow(row);
         state.processingRow = null;
         closeModal();
@@ -3093,22 +3315,25 @@
       }
       row.status = failedItems.length ? '部分成功' : '开户成功';
       row.paymentStatus = failedItems.length ? '部分退款' : '已扣款';
-      row.accountInfo = successItems.map(item => `${item.accountId} / ${item.accountName} / ${item.currency}（服务费率 ${item.serviceRate.label}，预收税率 ${item.preTaxRate.label}）`).join('；') + (failedItems.length ? `；${failedItems.length} 个账户失败已退首充` : '');
-      row.openingFeeRecord = openingFeeRecordLabel(chargedOpeningFee, row.applyId);
+      row.serviceRate = successItems.map(item => item.serviceRate.label).join(' / ');
+      row.preTaxRate = successItems.map(item => item.preTaxRate.label).join(' / ');
+      row.accountInfo = successItems.map(item => `${item.accountId} / ${item.accountName} / ${item.currency}（服务费率 ${item.serviceRate.label}，预收税率 ${item.preTaxRate.label}）`).join('；') + (failedItems.length ? `；${failedItems.length} 个账户失败已退开户费和首充` : '');
+      row.openingFeeRecord = feeRecords;
       row.prechargeRecord = results.map(item => {
         const id = `AD-OPEN-${row.applyId}-${openingItemNo(item.index)}`;
         return item.failed ? `${id} 失败退款` : `${id} 已绑定 ${item.accountId} 并已发起充值`;
       }).join(' / ');
       row.remark = failedItems.length
-        ? `部分成功：${successItems.length} 成功 ${failedItems.length} 失败；失败账户已退回${refundCopy}；开户费不随账户失败回退`
-        : `已按填写结果处理费率：未填不设置，填 0 写入 0；系统已发起广告账户充值`;
+        ? `部分成功：${successItems.length} 成功 ${failedItems.length} 失败；失败账户已退回${refundCopy}；已发送下户通知邮件`
+        : `已写入服务费率和预收税费费率，系统已发起广告账户充值，并已发送下户通知邮件`;
       refreshOpeningRow(row);
       state.processingRow = null;
       closeModal();
       render();
-      showToast(failedItems.length ? `部分成功：成功账户已发起充值，失败账户已退回${refundCopy}（原型）` : '已登记开户结果。未填费率不设置，填 0 会写入 0 的配置（原型）', 'success');
+      showToast(failedItems.length ? `部分成功：成功账户已发起充值并发送下户通知邮件，失败账户已退回${refundCopy}（原型）` : '已登记开户结果，已发送下户通知邮件（原型）', 'success');
       return true;
     }
+
     function submitOpeningCancel(modalRoot) {
       const row = state.processingRow;
       if (!row) { showToast('未找到开户申请', 'error'); return false; }
@@ -3128,7 +3353,7 @@
         row.prechargeRecord = refundOpeningPrechargeRecords(row);
         row.paymentStatus = (chargedOpeningFee > 0 || anyPreCaptured) ? '已退款' : '未扣款';
         row.remark = chargedOpeningFee > 0
-          ? (anyPreCaptured ? '开户取消，已退开户费和已成功的首充；失败侧不重复退；商户开户费状态不自动回退' : '开户取消，已退开户费；首充未扣成功无需退款；商户开户费状态不自动回退')
+          ? (anyPreCaptured ? '开户取消，已退开户费和已成功的首充；失败侧不重复退' : '开户取消，已退开户费；首充未扣成功无需退款')
           : (anyPreCaptured ? '开户取消，已退成功侧首充；无开户费或开户费未扣成功' : '开户取消，未产生需回退的成功扣款');
       } else {
         row.paymentStatus = '未扣款';
@@ -3140,7 +3365,7 @@
       state.processingRow = null;
       closeModal();
       render();
-      showToast(paid ? '已取消开户并退款；商户开户费状态不自动回退（原型）' : '已取消开户，未产生扣费和充值记录（原型）', 'success');
+      showToast(paid ? '已取消开户并退款（原型）' : '已取消开户，未产生扣费和充值记录（原型）', 'success');
       return true;
     }
     function submitOpeningReopen(modalRoot) {
@@ -3150,14 +3375,11 @@
         showToast('已付款申请不支持重开审核，可取消开户并退款', 'error');
         return false;
       }
-      row.remark = '重开审核开户申请';
-      row.status = '待运营审核';
+      row.remark = '重开到待选择代理，已保留 BD 确认的账户类型和弹窗快照';
+      row.status = '待选择代理';
       row.paymentStatus = '未扣款';
       row.agent = '-';
-      row.accountType = '-';
       row.finalQuote = '-';
-      row.openingFee = '-';
-      row.precharge = '-';
       row.walletCharge = '-';
       row.openingFeeRecord = '-';
       row.prechargeRecord = '-';
@@ -3167,7 +3389,7 @@
       state.processingRow = null;
       closeModal();
       render();
-      showToast('已重开审核。初始报价快照已保留，开户状态回到待运营审核（原型）', 'success');
+      showToast('已重开。账户类型已保留，状态回到待选择代理（原型）', 'success');
       return true;
     }
     function operationButtons(row, index, dataset = '') {
@@ -3433,13 +3655,7 @@
       const actionHtml = (tab.actions || []).map(action => `<button type="button" class="btn ${action.primary ? 'btn-primary' : 'btn-default'}" data-action="${esc(action.id)}">${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`).join('');
       const actionClass = action => action.danger ? 'btn-danger' : action.primary ? 'btn-primary' : 'btn-default';
       const actionAttrs = action => `${action.requiresSelection ? ' data-requires-selection' : ''}${action.uploadToast ? ` data-upload-toast="${esc(action.uploadToast)}"` : ''}`;
-      const renderToolbarAction = action => {
-        if (action.kind === 'note') {
-          const text = typeof action.text === 'function' ? action.text() : (action.text || action.label || '');
-          return `<span class="opening-fee-current">${esc(text)}</span>`;
-        }
-        return `<button type="button" class="btn ${actionClass(action)}" data-action="${esc(action.id)}" data-action-label="${esc(action.label)}"${actionAttrs(action)}>${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`;
-      };
+      const renderToolbarAction = action => `<button type="button" class="btn ${actionClass(action)}" data-action="${esc(action.id)}" data-action-label="${esc(action.label)}"${actionAttrs(action)}>${action.icon ? icon(action.icon) : ''}${esc(action.label)}</button>`;
       const leftActions = (tab.actions || []).filter(action => action.align !== 'right').map(renderToolbarAction).join('');
       const rightActions = (tab.actions || []).filter(action => action.align === 'right').map(renderToolbarAction).join('');
       const showOps = !tab.hideOperation;
@@ -3550,7 +3766,7 @@
         state.processingAction = action;
         if (modal.type === 'offline-transfer-audit') state.processingRow = row;
         if (modal.type === 'monitor-follow') state.processingRow = row;
-        if (/confirm/.test(modal.type || '')) {
+        if (isGenericConfirmModal(modal.type)) {
           openModal(confirmModal(modal.title || action, modal.copy || `确认执行“${esc(action)}”？原型不会调用真实接口。`, modal.danger, modal.type));
           return;
         }
@@ -3599,7 +3815,7 @@
         return;
       }
       if (/回退|释放|预收补入/.test(action)) {
-        const extra = action === '回退' && row.feeType === '开户费' ? '<p>回退只退钱，不会改商户开户费状态。若要再收或免除，请到客户管理修改开户费状态。</p>' : '';
+        const extra = action === '回退' && row.feeType === '开户费' ? '<p>回退只退该笔开户费。</p>' : '';
         openModal(confirmModal(action, `请确认对商户ID <strong>${esc(row.merchantId || '-')}</strong> 执行“${esc(action)}”操作。该操作会影响资金流水，请确认后继续。${extra}`, true));
         return;
       }
@@ -3637,11 +3853,6 @@
         }
         if (feeNeed) row.openingFeeRecord = openingFeeRecordLabel(numAmount(row.openingFee), row.applyId);
         if (preNeed) row.prechargeRecord = retryOpeningPrechargeRecords(row);
-        if (numAmount(row.openingFee) > 0 && openingFeeCaptured(row)) {
-          openingFeeHelpers().markCharged(row.merchantId, numAmount(row.openingFee));
-          row.openingFeeStatus = openingFeeHelpers().merchantStatus(row.merchantId);
-          syncOpeningFeeStatusOnRows(activeTab()?.rows, row.merchantId);
-        }
         row.status = '已付款待开户';
         row.paymentStatus = '已扣款';
         row.walletCharge = row.finalQuote || row.initialQuote;
@@ -3651,10 +3862,26 @@
         showToast('已重试失败侧扣款并成功（原型）', 'success');
         return;
       }
-      if (/审核报价|审核开户/.test(action)) {
+      if (action === '退回BD' || action === '退回选择账户类型') {
+        row.status = '待确认账户类型和金额';
+        row.agent = '-';
+        row.finalQuote = '-';
+        row.remark = '开户组已退回选择账户类型，等待重新确认账户类型和金额';
+        refreshOpeningRow(row);
+        render();
+        showToast('已退回选择账户类型（原型）', 'success');
+        return;
+      }
+      if (/审核报价|审核开户|确认账户类型/.test(action)) {
         state.processingRow = row;
         state.processingAction = action;
-        openModal(formModal({ type: 'opening-audit', title: '审核开户' }, row));
+        openModal(formModal({ type: 'opening-bd-confirm', title: '确认账户类型' }, row));
+        return;
+      }
+      if (action === '选择代理') {
+        state.processingRow = row;
+        state.processingAction = action;
+        openModal(formModal({ type: 'opening-select-agent', title: '选择代理' }, row));
         return;
       }
       if (/登记开户结果|开户成功|开户失败/.test(action)) {
@@ -3851,7 +4078,7 @@
           openModal(confirmModal(actionLabel, `将对已选 <strong>${count}</strong> 条记录执行“${esc(actionLabel)}”。提交前请确认影响范围。`, false));
           return;
         }
-        if (/confirm/.test(modal?.type || '')) {
+        if (isGenericConfirmModal(modal?.type)) {
           const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
           const mix = tab.confirmMediaMix && /处理失败/.test(actionLabel) ? mediaMixSummary(selectedRows) : '';
           const extra = mix ? `<div class="notice" style="margin-top:8px">本次 ${selectedRows.length} 单。媒体分布：${esc(mix)}。</div>` : '';
@@ -3926,15 +4153,28 @@
         showToast('已开始下载分段明细 CSV（原型）', 'success');
         return;
       }
+      const emailKind = event.target.closest('[data-opening-email-kind]');
+      if (emailKind) {
+        const root = emailKind.closest('[data-opening-email-preview]');
+        if (root) {
+          root.dataset.currentEmailKind = emailKind.dataset.openingEmailKind || 'confirm';
+          root.querySelectorAll('[data-opening-email-kind]').forEach(button => {
+            button.classList.toggle('is-active', button === emailKind);
+          });
+          renderOpeningEmailPreview(root);
+        }
+        return;
+      }
       const emailLang = event.target.closest('[data-opening-email-lang]');
       if (emailLang) {
         const root = emailLang.closest('[data-opening-email-preview]');
-        const lang = emailLang.dataset.openingEmailLang || 'en';
-        root?.querySelectorAll('[data-opening-email-lang]').forEach(button => {
-          button.classList.toggle('is-active', button === emailLang);
-        });
-        const frame = root?.querySelector('[data-opening-email-frame]');
-        if (frame) frame.innerHTML = openingConfirmEmailHtml(lang);
+        if (root) {
+          root.dataset.currentEmailLang = emailLang.dataset.openingEmailLang || 'en';
+          root.querySelectorAll('[data-opening-email-lang]').forEach(button => {
+            button.classList.toggle('is-active', button === emailLang);
+          });
+          renderOpeningEmailPreview(root);
+        }
         return;
       }
       const modalMultiToggle = event.target.closest('.modal-backdrop [data-multiselect-toggle]');
@@ -4017,14 +4257,30 @@
         if (openingAuditRoot) submitOpeningCancel(openingAuditRoot);
         return;
       }
+      if (event.target.closest('[data-opening-return-bd]')) {
+        const row = state.processingRow;
+        if (!row) { showToast('未找到开户申请', 'error'); return; }
+        row.status = '待确认账户类型和金额';
+        row.agent = '-';
+        row.finalQuote = '-';
+        row.remark = '开户组已退回选择账户类型，等待重新确认账户类型和金额';
+        refreshOpeningRow(row);
+        state.processingRow = null;
+        closeModal();
+        render();
+        showToast('已退回选择账户类型（原型）', 'success');
+        return;
+      }
       if (event.target.closest('[data-opening-edit-fee]')) {
         const modalRoot = event.target.closest('[data-opening-audit-modal]');
+        if (modalRoot?.dataset.openingStep !== 'bd') return;
         setOpeningFeeEditing(modalRoot, true);
         applyOpeningAuditQuote(modalRoot, openingSelectedRule(state.processingRow, modalRoot), state.processingRow);
         return;
       }
       if (event.target.closest('[data-opening-reset-fee]')) {
         const modalRoot = event.target.closest('[data-opening-audit-modal]');
+        if (modalRoot?.dataset.openingStep !== 'bd') return;
         applyOpeningAuditQuote(modalRoot, openingSelectedRule(state.processingRow, modalRoot), state.processingRow, { reset: true });
         return;
       }
@@ -4558,6 +4814,9 @@
       if (event.target.closest('[data-assign-account-search]')) refreshAssignModal(event.target.closest('[data-assign-modal]'));
       if (event.target.closest('[data-adjustment-account-search]')) refreshAdjustmentModal(event.target.closest('[data-adjustment-modal]'));
       if (event.target.closest('[data-adjustment-amount-input]')) recalculateAdjustmentAmounts(event.target.closest('[data-adjustment-modal]'));
+      if (event.target.closest('[data-opening-fee-amount], [data-opening-precharge-amount]')) {
+        syncOpeningFeeConfigPreview(event.target.closest('[data-opening-fee-config-modal]'));
+      }
       if (event.target.closest('[data-opening-apply-create-modal] input, [data-opening-apply-create-modal] select')) {
         const modalRoot = event.target.closest('[data-opening-apply-create-modal]');
         if (event.target.matches('[data-opening-bm-ids]')) syncOpeningApplyAssetPreview(modalRoot);

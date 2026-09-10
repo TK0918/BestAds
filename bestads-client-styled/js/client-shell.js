@@ -45,6 +45,10 @@
     '投放信息': { 'zh-CN': '投放信息', 'en-US': 'Campaign Info' },
     '账户数': { 'zh-CN': '账户数', 'en-US': 'Accounts' },
     '初始报价': { 'zh-CN': '初始报价', 'en-US': 'Initial Quote' },
+    '开户费': { 'zh-CN': '开户费', 'en-US': 'Opening Fee' },
+    '首充': { 'zh-CN': '首充', 'en-US': 'Initial Top-up' },
+    '服务费': { 'zh-CN': '服务费', 'en-US': 'Service Fee' },
+    '预收税费费率': { 'zh-CN': '预收税费费率', 'en-US': 'Prepaid Tax Rate' },
     '最终报价': { 'zh-CN': '最终报价', 'en-US': 'Final Quote' },
     '钱包扣款': { 'zh-CN': '钱包扣款', 'en-US': 'Wallet Charge' },
     '操作': { 'zh-CN': '操作', 'en-US': 'Actions' },
@@ -367,6 +371,8 @@
       '处理中': 'Processing',
       '待确认': 'Awaiting Confirmation',
       '待运营审核': 'Pending Review',
+      '待确认账户类型和金额': 'Pending Type & Amount',
+      '待选择代理': 'Pending Agent',
       '待客户确认付款': 'Payment Confirmation',
       '已付款待开户': 'Paid, Opening',
       '开户成功': 'Opened',
@@ -427,9 +433,26 @@
     return rowActions(actions);
   }
 
+  function openingClientFeeVisible(row) {
+    const status = String(row?.openingStatus || '');
+    if (['待确认账户类型和金额', '待选择代理', '待运营审核'].includes(status)) return false;
+    const quote = String(row?.finalQuote || '').trim();
+    return Boolean(quote && quote !== '-' && quote !== '待运营确认');
+  }
+
+  function openingClientFeeText(row, key) {
+    return openingClientFeeVisible(row) ? (row?.[key] || '-') : '-';
+  }
+
+  function openingClientRateText(row, key) {
+    if (!openingClientFeeVisible(row)) return '-';
+    if (!['开户成功', '部分成功'].includes(String(row?.openingStatus || ''))) return '-';
+    return row?.[key] || '-';
+  }
+
   function renderOpeningRecords(pageId, data) {
     const rows = data.rows || [];
-    const columns = ['申请ID', '媒体', '投放信息', '账户数', '初始报价', '最终报价', '钱包扣款', '状态', '操作'];
+    const columns = ['申请ID', '媒体', '投放信息', '账户数', '最终报价', '开户费', '首充', '服务费', '预收税费费率', '钱包扣款', '状态', '操作'];
     return renderTable(columns, rows, (row, index) => `
       <tr${row.applyId === openingHighlightApplyId ? ' id="opening-apply-highlight" class="is-highlight"' : ''}>
         <td>${html(row.applyId || '-')}</td>
@@ -442,9 +465,12 @@
           </div>
         </td>
         <td>${html(row.accountCount || '-')}</td>
-        <td>${html(row.initialQuote || '-')}</td>
-        <td>${html(row.finalQuote || '-')}</td>
-        <td>${html(row.walletCharge || '-')}</td>
+        <td>${html(openingClientFeeText(row, 'finalQuote'))}</td>
+        <td>${html(openingClientFeeText(row, 'openingFee'))}</td>
+        <td>${html(openingClientFeeText(row, 'precharge'))}</td>
+        <td>${html(openingClientRateText(row, 'serviceRate'))}</td>
+        <td>${html(openingClientRateText(row, 'preTaxRate'))}</td>
+        <td>${html(openingClientFeeVisible(row) ? (row.walletCharge || '-') : '-')}</td>
         <td>${tag(clientOpeningStatus(row))}</td>
         <td class="client-actions-cell">${openingRowActions(pageId, row, index)}</td>
       </tr>
@@ -537,13 +563,8 @@
     return Number.isFinite(amount) ? amount : 0;
   }
 
-  window.BESTADS_OPENING_FEE = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
+  window.BESTADS_OPENING_FEE = window.BESTADS_OPENING_FEE || { openingFeePerAccount: 30, prechargePerAccount: 550, currency: 'USD' };
   window.BESTADS_CLIENT_MERCHANT_ID = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
-  window.BESTADS_MERCHANT_OPENING_FEE_STATUS = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {
-    '11894': '已收取',
-    '18888': '不收取',
-    '19901': '未收取'
-  };
   window.BESTADS_WALLET_FX = window.BESTADS_WALLET_FX || { USD: 1, EUR: 0.92, GBP: 0.78, HKD: 7.8 };
   window.BESTADS_CLIENT_WALLET = window.BESTADS_CLIENT_WALLET || { currency: 'USD', available: 5000 };
 
@@ -575,15 +596,6 @@
     return `<option value="">${html(empty)}</option>${OPENING_CATEGORIES.map((item) => `<option value="${html(item.zh)}">${html(openingCategoryLabel(item.zh))}</option>`).join('')}`;
   }
 
-  const CLIENT_OPENING_RULES = [
-    { mediaChannel: 'Facebook', priority: 10, countryMatch: ['美国', '加拿大', '英国', '法国', '荷兰'], categoryMatch: ['时尚与服装', '家居厨房与生活', '美妆与个护'], minDailyBudget: 0, maxDailyBudget: 500, prechargeBasePerAccount: 550, currency: ['USD'] },
-    { mediaChannel: 'Facebook', priority: 20, countryMatch: ['美国', '加拿大', '英国', '法国'], categoryMatch: ['宠物用品', '家居厨房与生活', '时尚与服装'], minDailyBudget: 0, maxDailyBudget: 800, prechargeBasePerAccount: 650, currency: ['USD'] },
-    { mediaChannel: 'Facebook', priority: 30, countryMatch: ['美国', '加拿大', '英国', '法国', '德国'], categoryMatch: ['口服健康保健与营养', '非口服健康保健与营养', '其他'], minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 900, currency: ['USD'] },
-    { mediaChannel: 'Facebook', priority: 40, countryMatch: ['荷兰', '英国', '法国'], categoryMatch: ['美妆与个护', '时尚与服装', '家居厨房与生活'], minDailyBudget: 0, maxDailyBudget: 300, prechargeBasePerAccount: 650, currency: ['USD', 'EUR'] },
-    { mediaChannel: 'Google', priority: 50, countryMatch: ['美国', '英国', '加拿大'], categoryMatch: '全部', minDailyBudget: 0, maxDailyBudget: null, prechargeBasePerAccount: 500, currency: '不限' },
-    { mediaChannel: 'TikTok', priority: 60, countryMatch: ['美国', '英国', '法国'], categoryMatch: ['时尚与服装', '美妆与个护'], minDailyBudget: 400, maxDailyBudget: null, prechargeBasePerAccount: 600, currency: ['USD'] }
-  ];
-
   function clientWalletCurrency() {
     return window.BESTADS_CLIENT_WALLET?.currency || 'USD';
   }
@@ -593,50 +605,31 @@
     return Number(amount || 0) * ((Number(rates[to] || 1)) / (Number(rates[from] || 1)));
   }
 
-  function clientOpeningFeeQuote() {
-    const merchantId = window.BESTADS_CLIENT_MERCHANT_ID || '1128';
-    const map = window.BESTADS_MERCHANT_OPENING_FEE_STATUS || {};
-    const status = map[String(merchantId)] || '已收取';
-    const fee = window.BESTADS_OPENING_FEE || { amount: 30, currency: 'USD' };
-    return { status, amount: status === '未收取' ? Number(fee.amount) || 0 : 0, currency: fee.currency || 'USD' };
-  }
-
-  function matchClientOpeningRule(media, country, category, budget, currency) {
-    const inSet = (source, target) => {
-      if (!source || source === '全部' || source === '不限') return true;
-      const tokens = Array.isArray(source) ? source : String(source).split(/[、/|,，]+/).map((item) => item.trim()).filter(Boolean);
-      return tokens.includes(String(target || '').trim());
+  function clientOpeningFeeQuote(count) {
+    const fee = window.BESTADS_OPENING_FEE || {};
+    const n = Math.max(1, Number(count) || 1);
+    const openingFeePerAccount = Number(fee.openingFeePerAccount != null ? fee.openingFeePerAccount : fee.amount) || 0;
+    const prechargePerAccount = Number(fee.prechargePerAccount) || 0;
+    return {
+      openingFeePerAccount,
+      prechargePerAccount,
+      openingFee: openingFeePerAccount * n,
+      precharge: prechargePerAccount * n,
+      currency: fee.currency || 'USD'
     };
-    return CLIENT_OPENING_RULES.filter((item) => {
-      if (item.mediaChannel !== media) return false;
-      if (!inSet(item.countryMatch, country)) return false;
-      if (!inSet(item.categoryMatch, category)) return false;
-      if (!inSet(item.currency, currency || 'USD')) return false;
-      if (item.minDailyBudget && budget < item.minDailyBudget) return false;
-      if (item.maxDailyBudget != null && budget > item.maxDailyBudget) return false;
-      return true;
-    }).sort((a, b) => a.priority - b.priority)[0] || null;
   }
 
   function estimateOpeningQuoteBreakdown(root = document) {
     const modal = root.querySelector?.('[data-opening-apply-modal]') || root;
-    const category = modal.querySelector?.('[data-opening-category]')?.value || '';
-    const merchantQuote = clientOpeningFeeQuote();
-    if (!category) return { ready: false, matched: false, openingFee: 0, precharge: 0, total: 0, feeStatus: merchantQuote.status };
-    const media = modal.querySelector?.('[data-opening-media]')?.value || '';
-    const country = modal.querySelector?.('[data-opening-country]')?.value || '';
-    const budget = numberFromText(modal.querySelector?.('[data-opening-budget]')?.value);
     const currency = modal.querySelector?.('[data-opening-currency]')?.value || 'USD';
-    const count = Math.min(20, Math.max(1, Number(modal.querySelector?.('[data-opening-count]')?.value) || 1));
-    const rule = matchClientOpeningRule(media, country, category, budget, currency);
-    const openingFee = merchantQuote.amount;
+    const countRaw = modal.querySelector?.('[data-opening-count]')?.value || '';
+    const count = Number(String(countRaw).trim());
+    const ready = Number.isInteger(count) && count >= 1 && count <= 20;
+    if (!ready) return { ready: false, matched: false, openingFee: 0, precharge: 0, total: 0 };
+    const site = clientOpeningFeeQuote(count);
     const wallet = clientWalletCurrency();
-    if (!rule) {
-      return { ready: true, matched: false, openingFee, precharge: 0, total: 0, walletCurrency: wallet, feeStatus: merchantQuote.status };
-    }
-    const precharge = Number(rule.prechargeBasePerAccount) * count;
-    const walletTotal = convertClientAmount(openingFee, 'USD', wallet) + convertClientAmount(precharge, currency, wallet);
-    return { ready: true, matched: true, openingFee, precharge, total: walletTotal, walletCurrency: wallet, feeStatus: merchantQuote.status };
+    const walletTotal = convertClientAmount(site.openingFee, 'USD', wallet) + convertClientAmount(site.precharge, currency, wallet);
+    return { ready: true, matched: true, openingFee: site.openingFee, precharge: site.precharge, total: walletTotal, walletCurrency: wallet };
   }
 
   function estimateOpeningQuote(dailyBudget, accountCount, category) {
@@ -680,17 +673,12 @@
       return;
     }
     if (openingFeeTarget) {
-      openingFeeTarget.textContent = breakdown.openingFee > 0
-        ? (wallet === 'USD' ? formatQuoteAmount(breakdown.openingFee, 'USD') : `${formatQuoteAmount(convertClientAmount(breakdown.openingFee, 'USD', wallet), wallet)}（标价 ${formatQuoteAmount(breakdown.openingFee, 'USD')}）`)
-        : `${formatQuoteAmount(0, wallet)}（本次不收取开户费）`;
-    }
-    if (!breakdown.matched) {
-      target.textContent = '-（待审核定价）';
-      if (prechargeTarget) prechargeTarget.textContent = '-';
-      return;
+      openingFeeTarget.textContent = wallet === 'USD'
+        ? formatQuoteAmount(breakdown.openingFee, 'USD')
+        : `${formatQuoteAmount(convertClientAmount(breakdown.openingFee, 'USD', wallet), wallet)}（标价 ${formatQuoteAmount(breakdown.openingFee, 'USD')}）`;
     }
     target.textContent = formatQuoteAmount(breakdown.total, wallet);
-    if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(convertClientAmount(breakdown.precharge, currency, wallet), wallet);
+    if (prechargeTarget) prechargeTarget.textContent = formatQuoteAmount(breakdown.precharge, currency);
   }
 
   function parseBmIds(value) {
@@ -859,10 +847,11 @@
         <div class="client-opening-estimate full" aria-live="polite">
           <div>
             <p class="client-opening-estimate-title">预估开户费用</p>
-            <p class="client-opening-estimate-desc">开户费按商户首次一口价收取，标价为 USD，实扣和合计按钱包默认币种折算。首充按最低首充乘以账户数。日预算只用于匹配规则。无命中规则时合计为 -（待审核定价），提交时不扣款，最终金额以运营审核结果为准。</p>
+            <p class="client-opening-estimate-desc">开户费固定 USD，按单账户金额乘以账户数。最低首充数值全站统一，币种跟随广告账户：美元户按 USD 首充，欧元户按 EUR 首充。合计按钱包默认币种折算。日预算、投放国家、投放品类只作开户资料，不参与定价。提交时不扣款，最终金额以开户组发出的最终报价为准。</p>
             <div class="client-opening-breakdown">
-              <span>开户费：<b data-opening-estimate-opening>-</b></span>
-              <span>首充（广告账户充值）：<b data-opening-estimate-precharge>-</b></span>
+              <span>开户费（USD）：<b data-opening-estimate-opening>-</b></span>
+              <span>首充（账户币种）：<b data-opening-estimate-precharge>-</b></span>
+              <span>服务费 / 预收税费费率：开户成功后展示</span>
             </div>
           </div>
           <div class="client-opening-estimate-total">
@@ -872,12 +861,12 @@
         </div>
         <label class="client-checkbox-row client-form-field full client-opening-consent">
           <input data-opening-auto-pay type="checkbox" checked>
-          <span>若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知确认。</span>
+          <span>同意扣费：若实际扣款不超过提交时预估，同意系统直接扣除开户费和各账户首充；高于预估时再通知确认。</span>
         </label>
       </div>
       <div class="client-note" style="margin-top:16px;">
         <div class="client-note-title">系统提示</div>
-        <p>提交后先生成初始报价快照，运营确认最终报价后再进入扣费或客户确认付款流程。</p>
+        <p>提交后保存预估快照。开户组发出最终报价后，实际扣款不超过预估且已同意扣费则自动扣款；高于预估时请到开户记录确认付款。</p>
       </div>
     `;
   }
@@ -903,19 +892,11 @@
   function openingReviewFields(row) {
     return `
       <div class="client-form-grid">
-        ${formInput('初始报价', row?.initialQuote || '-', false)}
-        ${formInput('最终报价', row?.finalQuote || row?.initialQuote || '-', true)}
-        ${formSelect('执行方式', row?.paymentStatus === '已扣款' ? '金额一致，直接扣款' : '金额不一致，邮件通知客户确认', ['金额一致，直接扣款', '金额不一致，邮件通知客户确认'])}
-        ${formInput('代理', 'Madhouse', true)}
-        ${formInput('账户类型', 'Facebook-企业户', true)}
-        <label class="client-form-field full">
-          <span class="client-label">审核说明</span>
-          <textarea class="client-textarea" placeholder="填写最终报价依据、是否需要客户确认"></textarea>
-        </label>
-      </div>
-      <div class="client-note" style="margin-top:16px;">
-        <div class="client-note-title">比对规则</div>
-        <p>当前只比对总额，不对子项做校验。</p>
+        ${formInput('最终报价', openingClientFeeText(row, 'finalQuote'), true)}
+        ${formInput('开户费', openingClientFeeText(row, 'openingFee'), false)}
+        ${formInput('首充', openingClientFeeText(row, 'precharge'), false)}
+        ${formInput('服务费', openingClientRateText(row, 'serviceRate'), false)}
+        ${formInput('预收税费费率', openingClientRateText(row, 'preTaxRate'), false)}
       </div>
     `;
   }
@@ -926,12 +907,10 @@
         ? '付款处理中，请勿重复支付。确认付款或自动扣款时其中任一笔失败，等待运营重试，请勿重复支付。'
         : '付款处理中，请勿重复支付。';
     }
-    return '确认付款后会分开扣款：开户费 1 笔（金额大于 0 时），每个有首充的广告账户各 1 笔。例如申请 2 个账户且有首充，一共 3 笔。页面展示金额按当前汇率折算，实际扣款以 Fund 执行时的汇率为准，可能与展示金额有微小差异。开户失败时只退对应账户首充，开户费不随账户失败回退。开户成功表示账户已开出并已发起加款，到账以充值记录为准。';
+    return '确认付款后按账户拆分扣款：每个账户一笔开户费（金额大于 0 时），每个账户一笔首充（金额大于 0 时）。例如申请 2 个账户且两项都大于 0，一共 4 笔。页面展示金额按当前汇率折算，实际扣款以 Fund 执行时的汇率为准，可能与展示金额有微小差异。开户失败时退该账户开户费和该账户首充。开户成功表示账户已开出并已发起加款，到账以充值记录为准。';
   }
 
   function openingPaymentFields(row) {
-    const openingFee = row?.openingFee || '-';
-    const precharge = row?.precharge || '-';
     return `
       ${readonlySection('客户申请信息', [
         readonlyItem('申请ID', row?.applyId),
@@ -946,10 +925,11 @@
         readonlyItem('账户币种', row?.currency || 'USD')
       ])}
       ${readonlySection('报价与余额', [
-        readonlyItem('初始报价', row?.initialQuote, { emphasis: true }),
-        readonlyItem('最终报价', row?.finalQuote || row?.initialQuote, { emphasis: true }),
-        readonlyItem('开户费', openingFee),
-        readonlyItem('首充（广告账户充值）', precharge),
+        readonlyItem('最终报价', openingClientFeeText(row, 'finalQuote'), { emphasis: true }),
+        readonlyItem('开户费', openingClientFeeText(row, 'openingFee')),
+        readonlyItem('首充（广告账户充值）', openingClientFeeText(row, 'precharge')),
+        readonlyItem('服务费', openingClientRateText(row, 'serviceRate')),
+        readonlyItem('预收税费费率', openingClientRateText(row, 'preTaxRate')),
         readonlyItem('可用余额', `${Number(window.BESTADS_CLIENT_WALLET?.available || 5000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${clientWalletCurrency()}`, { emphasis: true })
       ])}
       <div class="client-note" style="margin-top:16px;">
@@ -972,11 +952,12 @@
         ${formInput('账户数', row.accountCount || '-', false)}
         ${formInput('投放品类', openingCategoryLabel(row.category) || '-', false)}
         ${formInput('账户币种', row.currency || 'USD', false)}
-        ${formInput('初始报价', row.initialQuote || '-', false)}
-        ${formInput('最终报价', row.finalQuote || '-', false)}
-        ${formInput('开户费', row.openingFee || '-', false)}
-        ${formInput('首充', row.precharge || '-', false)}
-        ${formInput('钱包扣款', row.walletCharge || '-', false)}
+        ${formInput('最终报价', openingClientFeeText(row, 'finalQuote'), false)}
+        ${formInput('开户费', openingClientFeeText(row, 'openingFee'), false)}
+        ${formInput('首充', openingClientFeeText(row, 'precharge'), false)}
+        ${formInput('服务费', openingClientRateText(row, 'serviceRate'), false)}
+        ${formInput('预收税费费率', openingClientRateText(row, 'preTaxRate'), false)}
+        ${formInput('钱包扣款', openingClientFeeVisible(row) ? (row.walletCharge || '-') : '-', false)}
         ${formInput('结果', row.result || '-', false)}
         ${formInput('广告账户ID', row.accountInfo || '-', false)}
         ${formInput('其他扣费单', row.openingFeeRecord || '-', false)}
@@ -1344,7 +1325,7 @@
           syncOpeningEstimate(applyRoot);
           const breakdown = estimateOpeningQuoteBreakdown(applyRoot);
           const wallet = clientWalletCurrency();
-          const initialQuote = breakdown.matched ? formatQuoteAmount(breakdown.total, wallet) : '-（待审核定价）';
+          const initialQuote = formatQuoteAmount(breakdown.total, wallet);
           const quoteVersion = `Q-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(rows.length + 1).padStart(3, '0')}`;
           rows.unshift({
             applyId: `AO${Date.now()}`,
@@ -1358,14 +1339,16 @@
             category,
             currency,
             initialQuote,
-            openingFee: breakdown.openingFee > 0 ? formatQuoteAmount(breakdown.openingFee, 'USD') : formatQuoteAmount(0, 'USD'),
-            precharge: breakdown.matched ? formatQuoteAmount(breakdown.precharge, currency) : '-',
-            finalQuote: '待运营确认',
+            openingFee: '-',
+            precharge: '-',
+            serviceRate: '-',
+            preTaxRate: '-',
+            finalQuote: '-',
             walletCharge: '-',
             paymentStatus: '未扣款',
-            paymentAuth: autoPay ? '已同意金额一致时自动扣款' : '未授权自动扣款，待最终报价后确认',
+            paymentAuth: autoPay ? '已同意不超过报价时自动扣款' : '未同意扣费，待最终报价后确认',
             submittedAt: '2026-08-18 10:30:00',
-            openingStatus: '待运营审核',
+            openingStatus: '待确认账户类型和金额',
             status: '处理中',
             result: '-',
             accountInfo: '-',
