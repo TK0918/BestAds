@@ -3687,8 +3687,10 @@
       }
       root.innerHTML = `<div class="admin-page module-page">${navHtml}${kpiHtml}${filterHtml}${unmatchedIdsNotice(tab)}${dimensionSelectorHtml(tab)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
       root.querySelectorAll('[data-requires-selection]').forEach(button => { button.disabled = selected.size === 0; });
+      window.BESTADS_CLEAR_APPROVAL?.afterRender(root);
     }
     function handleRowAction(action, row) {
+      if (window.BESTADS_CLEAR_APPROVAL?.handleRowAction(action, row)) return;
       const tab = activeTab();
       const rebateApi = window.BESTADS_CUSTOMER_REBATE;
       if (config.customerRebate && rebateApi) {
@@ -4071,6 +4073,8 @@
         }
         if (actionButton.hasAttribute('data-requires-selection') && selectedSet(tab).size === 0) { showToast('请先勾选需要操作的广告账户', 'error'); return; }
         const actionLabel = actionButton.dataset.actionLabel || actionButton.textContent.trim();
+        const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+        if (window.BESTADS_CLEAR_APPROVAL?.handleToolbar(actionLabel, selectedRows)) return;
         const modal = tab.modals?.[actionLabel] || config.modals?.[actionLabel];
         if (actionButton.dataset.action === 'batch-status' || actionButton.dataset.action === 'batch-rebate') {
           const count = selectedSet(tab).size;
@@ -4291,6 +4295,7 @@
       }
       if (event.target.closest('[data-modal-submit]')) {
         const backdrop = event.target.closest('.modal-backdrop');
+        if (window.BESTADS_CLEAR_APPROVAL?.handleModalSubmit(backdrop)) return;
         const tab = activeTab();
         const rebateApi = window.BESTADS_CUSTOMER_REBATE;
         if (config.customerRebate && rebateApi) {
@@ -4859,6 +4864,15 @@
       render();
       refreshFieldDrawer(tab);
       showToast('列表字段顺序已调整（原型）', 'success');
+    });
+    window.BESTADS_CLEAR_APPROVAL?.attach({
+      state,
+      activeTab,
+      openModal,
+      closeModal,
+      showToast,
+      render,
+      currentTimestamp
     });
     render();
   }
