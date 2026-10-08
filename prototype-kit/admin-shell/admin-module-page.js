@@ -1945,23 +1945,6 @@
     return `<div class="modal-backdrop"${action ? ` data-confirm-action="${esc(action)}"` : ''}><section class="modal${sizeClass}"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="confirm-copy">${copy}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>${esc(cancelText)}</button><button type="button" class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-modal-submit>${esc(confirmText)}</button></div></section></div>`;
   }
 
-  function agencyReconDetailModal(row) {
-    const pair = [
-      ['归类代理', row.agency],
-      ['广告账户ID', row.accountId],
-      ['商户ID / 客户', `${row.merchantId || '-'} / ${row.customerName || '-'}`],
-      ['完成日', row.bizDate],
-      ['类型 / 币种', `${row.txnType || '-'} / ${row.currency || '-'}`],
-      ['代理金额', row.agencyAmount],
-      ['系统金额', row.systemAmount],
-      ['差额', row.diff],
-      ['分类', row.category],
-      ['配对轮次', row.matchRound],
-      ['隔日配对日', row.pairedDate || '-']
-    ];
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">例外对照</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">原型只展示双方原始行，不改充值单、不调钱包。真实环境可从系统单号跳到综合充值清零减款。</div><dl class="detail-grid">${pair.map(([label, value]) => `<div><dt>${esc(label)}</dt><dd>${esc(asText(value))}</dd></div>`).join('')}</dl><div class="readonly-context" style="margin-top:12px"><div><dt>代理原始行</dt><dd>${esc(asText(row.agencyLine))}</dd></div><div><dt>系统记账行</dt><dd>${esc(asText(row.systemLine))}</dd></div></div></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
-  }
-
   function isSlashTransferRecord(row) {
     return Boolean(row?.transferOrderId || /^TR\d+/.test(String(row?.c0 || '')));
   }
@@ -2047,8 +2030,8 @@
 
   function rowActionClass(action) {
     if (/解绑|冻结|取消|删除|失败|驳回|作废/.test(action)) return 'op-link--danger';
-    if (/申请|标记|确认|新增|绑定|重试|审核|开户成功|登记开户结果|留痕|查看例外/.test(action)) return 'op-link--primary';
-    if (/转移|转出|修改|换转入|退回|重开/.test(action)) return 'op-link--warning';
+    if (/申请|标记|确认|新增|绑定|重试|审核|开户成功|登记开户结果|留痕|查看例外|发起工单|开始处理/.test(action)) return 'op-link--primary';
+    if (/转移|转出|修改|换转入|退回|重开|关闭工单/.test(action)) return 'op-link--warning';
     return 'op-link--info';
   }
 
@@ -2098,18 +2081,6 @@
       const pref = fieldPref(tab);
       const columnsByKey = new Map((tab.columns || []).map(column => [column.key, column]));
       return pref.order.map(key => columnsByKey.get(key)).filter(column => column && pref.visible.has(column.key));
-    }
-    function refreshAgencyReconKpis() {
-      const exceptions = tabs.find(item => item.id === 'exceptions');
-      if (!exceptions || !config.kpis) return;
-      const pending = (exceptions.rows || []).filter(row => row.handleStatus !== '已留痕');
-      const countOf = label => pending.filter(row => row.category === label).length;
-      const mismatch = pending.filter(row => !/口径差|疑似时间差/.test(row.category || '')).length;
-      config.kpis.forEach(item => {
-        if (item.label === '口径差') item.value = String(countOf('口径差'));
-        if (item.label === '疑似时间差') item.value = String(countOf('疑似时间差'));
-        if (item.label === '真差异') item.value = String(mismatch);
-      });
     }
     function refreshFieldDrawer(tab) {
       const drawer = document.querySelector('[data-field-drawer]');
@@ -3638,6 +3609,10 @@
       state.values[tab.id] = values;
     }
     function render() {
+      const compareTab = tabs.find(item => item.id === 'compare');
+      if (window.BESTADS_AGENCY_RECON && compareTab) {
+        window.BESTADS_AGENCY_RECON.refreshKpis(config, rows(compareTab));
+      }
       const tab = activeTab();
       const groups = navGroups();
       const hasTabs = groups.length > 1;
@@ -3724,39 +3699,9 @@
           return;
         }
       }
-      if (action === '查看例外' && row.agency) {
-        state.tab = 'exceptions';
-        state.values.exceptions = Object.assign({}, state.values.exceptions || {}, { agency: row.agency });
-        render();
-        showToast(`已筛选 ${row.agency} 的例外（原型）`, 'info');
-        return;
-      }
-      if (action === '留痕' && row.reconDetail) {
-        if (row.handleStatus === '已留痕') {
-          showToast('该例外已经留痕', 'info');
-          return;
-        }
-        state.processingRow = row;
-        state.processingAction = '留痕';
-        openModal(formModal({
-          title: '例外留痕',
-          size: 'md',
-          backdropAttr: 'data-agency-recon-trace',
-          fields: [
-            { key: 'traceReason', label: '原因', control: 'select', options: ['确认时间差', '确认口径差', '漏记', '多记', '待查'] },
-            { key: 'traceRemark', label: '备注', control: 'textarea', full: true, required: false, placeholder: '可选，不改账' }
-          ]
-        }, row));
-        return;
-      }
-      if (action === '试解析') {
-        openModal(confirmModal('试解析', `将用当前模板试读 <strong>${esc(row.agency || '该代理')}</strong> 的样例文件。原型直接给出解析结果，不上传真实文件。`, false, 'agency-recon-try-parse'));
-        return;
-      }
-      if (row.reconDetail && /查看详情/.test(action)) {
-        openModal(agencyReconDetailModal(row));
-        return;
-      }
+      if (window.BESTADS_AGENCY_RECON?.handleRowAction?.(action, row, {
+        tabs, config, state, render, openModal, showToast, closeModal
+      })) return;
       if (action === '删除' && tab.id === 'ratio-account') {
         state.processingRow = row;
         openModal(confirmModal('删除账户预收比例', `删除后回退客户规则（或未配置）。不预收请设显式 0%，不要用删除。<br><br>广告账户 <strong>${esc(row.accountId || '-')}</strong> 当前来源：${esc(row.source || '-')}。`, true, 'location-fee-row-delete', { size: 'md' }));
@@ -3989,6 +3934,9 @@
         state.tab = tabButton.dataset.tab;
         if (config.customerRebate) state.rebateMerchant = null;
         rememberGroupTab(state.tab);
+        if (document.body.dataset.adminPage === 'agency-recon') {
+          history.replaceState(null, '', `#${state.tab}`);
+        }
         render();
         return;
       }
@@ -4031,23 +3979,6 @@
           const count = selectedSet(tab).size;
           if (!count) { showToast('请先勾选需要批量处理的记录', 'error'); return; }
           openModal(confirmModal('批量删除账户覆盖', `删除后回退客户规则（或未配置）。不预收请设显式 0%，不要用删除。<br><br>将对已选 <strong>${count}</strong> 条执行删除。`, true, 'location-fee-batch-delete', { size: 'md' }));
-          return;
-        }
-        if (actionButton.dataset.action === 'upload-agency') {
-          openModal(formModal(tab.modal || { title: '上传代理文件', fields: [] }, {}));
-          return;
-        }
-        if (actionButton.dataset.action === 'batch-confirm') {
-          const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
-          if (!selectedRows.length) { showToast('请先勾选需要确认的例外', 'error'); return; }
-          const blocked = selectedRows.filter(row => !/口径差|疑似时间差/.test(row.category || ''));
-          if (blocked.length) {
-            showToast('批量确认只适用于口径差和疑似时间差，真差异请逐条留痕', 'error');
-            return;
-          }
-          const pending = selectedRows.filter(row => row.handleStatus !== '已留痕');
-          if (!pending.length) { showToast('所选例外均已留痕', 'info'); return; }
-          openModal(confirmModal('批量确认', `将把已选 <strong>${pending.length}</strong> 条口径差 / 疑似时间差标为已留痕。不改充值单。`, false, 'agency-recon-batch', { size: 'md' }));
           return;
         }
         if (actionButton.dataset.action === 'download-template') {
@@ -4296,6 +4227,9 @@
       if (event.target.closest('[data-modal-submit]')) {
         const backdrop = event.target.closest('.modal-backdrop');
         if (window.BESTADS_CLEAR_APPROVAL?.handleModalSubmit(backdrop)) return;
+        if (window.BESTADS_AGENCY_RECON?.handleSubmit?.(backdrop, {
+          tabs, config, state, render, openModal, showToast, closeModal
+        })) return;
         const tab = activeTab();
         const rebateApi = window.BESTADS_CUSTOMER_REBATE;
         if (config.customerRebate && rebateApi) {
@@ -4388,84 +4322,6 @@
           closeModal();
           render();
           showToast(had ? '已删除账户覆盖，已回退客户规则（原型）' : '当前无账户覆盖，无需删除（原型）', had ? 'success' : 'info');
-          return;
-        }
-        if (backdrop?.dataset.confirmAction === 'agency-recon-batch') {
-          const current = rows(tab);
-          let updated = 0;
-          Array.from(selectedSet(tab)).forEach(index => {
-            const row = current[index];
-            if (row && /口径差|疑似时间差/.test(row.category || '') && row.handleStatus !== '已留痕') {
-              row.handleStatus = '已留痕';
-              row.ops = ['查看详情'];
-              updated += 1;
-            }
-          });
-          selectedSet(tab).clear();
-          refreshAgencyReconKpis();
-          closeModal();
-          render();
-          showToast(`已批量留痕 ${updated} 条（原型）`, 'success');
-          return;
-        }
-        if (backdrop?.dataset.confirmAction === 'agency-recon-try-parse') {
-          closeModal();
-          showToast('样例解析成功：抽出 20 行标准流水，丢弃失败单 1 行（原型）', 'success');
-          return;
-        }
-        if (backdrop?.matches('[data-agency-recon-trace]')) {
-          const row = state.processingRow;
-          const reason = backdrop.querySelector('[name="traceReason"]')?.value;
-          if (!row) { showToast('未找到例外', 'error'); return; }
-          if (!reason) { showToast('请选择原因', 'error'); return; }
-          row.handleStatus = '已留痕';
-          row.traceReason = reason;
-          row.traceRemark = backdrop.querySelector('[name="traceRemark"]')?.value || '';
-          row.ops = ['查看详情'];
-          state.processingRow = null;
-          refreshAgencyReconKpis();
-          closeModal();
-          render();
-          showToast(`已留痕：${reason}（原型）`, 'success');
-          return;
-        }
-        if (backdrop?.matches('[data-agency-recon-upload]')) {
-          const agency = backdrop.querySelector('[name="agency"]')?.value;
-          const hasFile = Boolean(backdrop.querySelector('[data-upload-list] li'));
-          if (!agency) { showToast('请选择归类代理', 'error'); return; }
-          if (!hasFile) { showToast('请上传代理导出文件', 'error'); return; }
-          const overview = tabs.find(item => item.id === 'overview');
-          const uploads = tabs.find(item => item.id === 'uploads');
-          const target = (overview?.rows || []).find(item => item.agency === agency);
-          const now = currentTimestamp();
-          const cleared = agency === 'MeetSocial';
-          if (uploads) {
-            uploads.rows.unshift({
-              fileName: `${agency.toLowerCase()}_upload.xlsx`,
-              agency,
-              coverRange: '2026-08-29 ~ 2026-08-31',
-              okCount: cleared ? '86' : '40',
-              dropCount: '1',
-              result: cleared ? '已平' : (target?.reconStatus || '有例外'),
-              operator: '财务',
-              uploadedAt: now
-            });
-          }
-          if (target) {
-            target.uploadedAt = now;
-            target.fileCovered = '2026-08-31';
-            if (cleared) {
-              target.reconStatus = '已平';
-              target.matched = '86';
-              target.caliber = '0';
-              target.timeShift = '0';
-              target.mismatch = '0';
-              target.ops = [];
-            }
-          }
-          closeModal();
-          render();
-          showToast(cleared ? '解析成功 86 行，已丢弃失败单 1 行。MeetSocial 昨日已平（原型）' : `已接收 ${agency} 文件并重跑最近 3 天（原型）`, 'success');
           return;
         }
         if (backdrop?.matches('[data-location-fee-batch-ratio]') || backdrop?.querySelector('[data-location-fee-batch-ratio]')) {

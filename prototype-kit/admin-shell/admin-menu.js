@@ -22,6 +22,7 @@
         page('customer-list', '客户管理', 'main-functions/customer-management.html', 'users'),
         page('customer-sub-account', '客户子账号管理', 'main-functions/customer-sub-account-management.html', 'user-friends'),
         page('agent-management', '代理管理', 'main-functions/agent_management.html', 'user-shield'),
+        page('agency-recon', '代理+我司数据核对', 'main-functions/agency-recon.html', 'file-invoice-dollar'),
         page('introducer-spitpoint', '介绍人和吐点', 'main-functions/introducer-spitpoint.html', 'handshake'),
         page('customer-rebate', '客户返点', 'main-functions/customer-rebate.html', 'hand-holding-usd'),
         page('rebate-config', '返点配置', 'main-functions/rebate-config.html', 'percent'),
@@ -194,5 +195,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-09-08.1';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-10-08.2';
 })();
