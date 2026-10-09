@@ -510,6 +510,19 @@ if (customerPageRoot) {
     </div>
   </div>
 
+  <div id="apiAccessModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900" id="apiAccessModalTitle">当前 API 信息</h3>
+          <button type="button" onclick="closeModal('apiAccessModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="px-6 py-4" id="apiAccessModalBody"></div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-2" id="apiAccessModalFooter"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 客户权限管理模态框 -->
   <div id="permissionManagementModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 modal-backdrop hidden z-50">
     <div class="flex items-center justify-center min-h-screen px-4">
@@ -655,7 +668,7 @@ if (customerPageRoot) {
       { key: 'frozenAmount', label: '冻结金额', width: '100px', align: 'right', sortable: true },
       { key: 'registerTime', label: '注册时间', width: '150px' },
       { key: 'lastLoginTime', label: '最近登录', width: '150px' },
-      { key: 'actions', label: '操作', width: '360px' }
+      { key: 'actions', label: '操作', width: '420px' }
     ];
 
     // 默认显示真实运营端客户列表的 19 个业务列，选择列由表格渲染器固定追加
@@ -931,6 +944,7 @@ if (customerPageRoot) {
                   <button type="button" onclick="managePermissions('${customer.customerId}')">权限管理</button>
                   <a href="customer-sub-account-management.html?merchantId=${customer.merchantId}">子账号管理</a>
                   <button type="button" onclick="resetPassword('${customer.customerId}')">重置密码</button>
+                  ${apiActionButtons(customer)}
                 </div>
               `;
               break;
@@ -1822,4 +1836,127 @@ if (customerPageRoot) {
       const actionDesc = action === 'enable' ? '开启' : '关闭';
       showNotification(`批量功能${actionDesc}已应用！影响 ${selectedCustomerIds.size} 位客户`, 'success');
       closeModal('batchPermissionModal');
+    }
+
+    const API_PERMISSIONS = ['查账户列表', '查账户信息', '发起充值', '发起清零', '发起减款', '查单据结果', '查消耗'];
+    let apiModalMode = 'view';
+    let apiModalCustomerId = '';
+
+    function apiActionButtons(customer) {
+      const api = window.BESTADS_API_STORE?.customer(customer.customerId);
+      const status = api?.status || 'none';
+      const tone = {
+        none: 'is-none',
+        pending: 'is-pending',
+        rejected: 'is-rejected',
+        active: 'is-active',
+        disabled: 'is-disabled'
+      }[status] || 'is-none';
+      return `<button type="button" class="api-status ${tone}" onclick="openCustomerApi('${customer.customerId}')">API</button>`;
+    }
+
+    function customerApiRecord(customerId) {
+      const customer = customerData.find(item => item.customerId === String(customerId));
+      const api = window.BESTADS_API_STORE.customer(customerId);
+      return { customer, api };
+    }
+
+    function openCustomerApi(customerId) {
+      apiModalCustomerId = String(customerId);
+      apiModalMode = 'view';
+      renderCustomerApiModal();
+    }
+
+    function renderCustomerApiModal() {
+      const { customer, api } = customerApiRecord(apiModalCustomerId);
+      const status = api?.status || 'none';
+      const editable = status === 'active' && apiModalMode === 'view';
+      const picked = new Set(api?.permissions || []);
+      const endpoint = status === 'active' || status === 'disabled' ? window.BESTADS_API_STORE.ENDPOINT : '-';
+      const name = customer?.customerName || apiModalCustomerId;
+      const permissionBlock = editable
+        ? `<div class="grid grid-cols-2 gap-2 text-sm">${API_PERMISSIONS.map(permission => `
+            <label class="flex items-center gap-2">
+              <input type="checkbox" name="customerApiPermission" value="${permission}" ${picked.has(permission) ? 'checked' : ''}>
+              <span>${permission}</span>
+            </label>
+          `).join('')}</div>`
+        : `<p class="text-sm">${window.BESTADS_API_STORE.joinPermissions(api?.permissions)}</p>`;
+      let notice = '';
+      if (apiModalMode === 'disable') {
+        notice = `<p class="text-sm text-gray-700 mt-4">停用后，${name} 不能继续调用 API，也不能重置密钥。</p>`;
+      } else if (apiModalMode === 'restore') {
+        notice = `<p class="text-sm text-gray-700 mt-4">恢复后，${name} 沿用原密钥和当前权限。</p>`;
+      } else if (status === 'active') {
+        notice = '<p class="text-sm text-gray-500 mt-3">勾选后保存即生效。停用后客户不能调用，也不能重置密钥。</p>';
+      }
+      document.getElementById('apiAccessModalTitle').textContent = 'API';
+      document.getElementById('apiAccessModalBody').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><p class="text-gray-500">客户ID</p><p>${customer?.customerId || apiModalCustomerId}</p></div>
+          <div><p class="text-gray-500">客户名称</p><p>${customer?.customerName || '-'}</p></div>
+          <div><p class="text-gray-500">商户ID</p><p>${customer?.merchantId || '-'}</p></div>
+          <div><p class="text-gray-500">状态</p><p>${window.BESTADS_API_STORE.statusLabel(status)}</p></div>
+          <div class="col-span-2"><p class="text-gray-500">对接地址</p><p>${endpoint}</p></div>
+          <div class="col-span-2"><p class="text-gray-500">当前权限</p>${permissionBlock}</div>
+        </div>
+        ${notice}
+      `;
+      document.getElementById('apiAccessModalFooter').innerHTML = apiModalFooter(status);
+      document.getElementById('apiAccessModal').classList.remove('hidden');
+    }
+
+    function apiModalFooter(status) {
+      const close = '<button type="button" class="admin-button" onclick="closeModal(\'apiAccessModal\')">关闭</button>';
+      const back = `<button type="button" class="admin-button" onclick="openCustomerApi('${apiModalCustomerId}')">返回</button>`;
+      if (apiModalMode === 'disable') {
+        return `${back}<button type="button" class="admin-button admin-button--primary" onclick="confirmCustomerApiDisable()">确定停用</button>`;
+      }
+      if (apiModalMode === 'restore') {
+        return `${back}<button type="button" class="admin-button admin-button--primary" onclick="confirmCustomerApiRestore()">确定恢复</button>`;
+      }
+      if (status === 'active') {
+        return `${close}<button type="button" class="admin-button" onclick="askCustomerApiDisable()">停用</button><button type="button" class="admin-button admin-button--primary" onclick="saveCustomerApiPermissions()">保存权限</button>`;
+      }
+      if (status === 'disabled') {
+        return `${close}<button type="button" class="admin-button admin-button--primary" onclick="askCustomerApiRestore()">恢复</button>`;
+      }
+      return close;
+    }
+
+    function askCustomerApiDisable() {
+      apiModalMode = 'disable';
+      renderCustomerApiModal();
+    }
+
+    function askCustomerApiRestore() {
+      apiModalMode = 'restore';
+      renderCustomerApiModal();
+    }
+
+    function saveCustomerApiPermissions() {
+      const permissions = Array.from(document.querySelectorAll('input[name="customerApiPermission"]:checked')).map(input => input.value);
+      if (!permissions.length) {
+        showNotification('至少保留一项权限', 'warning');
+        return;
+      }
+      window.BESTADS_API_STORE.updatePermissions(apiModalCustomerId, permissions);
+      showNotification('API 权限已更新', 'success');
+      renderTable();
+    }
+
+    function confirmCustomerApiDisable() {
+      window.BESTADS_API_STORE.setEnabled(apiModalCustomerId, false);
+      showNotification('API 已停用', 'success');
+      apiModalMode = 'view';
+      renderCustomerApiModal();
+      renderTable();
+    }
+
+    function confirmCustomerApiRestore() {
+      window.BESTADS_API_STORE.setEnabled(apiModalCustomerId, true);
+      showNotification('API 已恢复', 'success');
+      apiModalMode = 'view';
+      renderCustomerApiModal();
+      renderTable();
     }

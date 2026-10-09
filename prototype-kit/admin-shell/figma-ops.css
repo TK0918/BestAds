@@ -374,8 +374,8 @@ body.figma-ops-page .admin-sort-header.is-right {
 }
 
 body.figma-ops-page .admin-operation-col {
-  width: 280px;
-  min-width: 280px;
+  width: 420px;
+  min-width: 420px;
   padding-left: 16px !important;
   padding-right: 16px !important;
   background: var(--ops-surface);
@@ -410,6 +410,52 @@ body.figma-ops-page .admin-operation-col button:hover,
 body.figma-ops-page .admin-operation-col a:hover {
   color: var(--ops-primary);
   text-decoration: underline;
+}
+
+body.figma-ops-page .admin-operation-col button.api-status,
+body.figma-ops-page .admin-operation-col button.api-status:hover {
+  flex: 0 0 auto;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 22px;
+  text-decoration: none;
+}
+
+body.figma-ops-page .admin-operation-col button.api-status.is-none,
+body.figma-ops-page .admin-operation-col button.api-status.is-none:hover {
+  border: 1px solid #d9d9d9;
+  background: #fafafa;
+  color: #8c8c8c;
+}
+
+body.figma-ops-page .admin-operation-col button.api-status.is-pending,
+body.figma-ops-page .admin-operation-col button.api-status.is-pending:hover {
+  border: 1px solid #ffd591;
+  background: #fff7e6;
+  color: #d46b08;
+}
+
+body.figma-ops-page .admin-operation-col button.api-status.is-active,
+body.figma-ops-page .admin-operation-col button.api-status.is-active:hover {
+  border: 1px solid #b7eb8f;
+  background: #f6ffed;
+  color: #389e0d;
+}
+
+body.figma-ops-page .admin-operation-col button.api-status.is-disabled,
+body.figma-ops-page .admin-operation-col button.api-status.is-disabled:hover {
+  border: 1px solid #ffa39e;
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+body.figma-ops-page .admin-operation-col button.api-status.is-rejected,
+body.figma-ops-page .admin-operation-col button.api-status.is-rejected:hover {
+  border: 1px solid #ffccc7;
+  background: #fff2f0;
+  color: #cf1322;
 }
 
 body.figma-ops-page .admin-tag {
@@ -832,6 +878,24 @@ body.figma-ops-page .status-info {
   border-color: #d9d9d9;
   background: var(--ops-muted-surface);
   color: var(--ops-foreground);
+}
+
+body.figma-ops-page .source-api {
+  border-color: #91caff;
+  background: #e6f4ff;
+  color: #0958d9;
+}
+
+body.figma-ops-page .source-client {
+  border-color: #b7eb8f;
+  background: #f6ffed;
+  color: #389e0d;
+}
+
+body.figma-ops-page .source-ops {
+  border-color: #d3adf7;
+  background: #f9f0ff;
+  color: #531dab;
 }
 
 body.figma-ops-page .pagination {

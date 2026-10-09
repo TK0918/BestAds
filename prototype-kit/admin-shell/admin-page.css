@@ -190,6 +190,9 @@ body.admin-prototype-page.theme-dark {
 .status-danger { background: rgba(245, 108, 108, .14); color: var(--admin-danger); }
 .status-warning { background: rgba(215, 165, 26, .14); color: var(--admin-warning); }
 .status-info { background: rgba(0, 107, 230, .12); color: var(--admin-primary); }
+.source-api { background: #e6f4ff; color: #0958d9; }
+.source-client { background: #f6ffed; color: #389e0d; }
+.source-ops { background: #f9f0ff; color: #531dab; }
 .amount-positive { color: var(--admin-success); font-variant-numeric: tabular-nums; }
 .amount-negative { color: var(--admin-danger); font-variant-numeric: tabular-nums; }
 .amount-zero { color: var(--admin-text); font-variant-numeric: tabular-nums; }
@@ -438,6 +441,14 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .datetime-range input { flex: 1; min-width: 0; }
 .datetime-sep { color: var(--admin-muted); font-size: 12px; white-space: nowrap; }
 .field-help { margin: 5px 0 0; color: var(--admin-muted); font-size: 11px; line-height: 16px; }
+.api-permission-context { display: grid; gap: 8px; margin-top: 16px; padding: 10px 12px; border-radius: 4px; background: color-mix(in srgb, var(--admin-page-bg) 72%, var(--admin-surface)); }
+.api-permission-context div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 8px; align-items: start; }
+.api-permission-context dt { margin: 0; color: var(--admin-muted); font-size: 12px; line-height: 20px; }
+.api-permission-context dd { margin: 0; color: var(--admin-text); font-size: 13px; line-height: 20px; }
+.api-permission-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.form-field .api-permission-option { display: inline-flex; align-items: center; gap: 6px; height: 32px; margin: 0; padding: 0 12px; border: 1px solid var(--admin-border); border-radius: 4px; background: var(--admin-surface); color: var(--admin-text); font-size: 13px; line-height: 20px; white-space: nowrap; cursor: pointer; }
+.form-field .api-permission-option input { width: 14px; height: 14px; flex: 0 0 14px; margin: 0; padding: 0; border: 0; border-radius: 2px; box-shadow: none; accent-color: var(--admin-primary); }
+.form-field .api-permission-option:has(input:checked) { border-color: color-mix(in srgb, var(--admin-primary) 55%, var(--admin-border)); background: color-mix(in srgb, var(--admin-primary) 8%, var(--admin-surface)); }
 .remark-cell { display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; white-space: nowrap; }
 .drawer-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, .42); backdrop-filter: blur(3px); }
 .drawer-panel { position: fixed; top: 0; right: 0; z-index: 101; display: flex; flex-direction: column; width: min(460px, 92vw); height: 100vh; border-left: 1px solid var(--admin-border); background: var(--admin-surface); box-shadow: -12px 0 32px rgba(0, 0, 0, .18); transform: translateX(100%); transition: transform .24s ease; }

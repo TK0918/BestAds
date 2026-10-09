@@ -112,6 +112,9 @@
         permissionSettings: '设置',
         permissionReports: '报表查看'
       },
+      'api-access': {
+        title: 'API 对接'
+      },
       'auto-recharge-rules': {
         title: '自动充值设置',
         ruleName: '请输入规则名称',
@@ -242,6 +245,9 @@
         permissionUsers: 'Users',
         permissionSettings: 'Settings',
         permissionReports: 'Reports'
+      },
+      'api-access': {
+        title: 'API Access'
       },
       'auto-recharge-rules': {
         title: 'Auto Recharge',

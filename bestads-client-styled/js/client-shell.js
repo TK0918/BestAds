@@ -35,7 +35,8 @@
       id: 'settings',
       title: { 'zh-CN': '设置', 'en-US': 'Settings' },
       items: [
-        { id: 'auto-recharge-rules', label: { 'zh-CN': '自动充值设置', 'en-US': 'Auto Recharge' }, href: './auto-recharge-rules.html' }
+        { id: 'auto-recharge-rules', label: { 'zh-CN': '自动充值设置', 'en-US': 'Auto Recharge' }, href: './auto-recharge-rules.html' },
+        { id: 'api-access', label: { 'zh-CN': 'API 对接', 'en-US': 'API Access' }, href: './api-access.html' }
       ]
     }
   ];
@@ -1062,6 +1063,10 @@
   function renderPage(pageId) {
     const mount = document.getElementById('clientPageMount');
     if (!mount) return;
+    if (pageId === 'api-access') {
+      window.BESTADS_CLIENT_API?.render(mount);
+      return;
+    }
     const data = window.BESTADS_CLIENT_PAGES?.data?.[pageId];
     if (!data) return;
     if (pageId === 'operation-records') mount.innerHTML = renderOperationRecords(pageId, data);

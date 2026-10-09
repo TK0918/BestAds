@@ -3665,6 +3665,7 @@
       window.BESTADS_CLEAR_APPROVAL?.afterRender(root);
     }
     function handleRowAction(action, row) {
+      if (window.BESTADS_API_APPLICATION?.handleRowAction?.(action, row, { openModal, closeModal, showToast, render })) return;
       if (window.BESTADS_CLEAR_APPROVAL?.handleRowAction(action, row)) return;
       const tab = activeTab();
       const rebateApi = window.BESTADS_CUSTOMER_REBATE;
@@ -4082,6 +4083,11 @@
       }
     });
     document.body.addEventListener('click', event => {
+      const apiApplyAction = event.target.closest('[data-api-apply-action]');
+      if (apiApplyAction && window.BESTADS_API_APPLICATION?.handleModal) {
+        window.BESTADS_API_APPLICATION.handleModal(apiApplyAction.dataset.apiApplyAction, apiApplyAction.closest('.modal-backdrop'), { closeModal, showToast, render });
+        return;
+      }
       const downloadCsv = event.target.closest('[data-rebate-download-csv]');
       if (downloadCsv && window.BESTADS_CUSTOMER_REBATE) {
         window.BESTADS_CUSTOMER_REBATE.downloadCsv(downloadCsv.dataset.rebateOrder);

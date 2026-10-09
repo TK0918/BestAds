@@ -32,6 +32,16 @@
   const amountUsd = value => `<span class="amount-zero">${esc(value == null || value === '' ? '-' : value)} USD</span>`;
   const amountFollowAccount = value => `<span class="amount-zero">${esc(value == null || value === '' ? '-' : value)}</span><span class="muted"> 跟随账户币种</span>`;
   const person = value => `<span class="person-cell">${esc(value || '-')}</span>`;
+  const orderSource = (value, row) => {
+    if (value === '客户API' || row?.submitter === '客户API') return '客户API';
+    if (value === '运营端' || /@bestfulfill\.com|管理员|李处理|充值组|王复审|（内部）/.test(String(row?.submitter || ''))) return '运营端';
+    return value || '客户端';
+  };
+  const sourceTag = (value, row) => {
+    const text = orderSource(value, row);
+    const cls = text === '客户API' ? 'source-api' : text === '运营端' ? 'source-ops' : 'source-client';
+    return `<span class="status-tag ${cls}">${esc(text)}</span>`;
+  };
   const text = value => `<span class="wrap">${esc(value || '-')}</span>`;
   const urlLink = value => {
     const href = String(value || '').trim();
@@ -372,6 +382,7 @@
     { key: 'customerName', label: '客户名称', align: 'left', width: 180 },
     { key: 'merchantId', label: '商户ID', width: 110 },
     { key: 'submitter', label: '提交人', align: 'left', width: 220, format: person },
+    { key: 'source', label: '来源', width: 110, format: sourceTag },
     { key: 'submittedAt', label: '提交时间', width: 170, sort: true },
     { key: 'accountId', label: '广告账户ID', width: 190, sort: true },
     { key: 'accountName', label: '广告账户名称', align: 'left', width: 240 },
@@ -423,7 +434,7 @@
     ],
     filterClass: 'cols-5',
     selectable: true,
-    tableMinWidth: kind === '充值' ? (media ? 3300 : 3200) : kind === '减款' ? 2730 : (media ? 3030 : 2930),
+    tableMinWidth: kind === '充值' ? (media ? 3410 : 3310) : kind === '减款' ? 2840 : (media ? 3140 : 3040),
     opsWidth: kind === '充值' ? 180 : 260,
     columns: orderColumns(kind, media, options),
     rows,
@@ -548,6 +559,8 @@
 
   const rechargeRows = {
     fb: [
+      { orderId: 'AD20261009091500001', customerId: '102', customerName: 'adstest', merchantId: '1128', submitter: '客户API', source: '客户API', submittedAt: '2026-10-09 09:15:02', accountId: '821285917232112', accountName: 'MX-F-12-2566', bindCard: '否', card: '-', currency: 'USD', agent: 'MeetSocial', amount: '100', preTaxRate: '0.00%', preTaxFee: '0', accountFeeRate: '3.00%', agentFeeRate: '0.00%', totalFee: '3', companyFee: '3', agentFee: '0', actualAmount: '97', walletCurrency: 'USD', walletAmount: '100', status: '完成', completedAt: '2026-10-09 09:16:40', remark: '客户通过 API 发起', ops: ['标记状态'] },
+      { orderId: 'AD20261009103000001', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', submitter: '谭英就(tanyingjiu@bestfulfill.com)', source: '运营端', submittedAt: '2026-10-09 10:30:16', accountId: '1292368695505904', accountName: 'MX-G-12-620', bindCard: '否', card: '-', currency: 'USD', agent: 'Gimc', amount: '200', preTaxRate: '0.00%', preTaxFee: '0', accountFeeRate: '3.00%', agentFeeRate: '0.00%', totalFee: '6', companyFee: '6', agentFee: '0', actualAmount: '194', walletCurrency: 'USD', walletAmount: '200', status: '完成', completedAt: '2026-10-09 10:32:05', remark: '运营在运营端发起', ops: ['标记状态'] },
       { orderId: 'AD-OPEN-AO20260812002-01', customerId: '2688', customerName: '测试用户_1777106273', merchantId: '11894', submitter: '系统-开户首充', submittedAt: '2026-08-12 11:08:50', accountId: 'PENDING-AO20260812002-01', accountName: '开户首充（待绑定账户）', bindCard: '否', card: '-', currency: 'USD', agent: 'Madhouse', amount: '550', preTaxRate: '-', preTaxFee: '-', accountFeeRate: '-', agentFeeRate: '-', totalFee: '-', companyFee: '-', agentFee: '-', actualAmount: '-', walletCurrency: 'USD', walletAmount: '550', status: '充值中', completedAt: '-', remark: '开户首充，钱包已扣，待绑定广告账户', ops: ['标记状态'] },
       { orderId: 'AD-OPEN-AO20260811005-01', customerId: '2658', customerName: '测试何', merchantId: '13328', submitter: '系统-开户首充', submittedAt: '2026-08-11 09:33:40', accountId: '1002116215352952', accountName: 'Oliva-Amsterdam', bindCard: '否', card: '-', currency: 'EUR', agent: 'Panda', amount: '650', preTaxRate: '0.00%', preTaxFee: '0', accountFeeRate: '3.00%', agentFeeRate: '0.00%', totalFee: '19.50', companyFee: '19.50', agentFee: '0', actualAmount: '630.50', walletCurrency: 'USD', walletAmount: '650', status: '完成', completedAt: '2026-08-11 10:02:18', remark: '开户成功后补账户 ID、服务费率和预收税率，系统已发起充值', ops: ['标记状态'] },
       { orderId: 'AD20260808104110277646364', customerId: '4770', customerName: '-', merchantId: '17794', submitter: 'Hiroto', submittedAt: '2026-08-08 10:41:10', accountId: '27648062301520359', accountName: '#6775 - hanaleave 261 - PP - RHKA', bindCard: '否', card: '-', currency: 'USD', agent: 'Rockads', amount: '200', preTaxRate: '-', preTaxFee: '-', accountFeeRate: '3.00%', agentFeeRate: '1.00%', totalFee: '6', companyFee: '4', agentFee: '2', actualAmount: '194', walletCurrency: 'USD', walletAmount: '200', status: '完成', completedAt: '2026-08-08 10:41:13', remark: '-', ops: ['标记状态', '重试', '人工取消'] },
@@ -568,6 +581,7 @@
 
   const subtractionRows = {
     fb: [
+      { orderId: 'AD20261009110200001', customerId: '102', customerName: 'adstest', merchantId: '1128', submitter: '客户API', source: '客户API', submittedAt: '2026-10-09 11:02:18', accountId: '907805824316408', accountName: 'MX-B-08-729', bindCard: '否', cardSnapshot: '-', currency: 'USD', agent: 'Madhouse', amount: '40', actualAmount: '-', walletCurrency: 'USD', walletAmount: '0', status: '处理中', completedAt: '-', approvalStage: '-', processor: '-', remark: '客户通过 API 发起', ops: ['媒体已完成', '标记媒体失败'] },
       { orderId: 'AD20260922081200001', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', submitter: '管理员', submittedAt: '2026-09-22 08:12:00', accountId: '1292368695505904', accountName: 'MX-G-12-620', bindCard: '否', cardSnapshot: '-', currency: 'USD', agent: 'Gimc', amount: '80', actualAmount: '-', walletCurrency: 'USD', walletAmount: '0', status: '待处理', completedAt: '-', approvalStage: '-', processor: '-', remark: '减款样例：基准为申请金额 80。按单点「媒体已完成」，必传截图。', ops: ['媒体已完成', '标记媒体失败'] },
       { orderId: 'AD20260922081200002', customerId: '102', customerName: 'adstest', merchantId: '1128', submitter: '管理员', submittedAt: '2026-09-22 08:20:11', accountId: '821285917232112', accountName: 'MX-F-12-2566', bindCard: '否', cardSnapshot: '-', currency: 'USD', agent: 'MeetSocial', amount: '6,800.00', actualAmount: '6,800.00', walletCurrency: 'USD', walletAmount: '0', status: '待终审', completedAt: '-', approvalStage: '待终审', processor: '李处理', reviewer: '王复审', remark: '减款 ≥5000 USD，复审已通过，待财务终审，尚未加钱包。', ops: ['飞书终审', '查看审批'], approval: { kind: '减款', action: '媒体已完成', orderId: 'AD20260922081200002', accountId: '821285917232112', accountName: 'MX-F-12-2566', customerName: 'adstest', merchantId: '1128', agent: 'MeetSocial', currency: 'USD', inputAmount: 6800, baseLabel: '申请减款金额', base: 6800, usd: 6800, ratio: 1, needFinal: true, finalReason: '单笔折 USD 6800.00 ≥ 5000', ocrState: 'matched', ocrAmount: 6800, fileName: 'agency-reduce.png', processor: '李处理' } },
       { orderId: 'AD20260809091211234560001', customerId: '102', customerName: 'adstest', merchantId: '1128', submitter: '管理员', submittedAt: '2026-08-09 09:12:11', accountId: '907805824316408', accountName: 'MX-B-08-729', bindCard: '是', cardSnapshot: 'c_3bpoltc2u7sf1(7209)｜已验卡(未回收)｜可用 498.00 USD', otherCards: '其他关联卡：1. c_w9x8y7z6v5u4t3(5678)｜已回收｜可用 200.00 USD', currency: 'USD', agent: 'Madhouse', amount: '120', actualAmount: '-', walletCurrency: 'USD', walletAmount: '120', status: '待处理', completedAt: '-', remark: '待媒体减款后确认钱包加回金额；飞书通知需带其他关联卡', ops: ['查看详情', '媒体已完成', '标记媒体失败', '重试', '忽略并完成'] },
@@ -587,6 +601,7 @@
 
   const clearRows = {
     fb: [
+      { orderId: 'AD20261009141800001', customerId: '102', customerName: 'adstest', merchantId: '1128', submitter: '客户API', source: '客户API', submittedAt: '2026-10-09 14:18:06', accountId: '907805824316408', accountName: 'MX-B-08-729', bindCard: '否', cardSnapshot: '-', currency: 'USD', agent: 'Madhouse', amount: '88.00', walletCurrency: 'USD', walletAmount: '0', status: '处理中', completedAt: '-', actualDate: '-', approvalStage: '-', processor: '-', remark: '客户通过 API 发起', ops: ['处理成功', '媒体已完成', '标记媒体失败'] },
       { orderId: 'AD202605011372535951555066', customerId: '5201', customerName: '事故客户', merchantId: '18888', submitter: '充值组', submittedAt: '2026-05-01 11:18:02', accountId: '1372535951555066', accountName: 'INCIDENT-CLEAR-01', bindCard: '否', cardSnapshot: '-', currency: 'USD', agent: 'Gimc', amount: '340.14', walletCurrency: 'USD', walletAmount: '0', status: '待处理', completedAt: '-', actualDate: '-', approvalStage: '-', processor: '-', ocrMode: 'base', remark: '事故对照：基准 340.14。默认识别为基准。若输入 34014，识别不一致只作参考，仍可交飞书；倍率 ≥ 2 进终审。', ops: ['处理成功', '媒体已完成', '标记媒体失败'] },
       { orderId: 'AD20260922084900010', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', submitter: '管理员', submittedAt: '2026-09-22 08:49:00', accountId: 'ACCT-10X-4999', accountName: 'RATIO-10X-01', bindCard: '否', cardSnapshot: '-', currency: 'USD', agent: 'Madhouse', amount: '49.99', walletCurrency: 'USD', walletAmount: '0', status: '待处理', completedAt: '-', actualDate: '-', approvalStage: '-', processor: '-', ocrMode: 'input', remark: '倍率样例：基准 49.99。识别选「与录入一致」后输入 4999，可提交并进终审。', ops: ['处理成功', '媒体已完成', '标记媒体失败'] },
       { orderId: 'AD20260922084900011', customerId: '3472', customerName: 'test金额变动', merchantId: '14229', submitter: '管理员', submittedAt: '2026-09-22 08:51:00', accountId: '1349733090150935', accountName: 'IT - TEST -2M', bindCard: '否', cardSnapshot: '-', currency: 'USD', agent: 'Gimc', amount: '340.14', walletCurrency: 'USD', walletAmount: '0', status: '待处理', completedAt: '-', actualDate: '-', approvalStage: '-', processor: '-', ocrMode: 'base', remark: '正常尾差：输入 338.20，识别为 340.14 不拦截。偏差小于 5%、未达 2 倍，只走复审。', ops: ['处理成功', '媒体已完成', '标记媒体失败'] },

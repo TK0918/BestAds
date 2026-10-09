@@ -62,7 +62,7 @@
     .admin-command-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px 10px; }
     .admin-command-group { display: flex; flex-wrap: wrap; gap: 8px; }
     .admin-grid-scroll { overflow: auto; max-height: calc(100vh - 330px); }
-    .admin-grid-table { width: 2640px; min-width: 2640px; border-collapse: separate; border-spacing: 0; color: var(--admin-secondary); font-size: 13px; }
+    .admin-grid-table { width: 2780px; min-width: 2780px; border-collapse: separate; border-spacing: 0; color: var(--admin-secondary); font-size: 13px; }
     .admin-grid-table th, .admin-grid-table td { height: 64px; padding: 0 10px; border-bottom: 1px solid var(--admin-border); text-align: center; vertical-align: middle; white-space: nowrap; }
     .admin-grid-table th { height: 40px; background: #f4f4f5; color: var(--admin-secondary); font-size: 13px; font-weight: 700; }
     .admin-grid-table td { color: var(--admin-text); }
@@ -73,12 +73,19 @@
     .admin-amount--positive { color: #67c23a !important; }
     .admin-amount--negative { color: #f56c6c !important; }
     .admin-check-col { width: 50px; min-width: 50px; text-align: center !important; }
-    .admin-operation-col { position: sticky; right: 0; z-index: 2; width: 280px; min-width: 280px; background: #fff; box-shadow: -7px 0 12px rgba(15, 23, 42, .07); text-align: center !important; white-space: normal !important; }
+    .admin-operation-col { position: sticky; right: 0; z-index: 2; width: 420px; min-width: 420px; background: #fff; box-shadow: -7px 0 12px rgba(15, 23, 42, .07); text-align: center !important; white-space: normal !important; }
     .admin-grid-table th.admin-operation-col { background: #f4f4f5; }
     .admin-grid-table tbody tr:hover td.admin-operation-col { background: #f8fbff; }
     .admin-operation-col > div { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 6px 14px; }
     .admin-operation-col button, .admin-operation-col a { margin: 0; padding: 0; border: 0; background: transparent; color: var(--admin-primary); font-size: 12px; text-decoration: none; white-space: nowrap; cursor: pointer; }
     .admin-operation-col button:hover, .admin-operation-col a:hover { color: #005bc4; text-decoration: underline; }
+    .admin-operation-col button.api-status { flex: 0 0 auto; height: 24px; padding: 0 8px; border: 1px solid transparent; border-radius: 4px; font-size: 12px; line-height: 22px; text-decoration: none; }
+    .admin-operation-col button.api-status:hover { text-decoration: none; }
+    .admin-operation-col button.api-status.is-none, .admin-operation-col button.api-status.is-none:hover { border-color: #d9d9d9; background: #fafafa; color: #8c8c8c; }
+    .admin-operation-col button.api-status.is-pending, .admin-operation-col button.api-status.is-pending:hover { border-color: #ffd591; background: #fff7e6; color: #d46b08; }
+    .admin-operation-col button.api-status.is-active, .admin-operation-col button.api-status.is-active:hover { border-color: #b7eb8f; background: #f6ffed; color: #389e0d; }
+    .admin-operation-col button.api-status.is-disabled, .admin-operation-col button.api-status.is-disabled:hover { border-color: #ffa39e; background: #fff1f0; color: #cf1322; }
+    .admin-operation-col button.api-status.is-rejected, .admin-operation-col button.api-status.is-rejected:hover { border-color: #ffccc7; background: #fff2f0; color: #cf1322; }
     .admin-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid transparent; border-radius: 4px; font-size: 12px; }
     .admin-tag--success { border-color: #dff7e6; background: #f0fff3; color: #57d188; }
     .admin-tag--danger { border-color: #ffccc7; background: #fff2f0; color: #cf1322; }

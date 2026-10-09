@@ -20,6 +20,7 @@
       icon: 'users',
       items: [
         page('customer-list', '客户管理', 'main-functions/customer-management.html', 'users'),
+        page('api-application', 'API 申请', 'main-functions/api-application.html', 'key'),
         page('customer-sub-account', '客户子账号管理', 'main-functions/customer-sub-account-management.html', 'user-friends'),
         page('agent-management', '代理管理', 'main-functions/agent_management.html', 'user-shield'),
         page('agency-recon', '代理+我司数据核对', 'main-functions/agency-recon.html', 'file-invoice-dollar'),
@@ -166,6 +167,7 @@
         page('customer-lifecycle-report', '客户生命周期', 'reports/customer-lifecycle-report.html', 'user-clock'),
         page('non-api-spend', '非接口方式获取消耗', 'reports/manual-consume-upload.html', 'upload'),
         page('ad-daily-report', '广告日报', 'reports/ad-daily-report.html', 'calendar-day'),
+        page('api-usage', 'API用量统计', 'reports/api-usage.html', 'chart-line'),
       ]
     },
     {
@@ -195,5 +197,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-10-08.2';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-10-10.1';
 })();

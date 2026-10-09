@@ -1,0 +1,122 @@
+.api-usage-page .api-usage-note {
+  margin: 12px 0 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.api-usage-page .api-usage-card {
+  margin-top: 16px;
+}
+
+.api-usage-page .api-usage-card__tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+}
+
+.api-usage-page .api-usage-card__tools .filter-field {
+  flex: 1;
+  min-width: 220px;
+}
+
+.api-usage-page .api-usage-card__tools .filter-field label {
+  margin-bottom: 0;
+}
+
+.api-usage-page .api-usage-hint {
+  margin: 0 0 12px;
+  color: var(--admin-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.api-usage-page .api-usage-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.api-usage-page .api-usage-legend button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.api-usage-page .api-usage-legend button i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.api-usage-page .api-usage-legend button.is-off {
+  color: var(--admin-muted);
+  background: color-mix(in srgb, var(--admin-page-bg) 70%, var(--admin-surface));
+}
+
+.api-usage-page .api-usage-legend button.is-off i {
+  background: #d9d9d9 !important;
+}
+
+.api-usage-page .api-usage-plot {
+  position: relative;
+  width: 100%;
+  height: clamp(260px, 36vw, 420px);
+}
+
+.api-usage-page .api-usage-plot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.api-usage-page .api-usage-plot .axis {
+  fill: var(--admin-muted);
+  font-size: 12px;
+}
+
+.api-usage-page .api-usage-plot .grid {
+  stroke: var(--admin-border);
+  stroke-width: 1;
+}
+
+.api-usage-page .api-usage-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.api-usage-page .api-usage-tooltip {
+  position: absolute;
+  z-index: 2;
+  display: none;
+  max-width: 240px;
+  padding: 8px 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  background: var(--admin-surface);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+  color: var(--admin-text);
+  font-size: 12px;
+  line-height: 18px;
+  pointer-events: none;
+}
+
+.api-usage-page .api-usage-tooltip b {
+  display: block;
+  margin-bottom: 4px;
+}
