@@ -113,6 +113,7 @@ body.figma-ops-page #sidebar .admin-shell-item .admin-shell-badge {
   font-weight: 600;
   line-height: 18px;
   text-align: center;
+  cursor: pointer;
 }
 
 body.figma-ops-page #sidebar .admin-shell-item.is-active .admin-shell-badge {

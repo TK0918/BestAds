@@ -144,7 +144,10 @@
       items: [
         page('balance-monitor-auto-recharge', '余额监控&自动充值', 'auto-recharge/notifications.html', 'bell'),
         page('account-status-monitor', '账户封停监控', 'auto-recharge/account-status-monitor.html', 'bell'),
-        page('balance-day-over-day-report', '账户余额日环比', 'auto-recharge/balance-day-over-day-report.html', 'chart-line')
+        page('balance-day-over-day-report', '账户余额日环比', 'auto-recharge/balance-day-over-day-report.html', 'chart-line'),
+        page('large-recharge-monitor', '账户大额充值监控', 'auto-recharge/large-recharge-monitor.html', 'dollar-sign'),
+        page('landing-url-monitor', '投放URL监控', 'auto-recharge/landing-url-monitor.html', 'link', { badge: 1, badgeQuery: 'feedback=待跟进' }),
+        page('bm-admin-monitor', 'BM管理员监控', 'auto-recharge/bm-admin-monitor.html', 'user-shield', { badge: 2, badgeQuery: 'feedback=待跟进' })
       ]
     },
     {
@@ -197,5 +200,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-10-10.1';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-10-13.1';
 })();

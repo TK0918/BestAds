@@ -731,6 +731,7 @@
     if (modal?.type === 'monitor-follow') return monitorFollowModal(modal, row);
     if (modal?.type === 'monitor-history') return monitorHistoryModal(modal, row);
     if (modal?.type === 'monitor-alert-preview') return monitorAlertPreviewModal(modal);
+    if (modal?.type === 'risk-groups' && window.BESTADS_RISK_MONITOR?.renderModal) return window.BESTADS_RISK_MONITOR.renderModal(modal);
     if (modal?.type === 'card-secret') return cardSecretModal(modal, row);
     if (modal?.type === 'opening-bd-confirm') return openingBdConfirmModal(modal, row);
     if (modal?.type === 'opening-select-agent') return openingSelectAgentModal(modal, row);
@@ -2044,7 +2045,7 @@
     const hashTab = String(window.location.hash || '').replace('#', '');
     if (tabs.some(item => item.id === hashTab)) state.tab = hashTab;
     tabs.forEach(tab => {
-      state.values[tab.id] = Object.assign({}, tab.defaultFilters || {});
+      state.values[tab.id] = Object.assign({}, tab.defaultFilters || {}, tab.initialFilters || {});
     });
     runtimeState = state;
 
@@ -3703,6 +3704,9 @@
       if (window.BESTADS_AGENCY_RECON?.handleRowAction?.(action, row, {
         tabs, config, state, render, openModal, showToast, closeModal
       })) return;
+      if (window.BESTADS_RISK_MONITOR?.handleRowAction?.(action, row, {
+        tabs, config, state, render, openModal, showToast, closeModal
+      })) return;
       if (action === '删除' && tab.id === 'ratio-account') {
         state.processingRow = row;
         openModal(confirmModal('删除账户预收比例', `删除后回退客户规则（或未配置）。不预收请设显式 0%，不要用删除。<br><br>广告账户 <strong>${esc(row.accountId || '-')}</strong> 当前来源：${esc(row.source || '-')}。`, true, 'location-fee-row-delete', { size: 'md' }));
@@ -4014,6 +4018,15 @@
           openModal(confirmModal(actionLabel, `将对已选 <strong>${count}</strong> 条记录执行“${esc(actionLabel)}”。提交前请确认影响范围。`, false));
           return;
         }
+        if (actionButton.dataset.action === 'batch-feedback' && window.BESTADS_RISK_MONITOR?.prepareBatchFeedback) {
+          const picked = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
+          const prepared = window.BESTADS_RISK_MONITOR.prepareBatchFeedback({ selectedRows: picked, state, showToast });
+          if (prepared === 'open') {
+            const batchModal = tab.modals?.['批量反馈'] || config.modals?.['批量反馈'];
+            openModal(formModal({ ...batchModal, notice: `将对已选 ${picked.length} 条记录填写同一条反馈。` }, {}));
+          }
+          if (prepared) return;
+        }
         if (isGenericConfirmModal(modal?.type)) {
           const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
           const mix = tab.confirmMediaMix && /处理失败/.test(actionLabel) ? mediaMixSummary(selectedRows) : '';
@@ -4021,6 +4034,10 @@
           openModal(confirmModal(modalTextWithSelection(modal.title, tab), `${modalTextWithSelection(modal.copy, tab)}${extra}`, modal.danger, modal.type));
         }
         else if (modal) {
+          if (window.BESTADS_RISK_MONITOR?.isRiskPage?.()) {
+            state.processingRow = null;
+            state.processingAction = actionLabel;
+          }
           const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
           const shouldMix = tab.confirmMediaMix && /人工处理/.test(actionLabel);
           const mix = shouldMix ? mediaMixSummary(selectedRows) : '';
@@ -4234,6 +4251,9 @@
         const backdrop = event.target.closest('.modal-backdrop');
         if (window.BESTADS_CLEAR_APPROVAL?.handleModalSubmit(backdrop)) return;
         if (window.BESTADS_AGENCY_RECON?.handleSubmit?.(backdrop, {
+          tabs, config, state, render, openModal, showToast, closeModal
+        })) return;
+        if (window.BESTADS_RISK_MONITOR?.handleSubmit?.(backdrop, {
           tabs, config, state, render, openModal, showToast, closeModal
         })) return;
         const tab = activeTab();
