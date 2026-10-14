@@ -1,5 +1,5 @@
 /*
- * 代理+我司数据核对（第一期）：按完成日 + 广告账户对比净充值。
+ * 代理+我司数据核对（第一期）：按创建日 + 广告账户对比净充值。
  * 只注册给 admin-module-page.js；工单与明细交互由 BESTADS_AGENCY_RECON 提供。
  */
 (function () {
@@ -29,7 +29,6 @@
 
   const yesterday = '2026-10-07';
   const currentUser = '财务';
-  const tokenOwners = ['业务-李敏', '业务-王凯', '业务-周宁'];
   const managedAgents = [
     { name: 'txm-test', englishName: 'txm-test' },
     { name: 'Rockads', englishName: 'Rockads' },
@@ -230,17 +229,37 @@
     return text === '-' ? '<span class="muted">-</span>' : `<span class="wrap">${esc(text)}</span>`;
   }
 
+  function parseAmount(value) {
+    const number = Number(String(value == null || value === '' ? '0' : value).replace(/,/g, ''));
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function netFromLines(lines) {
+    return (lines || []).reduce((sum, item) => {
+      const amount = parseAmount(item.amount);
+      if (item.type === '充值') return sum + amount;
+      if (item.type === '清零' || item.type === '减款') return sum - amount;
+      return sum;
+    }, 0);
+  }
+
+  function formatNet(value) {
+    const text = value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const cls = value > 0 ? 'amount-positive' : value < 0 ? 'amount-negative' : 'amount-zero';
+    return `<span class="${cls}" style="font-weight:700">${text}</span>`;
+  }
+
   function linesTable(title, lines) {
-    if (!lines || !lines.length) {
-      return `<div class="notice" style="margin-top:12px">${esc(title)}：无</div>`;
-    }
-    const rows = lines.map(item => `<tr><td>${esc(item.type)}</td><td class="num">${esc(item.amount)}</td><td>${esc(item.time)}</td><td>${esc(item.orderId || '-')}</td></tr>`).join('');
-    return `<h3 class="admin-card__title" style="margin:16px 0 8px">${esc(title)}</h3><div class="table-scroll"><table class="admin-table"><thead><tr><th>类型</th><th>金额</th><th>时间</th><th>系统单号</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    const items = lines || [];
+    const rows = items.map(item => `<tr><td>${esc(item.type)}</td><td class="num">${esc(item.amount)}</td><td>${esc(item.time)}</td><td class="left">${esc(item.orderId || '-')}</td></tr>`).join('');
+    const empty = items.length ? '' : '<tr><td colspan="4" class="muted">无</td></tr>';
+    const footer = `<tr><td style="font-weight:700">净充值</td><td class="num">${formatNet(netFromLines(items))}</td><td></td><td></td></tr>`;
+    return `<h3 class="admin-card__title" style="margin:16px 0 8px">${esc(title)}</h3><div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:0"><colgroup><col style="width:88px"><col style="width:128px"><col style="width:180px"><col></colgroup><thead><tr><th>类型</th><th class="num">金额</th><th>时间</th><th class="left">系统单号</th></tr></thead><tbody>${rows}${empty}</tbody><tfoot>${footer}</tfoot></table></div>`;
   }
 
   function netPair(row) {
     return [
-      ['完成日', row.bizDate],
+      ['创建日', row.bizDate],
       ['广告账户ID', row.accountId],
       ['商户ID', row.merchantId],
       ['客户名称', row.customerName],
@@ -262,22 +281,33 @@
   }
 
   function createTicketHtml(row) {
-    return `<div class="modal-backdrop" data-agency-recon-create-ticket><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">发起工单</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body"><div class="notice">将冻结此时净额和明细。之后代理数据再变，不改这张单。同一广告账户 + 同一完成日全期只有一张。</div>${grid(netPair(row))}${linesTable('将写入快照的代理流水', row.agencyLines)}${linesTable('将写入快照的我司完成单', row.systemLines)}</div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认发起</button></div></section></div>`;
+    return `<div class="modal-backdrop" data-agency-recon-create-ticket><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">发起工单</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body"><div class="notice">将冻结此时净额和明细。之后代理数据再变，不改这张单。同一广告账户 + 同一创建日全期只有一张。</div>${grid(netPair(row))}${linesTable('将写入快照的代理流水', row.agencyLines)}${linesTable('将写入快照的我司完成单', row.systemLines)}</div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认发起</button></div></section></div>`;
+  }
+
+  function updateFlag(currentValue, snapValue) {
+    const changed = parseAmount(currentValue) !== parseAmount(snapValue);
+    return changed
+      ? '<span class="amount-negative" style="font-weight:700">(有更新)</span>'
+      : '<span class="muted">(无更新)</span>';
+  }
+
+  function latestBlock(ticket, current) {
+    if (!current) {
+      return '<div class="notice" style="margin-top:12px">找不到当前对比行。</div>';
+    }
+    return `<div style="margin-top:16px"><h3 class="admin-card__title">最新数据</h3><p style="margin:8px 0">代理数据净充值：${money(current.agencyNet)} ${updateFlag(current.agencyNet, ticket.snapAgencyNet)}</p><p style="margin:8px 0">我司数据净充值：${money(current.systemNet)} ${updateFlag(current.systemNet, ticket.snapSystemNet)}</p></div>`;
   }
 
   function ticketHtml(ticket, current) {
-    const stillDiff = current && current.consistent === '不一致' ? '仍差' : '已平';
-    const currentLine = current
-      ? `<div class="notice" style="margin-top:12px">当前最新：代理 ${esc(current.agencyNet)} / 我司 ${esc(current.systemNet)} / 差额 ${esc(current.diff)}，${esc(stillDiff)}。只读对照，不改工单结论。</div>`
-      : '<div class="notice" style="margin-top:12px">找不到当前对比行。</div>';
+    const currentLine = latestBlock(ticket, current);
     const closedNotice = ticket.ticketStatus === '已关闭'
-      ? '<div class="notice">该完成日该账户已有工单且已关闭。若净额又不一致，继续在本单跟进，不另开。</div>'
+      ? '<div class="notice">该创建日该账户已有工单且已关闭。若净额又不一致，继续在本单跟进，不另开。</div>'
       : '';
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">工单 ${esc(ticket.ticketId)}</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body">${closedNotice}<dl class="detail-grid"><div><dt>状态</dt><dd>${esc(ticket.ticketStatus)}</dd></div><div><dt>完成日</dt><dd>${esc(ticket.bizDate)}</dd></div><div><dt>广告账户ID</dt><dd>${esc(ticket.accountId)}</dd></div><div><dt>商户ID</dt><dd>${esc(ticket.merchantId)}</dd></div><div><dt>客户名称</dt><dd>${esc(ticket.customerName)}</dd></div><div><dt>归类代理</dt><dd>${esc(ticket.agency)}</dd></div><div><dt>快照代理净额</dt><dd>${esc(ticket.snapAgencyNet)}</dd></div><div><dt>快照我司净额</dt><dd>${esc(ticket.snapSystemNet)}</dd></div><div><dt>快照差额</dt><dd>${esc(ticket.snapDiff)}</dd></div><div><dt>发起时间</dt><dd>${esc(ticket.createdAt || '-')}</dd></div><div><dt>开始处理时间</dt><dd>${esc(ticket.startedAt || '-')}</dd></div><div><dt>开始处理人</dt><dd>${esc(ticket.startedBy || '-')}</dd></div><div><dt>关闭时间</dt><dd>${esc(ticket.closedAt || '-')}</dd></div><div><dt>关闭人</dt><dd>${esc(ticket.closedBy || '-')}</dd></div><div><dt>关闭备注</dt><dd>${esc(ticket.closeRemark || '-')}</dd></div></dl>${currentLine}${linesTable('快照：代理流水', ticket.snapAgencyLines)}${linesTable('快照：我司完成单', ticket.snapSystemLines)}</div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">工单 ${esc(ticket.ticketId)}</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body">${closedNotice}<dl class="detail-grid"><div><dt>状态</dt><dd>${esc(ticket.ticketStatus)}</dd></div><div><dt>创建日</dt><dd>${esc(ticket.bizDate)}</dd></div><div><dt>广告账户ID</dt><dd>${esc(ticket.accountId)}</dd></div><div><dt>商户ID</dt><dd>${esc(ticket.merchantId)}</dd></div><div><dt>客户名称</dt><dd>${esc(ticket.customerName)}</dd></div><div><dt>归类代理</dt><dd>${esc(ticket.agency)}</dd></div><div><dt>快照代理净额</dt><dd>${esc(ticket.snapAgencyNet)}</dd></div><div><dt>快照我司净额</dt><dd>${esc(ticket.snapSystemNet)}</dd></div><div><dt>快照差额</dt><dd>${esc(ticket.snapDiff)}</dd></div><div><dt>发起时间</dt><dd>${esc(ticket.createdAt || '-')}</dd></div><div><dt>开始处理时间</dt><dd>${esc(ticket.startedAt || '-')}</dd></div><div><dt>开始处理人</dt><dd>${esc(ticket.startedBy || '-')}</dd></div><div><dt>关闭时间</dt><dd>${esc(ticket.closedAt || '-')}</dd></div><div><dt>关闭人</dt><dd>${esc(ticket.closedBy || '-')}</dd></div><div><dt>关闭备注</dt><dd>${esc(ticket.closeRemark || '-')}</dd></div></dl>${currentLine}${linesTable('快照：代理流水', ticket.snapAgencyLines)}${linesTable('快照：我司完成单', ticket.snapSystemLines)}</div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>知道了</button></div></section></div>`;
   }
 
   function closeTicketHtml(row) {
-    return `<div class="modal-backdrop" data-agency-recon-close-ticket><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">关闭工单</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body"><div class="notice">关闭后该账户该完成日不再另开新单。之后再差，回本单跟进。</div><dl class="detail-grid"><div><dt>工单号</dt><dd>${esc(row.ticketId)}</dd></div><div><dt>完成日</dt><dd>${esc(row.bizDate)}</dd></div><div><dt>广告账户ID</dt><dd>${esc(row.accountId)}</dd></div><div><dt>快照差额</dt><dd>${esc(row.snapDiff)}</dd></div></dl><div class="form-grid" style="margin-top:12px"><div class="form-field full"><label>关闭备注</label><textarea name="closeRemark" rows="4" placeholder="可记录核对结论、已做处理。非必填。"></textarea><p class="field-help">非必填。例如：已在代理后台补单，或确认差额为手续费后关闭。</p></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认关闭</button></div></section></div>`;
+    return `<div class="modal-backdrop" data-agency-recon-close-ticket><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">关闭工单</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body"><div class="notice">关闭后该账户该创建日不再另开新单。之后再差，回本单跟进。</div><dl class="detail-grid"><div><dt>工单号</dt><dd>${esc(row.ticketId)}</dd></div><div><dt>创建日</dt><dd>${esc(row.bizDate)}</dd></div><div><dt>广告账户ID</dt><dd>${esc(row.accountId)}</dd></div><div><dt>快照差额</dt><dd>${esc(row.snapDiff)}</dd></div></dl><div class="form-grid" style="margin-top:12px"><div class="form-field full"><label>关闭备注</label><textarea name="closeRemark" rows="4" placeholder="可记录核对结论、已做处理。非必填。"></textarea><p class="field-help">非必填。例如：已在代理后台补单，或确认差额为手续费后关闭。</p></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认关闭</button></div></section></div>`;
   }
 
   function cloneLines(lines) {
@@ -305,9 +335,9 @@
   const configs = {
     'agency-recon': {
       title: '代理+我司数据核对',
-      subtitle: '按完成日 + 广告账户对比代理与我司净充值。净额不一致才可发起工单；工单冻结当时快照。',
+      subtitle: '按创建日 + 广告账户对比代理与我司净充值。净额不一致才可发起工单；工单冻结当时快照。',
       kpis: [
-        { label: '对比行', value: '6', hint: '当前完成日区间内的账户行' },
+        { label: '对比行', value: '6', hint: '当前创建日区间内的账户行' },
         { label: '净额不一致', value: '4', hint: '差额超过最小货币单位' },
         { label: '可发起工单', value: '1', hint: '不一致且尚未有单' }
       ],
@@ -318,17 +348,17 @@
           filterClass: 'cols-5',
           defaultFilters: { bizDateStart: yesterday, bizDateEnd: yesterday },
           filters: [
-            { key: 'bizDate', label: '完成日', type: 'daterange' },
+            { key: 'bizDate', label: '创建日', type: 'daterange' },
             { key: 'agency', label: '归类代理', type: 'select', options: enabledAgencies() },
             { key: 'accountId', label: '广告账户ID', placeholder: '输入广告账户ID' },
             { key: 'consistent', label: '是否一致', type: 'select', options: ['一致', '不一致'] },
             { key: 'ticketStatus', label: '工单', type: 'select', options: ['无', '待处理', '处理中', '已关闭'] }
           ],
-          footerNote: '默认昨天。把完成日改成 2026-10-05 至 2026-10-07 可看到按天 + 账户展开的多行，不会合成一条。净额一致（含构成不同但净额相同）不能发起工单。',
+          footerNote: '默认昨天。把创建日改成 2026-10-05 至 2026-10-07 可看到按天 + 账户展开的多行，不会合成一条。净额一致（含构成不同但净额相同）不能发起工单。',
           tableMinWidth: 1880,
           opsWidth: 168,
           columns: [
-            { key: 'bizDate', label: '完成日', width: 120 },
+            { key: 'bizDate', label: '创建日', width: 120 },
             { key: 'accountId', label: '广告账户ID', align: 'left', width: 170 },
             { key: 'merchantId', label: '商户ID', format: merchant, width: 100 },
             { key: 'customerName', label: '客户名称', align: 'left', width: 180 },
@@ -345,19 +375,20 @@
         {
           id: 'tickets',
           label: '工单',
+          kpis: [],
           filterClass: 'cols-5',
           filters: [
-            { key: 'bizDate', label: '完成日', type: 'date' },
+            { key: 'bizDate', label: '创建日', type: 'date' },
             { key: 'agency', label: '归类代理', type: 'select', options: enabledAgencies() },
             { key: 'accountId', label: '广告账户ID', placeholder: '输入广告账户ID' },
             { key: 'ticketStatus', label: '状态', type: 'select', options: ['待处理', '处理中', '已关闭'] }
           ],
-          footerNote: '同一广告账户 + 同一完成日全期一张。已关闭后再差，回本单跟进。快照不随后续爬取改写。',
+          footerNote: '同一广告账户 + 同一创建日全期一张。已关闭后再差，回本单跟进。快照不随后续爬取改写。',
           tableMinWidth: 2480,
           opsWidth: 168,
           columns: [
             { key: 'ticketId', label: '工单号', align: 'left', width: 150 },
-            { key: 'bizDate', label: '完成日', width: 120 },
+            { key: 'bizDate', label: '创建日', width: 120 },
             { key: 'accountId', label: '广告账户ID', align: 'left', width: 170 },
             { key: 'merchantId', label: '商户ID', format: merchant, width: 100 },
             { key: 'customerName', label: '客户名称', align: 'left', width: 180 },
@@ -378,37 +409,32 @@
           label: '代理Token',
           kpis: [],
           filterClass: 'cols-3',
-          actions: [{ id: 'create', label: '新增归类', icon: 'plus', primary: true }],
           filters: [
             { key: 'agency', label: '归类代理', placeholder: '输入归类代理' },
             { key: 'tokenStatus', label: 'Token', type: 'select', options: ['可用', '失效', '未覆盖'] },
             { key: 'status', label: '状态', type: 'select', options: ['启用', '停用'] }
           ],
-          footerNote: '把代理管理里的代理归到同一套 token。Token 失效飞书给负责人重登，由插件更新。未覆盖表示还没有可用 token。不配时区、不配导出模板。',
-          tableMinWidth: 1680,
+          footerNote: '归类由技术新增，并与浏览器插件绑定，运营不在此新增。未覆盖表示还没有可用 token。',
+          tableMinWidth: 1180,
           opsWidth: 120,
           columns: [
             { key: 'agency', label: '归类代理', align: 'left', width: 140 },
             { key: 'agents', label: '代理', align: 'left', format: wrap, width: 200 },
             { key: 'tokenStatus', label: 'Token', format: status, width: 90 },
             { key: 'lastSuccessAt', label: '最近成功', width: 170 },
-            { key: 'coverDate', label: '覆盖完成日', width: 130 },
-            { key: 'changeFlag', label: '相对上次', format: status, width: 120 },
-            { key: 'notify', label: '飞书', width: 140 },
-            { key: 'owner', label: 'Token 负责人', width: 120 },
+            { key: 'coverDate', label: '覆盖创建日', width: 130 },
             { key: 'status', label: '状态', format: status, width: 90 }
           ],
           rows: tokenRows,
           modal: {
-            title: '新增归类',
+            title: '编辑归类',
             editTitle: '编辑归类',
             size: 'lg',
             backdropAttr: 'data-agency-recon-token-config',
-            notice: '选项来自代理管理。一个代理只能进一个归类。Token 状态由爬取结果带出，这里不能改。',
+            notice: '归类由技术新增并与插件绑定。这里只能改成员和状态。Token 状态由爬取结果带出，不能改。',
             fields: [
-              { key: 'agency', label: '归类代理', placeholder: '例如 Madhouse', help: '对比表、工单、飞书用这个名字。' },
+              { key: 'agency', label: '归类代理', placeholder: '例如 Madhouse', help: '对比表、工单用这个名字。' },
               { key: 'agents', label: '代理', control: 'multiselect', options: managedAgentOptions, join: '、', placeholder: '选择代理管理中的代理', full: true, help: '来自代理管理。中英文不同时括号内为英文名。一个代理不能同时属于两个归类。' },
-              { key: 'owner', label: 'Token 负责人', control: 'select', options: tokenOwners, placeholder: '选择负责人', required: false, help: 'Token 失效时飞书找这个人。没有 token 的归类可先不填。' },
               { key: 'status', label: '状态', control: 'select', options: ['启用', '停用'], placeholder: '选择状态' }
             ]
           }
@@ -437,7 +463,7 @@
           api.state.tab = 'tickets';
           api.render();
           api.openModal(ticketHtml(existing, findCompare(tabs, row.ticketKey)));
-          api.showToast('该账户该完成日已有工单，已打开旧单', 'info');
+          api.showToast('该账户该创建日已有工单，已打开旧单', 'info');
           return true;
         }
         api.state.processingRow = row;
@@ -496,9 +522,12 @@
         const agency = (backdrop.querySelector('[name="agency"]')?.value || '').trim();
         const agentsValue = (backdrop.querySelector('[name="agents"]')?.value || '').trim();
         const agentList = parseAgentList(agentsValue);
-        const owner = (backdrop.querySelector('[name="owner"]')?.value || '').trim();
         const status = (backdrop.querySelector('[name="status"]')?.value || '启用').trim() || '启用';
         const current = api.state.processingRow;
+        if (!current) {
+          api.showToast('归类由技术新增，运营不能在此新增', 'error');
+          return true;
+        }
         if (!agency) { api.showToast('请填写归类代理', 'error'); return true; }
         if (!agentList.length) { api.showToast('请选择至少一个代理', 'error'); return true; }
         const nameClash = (tokens.rows || []).find(item => item !== current && item.agency === agency);
@@ -516,7 +545,6 @@
         const payload = Object.assign({}, current ? {} : emptyTokenHealth(), {
           agency,
           agents: agentList.join('、'),
-          owner: owner || '-',
           status,
           ops: tokenOps(status)
         });
@@ -560,7 +588,7 @@
         return true;
       }
       if (findTicket(api.tabs, row.ticketKey)) {
-        api.showToast('该账户该完成日已有工单', 'info');
+        api.showToast('该账户该创建日已有工单', 'info');
         api.closeModal();
         return true;
       }

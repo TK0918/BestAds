@@ -1,3 +1,7 @@
+#### 2026-10-14 - V2.47 核对原型验收后推送
+
+验收后原型已更新：全部「完成日」改为「创建日」；工单 Tab 去掉 KPI；工单详情「最新数据」分行展示，有更新红色加粗；明细表底部净充值汇总行；代理 Token 去掉「新增归类」和相对上次/飞书/Token负责人列。本次只提交 `agency-recon.html` 与 `admin-agency-recon-page.js`，不混入行业报表等其它任务文件。公网地址：https://tk0918.github.io/BestAds/admin-system/main-functions/agency-recon.html
+
 #### 2026-10-14 - V2.48 IP 白名单写入 PRD 并同步飞书
 
 本地 PRD 升到 0.2。未配置白名单不能调用 API。客户端可自助增删，运营端客户管理可查看并清空。飞书 PRD 用紫色审阅痕迹同步。
