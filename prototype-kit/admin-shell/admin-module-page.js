@@ -523,7 +523,11 @@
       const selected = String(value || '').split('||').filter(Boolean);
       const selectedSet = new Set(selected);
       const buttonText = selected.length ? `${selected[0]}${selected.length > 1 ? ` +${selected.length - 1}` : ''}` : (field.placeholder || `选择${field.label}`);
-      return `<div class="filter-field filter-field--multi" data-multiselect><label>${esc(field.label)}</label><input type="hidden" data-filter="${esc(field.key)}" value="${esc(selected.join('||'))}"><button type="button" class="multi-select-trigger" data-multiselect-toggle><span data-multiselect-label>${esc(buttonText)}</span>${icon('chevron-down')}</button><div class="multi-select-menu" data-multiselect-menu>${(field.options || []).map(v => `<label class="multi-select-option"><input type="checkbox" data-multiselect-option value="${esc(v)}"${selectedSet.has(v) ? ' checked' : ''}><span>${esc(v)}</span></label>`).join('')}</div></div>`;
+      const optionItems = field.optionGroups
+        ? field.optionGroups.flatMap(group => (group.options || []).map(option => ({ value: option, parent: group.parent })))
+        : (field.options || []).map(option => ({ value: option, parent: '' }));
+      const cascade = field.dependsOn ? ` data-cascade-child="true" data-cascade-parent="${esc(field.dependsOn)}" data-placeholder="${esc(field.placeholder || `选择${field.label}`)}"` : '';
+      return `<div class="filter-field filter-field--multi" data-multiselect${cascade}><label>${esc(field.label)}</label><input type="hidden" data-filter="${esc(field.key)}" value="${esc(selected.join('||'))}"><button type="button" class="multi-select-trigger" data-multiselect-toggle><span data-multiselect-label>${esc(buttonText)}</span>${icon('chevron-down')}</button><div class="multi-select-menu" data-multiselect-menu>${optionItems.map(item => `<label class="multi-select-option"><input type="checkbox" data-multiselect-option value="${esc(item.value)}"${item.parent ? ` data-parents="${esc(item.parent)}"` : ''}${selectedSet.has(item.value) ? ' checked' : ''}><span>${esc(item.value)}</span></label>`).join('')}</div></div>`;
     }
     if (field.type === 'daterange') {
       const startKey = field.startKey || `${field.key}Start`;
@@ -537,6 +541,47 @@
     }
     if (field.type === 'textarea') return `<div class="filter-field filter-field--textarea"><label>${esc(field.label)}</label><textarea data-filter="${esc(field.key)}" placeholder="${esc(field.placeholder || '')}">${esc(value)}</textarea></div>`;
     return `<div class="filter-field"><label>${esc(field.label)}</label><input data-filter="${esc(field.key)}" type="${field.type === 'date' ? 'date' : 'text'}" placeholder="${esc(field.placeholder || '')}" value="${esc(value)}"></div>`;
+  }
+
+  function syncCascadeFilters(root) {
+    if (!root) return;
+    root.querySelectorAll('[data-cascade-child]').forEach(child => {
+      const parent = root.querySelector(`[data-filter="${CSS.escape(child.dataset.cascadeParent || '')}"]`);
+      const selectedParents = new Set(String(parent?.value || '').split('||').filter(Boolean));
+      const enabled = selectedParents.size > 0;
+      child.classList.toggle('is-disabled', !enabled);
+      const trigger = child.querySelector('[data-multiselect-toggle]');
+      if (trigger) trigger.disabled = !enabled;
+      if (!enabled) child.classList.remove('is-open');
+      const kept = [];
+      child.querySelectorAll('[data-multiselect-option]').forEach(input => {
+        const parents = String(input.dataset.parents || '').split('||').filter(Boolean);
+        const visible = enabled && parents.some(item => selectedParents.has(item));
+        const option = input.closest('.multi-select-option');
+        if (option) option.hidden = !visible;
+        if (!visible) input.checked = false;
+        if (input.checked) kept.push(input.value);
+      });
+      const hidden = child.querySelector('[data-filter]');
+      const label = child.querySelector('[data-multiselect-label]');
+      if (hidden) hidden.value = kept.join('||');
+      if (label) label.textContent = kept.length ? `${kept[0]}${kept.length > 1 ? ` +${kept.length - 1}` : ''}` : (enabled ? (child.dataset.placeholder || '选择二级标签') : '请先选择一级标签');
+    });
+  }
+
+  function syncCascadeSelect(source) {
+    if (!source?.name) return;
+    const scope = source.closest('.modal-backdrop') || document;
+    scope.querySelectorAll(`select[data-cascade-target="${CSS.escape(source.name)}"]`).forEach(target => {
+      let groups = [];
+      try { groups = JSON.parse(target.dataset.cascadeMap || '[]'); } catch (error) { groups = []; }
+      const options = groups.find(group => group.parent === source.value)?.options || [];
+      const current = target.value;
+      const stillValid = options.includes(current);
+      target.disabled = !source.value;
+      target.innerHTML = `<option value="">${source.value ? '选择二级标签' : '请先选择一级标签'}</option>${options.map(option => `<option value="${esc(option)}"${stillValid && option === current ? ' selected' : ''}>${esc(option)}</option>`).join('')}`;
+      if (!stillValid) target.value = '';
+    });
   }
 
   function parseMatchTokens(value) {
@@ -659,6 +704,11 @@
     if (control === 'textarea') return `<textarea name="${esc(field.key)}"${field.maxLength ? ` maxlength="${esc(field.maxLength)}"` : ''} placeholder="${esc(field.placeholder || '')}">${esc(value || '')}</textarea>`;
     if (control === 'readonly') return `<input name="${esc(field.key)}" type="text" value="${esc(value || field.value || '')}" readonly aria-readonly="true">`;
     if (control === 'customer-select' || control === 'role-select' || control === 'status-select') return `<select name="${esc(field.key)}"><option value="">${esc(field.placeholder || '请选择')}</option>${(field.options || []).map(option => `<option value="${esc(option)}"${String(option) === String(value || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
+    if (control === 'select' && field.dependsOn && field.optionGroups) {
+      const parentValue = row?.[field.dependsOn] || '';
+      const options = field.optionGroups.find(group => group.parent === parentValue)?.options || [];
+      return `<select name="${esc(field.key)}" data-cascade-target="${esc(field.dependsOn)}" data-cascade-map="${esc(JSON.stringify(field.optionGroups))}"${parentValue ? '' : ' disabled'}><option value="">${esc(parentValue ? (field.placeholder || '请选择') : '请先选择一级标签')}</option>${options.map(option => `<option value="${esc(option)}"${String(option) === String(value || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
+    }
     if (control === 'select') return `<select name="${esc(field.key)}"><option value="">${esc(field.placeholder || '请选择')}</option>${(field.options || []).map(option => `<option value="${esc(option)}"${String(option) === String(value || '') ? ' selected' : ''}>${esc(option)}</option>`).join('')}</select>`;
     if (control === 'multiselect') return modalMultiselectControl(field, value);
     if (control === 'budget-range') return budgetRangeControl(field, row);
@@ -2011,11 +2061,11 @@
     return charts.length ? `<section class="chart-grid">${charts.map(chartCardHtml).join('')}</section>` : '';
   }
 
-  function dimensionSelectorHtml(tab) {
+  function dimensionSelectorHtml(tab, checkedLabels) {
     const groups = tab.dimensionGroups || [];
     if (!groups.length) return '';
     const options = groups.flatMap(group => (group.options || []).map(option => ({ ...option, group })));
-    return `<section class="admin-card dimension-card"><div class="admin-card__body dimension-card__body"><div class="dimension-line"><div class="dimension-line__title">统计维度</div><div class="dimension-options">${options.map(item => `<label class="dimension-option"><input type="checkbox" name="${esc(item.group.key)}" data-dimension-group="${esc(item.group.key)}"${item.group.exclusive ? ' data-dimension-exclusive="true"' : ''} ${item.checked ? 'checked' : ''}><span>${esc(item.label)}</span></label>`).join('')}</div></div></div></section>`;
+    return `<section class="admin-card dimension-card"><div class="admin-card__body dimension-card__body"><div class="dimension-line"><div class="dimension-line__title">统计维度</div><div class="dimension-options">${options.map(item => `<label class="dimension-option"><input type="checkbox" name="${esc(item.group.key)}" data-dimension-group="${esc(item.group.key)}"${item.group.exclusive ? ' data-dimension-exclusive="true"' : ''} ${checkedLabels ? (checkedLabels.has(item.label) ? 'checked' : '') : (item.checked ? 'checked' : '')}><span>${esc(item.label)}</span></label>`).join('')}</div></div></div></section>`;
   }
 
   function renderCell(column, row) {
@@ -2078,10 +2128,22 @@
       if (!state.fields[tab.id]) state.fields[tab.id] = defaultFieldPref(tab);
       return state.fields[tab.id];
     }
+    function activeDimensionLabels(tab) {
+      if (!state.dimensions) state.dimensions = {};
+      if (!state.dimensions[tab.id]) {
+        const checked = new Set();
+        (tab.dimensionGroups || []).forEach(group => {
+          (group.options || []).forEach(option => { if (option.checked) checked.add(option.label); });
+        });
+        state.dimensions[tab.id] = checked;
+      }
+      return state.dimensions[tab.id];
+    }
     function displayedColumns(tab) {
       const pref = fieldPref(tab);
+      const activeDimensions = tab.dimensionGroups ? activeDimensionLabels(tab) : null;
       const columnsByKey = new Map((tab.columns || []).map(column => [column.key, column]));
-      return pref.order.map(key => columnsByKey.get(key)).filter(column => column && pref.visible.has(column.key));
+      return pref.order.map(key => columnsByKey.get(key)).filter(column => column && pref.visible.has(column.key) && (!column.dimension || activeDimensions?.has(column.dimension)));
     }
     function refreshFieldDrawer(tab) {
       const drawer = document.querySelector('[data-field-drawer]');
@@ -3661,14 +3723,21 @@
         root.innerHTML = window.BESTADS_CUSTOMER_REBATE.merchantDetailHtml(state.rebateMerchant, navHtml);
         return;
       }
-      root.innerHTML = `<div class="admin-page module-page">${navHtml}${kpiHtml}${filterHtml}${unmatchedIdsNotice(tab)}${dimensionSelectorHtml(tab)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
+      root.innerHTML = `<div class="admin-page module-page">${navHtml}${kpiHtml}${filterHtml}${unmatchedIdsNotice(tab)}${dimensionSelectorHtml(tab, tab.dimensionGroups ? activeDimensionLabels(tab) : null)}${chartsHtml(tab, config)}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
       root.querySelectorAll('[data-requires-selection]').forEach(button => { button.disabled = selected.size === 0; });
+      syncCascadeFilters(root);
       window.BESTADS_CLEAR_APPROVAL?.afterRender(root);
     }
     function handleRowAction(action, row) {
       if (window.BESTADS_API_APPLICATION?.handleRowAction?.(action, row, { openModal, closeModal, showToast, render })) return;
       if (window.BESTADS_CLEAR_APPROVAL?.handleRowAction(action, row)) return;
       const tab = activeTab();
+      if (tab.id === 'category-tag' && /启用|禁用/.test(action)) {
+        state.processingRow = row;
+        state.processingAction = action;
+        openModal(confirmModal(action, `确定要${esc(action)}「${esc(row.c2 || '当前标签')}」吗？`, action === '禁用'));
+        return;
+      }
       const rebateApi = window.BESTADS_CUSTOMER_REBATE;
       if (config.customerRebate && rebateApi) {
         if (action === '规则配置') {
@@ -3869,6 +3938,7 @@
       const multiToggle = event.target.closest('[data-multiselect-toggle]');
       if (multiToggle) {
         const current = multiToggle.closest('[data-multiselect]');
+        if (current?.classList.contains('is-disabled') || multiToggle.disabled) return;
         root.querySelectorAll('[data-multiselect].is-open').forEach(node => { if (node !== current) node.classList.remove('is-open'); });
         current?.classList.toggle('is-open');
         return;
@@ -4034,9 +4104,13 @@
           openModal(confirmModal(modalTextWithSelection(modal.title, tab), `${modalTextWithSelection(modal.copy, tab)}${extra}`, modal.danger, modal.type));
         }
         else if (modal) {
-          if (window.BESTADS_RISK_MONITOR?.isRiskPage?.()) {
+          if (window.BESTADS_RISK_MONITOR?.isRiskPage?.() || tab.id === 'category-tag') {
             state.processingRow = null;
             state.processingAction = actionLabel;
+          }
+          if (tab.id === 'category-tag' && actionLabel === '新增标签') {
+            const parentField = modal.fields?.find(field => field.key === 'parent');
+            if (parentField) parentField.options = (tab.rows || []).filter(item => item.c1 === '一级' && item.c4 === '启用').map(item => item.c2);
           }
           const selectedRows = Array.from(selectedSet(tab)).map(index => rows(tab)[index]).filter(Boolean);
           const shouldMix = tab.confirmMediaMix && /人工处理/.test(actionLabel);
@@ -4085,14 +4159,26 @@
         const hidden = fieldRoot.querySelector('[data-filter]');
         const label = fieldRoot.querySelector('[data-multiselect-label]');
         if (hidden) hidden.value = selected.join('||');
-        if (label) label.textContent = selected.length ? `${selected[0]}${selected.length > 1 ? ` +${selected.length - 1}` : ''}` : fieldRoot.querySelector('label')?.textContent?.replace(/^/, '选择') || '请选择';
+        if (label) label.textContent = selected.length ? `${selected[0]}${selected.length > 1 ? ` +${selected.length - 1}` : ''}` : (fieldRoot.dataset.placeholder || fieldRoot.querySelector('label')?.textContent || '请选择');
+        syncCascadeFilters(root);
         return;
       }
       const dimensionInput = event.target.closest('[data-dimension-group]');
-      if (dimensionInput?.dataset.dimensionExclusive === 'true' && dimensionInput.checked) {
-        root.querySelectorAll(`[data-dimension-group="${CSS.escape(dimensionInput.dataset.dimensionGroup)}"]`).forEach(input => {
-          if (input !== dimensionInput) input.checked = false;
+      if (dimensionInput) {
+        const tab = activeTab();
+        if (dimensionInput.dataset.dimensionExclusive === 'true' && dimensionInput.checked) {
+          root.querySelectorAll(`[data-dimension-group="${CSS.escape(dimensionInput.dataset.dimensionGroup)}"]`).forEach(input => {
+            if (input !== dimensionInput) input.checked = false;
+          });
+        }
+        const labels = activeDimensionLabels(tab);
+        labels.clear();
+        root.querySelectorAll('[data-dimension-group]:checked').forEach(input => {
+          const text = input.parentElement?.querySelector('span')?.textContent || '';
+          if (text) labels.add(text);
         });
+        render();
+        return;
       }
       if (event.target.closest('[data-file-upload]')) {
         const file = event.target.files?.[0];
@@ -4533,6 +4619,85 @@
           showToast(`已上传 ${file.name}（${media}）（原型）`, 'success');
           return;
         }
+        if (state.processingAction === '修改行业' && state.processingRow && backdrop?.querySelector('[name="primaryTag"]')) {
+          const primary = backdrop.querySelector('[name="primaryTag"]')?.value || '';
+          const secondary = backdrop.querySelector('[name="secondaryTag"]')?.value || '';
+          if (primary && !secondary) { showToast('请选择二级标签', 'error'); return; }
+          const target = state.processingRow;
+          target.primaryTag = primary;
+          target.secondaryTag = secondary;
+          target.c7 = primary || '-';
+          target.c8 = secondary || '-';
+          state.processingRow = null;
+          state.processingAction = null;
+          closeModal();
+          render();
+          showToast('行业标签已更新（原型）', 'success');
+          return;
+        }
+        if (tab.id === 'category-tag' && state.processingRow && /启用|禁用/.test(state.processingAction || '')) {
+          const target = state.processingRow;
+          const enabled = state.processingAction === '启用';
+          target.c4 = enabled ? '启用' : '停用';
+          target.status = target.c4;
+          target.c5 = currentTimestamp();
+          target.c6 = '管理员(admin@bestfulfill.com)';
+          target.ops = enabled ? ['编辑', '禁用'] : ['编辑', '启用'];
+          state.processingRow = null;
+          state.processingAction = null;
+          closeModal();
+          render();
+          showToast(`标签已${target.c4}（原型）`, enabled ? 'success' : 'info');
+          return;
+        }
+        if (tab.id === 'category-tag' && backdrop.querySelector('[name="level"]')) {
+          const level = backdrop.querySelector('[name="level"]')?.value || '';
+          const parent = backdrop.querySelector('[name="parent"]')?.value || '';
+          const name = backdrop.querySelector('[name="name"]')?.value.trim() || '';
+          const status = backdrop.querySelector('[name="status"]')?.value || '启用';
+          if (!level || !name) { showToast('请填写层级和标签名称', 'error'); return; }
+          if (level === '二级' && !parent) { showToast('请选择所属一级标签', 'error'); return; }
+          const nextId = String(Math.max(0, ...(tab.rows || []).map(item => Number(item.c0) || 0)) + 1);
+          tab.rows.unshift({
+            c0: nextId,
+            c1: level,
+            c2: name,
+            c3: level === '二级' ? parent : '-',
+            c4: status,
+            c5: currentTimestamp(),
+            c6: '管理员(admin@bestfulfill.com)',
+            status,
+            ops: status === '启用' ? ['编辑', '禁用'] : ['编辑', '启用']
+          });
+          state.processingRow = null;
+          state.processingAction = null;
+          closeModal();
+          render();
+          showToast('标签已创建（原型）', 'success');
+          return;
+        }
+        if (tab.id === 'category-tag' && state.processingAction === '编辑' && state.processingRow) {
+          const name = backdrop.querySelector('[name="c2"]')?.value.trim() || '';
+          const status = backdrop.querySelector('[name="c4"]')?.value || state.processingRow.c4;
+          if (!name) { showToast('请填写标签名称', 'error'); return; }
+          const target = state.processingRow;
+          const previous = target.c2;
+          target.c2 = name;
+          target.c4 = status;
+          target.status = status;
+          target.c5 = currentTimestamp();
+          target.c6 = '管理员(admin@bestfulfill.com)';
+          target.ops = status === '启用' ? ['编辑', '禁用'] : ['编辑', '启用'];
+          if (target.c1 === '一级' && previous !== name) {
+            (tab.rows || []).forEach(item => { if (item.c3 === previous) item.c3 = name; });
+          }
+          state.processingRow = null;
+          state.processingAction = null;
+          closeModal();
+          render();
+          showToast('标签已更新（原型）', 'success');
+          return;
+        }
         closeModal();
         state.processingRow = null;
         state.processingAction = null;
@@ -4570,6 +4735,16 @@
       picker?.classList.toggle('is-empty', visibleCount === 0);
     });
     document.body.addEventListener('change', event => {
+      const cascadeSource = event.target.closest('.modal-backdrop select[name="primaryTag"], .modal-backdrop select[name="level"]');
+      if (cascadeSource?.name === 'primaryTag') syncCascadeSelect(cascadeSource);
+      if (cascadeSource?.name === 'level') {
+        const parentField = cascadeSource.closest('.form-grid')?.querySelector('[name="parent"]');
+        if (parentField) {
+          const isPrimary = cascadeSource.value === '一级';
+          parentField.disabled = isPrimary || !cascadeSource.value;
+          if (isPrimary) parentField.value = '';
+        }
+      }
       const modalMultiOption = event.target.closest('.modal-backdrop [data-multiselect-option]');
       if (modalMultiOption) {
         syncModalMultiselect(modalMultiOption.closest('[data-multiselect]'), modalMultiOption);

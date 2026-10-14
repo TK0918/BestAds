@@ -71,6 +71,22 @@
     ];
   }
 
+  function categoryTagRows() {
+    const groups = window.BESTADS_CATEGORY_TAGS?.groups || [];
+    const rows = [];
+    let id = 1101;
+    groups.forEach((group, index) => {
+      rows.push(row([String(id++), '一级', group.primary, '-', '启用', '2026-09-30 17:55:23', people.ou], { status: '启用', ops: ['编辑', '禁用'] }));
+      if (index <= 3) {
+        group.secondary.slice(0, 2).forEach(name => {
+          const disabled = name === '香水香氛';
+          rows.push(row([String(id++), '二级', name, group.primary, disabled ? '停用' : '启用', '2026-09-30 17:55:23', people.ou], { status: disabled ? '停用' : '启用', ops: disabled ? ['编辑', '启用'] : ['编辑', '禁用'] }));
+        });
+      }
+    });
+    return rows;
+  }
+
   function dictTab(id, label, rows, options = {}) {
     const columnLabels = options.columnLabels || ['ID', '名称', '状态', '更新时间', '操作人'];
     const columnOptions = options.columnOptions || { left: ['名称', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 260, 110, 180, 260] };
@@ -212,6 +228,30 @@
             { key: 'c3', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
           ]
         }),
+        {
+          id: 'category-tag',
+          label: '标签',
+          actions: [{ id: 'create-category-tag', label: '新增标签', icon: 'plus', primary: true }],
+          tableMinWidth: 1280,
+          opsWidth: 130,
+          columns: columns(['ID', '层级', '标签名称', '所属一级标签', '状态', '更新时间', '操作人'], { left: ['标签名称', '所属一级标签', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 90, 220, 220, 110, 180, 260] }),
+          rows: categoryTagRows(),
+          modals: {
+            '新增标签': { title: '新增标签', fields: [
+              { key: 'level', label: '层级', control: 'select', options: ['一级', '二级'], placeholder: '选择层级' },
+              { key: 'parent', label: '所属一级标签', control: 'select', required: false, options: (window.BESTADS_CATEGORY_TAGS?.groups || []).map(group => group.primary), placeholder: '选择所属一级标签' },
+              { key: 'name', label: '标签名称', placeholder: '输入标签名称' },
+              { key: 'status', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
+            ] },
+            '编辑': { title: '编辑标签', fields: [
+              { key: 'c1', label: '层级', control: 'readonly', required: false },
+              { key: 'c2', label: '标签名称', placeholder: '输入标签名称' },
+              { key: 'c3', label: '所属一级标签', control: 'readonly', required: false },
+              { key: 'c4', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
+            ] },
+            ...commonModals
+          }
+        },
         dictTab('bd', 'BD', [
           row(['669', '吴文锐 (wuwenrui@bestfulfill.com)', '启用', '2026-06-29 15:01:46', people.tan], { status: '启用', ops: ['编辑', '禁用'] }),
           row(['667', '程允良 (chengyunliang@bestfulfill.com)', '停用', '2026-06-29 14:59:29', people.tan], { status: '停用', ops: ['编辑', '启用'] }),

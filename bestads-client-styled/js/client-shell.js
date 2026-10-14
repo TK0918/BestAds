@@ -13,6 +13,13 @@
       items: []
     },
     {
+      id: 'delivery',
+      title: { 'zh-CN': '广告投放', 'en-US': 'Ads' },
+      items: [
+        { id: 'meta-ads', label: { 'zh-CN': 'Meta', 'en-US': 'Meta' }, href: './meta-ads.html' }
+      ]
+    },
+    {
       id: 'assets',
       title: { 'zh-CN': '资产管理', 'en-US': 'Assets' },
       items: [
@@ -101,7 +108,14 @@
     '账户数': { 'zh-CN': '账户数', 'en-US': 'Accounts' },
     '生效时间': { 'zh-CN': '生效时间', 'en-US': 'Active Time' },
     '自动充值冷却期': { 'zh-CN': '自动充值冷却期', 'en-US': 'Cooldown' },
-    '单日充值次数上限': { 'zh-CN': '单日充值次数上限', 'en-US': 'Daily Limit' }
+    '单日充值次数上限': { 'zh-CN': '单日充值次数上限', 'en-US': 'Daily Limit' },
+    '开关': { 'zh-CN': '开关', 'en-US': 'On/Off' },
+    '广告素材': { 'zh-CN': '广告素材', 'en-US': 'Creative' },
+    '广告名称': { 'zh-CN': '广告名称', 'en-US': 'Ad Name' },
+    '投放状态': { 'zh-CN': '投放状态', 'en-US': 'Status' },
+    '广告组名称': { 'zh-CN': '广告组名称', 'en-US': 'Ad Set' },
+    '花费金额': { 'zh-CN': '花费金额', 'en-US': 'Spend' },
+    '展示次数': { 'zh-CN': '展示次数', 'en-US': 'Impressions' }
   };
 
   function lang() {
@@ -357,7 +371,7 @@
 
   function tag(status) {
     const normalized = String(status || '');
-    const cls = /启用|完成|成功|已付款|已扣款/.test(normalized) ? 'success' : /失败|取消|退款/.test(normalized) ? 'failed' : 'warning';
+    const cls = /启用|完成|成功|已付款|已扣款|投放中/.test(normalized) ? 'success' : /失败|取消|退款|已暂停/.test(normalized) ? 'failed' : 'warning';
     const label = statusI18n(normalized);
     return `<span class="client-tag ${cls}">${html(label)}</span>`;
   }
@@ -379,7 +393,9 @@
       '开户成功': 'Opened',
       '部分成功': 'Partial Success',
       '开户取消': 'Canceled',
-      '扣款异常': 'Payment Exception'
+      '扣款异常': 'Payment Exception',
+      '投放中': 'Active',
+      '已暂停': 'Paused'
     };
     return map[status] || status;
   }
@@ -1060,6 +1076,98 @@
     `;
   }
 
+  function creativeSwatch(tone, label) {
+    return `<span class="client-creative-swatch tone-${tone}" aria-hidden="true"><b>${html(label || '')}</b></span>`;
+  }
+
+  function creativeThumb(row) {
+    if (row.creativeType === 'images') {
+      const tones = row.tones || ['a', 'b', 'c'];
+      return `<button class="client-creative client-creative--stack" type="button" data-creative-open="${html(row.id)}">${tones.map((tone, index) => creativeSwatch(tone, String(index + 1))).join('')}</button>`;
+    }
+    if (row.creativeType === 'video') {
+      return `<button class="client-creative client-creative--video" type="button" data-creative-open="${html(row.id)}">${creativeSwatch(row.tone || 'video', '')}<i></i></button>`;
+    }
+    return `<button class="client-creative" type="button" data-creative-open="${html(row.id)}">${creativeSwatch(row.tone || 'a', '')}</button>`;
+  }
+
+  function renderMetaAds(pageId, data) {
+    const page = pagePack(pageId);
+    const tabId = activeTabByPage[pageId] || data.defaultTab || 'ads';
+    const tabs = data.tabs || [];
+    const active = tabs.find((tab) => tab.id === tabId) || tabs[0];
+    const labels = page.tabs || [];
+    const rows = active.rows || [];
+    const body = active.id === 'ads'
+      ? rows.map((row) => `
+          <tr>
+            <td><button class="client-switch ${row.on ? 'is-on' : ''}" type="button" data-creative-toggle="${html(row.id)}" aria-label="${html(row.on ? page.turnOff : page.turnOn)}"></button></td>
+            <td>${creativeThumb(row)}</td>
+            <td>${html(row.name)}</td>
+            <td>${tag(row.status)}</td>
+            <td>${html(row.adset)}</td>
+            <td>${html(row.spend)}</td>
+            <td>${html(row.impressions)}</td>
+            <td class="client-actions-cell">${rowActions([{ label: page.edit, action: 'meta-edit', index: 0 }, { label: page.copy, action: 'meta-copy', index: 0 }])}</td>
+          </tr>
+        `).join('')
+      : rows.map((row) => `<tr>${row.map((cell) => `<td>${html(cell)}</td>`).join('')}</tr>`).join('');
+    return `
+      <div class="client-page-stack">
+        <div class="client-tabs">
+          ${tabs.map((tab) => `<button class="client-tab ${tab.id === active.id ? 'active' : ''}" type="button" data-client-tab="${tab.id}">${html(labels[tab.labelKey] || tab.id)}</button>`).join('')}
+        </div>
+        <div class="client-table-wrap">
+          <table class="client-table">
+            <thead><tr>${(active.columns || []).map((column) => `<th>${html(columnLabel(column))}</th>`).join('')}</tr></thead>
+            <tbody>${body || `<tr><td colspan="${(active.columns || []).length}"><div class="client-empty">${html(tCommon('empty'))}</div></td></tr>`}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function openCreativePreview(pageId, creativeId) {
+    const data = window.BESTADS_CLIENT_PAGES?.data?.[pageId];
+    const ads = data?.tabs?.find((tab) => tab.id === 'ads')?.rows || [];
+    const row = ads.find((item) => item.id === creativeId);
+    if (!row) return;
+    const page = pagePack(pageId);
+    const slides = row.creativeType === 'images' ? (row.tones || ['a', 'b', 'c']) : [row.tone || 'a'];
+    const state = { index: 0 };
+    const existing = document.querySelector('[data-creative-lightbox]');
+    if (existing) existing.remove();
+    const lightbox = document.createElement('div');
+    lightbox.className = 'client-creative-lightbox';
+    lightbox.dataset.creativeLightbox = 'true';
+    function paint() {
+      const tone = slides[state.index];
+      const stage = row.creativeType === 'video'
+        ? `<video class="client-creative-player" src="./assets/meta-ad-sample.mp4" controls autoplay></video>`
+        : `<div class="client-creative-stage">${creativeSwatch(tone, row.creativeType === 'images' ? String(state.index + 1) : '')}</div>`;
+      const pager = slides.length > 1
+        ? `<div class="client-creative-pager"><button type="button" data-creative-prev>${html(page.prev)}</button><span>${state.index + 1} / ${slides.length}</span><button type="button" data-creative-next>${html(page.next)}</button></div>`
+        : '';
+      lightbox.innerHTML = `<div class="client-creative-dialog" role="dialog" aria-modal="true"><button class="client-creative-close" type="button" data-creative-close>${html(page.closePreview)}</button>${stage}${pager}</div>`;
+    }
+    paint();
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox || event.target.closest('[data-creative-close]')) {
+        lightbox.remove();
+        return;
+      }
+      if (event.target.closest('[data-creative-prev]')) {
+        state.index = (state.index + slides.length - 1) % slides.length;
+        paint();
+      }
+      if (event.target.closest('[data-creative-next]')) {
+        state.index = (state.index + 1) % slides.length;
+        paint();
+      }
+    });
+    document.body.appendChild(lightbox);
+  }
+
   function renderPage(pageId) {
     const mount = document.getElementById('clientPageMount');
     if (!mount) return;
@@ -1075,6 +1183,7 @@
     if (pageId === 'sub-account-management') mount.innerHTML = renderSubAccounts(pageId, data);
     if (pageId === 'role-management') mount.innerHTML = renderRoles(pageId, data);
     if (pageId === 'auto-recharge-rules') mount.innerHTML = renderAutoRecharge(pageId, data);
+    if (pageId === 'meta-ads') mount.innerHTML = renderMetaAds(pageId, data);
   }
 
   function toast(message, type = 'success') {
@@ -1227,6 +1336,7 @@
   function handlePageAction(pageId, action, index) {
     const data = window.BESTADS_CLIENT_PAGES?.data?.[pageId];
     const row = actionRows(pageId)[index];
+    if (action === 'meta-edit' || action === 'meta-copy') return toast(pagePack(pageId)[action === 'meta-edit' ? 'editToast' : 'copyToast']);
     if (action === 'query') return toast(tCommon('toastQuery'));
     if (action === 'export') return toast(tCommon('toastExport'));
     if (action === 'apply-account') return showOpeningApplyModal();
@@ -1265,6 +1375,19 @@
         applyLanguageToDocument();
         updateShellLabels(pageId);
         renderMenuInto(document.getElementById('clientSidebar'), pageId);
+        renderPage(pageId);
+        return;
+      }
+      const creativeOpen = event.target.closest('[data-creative-open]');
+      if (creativeOpen) {
+        openCreativePreview(pageId, creativeOpen.dataset.creativeOpen);
+        return;
+      }
+      const creativeToggle = event.target.closest('[data-creative-toggle]');
+      if (creativeToggle) {
+        const ads = window.BESTADS_CLIENT_PAGES?.data?.[pageId]?.tabs?.find((item) => item.id === 'ads')?.rows || [];
+        const row = ads.find((item) => item.id === creativeToggle.dataset.creativeToggle);
+        if (row) row.on = !row.on;
         renderPage(pageId);
         return;
       }

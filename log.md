@@ -1,3 +1,20 @@
+#### 2026-10-14 - 推送 V2.47.1 原型和 PRD
+
+客户端 Meta 广告素材、行业报表、自定义维度、系统字典标签原型，以及本地 PRD 一并推送。公网原型：
+
+- https://tk0918.github.io/BestAds/bestads-client-styled/meta-ads.html
+- https://tk0918.github.io/BestAds/admin-system/reports/industry-report.html
+- https://tk0918.github.io/BestAds/admin-system/reports/ad-customer-performance-report.html#custom-dimension
+- https://tk0918.github.io/BestAds/admin-system/main-functions/system-config.html#category-tag
+
+#### 2026-10-14 - 输出 V2.47.1 本地 PRD
+
+按飞书正文写下 `PRD/V 2.47.1 客户端报表素材展示+行业URL识别二级行业.md`。包含客户端素材缩略图、行业报表和自定义维度的一级/二级标签、系统字典标签维护。
+
+#### 2026-10-14 - 行业报表修改行业写回列表
+
+行业报表是单页，页内 Tab id 是 `list`。提交「修改行业」时按操作名写回一级标签和二级标签，不再拿页面 id 判断。`SHELL_VERSION` 升为 `20261014-industry-edit`。
+
 #### 2026-10-14 - V2.47 核对原型验收后推送
 
 验收后原型已更新：全部「完成日」改为「创建日」；工单 Tab 去掉 KPI；工单详情「最新数据」分行展示，有更新红色加粗；明细表底部净充值汇总行；代理 Token 去掉「新增归类」和相对上次/飞书/Token负责人列。本次只提交 `agency-recon.html` 与 `admin-agency-recon-page.js`，不混入行业报表等其它任务文件。公网地址：https://tk0918.github.io/BestAds/admin-system/main-functions/agency-recon.html

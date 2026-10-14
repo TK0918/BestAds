@@ -115,6 +115,19 @@
       'api-access': {
         title: 'API 对接'
       },
+      'meta-ads': {
+        title: 'Meta',
+        tabs: ['广告账户', '广告系列', '广告组', '广告', '模板管理'],
+        turnOn: '开启',
+        turnOff: '关闭',
+        edit: '编辑',
+        copy: '复制',
+        closePreview: '关闭',
+        prev: '上一张',
+        next: '下一张',
+        editToast: '编辑广告（原型）',
+        copyToast: '已复制广告（原型）'
+      },
       'auto-recharge-rules': {
         title: '自动充值设置',
         ruleName: '请输入规则名称',
@@ -263,11 +276,43 @@
         cooldown: 'Cooldown',
         dailyLimit: 'Daily Limit',
         status: 'Status'
+      },
+      'meta-ads': {
+        title: 'Meta',
+        tabs: ['Accounts', 'Campaigns', 'Ad Sets', 'Ads', 'Templates'],
+        turnOn: 'Turn on',
+        turnOff: 'Turn off',
+        edit: 'Edit',
+        copy: 'Copy',
+        closePreview: 'Close',
+        prev: 'Previous',
+        next: 'Next',
+        editToast: 'Edit ad (prototype)',
+        copyToast: 'Ad copied (prototype)'
       }
     }
   };
 
   const pageData = {
+    'meta-ads': {
+      defaultTab: 'ads',
+      tabs: [
+        { id: 'accounts', labelKey: 0, columns: ['广告账户名称', '状态'], rows: [['MX-N-04-2592', '启用']] },
+        { id: 'campaigns', labelKey: 1, columns: ['广告名称', '状态'], rows: [['春季新品', '启用']] },
+        { id: 'adsets', labelKey: 2, columns: ['广告组名称', '状态'], rows: [['18-35 女装', '启用']] },
+        {
+          id: 'ads',
+          labelKey: 3,
+          columns: ['开关', '广告素材', '广告名称', '投放状态', '广告组名称', '花费金额', '展示次数', '操作'],
+          rows: [
+            { id: 'ad-image', on: true, creativeType: 'image', tone: 'a', name: '春季新品-图片', status: '投放中', adset: '18-35 女装', spend: '1,290.08', impressions: '68,476' },
+            { id: 'ad-video', on: true, creativeType: 'video', tone: 'video', name: '春季新品-视频', status: '投放中', adset: '18-35 女装', spend: '860.40', impressions: '41,220' },
+            { id: 'ad-images', on: false, creativeType: 'images', tones: ['b', 'c', 'd'], name: '多图轮播', status: '已暂停', adset: '复购人群', spend: '420.15', impressions: '19,804' }
+          ]
+        },
+        { id: 'templates', labelKey: 4, columns: ['广告名称', '状态'], rows: [['电商产品推广模版', '启用']] }
+      ]
+    },
     'operation-records': {
       defaultTab: 'opening',
       tabs: [
