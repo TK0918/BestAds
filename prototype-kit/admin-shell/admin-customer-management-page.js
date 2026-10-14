@@ -1887,9 +1887,18 @@ if (customerPageRoot) {
         notice = `<p class="text-sm text-gray-700 mt-4">停用后，${name} 不能继续调用 API，也不能重置密钥。</p>`;
       } else if (apiModalMode === 'restore') {
         notice = `<p class="text-sm text-gray-700 mt-4">恢复后，${name} 沿用原密钥和当前权限。</p>`;
+      } else if (apiModalMode === 'clear-ip') {
+        notice = `<p class="text-sm text-gray-700 mt-4">清空后，${name} 没有 IP 白名单，不能调用 API。权限、密钥和停用状态不变。</p>`;
       } else if (status === 'active') {
         notice = '<p class="text-sm text-gray-500 mt-3">勾选后保存即生效。停用后客户不能调用，也不能重置密钥。</p>';
       }
+      const ips = Array.isArray(api?.whitelist) ? api.whitelist : [];
+      const showWhitelist = status === 'active' || status === 'disabled';
+      const whitelistBlock = showWhitelist
+        ? `<div class="col-span-2"><p class="text-gray-500">IP 白名单</p>${ips.length
+          ? `<p class="text-sm">${ips.join('、')}</p>`
+          : '<p class="text-sm text-red-600">尚未配置 IP 白名单，当前无法调用 API。</p>'}</div>`
+        : '';
       document.getElementById('apiAccessModalTitle').textContent = 'API';
       document.getElementById('apiAccessModalBody').innerHTML = `
         <div class="grid grid-cols-2 gap-4 text-sm">
@@ -1899,6 +1908,7 @@ if (customerPageRoot) {
           <div><p class="text-gray-500">状态</p><p>${window.BESTADS_API_STORE.statusLabel(status)}</p></div>
           <div class="col-span-2"><p class="text-gray-500">对接地址</p><p>${endpoint}</p></div>
           <div class="col-span-2"><p class="text-gray-500">当前权限</p>${permissionBlock}</div>
+          ${whitelistBlock}
         </div>
         ${notice}
       `;
@@ -1909,17 +1919,26 @@ if (customerPageRoot) {
     function apiModalFooter(status) {
       const close = '<button type="button" class="admin-button" onclick="closeModal(\'apiAccessModal\')">关闭</button>';
       const back = `<button type="button" class="admin-button" onclick="openCustomerApi('${apiModalCustomerId}')">返回</button>`;
+      const ips = Array.isArray(window.BESTADS_API_STORE.customer(apiModalCustomerId).whitelist)
+        ? window.BESTADS_API_STORE.customer(apiModalCustomerId).whitelist
+        : [];
+      const clearIp = ips.length
+        ? `<button type="button" class="admin-button" onclick="askCustomerApiClearIp()">清空白名单</button>`
+        : '';
       if (apiModalMode === 'disable') {
         return `${back}<button type="button" class="admin-button admin-button--primary" onclick="confirmCustomerApiDisable()">确定停用</button>`;
       }
       if (apiModalMode === 'restore') {
         return `${back}<button type="button" class="admin-button admin-button--primary" onclick="confirmCustomerApiRestore()">确定恢复</button>`;
       }
+      if (apiModalMode === 'clear-ip') {
+        return `${back}<button type="button" class="admin-button admin-button--primary" onclick="confirmCustomerApiClearIp()">确定清空</button>`;
+      }
       if (status === 'active') {
-        return `${close}<button type="button" class="admin-button" onclick="askCustomerApiDisable()">停用</button><button type="button" class="admin-button admin-button--primary" onclick="saveCustomerApiPermissions()">保存权限</button>`;
+        return `${close}${clearIp}<button type="button" class="admin-button" onclick="askCustomerApiDisable()">停用</button><button type="button" class="admin-button admin-button--primary" onclick="saveCustomerApiPermissions()">保存权限</button>`;
       }
       if (status === 'disabled') {
-        return `${close}<button type="button" class="admin-button admin-button--primary" onclick="askCustomerApiRestore()">恢复</button>`;
+        return `${close}${clearIp}<button type="button" class="admin-button admin-button--primary" onclick="askCustomerApiRestore()">恢复</button>`;
       }
       return close;
     }
@@ -1931,6 +1950,11 @@ if (customerPageRoot) {
 
     function askCustomerApiRestore() {
       apiModalMode = 'restore';
+      renderCustomerApiModal();
+    }
+
+    function askCustomerApiClearIp() {
+      apiModalMode = 'clear-ip';
       renderCustomerApiModal();
     }
 
@@ -1959,4 +1983,11 @@ if (customerPageRoot) {
       apiModalMode = 'view';
       renderCustomerApiModal();
       renderTable();
+    }
+
+    function confirmCustomerApiClearIp() {
+      window.BESTADS_API_STORE.clearWhitelist(apiModalCustomerId);
+      showNotification('IP 白名单已清空，当前无法调用 API', 'warning');
+      apiModalMode = 'view';
+      renderCustomerApiModal();
     }

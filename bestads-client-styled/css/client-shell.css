@@ -1046,6 +1046,41 @@ button {
   min-height: 30px;
 }
 
+.client-ip-warn {
+  margin: 0 0 12px;
+  color: var(--client-danger);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.client-ip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.client-ip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--client-border-soft);
+  border-radius: 8px;
+}
+
+.client-ip-add {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.client-ip-add .client-input {
+  flex: 1;
+  max-width: 360px;
+}
+
 .client-summary-item {
   min-height: 72px;
   border: 1px solid var(--client-border-soft);

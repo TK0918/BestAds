@@ -37,7 +37,27 @@
       requested: '本次申请的权限',
       upgradeRequested: '本次申请增加的权限',
       noMore: '当前权限已包含全部操作，不能再申请升级。',
-      cancel: '取消'
+      cancel: '取消',
+      ipTitle: 'IP 白名单',
+      ipHelp: '填写服务器出口 IP，不是当前打开网页的电脑 IP。未配置时无法调用 API。支持单个公网 IPv4，或 /24 到 /32 的网段，最多 20 条。',
+      ipEmpty: '尚未配置 IP 白名单，当前无法调用 API。',
+      ipReady: '仅名单内的 IP 可以调用 API。',
+      ipDisabledEmpty: 'API 已停用，不能调用。恢复后若仍未配置白名单，也无法调用。',
+      ipDisabledReady: 'API 已停用，不能调用。恢复后仅白名单内的 IP 可以调用。',
+      ipPlaceholder: '例如 8.8.8.8 或 203.0.113.0/24',
+      ipAdd: '添加',
+      ipRemove: '删除',
+      ipConfirm: '删除后没有白名单，API 将无法调用。确定删除？',
+      ipConfirmYes: '确定删除',
+      ipFormat: '请输入公网 IPv4，或 /24 到 /32 的网段',
+      ipCidr: '网段不能大于 /24',
+      ipPrivate: '请填写服务器的公网出口 IP，内网地址不能调用',
+      ipDuplicate: '该地址已在白名单中',
+      ipLimit: '最多 20 条',
+      ipFirst: '已生效。未在名单内的 IP 无法调用 API。',
+      ipAdded: '已加入白名单',
+      ipRemoved: '已从白名单删除',
+      ipCleared: '白名单已清空，API 无法调用'
     },
     'en-US': {
       sample: 'Sample',
@@ -71,7 +91,27 @@
       requested: 'Requested permissions',
       upgradeRequested: 'Requested additions',
       noMore: 'All operations are already enabled.',
-      cancel: 'Cancel'
+      cancel: 'Cancel',
+      ipTitle: 'IP allowlist',
+      ipHelp: 'Enter the server egress IP, not the IP of the computer opening this page. API calls are blocked until at least one IP is saved. One public IPv4, or a CIDR from /24 to /32. Up to 20 entries.',
+      ipEmpty: 'No IP allowlist yet. API calls are blocked.',
+      ipReady: 'Only these IPs can call the API.',
+      ipDisabledEmpty: 'API access is disabled. After restore, calls stay blocked until an allowlist is saved.',
+      ipDisabledReady: 'API access is disabled. After restore, only these IPs can call the API.',
+      ipPlaceholder: 'e.g. 8.8.8.8 or 203.0.113.0/24',
+      ipAdd: 'Add',
+      ipRemove: 'Remove',
+      ipConfirm: 'Removing the last IP blocks all API calls. Remove it?',
+      ipConfirmYes: 'Remove',
+      ipFormat: 'Enter a public IPv4 address, or a CIDR from /24 to /32',
+      ipCidr: 'The network cannot be larger than /24',
+      ipPrivate: 'Enter the server public egress IP. Private addresses cannot call the API',
+      ipDuplicate: 'This address is already on the allowlist',
+      ipLimit: 'Up to 20 entries',
+      ipFirst: 'Saved. Calls from other IPs are blocked.',
+      ipAdded: 'Added to the allowlist',
+      ipRemoved: 'Removed from the allowlist',
+      ipCleared: 'Allowlist cleared. API calls are blocked'
     }
   };
 
@@ -116,7 +156,8 @@
       requested: [],
       upgradeRequested: [],
       upgradePending: false,
-      secret: 'sk_demo_7k2m9q'
+      secret: 'sk_demo_7k2m9q',
+      whitelist: []
     }, extra);
   }
 
@@ -140,6 +181,9 @@
       if (!raw) return seed();
       const parsed = JSON.parse(raw);
       if (!parsed?.items?.active) return seed();
+      Object.values(parsed.items).forEach(item => {
+        if (!Array.isArray(item.whitelist)) item.whitelist = [];
+      });
       return parsed;
     } catch (error) {
       return seed();
@@ -148,6 +192,8 @@
 
   let state = load();
   let upgradeOpen = false;
+  let ipDraft = '';
+  let confirmRemove = '';
 
   function save() {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -190,6 +236,83 @@
 
   function infoRow(label, value) {
     return `<div class="client-form-field"><span class="client-label">${esc(label)}</span><div>${value}</div></div>`;
+  }
+
+  function ipToInt(ip) {
+    const parts = ip.split('.');
+    if (parts.length !== 4) return null;
+    let value = 0;
+    for (const part of parts) {
+      if (!/^\d{1,3}$/.test(part)) return null;
+      if (part.length > 1 && part.startsWith('0')) return null;
+      const num = Number(part);
+      if (num > 255) return null;
+      value = (value << 8) + num;
+    }
+    return value >>> 0;
+  }
+
+  function intToIp(value) {
+    return [24, 16, 8, 0].map(shift => (value >>> shift) & 255).join('.');
+  }
+
+  function isPrivateIp(value) {
+    const first = (value >>> 24) & 255;
+    const second = (value >>> 16) & 255;
+    if (first === 0 || first === 10 || first === 127) return true;
+    if (first === 169 && second === 254) return true;
+    if (first === 172 && second >= 16 && second <= 31) return true;
+    if (first === 192 && second === 168) return true;
+    if (first >= 224) return true;
+    return false;
+  }
+
+  function parseIp(raw) {
+    const text = String(raw || '').trim();
+    const matched = text.match(/^(\d{1,3}(?:\.\d{1,3}){3})(?:\/(\d{1,2}))?$/);
+    if (!matched) return { error: 'ipFormat' };
+    const ip = ipToInt(matched[1]);
+    if (ip == null) return { error: 'ipFormat' };
+    const prefix = matched[2] == null ? 32 : Number(matched[2]);
+    if (prefix < 24 || prefix > 32) return { error: 'ipCidr' };
+    if (isPrivateIp(ip)) return { error: 'ipPrivate' };
+    const mask = prefix === 32 ? 0xffffffff : (0xffffffff << (32 - prefix)) >>> 0;
+    const network = (ip & mask) >>> 0;
+    return { value: prefix === 32 ? intToIp(ip) : `${intToIp(network)}/${prefix}` };
+  }
+
+  function whitelistCard(item) {
+    const list = item.whitelist || [];
+    const notice = item.status === 'disabled'
+      ? (list.length ? t('ipDisabledReady') : t('ipDisabledEmpty'))
+      : (list.length ? t('ipReady') : t('ipEmpty'));
+    const rows = list.map(ip => `
+      <div class="client-ip-row">
+        <span>${esc(ip)}</span>
+        ${confirmRemove === ip ? `
+          <span>${esc(t('ipConfirm'))}
+            <button class="client-button small danger" type="button" data-api-client-action="ip-remove-yes">${esc(t('ipConfirmYes'))}</button>
+            <button class="client-button small" type="button" data-api-client-action="ip-remove-no">${esc(t('cancel'))}</button>
+          </span>
+        ` : `<button class="client-button small" type="button" data-api-client-action="ip-remove" data-ip="${esc(ip)}">${esc(t('ipRemove'))}</button>`}
+      </div>
+    `).join('');
+    return `
+      <section class="client-card">
+        <div class="client-card-body">
+          <div class="client-form-field">
+            <span class="client-label">${esc(t('ipTitle'))}</span>
+            <p class="${list.length && item.status !== 'disabled' ? 'client-form-help' : 'client-ip-warn'}">${esc(notice)}</p>
+            <p class="client-form-help">${esc(t('ipHelp'))}</p>
+          </div>
+          ${rows ? `<div class="client-ip-list">${rows}</div>` : ''}
+          <div class="client-ip-add">
+            <input class="client-input" type="text" data-api-ip-input value="${esc(ipDraft)}" placeholder="${esc(t('ipPlaceholder'))}">
+            <button class="client-button primary" type="button" data-api-client-action="ip-add">${esc(t('ipAdd'))}</button>
+          </div>
+        </div>
+      </section>
+    `;
   }
 
   function render(mount) {
@@ -254,15 +377,16 @@
             ${body}
           </div>
         </section>
+        ${opened ? whitelistCard(item) : ''}
       </div>
     `;
   }
 
-  function toast(message) {
+  function toast(message, type) {
     const el = document.getElementById('clientShellToast');
     if (!el) return;
     el.textContent = message;
-    el.className = 'client-shell-toast show success';
+    el.className = `client-shell-toast show ${type || 'success'}`;
     clearTimeout(toast.timer);
     toast.timer = setTimeout(() => { el.className = 'client-shell-toast'; }, 2400);
   }
@@ -276,6 +400,8 @@
     if (!sample || document.body.dataset.clientPage !== 'api-access') return;
     state.scenario = sample.value;
     upgradeOpen = false;
+    ipDraft = '';
+    confirmRemove = '';
     save();
     render(document.getElementById('clientPageMount'));
   });
@@ -309,6 +435,46 @@
       upgradeOpen = true;
     }
     if (kind === 'upgrade-cancel') upgradeOpen = false;
+    if (kind === 'ip-add') {
+      if (item.status !== 'active' && item.status !== 'disabled') return;
+      const input = document.querySelector('[data-api-ip-input]');
+      const raw = input ? input.value : '';
+      const parsed = parseIp(raw);
+      if (parsed.error) {
+        ipDraft = raw;
+        toast(t(parsed.error), 'error');
+      } else if ((item.whitelist || []).includes(parsed.value)) {
+        ipDraft = raw;
+        toast(t('ipDuplicate'), 'error');
+      } else if ((item.whitelist || []).length >= 20) {
+        ipDraft = raw;
+        toast(t('ipLimit'), 'error');
+      } else {
+        const first = !(item.whitelist || []).length;
+        item.whitelist = (item.whitelist || []).concat(parsed.value);
+        ipDraft = '';
+        confirmRemove = '';
+        save();
+        toast(first ? t('ipFirst') : t('ipAdded'));
+      }
+    }
+    if (kind === 'ip-remove') {
+      const value = action.dataset.ip;
+      if ((item.whitelist || []).length === 1) {
+        confirmRemove = value;
+      } else {
+        item.whitelist = item.whitelist.filter(ip => ip !== value);
+        save();
+        toast(t('ipRemoved'));
+      }
+    }
+    if (kind === 'ip-remove-yes') {
+      item.whitelist = (item.whitelist || []).filter(ip => ip !== confirmRemove);
+      confirmRemove = '';
+      save();
+      toast(t('ipCleared'), 'warning');
+    }
+    if (kind === 'ip-remove-no') confirmRemove = '';
     if (kind === 'upgrade-submit') {
       if (item.upgradePending) return;
       const requested = checked('upgradePermission');
@@ -317,7 +483,8 @@
         permissions: item.permissions.slice(),
         secret: item.secret,
         upgradePending: true,
-        upgradeRequested: requested.slice()
+        upgradeRequested: requested.slice(),
+        whitelist: (item.whitelist || []).slice()
       });
       state.scenario = 'upgrade';
       upgradeOpen = false;

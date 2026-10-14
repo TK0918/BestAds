@@ -8,11 +8,11 @@
   const ENDPOINT = 'https://api.bestads.com';
 
   const customers = {
-    '102': { customerId: '102', customerName: 'adstest', merchantId: '1128', status: 'active', permissions: ['查账户列表', '查账户信息'] },
-    '3472': { customerId: '3472', customerName: 'test金额变动', merchantId: '14229', status: 'pending', permissions: [] },
-    '4801': { customerId: '4801', customerName: '内部免开户费', merchantId: '18888', status: 'active', permissions: ['查账户列表', '查账户信息'] },
-    '3589': { customerId: '3589', customerName: 'BestAds接口测试', merchantId: '14606', status: 'disabled', permissions: ['查账户列表', '查账户信息', '查消耗'] },
-    '4901': { customerId: '4901', customerName: '新客首次开户', merchantId: '19901', status: 'rejected', permissions: [] }
+    '102': { customerId: '102', customerName: 'adstest', merchantId: '1128', status: 'active', permissions: ['查账户列表', '查账户信息'], whitelist: ['8.8.8.8', '1.2.3.0/24'] },
+    '3472': { customerId: '3472', customerName: 'test金额变动', merchantId: '14229', status: 'pending', permissions: [], whitelist: [] },
+    '4801': { customerId: '4801', customerName: '内部免开户费', merchantId: '18888', status: 'active', permissions: ['查账户列表', '查账户信息'], whitelist: [] },
+    '3589': { customerId: '3589', customerName: 'BestAds接口测试', merchantId: '14606', status: 'disabled', permissions: ['查账户列表', '查账户信息', '查消耗'], whitelist: ['9.9.9.9'] },
+    '4901': { customerId: '4901', customerName: '新客首次开户', merchantId: '19901', status: 'rejected', permissions: [], whitelist: [] }
   };
 
   const applications = [
@@ -41,6 +41,12 @@
 
   const saved = load();
   const state = saved || { customers: clone(customers), applications: clone(applications) };
+  Object.keys(state.customers).forEach(id => {
+    const item = state.customers[id];
+    if (!Array.isArray(item.whitelist)) {
+      item.whitelist = Array.isArray(customers[id] && customers[id].whitelist) ? customers[id].whitelist.slice() : [];
+    }
+  });
 
   function persist() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -58,7 +64,8 @@
     return state.customers[String(customerId)] || {
       customerId: String(customerId),
       status: 'none',
-      permissions: []
+      permissions: [],
+      whitelist: []
     };
   }
 
@@ -94,8 +101,10 @@
         customerName: application.customerName,
         merchantId: application.merchantId,
         status: 'none',
-        permissions: []
+        permissions: [],
+        whitelist: []
       };
+      if (!Array.isArray(current.whitelist)) current.whitelist = [];
       current.status = 'active';
       current.permissions = permissions.slice();
       current.customerName = application.customerName;
@@ -124,6 +133,14 @@
       if (!current) return false;
       if (enabled && current.status === 'disabled') current.status = 'active';
       if (!enabled && current.status === 'active') current.status = 'disabled';
+      persist();
+      return true;
+    },
+    clearWhitelist(customerId) {
+      const current = state.customers[String(customerId)];
+      if (!current) return false;
+      if (current.status !== 'active' && current.status !== 'disabled') return false;
+      current.whitelist = [];
       persist();
       return true;
     }
