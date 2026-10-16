@@ -16,6 +16,18 @@
     .status-disabled { background: #EF4444; }
     .sheet { position: fixed; left: 0; right: 0; bottom: -100%; background: #FFFFFF; border-top-left-radius: 16px; border-top-right-radius: 16px; box-shadow: 0 -4px 24px rgba(0,0,0,0.12); transition: transform .25s ease, bottom .25s ease; z-index: 50; border-top: 1px solid #E5E7EB; }
     .sheet.show { bottom: 0; }
+    .verify-mask { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 80; align-items: flex-end; justify-content: center; }
+    .verify-mask.open { display: flex; }
+    .main-demo { margin-bottom: 8px; }
+    .main-demo .is-on { border-color: #2759ff; color: #2759ff; background: #eef3ff; }
+    .verify-card { width: 100%; background: #fff; border-radius: 16px 16px 0 0; padding: 16px 16px 24px; }
+    .verify-card h3 { margin: 0 0 8px; font-size: 16px; }
+    .verify-card p { margin: 0 0 8px; color: #4b5563; font-size: 13px; line-height: 1.5; }
+    .email-block-warn { color: #f04438; font-weight: 700; }
+    .verify-remain { font-weight: 600; margin-bottom: 8px; }
+    .verify-remain.expired { color: #f04438; }
+    .verify-demo { color: #6b7280; font-size: 12px; margin-bottom: 8px; }
+    .verify-error { min-height: 18px; color: #f04438; font-size: 12px; margin-top: 6px; }
     .sheet-handle { width: 44px; height: 4px; border-radius: 9999px; background: #E5E7EB; margin: 10px auto; }
     .tab-active { color: #00FFB0; }
     .filter-btn.active { background: #00FFB0; color: #000; }
@@ -36,7 +48,9 @@
     /* 深色主题覆盖 */
     body.theme-dark { background: #0F172A; color: #F8FAFC; }
     body.theme-dark .card { background: #111827; border-color: #334155; }
-    body.theme-dark .sheet { background: #0B1220; border-top-color: #334155; box-shadow: 0 -4px 24px rgba(0,0,0,0.6); }
+    body.theme-dark .verify-card { background: #0B1220; color: #e5e7eb; }
+    body.theme-dark .verify-card p, body.theme-dark .verify-demo { color: #94a3b8; }
+    body.theme-dark .verify-card p.email-block-warn { color: #f04438; }
     body.theme-dark .sheet-handle { background: #334155; }
     body.theme-dark .bottom-nav { background: #0B1220; border-top-color: #334155; }
     body.theme-dark .bottom-nav .nav-btn { color: #94A3B8; }
@@ -354,7 +368,14 @@
         <h3 id="sheetTitle" class="text-base font-semibold">账户操作</h3>
         <button class="text-gray-400" onclick="closeSheet()"><i class="fas fa-times text-lg"></i></button>
       </div>
-      <div class="card p-3 space-y-3">
+        <div class="card p-3 space-y-3">
+        <div class="main-demo">
+          <div class="text-xs text-gray-400 mb-2">原型体验：主账号。正式环境按真实主账号判断，没有这个切换。</div>
+          <div class="flex gap-2">
+            <button class="btn-secondary flex-1 py-2 text-xs" type="button" data-h5-main="owner@bestads.com" onclick="setH5MainLogin('owner@bestads.com')">有效邮箱 owner@bestads.com</button>
+            <button class="btn-secondary flex-1 py-2 text-xs" type="button" data-h5-main="customer01" onclick="setH5MainLogin('customer01')">不合规登录名 customer01</button>
+          </div>
+        </div>
         <div class="text-sm text-gray-400">
           <div>账户：<span id="sheetAccountName" class="text-white"></span></div>
           <div>ID：<span id="sheetAccountId" class="text-white"></span></div>
@@ -377,6 +398,31 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="verifyMask" class="verify-mask" onclick="if (event.target === this) closeH5Verify()">
+    <section class="verify-card" role="dialog" aria-modal="true">
+      <h3>验证充值</h3>
+      <p id="h5VerifyIntro"></p>
+      <div id="h5VerifyRemain" class="verify-remain"></div>
+      <div id="h5VerifyDemo" class="verify-demo"></div>
+      <input id="h5VerifyInput" class="input w-full px-3 py-3" type="text" inputmode="numeric" maxlength="6" placeholder="请输入验证码">
+      <div id="h5VerifyError" class="verify-error"></div>
+      <div class="flex gap-2 pt-3">
+        <button class="btn-secondary flex-1 py-3" type="button" onclick="resendH5Verify()">重新发送</button>
+        <button class="btn-primary flex-1 py-3 font-semibold" type="button" onclick="submitH5Verify()">确认</button>
+      </div>
+      <button class="btn-secondary w-full py-3 mt-2" type="button" onclick="closeH5Verify()">关闭</button>
+    </section>
+  </div>
+
+  <div id="emailBlockMask" class="verify-mask" onclick="if (event.target === this) closeH5EmailBlock()">
+    <section class="verify-card" role="dialog" aria-modal="true">
+      <h3>无法发送验证码</h3>
+      <p id="h5EmailBlockIntro"></p>
+      <p id="h5EmailBlockWarn" class="email-block-warn">请联系AM调整登录邮箱或者调整充值金额。</p>
+      <button class="btn-primary w-full py-3 font-semibold" type="button" onclick="closeH5EmailBlock()">知道了</button>
+    </section>
   </div>
   
   <!-- 线下转账成功提示弹窗 -->
@@ -674,7 +720,7 @@
     const wallet = { available: 7900.00, real: 3000.00, frozen: 100.00, creditLimit: 5000.00, creditUsed: 0.00 };
     // spendLast2Days: 昨天+当天消耗；null=查不到（允许清零）；>0 禁止清零
     const accounts = [
-      { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active', canClear: true, spendLast2Days: 45.2 },
+      { id: 'FB001234567', name: '测试广告账户01', currency: 'USD', balance: 1200.50, timezone: 'UTC+8', status: 'active', canClear: true, spendLast2Days: 45.2, dayCharged: 4500, rechargeThreshold: 5000 },
       { id: 'FB001234568', name: '测试广告账户02', currency: 'USD', balance: 850.75, timezone: 'UTC+8', status: 'active', canClear: true, spendLast2Days: 0 },
       { id: 'FB001234569', name: '测试广告账户03', currency: 'USD', balance: 2150.00, timezone: 'UTC+0', status: 'pending', canClear: false, spendLast2Days: 0 },
       { id: 'GG001234570', name: 'Google广告账户01', currency: 'USD', balance: 530.25, timezone: 'UTC-5', status: 'active', canClear: true, spendLast2Days: null },
@@ -1128,6 +1174,142 @@
       if (!amount || amount < 10) { return notify('金额不能少于 10', 'warning'); }
       const acc = accounts.find(a => a.id === pendingAction.accountId);
       if (!acc) return;
+      if (pendingAction.type === 'recharge') {
+        const dayTotal = (Number(acc.dayCharged) || 0) + amount;
+        if (acc.rechargeThreshold && dayTotal >= acc.rechargeThreshold) {
+          if (!isValidEmail(h5MainLogin)) {
+            openH5EmailBlock(acc, amount, dayTotal);
+            return;
+          }
+          openH5Verify(acc, amount, dayTotal);
+          return;
+        }
+      }
+      finishRecharge(acc, amount);
+    }
+
+    const H5_VALID_EMAIL = 'owner@bestads.com';
+    const H5_INVALID_LOGIN = 'customer01';
+    let h5MainLogin = new URLSearchParams(location.search).get('mainAccount') === 'invalid'
+      ? H5_INVALID_LOGIN
+      : H5_VALID_EMAIL;
+
+    function isValidEmail(value) {
+      return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(String(value || ''));
+    }
+
+    function setH5MainLogin(value) {
+      h5MainLogin = value === H5_INVALID_LOGIN ? H5_INVALID_LOGIN : H5_VALID_EMAIL;
+      paintH5MainDemo();
+    }
+
+    function paintH5MainDemo() {
+      document.querySelectorAll('[data-h5-main]').forEach(button => {
+        button.classList.toggle('is-on', button.dataset.h5Main === h5MainLogin);
+      });
+    }
+    let h5Verify = null;
+    let h5VerifyTimer = null;
+
+    function h5RemainText(ms) {
+      const total = Math.max(0, Math.ceil(ms / 1000));
+      const minutes = String(Math.floor(total / 60)).padStart(2, '0');
+      const seconds = String(total % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    function invalidateH5Code() {
+      if (h5Verify) h5Verify.code = '';
+      if (h5VerifyTimer) {
+        clearInterval(h5VerifyTimer);
+        h5VerifyTimer = null;
+      }
+    }
+
+    function paintH5Verify() {
+      const node = document.getElementById('h5VerifyRemain');
+      const demo = document.getElementById('h5VerifyDemo');
+      if (!h5Verify) return;
+      const remain = h5Verify.expiresAt - Date.now();
+      if (!h5Verify.code || remain <= 0) {
+        node.textContent = '验证码已过期，请重新发送';
+        node.classList.add('expired');
+        demo.textContent = '原型验证码已过期';
+        h5Verify.code = '';
+        if (h5VerifyTimer) {
+          clearInterval(h5VerifyTimer);
+          h5VerifyTimer = null;
+        }
+        return;
+      }
+      node.classList.remove('expired');
+      node.textContent = `剩余有效时间 ${h5RemainText(remain)}`;
+      demo.textContent = `原型验证码：${h5Verify.code}`;
+    }
+
+    function issueH5Code(acc, amount, dayTotal) {
+      invalidateH5Code();
+      h5Verify = {
+        code: String(Math.floor(100000 + Math.random() * 900000)),
+        expiresAt: Date.now() + 10 * 60 * 1000,
+        acc, amount, dayTotal
+      };
+      h5VerifyTimer = setInterval(paintH5Verify, 1000);
+      document.getElementById('h5VerifyIntro').textContent = `${acc.name} 加上本笔 ${amount.toFixed(2)} ${acc.currency} 后，当日累计 ${dayTotal.toFixed(2)}，达到阈值 ${acc.rechargeThreshold.toFixed(2)}。验证码已发送到主账号邮箱 ${h5MainLogin}，10 分钟内有效。关闭窗口或重新发送后，当前验证码立即失效。`;
+      document.getElementById('h5VerifyInput').value = '';
+      document.getElementById('h5VerifyError').textContent = '';
+      paintH5Verify();
+      return h5Verify.code;
+    }
+
+    function openH5Verify(acc, amount, dayTotal) {
+      const code = issueH5Code(acc, amount, dayTotal);
+      document.getElementById('verifyMask').classList.add('open');
+      notify(`验证码已发送到 ${h5MainLogin}。原型验证码 ${code}`, 'success');
+    }
+
+    function openH5EmailBlock(acc, amount, dayTotal) {
+      document.getElementById('h5EmailBlockIntro').textContent = `以下广告账户超过当天充值金额的限制，需要进行验证才能正常发起充值。但主账号${h5MainLogin}不是有效邮箱，无法正常接收验证码。`;
+      document.getElementById('emailBlockMask').classList.add('open');
+    }
+
+    function closeH5EmailBlock() {
+      document.getElementById('emailBlockMask').classList.remove('open');
+    }
+
+    function closeH5Verify() {
+      invalidateH5Code();
+      document.getElementById('verifyMask').classList.remove('open');
+      notify('验证码已作废，本次充值未提交', 'warning');
+    }
+
+    function resendH5Verify() {
+      if (!h5Verify) return;
+      const code = issueH5Code(h5Verify.acc, h5Verify.amount, h5Verify.dayTotal);
+      notify(`已重新发送。之前的验证码已失效。原型验证码 ${code}`, 'success');
+    }
+
+    function submitH5Verify() {
+      const input = document.getElementById('h5VerifyInput').value.trim();
+      if (!h5Verify || !h5Verify.code || Date.now() > h5Verify.expiresAt) {
+        document.getElementById('h5VerifyError').textContent = '验证码已过期，请重新发送';
+        return;
+      }
+      if (!input) {
+        document.getElementById('h5VerifyError').textContent = '请输入验证码';
+        return;
+      }
+      if (input !== h5Verify.code) {
+        document.getElementById('h5VerifyError').textContent = '验证码不正确或已失效';
+        return;
+      }
+      const { acc, amount } = h5Verify;
+      invalidateH5Code();
+      document.getElementById('verifyMask').classList.remove('open');
+      finishRecharge(acc, amount);
+    }
+
+    function finishRecharge(acc, amount) {
 
       // 更新余额（本地演示）+ 钱包联动
       acc.balance = round2(acc.balance + amount);
@@ -1210,7 +1392,7 @@
     }
 
     // 初始化：优先校验登录，未登录展示登录页
-    document.addEventListener('DOMContentLoaded', () => { requireAuth('accounts'); document.querySelector('#bottomNav .nav-btn[data-page="accounts"]').classList.add('active'); });
+    document.addEventListener('DOMContentLoaded', () => { requireAuth('accounts'); paintH5MainDemo(); document.querySelector('#bottomNav .nav-btn[data-page="accounts"]').classList.add('active'); });
 
     // 简易模态
     function openModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }

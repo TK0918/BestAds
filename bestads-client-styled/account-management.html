@@ -688,6 +688,91 @@
       width: 836px;
     }
 
+    #verifyModal,
+    #emailBlockModal {
+      z-index: 140;
+    }
+
+    .main-account-demo {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      background: var(--surface-soft, #f8fafc);
+      font-size: 12px;
+    }
+
+    .main-account-demo .button.is-on {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #eef3ff;
+    }
+
+    body.theme-dark .main-account-demo .button.is-on {
+      background: rgba(39, 89, 255, 0.16);
+    }
+
+    .email-block-intro {
+      margin: 0 0 8px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .email-block-warn {
+      margin: 0 0 4px;
+      color: var(--danger);
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .modal.verify {
+      width: 680px;
+    }
+
+    .verify-countdown {
+      margin: 8px 0 4px;
+      font-weight: 600;
+    }
+
+    .verify-countdown.is-expired {
+      color: var(--danger);
+    }
+
+    .verify-demo {
+      margin: 4px 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .verify-error {
+      min-height: 20px;
+      margin-top: 8px;
+      color: var(--danger);
+    }
+
+    .verify-table {
+      width: 100%;
+      margin: 12px 0;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .verify-table th,
+    .verify-table td {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border-soft);
+      text-align: left;
+    }
+
+    .verify-table .num {
+      text-align: right;
+      white-space: nowrap;
+    }
+
     .modal-header {
       height: 56px;
       padding: 0 20px;
@@ -1371,6 +1456,11 @@
         <button class="close" type="button" data-close="rechargeModal" aria-label="Close">x</button>
       </header>
       <div class="modal-body">
+        <div class="main-account-demo">
+          <span data-i18n="demo_main_label">Prototype: main account</span>
+          <button class="button" type="button" data-main-account="owner@bestads.com" data-i18n="demo_main_valid">Valid email owner@bestads.com</button>
+          <button class="button" type="button" data-main-account="customer01" data-i18n="demo_main_invalid">Invalid login customer01</button>
+        </div>
         <div class="batch-filter">
           <div class="form-title">
             <span data-i18n="select_recharge_accounts">Select Recharge Accounts</span>
@@ -1437,6 +1527,70 @@
       <footer class="modal-footer">
         <button class="button" type="button" data-close="rechargeModal" data-i18n="btn_cancel">Cancel</button>
         <button class="button primary" type="button" data-confirm-batch="recharge" data-i18n="btn_confirm_recharge">Confirm Recharge</button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="verifyModal" class="modal-root" role="dialog" aria-modal="true" aria-labelledby="verifyTitle">
+    <section class="modal verify">
+      <header class="modal-header">
+        <h2 id="verifyTitle" class="modal-title" data-i18n="verify_title">Verify Recharge</h2>
+        <button class="close" type="button" data-close="verifyModal" aria-label="Close">x</button>
+      </header>
+      <div class="modal-body">
+        <p id="verifyIntro" class="form-tip"></p>
+        <div id="verifyCountdown" class="verify-countdown"></div>
+        <div id="verifyDemo" class="verify-demo"></div>
+        <table class="verify-table">
+          <thead>
+            <tr>
+              <th data-i18n="verify_col_account">Ad Account</th>
+              <th data-i18n="verify_col_currency">Currency</th>
+              <th class="num" data-i18n="verify_col_amount">This Amount</th>
+              <th class="num" data-i18n="verify_col_total">Day Total</th>
+              <th class="num" data-i18n="verify_col_threshold">Threshold</th>
+            </tr>
+          </thead>
+          <tbody id="verifyHits"></tbody>
+        </table>
+        <label class="form-title" for="verifyCodeInput" data-i18n="verify_code_label">Verification Code</label>
+        <div class="inline-row">
+          <input id="verifyCodeInput" class="input" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-i18n-placeholder="placeholder_verify_code" placeholder="Enter the code">
+          <button id="verifyResend" class="button" type="button" data-i18n="btn_resend_code">Resend</button>
+        </div>
+        <div id="verifyError" class="verify-error"></div>
+      </div>
+      <footer class="modal-footer">
+        <button class="button" type="button" data-close="verifyModal" data-i18n="btn_cancel">Cancel</button>
+        <button id="verifySubmit" class="button primary" type="button" data-i18n="btn_verify_submit">Confirm</button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="emailBlockModal" class="modal-root" role="dialog" aria-modal="true" aria-labelledby="emailBlockTitle">
+    <section class="modal verify">
+      <header class="modal-header">
+        <h2 id="emailBlockTitle" class="modal-title" data-i18n="block_title">Cannot Send Code</h2>
+        <button class="close" type="button" data-close="emailBlockModal" aria-label="Close">x</button>
+      </header>
+      <div class="modal-body">
+        <p id="emailBlockIntro" class="email-block-intro"></p>
+        <p id="emailBlockWarn" class="email-block-warn" data-i18n="block_warn">Please contact your AM to update the login email or adjust the recharge amount.</p>
+        <table class="verify-table">
+          <thead>
+            <tr>
+              <th data-i18n="verify_col_account">Ad Account</th>
+              <th data-i18n="verify_col_currency">Currency</th>
+              <th class="num" data-i18n="verify_col_amount">This Amount</th>
+              <th class="num" data-i18n="verify_col_total">Day Total</th>
+              <th class="num" data-i18n="verify_col_threshold">Threshold</th>
+            </tr>
+          </thead>
+          <tbody id="emailBlockHits"></tbody>
+        </table>
+      </div>
+      <footer class="modal-footer">
+        <button class="button primary" type="button" data-close="emailBlockModal" data-i18n="btn_got_it">OK</button>
       </footer>
     </section>
   </div>
@@ -1749,6 +1903,37 @@
         clear_notice_2: 'The clear operation cannot be undone. Please confirm before proceeding.',
         clear_notice_3: 'It is recommended to pause ad delivery before clearing the balance.',
         btn_confirm_recharge: 'Confirm Recharge',
+        verify_title: 'Verify Recharge',
+        verify_code_label: 'Verification Code',
+        placeholder_verify_code: 'Enter the code',
+        btn_resend_code: 'Resend',
+        btn_verify_submit: 'Confirm',
+        verify_col_account: 'Ad Account',
+        verify_col_currency: 'Currency',
+        verify_col_amount: 'This Amount',
+        verify_col_total: 'Day Total',
+        verify_col_threshold: 'Threshold',
+        verify_intro: 'These accounts reach the daily limit after this recharge. Enter the code sent to the main account email {email}. It is valid for 10 minutes. Closing this window or resending invalidates the current code.',
+        verify_intro_partial: '{passed} account(s) below the limit are already submitted. The accounts below still need the code before their recharge orders are created.',
+        verify_remain: 'Time left {time}',
+        verify_expired: 'Code expired. Please resend.',
+        verify_demo: 'Prototype code: {code}',
+        verify_demo_expired: 'Prototype code expired',
+        toast_code_sent: 'Code sent to {email}. Prototype code {code}, valid for 10 minutes.',
+        toast_code_resent: 'Code resent. The previous code is no longer valid. Prototype code {code}',
+        toast_code_voided: 'Code invalidated. Recharges over the limit were not submitted.',
+        toast_code_expired: 'Code expired. Please resend.',
+        toast_code_wrong: 'Incorrect or invalidated code',
+        toast_code_empty: 'Please enter the code',
+        toast_code_ok: 'Verified. Recharges over the limit are submitted.',
+        demo_main_label: 'Prototype: main account',
+        demo_main_valid: 'Valid email owner@bestads.com',
+        demo_main_invalid: 'Invalid login customer01',
+        block_title: 'Cannot Send Code',
+        block_intro: 'These ad accounts exceed today\'s recharge limit and need verification before the recharge can be submitted. The main account {login} is not a valid email and cannot receive the code.',
+        block_intro_partial: '{passed} account(s) below the limit are already submitted.',
+        block_warn: 'Please contact your AM to update the login email or adjust the recharge amount.',
+        btn_got_it: 'OK',
         btn_confirm_deduction: 'Confirm Deduction',
         btn_confirm_clear: 'Confirm Clear',
         toast_quick_amount: 'Please select or enter a quick amount first',
@@ -1915,6 +2100,37 @@
         clear_notice_2: '清零操作不可撤销，请确认后再继续。',
         clear_notice_3: '建议清零前暂停广告投放。',
         btn_confirm_recharge: '确认充值',
+        verify_title: '验证充值',
+        verify_code_label: '验证码',
+        placeholder_verify_code: '请输入验证码',
+        btn_resend_code: '重新发送',
+        btn_verify_submit: '确认',
+        verify_col_account: '广告账户',
+        verify_col_currency: '币种',
+        verify_col_amount: '本笔金额',
+        verify_col_total: '含本笔累计',
+        verify_col_threshold: '阈值',
+        verify_intro: '以下广告账户加上本笔后，当日累计达到限制阈值。请输入主账号邮箱 {email} 收到的验证码。验证码 10 分钟内有效。关闭窗口或重新发送后，当前验证码立即失效。',
+        verify_intro_partial: '未达到阈值的 {passed} 个账户已提交。以下账户仍需验证码，通过后才创建充值单。',
+        verify_remain: '剩余有效时间 {time}',
+        verify_expired: '验证码已过期，请重新发送',
+        verify_demo: '原型验证码：{code}',
+        verify_demo_expired: '原型验证码已过期',
+        toast_code_sent: '验证码已发送到主账号邮箱 {email}。原型验证码 {code}，10 分钟内有效。',
+        toast_code_resent: '已重新发送。之前的验证码已失效。原型验证码 {code}',
+        toast_code_voided: '验证码已作废，达到阈值的充值未提交',
+        toast_code_expired: '验证码已过期，请重新发送',
+        toast_code_wrong: '验证码不正确或已失效',
+        toast_code_empty: '请输入验证码',
+        toast_code_ok: '验证通过，达到阈值的充值已提交',
+        demo_main_label: '原型体验：主账号',
+        demo_main_valid: '有效邮箱 owner@bestads.com',
+        demo_main_invalid: '不合规登录名 customer01',
+        block_title: '无法发送验证码',
+        block_intro: '以下广告账户超过当天充值金额的限制，需要进行验证才能正常发起充值。但主账号{login}不是有效邮箱，无法正常接收验证码。',
+        block_intro_partial: '未达到阈值的 {passed} 个账户已提交。',
+        block_warn: '请联系AM调整登录邮箱或者调整充值金额。',
+        btn_got_it: '知道了',
         btn_confirm_deduction: '确认减款',
         btn_confirm_clear: '确认清零',
         toast_quick_amount: '请先选择或输入快捷金额',
@@ -1968,7 +2184,9 @@
         currency: 'USD',
         balance: '0.01',
         timezone: 'Etc/GMT-2',
-        created: '2024-01-29'
+        created: '2024-01-29',
+        dayCharged: 4200,
+        rechargeThreshold: 5000
       },
       {
         id: '7594765012359479313',
@@ -1998,7 +2216,9 @@
         currency: 'USD',
         balance: '150',
         timezone: 'Europe/Copenhagen',
-        created: '2025-09-18'
+        created: '2025-09-18',
+        dayCharged: 200,
+        rechargeThreshold: 1000
       },
       {
         id: '705119845658146',
@@ -2331,9 +2551,28 @@
       }
     }
 
-    function closeModal(id) {
+    const VALID_MAIN_EMAIL = 'owner@bestads.com';
+    const INVALID_MAIN_LOGIN = 'customer01';
+    let mainAccountLogin = new URLSearchParams(location.search).get('mainAccount') === 'invalid'
+      ? INVALID_MAIN_LOGIN
+      : VALID_MAIN_EMAIL;
+    let verifyTicket = null;
+    let verifyTimer = null;
+
+    function moneyText(value) {
+      return Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function closeModal(id, options = {}) {
+      if (id === 'verifyModal') {
+        invalidateVerifyCode();
+        const root = document.getElementById(id);
+        if (!options.silent && root.classList.contains('open')) {
+          showToast(t('toast_code_voided'), 'warning');
+        }
+      }
       document.getElementById(id).classList.remove('open');
-      document.body.style.overflow = '';
+      document.body.style.overflow = document.querySelector('.modal-root.open') ? 'hidden' : '';
     }
 
     function createTextRow(containerId, placeholder, removable = true) {
@@ -2565,6 +2804,19 @@
         }
       }
 
+      if (mode === 'recharge') {
+        const hits = rechargeHits(checked);
+        if (hits.length) {
+          const passed = checked.length - hits.length;
+          if (!isValidMainEmail(mainAccountLogin)) {
+            openEmailBlockModal(hits, passed);
+            return;
+          }
+          openVerifyModal(hits, passed);
+          return;
+        }
+      }
+
       const message = {
         recharge: t('toast_recharge_done'),
         deduct: t('toast_deduct_done'),
@@ -2572,6 +2824,154 @@
       }[mode];
       showToast(message, 'success');
       closeModal(`${mode}Modal`);
+    }
+
+    function isValidMainEmail(value) {
+      return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(String(value || ''));
+    }
+
+    function paintMainAccountDemo() {
+      document.querySelectorAll('[data-main-account]').forEach(button => {
+        button.classList.toggle('is-on', button.dataset.mainAccount === mainAccountLogin);
+      });
+    }
+
+    function rechargeHits(checked) {
+      return checked.map(input => {
+        const account = accounts.find(item => item.id === input.dataset.id);
+        const amountInput = document.querySelector(`input[data-amount="recharge"][data-id="${input.dataset.id}"]`);
+        const amount = Number(amountInput && amountInput.value) || 0;
+        if (!account || !account.rechargeThreshold) return null;
+        const dayTotal = (Number(account.dayCharged) || 0) + amount;
+        if (dayTotal < account.rechargeThreshold) return null;
+        return { account, amount, dayTotal, threshold: account.rechargeThreshold };
+      }).filter(Boolean);
+    }
+
+    function invalidateVerifyCode() {
+      if (verifyTicket) verifyTicket.code = '';
+      if (verifyTimer) {
+        clearInterval(verifyTimer);
+        verifyTimer = null;
+      }
+    }
+
+    function formatRemain(ms) {
+      const total = Math.max(0, Math.ceil(ms / 1000));
+      const minutes = String(Math.floor(total / 60)).padStart(2, '0');
+      const seconds = String(total % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    function setVerifyError(message) {
+      document.getElementById('verifyError').textContent = message || '';
+    }
+
+    function paintVerifyCountdown() {
+      const node = document.getElementById('verifyCountdown');
+      const demo = document.getElementById('verifyDemo');
+      if (!verifyTicket || !verifyTicket.expiresAt) return;
+      const remain = verifyTicket.expiresAt - Date.now();
+      if (remain <= 0) {
+        node.textContent = t('verify_expired');
+        node.classList.add('is-expired');
+        demo.textContent = t('verify_demo_expired');
+        verifyTicket.code = '';
+        if (verifyTimer) {
+          clearInterval(verifyTimer);
+          verifyTimer = null;
+        }
+        return;
+      }
+      node.classList.remove('is-expired');
+      node.textContent = t('verify_remain', { time: formatRemain(remain) });
+    }
+
+    function renderVerify(hits, passed) {
+      const intro = passed > 0
+        ? `${t('verify_intro_partial', { passed })}${t('verify_intro', { email: mainAccountLogin })}`
+        : t('verify_intro', { email: mainAccountLogin });
+      document.getElementById('verifyIntro').textContent = intro;
+      document.getElementById('verifyHits').innerHTML = hits.map(item => `
+        <tr>
+          <td>${escapeHtml(item.account.name)}</td>
+          <td>${escapeHtml(item.account.currency)}</td>
+          <td class="num">${moneyText(item.amount)}</td>
+          <td class="num">${moneyText(item.dayTotal)}</td>
+          <td class="num">${moneyText(item.threshold)}</td>
+        </tr>
+      `).join('');
+      document.getElementById('verifyCodeInput').value = '';
+      document.getElementById('verifyDemo').textContent = t('verify_demo', { code: verifyTicket.code });
+      setVerifyError('');
+      paintVerifyCountdown();
+    }
+
+    function issueVerifyCode(hits, passed) {
+      const keptHits = hits || (verifyTicket && verifyTicket.hits) || [];
+      const keptPassed = passed == null ? (verifyTicket && verifyTicket.passed) || 0 : passed;
+      invalidateVerifyCode();
+      verifyTicket = {
+        code: String(Math.floor(100000 + Math.random() * 900000)),
+        expiresAt: Date.now() + 10 * 60 * 1000,
+        hits: keptHits,
+        passed: keptPassed
+      };
+      verifyTimer = setInterval(paintVerifyCountdown, 1000);
+      return verifyTicket.code;
+    }
+
+    function openVerifyModal(hits, passed) {
+      const code = issueVerifyCode(hits, passed);
+      renderVerify(hits, passed);
+      openModal('verifyModal');
+      showToast(t('toast_code_sent', { email: mainAccountLogin, code }), 'success');
+    }
+
+    function openEmailBlockModal(hits, passed) {
+      const intro = passed > 0
+        ? `${t('block_intro_partial', { passed })}${t('block_intro', { login: mainAccountLogin })}`
+        : t('block_intro', { login: mainAccountLogin });
+      document.getElementById('emailBlockIntro').textContent = intro;
+      document.getElementById('emailBlockWarn').textContent = t('block_warn');
+      document.getElementById('emailBlockHits').innerHTML = hits.map(item => `
+        <tr>
+          <td>${escapeHtml(item.account.name)}</td>
+          <td>${escapeHtml(item.account.currency)}</td>
+          <td class="num">${moneyText(item.amount)}</td>
+          <td class="num">${moneyText(item.dayTotal)}</td>
+          <td class="num">${moneyText(item.threshold)}</td>
+        </tr>
+      `).join('');
+      openModal('emailBlockModal');
+    }
+
+    function resendVerifyCode() {
+      if (!verifyTicket) return;
+      const hits = verifyTicket.hits || [];
+      const passed = verifyTicket.passed || 0;
+      const code = issueVerifyCode(hits, passed);
+      renderVerify(hits, passed);
+      showToast(t('toast_code_resent', { code }), 'success');
+    }
+
+    function submitVerify() {
+      const input = document.getElementById('verifyCodeInput').value.trim();
+      if (!verifyTicket || !verifyTicket.code || Date.now() > verifyTicket.expiresAt) {
+        setVerifyError(t('toast_code_expired'));
+        return;
+      }
+      if (!input) {
+        setVerifyError(t('toast_code_empty'));
+        return;
+      }
+      if (input !== verifyTicket.code) {
+        setVerifyError(t('toast_code_wrong'));
+        return;
+      }
+      closeModal('verifyModal', { silent: true });
+      closeModal('rechargeModal');
+      showToast(t('toast_code_ok'), 'success');
     }
 
     function syncApplyMediaFields() {
@@ -2661,6 +3061,14 @@
     document.getElementById('languageToggle').addEventListener('click', toggleLanguage);
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
+    document.querySelectorAll('[data-main-account]').forEach(button => {
+      button.addEventListener('click', () => {
+        mainAccountLogin = button.dataset.mainAccount === INVALID_MAIN_LOGIN ? INVALID_MAIN_LOGIN : VALID_MAIN_EMAIL;
+        paintMainAccountDemo();
+      });
+    });
+    paintMainAccountDemo();
+
     document.querySelectorAll('[data-open]').forEach(button => {
       button.addEventListener('click', () => openModal(button.dataset.open));
     });
@@ -2722,6 +3130,8 @@
     document.querySelectorAll('[data-confirm-batch]').forEach(button => {
       button.addEventListener('click', () => confirmBatch(button.dataset.confirmBatch));
     });
+    document.getElementById('verifyResend').addEventListener('click', resendVerifyCode);
+    document.getElementById('verifySubmit').addEventListener('click', submitVerify);
 
     document.querySelectorAll('[data-batch-platform]').forEach(select => {
       select.addEventListener('change', () => renderBatchRows(select.dataset.batchPlatform));
