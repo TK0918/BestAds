@@ -769,6 +769,7 @@
       ];
       return `<div class="readonly-context">${items.map(([label, itemValue]) => `<div><dt>${esc(label)}</dt><dd>${esc(asText(itemValue))}</dd></div>`).join('')}</div>`;
     }
+    if (control === 'decimal') return `<input name="${esc(field.key)}" type="text" inputmode="decimal" placeholder="${esc(field.placeholder || '')}" value="${esc(value || '')}">`;
     return `<input name="${esc(field.key)}" type="text" placeholder="${esc(field.placeholder || '')}" value="${esc(value || '')}">`;
   }
 

@@ -89,7 +89,7 @@
   ];
 
   const ruleColumns = {
-    threshold: { key: 'threshold', label: '阈值', width: 140, num: true, sort: true },
+    threshold: { key: 'threshold', label: '阈值', width: 140, num: true, sort: true, help: '按每个广告账户当天已入账充值加上本笔比较，不是客户当天充值合计。减款和清零不抵消。' },
     notify: { key: 'notify', label: '通知', width: 120, format: onOff, help: '开启后，当充值金额大于等于阈值时，会在飞书群发送飞书消息通知大家。' },
     restrict: { key: 'restrict', label: '限制', width: 120, format: onOff, help: '开启后，当充值金额大于等于阈值时，需要主账号邮箱收到的验证码来验证本次充值操作，否则无法成功发起充值。' },
     updatedBy: { key: 'updatedBy', label: '更新人', align: 'left', width: 260, format: person },
@@ -99,7 +99,7 @@
     { key: 'notify', label: '通知', control: 'select', options: switchOptions, placeholder: '请选择通知', help: '开启后，当充值金额大于等于阈值时，会在飞书群发送飞书消息通知大家。' },
     { key: 'restrict', label: '限制', control: 'select', options: switchOptions, placeholder: '请选择限制', help: '开启后，当充值金额大于等于阈值时，需要主账号邮箱收到的验证码来验证本次充值操作，否则无法成功发起充值。' }
   ];
-  const thresholdField = { key: 'threshold', label: '阈值', placeholder: '请输入当日累计充值金额', help: '按该币种比较广告账户当日累计充值，减款和清零不抵消。' };
+  const thresholdField = { key: 'threshold', label: '阈值', control: 'decimal', placeholder: '请输入大于 0 的金额', help: '按每个广告账户当天已入账充值加上本笔比较，不是客户当天充值合计。减款和清零不抵消。大于 0，最多两位小数。' };
   const feedbackFields = [
     { key: 'feedback', label: '反馈', control: 'select', options: ['正常', '异常'], placeholder: '请选择反馈' },
     { key: 'feedbackRemark', label: '说明', control: 'textarea', full: true, required: false, placeholder: '请输入跟进说明' }
@@ -115,7 +115,7 @@
   let batchTargets = [];
 
   function syncMarketNote(tab) {
-    tab.footerNote = `大额通知发到「${groups.finance}」，并艾特该客户的 BD、AM。未配置的币种不监控。`;
+    tab.footerNote = `大额通知发到「${groups.finance}」，并艾特该客户的 BD、AM。阈值按每个广告账户当天累计比较，不是客户当天合计。未配置的币种不监控。`;
   }
 
   const marketTab = {
@@ -175,7 +175,7 @@
       ruleColumns.updatedAt
     ],
     rows: customerRows,
-    footerNote: '保存后，该客户在这个币种下的广告账户整条使用这里的阈值、通知和限制。',
+    footerNote: '保存后，该客户在这个币种下的广告账户整条使用这里的阈值、通知和限制。阈值按每个广告账户单独比较，不是该客户当天充值合计。',
     modals: {
       '新增客户规则': { title: '新增客户规则', fields: [{ key: 'customerPick', label: '客户', control: 'select', options: Object.keys(customers), placeholder: '请选择客户' }, { key: 'currency', label: '币种', control: 'select', options: currencies, placeholder: '请选择币种' }, thresholdField, ...switchFields] },
       '编辑': { title: '编辑客户规则', fields: [{ key: 'customerPick', label: '客户', control: 'readonly' }, { key: 'currency', label: '币种', control: 'readonly' }, thresholdField, ...switchFields] }
@@ -339,9 +339,24 @@
     }
   });
 
+  const messageExample = [
+    '客户：Arne（16201）',
+    '广告账户：HQ-W-12-13（821285917232112）',
+    '媒体：Facebook',
+    '币种：USD',
+    '本笔金额：2,500.00',
+    '当日累计：5,200.00',
+    '阈值：5,000.00',
+    '命中层级：大盘',
+    '充值来源：客户自助',
+    '是否验证码：是',
+    '艾特：王五、赵六'
+  ].join('\n');
+
   function applyRule(row, form) {
-    const threshold = amountText(form.threshold);
-    if (!threshold || Number(String(form.threshold).replace(/,/g, '')) <= 0) return '请输入大于 0 的阈值';
+    const raw = String(form.threshold == null ? '' : form.threshold).trim().replace(/,/g, '');
+    if (!/^\d+(\.\d{1,2})?$/.test(raw) || Number(raw) <= 0) return '请输入大于 0 的阈值，最多两位小数';
+    const threshold = amountText(raw);
     if (!switchOptions.includes(form.notify) || !switchOptions.includes(form.restrict)) return '请选择通知和限制';
     row.threshold = threshold;
     row.notify = form.notify;
@@ -447,7 +462,7 @@
       return 'open';
     },
     renderModal(modal) {
-      return `<div class="modal-backdrop" data-risk-groups><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '通知群设置')}</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body"><div class="form-grid"><div class="form-field full"><label>大额通知群 <span style="color:var(--admin-danger)">*</span></label><input name="financeGroup" type="text" value="${esc(groups.finance)}" placeholder="业务和财务都在的风控群"></div><div class="form-field full"><label>业务通知群 <span style="color:var(--admin-danger)">*</span></label><input name="bizGroup" type="text" value="${esc(groups.biz)}" placeholder="业务所在的风控群"></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>保存</button></div></section></div>`;
+      return `<div class="modal-backdrop" data-risk-groups><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '通知群设置')}</h2><button class="modal__close" type="button" data-modal-close><i class="fas fa-times" aria-hidden="true"></i></button></div><div class="modal__body"><div class="form-grid"><div class="form-field full"><label>大额通知群 <span style="color:var(--admin-danger)">*</span></label><input name="financeGroup" type="text" value="${esc(groups.finance)}" placeholder="业务和财务都在的风控群"></div><div class="form-field full"><label>业务通知群 <span style="color:var(--admin-danger)">*</span></label><input name="bizGroup" type="text" value="${esc(groups.biz)}" placeholder="业务所在的风控群"></div><div class="form-field full"><label>大额通知示例</label><p class="field-help">正式消息用当笔通知记录里的这些内容，并艾特该客户当前 BD、AM。这里只作示例，不能编辑。</p><div class="confirm-copy">${esc(messageExample).replace(/\n/g, '<br>')}</div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>保存</button></div></section></div>`;
     },
     handleRowAction(action, row, ctx) {
       if (!isRiskPage() || action !== '删除') return false;
