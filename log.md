@@ -1,3 +1,7 @@
+#### 2026-10-24 - 去掉比例调整记录
+
+地区税费不再单独放「比例调整记录」。系统上调的前后比例、依据地区和税率写在对应广告账户的日志里。旧地址 `#ratio-adjust-log` 打开广告账户比例页。`SHELL_VERSION` 为 `20261024-drop-ratio-tab`。
+
 #### 2026-10-24 - 地区税费第四期 PRD
 
 输出 `PRD/V 2.49 地区税费第四期.md`。公网原型为 `https://tk0918.github.io/BestAds/admin-system/main-functions/location-fee.html`。批量设置比例里「0% 与删除回退客户规则不同」改为：0% 表示不预收，想和客户规则一致就直接改数字。`SHELL_VERSION` 为 `20261024-ratio-zero-copy`。

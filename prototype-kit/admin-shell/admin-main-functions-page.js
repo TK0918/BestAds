@@ -356,30 +356,6 @@
           }
         },
         {
-          id: 'ratio-adjust-log',
-          label: '比例调整记录',
-          hideOperation: true,
-          filters: [
-            { key: 'accountId', label: '广告账户ID', placeholder: '请输入广告账户ID' },
-            { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' }
-          ],
-          footerNote: '只记录系统按投放地区上调预收比例的结果。实际投放税率不高于当前预收比例时不调整，也不会出现在这里。后付税费账户不参与。已关闭自动调整的账户不会被自动上调，也不会新增记录。',
-          columns: [
-            { key: 'adjustedAt', label: '调整时间' },
-            { key: 'accountId', label: '广告账户ID', align: 'left' },
-            { key: 'accountName', label: '广告账户名称', align: 'left' },
-            { key: 'customerName', label: '客户名称', align: 'left' },
-            { key: 'beforeRatio', label: '调整前比例', num: true },
-            { key: 'afterRatio', label: '调整后比例', num: true },
-            { key: 'region', label: '依据地区', align: 'left' },
-            { key: 'regionRate', label: '依据税率', num: true }
-          ],
-          rows: [
-            { adjustedAt: '2026-10-14 09:10:00', accountId: '238401982', accountName: 'AT-Prospecting', customerName: 'test金额变动', beforeRatio: '2.00%', afterRatio: '5.00%', region: '奥地利', regionRate: '5.00%' },
-            { adjustedAt: '2026-10-14 09:10:00', accountId: '880011001', accountName: 'Multi-EU', customerName: 'test金额变动', beforeRatio: '3.00%', afterRatio: '5.00%', region: '奥地利（同日还有英国 2%）', regionRate: '5.00%' }
-          ]
-        },
-        {
           id: 'pool',
           label: '预收池流水',
           filters: [

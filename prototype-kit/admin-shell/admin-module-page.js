@@ -2264,7 +2264,7 @@
     const tabs = config.tabs || [{ id: 'list', label: '', ...config }];
     const state = { tab: tabs[0].id, groupTab: {}, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null, locationFeeCreateResult: null, rebateMerchant: null };
     const hashTab = String(window.location.hash || '').replace('#', '');
-    const resolvedHash = document.body.dataset.adminPage === 'location-fee' && hashTab === 'tax-mode' ? 'ratio-account' : hashTab;
+    const resolvedHash = document.body.dataset.adminPage === 'location-fee' && (hashTab === 'tax-mode' || hashTab === 'ratio-adjust-log') ? 'ratio-account' : hashTab;
     if (tabs.some(item => item.id === resolvedHash)) state.tab = resolvedHash;
     if (document.body.dataset.adminPage === 'location-fee') {
       const modes = readLocationFeeTaxModes();
