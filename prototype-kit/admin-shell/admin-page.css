@@ -71,7 +71,7 @@ body.admin-prototype-page.theme-dark {
 .admin-help-tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-left: 4px; color: var(--admin-muted); cursor: help; vertical-align: -3px; }
 .admin-help-tip .fa { font-size: 12px; }
 .admin-help-tip:hover, .admin-help-tip:focus { color: var(--admin-primary); outline: none; }
-.admin-help-tip[data-tooltip]::after { content: attr(data-tooltip); position: absolute; z-index: 30; top: calc(100% + 8px); left: 50%; width: max-content; max-width: 280px; padding: 8px 10px; border-radius: 4px; background: #1f2933; box-shadow: 0 8px 20px rgba(0, 0, 0, .16); color: #fff; font-size: 12px; font-weight: 400; line-height: 18px; text-align: left; white-space: normal; opacity: 0; pointer-events: none; transform: translate(-50%, -4px); transition: opacity .14s ease, transform .14s ease; }
+.admin-help-tip[data-tooltip]::after { content: attr(data-tooltip); position: absolute; z-index: 30; top: calc(100% + 8px); left: 50%; width: max-content; max-width: 360px; padding: 8px 10px; border-radius: 4px; background: #1f2933; box-shadow: 0 8px 20px rgba(0, 0, 0, .16); color: #fff; font-size: 12px; font-weight: 400; line-height: 18px; text-align: left; white-space: normal; opacity: 0; pointer-events: none; transform: translate(-50%, -4px); transition: opacity .14s ease, transform .14s ease; }
 .admin-help-tip[data-tooltip]::before { content: ""; position: absolute; z-index: 31; top: calc(100% + 3px); left: 50%; width: 8px; height: 8px; background: #1f2933; opacity: 0; pointer-events: none; transform: translate(-50%, -4px) rotate(45deg); transition: opacity .14s ease, transform .14s ease; }
 .admin-help-tip:hover::after, .admin-help-tip:focus::after, .admin-help-tip:hover::before, .admin-help-tip:focus::before { opacity: 1; }
 .admin-help-tip:hover::after, .admin-help-tip:focus::after { transform: translate(-50%, 0); }
@@ -250,6 +250,14 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .modal.modal-transfer-history { width: min(880px, calc(100vw - 48px)); }
 .drawer-backdrop { align-items: stretch; justify-content: flex-end; padding: 0; }
 .drawer-modal { width: min(420px, 92vw); max-height: 100vh; border-radius: 0; border-top: 0; border-right: 0; border-bottom: 0; }
+.drawer-modal--ratio-log { width: min(440px, 92vw); }
+.ratio-log { display: grid; gap: 0; margin: 8px 0 0; padding: 0; list-style: none; }
+.ratio-log__item { display: grid; gap: 4px; padding: 12px 0 12px 14px; border-left: 2px solid var(--admin-border); }
+.ratio-log__item + .ratio-log__item { margin-top: 0; }
+.ratio-log__time { color: var(--admin-muted); font-size: 12px; line-height: 16px; }
+.ratio-log__title { font-size: 13px; line-height: 18px; }
+.ratio-log__change { font-size: 14px; font-weight: 600; line-height: 20px; }
+.ratio-log__note { color: var(--admin-muted); font-size: 12px; line-height: 16px; }
 .modal__header, .modal__footer { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 20px; }
 .modal__header { border-bottom: 1px solid var(--admin-border); }
 .modal__footer { justify-content: flex-end; gap: 8px; border-top: 1px solid var(--admin-border); }
@@ -315,6 +323,16 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .detail-grid div { min-width: 0; padding-bottom: 10px; border-bottom: 1px solid var(--admin-border); }
 .detail-grid dt { margin-bottom: 4px; color: var(--admin-muted); font-size: 12px; }
 .detail-grid dd { margin: 0; color: var(--admin-text); line-height: 20px; word-break: break-word; }
+.topup-notice { display: grid; gap: 14px; }
+.topup-notice__head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+.topup-notice__head strong { font-size: 14px; }
+.topup-notice__head span { color: var(--admin-muted); font-size: 12px; white-space: nowrap; }
+.topup-notice__group { display: grid; gap: 8px; }
+.topup-notice__group h3 { margin: 0; color: var(--admin-secondary); font-size: 12px; font-weight: 600; }
+.topup-notice__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; margin: 0; }
+.topup-notice__grid div { min-width: 0; }
+.topup-notice__grid dt { margin: 0 0 2px; color: var(--admin-muted); font-size: 12px; }
+.topup-notice__grid dd { margin: 0; font-size: 14px; line-height: 22px; }
 .readonly-context { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; padding: 12px; border: 1px solid var(--admin-border); border-radius: 6px; background: color-mix(in srgb, var(--admin-page-bg) 70%, var(--admin-surface)); }
 .readonly-context div { min-width: 0; }
 .readonly-context dt { margin-bottom: 4px; color: var(--admin-muted); font-size: 12px; }
@@ -444,6 +462,15 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .datetime-range input { flex: 1; min-width: 0; }
 .datetime-sep { color: var(--admin-muted); font-size: 12px; white-space: nowrap; }
 .field-help { margin: 5px 0 0; color: var(--admin-muted); font-size: 11px; line-height: 16px; }
+.topup-notice + .field-help { margin-top: 16px; }
+.form-field .admin-switch { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; margin: 0; color: var(--admin-text); cursor: pointer; }
+.admin-switch input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; }
+.admin-switch__track { position: relative; flex: 0 0 36px; width: 36px; height: 20px; border-radius: 10px; background: #c5c8ce; transition: background .16s ease; }
+.admin-switch__track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .18); transition: transform .16s ease; }
+.admin-switch input:checked + .admin-switch__track { background: var(--admin-primary); }
+.admin-switch input:checked + .admin-switch__track::after { transform: translateX(16px); }
+.admin-switch input:focus-visible + .admin-switch__track { box-shadow: 0 0 0 2px rgba(0, 107, 230, .2); }
+.admin-switch__text { font-size: 13px; line-height: 18px; color: var(--admin-text); }
 .api-permission-context { display: grid; gap: 8px; margin-top: 16px; padding: 10px 12px; border-radius: 4px; background: color-mix(in srgb, var(--admin-page-bg) 72%, var(--admin-surface)); }
 .api-permission-context div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 8px; align-items: start; }
 .api-permission-context dt { margin: 0; color: var(--admin-muted); font-size: 12px; line-height: 20px; }

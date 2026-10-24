@@ -468,6 +468,8 @@
                 merchantId: '14229',
                 balance: '52,860.00 USD',
                 accounts: [
+                  { id: '238401982', name: 'AT-Prospecting', currency: 'USD', balance: '1,200.00', serviceRate: 3, preTaxRate: 5, taxMode: '预付税费' },
+                  { id: '660088221', name: 'DE-Postpay', currency: 'USD', balance: '640.00', serviceRate: 3, preTaxRate: 5, taxMode: '后付税费' },
                   { id: '1292368695505904', name: 'MX-G-12-620', currency: 'USD', balance: '0.00', serviceRate: 3, preTaxRate: 5, verifyStatus: '已验卡(未回收)', cardId: 'c_3bpoltc2u7sf1', cardLabel: 'c_3bpoltc2u7sf1(7209)｜已验卡(未回收)｜可用 498.00 USD', otherCards: '其他关联卡：1. c_w9x8y7z6v5u4t3(5678)｜已回收｜可用 200.00 USD' },
                   { id: '1446318376445043', name: 'IT - TEST -M', currency: 'USD', balance: '120.00', serviceRate: 3, preTaxRate: 0, verifyStatus: '待验卡', cardId: 'c_pending_media_1446', cardLabel: 'c_pending_media_1446(1446)｜待验卡｜可用 20.00 USD', otherCards: '其他关联卡：无', gateReason: '使用卡待验卡，需先去媒体并标记媒体已验证' },
                   { id: '1349733090150935', name: 'IT - TEST -2M', currency: 'USD', balance: '0.01', serviceRate: 3, preTaxRate: 0 }
