@@ -167,7 +167,7 @@
             { id: 'feishu-notice', label: '飞书通知示意', icon: 'bell' },
             { id: 'export', label: '导出数据', icon: 'download', align: 'right' }
           ],
-          footerNote: '每日估算跑完后，对对比状态为临界、不足的客户按商户ID各发一条飞书消息，并同时 @ 对应 BD 和 AM。差额 = 0 仍为充足，不发送。预收池余额 = 预收池总收款 − 总税费扣款。自动补入的阈值、变更记录和补入结果在「自动补入」。',
+          footerNote: '每日估算跑完后，对对比状态为临界、不足的客户按商户ID各发一条飞书消息，并同时 @ 对应 BD 和 AM。差额 = 0 仍为充足，不发送。预收池余额 = 预收池总收款 − 总税费扣款。自动补入的阈值和补入结果在「自动补入」。阈值、预收比例、自动调整和税费方式的调整记录在权限审计日志。',
           columns: [
             { key: 'merchantId', label: '商户ID', format: merchant },
             { key: 'customerName', label: '客户名称', align: 'left' },
@@ -212,19 +212,21 @@
             { key: 'status', label: '状态', type: 'select', options: ['开启', '关闭'] }
           ],
           actions: [{ id: 'add-topup-customer', label: '新增客户设置', icon: 'plus', primary: true }],
-          footerNote: '客户设置不能删除。关闭后这条阈值不生效，该客户改用大盘阈值。当时可用余额够补当时差额时全部补入；不够则按可用余额部分补入；可用余额为 0 则补入失败，不记流水。触发自动补入都会发送飞书群通知。',
-          opsWidth: 220,
+          footerNote: '客户设置不能删除。关闭后这条阈值不生效，该客户改用大盘阈值。当时可用余额够补当时差额时全部补入；不够则按可用余额部分补入；可用余额为 0 则补入失败，不记流水。触发自动补入都会发送飞书群通知。阈值调整记录在权限审计日志。',
+          opsWidth: 160,
           columns: [
             { key: 'merchantId', label: '商户ID', format: merchant },
             { key: 'customerName', label: '客户名称', align: 'left' },
+            { key: 'bd', label: '当前BM' },
+            { key: 'am', label: '当前AM' },
             { key: 'threshold', label: '阈值', num: true, help: '阈值是负数。差额小于或等于这个数才自动补入。例如 -0.01 表示差额小于或等于 -0.01 就补。关闭后不使用这条，改用大盘阈值。' },
             { key: 'status', label: '状态', format: status, help: '开启：使用这条客户阈值。关闭：不应用这条设置，改用大盘阈值。不能删除。' },
             { key: 'updatedBy', label: '更新人' },
             { key: 'updatedAt', label: '更新时间' }
           ],
           rows: [
-            { merchantId: '18803', customerName: '单独阈值', threshold: '-1000.00', status: '开启', updatedBy: '欧伟权', updatedAt: '2026-09-18 14:00:00', ops: ['编辑', '关闭', '变更记录'], changeLogs: [{ at: '2026-09-18 14:00:00', by: '欧伟权', action: '新增', after: '阈值 -1000.00，状态 开启' }] },
-            { merchantId: '18801', customerName: '余额不足', threshold: '-500.00', status: '关闭', updatedBy: '管理员', updatedAt: '2026-10-10 11:30:00', ops: ['编辑', '开启', '变更记录'], changeLogs: [{ at: '2026-10-10 11:30:00', by: '管理员', action: '状态', before: '开启', after: '关闭' }, { at: '2026-09-12 16:00:00', by: '管理员', action: '新增', after: '阈值 -500.00，状态 开启' }] }
+            { merchantId: '18803', customerName: '单独阈值', bd: '欧伟权', am: '管理员', threshold: '-1000.00', status: '开启', updatedBy: '欧伟权', updatedAt: '2026-09-18 14:00:00', ops: ['编辑', '关闭'], changeLogs: [{ at: '2026-09-18 14:00:00', by: '欧伟权', action: '新增', after: '阈值 -1000.00，状态 开启' }] },
+            { merchantId: '18801', customerName: '余额不足', bd: '吴文锐', am: '邓港', threshold: '-500.00', status: '关闭', updatedBy: '管理员', updatedAt: '2026-10-10 11:30:00', ops: ['编辑', '开启'], changeLogs: [{ at: '2026-10-10 11:30:00', by: '管理员', action: '状态', before: '开启', after: '关闭' }, { at: '2026-09-12 16:00:00', by: '管理员', action: '新增', after: '阈值 -500.00，状态 开启' }] }
           ]
         },
         {
@@ -243,6 +245,8 @@
             { key: 'occurredAt', label: '发起时间' },
             { key: 'merchantId', label: '商户ID', format: merchant },
             { key: 'customerName', label: '客户名称', align: 'left' },
+            { key: 'bd', label: '当前BM' },
+            { key: 'am', label: '当前AM' },
             { key: 'currency', label: '币种' },
             { key: 'appliedThreshold', label: '适用阈值', help: '阈值是负数。差额小于或等于它才补入。客户设置为开启时用客户阈值，关闭或未设置时用大盘阈值。' },
             { key: 'differenceBefore', label: '当时差额', format: money, num: true, help: '检测到需要自动补入时的差额。差额 = 预收池余额 − 近7天预估税费。' },
@@ -254,9 +258,9 @@
             { key: 'feishu', label: '飞书通知', help: '只要触发自动补入就发送到飞书群，包括全部补入、部分补入和补入失败。' }
           ],
           rows: [
-            { occurredAt: '2026-10-23 09:20:00', merchantId: '18801', customerName: '余额不足', currency: 'USD', appliedThreshold: '-800.00（大盘）', differenceBefore: '-1200.00', availableBefore: '100.00', topupAmount: '100.00', differenceAfter: '-1100.00', availableAfter: '0.00', result: '部分补入', feishu: '已发送', ops: ['查看通知'] },
-            { occurredAt: '2026-10-22 09:20:00', merchantId: '1128', customerName: 'adstest', currency: 'USD', appliedThreshold: '-800.00（大盘）', differenceBefore: '-860.00', availableBefore: '0.00', topupAmount: '0.00', differenceAfter: '-860.00', availableAfter: '0.00', result: '补入失败', feishu: '已发送', ops: ['查看通知'] },
-            { occurredAt: '2026-10-14 09:20:00', merchantId: '18802', customerName: '昨日已补', currency: 'USD', appliedThreshold: '-800.00（大盘）', differenceBefore: '-900.00', availableBefore: '2000.00', topupAmount: '900.00', differenceAfter: '0.00', availableAfter: '1100.00', result: '全部补入', feishu: '已发送', ops: ['查看通知'] }
+            { occurredAt: '2026-10-23 09:20:00', merchantId: '18801', customerName: '余额不足', bd: '吴文锐', am: '邓港', currency: 'USD', appliedThreshold: '-800.00（大盘）', differenceBefore: '-1200.00', availableBefore: '100.00', topupAmount: '100.00', differenceAfter: '-1100.00', availableAfter: '0.00', result: '部分补入', feishu: '已发送', ops: ['查看通知'] },
+            { occurredAt: '2026-10-22 09:20:00', merchantId: '1128', customerName: 'adstest', bd: '谭英就', am: '李志伟', currency: 'USD', appliedThreshold: '-800.00（大盘）', differenceBefore: '-860.00', availableBefore: '0.00', topupAmount: '0.00', differenceAfter: '-860.00', availableAfter: '0.00', result: '补入失败', feishu: '已发送', ops: ['查看通知'] },
+            { occurredAt: '2026-10-14 09:20:00', merchantId: '18802', customerName: '昨日已补', bd: '谭英就', am: '李志伟', currency: 'USD', appliedThreshold: '-800.00（大盘）', differenceBefore: '-900.00', availableBefore: '2000.00', topupAmount: '900.00', differenceAfter: '0.00', availableAfter: '1100.00', result: '全部补入', feishu: '已发送', ops: ['查看通知'] }
           ]
         },
         {
@@ -270,6 +274,7 @@
             { key: 'accountType', label: '账户类型', type: 'select', options: ['海外户', '企业户'] }
           ],
           actions: [{ id: 'create', label: '新增客户预收比例', icon: 'plus', primary: true }],
+          footerNote: '客户预收比例的调整记录在权限审计日志。',
           columns: [
             { key: 'merchantId', label: '商户ID', format: merchant },
             { key: 'customerName', label: '客户名称', align: 'left' },
@@ -280,8 +285,8 @@
             { key: 'updatedAt', label: '更新时间' }
           ],
           rows: [
-            { merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '15.00%', updatedBy: '欧伟权', updatedAt: '2026-08-06 16:00:00', ops: ['编辑', '日志'], ratioLogs: [{ at: '2026-08-06 16:00:00', by: '欧伟权', action: '新增', after: '15.00%' }] },
-            { merchantId: '14656', customerName: 'test测试币种GBP', media: 'Meta', accountType: '海外户', ratio: '10.00%', updatedBy: '管理员', updatedAt: '2026-08-05 11:20:05', ops: ['编辑', '日志'], ratioLogs: [{ at: '2026-08-05 11:20:05', by: '管理员', action: '新增', after: '10.00%' }] }
+            { merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '15.00%', updatedBy: '欧伟权', updatedAt: '2026-08-06 16:00:00', ops: ['编辑'], ratioLogs: [{ at: '2026-08-06 16:00:00', by: '欧伟权', action: '新增', after: '15.00%' }] },
+            { merchantId: '14656', customerName: 'test测试币种GBP', media: 'Meta', accountType: '海外户', ratio: '10.00%', updatedBy: '管理员', updatedAt: '2026-08-05 11:20:05', ops: ['编辑'], ratioLogs: [{ at: '2026-08-05 11:20:05', by: '管理员', action: '新增', after: '10.00%' }] }
           ],
           modal: {
             title: '新增客户预收比例',
@@ -300,7 +305,7 @@
           label: '广告账户',
           filterClass: 'cols-5',
           selectable: true,
-          opsWidth: 220,
+          opsWidth: 180,
           filters: [
             { key: 'accountIds', label: '广告账户ID', type: 'textarea', match: 'ids', rowKey: 'accountId', placeholder: '粘贴广告账户ID，一行一个，或用逗号/空格分隔' },
             { key: 'merchantId', label: '当前商户ID', type: 'textarea', match: 'ids', rowKey: 'merchantId', placeholder: '粘贴当前商户ID，一行一个，或用逗号分隔' },
@@ -314,7 +319,7 @@
             { id: 'batch-ratio', label: '批量设置比例', icon: 'percent', requiresSelection: true },
             { id: 'batch-tax-mode', label: '批量预付后付', icon: 'exchange-alt', requiresSelection: true }
           ],
-          footerNote: '列表来自广告账户，不是仅已配置行。不预收把预收比例设为 0%。自动调整默认开启。关闭后，系统不再按投放地区修改这个账户的预收比例。税费方式在新增时设定，之后用「预付后付」或「批量预付后付」修改。后付充值不预收，不参与自动上调，不计余额税费。',
+          footerNote: '列表来自广告账户，不是仅已配置行。不预收把预收比例设为 0%。自动调整默认开启。关闭后，系统不再按投放地区修改这个账户的预收比例。税费方式在新增时设定，之后用「预付后付」或「批量预付后付」修改。后付充值不预收，不参与自动上调，不计余额税费。调整记录在权限审计日志。',
           columns: [
             { key: 'accountId', label: '广告账户ID', align: 'left' },
             { key: 'accountName', label: '广告账户名称', align: 'left' },
@@ -329,13 +334,13 @@
             { key: 'updatedAt', label: '更新时间' }
           ],
           rows: [
-            { accountId: '238401982', accountName: 'AT-Prospecting', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '系统', updatedAt: '2026-10-14 09:10:00', ops: ['编辑', '预付后付', '日志'], ratioLogs: [{ at: '2026-10-14 09:10:00', by: '系统', action: '调整', before: '2.00%', after: '5.00%', note: '依据奥地利 5.00%' }] },
-            { accountId: '880011001', accountName: 'Multi-EU', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '系统', updatedAt: '2026-10-14 09:10:00', ops: ['编辑', '预付后付', '日志'], ratioLogs: [{ at: '2026-10-14 09:10:00', by: '系统', action: '调整', before: '3.00%', after: '5.00%', note: '依据奥地利 5.00%，同日还有英国 2.00%' }] },
-            { accountId: '770022001', accountName: 'UK-Brand', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '关闭', taxMode: '预付税费', updatedBy: '欧伟权', updatedAt: '2026-08-20 10:00:00', ops: ['编辑', '预付后付', '日志'], ratioLogs: [{ at: '2026-08-20 10:00:00', by: '欧伟权', action: '自动调整', before: '开启', after: '关闭' }, { at: '2026-08-20 10:00:00', by: '欧伟权', action: '新增', after: '5.00%' }] },
-            { accountId: '987654321', accountName: 'US-Prospecting', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '15.00%', customerRatio: '15.00%', source: '客户规则', hasOverride: false, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '欧伟权', updatedAt: '2026-08-06 16:00:00', ops: ['编辑', '预付后付', '日志'], ratioLogs: [] },
-            { accountId: '660088221', accountName: 'DE-Postpay', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '后付税费', updatedBy: '管理员', updatedAt: '2026-09-02 14:20:00', ops: ['编辑', '预付后付', '日志'], ratioLogs: [{ at: '2026-09-02 14:20:00', by: '管理员', action: '税费方式', before: '预付税费', after: '后付税费' }, { at: '2026-09-02 14:20:00', by: '管理员', action: '新增', after: '5.00%' }] },
-            { accountId: '555000111', accountName: 'EU-Brand', merchantId: '14566', customerName: 'Alpine EU', media: 'Meta', accountType: '海外户', ratio: '—', customerRatio: '', source: '未配置', hasOverride: false, autoAdjust: '开启', taxMode: '后付税费', updatedBy: '-', updatedAt: '-', ops: ['编辑', '预付后付', '日志'], ratioLogs: [{ at: '2026-09-01 11:00:00', by: '管理员', action: '税费方式', before: '预付税费', after: '后付税费' }] },
-            { accountId: '720911004', accountName: 'TR-Scale', merchantId: '1128', customerName: 'adstest', media: 'Meta', accountType: '海外户', ratio: '0.00%', customerRatio: '', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '管理员', updatedAt: '2026-08-08 09:12:00', ops: ['编辑', '预付后付', '日志'], ratioLogs: [{ at: '2026-08-08 09:12:00', by: '管理员', action: '新增', after: '0.00%' }] }
+            { accountId: '238401982', accountName: 'AT-Prospecting', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '系统', updatedAt: '2026-10-14 09:10:00', ops: ['编辑', '预付后付'], ratioLogs: [{ at: '2026-10-14 09:10:00', by: '系统', action: '调整', before: '2.00%', after: '5.00%', note: '依据奥地利 5.00%' }] },
+            { accountId: '880011001', accountName: 'Multi-EU', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '系统', updatedAt: '2026-10-14 09:10:00', ops: ['编辑', '预付后付'], ratioLogs: [{ at: '2026-10-14 09:10:00', by: '系统', action: '调整', before: '3.00%', after: '5.00%', note: '依据奥地利 5.00%，同日还有英国 2.00%' }] },
+            { accountId: '770022001', accountName: 'UK-Brand', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '关闭', taxMode: '预付税费', updatedBy: '欧伟权', updatedAt: '2026-08-20 10:00:00', ops: ['编辑', '预付后付'], ratioLogs: [{ at: '2026-08-20 10:00:00', by: '欧伟权', action: '自动调整', before: '开启', after: '关闭' }, { at: '2026-08-20 10:00:00', by: '欧伟权', action: '新增', after: '5.00%' }] },
+            { accountId: '987654321', accountName: 'US-Prospecting', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '15.00%', customerRatio: '15.00%', source: '客户规则', hasOverride: false, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '欧伟权', updatedAt: '2026-08-06 16:00:00', ops: ['编辑', '预付后付'], ratioLogs: [] },
+            { accountId: '660088221', accountName: 'DE-Postpay', merchantId: '14229', customerName: 'test金额变动', media: 'Meta', accountType: '海外户', ratio: '5.00%', customerRatio: '15.00%', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '后付税费', updatedBy: '管理员', updatedAt: '2026-09-02 14:20:00', ops: ['编辑', '预付后付'], ratioLogs: [{ at: '2026-09-02 14:20:00', by: '管理员', action: '税费方式', before: '预付税费', after: '后付税费' }, { at: '2026-09-02 14:20:00', by: '管理员', action: '新增', after: '5.00%' }] },
+            { accountId: '555000111', accountName: 'EU-Brand', merchantId: '14566', customerName: 'Alpine EU', media: 'Meta', accountType: '海外户', ratio: '—', customerRatio: '', source: '未配置', hasOverride: false, autoAdjust: '开启', taxMode: '后付税费', updatedBy: '-', updatedAt: '-', ops: ['编辑', '预付后付'], ratioLogs: [{ at: '2026-09-01 11:00:00', by: '管理员', action: '税费方式', before: '预付税费', after: '后付税费' }] },
+            { accountId: '720911004', accountName: 'TR-Scale', merchantId: '1128', customerName: 'adstest', media: 'Meta', accountType: '海外户', ratio: '0.00%', customerRatio: '', source: '账户覆盖', hasOverride: true, autoAdjust: '开启', taxMode: '预付税费', updatedBy: '管理员', updatedAt: '2026-08-08 09:12:00', ops: ['编辑', '预付后付'], ratioLogs: [{ at: '2026-08-08 09:12:00', by: '管理员', action: '新增', after: '0.00%' }] }
           ],
           modal: {
             title: '新增账户预收比例',
@@ -421,9 +426,9 @@
             { key: 'accountId', label: '广告账户ID', placeholder: '请输入广告账户ID' },
             { key: 'customerName', label: '客户名称', placeholder: '请输入客户名称' },
             { key: 'period', label: '周期', type: 'select', options: ['2026-10-05 ~ 2026-10-11', '2026-09-28 ~ 2026-10-04'] },
-            { key: 'status', label: '处理状态', type: 'select', options: ['待发起', '审批中', '调额中', '已完成', '审批未通过', '调额失败'] }
+            { key: 'status', label: '处理状态', type: 'select', options: ['待发起', '调额中', '已完成', '调额失败'] }
           ],
-          footerNote: '每周一生成上上周一至上上周日的绑卡户税费，一行是一个广告账户的一个周期。运营发起飞书审批，审批通过后 Slash 调增当前卡额度。Slash 调额成功后，状态才是已完成。没有当前 Slash 卡不能发起。审批未通过或调额失败可以重新发起。预收池余额小于 0 时，发起前会提示已出现拖欠税费，确认后仍可发起。预收池不再扣这笔。',
+          footerNote: '每周一生成上上周一至上上周日的绑卡户税费，一行是一个广告账户的一个周期。运营确认后直接调增当前 Slash 卡额度。Slash 调额成功后，状态才是已完成。没有当前 Slash 卡不能发起。调额失败可以重新发起。预收池余额小于 0 时，发起前会提示已出现拖欠税费，确认后仍可发起。预收池不再扣这笔。',
           columns: [
             { key: 'generatedAt', label: '生成日期' },
             { key: 'period', label: '周期', help: '每周一生成的是上上周一至上上周日。' },
@@ -435,15 +440,15 @@
             { key: 'taxMode', label: '税费方式', format: status },
             { key: 'cardLabel', label: '当前Slash卡', help: '发起时这个绑卡户正在使用的 Slash 卡。没有当前卡不能发起。' },
             { key: 'taxAmount', label: '周期税费金额', format: money, num: true, help: '该周期内这个广告账户产生的税费合计，也是本次增加 Slash 卡额度的金额。' },
-            { key: 'status', label: '处理状态', format: status, help: '周一生成后为待发起。运营发起飞书审批后为审批中。审批通过后进入调额中。Slash 调额成功后为已完成。审批未通过或调额失败可以重新发起。' }
+            { key: 'status', label: '处理状态', format: status, help: '周一生成后为待发起。运营发起调额后为调额中。Slash 调额成功后为已完成。调额失败可以重新发起。' }
           ],
           rows: [
             { generatedAt: '2026-10-19', period: '2026-10-05 ~ 2026-10-11', accountId: '238401982', accountName: 'AT-Prospecting', merchantId: '14229', customerName: 'test金额变动', taxMode: '预付税费', cardLabel: '尾号 4412', taxAmount: '43.00', status: '待发起', selectable: true, ops: ['发起调额', '查看依据'], progress: [{ at: '2026-10-19 09:00:00', title: '系统生成', note: '周期 2026-10-05 ~ 2026-10-11，税费 43.00 USD' }] },
             { generatedAt: '2026-10-19', period: '2026-10-05 ~ 2026-10-11', accountId: '188010088', accountName: '欠费绑卡', merchantId: '18801', customerName: '余额不足', taxMode: '预付税费', cardLabel: '尾号 8801', taxAmount: '12.00', status: '待发起', selectable: true, ops: ['发起调额', '查看依据'], progress: [{ at: '2026-10-19 09:00:00', title: '系统生成', note: '周期 2026-10-05 ~ 2026-10-11，税费 12.00 USD' }] },
-            { generatedAt: '2026-10-19', period: '2026-10-05 ~ 2026-10-11', accountId: '660088221', accountName: 'DE-Postpay', merchantId: '14229', customerName: 'test金额变动', taxMode: '后付税费', cardLabel: '尾号 2208', taxAmount: '58.00', status: '审批中', selectable: true, ops: ['查看进度', '查看依据'], progress: [{ at: '2026-10-19 09:00:00', title: '系统生成', note: '周期 2026-10-05 ~ 2026-10-11，税费 58.00 USD' }, { at: '2026-10-20 11:20:00', title: '发起飞书审批', note: '管理员，当前卡 尾号 2208，调增 58.00 USD' }] },
+            { generatedAt: '2026-10-19', period: '2026-10-05 ~ 2026-10-11', accountId: '660088221', accountName: 'DE-Postpay', merchantId: '14229', customerName: 'test金额变动', taxMode: '后付税费', cardLabel: '尾号 2208', taxAmount: '58.00', status: '调额中', selectable: true, ops: ['查看进度', '查看依据'], progress: [{ at: '2026-10-19 09:00:00', title: '系统生成', note: '周期 2026-10-05 ~ 2026-10-11，税费 58.00 USD' }, { at: '2026-10-20 11:20:00', title: '发起调额', note: '管理员，当前卡 尾号 2208，调增 58.00 USD' }] },
             { generatedAt: '2026-10-19', period: '2026-10-05 ~ 2026-10-11', accountId: '910077002', accountName: '废卡未换', merchantId: '14566', customerName: 'Alpine EU', taxMode: '预付税费', cardLabel: '无', taxAmount: '5.00', status: '待发起', selectable: false, ops: ['发起调额', '查看依据'], progress: [{ at: '2026-10-19 09:00:00', title: '系统生成', note: '周期 2026-10-05 ~ 2026-10-11，税费 5.00 USD。没有当前 Slash 卡，不能发起。' }] },
-            { generatedAt: '2026-10-12', period: '2026-09-28 ~ 2026-10-04', accountId: '238401982', accountName: 'AT-Prospecting', merchantId: '14229', customerName: 'test金额变动', taxMode: '预付税费', cardLabel: '尾号 4412', taxAmount: '61.00', status: '已完成', selectable: true, ops: ['查看进度', '查看依据'], progress: [{ at: '2026-10-12 09:00:00', title: '系统生成', note: '周期 2026-09-28 ~ 2026-10-04，税费 61.00 USD' }, { at: '2026-10-13 10:15:00', title: '发起飞书审批', note: '管理员，当前卡 尾号 4412，调增 61.00 USD' }, { at: '2026-10-13 16:40:00', title: '审批通过', note: '飞书审批通过，开始调额' }, { at: '2026-10-13 16:42:00', title: 'Slash 调额成功', note: '尾号 4412 已增加 61.00 USD' }] },
-            { generatedAt: '2026-10-12', period: '2026-09-28 ~ 2026-10-04', accountId: '660088221', accountName: 'DE-Postpay', merchantId: '14229', customerName: 'test金额变动', taxMode: '后付税费', cardLabel: '尾号 2208', taxAmount: '30.00', status: '调额失败', selectable: true, ops: ['重新发起', '查看进度', '查看依据'], progress: [{ at: '2026-10-12 09:00:00', title: '系统生成', note: '周期 2026-09-28 ~ 2026-10-04，税费 30.00 USD' }, { at: '2026-10-13 14:05:00', title: '发起飞书审批', note: '管理员，当前卡 尾号 2208，调增 30.00 USD' }, { at: '2026-10-14 09:30:00', title: '审批通过', note: '飞书审批通过，开始调额' }, { at: '2026-10-14 09:31:00', title: 'Slash 调额失败', note: '调额未成功，状态不是已完成，可以重新发起' }] }
+            { generatedAt: '2026-10-12', period: '2026-09-28 ~ 2026-10-04', accountId: '238401982', accountName: 'AT-Prospecting', merchantId: '14229', customerName: 'test金额变动', taxMode: '预付税费', cardLabel: '尾号 4412', taxAmount: '61.00', status: '已完成', selectable: true, ops: ['查看进度', '查看依据'], progress: [{ at: '2026-10-12 09:00:00', title: '系统生成', note: '周期 2026-09-28 ~ 2026-10-04，税费 61.00 USD' }, { at: '2026-10-13 10:15:00', title: '发起调额', note: '管理员，当前卡 尾号 4412，调增 61.00 USD' }, { at: '2026-10-13 16:42:00', title: 'Slash 调额成功', note: '尾号 4412 已增加 61.00 USD' }] },
+            { generatedAt: '2026-10-12', period: '2026-09-28 ~ 2026-10-04', accountId: '660088221', accountName: 'DE-Postpay', merchantId: '14229', customerName: 'test金额变动', taxMode: '后付税费', cardLabel: '尾号 2208', taxAmount: '30.00', status: '调额失败', selectable: true, ops: ['重新发起', '查看进度', '查看依据'], progress: [{ at: '2026-10-12 09:00:00', title: '系统生成', note: '周期 2026-09-28 ~ 2026-10-04，税费 30.00 USD' }, { at: '2026-10-13 14:05:00', title: '发起调额', note: '管理员，当前卡 尾号 2208，调增 30.00 USD' }, { at: '2026-10-14 09:31:00', title: 'Slash 调额失败', note: '调额未成功，状态不是已完成，可以重新发起' }] }
           ]
         },
         {

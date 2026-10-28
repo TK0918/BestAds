@@ -52,6 +52,50 @@
   function writeLocationFeeTaxModes(modes) {
     try { window.localStorage.setItem(LOCATION_FEE_TAX_MODE_KEY, JSON.stringify(modes)); } catch (error) { /* 忽略无法写入的环境 */ }
   }
+  const LOCATION_FEE_AUDIT_KEY = 'bestads-location-fee-audit-v250';
+  function locationFeeReadAuditExtras() {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(LOCATION_FEE_AUDIT_KEY) || '[]');
+      return Array.isArray(saved) ? saved : [];
+    } catch (error) {
+      return [];
+    }
+  }
+  function locationFeeWriteAudit(entry) {
+    const list = locationFeeReadAuditExtras();
+    const max = list.reduce((num, item) => Math.max(num, Number(item.c0) || 0), 980);
+    const id = String(max + 1);
+    const operatorName = entry.by || '管理员';
+    const display = operatorName === '欧伟权'
+      ? '欧伟权(ouweiquan@bestfulfill.com)'
+      : operatorName === '系统'
+        ? '系统'
+        : '管理员(admin@bestfulfill.com)';
+    const row = {
+      id,
+      c0: id,
+      c1: entry.at || '',
+      c2: display,
+      c3: '地区税费',
+      c4: entry.subModule || '',
+      c5: entry.target || '',
+      c6: entry.content || '',
+      date: String(entry.at || '').slice(0, 10),
+      operator: operatorName,
+      module: '地区税费',
+      subModule: entry.subModule || '',
+      merchantId: entry.merchantId || ''
+    };
+    list.unshift(row);
+    try { window.localStorage.setItem(LOCATION_FEE_AUDIT_KEY, JSON.stringify(list.slice(0, 80))); } catch (error) { /* 忽略无法写入的环境 */ }
+    return id;
+  }
+  function locationFeeRemoveAudit(ids) {
+    const drop = new Set((ids || []).filter(Boolean));
+    if (!drop.size) return;
+    const list = locationFeeReadAuditExtras().filter(item => !drop.has(item.id) && !drop.has(item.c0));
+    try { window.localStorage.setItem(LOCATION_FEE_AUDIT_KEY, JSON.stringify(list)); } catch (error) { /* 忽略无法写入的环境 */ }
+  }
   function locationFeeMoney(value) {
     const number = Number(String(value == null ? '' : value).replace(/,/g, ''));
     return Number.isFinite(number) ? number : 0;
@@ -2068,7 +2112,7 @@
     return `<div class="modal-backdrop drawer-backdrop" data-location-fee-change-log><section class="modal drawer-modal drawer-modal--ratio-log"><div class="modal__header"><h2 class="modal__title">${esc(title)}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><p class="confirm-copy">${summary}</p><p class="field-help">下面按时间从新到旧。</p>${items ? `<ol class="ratio-log">${items}</ol>` : '<p class="field-help">还没有变更记录。</p>'}</div></section></div>`;
   }
   function locationFeeAutoTopupLead(market) {
-    return `<section class="admin-card"><div class="admin-card__header"><div class="command-bar command-bar--split"><div class="command-group command-group--primary"><strong>大盘设置</strong></div><div class="command-group"><button type="button" class="btn btn-default" data-action="edit-market-threshold">编辑</button><button type="button" class="btn btn-default" data-action="market-threshold-log">变更记录</button></div></div></div><div class="admin-card__body"><p class="confirm-copy">大盘阈值 ${esc(market?.threshold || '-')}。差额小于或等于适用阈值时自动补入。客户设置为开启时用客户阈值；关闭后不应用，改用大盘阈值。</p><p class="field-help">更新人 ${esc(market?.updatedBy || '-')}，更新时间 ${esc(market?.updatedAt || '-')}。当时可用余额够补当时差额时全部补入；不够则按可用余额部分补入；可用余额为 0 则补入失败。</p></div></section>`;
+    return `<section class="admin-card"><div class="admin-card__header"><div class="command-bar command-bar--split"><div class="command-group command-group--primary"><strong>大盘设置</strong></div><div class="command-group"><button type="button" class="btn btn-default" data-action="edit-market-threshold">编辑</button></div></div></div><div class="admin-card__body"><p class="confirm-copy">大盘阈值 ${esc(market?.threshold || '-')}。差额小于或等于适用阈值时自动补入。客户设置为开启时用客户阈值；关闭后不应用，改用大盘阈值。</p><p class="field-help">更新人 ${esc(market?.updatedBy || '-')}，更新时间 ${esc(market?.updatedAt || '-')}。当时可用余额够补当时差额时全部补入；不够则按可用余额部分补入；可用余额为 0 则补入失败。阈值调整记录在权限审计日志。</p></div></section>`;
   }
   function locationFeeMarketThresholdModal(market) {
     return `<div class="modal-backdrop" data-location-fee-market-threshold><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">编辑大盘阈值</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="form-grid"><div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 大盘阈值</label><input name="threshold" value="${esc(market?.threshold || '')}" inputmode="decimal"><p class="field-help">填写小于 0 的数，最多两位小数。-0.01 表示差额小于或等于 -0.01 才自动补入。</p></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>保存</button></div></section></div>`;
@@ -2086,7 +2130,7 @@
     return `<div class="modal-backdrop" data-location-fee-topup-notice><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">飞书群通知</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="topup-notice"><div class="topup-notice__head"><strong>${esc(row.customerName || '-')}（商户ID ${esc(row.merchantId || '-')}）</strong><span>${esc(row.occurredAt || '-')} · ${esc(row.result || '-')}</span></div><section class="topup-notice__group"><h3>补入前</h3><dl class="topup-notice__grid">${pair('当时差额', money(row.differenceBefore))}${pair('当时可用余额', money(row.availableBefore))}</dl></section><section class="topup-notice__group"><h3>本次补入</h3><dl class="topup-notice__grid">${pair('补入金额', money(row.topupAmount))}${pair('结果', esc(row.result || '-'))}</dl></section><section class="topup-notice__group"><h3>补入后</h3><dl class="topup-notice__grid">${pair('补入后差额', money(row.differenceAfter))}${pair('补入后可用余额', money(row.availableAfter))}</dl></section></div><p class="field-help">触发自动补入都会发到飞书群。</p></div><div class="modal__footer"><button type="button" class="btn btn-primary" data-modal-close>关闭</button></div></section></div>`;
   }
   function locationFeeTopupCustomerOps(status) {
-    return ['编辑', status === '关闭' ? '开启' : '关闭', '变更记录'];
+    return ['编辑', status === '关闭' ? '开启' : '关闭'];
   }
   function locationFeeFormatThreshold(value) {
     const raw = String(value || '').replace(/,/g, '').trim();
@@ -2100,20 +2144,34 @@
   function locationFeePushChangeLog(target, entry) {
     if (!target) return;
     if (!Array.isArray(target.changeLogs)) target.changeLogs = [];
+    const isMarket = !target.merchantId;
+    const content = entry.action === '状态'
+      ? `状态 ${entry.before} → ${entry.after}`
+      : entry.action === '新增'
+        ? String(entry.after || '').replace(/^阈值 /, '新增阈值 ')
+        : `阈值 ${entry.before} → ${entry.after}`;
+    entry.auditId = locationFeeWriteAudit({
+      at: entry.at,
+      by: entry.by,
+      subModule: isMarket ? '大盘阈值' : '客户阈值',
+      target: isMarket ? '大盘' : `${target.merchantId} / ${target.customerName || '-'}`,
+      content,
+      merchantId: target.merchantId || ''
+    });
     target.changeLogs.unshift(entry);
   }
 
   function locationFeeCardOps(row) {
     if (row.status === '待发起') return ['发起调额', '查看依据'];
-    if (row.status === '审批未通过' || row.status === '调额失败') return ['重新发起', '查看进度', '查看依据'];
+    if (row.status === '调额失败') return ['重新发起', '查看进度', '查看依据'];
     return ['查看进度', '查看依据'];
   }
   function locationFeeCardInitiateModal(row) {
-    const again = row.status === '审批未通过' || row.status === '调额失败';
+    const again = row.status === '调额失败';
     const pool = Number(String(row.poolBalance ?? '').replace(/,/g, ''));
     const short = Number.isFinite(pool) && pool < 0;
     const warn = short ? '<div class="notice">客户目前的预收池余额小于0，已出现拖欠税费情况，请确认是否仍要为其Slash卡补入税费金额？</div>' : '';
-    return `<div class="modal-backdrop" data-location-fee-card-initiate><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${again ? '重新发起调额' : '发起调额'}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body">${warn}<p class="confirm-copy">${esc(row.accountId || '-')} ${esc(row.accountName || '')}</p><dl class="detail-grid"><div><dt>周期</dt><dd>${esc(row.period || '-')}</dd></div><div><dt>当前Slash卡</dt><dd>${esc(row.cardLabel || '无')}</dd></div><div><dt>预收池余额</dt><dd>${esc(row.poolBalance || '-')} USD</dd></div><div><dt>增加额度</dt><dd>${esc(row.taxAmount || '-')} USD</dd></div></dl><p class="field-help">确认后发起飞书审批。审批通过后，Slash 按该金额调增当前卡额度。Slash 调额成功后，这条补卡才变为已完成。预收池不再扣这笔。</p></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>发起飞书审批</button></div></section></div>`;
+    return `<div class="modal-backdrop" data-location-fee-card-initiate><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${again ? '重新发起调额' : '发起调额'}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body">${warn}<p class="confirm-copy">${esc(row.accountId || '-')} ${esc(row.accountName || '')}</p><dl class="detail-grid"><div><dt>周期</dt><dd>${esc(row.period || '-')}</dd></div><div><dt>当前Slash卡</dt><dd>${esc(row.cardLabel || '无')}</dd></div><div><dt>预收池余额</dt><dd>${esc(row.poolBalance || '-')} USD</dd></div><div><dt>增加额度</dt><dd>${esc(row.taxAmount || '-')} USD</dd></div></dl><p class="field-help">确认后直接调增当前 Slash 卡额度。Slash 调额成功后，这条补卡才变为已完成。预收池不再扣这笔。</p></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>确认调额</button></div></section></div>`;
   }
   function locationFeeCardProgressDrawer(row) {
     const items = (row.progress || []).map(item => `<li class="ratio-log__item"><div class="ratio-log__time">${esc(item.at || '-')}</div><div class="ratio-log__title">${esc(item.title || '-')}</div><div class="ratio-log__change">${esc(item.note || '')}</div></li>`).join('');
@@ -2261,6 +2319,10 @@
     const root = document.getElementById('page-root');
     if (!root) return;
     const config = pageConfig();
+    if (document.body.dataset.adminPage === 'permission-audit-log' && Array.isArray(config.rows)) {
+      const extras = locationFeeReadAuditExtras();
+      if (extras.length) config.rows = extras.concat(config.rows);
+    }
     const tabs = config.tabs || [{ id: 'list', label: '', ...config }];
     const state = { tab: tabs[0].id, groupTab: {}, values: {}, sort: {}, selected: {}, fields: {}, expanded: {}, dragFieldKey: null, pendingAdjustment: null, pendingProcess: null, processingRow: null, processingAction: null, locationFeeCreateResult: null, rebateMerchant: null };
     const hashTab = String(window.location.hash || '').replace('#', '');
@@ -2271,7 +2333,7 @@
       const ratioTab = tabs.find(item => item.id === 'ratio-account');
       (ratioTab?.rows || []).forEach(row => {
         row.taxMode = modes[row.accountId] || row.taxMode || '预付税费';
-        row.ops = ['编辑', '预付后付', '日志'];
+        row.ops = ['编辑', '预付后付'];
       });
     }
     tabs.forEach(tab => {
@@ -3822,10 +3884,34 @@
       return autoSwitch.checked ? '开启' : '关闭';
     }
     function locationFeeRatioOps() {
-      return ['编辑', '预付后付', '日志'];
+      return ['编辑', '预付后付'];
     }
     function locationFeePushRatioLog(row, entry) {
       if (!Array.isArray(row.ratioLogs)) row.ratioLogs = [];
+      const account = row.accountId;
+      let subModule = account ? '账户预收比例' : '客户预收比例';
+      let content = `预收比例 ${entry.before || '无'} → ${entry.after}`;
+      if (entry.action === '自动调整') {
+        subModule = '自动调整';
+        content = `自动调整 ${entry.before} → ${entry.after}`;
+      } else if (entry.action === '税费方式') {
+        subModule = '税费方式';
+        content = `税费方式 ${entry.before} → ${entry.after}`;
+      } else if (entry.action === '新增') {
+        content = `新增预收比例 ${entry.after}`;
+      }
+      if (entry.note) content = `${content}，${entry.note}`;
+      const target = account
+        ? `${row.merchantId || '-'} / ${row.accountId} ${row.accountName || ''}`.trim()
+        : `${row.merchantId || '-'} / ${row.customerName || '-'}${row.media ? `，${row.media} ${row.accountType || ''}` : ''}`;
+      entry.auditId = locationFeeWriteAudit({
+        at: entry.at,
+        by: entry.by,
+        subModule,
+        target,
+        content,
+        merchantId: row.merchantId || ''
+      });
       row.ratioLogs.unshift(entry);
     }
     function locationFeeSetAutoAdjust(row, next) {
@@ -3899,7 +3985,7 @@
         });
       }
     }
-    function locationFeeSetTaxMode(row, mode) {
+    function locationFeeSetTaxMode(row, mode, silent) {
       const next = mode || '预付税费';
       const before = row.taxMode || '预付税费';
       row.taxMode = next;
@@ -3907,10 +3993,11 @@
       const modes = readLocationFeeTaxModes();
       modes[row.accountId] = row.taxMode;
       writeLocationFeeTaxModes(modes);
-      if (before !== next) locationFeePushRatioLog(row, { at: currentTimestamp(), by: '管理员', action: '税费方式', before, after: next });
+      if (!silent && before !== next) locationFeePushRatioLog(row, { at: currentTimestamp(), by: '管理员', action: '税费方式', before, after: next });
     }
     function restoreLocationFeeCreateItem(item) {
       if (!item?.row || item.action === '未找到' || !item.snapshot) return;
+      locationFeeRemoveAudit(item.auditIds);
       const snap = item.snapshot;
       item.row.hasOverride = snap.hasOverride;
       item.row.ratio = snap.ratio;
@@ -3918,7 +4005,7 @@
       item.row.updatedAt = snap.updatedAt;
       if (snap.autoAdjust) item.row.autoAdjust = snap.autoAdjust;
       if (snap.updatedBy !== undefined) item.row.updatedBy = snap.updatedBy;
-      if (snap.taxMode) locationFeeSetTaxMode(item.row, snap.taxMode);
+      if (snap.taxMode) locationFeeSetTaxMode(item.row, snap.taxMode, true);
       if (snap.ratioLogs) item.row.ratioLogs = snap.ratioLogs.map(entry => ({ ...entry }));
       item.row.ops = (snap.ops || []).slice();
     }
@@ -4053,14 +4140,6 @@
       if (window.BESTADS_RISK_MONITOR?.handleRowAction?.(action, row, {
         tabs, config, state, render, openModal, showToast, closeModal
       })) return;
-      if (action === '日志' && (tab.id === 'ratio-account' || tab.id === 'ratio-customer')) {
-        openModal(locationFeeRatioLogDrawer(row, tab.id === 'ratio-account' ? 'account' : 'customer'));
-        return;
-      }
-      if (tab.id === 'auto-topup-setting' && action === '变更记录') {
-        openModal(locationFeeChangeLogDrawer('客户设置变更记录', `${esc(row.merchantId || '-')} ${esc(row.customerName || '')}，当前阈值 ${esc(row.threshold || '-')}，状态 ${esc(row.status || '-')}`, row.changeLogs));
-        return;
-      }
       if (tab.id === 'auto-topup-setting' && action === '编辑') {
         state.processingRow = row;
         openModal(locationFeeCustomerThresholdModal(row));
@@ -4386,11 +4465,6 @@
         if (actionButton.dataset.action === 'edit-market-threshold') {
           const setting = tabs.find(item => item.id === 'auto-topup-setting');
           openModal(locationFeeMarketThresholdModal(setting?.market));
-          return;
-        }
-        if (actionButton.dataset.action === 'market-threshold-log') {
-          const market = tabs.find(item => item.id === 'auto-topup-setting')?.market || {};
-          openModal(locationFeeChangeLogDrawer('大盘阈值变更记录', `当前大盘阈值 ${esc(market.threshold || '-')}`, market.changeLogs));
           return;
         }
         if (actionButton.dataset.action === 'add-topup-customer') {
@@ -4773,13 +4847,13 @@
           if (!row) { closeModal(); return; }
           if (!row.cardLabel || row.cardLabel === '无') { showToast('没有当前 Slash 卡，不能发起', 'error'); return; }
           if (!Array.isArray(row.progress)) row.progress = [];
-          row.progress.push({ at: currentTimestamp(), title: '发起飞书审批', note: `管理员，当前卡 ${row.cardLabel}，调增 ${row.taxAmount} USD` });
-          row.status = '审批中';
+          row.progress.push({ at: currentTimestamp(), title: '发起调额', note: `管理员，当前卡 ${row.cardLabel}，调增 ${row.taxAmount} USD` });
+          row.status = '调额中';
           row.ops = locationFeeCardOps(row);
           state.processingRow = null;
           closeModal();
           render();
-          showToast('已发起飞书审批，状态变为审批中（原型）', 'success');
+          showToast('已发起调额，状态变为调额中（原型）', 'success');
           return;
         }
         if (backdrop?.matches('[data-location-fee-tax-mode]')) {
@@ -4850,7 +4924,7 @@
           if ((setting?.rows || []).some(item => item.merchantId === merchantId)) { showToast('该客户已有设置，请编辑原记录', 'error'); return; }
           const customer = (overview?.rows || []).find(item => item.merchantId === merchantId);
           const at = currentTimestamp();
-          const row = { merchantId, customerName: customer?.customerName || '-', threshold: next, status: '开启', updatedBy: '管理员', updatedAt: at, ops: locationFeeTopupCustomerOps('开启'), changeLogs: [] };
+          const row = { merchantId, customerName: customer?.customerName || '-', bd: customer?.bd || '-', am: customer?.am || '-', threshold: next, status: '开启', updatedBy: '管理员', updatedAt: at, ops: locationFeeTopupCustomerOps('开启'), changeLogs: [] };
           locationFeePushChangeLog(row, { at, by: '管理员', action: '新增', after: `阈值 ${next}，状态 开启` });
           setting.rows.unshift(row);
           closeModal();
@@ -4888,11 +4962,13 @@
             const action = row.hasOverride ? '覆盖现有配置' : '本次新增';
             const before = row.hasOverride ? (row.ratio || '—') : '无';
             const snapshot = { hasOverride: row.hasOverride, ratio: row.ratio, source: row.source, updatedAt: row.updatedAt, updatedBy: row.updatedBy, autoAdjust: row.autoAdjust, taxMode: row.taxMode || '预付税费', ratioLogs: (row.ratioLogs || []).map(entry => ({ ...entry })), ops: (row.ops || []).slice() };
+            const knownAudits = new Set((row.ratioLogs || []).map(entry => entry.auditId).filter(Boolean));
             applyLocationFeeOverride(row, ratioText);
             const nextAuto = locationFeeReadAutoAdjust(backdrop);
             if (nextAuto) locationFeeSetAutoAdjust(row, nextAuto);
             locationFeeSetTaxMode(row, taxMode);
-            return { accountId, accountName: row.accountName || '—', merchantId: row.merchantId || '—', customerName: row.customerName || '—', before, action, row, snapshot };
+            const auditIds = (row.ratioLogs || []).map(entry => entry.auditId).filter(id => id && !knownAudits.has(id));
+            return { accountId, accountName: row.accountName || '—', merchantId: row.merchantId || '—', customerName: row.customerName || '—', before, action, row, snapshot, auditIds };
           });
           state.processingRow = null;
           state.locationFeeCreateResult = { results, ratioText, taxMode, page: 1 };
