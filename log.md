@@ -1,3 +1,7 @@
+#### 2026-11-02 - 广告业绩日报 PRD 推送
+
+新增 `PRD/V 2.54 广告业绩日报.md`。公网原型为 https://tk0918.github.io/BestAds/admin-system/reports/ad-performance-daily.html。每个指标的公式和口径在第 7.6 节。
+
 #### 2026-11-02 - 广告业绩日报原型按生成日期推送
 
 页顶改为生成日期 2026-10-28，并注明消耗用 T-2。摘要改为大盘、同向变化、月累计三行。上年同期涨幅按四舍五入改为 +70.44%。`SHELL_VERSION` 升到 `20261102-ad-performance-daily-2`，避免公网继续打开旧摘要。
