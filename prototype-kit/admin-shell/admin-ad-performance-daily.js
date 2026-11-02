@@ -9,7 +9,7 @@
   const root = document.getElementById('page-root');
   if (!root || document.body.dataset.adminPage !== 'ad-performance-daily') return;
 
-  const SAMPLE_DATE = '2026-10-26';
+  const GENERATED_DATE = '2026-10-28';
   const TOTAL_SPEND = 1424347;
   const PREV_SPEND = 1727143;
   const PROFIT = 38516;
@@ -50,7 +50,7 @@
   const compares = [
     { label: '单日 T-2 10/26', current: TOTAL_SPEND, compareLabel: 'T-3 10/25', compare: PREV_SPEND, rate: -17.53 },
     { label: '月累计 10/01-10/26', current: 32026800, compareLabel: '上月同期 09/01-09/26', compare: 25892433, rate: 23.69 },
-    { label: '月累计 10/01-10/26', current: 32026800, compareLabel: '上年同月 10/01-10/26', compare: 18791002, rate: 70.43 }
+    { label: '月累计 10/01-10/26', current: 32026800, compareLabel: '上年同月 10/01-10/26', compare: 18791002, rate: 70.44 }
   ];
 
   const usd = (n) => '$' + Math.round(n).toLocaleString('en-US');
@@ -166,6 +166,24 @@
     </tr>`).join('');
   }
 
+  function summaryHtml() {
+    const delta = TOTAL_SPEND - PREV_SPEND;
+    const movers = customers
+      .map((item) => ({ ...item, delta: item.spend - item.prev }))
+      .filter((item) => item.delta !== 0 && Math.sign(item.delta) === Math.sign(delta))
+      .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+    const drivers = movers.slice(0, 3);
+    const direction = delta < 0 ? '减量' : '增量';
+    const month = compares[1];
+    const year = compares[2];
+    const driverText = drivers.map((item) => `${item.name} <span class="${tone(item.delta)}">${usdSigned(item.delta)}</span>`).join('、');
+    return `<div class="apd-summary">
+      <p><span class="apd-summary-k">大盘</span>${usd(TOTAL_SPEND)}，较 T-3 <span class="${tone(delta)}">${usdSigned(delta)}（${pctSigned(ratio(TOTAL_SPEND, PREV_SPEND))}）</span></p>
+      <p><span class="apd-summary-k">${direction}</span>${driverText}</p>
+      <p><span class="apd-summary-k">月累计</span>${usd(month.current)}，较上月同期 <span class="${tone(month.rate)}">${pctSigned(month.rate)}</span>，较去年同期 <span class="${tone(year.rate)}">${pctSigned(year.rate)}</span></p>
+    </div>`;
+  }
+
   function reportHtml() {
     return `<article class="apd-paper" id="apdCapture">
       <div class="apd-head">
@@ -175,7 +193,7 @@
         </div>
         <p class="apd-generated">生成 2026-10-28 14:06:32<br>单日基准 10/25</p>
       </div>
-      <p class="apd-summary">大盘 $1,424,347，较 T-3 回落 17.5%，减量主要来自 Lisa -$55,272、Antoine -$30,148、CUONG NGUYEN -$15,055，3 户占下降额的约 31%，逆势增加的是 Arthur-10 +$2,069、KAZAN Solutions +$1,713。利润率 2.70%，基本贴着 14 天均值 2.66%。本月累计 $32,026,800，较上月同期 +23.69%，较去年同期 +70.43%。</p>
+      ${summaryHtml()}
       <section class="apd-kpis">
         <article class="apd-kpi">
           <div class="apd-kpi-label">消耗金额</div>
@@ -240,8 +258,8 @@
   function emptyHtml(date) {
     return `<article class="apd-paper">
       <div class="apd-empty">
-        <p>${date || '未选择日期'} 还没有业绩日报。当前样例是 ${SAMPLE_DATE}。</p>
-        <button class="btn btn-primary" type="button" id="apdSampleBtn">查看 2026-10-26</button>
+        <p>${date || '未选择日期'} 还没有业绩日报。当前样例是 ${GENERATED_DATE}。</p>
+        <button class="btn btn-primary" type="button" id="apdSampleBtn">查看 2026-10-28</button>
       </div>
     </article>`;
   }
@@ -249,9 +267,12 @@
   root.classList.add('apd-root');
   root.innerHTML = `<div class="admin-page">
     <div class="apd-toolbar">
-      <div class="filter-field apd-date-field">
-        <label for="apdDate">数据日期</label>
-        <input id="apdDate" type="date" value="${SAMPLE_DATE}">
+      <div class="apd-date-block">
+        <div class="filter-field apd-date-field">
+          <label for="apdDate">生成日期</label>
+          <input id="apdDate" type="date" value="${GENERATED_DATE}">
+        </div>
+        <p class="apd-date-note">因为消耗数据尚未稳定，报表使用T-2的数据进行统计。</p>
       </div>
       <button class="btn btn-primary" type="button" id="apdCaptureBtn"><i class="fas fa-camera" aria-hidden="true"></i>复制长图</button>
     </div>
@@ -262,7 +283,7 @@
     const date = document.getElementById('apdDate').value;
     const body = document.getElementById('apdBody');
     const captureBtn = document.getElementById('apdCaptureBtn');
-    if (date === SAMPLE_DATE) {
+    if (date === GENERATED_DATE) {
       body.innerHTML = reportHtml();
       captureBtn.hidden = false;
       bindChart();
@@ -271,7 +292,7 @@
     body.innerHTML = emptyHtml(date);
     captureBtn.hidden = true;
     document.getElementById('apdSampleBtn').addEventListener('click', () => {
-      document.getElementById('apdDate').value = SAMPLE_DATE;
+      document.getElementById('apdDate').value = GENERATED_DATE;
       render();
     });
   }

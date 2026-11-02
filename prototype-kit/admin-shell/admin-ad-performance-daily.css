@@ -4,12 +4,22 @@
 .apd-toolbar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 16px;
   margin-bottom: 16px;
 }
 
 .apd-date-field { width: 220px; }
+
+.apd-date-note {
+  margin: 6px 0 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.apd-toolbar .btn { margin-top: 24px; }
 
 .apd-paper {
   min-width: 0;
@@ -48,12 +58,25 @@
 
 .apd-summary {
   margin: 16px 0 0;
-  padding: 10px 12px 10px 14px;
+  padding: 10px 14px;
   border-left: 3px solid #d92d20;
   background: #fff6f6;
+}
+
+.apd-summary p {
+  margin: 0;
   color: var(--admin-text);
   font-size: 13px;
-  line-height: 1.75;
+  line-height: 22px;
+}
+
+.apd-summary p + p { margin-top: 2px; }
+
+.apd-summary-k {
+  display: inline-block;
+  min-width: 52px;
+  margin-right: 8px;
+  color: var(--admin-muted);
 }
 
 body.theme-dark .apd-summary { background: rgba(217, 45, 32, .12); }
