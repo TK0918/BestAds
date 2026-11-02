@@ -170,6 +170,7 @@
         page('customer-lifecycle-report', '客户生命周期', 'reports/customer-lifecycle-report.html', 'user-clock'),
         page('non-api-spend', '非接口方式获取消耗', 'reports/manual-consume-upload.html', 'upload'),
         page('ad-daily-report', '广告日报', 'reports/ad-daily-report.html', 'calendar-day'),
+        page('ad-performance-daily', '广告业绩日报', 'reports/ad-performance-daily.html', 'chart-line'),
         page('api-usage', 'API用量统计', 'reports/api-usage.html', 'chart-line'),
       ]
     },
@@ -200,5 +201,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-10-13.1';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-11-02.1';
 })();
