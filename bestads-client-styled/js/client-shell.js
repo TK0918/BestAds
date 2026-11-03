@@ -73,6 +73,7 @@
     '平台': { 'zh-CN': '平台', 'en-US': 'Platform' },
     '提交时间': { 'zh-CN': '提交时间', 'en-US': 'Submitted Time' },
     '广告账户ID': { 'zh-CN': '广告账户ID', 'en-US': 'Ad Account ID' },
+    '广告账户': { 'zh-CN': '广告账户', 'en-US': 'Ad Account' },
     '广告账户名称': { 'zh-CN': '广告账户名称', 'en-US': 'Ad Account Name' },
     '广告账户币种': { 'zh-CN': '广告账户币种', 'en-US': 'Currency' },
     '充值金额': { 'zh-CN': '充值金额', 'en-US': 'Recharge Amount' },
@@ -469,7 +470,7 @@
 
   function renderOpeningRecords(pageId, data) {
     const rows = data.rows || [];
-    const columns = ['申请ID', '媒体', '投放信息', '账户数', '最终报价', '开户费', '首充', '服务费', '预收税费费率', '钱包扣款', '状态', '操作'];
+    const columns = ['申请ID', '媒体', '投放信息', '账户数', '最终报价', '开户费', '首充', '服务费', '预收税费费率', '钱包扣款', '状态', '广告账户', '操作'];
     return renderTable(columns, rows, (row, index) => `
       <tr${row.applyId === openingHighlightApplyId ? ' id="opening-apply-highlight" class="is-highlight"' : ''}>
         <td>${html(row.applyId || '-')}</td>
@@ -477,6 +478,7 @@
         <td class="client-wrap-cell">
           <div class="client-cell-stack">
             <strong>${html(row.url || '-')}</strong>
+            ${row.pageLink && row.pageLink !== '-' ? `<span>Page ${html(row.pageLink)}</span>` : ''}
             <span>${html([row.country, row.timezone].filter(Boolean).join(' · ') || '-')}</span>
             <span>${html([row.dailyBudget, openingCategoryLabel(row.category)].filter(Boolean).join(' · ') || '-')}</span>
           </div>
@@ -489,6 +491,7 @@
         <td>${html(openingClientRateText(row, 'preTaxRate'))}</td>
         <td>${html(openingClientFeeVisible(row) ? (row.walletCharge || '-') : '-')}</td>
         <td>${tag(clientOpeningStatus(row))}</td>
+        <td class="client-wrap-cell">${html(row.accountInfo || '-')}</td>
         <td class="client-actions-cell">${openingRowActions(pageId, row, index)}</td>
       </tr>
     `);
@@ -713,7 +716,7 @@
       return {
         label: 'BM ID',
         placeholder: '多个 BM ID 可用逗号或空格分隔',
-        tip: '仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。',
+        tip: 'Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。',
         empty: '暂未识别到 BM ID',
         sample: OPENING_ASSET_SAMPLES.Facebook
       };
@@ -722,7 +725,7 @@
       return {
         label: 'MCC',
         placeholder: '多个 MCC 可用逗号或空格分隔',
-        tip: '仅 Google 需要。支持输入多个 MCC，可用逗号或空格分隔。',
+        tip: 'Google 经理账号（MCC），例如 123-456-7890。多个用逗号或空格分隔。没有可留空。',
         empty: '暂未识别到 MCC',
         sample: OPENING_ASSET_SAMPLES.Google
       };
@@ -731,7 +734,7 @@
       return {
         label: 'BC',
         placeholder: '多个 BC 可用逗号或空格分隔',
-        tip: '仅 TikTok 需要。支持输入多个 BC，可用逗号或空格分隔。',
+        tip: 'TikTok Business Center 的数字 ID。多个用逗号或空格分隔。没有可留空。',
         empty: '暂未识别到 BC',
         sample: OPENING_ASSET_SAMPLES.TikTok
       };
@@ -742,6 +745,78 @@
   function isKnownAssetSample(value) {
     const normalized = String(value || '').trim();
     return !normalized || Object.values(OPENING_ASSET_SAMPLES).includes(normalized);
+  }
+
+  function openingTimezones() {
+    return [
+      { label: 'China/Shanghai GMT+08:00', keys: 'shanghai 上海 china 中国 beijing 北京 asia/shanghai' },
+      { label: 'China/Hong_Kong GMT+08:00', keys: 'hongkong hong kong 香港 hk' },
+      { label: 'Singapore GMT+08:00', keys: 'singapore 新加坡' },
+      { label: 'Japan/Tokyo GMT+09:00', keys: 'tokyo 东京 japan 日本' },
+      { label: 'Korea/Seoul GMT+09:00', keys: 'seoul 首尔 korea 韩国' },
+      { label: 'Australia/Sydney GMT+10:00', keys: 'sydney 悉尼 australia 澳大利亚' },
+      { label: 'Asia/Bangkok GMT+07:00', keys: 'bangkok 曼谷 thailand 泰国' },
+      { label: 'Asia/Dubai GMT+04:00', keys: 'dubai 迪拜 uae 阿联酋' },
+      { label: 'Europe/London GMT+00:00', keys: 'london 伦敦 uk britain 英国 gmt utc' },
+      { label: 'Europe/Paris GMT+01:00', keys: 'paris 巴黎 france 法国' },
+      { label: 'Europe/Amsterdam GMT+01:00', keys: 'amsterdam 阿姆斯特丹 netherlands 荷兰' },
+      { label: 'Europe/Berlin GMT+01:00', keys: 'berlin 柏林 germany 德国' },
+      { label: 'America/New_York GMT-05:00', keys: 'new york newyork 纽约 eastern est 美东' },
+      { label: 'America/Chicago GMT-06:00', keys: 'chicago 芝加哥 central 美中' },
+      { label: 'America/Denver GMT-07:00', keys: 'denver 丹佛 mountain' },
+      { label: 'America/Los_Angeles GMT-08:00', keys: 'los angeles losangeles 洛杉矶 pacific pst 美西 la' },
+      { label: 'America/Sao_Paulo GMT-03:00', keys: 'sao paulo 圣保罗 brazil 巴西' },
+      { label: 'America/Toronto GMT-05:00', keys: 'toronto 多伦多 canada 加拿大' },
+      { label: 'Pacific/Auckland GMT+12:00', keys: 'auckland 奥克兰 zealand 新西兰' },
+      { label: 'UTC GMT+00:00', keys: 'utc gmt' }
+    ];
+  }
+
+  function filterOpeningTimezones(query) {
+    const raw = String(query || '').trim().toLowerCase();
+    const list = openingTimezones();
+    if (!raw) return list;
+    const compact = raw.replace(/[\s_/]/g, '');
+    return list.filter(item => {
+      const blob = `${item.label} ${item.keys}`.toLowerCase();
+      return blob.includes(raw) || blob.replace(/[\s_/]/g, '').includes(compact);
+    });
+  }
+
+  function renderOpeningTimezoneList(combo) {
+    if (!combo) return;
+    const input = combo.querySelector('[data-tz-input]');
+    const list = combo.querySelector('[data-tz-list]');
+    const hidden = combo.querySelector('[data-tz-value]');
+    if (!input || !list) return;
+    const matches = filterOpeningTimezones(input.value).slice(0, 8);
+    list.hidden = false;
+    list.innerHTML = matches.length
+      ? matches.map(item => `<button type="button" class="tz-combo__option${hidden?.value === item.label ? ' is-active' : ''}" data-tz-option="${html(item.label)}">${html(item.label)}</button>`).join('')
+      : '<div class="tz-combo__empty">没有匹配的时区</div>';
+  }
+
+  function selectOpeningTimezone(combo, label) {
+    if (!combo || !label) return;
+    const input = combo.querySelector('[data-tz-input]');
+    const hidden = combo.querySelector('[data-tz-value]');
+    const list = combo.querySelector('[data-tz-list]');
+    if (input) input.value = label;
+    if (hidden) hidden.value = label;
+    if (list) list.hidden = true;
+  }
+
+  function resolveOpeningTimezone(combo) {
+    if (!combo) return '';
+    const input = combo.querySelector('[data-tz-input]');
+    const hidden = combo.querySelector('[data-tz-value]');
+    const typed = String(input?.value || '').trim();
+    const current = String(hidden?.value || '').trim();
+    if (current && typed === current) return current;
+    const exact = openingTimezones().find(item => item.label.toLowerCase() === typed.toLowerCase());
+    if (exact) return exact.label;
+    const matches = filterOpeningTimezones(typed);
+    return matches.length === 1 ? matches[0].label : '';
   }
 
   function openingAssetIdLabel(media) {
@@ -768,12 +843,14 @@
   function syncOpeningMediaFields(root = document) {
     const modal = root.querySelector('[data-opening-apply-modal]') || root;
     const wrap = modal.querySelector('[data-opening-bm-wrap]');
+    const pageWrap = modal.querySelector('[data-opening-page-wrap]');
     const sel = modal.querySelector('[data-opening-media]');
     if (!wrap) return;
     const media = sel?.value || '';
     if (media && sel) sel.style.outline = '';
     const meta = openingAssetMeta(media);
     wrap.hidden = !meta;
+    if (pageWrap) pageWrap.hidden = media !== 'Facebook';
     if (!meta) return;
     const label = wrap.querySelector('[data-opening-asset-label]');
     const input = wrap.querySelector('[data-opening-bm-ids]');
@@ -806,13 +883,19 @@
         </label>
         <label class="client-form-field full">
           <span class="client-label">投放URL <span class="client-required">*</span></span>
-          <input class="client-input" data-opening-url type="text" value="https://www.luminara-home.com">
+          <input class="client-input" data-opening-url type="text" value="https://www.luminara-home.com" placeholder="https://www.xxx.com">
+          <span class="client-field-tip">要投放的网站或落地页，需以 http:// 或 https:// 开头。例如 https://www.xxx.com。</span>
         </label>
         <label class="client-form-field full client-bm-field" data-opening-bm-wrap hidden>
           <span class="client-label" data-opening-asset-label>BM ID</span>
           <input class="client-input" data-opening-bm-ids type="text" value="" placeholder="多个 BM ID 可用逗号或空格分隔">
-          <span class="client-field-tip" data-opening-asset-tip>仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。</span>
+          <span class="client-field-tip" data-opening-asset-tip>Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。</span>
           <span class="client-bm-preview" data-opening-bm-preview aria-live="polite"></span>
+        </label>
+        <label class="client-form-field full" data-opening-page-wrap hidden>
+          <span class="client-label">Page Link</span>
+          <input class="client-input" data-opening-page type="text" value="" placeholder="https://www.facebook.com/xxx">
+          <span class="client-field-tip">Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。多个用逗号或换行分隔。没有可留空。</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">投放国家 <span class="client-required">*</span></span>
@@ -823,17 +906,16 @@
             <option value="法国">法国</option>
             <option value="荷兰">荷兰</option>
           </select>
+          <span class="client-field-tip">广告主要投放的国家，只能选一个。</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">时区 <span class="client-required">*</span></span>
-          <select class="client-select" data-opening-timezone>
-            <option value="America/Los_Angeles" selected>America/Los_Angeles</option>
-            <option value="America/New_York">America/New_York</option>
-            <option value="Europe/London">Europe/London</option>
-            <option value="Europe/Amsterdam">Europe/Amsterdam</option>
-            <option value="America/Chicago">America/Chicago</option>
-            <option value="UTC">UTC</option>
-          </select>
+          <div class="tz-combo" data-tz-combo>
+            <input class="client-input" data-tz-input type="text" autocomplete="off" value="America/Los_Angeles GMT-08:00" placeholder="搜索城市或地区，例如 shanghai">
+            <input data-tz-value data-opening-timezone type="hidden" value="America/Los_Angeles GMT-08:00">
+            <div class="tz-combo__list" data-tz-list hidden></div>
+          </div>
+          <span class="client-field-tip">广告账户时区。可按城市或地区搜索，例如输入 shanghai，对应 China/Shanghai GMT+08:00。</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">账户币种 <span class="client-required">*</span></span>
@@ -843,6 +925,7 @@
             <option value="GBP">GBP</option>
             <option value="HKD">HKD</option>
           </select>
+          <span class="client-field-tip">广告账户的结算币种。开户费始终按 USD 收取，首充币种跟随这里。</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">日预算 <span class="client-required">*</span></span>
@@ -850,16 +933,19 @@
             <input class="client-input" data-opening-budget type="text" inputmode="decimal" value="300" placeholder="请输入日预算">
             <span class="client-input-suffix" data-opening-budget-currency>USD</span>
           </div>
+          <span class="client-field-tip">计划每天投放的金额，币种跟随账户币种。只作为开户资料，不是本次扣款。</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">账户数 <span class="client-required">*</span></span>
           <input class="client-input" data-opening-count type="text" value="2">
+          <span class="client-field-tip">本次申请的广告账户个数，填写 1 到 20 的整数。</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">投放品类 <span class="client-required">*</span></span>
           <select class="client-select" data-opening-category>
             ${openingCategoryOptions()}
           </select>
+          <span class="client-field-tip">选择最接近商品的品类。只作为开户资料，不改变报价。</span>
         </label>
         <div class="client-opening-estimate full" aria-live="polite">
           <div>
@@ -934,6 +1020,7 @@
         readonlyItem('媒体', row?.mediaChannel),
         readonlyItem('投放国家', row?.country),
         readonlyItem('投放URL', row?.url, { full: true }),
+        readonlyItem('Page Link', row?.mediaChannel === 'Facebook' ? (row?.pageLink || '-') : '-'),
         readonlyItem(openingAssetIdLabel(row?.mediaChannel), openingAssetIdValue(row)),
         readonlyItem('时区', row?.timezone),
         readonlyItem('日预算', row?.dailyBudget),
@@ -963,6 +1050,7 @@
         ${formInput('状态', clientOpeningStatus(row), false)}
         ${formInput('媒体', row.mediaChannel || '-', false)}
         ${formInput('URL', row.url || '-', false)}
+        ${formInput('Page Link', row.mediaChannel === 'Facebook' ? (row.pageLink || '-') : '-', false)}
         ${formInput(openingAssetIdLabel(row.mediaChannel), openingAssetIdValue(row), false)}
         ${formInput('国家 / 时区', `${row.country || '-'} / ${row.timezone || '-'}`, false)}
         ${formInput('日预算', row.dailyBudget || '-', false)}
@@ -1441,9 +1529,23 @@
             showToast('请选择投放品类', 'error');
             return;
           }
-          const url = applyRoot?.querySelector('[data-opening-url]')?.value.trim() || 'https://www.example.com';
+          const url = applyRoot?.querySelector('[data-opening-url]')?.value.trim() || '';
           const country = applyRoot?.querySelector('[data-opening-country]')?.value.trim() || '美国';
-          const timezone = applyRoot?.querySelector('[data-opening-timezone]')?.value.trim() || 'America/Los_Angeles';
+          const timezone = resolveOpeningTimezone(applyRoot?.querySelector('[data-tz-combo]'));
+          const pageLink = mediaChannel === 'Facebook' ? (applyRoot?.querySelector('[data-opening-page]')?.value.trim() || '') : '';
+          if (!url || !/^https?:\/\/\S+$/i.test(url)) {
+            showToast('投放 URL 需要填写链接，例如 https://www.xxx.com', 'error');
+            return;
+          }
+          if (pageLink && pageLink.split(/[\s,，]+/).filter(Boolean).some(item => !/^https?:\/\/\S+$/i.test(item))) {
+            showToast('Page Link 需要填写链接，例如 https://www.facebook.com/xxx', 'error');
+            return;
+          }
+          if (!timezone) {
+            showToast('请从列表选择时区。可输入 shanghai，对应 China/Shanghai GMT+08:00。', 'error');
+            return;
+          }
+          selectOpeningTimezone(applyRoot?.querySelector('[data-tz-combo]'), timezone);
           const dailyBudget = openingDailyBudgetValue(applyRoot);
           const accountCount = applyRoot?.querySelector('[data-opening-count]')?.value.trim() || '1';
           const currency = openingAccountCurrency(applyRoot);
@@ -1459,6 +1561,7 @@
             applyId: `AO${Date.now()}`,
             mediaChannel,
             url,
+            pageLink: pageLink || '-',
             country,
             bmIds: bmIds.join(' / '),
             timezone,
@@ -1536,8 +1639,29 @@
     document.addEventListener('input', (event) => {
       const openingInput = event.target.closest('[data-opening-budget], [data-opening-count], [data-opening-category], [data-opening-currency], [data-opening-country], [data-opening-media]');
       const bmInput = event.target.closest('[data-opening-bm-ids]');
+      const tzInput = event.target.closest('[data-tz-input]');
       if (openingInput) syncOpeningEstimate(openingInput.closest('[data-opening-apply-modal]') || document);
       if (bmInput) syncBmPreview(bmInput.closest('[data-opening-apply-modal]') || document);
+      if (tzInput) {
+        const combo = tzInput.closest('[data-tz-combo]');
+        const hidden = combo?.querySelector('[data-tz-value]');
+        if (hidden && hidden.value !== tzInput.value) hidden.value = '';
+        renderOpeningTimezoneList(combo);
+      }
+    });
+    document.addEventListener('focusin', (event) => {
+      const tzInput = event.target.closest?.('[data-tz-input]');
+      if (tzInput) renderOpeningTimezoneList(tzInput.closest('[data-tz-combo]'));
+    });
+    document.addEventListener('click', (event) => {
+      const option = event.target.closest('[data-tz-option]');
+      if (option) {
+        selectOpeningTimezone(option.closest('[data-tz-combo]'), option.dataset.tzOption);
+        return;
+      }
+      if (!event.target.closest('[data-tz-combo]')) {
+        document.querySelectorAll('[data-tz-list]').forEach(list => { list.hidden = true; });
+      }
     });
     document.addEventListener('change', (event) => {
       const openingInput = event.target.closest('[data-opening-budget], [data-opening-count], [data-opening-category], [data-opening-currency], [data-opening-country], [data-opening-media]');

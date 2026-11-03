@@ -829,7 +829,65 @@
 
     .form-tip {
       color: #8f959e;
-      margin: 6px 0 8px;
+      margin: 6px 0 0;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .tz-combo {
+      position: relative;
+    }
+
+    .tz-combo__list {
+      position: absolute;
+      z-index: 5;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      max-height: 220px;
+      overflow: auto;
+      padding: 4px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(31, 35, 41, 0.12);
+    }
+
+    .tz-combo__option,
+    .tz-combo__empty {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #1f2329;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .tz-combo__option:hover,
+    .tz-combo__option.is-active {
+      background: #f3f7ff;
+      color: var(--primary);
+    }
+
+    .tz-combo__empty {
+      color: #8f959e;
+    }
+
+    body.theme-dark .tz-combo__list {
+      background: #111827;
+      border-color: #334155;
+    }
+
+    body.theme-dark .tz-combo__option {
+      color: #eef2f7;
+    }
+
+    body.theme-dark .tz-combo__option:hover,
+    body.theme-dark .tz-combo__option.is-active {
+      background: rgba(39, 89, 255, 0.22);
     }
 
     .stack {
@@ -1352,13 +1410,19 @@
           </label>
           <label class="field">
             <span class="form-title" data-i18n="url_label">Delivery URL</span>
-            <input id="applyUrl" class="input" type="text" value="https://www.luminara-home.com" placeholder="Please enter delivery URL" data-i18n-placeholder="placeholder_url">
+            <input id="applyUrl" class="input" type="text" value="https://www.luminara-home.com" placeholder="https://www.xxx.com" data-i18n-placeholder="placeholder_url">
+            <span class="form-tip" data-i18n="apply_url_tip">The website or landing page to advertise. Start with http:// or https://. Example: https://www.xxx.com</span>
           </label>
           <label id="applyBmWrap" class="field full bm-id-input-wrap" hidden>
             <span id="applyAssetLabel" class="form-title">BM ID</span>
             <input id="applyBmIds" class="input" type="text" value="" placeholder="Enter multiple BM IDs separated by comma or space">
             <span id="applyAssetTip" class="form-tip">Multiple BM IDs can be separated by comma or space.</span>
             <span id="applyBmPreview" class="bm-id-preview" aria-live="polite"></span>
+          </label>
+          <label id="applyPageWrap" class="field full" hidden>
+            <span class="form-title" data-i18n="apply_page_link">Page Link</span>
+            <input id="applyPageLink" class="input" type="text" value="" placeholder="https://www.facebook.com/xxx" data-i18n-placeholder="placeholder_page_link">
+            <span class="form-tip" data-i18n="apply_page_tip">Facebook Page link, not the page name. Example: https://www.facebook.com/xxx. Separate multiple links with comma or line break. Leave blank if you do not have one.</span>
           </label>
           <label class="field">
             <span class="form-title" data-i18n="apply_country">Delivery Country</span>
@@ -1369,17 +1433,16 @@
               <option value="法国">法国</option>
               <option value="荷兰">荷兰</option>
             </select>
+            <span class="form-tip" data-i18n="apply_country_tip">The main country this ad account will target. Choose one.</span>
           </label>
           <label class="field">
             <span class="form-title" data-i18n="apply_timezone">Time Zone</span>
-            <select id="applyTimezone" class="select">
-              <option value="America/Los_Angeles">America/Los_Angeles</option>
-              <option value="America/New_York">America/New_York</option>
-              <option value="Europe/London">Europe/London</option>
-              <option value="Europe/Amsterdam">Europe/Amsterdam</option>
-              <option value="America/Chicago">America/Chicago</option>
-              <option value="UTC">UTC</option>
-            </select>
+            <div class="tz-combo" data-tz-combo>
+              <input id="applyTimezoneInput" class="input" type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list" value="America/Los_Angeles GMT-08:00" placeholder="shanghai" data-i18n-placeholder="placeholder_timezone_search">
+              <input id="applyTimezone" type="hidden" value="America/Los_Angeles GMT-08:00">
+              <div class="tz-combo__list" id="applyTimezoneList" hidden></div>
+            </div>
+            <span class="form-tip" data-i18n="apply_timezone_tip">Ad account time zone. Search by city or region. For example, shanghai matches China/Shanghai GMT+08:00.</span>
           </label>
           <label class="field">
             <span class="form-title"><span data-i18n="apply_account_currency">Account Currency</span> <span style="color:var(--danger)">*</span></span>
@@ -1389,6 +1452,7 @@
               <option value="GBP">GBP</option>
               <option value="HKD">HKD</option>
             </select>
+            <span class="form-tip" data-i18n="apply_currency_tip">Settlement currency of the ad account. Opening fee is always charged in USD. Initial top-up follows this currency.</span>
           </label>
           <label class="field">
             <span class="form-title" data-i18n="apply_daily_budget">Daily Budget</span>
@@ -1396,10 +1460,12 @@
               <input id="applyDailyBudget" class="input" type="text" inputmode="decimal" value="300" placeholder="Please enter daily budget" data-i18n-placeholder="placeholder_daily_budget">
               <span id="applyDailyBudgetCurrency" class="input-suffix">USD</span>
             </div>
+            <span class="form-tip" data-i18n="apply_budget_tip">Planned daily spend in the account currency. This is application data, not the amount charged now.</span>
           </label>
           <label class="field">
             <span class="form-title" data-i18n="apply_account_count">Account Count</span>
             <input id="applyAccountCount" class="input" type="number" min="1" max="20" value="2">
+            <span class="form-tip" data-i18n="apply_count_tip">Number of ad accounts in this request. Enter an integer from 1 to 20.</span>
           </label>
           <label class="field">
             <span class="form-title"><span data-i18n="apply_category">Delivery Category</span> <span style="color:var(--danger)">*</span></span>
@@ -1420,6 +1486,7 @@
               <option value="非口服健康保健与营养" data-i18n="category_non_oral_health">Non-Oral Health Wellness & Nutrition</option>
               <option value="其他" data-i18n="category_other">Other</option>
             </select>
+            <span class="form-tip" data-i18n="apply_category_tip">Pick the closest product category. This is application data and does not change the quote.</span>
           </label>
           <div class="quote-estimate full" aria-live="polite">
             <div>
@@ -1785,7 +1852,7 @@
         placeholder_bm_id: 'Please enter BM ID',
         placeholder_bm_name: 'Please enter BM Name',
         placeholder_bm_ids: 'Enter multiple BM IDs separated by comma or space',
-        placeholder_url: 'Please enter URL',
+        placeholder_url: 'https://www.xxx.com',
         placeholder_country: 'Please enter delivery country',
         placeholder_daily_budget: 'Please enter daily budget',
         placeholder_page: 'Please enter Facebook Page link',
@@ -1849,14 +1916,29 @@
         apply_estimated_quote: 'Estimated opening cost',
         apply_estimated_quote_desc: 'Opening fee is always USD, multiplied by account count. The top-up number is global; its currency follows the ad account (USD accounts top up in USD, EUR accounts in EUR). Wallet total uses the default wallet currency. Daily budget, country and category are application data only. No deduction on submit. Final amount is the quote issued after agent selection.',
         apply_bm_ids: 'BM ID',
-        apply_bm_tip: 'Facebook only. Multiple BM IDs can be separated by comma or space.',
+        apply_bm_tip: 'Facebook Business Manager numeric ID, for example 121212345678901. Separate multiple IDs with comma or space. Leave blank if you do not have one.',
+        apply_url_tip: 'The website or landing page to advertise. Start with http:// or https://. Example: https://www.xxx.com',
+        apply_page_link: 'Page Link',
+        apply_page_tip: 'Facebook Page link, not the page name. Example: https://www.facebook.com/xxx. Separate multiple links with comma or line break. Leave blank if you do not have one.',
+        placeholder_page_link: 'https://www.facebook.com/xxx',
+        apply_country_tip: 'The main country this ad account will target. Choose one.',
+        apply_timezone_tip: 'Ad account time zone. Search by city or region. For example, shanghai matches China/Shanghai GMT+08:00.',
+        placeholder_timezone_search: 'Search city or region, e.g. shanghai',
+        apply_currency_tip: 'Settlement currency of the ad account. Opening fee is always charged in USD. Initial top-up follows this currency.',
+        apply_budget_tip: 'Planned daily spend in the account currency. This is application data, not the amount charged now.',
+        apply_count_tip: 'Number of ad accounts in this request. Enter an integer from 1 to 20.',
+        apply_category_tip: 'Pick the closest product category. This is application data and does not change the quote.',
+        toast_timezone_required: 'Select a time zone from the list. Try shanghai for China/Shanghai GMT+08:00.',
+        toast_url_format: 'Delivery URL must be a link, for example https://www.xxx.com',
+        toast_page_format: 'Page Link must be a link, for example https://www.facebook.com/xxx',
+        toast_timezone_empty: 'No matching time zone',
         apply_bm_empty: 'No BM ID parsed yet',
         apply_mcc_ids: 'MCC',
-        apply_mcc_tip: 'Google only. Multiple MCCs can be separated by comma or space.',
+        apply_mcc_tip: 'Google manager account (MCC), for example 123-456-7890. Separate multiple values with comma or space. Leave blank if you do not have one.',
         apply_mcc_empty: 'No MCC parsed yet',
         placeholder_mcc_ids: 'Enter multiple MCCs separated by comma or space',
         apply_bc_ids: 'BC',
-        apply_bc_tip: 'TikTok only. Multiple BCs can be separated by comma or space.',
+        apply_bc_tip: 'TikTok Business Center numeric ID. Separate multiple IDs with comma or space. Leave blank if you do not have one.',
         apply_bc_empty: 'No BC parsed yet',
         placeholder_bc_ids: 'Enter multiple BCs separated by comma or space',
         apply_opening_fee_subtotal: 'Opening fee (USD)',
@@ -1982,7 +2064,7 @@
         placeholder_bm_id: '请输入 BM ID',
         placeholder_bm_name: '请输入 BM 名称',
         placeholder_bm_ids: '请输入 BM ID，多个可用逗号或空格分隔',
-        placeholder_url: '请输入 URL',
+        placeholder_url: 'https://www.xxx.com',
         placeholder_country: '请输入投放国家',
         placeholder_daily_budget: '请输入日预算',
         placeholder_page: '请输入 Facebook Page 链接',
@@ -2046,14 +2128,29 @@
         apply_estimated_quote: '预估开户费用',
         apply_estimated_quote_desc: '开户费固定 USD，按单账户金额乘以账户数。最低首充数值全站统一，币种跟随广告账户：美元户按 USD 首充，欧元户按 EUR 首充。合计按钱包默认币种折算。日预算、投放国家、投放品类只作开户资料，不参与定价。提交时不扣款，最终金额以开户组发出的最终报价为准。',
         apply_bm_ids: 'BM ID',
-        apply_bm_tip: '仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。',
+        apply_bm_tip: 'Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。',
+        apply_url_tip: '要投放的网站或落地页，需以 http:// 或 https:// 开头。例如 https://www.xxx.com。',
+        apply_page_link: 'Page Link',
+        apply_page_tip: 'Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。多个用逗号或换行分隔。没有可留空。',
+        placeholder_page_link: 'https://www.facebook.com/xxx',
+        apply_country_tip: '广告主要投放的国家，只能选一个。',
+        apply_timezone_tip: '广告账户时区。可按城市或地区搜索，例如输入 shanghai，对应 China/Shanghai GMT+08:00。',
+        placeholder_timezone_search: '搜索城市或地区，例如 shanghai',
+        apply_currency_tip: '广告账户的结算币种。开户费始终按 USD 收取，首充币种跟随这里。',
+        apply_budget_tip: '计划每天投放的金额，币种跟随账户币种。只作为开户资料，不是本次扣款。',
+        apply_count_tip: '本次申请的广告账户个数，填写 1 到 20 的整数。',
+        apply_category_tip: '选择最接近商品的品类。只作为开户资料，不改变报价。',
+        toast_timezone_required: '请从列表选择时区。可输入 shanghai，对应 China/Shanghai GMT+08:00。',
+        toast_url_format: '投放 URL 需要填写链接，例如 https://www.xxx.com',
+        toast_page_format: 'Page Link 需要填写链接，例如 https://www.facebook.com/xxx',
+        toast_timezone_empty: '没有匹配的时区',
         apply_bm_empty: '暂未识别到 BM ID',
         apply_mcc_ids: 'MCC',
-        apply_mcc_tip: '仅 Google 需要。支持输入多个 MCC，可用逗号或空格分隔。',
+        apply_mcc_tip: 'Google 经理账号（MCC），例如 123-456-7890。多个用逗号或空格分隔。没有可留空。',
         apply_mcc_empty: '暂未识别到 MCC',
         placeholder_mcc_ids: '请输入 MCC，多个可用逗号或空格分隔',
         apply_bc_ids: 'BC',
-        apply_bc_tip: '仅 TikTok 需要。支持输入多个 BC，可用逗号或空格分隔。',
+        apply_bc_tip: 'TikTok Business Center 的数字 ID。多个用逗号或空格分隔。没有可留空。',
         apply_bc_empty: '暂未识别到 BC',
         placeholder_bc_ids: '请输入 BC，多个可用逗号或空格分隔',
         apply_opening_fee_subtotal: '开户费（USD）',
@@ -2977,6 +3074,7 @@
     function syncApplyMediaFields() {
       const media = document.getElementById('applyMediaChannel')?.value || '';
       const bmWrap = document.getElementById('applyBmWrap');
+      const pageWrap = document.getElementById('applyPageWrap');
       const sel = document.getElementById('applyMediaChannel');
       const input = document.getElementById('applyBmIds');
       const label = document.getElementById('applyAssetLabel');
@@ -2984,6 +3082,7 @@
       const meta = openingAssetMeta(media);
       if (media && sel) sel.style.outline = '';
       if (bmWrap) bmWrap.hidden = !meta;
+      if (pageWrap) pageWrap.hidden = media !== 'Facebook';
       if (!meta) return;
       if (label) label.textContent = meta.label;
       if (tip) tip.textContent = meta.tip;
@@ -2992,6 +3091,81 @@
         if (isKnownAssetSample(input.value)) input.value = meta.sample;
       }
       updateApplyBmPreview();
+    }
+
+    function openingTimezones() {
+      return [
+        { label: 'China/Shanghai GMT+08:00', keys: 'shanghai 上海 china 中国 beijing 北京 asia/shanghai' },
+        { label: 'China/Hong_Kong GMT+08:00', keys: 'hongkong hong kong 香港 hk' },
+        { label: 'Singapore GMT+08:00', keys: 'singapore 新加坡' },
+        { label: 'Japan/Tokyo GMT+09:00', keys: 'tokyo 东京 japan 日本' },
+        { label: 'Korea/Seoul GMT+09:00', keys: 'seoul 首尔 korea 韩国' },
+        { label: 'Australia/Sydney GMT+10:00', keys: 'sydney 悉尼 australia 澳大利亚' },
+        { label: 'Asia/Bangkok GMT+07:00', keys: 'bangkok 曼谷 thailand 泰国' },
+        { label: 'Asia/Dubai GMT+04:00', keys: 'dubai 迪拜 uae 阿联酋' },
+        { label: 'Europe/London GMT+00:00', keys: 'london 伦敦 uk britain 英国 gmt utc' },
+        { label: 'Europe/Paris GMT+01:00', keys: 'paris 巴黎 france 法国' },
+        { label: 'Europe/Amsterdam GMT+01:00', keys: 'amsterdam 阿姆斯特丹 netherlands 荷兰' },
+        { label: 'Europe/Berlin GMT+01:00', keys: 'berlin 柏林 germany 德国' },
+        { label: 'America/New_York GMT-05:00', keys: 'new york newyork 纽约 eastern est 美东' },
+        { label: 'America/Chicago GMT-06:00', keys: 'chicago 芝加哥 central 美中' },
+        { label: 'America/Denver GMT-07:00', keys: 'denver 丹佛 mountain' },
+        { label: 'America/Los_Angeles GMT-08:00', keys: 'los angeles losangeles 洛杉矶 pacific pst 美西 la' },
+        { label: 'America/Sao_Paulo GMT-03:00', keys: 'sao paulo 圣保罗 brazil 巴西' },
+        { label: 'America/Toronto GMT-05:00', keys: 'toronto 多伦多 canada 加拿大' },
+        { label: 'Pacific/Auckland GMT+12:00', keys: 'auckland 奥克兰 zealand 新西兰' },
+        { label: 'UTC GMT+00:00', keys: 'utc gmt' }
+      ];
+    }
+
+    function filterOpeningTimezones(query) {
+      const raw = String(query || '').trim().toLowerCase();
+      const list = openingTimezones();
+      if (!raw) return list;
+      const compact = raw.replace(/[\s_/]/g, '');
+      return list.filter(item => {
+        const blob = `${item.label} ${item.keys}`.toLowerCase();
+        return blob.includes(raw) || blob.replace(/[\s_/]/g, '').includes(compact);
+      });
+    }
+
+    function renderApplyTimezoneList() {
+      const input = document.getElementById('applyTimezoneInput');
+      const list = document.getElementById('applyTimezoneList');
+      const hidden = document.getElementById('applyTimezone');
+      if (!input || !list) return;
+      const matches = filterOpeningTimezones(input.value).slice(0, 8);
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      list.innerHTML = matches.length
+        ? matches.map(item => `<button type="button" class="tz-combo__option${hidden?.value === item.label ? ' is-active' : ''}" data-tz-option="${escapeHtml(item.label)}">${escapeHtml(item.label)}</button>`).join('')
+        : `<div class="tz-combo__empty">${escapeHtml(t('toast_timezone_empty'))}</div>`;
+    }
+
+    function selectApplyTimezone(label) {
+      const input = document.getElementById('applyTimezoneInput');
+      const hidden = document.getElementById('applyTimezone');
+      const list = document.getElementById('applyTimezoneList');
+      if (input) input.value = label;
+      if (hidden) hidden.value = label;
+      if (list) list.hidden = true;
+      if (input) input.setAttribute('aria-expanded', 'false');
+    }
+
+    function resolveApplyTimezone() {
+      const input = document.getElementById('applyTimezoneInput');
+      const hidden = document.getElementById('applyTimezone');
+      const typed = String(input?.value || '').trim();
+      const current = String(hidden?.value || '').trim();
+      if (current && typed === current) return current;
+      const exact = openingTimezones().find(item => item.label.toLowerCase() === typed.toLowerCase());
+      if (exact) return exact.label;
+      const matches = filterOpeningTimezones(typed);
+      return matches.length === 1 ? matches[0].label : '';
+    }
+
+    function isHttpLink(value) {
+      return /^https?:\/\/\S+$/i.test(String(value || '').trim());
     }
 
     function submitApply() {
@@ -3012,7 +3186,8 @@
       if (categorySel) categorySel.style.outline = '';
       const url = document.getElementById('applyUrl')?.value.trim();
       const country = document.getElementById('applyCountry')?.value.trim();
-      const timezone = document.getElementById('applyTimezone')?.value.trim();
+      const timezone = resolveApplyTimezone();
+      const pageLink = document.getElementById('applyPageLink')?.value.trim() || '';
       const budgetAmount = String(document.getElementById('applyDailyBudget')?.value || '').trim();
       const dailyBudget = applyDailyBudgetValue();
       const accountCount = Number(document.getElementById('applyAccountCount')?.value) || 0;
@@ -3020,14 +3195,27 @@
         showToast(t('toast_url_required'), 'warning');
         return;
       }
+      if (!isHttpLink(url)) {
+        showToast(t('toast_url_format'), 'warning');
+        document.getElementById('applyUrl')?.focus();
+        return;
+      }
+      if (mediaChannel === 'Facebook' && pageLink && pageLink.split(/[\s,，]+/).filter(Boolean).some(item => !isHttpLink(item))) {
+        showToast(t('toast_page_format'), 'warning');
+        document.getElementById('applyPageLink')?.focus();
+        return;
+      }
       if (!country) {
         showToast(t('toast_country_required'), 'warning');
         return;
       }
       if (!timezone) {
-        showToast(t('placeholder_timezone'), 'warning');
+        showToast(t('toast_timezone_required'), 'warning');
+        document.getElementById('applyTimezoneInput')?.focus();
+        renderApplyTimezoneList();
         return;
       }
+      selectApplyTimezone(timezone);
       if (!budgetAmount) {
         showToast(t('toast_budget_required'), 'warning');
         return;
@@ -3126,6 +3314,37 @@
     document.getElementById('applyBmIds')?.addEventListener('input', updateApplyBmPreview);
     document.getElementById('applyBmIds')?.addEventListener('change', updateApplyBmPreview);
     document.getElementById('applyMediaChannel')?.addEventListener('change', syncApplyMediaFields);
+    const applyTimezoneInput = document.getElementById('applyTimezoneInput');
+    applyTimezoneInput?.addEventListener('focus', renderApplyTimezoneList);
+    applyTimezoneInput?.addEventListener('input', () => {
+      const hidden = document.getElementById('applyTimezone');
+      if (hidden && hidden.value !== applyTimezoneInput.value) hidden.value = '';
+      renderApplyTimezoneList();
+    });
+    applyTimezoneInput?.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        document.getElementById('applyTimezoneList').hidden = true;
+        applyTimezoneInput.setAttribute('aria-expanded', 'false');
+      }
+      if (event.key === 'Enter') {
+        const first = document.querySelector('#applyTimezoneList [data-tz-option]');
+        if (first && !document.getElementById('applyTimezoneList').hidden) {
+          event.preventDefault();
+          selectApplyTimezone(first.dataset.tzOption);
+        }
+      }
+    });
+    document.getElementById('applyTimezoneList')?.addEventListener('click', event => {
+      const option = event.target.closest('[data-tz-option]');
+      if (option) selectApplyTimezone(option.dataset.tzOption);
+    });
+    document.addEventListener('click', event => {
+      if (!event.target.closest('[data-tz-combo]')) {
+        const list = document.getElementById('applyTimezoneList');
+        if (list) list.hidden = true;
+        applyTimezoneInput?.setAttribute('aria-expanded', 'false');
+      }
+    });
 
     document.querySelectorAll('[data-confirm-batch]').forEach(button => {
       button.addEventListener('click', () => confirmBatch(button.dataset.confirmBatch));
@@ -3165,7 +3384,7 @@
     if (document.getElementById('timezoneRows')) createTimezoneRow(false);
     if (document.getElementById('pageList')) createTextRow('pageList', t('placeholder_page'), false);
   </script>
-  <script src="./js/client-shell.js?v=20261014-meta-creative"></script>
+  <script src="./js/client-shell.js?v=20261028-opening-ux"></script>
   <script src="./js/common.js?v=20260831-v241-clear-reduce"></script>
 </body>
 </html>

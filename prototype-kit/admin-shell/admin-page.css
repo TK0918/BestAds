@@ -462,6 +462,11 @@ body.figma-ops-page .dimension-card .dimension-option { flex: 0 0 auto; height: 
 .datetime-range input { flex: 1; min-width: 0; }
 .datetime-sep { color: var(--admin-muted); font-size: 12px; white-space: nowrap; }
 .field-help { margin: 5px 0 0; color: var(--admin-muted); font-size: 11px; line-height: 16px; }
+.tz-combo { position: relative; }
+.tz-combo__list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; max-height: 220px; overflow: auto; padding: 4px; border: 1px solid var(--admin-border, #e5e7eb); border-radius: 8px; background: #fff; box-shadow: 0 8px 24px rgba(31, 35, 41, 0.12); }
+.tz-combo__option, .tz-combo__empty { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: inherit; font-size: 13px; text-align: left; }
+.tz-combo__option:hover, .tz-combo__option.is-active { background: #f3f7ff; color: var(--admin-primary, #2759ff); }
+.tz-combo__empty { color: var(--admin-muted); }
 .topup-notice + .field-help { margin-top: 16px; }
 .form-field .admin-switch { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; margin: 0; color: var(--admin-text); cursor: pointer; }
 .admin-switch input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; }

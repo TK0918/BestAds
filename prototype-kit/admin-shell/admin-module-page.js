@@ -874,6 +874,7 @@
     if (modal?.type === 'opening-rule-config') return openingRuleConfigModal(modal, row);
     if (modal?.type === 'opening-fee-config') return openingFeeConfigModal(modal);
     if (modal?.type === 'opening-apply-create') return openingApplyCreateModal(modal);
+    if (modal?.type === 'opening-biz-note') return openingBizNoteModal(modal, row);
     if (modal?.type === 'opening-email-preview') return openingEmailPreviewModal(modal);
     if (modal?.type === 'batch-debit') return batchDebitModal(modal);
     const fields = modal?.fields || [];
@@ -993,13 +994,13 @@
 
   function openingAssetMeta(media) {
     if (media === 'Facebook') {
-      return { label: 'BM ID', placeholder: '多个 BM ID 可用逗号或空格分隔', tip: '仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。', empty: '暂未识别到 BM ID', sample: OPENING_ASSET_SAMPLES.Facebook };
+      return { label: 'BM ID', placeholder: '例如 121212345678901，多个用逗号或空格分隔', tip: 'Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。', empty: '暂未识别到 BM ID', sample: OPENING_ASSET_SAMPLES.Facebook };
     }
     if (media === 'Google') {
-      return { label: 'MCC', placeholder: '多个 MCC 可用逗号或空格分隔', tip: '仅 Google 需要。支持输入多个 MCC，可用逗号或空格分隔。', empty: '暂未识别到 MCC', sample: OPENING_ASSET_SAMPLES.Google };
+      return { label: 'MCC', placeholder: '例如 123-456-7890，多个用逗号或空格分隔', tip: 'Google 经理账号（MCC），例如 123-456-7890。多个用逗号或空格分隔。没有可留空。', empty: '暂未识别到 MCC', sample: OPENING_ASSET_SAMPLES.Google };
     }
     if (media === 'TikTok') {
-      return { label: 'BC', placeholder: '多个 BC 可用逗号或空格分隔', tip: '仅 TikTok 需要。支持输入多个 BC，可用逗号或空格分隔。', empty: '暂未识别到 BC', sample: OPENING_ASSET_SAMPLES.TikTok };
+      return { label: 'BC', placeholder: '例如 7012345678901234567，多个用逗号或空格分隔', tip: 'TikTok Business Center 的数字 ID。多个用逗号或空格分隔。没有可留空。', empty: '暂未识别到 BC', sample: OPENING_ASSET_SAMPLES.TikTok };
     }
     return null;
   }
@@ -1267,10 +1268,12 @@
   function syncOpeningApplyAssetFields(modalRoot) {
     if (!modalRoot) return;
     const wrap = modalRoot.querySelector('[data-opening-bm-wrap]');
+    const pageWrap = modalRoot.querySelector('[data-opening-page-wrap]');
     if (!wrap) return;
     const media = modalRoot.querySelector('[data-opening-media]')?.value || '';
     const meta = openingAssetMeta(media);
     wrap.hidden = !meta;
+    if (pageWrap) pageWrap.hidden = media !== 'Facebook';
     if (!meta) return;
     const label = wrap.querySelector('[data-opening-asset-label]');
     const input = wrap.querySelector('[data-opening-bm-ids]');
@@ -1326,19 +1329,96 @@
     syncOpeningApplyEstimate(root);
   }
 
+  function openingTimezones() {
+    return [
+      { label: 'China/Shanghai GMT+08:00', keys: 'shanghai 上海 china 中国 beijing 北京 asia/shanghai' },
+      { label: 'China/Hong_Kong GMT+08:00', keys: 'hongkong hong kong 香港 hk' },
+      { label: 'Singapore GMT+08:00', keys: 'singapore 新加坡' },
+      { label: 'Japan/Tokyo GMT+09:00', keys: 'tokyo 东京 japan 日本' },
+      { label: 'Korea/Seoul GMT+09:00', keys: 'seoul 首尔 korea 韩国' },
+      { label: 'Australia/Sydney GMT+10:00', keys: 'sydney 悉尼 australia 澳大利亚' },
+      { label: 'Asia/Bangkok GMT+07:00', keys: 'bangkok 曼谷 thailand 泰国' },
+      { label: 'Asia/Dubai GMT+04:00', keys: 'dubai 迪拜 uae 阿联酋' },
+      { label: 'Europe/London GMT+00:00', keys: 'london 伦敦 uk britain 英国 gmt utc' },
+      { label: 'Europe/Paris GMT+01:00', keys: 'paris 巴黎 france 法国' },
+      { label: 'Europe/Amsterdam GMT+01:00', keys: 'amsterdam 阿姆斯特丹 netherlands 荷兰' },
+      { label: 'Europe/Berlin GMT+01:00', keys: 'berlin 柏林 germany 德国' },
+      { label: 'America/New_York GMT-05:00', keys: 'new york newyork 纽约 eastern est 美东' },
+      { label: 'America/Chicago GMT-06:00', keys: 'chicago 芝加哥 central 美中' },
+      { label: 'America/Denver GMT-07:00', keys: 'denver 丹佛 mountain' },
+      { label: 'America/Los_Angeles GMT-08:00', keys: 'los angeles losangeles 洛杉矶 pacific pst 美西 la' },
+      { label: 'America/Sao_Paulo GMT-03:00', keys: 'sao paulo 圣保罗 brazil 巴西' },
+      { label: 'America/Toronto GMT-05:00', keys: 'toronto 多伦多 canada 加拿大' },
+      { label: 'Pacific/Auckland GMT+12:00', keys: 'auckland 奥克兰 zealand 新西兰' },
+      { label: 'UTC GMT+00:00', keys: 'utc gmt' }
+    ];
+  }
+
+  function filterOpeningTimezones(query) {
+    const raw = String(query || '').trim().toLowerCase();
+    const list = openingTimezones();
+    if (!raw) return list;
+    const compact = raw.replace(/[\s_/]/g, '');
+    return list.filter(item => {
+      const blob = `${item.label} ${item.keys}`.toLowerCase();
+      return blob.includes(raw) || blob.replace(/[\s_/]/g, '').includes(compact);
+    });
+  }
+
+  function renderOpeningTimezoneList(combo) {
+    if (!combo) return;
+    const input = combo.querySelector('[data-tz-input]');
+    const list = combo.querySelector('[data-tz-list]');
+    const hidden = combo.querySelector('[data-tz-value]');
+    if (!input || !list) return;
+    const matches = filterOpeningTimezones(input.value).slice(0, 8);
+    list.hidden = false;
+    list.innerHTML = matches.length
+      ? matches.map(item => `<button type="button" class="tz-combo__option${hidden?.value === item.label ? ' is-active' : ''}" data-tz-option="${esc(item.label)}">${esc(item.label)}</button>`).join('')
+      : '<div class="tz-combo__empty">没有匹配的时区</div>';
+  }
+
+  function selectOpeningTimezone(combo, label) {
+    if (!combo || !label) return;
+    const input = combo.querySelector('[data-tz-input]');
+    const hidden = combo.querySelector('[data-tz-value]');
+    const list = combo.querySelector('[data-tz-list]');
+    if (input) input.value = label;
+    if (hidden) hidden.value = label;
+    if (list) list.hidden = true;
+  }
+
+  function resolveOpeningTimezone(combo) {
+    if (!combo) return '';
+    const input = combo.querySelector('[data-tz-input]');
+    const hidden = combo.querySelector('[data-tz-value]');
+    const typed = String(input?.value || '').trim();
+    const current = String(hidden?.value || '').trim();
+    if (current && typed === current) return current;
+    const exact = openingTimezones().find(item => item.label.toLowerCase() === typed.toLowerCase());
+    if (exact) return exact.label;
+    const matches = filterOpeningTimezones(typed);
+    return matches.length === 1 ? matches[0].label : '';
+  }
+
+  function openingTimezoneFieldHtml() {
+    return `<div class="tz-combo" data-tz-combo><input data-tz-input type="text" value="America/Los_Angeles GMT-08:00" placeholder="搜索城市或地区，例如 shanghai" autocomplete="off"><input data-tz-value data-opening-timezone type="hidden" value="America/Los_Angeles GMT-08:00"><div class="tz-combo__list" data-tz-list hidden></div></div><p class="field-help">广告账户时区。可按城市或地区搜索，例如输入 shanghai，对应 China/Shanghai GMT+08:00。</p>`;
+  }
+
   function openingApplyCreateModal(modal) {
     return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '新建开户申请')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">内部代客户提交开户申请。除选择商户和客户外，填写内容与客户端申请开户一致。</div><div class="form-grid" data-opening-apply-create-modal>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 商户ID</label><select data-opening-merchant>${openingApplyMerchantOptions('')}</select></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 客户</label><select data-opening-customer>${openingApplyCustomerOptions('', '')}</select></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 媒体渠道</label><select data-opening-media><option value="">请选择媒体渠道</option><option value="Facebook">Facebook</option><option value="Google">Google</option><option value="TikTok">TikTok</option><option value="Snapchat">Snapchat</option><option value="AppLovin">AppLovin</option><option value="Taboola">Taboola</option><option value="Outbrain">Outbrain</option><option value="X">X</option></select></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放URL</label><input data-opening-url type="text" value="https://www.luminara-home.com" placeholder="请输入投放URL"></div>
-      <div class="form-field full" data-opening-bm-wrap hidden><label data-opening-asset-label>BM ID</label><input data-opening-bm-ids type="text" value="" placeholder="多个 BM ID 可用逗号或空格分隔"><p class="field-help" data-opening-asset-tip>仅 Facebook 需要。支持输入多个 BM ID，可用逗号或空格分隔。</p><div class="opening-bm-preview" data-opening-bm-preview aria-live="polite"></div></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放国家</label><select data-opening-country>${openingApplyCountryOptions('美国')}</select></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 时区</label><select data-opening-timezone><option value="America/Los_Angeles" selected>America/Los_Angeles</option><option value="America/New_York">America/New_York</option><option value="Europe/London">Europe/London</option><option value="Europe/Amsterdam">Europe/Amsterdam</option><option value="America/Chicago">America/Chicago</option><option value="UTC">UTC</option></select></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户币种</label><select data-opening-currency><option value="USD" selected>USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 日预算</label><div class="input-with-suffix"><input data-opening-budget type="text" inputmode="decimal" value="300" placeholder="请输入日预算"><span class="input-suffix" data-opening-budget-currency>USD</span></div></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户数</label><input data-opening-count type="text" inputmode="numeric" value="2" placeholder="请输入账户数"></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放品类</label><select data-opening-category>${openingApplyCategoryOptions()}</select></div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放URL</label><input data-opening-url type="text" value="https://www.luminara-home.com" placeholder="https://www.xxx.com"><p class="field-help">要投放的网站或落地页，需以 http:// 或 https:// 开头。例如 https://www.xxx.com。</p></div>
+      <div class="form-field full" data-opening-bm-wrap hidden><label data-opening-asset-label>BM ID</label><input data-opening-bm-ids type="text" value="" placeholder="多个 BM ID 可用逗号或空格分隔"><p class="field-help" data-opening-asset-tip>Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。</p><div class="opening-bm-preview" data-opening-bm-preview aria-live="polite"></div></div>
+      <div class="form-field full" data-opening-page-wrap hidden><label>Page Link</label><input data-opening-page type="text" value="" placeholder="https://www.facebook.com/xxx"><p class="field-help">Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。多个用逗号或换行分隔。没有可留空。</p></div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放国家</label><select data-opening-country>${openingApplyCountryOptions('美国')}</select><p class="field-help">广告主要投放的国家，只能选一个。</p></div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 时区</label>${openingTimezoneFieldHtml()}</div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户币种</label><select data-opening-currency><option value="USD" selected>USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select><p class="field-help">广告账户的结算币种。开户费始终按 USD 收取，首充币种跟随这里。</p></div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 日预算</label><div class="input-with-suffix"><input data-opening-budget type="text" inputmode="decimal" value="300" placeholder="请输入日预算"><span class="input-suffix" data-opening-budget-currency>USD</span></div><p class="field-help">计划每天投放的金额，币种跟随账户币种。只作为开户资料，不是本次扣款。</p></div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户数</label><input data-opening-count type="text" inputmode="numeric" value="2" placeholder="1 到 20"><p class="field-help">本次申请的广告账户个数，填写 1 到 20 的整数。</p></div>
+      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放品类</label><select data-opening-category>${openingApplyCategoryOptions()}</select><p class="field-help">选择最接近商品的品类。只作为开户资料，不改变报价。</p></div>
       <div class="form-field full"><div class="opening-apply-estimate" aria-live="polite"><div><p class="opening-apply-estimate__title">预估开户费用</p><p class="opening-apply-estimate__desc">开户费固定 USD，按单账户金额乘以账户数。最低首充数值全站统一，币种跟随广告账户：美元户按 USD 首充，欧元户按 EUR 首充。合计按钱包默认币种折算。日预算、投放国家、投放品类只作开户资料，不参与定价。提交时不扣款，最终金额以开户组发出的最终报价为准。</p><div class="opening-apply-estimate__breakdown"><span>开户费（USD）：<b data-opening-estimate-opening>-</b></span><span>首充（账户币种）：<b data-opening-estimate-precharge>-</b></span><span>服务费 / 预收税费费率：开户成功后展示</span></div></div><div class="opening-apply-estimate__total"><span>合计</span><strong data-opening-estimate>-</strong></div></div></div>
       <label class="opening-apply-consent full"><input data-opening-auto-pay type="checkbox" checked><span>代客户确认同意扣费：若实际扣款不超过提交时预估，同意系统直接扣除开户费和各账户首充；高于预估时再通知客户确认。</span></label>
     </div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>提交申请</button></div></section></div>`;
@@ -1610,16 +1690,17 @@
   }
 
   function openingOpsForStatus(status) {
-    if (status === '待确认账户类型和金额' || status === '待运营审核') return ['确认账户类型', '查看详情'];
-    if (status === '待选择代理') return ['选择代理', '查看详情'];
-    if (status === '审核不通过') return ['查看详情'];
-    if (status === '待客户确认付款') return ['查看详情', '取消开户', '重开审核'];
-    if (status === '扣款异常') return ['重试扣款', '查看详情', '取消开户'];
-    if (status === '已付款待开户') return ['登记开户结果', '查看详情', '取消开户'];
-    if (status === '开户成功') return ['查看详情'];
-    if (status === '部分成功') return ['查看详情'];
-    if (status === '开户取消') return ['查看详情'];
-    return ['查看详情'];
+    const note = '业务备注';
+    if (status === '待确认账户类型和金额' || status === '待运营审核') return [note, '确认账户类型', '查看详情'];
+    if (status === '待选择代理') return [note, '选择代理', '查看详情'];
+    if (status === '审核不通过') return [note, '查看详情'];
+    if (status === '待客户确认付款') return [note, '查看详情', '取消开户', '重开审核'];
+    if (status === '扣款异常') return [note, '重试扣款', '查看详情', '取消开户'];
+    if (status === '已付款待开户') return [note, '登记开户结果', '查看详情', '取消开户'];
+    if (status === '开户成功') return [note, '查看详情'];
+    if (status === '部分成功') return [note, '查看详情'];
+    if (status === '开户取消') return [note, '查看详情'];
+    return [note, '查看详情'];
   }
 
   function refreshOpeningRow(row) {
@@ -1786,6 +1867,7 @@
       ['单账户开户费', esc(`${openingFeeHelpers().formatAmount(site.openingFeePerAccount, false)} USD`)],
       ['单账户最低首充', esc(`${openingFeeHelpers().formatAmount(site.prechargePerAccount, false)}（跟随账户币种）`)],
       ['投放URL', applyUrl],
+      ['Page Link', row?.mediaChannel === 'Facebook' && row?.pageLink && /^https?:\/\//i.test(String(row.pageLink)) ? `<a class="admin-inline-link" href="${esc(row.pageLink)}" target="_blank" rel="noopener noreferrer">${esc(row.pageLink)}</a>` : esc(row?.pageLink || '-')],
       ['投放国家', esc(row?.country || '-')],
       ['时区', esc(row?.timezone || '-')],
       ['账户币种', esc(row?.currency || 'USD')],
@@ -1919,7 +2001,7 @@
     const applyUrl = row?.url && /^https?:\/\//i.test(String(row.url))
       ? `<a class="admin-inline-link" href="${esc(row.url)}" target="_blank" rel="noopener noreferrer">${esc(row.url)}</a>`
       : esc(row?.url || '-');
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '登记开户结果')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack" data-opening-result-modal><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>媒体渠道</dt><dd>${esc(row?.mediaChannel || '-')}</dd></div><div><dt>URL</dt><dd>${applyUrl}</dd></div><div><dt>投放品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>代理</dt><dd>${esc(row?.agent || '-')}</dd></div><div><dt>账户类型</dt><dd>${esc(row?.accountType || '-')}</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>首充合计</dt><dd>${esc(row?.precharge || '-')}</dd></div></dl><div class="opening-result-toolbar"><p>按账户登记开户结果。失败退该账户开户费和该账户首充。</p><button type="button" class="btn btn-default" data-opening-fail-all>全部失败并退款</button></div><p class="opening-result-refund" data-opening-refund-summary hidden></p><p class="opening-result-all-fail" data-opening-all-fail-hint hidden>全部账户将记为开户取消，退回各账户开户费和首充，付款状态为已退款。</p>${openingAccountSlotsHtml(row, syncedAccounts)}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit data-opening-result-confirm>确认</button></div></section></div>`;
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '登记开户结果')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack" data-opening-result-modal><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>媒体渠道</dt><dd>${esc(row?.mediaChannel || '-')}</dd></div><div><dt>URL</dt><dd>${applyUrl}</dd></div><div><dt>Page Link</dt><dd>${row?.mediaChannel === 'Facebook' && row?.pageLink && /^https?:\/\//i.test(String(row.pageLink)) ? `<a class="admin-inline-link" href="${esc(row.pageLink)}" target="_blank" rel="noopener noreferrer">${esc(row.pageLink)}</a>` : esc(row?.pageLink || '-')}</dd></div><div><dt>投放品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>代理</dt><dd>${esc(row?.agent || '-')}</dd></div><div><dt>账户类型</dt><dd>${esc(row?.accountType || '-')}</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>首充合计</dt><dd>${esc(row?.precharge || '-')}</dd></div></dl><div class="opening-result-toolbar"><p>按账户登记开户结果。失败退该账户开户费和该账户首充。</p><button type="button" class="btn btn-default" data-opening-fail-all>全部失败并退款</button></div><p class="opening-result-refund" data-opening-refund-summary hidden></p><p class="opening-result-all-fail" data-opening-all-fail-hint hidden>全部账户将记为开户取消，退回各账户开户费和首充，付款状态为已退款。</p>${openingAccountSlotsHtml(row, syncedAccounts)}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit data-opening-result-confirm>确认</button></div></section></div>`;
   }
 
   function openingReopenModal(modal, row) {
@@ -1942,6 +2024,14 @@
     return openingAssetMeta(media)?.label || '';
   }
 
+  function openingBizNoteModal(modal, row) {
+    const notes = Array.isArray(row?.bizNotes) ? row.bizNotes : [];
+    const list = notes.length
+      ? `<ol class="ratio-log">${notes.slice().reverse().map(item => `<li class="ratio-log__item"><div class="ratio-log__time">${esc(item.at || '-')}</div><div class="ratio-log__title">${esc(item.by || '-')}</div><div class="ratio-log__note">${esc(item.text || '-')}</div></li>`).join('')}</ol>`
+      : '<p class="field-help">还没有业务备注。可记录是否收到客户 Page、OE ID，以及其他跟进。</p>';
+    return `<div class="modal-backdrop"><section class="modal modal-md"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '业务备注')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div data-opening-biz-note-modal><p class="confirm-copy">${esc(row?.applyId || '-')} · ${esc(row?.customerName || '-')}</p><p class="field-help">只给运营内部看，客户看不到。每次追加一条，不覆盖历史。</p>${list}<div class="form-grid"><div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 追加备注</label><textarea data-opening-biz-note placeholder="例如：已收到客户 Page；OE 已提交，OE ID：184920331"></textarea></div></div></div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit>追加备注</button></div></section></div>`;
+  }
+
   function openingDetailModal(title, row) {
     const visible = value => value != null && value !== '' && value !== '-';
     const item = (label, value, html = false) => visible(value) ? `<div><dt>${esc(label)}</dt><dd>${html ? value : esc(value)}</dd></div>` : '';
@@ -1954,6 +2044,7 @@
         item('媒体渠道', row?.mediaChannel),
         item('申请时间', row?.applyAt),
         item('投放URL', url, true),
+        item('Page Link', row?.mediaChannel === 'Facebook' ? (row?.pageLink && /^https?:\/\//i.test(String(row.pageLink)) ? `<a class="admin-inline-link" href="${esc(row.pageLink)}" target="_blank" rel="noopener noreferrer">${esc(row.pageLink)}</a>` : (row?.pageLink || '-')) : '-', true),
         item(openingAssetIdLabel(row?.mediaChannel), row?.assetIds || row?.bmIds),
         item('投放国家', row?.country),
         item('时区', row?.timezone),
@@ -1980,9 +2071,13 @@
         item('开户代理', row?.agent),
         item('账户类型', row?.accountType),
         item('开户结果账户', row?.accountInfo),
+        item('广告账户ID', row?.adAccountId),
+        item('下户人', row?.issuedBy),
+        item('下户时间', row?.issuedAt),
         item('服务费率', row?.serviceRate),
         item('预收税费费率', row?.preTaxRate),
-        item('处理备注', row?.remark)
+        item('处理备注', row?.remark),
+        item('业务备注', Array.isArray(row?.bizNotes) && row.bizNotes.length ? row.bizNotes.map(note => `${note.at || '-'} ${note.by || '-'}：${note.text || '-'}`).join('；') : (row?.bizNote || '无'))
       ]]
     ];
     const body = sections.map(([sectionTitle, items]) => {
@@ -3371,6 +3466,22 @@
       return true;
     }
 
+    function submitOpeningBizNote(modalRoot) {
+      const row = state.processingRow;
+      if (!row) { showToast('未找到开户申请', 'error'); return false; }
+      const text = modalRoot?.querySelector('[data-opening-biz-note]')?.value.trim() || '';
+      if (!text) { showToast('请填写业务备注', 'error'); return false; }
+      if (!Array.isArray(row.bizNotes)) row.bizNotes = [];
+      const note = { at: currentTimestamp(), by: '管理员(admin@bestfulfill.com)', text };
+      row.bizNotes.push(note);
+      row.bizNote = text;
+      state.processingRow = null;
+      closeModal();
+      render();
+      showToast('已追加业务备注（原型）', 'success');
+      return true;
+    }
+
     function submitOpeningApplyCreate(modalRoot) {
       const tab = activeTab();
       const merchantSel = modalRoot?.querySelector('[data-opening-merchant]');
@@ -3383,7 +3494,9 @@
       const category = categorySel?.value || '';
       const url = modalRoot?.querySelector('[data-opening-url]')?.value.trim() || '';
       const country = modalRoot?.querySelector('[data-opening-country]')?.value.trim() || '';
-      const timezone = modalRoot?.querySelector('[data-opening-timezone]')?.value.trim() || '';
+      const tzCombo = modalRoot?.querySelector('[data-tz-combo]');
+      const timezone = resolveOpeningTimezone(tzCombo);
+      const pageLink = mediaChannel === 'Facebook' ? (modalRoot?.querySelector('[data-opening-page]')?.value.trim() || '') : '';
       const currency = modalRoot?.querySelector('[data-opening-currency]')?.value || 'USD';
       const budgetRaw = String(modalRoot?.querySelector('[data-opening-budget]')?.value || '').trim();
       const countRaw = String(modalRoot?.querySelector('[data-opening-count]')?.value || '').trim();
@@ -3391,9 +3504,11 @@
       if (!merchantId) { highlight(merchantSel); showToast('请选择商户ID', 'error'); return false; }
       if (!customerId) { highlight(customerSel); showToast('请选择客户', 'error'); return false; }
       if (!mediaChannel) { highlight(mediaSel); showToast('请选择媒体渠道', 'error'); return false; }
-      if (!url) { highlight(modalRoot.querySelector('[data-opening-url]')); showToast('请输入投放URL', 'error'); return false; }
+      if (!url || !/^https?:\/\/\S+$/i.test(url)) { highlight(modalRoot.querySelector('[data-opening-url]')); showToast('投放 URL 需要填写链接，例如 https://www.xxx.com', 'error'); return false; }
+      if (pageLink && pageLink.split(/[\s,，]+/).filter(Boolean).some(item => !/^https?:\/\/\S+$/i.test(item))) { highlight(modalRoot.querySelector('[data-opening-page]')); showToast('Page Link 需要填写链接，例如 https://www.facebook.com/xxx', 'error'); return false; }
       if (!country) { highlight(modalRoot.querySelector('[data-opening-country]')); showToast('请选择投放国家', 'error'); return false; }
-      if (!timezone) { highlight(modalRoot.querySelector('[data-opening-timezone]')); showToast('请选择时区', 'error'); return false; }
+      if (!timezone) { highlight(tzCombo?.querySelector('[data-tz-input]')); showToast('请从列表选择时区。可输入 shanghai，对应 China/Shanghai GMT+08:00。', 'error'); return false; }
+      selectOpeningTimezone(tzCombo, timezone);
       if (!budgetRaw || Number(budgetRaw) < 0 || !Number.isFinite(Number(budgetRaw))) { highlight(modalRoot.querySelector('[data-opening-budget]')); showToast('请输入有效日预算', 'error'); return false; }
       const accountCount = Number(countRaw);
       if (!countRaw || !Number.isInteger(accountCount) || accountCount < 1 || accountCount > 20) { highlight(modalRoot.querySelector('[data-opening-count]')); showToast('账户数需为 1 到 20 的整数', 'error'); return false; }
@@ -3418,6 +3533,7 @@
         status: '待确认账户类型和金额',
         paymentStatus: '未扣款',
         url,
+        pageLink: pageLink || '-',
         assetIds: assetIds || '-',
         country,
         timezone,
@@ -3437,6 +3553,11 @@
         openingFeeRecord: '-',
         prechargeRecord: '-',
         accountInfo: '-',
+        adAccountId: '-',
+        issuedBy: '-',
+        issuedAt: '-',
+        bizNote: '-',
+        bizNotes: [],
         serviceRate: '-',
         preTaxRate: '-',
         paymentAuth: autoPay ? '已同意不超过报价时自动扣款' : '未同意扣费，待最终报价后确认',
@@ -3579,6 +3700,9 @@
         row.status = '开户取消';
         row.paymentStatus = '已退款';
         row.accountInfo = '-';
+        row.adAccountId = '-';
+        row.issuedBy = '-';
+        row.issuedAt = '-';
         row.serviceRate = '-';
         row.preTaxRate = '-';
         row.openingFeeRecord = feeRecords;
@@ -3598,6 +3722,9 @@
       row.serviceRate = successItems.map(item => item.serviceRate.label).join(' / ');
       row.preTaxRate = successItems.map(item => item.preTaxRate.label).join(' / ');
       row.accountInfo = successItems.map(item => `${item.accountId} / ${item.accountName} / ${item.currency}（服务费率 ${item.serviceRate.label}，预收税率 ${item.preTaxRate.label}）`).join('；') + (failedItems.length ? `；${failedItems.length} 个账户失败已退开户费和首充` : '');
+      row.adAccountId = successItems.map(item => item.accountId).join(' / ');
+      row.issuedBy = '管理员(admin@bestfulfill.com)';
+      row.issuedAt = currentTimestamp();
       row.openingFeeRecord = feeRecords;
       row.prechargeRecord = results.map(item => {
         const id = `AD-OPEN-${row.applyId}-${openingItemNo(item.index)}`;
@@ -3673,6 +3800,7 @@
       return true;
     }
     function operationButtons(row, index, dataset = '') {
+      if (config.title === '开户管理' && row?.applyId && row?.status) refreshOpeningRow(row);
       return (row.ops || []).map(op => `<button type="button" class="btn btn-link op-link ${rowActionClass(op)}" data-row-action="${esc(op)}" data-row-index="${index}"${dataset}${row.selectable === false && op !== '查看依据' ? ' disabled' : ''}>${esc(op)}</button>`).join('');
     }
     function childTableHtml(tab, parentRow, parentIndex) {
@@ -4630,6 +4758,14 @@
         showToast('已开始下载分段明细 CSV（原型）', 'success');
         return;
       }
+      const tzOption = event.target.closest('[data-tz-option]');
+      if (tzOption) {
+        selectOpeningTimezone(tzOption.closest('[data-tz-combo]'), tzOption.dataset.tzOption);
+        return;
+      }
+      if (!event.target.closest('[data-tz-combo]')) {
+        document.querySelectorAll('[data-tz-list]').forEach(list => { list.hidden = true; });
+      }
       const emailKind = event.target.closest('[data-opening-email-kind]');
       if (emailKind) {
         const root = emailKind.closest('[data-opening-email-preview]');
@@ -5072,6 +5208,11 @@
           submitOpeningApplyCreate(openingApplyCreateRoot);
           return;
         }
+        const openingBizNoteRoot = backdrop?.querySelector('[data-opening-biz-note-modal]');
+        if (openingBizNoteRoot) {
+          submitOpeningBizNote(openingBizNoteRoot);
+          return;
+        }
         const processModal = backdrop?.querySelector('[data-process-modal]');
         if (processModal) {
           submitProcessModal(processModal);
@@ -5390,6 +5531,10 @@
       render();
       refreshFieldDrawer(tab);
     });
+    document.body.addEventListener('focusin', event => {
+      const tzInput = event.target.closest?.('[data-tz-input]');
+      if (tzInput) renderOpeningTimezoneList(tzInput.closest('[data-tz-combo]'));
+    });
     document.body.addEventListener('input', event => {
       if (event.target.closest('[data-recharge-account-search]')) refreshRechargeModal(event.target.closest('[data-recharge-modal]'));
       if (event.target.closest('[data-recharge-amount-input]')) recalculateRechargeAmounts(event.target.closest('[data-recharge-modal]'));
@@ -5399,6 +5544,12 @@
       if (event.target.closest('[data-adjustment-amount-input]')) recalculateAdjustmentAmounts(event.target.closest('[data-adjustment-modal]'));
       if (event.target.closest('[data-opening-fee-amount], [data-opening-precharge-amount]')) {
         syncOpeningFeeConfigPreview(event.target.closest('[data-opening-fee-config-modal]'));
+      }
+      if (event.target.closest('[data-tz-input]')) {
+        const combo = event.target.closest('[data-tz-combo]');
+        const hidden = combo?.querySelector('[data-tz-value]');
+        if (hidden && hidden.value !== event.target.value) hidden.value = '';
+        renderOpeningTimezoneList(combo);
       }
       if (event.target.closest('[data-opening-apply-create-modal] input, [data-opening-apply-create-modal] select')) {
         const modalRoot = event.target.closest('[data-opening-apply-create-modal]');

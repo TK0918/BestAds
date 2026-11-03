@@ -619,6 +619,48 @@ button {
   line-height: 18px;
 }
 
+.tz-combo {
+  position: relative;
+}
+
+.tz-combo__list {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--client-control-border);
+  border-radius: 8px;
+  background: var(--client-panel);
+  box-shadow: var(--client-shadow);
+}
+
+.tz-combo__option,
+.tz-combo__empty {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--client-text);
+  font-size: 13px;
+  text-align: left;
+}
+
+.tz-combo__option:hover,
+.tz-combo__option.is-active {
+  background: rgba(39, 89, 255, 0.12);
+  color: var(--client-primary);
+}
+
+.tz-combo__empty {
+  color: var(--client-muted);
+}
+
 .client-bm-preview {
   display: flex;
   flex-wrap: wrap;
