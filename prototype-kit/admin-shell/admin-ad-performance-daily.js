@@ -69,9 +69,6 @@
     .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
     .slice(0, 10);
 
-  const topSum = spendTop.reduce((sum, item) => sum + item.spend, 0);
-  const topShare = topSum / TOTAL_SPEND * 100;
-
   function showToast(message) {
     const existing = document.querySelector('.apd-toast');
     if (existing) existing.remove();
@@ -211,9 +208,9 @@
           <div class="apd-kpi-sub">净充 <span class="apd-up">${usdSigned(NET_RECHARGE)}</span></div>
         </article>
         <article class="apd-kpi">
-          <div class="apd-kpi-label">Top10 集中度</div>
-          <div class="apd-kpi-value">${topShare.toFixed(1)}%</div>
-          <div class="apd-kpi-sub">Top10 合计 ${usd(topSum)}</div>
+          <div class="apd-kpi-label">近30天活跃客户</div>
+          <div class="apd-kpi-value">—</div>
+          <div class="apd-kpi-sub">09/27–10/26，消耗大于 0</div>
         </article>
       </section>
       <section class="apd-section">
