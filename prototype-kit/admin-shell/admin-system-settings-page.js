@@ -88,14 +88,31 @@
   }
 
   function readPageShare() {
-    const fallback = { url: 'https://123123', status: '启用' };
+    const fallback = {
+      url: { value: 'https://123123', status: '启用' },
+      email: { value: '123@gmail.com', status: '启用' }
+    };
+    const normalizeItem = (item, fallbackItem) => ({
+      value: String(item?.storedValue || item?.value || fallbackItem.value).trim() || fallbackItem.value,
+      status: item?.status === '停用' ? '停用' : '启用'
+    });
     try {
-      const raw = localStorage.getItem('bestads-page-share-url');
+      const raw = localStorage.getItem('bestads-page-share') || localStorage.getItem('bestads-page-share-url');
       if (!raw) return fallback;
       const data = JSON.parse(raw);
+      if (data.url && typeof data.url === 'object') {
+        return {
+          url: normalizeItem(data.url, fallback.url),
+          email: normalizeItem(data.email, fallback.email)
+        };
+      }
       return {
-        url: String(data.storedUrl || data.url || fallback.url).trim() || fallback.url,
-        status: data.status === '停用' ? '停用' : '启用'
+        url: normalizeItem({
+          value: data.url,
+          storedValue: data.storedUrl || data.url,
+          status: data.status
+        }, fallback.url),
+        email: fallback.email
       };
     } catch (error) {
       return fallback;
@@ -273,16 +290,17 @@
             id: 'page-share',
             label: 'Page分享',
             actions: [],
-            tableMinWidth: 1100,
+            tableMinWidth: 1180,
             opsWidth: 100,
-            columns: columns(['ID', '分享对象', '状态', '更新时间', '操作人'], { left: ['分享对象', '操作人'], status: ['状态'], person: ['操作人'], long: ['分享对象'], widths: [90, 280, 110, 180, 260] }),
+            columns: columns(['ID', '配置项', '配置值', '状态', '更新时间', '操作人'], { left: ['配置项', '配置值', '操作人'], status: ['状态'], person: ['操作人'], long: ['配置值'], widths: [90, 140, 280, 110, 180, 260] }),
             rows: [
-              row(['960', share.url, share.status, '2026-11-05 18:00:00', people.ou], { status: share.status, ops: ['编辑'] })
+              row(['960', '分享对象', share.url.value, share.url.status, '2026-11-05 18:00:00', people.ou], { status: share.url.status, shareType: 'url', ops: ['编辑'] }),
+              row(['961', '邀请邮箱', share.email.value, share.email.status, '2026-11-05 18:00:00', people.ou], { status: share.email.status, shareType: 'email', ops: ['编辑'] })
             ],
             modals: {
-              '编辑': { title: '编辑Page分享对象', fields: [
-                { key: 'c1', label: '分享对象', placeholder: 'https://123123' },
-                { key: 'c2', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
+              '编辑': { title: '编辑Page分享配置', fields: [
+                { key: 'c2', label: '配置值', placeholder: 'https://123123 或邮箱' },
+                { key: 'c3', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
               ] }
             }
           };

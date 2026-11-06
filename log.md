@@ -1,3 +1,19 @@
+#### 2026-11-06 - 推送 V2.53 原型与 PRD 0.5
+
+提交并推送 V2.53 开户交互：Facebook BM 必填、Page分享链接+邮箱、本地 PRD 0.5、运营端/客户端原型与 `SHELL_VERSION` `20261106-page-share-email`。不含 `.DS_Store`、临时文件与无关删除。
+
+#### 2026-11-06 - 飞书 V2.53 PRD 同步本地 0.3–0.5
+
+将本地 `PRD/V 2.53 开户交互优化.md`（至 0.5）差异同步到飞书 Wiki `JipQwhHa0iXxaIkYSSVcCvOTnZe`（docx `LqMwdK8JYoIBUpxHJBbcIwecnZb`，rev≈282）。含修订历史 0.3–0.5、Facebook BM 必填、Page分享 URL+邀请邮箱双配置、7.4 列表/编辑表、验收项等；旧文紫色删除线 + 新文紫色标记。误伤的 0.1「BM 成组」已回退。
+
+#### 2026-11-06 - Page分享增加邀请邮箱配置
+
+Pages 说明改为「最多20个Pages。请必须把Page分享给 {链接}，或者把 {邮箱} 邀请到Page所在的BM中。」系统字典 Page分享 Tab 拆成「分享对象」「邀请邮箱」两条独立配置，均可启停与复制。PRD 升到 0.5。`SHELL_VERSION` / 客户端 `?v=` 为 `20261106-page-share-email`。
+
+#### 2026-11-06 - Facebook BM 改为必填至少一组
+
+客户端申请开户与运营端新建开户：Facebook BM 标签改为 `* BM`，提示至少 1 组；提交时 0 组拦截。MCC / BC 仍选填。PRD 升到 0.4。`SHELL_VERSION` / 客户端 `?v=` 为 `20261106-bm-required`。
+
 #### 2026-11-06 - V2.53 原型与 PRD 推送
 
 提交并推送 V2.53 开户交互原型与 `PRD/V 2.53 开户交互优化.md` 0.3。公网原型地址回填；`SHELL_VERSION` 为 `20261106-opening-biznote-filter`。不含无关临时文件与 `.DS_Store`。

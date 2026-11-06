@@ -994,7 +994,7 @@
 
   function openingAssetMeta(media) {
     if (media === 'Facebook') {
-      return { label: 'BM 选填', mode: 'group', placeholder: 'BM ID', tip: '名称和 ID 都填写才算一组，最多 20 组。没有可留空。', add: '+ 添加 BM', empty: '暂未填写 BM', sample: OPENING_ASSET_SAMPLES.Facebook };
+      return { label: 'BM', mode: 'group', required: true, placeholder: 'BM ID', tip: '至少填写 1 组，最多 20 组。名称和 ID 都填写才算一组。', add: '+ 添加 BM', empty: '暂未填写 BM', sample: OPENING_ASSET_SAMPLES.Facebook };
     }
     if (media === 'Google') {
       return { label: 'MCC 选填', mode: 'single', placeholder: 'MCC', tip: '最多 20 个 MCC。没有可留空。', add: '+ 添加 MCC', empty: '暂未识别到 MCC', sample: OPENING_ASSET_SAMPLES.Google };
@@ -1351,7 +1351,11 @@
     const tip = wrap.querySelector('[data-opening-asset-tip]');
     const addButton = wrap.querySelector('[data-opening-add-bm]');
     const list = wrap.querySelector('[data-opening-bm-list]');
-    if (label) label.textContent = meta.label;
+    if (label) {
+      label.innerHTML = meta.required
+        ? `<span style="color:var(--admin-danger)">*</span> ${esc(meta.label)}`
+        : esc(meta.label);
+    }
     if (tip) tip.textContent = meta.tip;
     if (addButton) addButton.textContent = meta.add;
     if (!list || list.dataset.mode !== meta.mode || !list.querySelector('.opening-repeat-row')) {
@@ -1479,24 +1483,72 @@
   }
 
   function pageShareConfig() {
-    const fallback = { url: 'https://123123', status: '启用' };
+    const fallback = {
+      url: { value: 'https://123123', status: '启用' },
+      email: { value: '123@gmail.com', status: '启用' }
+    };
+    const normalizeItem = (item, fallbackItem) => ({
+      value: String(item?.storedValue || item?.value || fallbackItem.value).trim() || fallbackItem.value,
+      status: item?.status === '停用' ? '停用' : '启用'
+    });
     try {
-      const raw = localStorage.getItem('bestads-page-share-url');
+      const raw = localStorage.getItem('bestads-page-share') || localStorage.getItem('bestads-page-share-url');
       if (!raw) return fallback;
       const data = JSON.parse(raw);
+      if (data.url && typeof data.url === 'object') {
+        return {
+          url: normalizeItem(data.url, fallback.url),
+          email: normalizeItem(data.email, fallback.email)
+        };
+      }
       return {
-        url: String(data.storedUrl || data.url || fallback.url).trim() || fallback.url,
-        status: data.status === '停用' ? '停用' : '启用'
+        url: normalizeItem({
+          value: data.url,
+          storedValue: data.storedUrl || data.url,
+          status: data.status
+        }, fallback.url),
+        email: fallback.email
       };
     } catch (error) {
       return fallback;
     }
   }
 
-  function pageShareTipHtml() {
+  function pageShareCopyButton(value, className) {
+    return `<button type="button" class="${className}" data-page-share-copy data-page-share-value="${esc(value)}">${esc(value)}</button>`;
+  }
+
+  function pageShareTipHtml(options = {}) {
     const config = pageShareConfig();
-    if (config.status !== '启用' || !config.url) return '多个 Page 逐条填写。没有可留空。';
-    return `请必须把Page分享给 <button type="button" class="admin-inline-link" data-page-share-copy data-page-share-url="${esc(config.url)}">${esc(config.url)}</button>`;
+    const linkClass = options.linkClass || 'admin-inline-link';
+    const urlEnabled = config.url.status === '启用' && config.url.value;
+    const emailEnabled = config.email.status === '启用' && config.email.value;
+    const prefix = options.prefix || '最多 20 个 Pages。';
+    if (!urlEnabled && !emailEnabled) return `${prefix}没有可留空。`;
+    if (urlEnabled && emailEnabled) {
+      return `${prefix}请必须把Page分享给 ${pageShareCopyButton(config.url.value, linkClass)}，或者把 ${pageShareCopyButton(config.email.value, linkClass)} 邀请到Page所在的BM中。`;
+    }
+    if (urlEnabled) {
+      return `${prefix}请必须把Page分享给 ${pageShareCopyButton(config.url.value, linkClass)}。`;
+    }
+    return `${prefix}请必须把 ${pageShareCopyButton(config.email.value, linkClass)} 邀请到Page所在的BM中。`;
+  }
+
+  function writePageShareConfig(next) {
+    const current = pageShareConfig();
+    const payload = {
+      url: {
+        value: next.url?.status === '启用' ? (next.url.value || '') : '',
+        storedValue: next.url?.value || current.url.value,
+        status: next.url?.status || current.url.status
+      },
+      email: {
+        value: next.email?.status === '启用' ? (next.email.value || '') : '',
+        storedValue: next.email?.value || current.email.value,
+        status: next.email?.status || current.email.status
+      }
+    };
+    localStorage.setItem('bestads-page-share', JSON.stringify(payload));
   }
 
   function openingIssuedAccountHtml(value) {
@@ -1517,8 +1569,8 @@
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 客户</label><select data-opening-customer>${openingApplyCustomerOptions('', '')}</select></div>
       <div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 媒体渠道</label><select data-opening-media><option value="">请选择媒体渠道</option><option value="Facebook">Facebook</option><option value="Google">Google</option><option value="TikTok">TikTok</option><option value="Snapchat">Snapchat</option><option value="AppLovin">AppLovin</option><option value="Taboola">Taboola</option><option value="Outbrain">Outbrain</option><option value="X">X</option></select></div>
       <div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 投放URL</label><div class="opening-repeat-list" data-opening-url-list></div><p class="field-help">最少 1 个，最多 20 个 URL。需以 http:// 或 https:// 开头。</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-url>+ 添加URL</button></div>
-      <div class="form-field full" data-opening-page-wrap hidden><label>Pages</label><div class="opening-repeat-list" data-opening-page-list></div><p class="field-help">最多 20 个 Pages。${pageShareTipHtml()}</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-page>+ 添加Pages</button></div>
-      <div class="form-field full" data-opening-bm-wrap hidden><label data-opening-asset-label>BM 选填</label><div class="opening-repeat-list" data-opening-bm-list></div><p class="field-help" data-opening-asset-tip>名称和 ID 都填写才算一组，最多 20 组。没有可留空。</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-bm>+ 添加 BM</button></div>
+      <div class="form-field full" data-opening-page-wrap hidden><label>Pages</label><div class="opening-repeat-list" data-opening-page-list></div><p class="field-help">${pageShareTipHtml()}</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-page>+ 添加Pages</button></div>
+      <div class="form-field full" data-opening-bm-wrap hidden><label data-opening-asset-label><span style="color:var(--admin-danger)">*</span> BM</label><div class="opening-repeat-list" data-opening-bm-list></div><p class="field-help" data-opening-asset-tip>至少填写 1 组，最多 20 组。名称和 ID 都填写才算一组。</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-bm>+ 添加 BM</button></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放国家</label><select data-opening-country>${openingApplyCountryOptions('美国')}</select><p class="field-help">广告主要投放的国家，只能选一个。</p></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 时区</label>${openingTimezoneFieldHtml()}</div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户币种</label><select data-opening-currency><option value="USD" selected>USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select><p class="field-help">广告账户的结算币种。开户费始终按 USD 收取，首充币种跟随这里。</p></div>
@@ -3626,6 +3678,11 @@
           return false;
         }
         const complete = groups.filter(item => item.name && item.id);
+        if (!complete.length) {
+          highlight(bmList?.querySelector('[data-opening-bm-name]'));
+          showToast('请至少填写 1 组 BM名称和 BM ID', 'error');
+          return false;
+        }
         if (complete.length > 20) { showToast('BM 最多 20 组', 'error'); return false; }
         assetIds = complete.map(item => `${item.name} / ${item.id}`).join('\n');
       } else if (assetMeta) {
@@ -4874,7 +4931,7 @@
     document.body.addEventListener('click', event => {
       const pageShareCopy = event.target.closest('[data-page-share-copy]');
       if (pageShareCopy) {
-        const text = pageShareCopy.getAttribute('data-page-share-url') || pageShareCopy.textContent || '';
+        const text = pageShareCopy.getAttribute('data-page-share-value') || pageShareCopy.getAttribute('data-page-share-url') || pageShareCopy.textContent || '';
         const done = () => showToast('复制成功', 'success');
         if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done).catch(done);
         else done();
@@ -5467,28 +5524,43 @@
           return;
         }
         if (tab.id === 'page-share' && state.processingAction === '编辑' && state.processingRow) {
-          const url = backdrop.querySelector('[name="c1"]')?.value.trim() || '';
-          const status = backdrop.querySelector('[name="c2"]')?.value || '启用';
-          if (!/^https?:\/\//i.test(url)) { showToast('分享对象需要以 http:// 或 https:// 开头', 'error'); return; }
+          const value = backdrop.querySelector('[name="c2"]')?.value.trim() || '';
+          const status = backdrop.querySelector('[name="c3"]')?.value || '启用';
           const target = state.processingRow;
-          target.c1 = url;
-          target.c2 = status;
+          const shareType = target.shareType || (target.c1 === '邀请邮箱' ? 'email' : 'url');
+          if (shareType === 'url' && !/^https?:\/\//i.test(value)) {
+            showToast('分享对象需要以 http:// 或 https:// 开头', 'error');
+            return;
+          }
+          if (shareType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            showToast('请填写有效邮箱，例如 123@gmail.com', 'error');
+            return;
+          }
+          target.c2 = value;
+          target.c3 = status;
           target.status = status;
-          target.c3 = currentTimestamp();
-          target.c4 = '管理员(admin@bestfulfill.com)';
+          target.c4 = currentTimestamp();
+          target.c5 = '管理员(admin@bestfulfill.com)';
           target.ops = ['编辑'];
           try {
-            localStorage.setItem('bestads-page-share-url', JSON.stringify({
-              url: status === '启用' ? url : '',
-              storedUrl: url,
-              status
-            }));
+            const current = pageShareConfig();
+            if (shareType === 'email') {
+              writePageShareConfig({
+                url: current.url,
+                email: { value, status }
+              });
+            } else {
+              writePageShareConfig({
+                url: { value, status },
+                email: current.email
+              });
+            }
           } catch (error) { /* 忽略无法写入的环境 */ }
           state.processingRow = null;
           state.processingAction = null;
           closeModal();
           render();
-          showToast('Page分享对象已更新（原型）', 'success');
+          showToast('Page分享配置已更新（原型）', 'success');
           return;
         }
         if (tab.id === 'category-tag' && state.processingAction === '编辑' && state.processingRow) {

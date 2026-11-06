@@ -218,24 +218,52 @@
   }
 
   function pageShareConfig() {
-    const fallback = { url: 'https://123123', status: '启用' };
+    const fallback = {
+      url: { value: 'https://123123', status: '启用' },
+      email: { value: '123@gmail.com', status: '启用' }
+    };
+    const normalizeItem = (item, fallbackItem) => ({
+      value: String(item?.storedValue || item?.value || fallbackItem.value).trim() || fallbackItem.value,
+      status: item?.status === '停用' ? '停用' : '启用'
+    });
     try {
-      const raw = localStorage.getItem('bestads-page-share-url');
+      const raw = localStorage.getItem('bestads-page-share') || localStorage.getItem('bestads-page-share-url');
       if (!raw) return fallback;
       const data = JSON.parse(raw);
+      if (data.url && typeof data.url === 'object') {
+        return {
+          url: normalizeItem(data.url, fallback.url),
+          email: normalizeItem(data.email, fallback.email)
+        };
+      }
       return {
-        url: String(data.storedUrl || data.url || fallback.url).trim() || fallback.url,
-        status: data.status === '停用' ? '停用' : '启用'
+        url: normalizeItem({
+          value: data.url,
+          storedValue: data.storedUrl || data.url,
+          status: data.status
+        }, fallback.url),
+        email: fallback.email
       };
     } catch (error) {
       return fallback;
     }
   }
 
-  function pageShareTipHtml() {
+  function pageShareCopyButton(value) {
+    return `<button type="button" class="client-share-link" data-page-share-copy data-page-share-value="${html(value)}">${html(value)}</button>`;
+  }
+
+  function pageShareTipHtml(options = {}) {
     const config = pageShareConfig();
-    if (config.status !== '启用' || !config.url) return '多个用逗号或换行分隔。没有可留空。';
-    return `请必须把Page分享给 <button type="button" class="client-share-link" data-page-share-copy data-page-share-url="${html(config.url)}">${html(config.url)}</button>。多个用逗号或换行分隔。没有可留空。`;
+    const prefix = options.prefix || '最多20个Pages。';
+    const urlEnabled = config.url.status === '启用' && config.url.value;
+    const emailEnabled = config.email.status === '启用' && config.email.value;
+    if (!urlEnabled && !emailEnabled) return `${prefix}没有可留空。`;
+    if (urlEnabled && emailEnabled) {
+      return `${prefix}请必须把Page分享给 ${pageShareCopyButton(config.url.value)}，或者把 ${pageShareCopyButton(config.email.value)} 邀请到Page所在的BM中。`;
+    }
+    if (urlEnabled) return `${prefix}请必须把Page分享给 ${pageShareCopyButton(config.url.value)}。`;
+    return `${prefix}请必须把 ${pageShareCopyButton(config.email.value)} 邀请到Page所在的BM中。`;
   }
 
   function pageIdFromDocument() {
@@ -766,8 +794,9 @@
     if (media === 'Facebook') {
       return {
         label: 'BM ID',
+        required: true,
         placeholder: '多个 BM ID 可用逗号或空格分隔',
-        tip: 'Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。',
+        tip: '至少填写 1 个。Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。',
         empty: '暂未识别到 BM ID',
         sample: OPENING_ASSET_SAMPLES.Facebook
       };
@@ -906,7 +935,11 @@
     const label = wrap.querySelector('[data-opening-asset-label]');
     const input = wrap.querySelector('[data-opening-bm-ids]');
     const tip = wrap.querySelector('[data-opening-asset-tip]');
-    if (label) label.textContent = meta.label;
+    if (label) {
+      label.innerHTML = meta.required
+        ? `${html(meta.label)} <span class="client-required">*</span>`
+        : html(meta.label);
+    }
     if (tip) tip.textContent = meta.tip;
     if (input) {
       input.placeholder = meta.placeholder;
@@ -938,15 +971,15 @@
           <span class="client-field-tip">要投放的网站或落地页，需以 http:// 或 https:// 开头。例如 https://www.xxx.com。</span>
         </label>
         <label class="client-form-field full client-bm-field" data-opening-bm-wrap hidden>
-          <span class="client-label" data-opening-asset-label>BM ID</span>
+          <span class="client-label" data-opening-asset-label>BM ID <span class="client-required">*</span></span>
           <input class="client-input" data-opening-bm-ids type="text" value="" placeholder="多个 BM ID 可用逗号或空格分隔">
-          <span class="client-field-tip" data-opening-asset-tip>Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。</span>
+          <span class="client-field-tip" data-opening-asset-tip>至少填写 1 个。Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。</span>
           <span class="client-bm-preview" data-opening-bm-preview aria-live="polite"></span>
         </label>
         <label class="client-form-field full" data-opening-page-wrap hidden>
           <span class="client-label">Page Link</span>
           <input class="client-input" data-opening-page type="text" value="" placeholder="https://www.facebook.com/xxx">
-          <span class="client-field-tip">Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。${pageShareTipHtml()}</span>
+          <span class="client-field-tip">Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。${pageShareTipHtml({ prefix: '' })}</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">投放国家 <span class="client-required">*</span></span>
@@ -1602,6 +1635,11 @@
           const currency = openingAccountCurrency(applyRoot);
           const assetMeta = openingAssetMeta(mediaChannel);
           const bmIds = assetMeta ? parseBmIds(applyRoot?.querySelector('[data-opening-bm-ids]')?.value || '') : [];
+          if (assetMeta?.required && !bmIds.length) {
+            showToast('请至少填写 1 个 BM ID', 'error');
+            applyRoot?.querySelector('[data-opening-bm-ids]')?.focus();
+            return;
+          }
           const autoPay = Boolean(applyRoot?.querySelector('[data-opening-auto-pay]')?.checked);
           syncOpeningEstimate(applyRoot);
           const breakdown = estimateOpeningQuoteBreakdown(applyRoot);
@@ -1707,7 +1745,7 @@
     document.addEventListener('click', (event) => {
       const pageShareCopy = event.target.closest('[data-page-share-copy]');
       if (pageShareCopy) {
-        const text = pageShareCopy.getAttribute('data-page-share-url') || '';
+        const text = pageShareCopy.getAttribute('data-page-share-value') || pageShareCopy.getAttribute('data-page-share-url') || '';
         const done = () => toast('复制成功', 'success');
         if (text && navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done).catch(done);
         else if (text) done();
