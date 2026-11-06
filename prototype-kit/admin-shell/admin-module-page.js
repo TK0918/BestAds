@@ -2225,8 +2225,7 @@
         item('客户端状态', openingClientStatus(row?.status)),
         item('开户代理', row?.agent),
         item('账户类型', row?.accountType),
-        item('开户结果账户', row?.accountInfo),
-        item('下户广告账户ID', openingIssuedAccountHtml(row?.adAccountId), true),
+        item('开户结果账户', openingIssuedAccountHtml(row?.adAccountId), true),
         item('下户人', row?.issuedBy),
         item('下户时间', row?.issuedAt),
         item('服务费率', row?.serviceRate),
@@ -3903,8 +3902,8 @@
       row.paymentStatus = failedItems.length ? '部分退款' : '已扣款';
       row.serviceRate = successItems.map(item => item.serviceRate.label).join(' / ');
       row.preTaxRate = successItems.map(item => item.preTaxRate.label).join(' / ');
-      row.accountInfo = successItems.map(item => `${item.accountId} / ${item.accountName} / ${item.currency}（服务费率 ${item.serviceRate.label}，预收税率 ${item.preTaxRate.label}）`).join('；') + (failedItems.length ? `；${failedItems.length} 个账户失败已退开户费和首充` : '');
-      row.adAccountId = successItems.map(item => item.accountId).join('\n');
+      row.adAccountId = successItems.map(item => item.accountId).join('\n') || '-';
+      row.accountInfo = row.adAccountId;
       row.issuedBy = '管理员(admin@bestfulfill.com)';
       row.issuedAt = currentTimestamp();
       row.openingFeeRecord = feeRecords;
