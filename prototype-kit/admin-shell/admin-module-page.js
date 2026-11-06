@@ -994,15 +994,47 @@
 
   function openingAssetMeta(media) {
     if (media === 'Facebook') {
-      return { label: 'BM ID', placeholder: '例如 121212345678901，多个用逗号或空格分隔', tip: 'Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。', empty: '暂未识别到 BM ID', sample: OPENING_ASSET_SAMPLES.Facebook };
+      return { label: 'BM 选填', mode: 'group', placeholder: 'BM ID', tip: '名称和 ID 都填写才算一组，最多 20 组。没有可留空。', add: '+ 添加 BM', empty: '暂未填写 BM', sample: OPENING_ASSET_SAMPLES.Facebook };
     }
     if (media === 'Google') {
-      return { label: 'MCC', placeholder: '例如 123-456-7890，多个用逗号或空格分隔', tip: 'Google 经理账号（MCC），例如 123-456-7890。多个用逗号或空格分隔。没有可留空。', empty: '暂未识别到 MCC', sample: OPENING_ASSET_SAMPLES.Google };
+      return { label: 'MCC 选填', mode: 'single', placeholder: 'MCC', tip: '最多 20 个 MCC。没有可留空。', add: '+ 添加 MCC', empty: '暂未识别到 MCC', sample: OPENING_ASSET_SAMPLES.Google };
     }
     if (media === 'TikTok') {
-      return { label: 'BC', placeholder: '例如 7012345678901234567，多个用逗号或空格分隔', tip: 'TikTok Business Center 的数字 ID。多个用逗号或空格分隔。没有可留空。', empty: '暂未识别到 BC', sample: OPENING_ASSET_SAMPLES.TikTok };
+      return { label: 'BC 选填', mode: 'single', placeholder: 'BC', tip: '最多 20 个 BC。没有可留空。', add: '+ 添加 BC', empty: '暂未识别到 BC', sample: OPENING_ASSET_SAMPLES.TikTok };
     }
     return null;
+  }
+
+  function openingSplitLines(value) {
+    return String(value || '')
+      .split(/\n|；/)
+      .map(item => item.trim())
+      .filter(item => item && item !== '-');
+  }
+
+  function openingLinkListHtml(value) {
+    const parts = openingSplitLines(value);
+    if (!parts.length) return '-';
+    return parts.map(href => (/^https?:\/\//i.test(href)
+      ? `<a class="admin-inline-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(href)}</a>`
+      : esc(href))).join('<br>');
+  }
+
+  function openingAssetDisplayHtml(media, assetIds) {
+    const raw = String(assetIds || '').trim();
+    if (!raw || raw === '-') return '-';
+    if (media === 'Facebook') {
+      const lines = raw.includes('\n') || raw.includes('；')
+        ? openingSplitLines(raw)
+        : (() => {
+          const parts = raw.split(/\s*\/\s*/).map(item => item.trim()).filter(Boolean);
+          if (parts.length > 1 && parts.every(item => /^[\d-]+$/.test(item))) return parts;
+          return [raw];
+        })();
+      return lines.map(item => esc(item)).join('<br>');
+    }
+    const ids = openingSplitLines(raw).length ? openingSplitLines(raw) : parseOpeningAssetIds(raw);
+    return ids.map(item => esc(item)).join('<br>') || '-';
   }
 
   function parseOpeningAssetIds(value) {
@@ -1265,6 +1297,46 @@
     syncOpeningApplyCustomers(modalRoot, true);
   }
 
+  function openingRepeatValues(list) {
+    return Array.from(list?.querySelectorAll('input[data-opening-repeat-value]') || [])
+      .map(input => input.value.trim())
+      .filter(Boolean);
+  }
+
+  function openingBmGroups(list) {
+    return Array.from(list?.querySelectorAll('[data-opening-bm-group]') || []).map(row => ({
+      name: row.querySelector('[data-opening-bm-name]')?.value.trim() || '',
+      id: row.querySelector('[data-opening-bm-id]')?.value.trim() || '',
+      row
+    }));
+  }
+
+  function createOpeningRepeatRow(list, placeholder, removable = true) {
+    if (!list) return;
+    const row = document.createElement('div');
+    row.className = 'opening-repeat-row';
+    row.innerHTML = `<input data-opening-repeat-value type="text" placeholder="${esc(placeholder)}">${removable ? '<button type="button" class="opening-repeat-remove" data-opening-repeat-remove aria-label="删除">×</button>' : ''}`;
+    list.appendChild(row);
+  }
+
+  function createOpeningBmGroupRow(list, removable = true) {
+    if (!list) return;
+    const row = document.createElement('div');
+    row.className = 'opening-repeat-row opening-bm-group';
+    row.dataset.openingBmGroup = '1';
+    row.innerHTML = `<input data-opening-bm-name type="text" placeholder="BM名称"><input data-opening-bm-id type="text" placeholder="BM ID">${removable ? '<button type="button" class="opening-repeat-remove" data-opening-repeat-remove aria-label="删除">×</button>' : ''}`;
+    list.appendChild(row);
+  }
+
+  function resetOpeningAssetList(modalRoot, meta) {
+    const list = modalRoot?.querySelector('[data-opening-bm-list]');
+    if (!list || !meta) return;
+    list.dataset.mode = meta.mode;
+    list.innerHTML = '';
+    if (meta.mode === 'group') createOpeningBmGroupRow(list, false);
+    else createOpeningRepeatRow(list, meta.placeholder, false);
+  }
+
   function syncOpeningApplyAssetFields(modalRoot) {
     if (!modalRoot) return;
     const wrap = modalRoot.querySelector('[data-opening-bm-wrap]');
@@ -1276,26 +1348,21 @@
     if (pageWrap) pageWrap.hidden = media !== 'Facebook';
     if (!meta) return;
     const label = wrap.querySelector('[data-opening-asset-label]');
-    const input = wrap.querySelector('[data-opening-bm-ids]');
     const tip = wrap.querySelector('[data-opening-asset-tip]');
+    const addButton = wrap.querySelector('[data-opening-add-bm]');
+    const list = wrap.querySelector('[data-opening-bm-list]');
     if (label) label.textContent = meta.label;
     if (tip) tip.textContent = meta.tip;
-    if (input) {
-      input.placeholder = meta.placeholder;
-      if (isKnownOpeningAssetSample(input.value)) input.value = meta.sample;
+    if (addButton) addButton.textContent = meta.add;
+    if (!list || list.dataset.mode !== meta.mode || !list.querySelector('.opening-repeat-row')) {
+      resetOpeningAssetList(modalRoot, meta);
+      return;
     }
-    syncOpeningApplyAssetPreview(modalRoot);
-  }
-
-  function syncOpeningApplyAssetPreview(modalRoot) {
-    const preview = modalRoot?.querySelector('[data-opening-bm-preview]');
-    if (!preview) return;
-    const media = modalRoot.querySelector('[data-opening-media]')?.value || '';
-    const meta = openingAssetMeta(media);
-    const ids = parseOpeningAssetIds(modalRoot.querySelector('[data-opening-bm-ids]')?.value || '');
-    preview.innerHTML = ids.length
-      ? ids.map(id => `<span class="opening-bm-chip">${esc(id)}</span>`).join('')
-      : `<span class="opening-bm-empty">${esc(meta?.empty || '暂未识别到 ID')}</span>`;
+    if (meta.mode === 'single') {
+      list.querySelectorAll('[data-opening-repeat-value]').forEach(input => {
+        input.placeholder = meta.placeholder;
+      });
+    }
   }
 
   function syncOpeningApplyEstimate(modalRoot) {
@@ -1324,6 +1391,16 @@
   function syncOpeningApplyCreateModal(modalRoot) {
     const root = modalRoot || document.querySelector('[data-opening-apply-create-modal]');
     if (!root) return;
+    const urlList = root.querySelector('[data-opening-url-list]');
+    const pageList = root.querySelector('[data-opening-page-list]');
+    if (urlList && !urlList.querySelector('.opening-repeat-row')) {
+      createOpeningRepeatRow(urlList, 'https://www.xxx.com', false);
+      const first = urlList.querySelector('[data-opening-repeat-value]');
+      if (first) first.value = 'https://www.luminara-home.com';
+    }
+    if (pageList && !pageList.querySelector('.opening-repeat-row')) {
+      createOpeningRepeatRow(pageList, 'https://www.facebook.com/xxx', false);
+    }
     syncOpeningApplyCustomers(root, true);
     syncOpeningApplyAssetFields(root);
     syncOpeningApplyEstimate(root);
@@ -1401,6 +1478,35 @@
     return matches.length === 1 ? matches[0].label : '';
   }
 
+  function pageShareConfig() {
+    const fallback = { url: 'https://123123', status: '启用' };
+    try {
+      const raw = localStorage.getItem('bestads-page-share-url');
+      if (!raw) return fallback;
+      const data = JSON.parse(raw);
+      return {
+        url: String(data.storedUrl || data.url || fallback.url).trim() || fallback.url,
+        status: data.status === '停用' ? '停用' : '启用'
+      };
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function pageShareTipHtml() {
+    const config = pageShareConfig();
+    if (config.status !== '启用' || !config.url) return '多个 Page 逐条填写。没有可留空。';
+    return `请必须把Page分享给 <button type="button" class="admin-inline-link" data-page-share-copy data-page-share-url="${esc(config.url)}">${esc(config.url)}</button>`;
+  }
+
+  function openingIssuedAccountHtml(value) {
+    const raw = String(value || '').trim();
+    if (!raw || raw === '-') return raw || '-';
+    const parts = raw.split(/\s*(?:\/|\n|；)\s*/).map(item => item.trim()).filter(item => item && item !== '-');
+    if (!parts.length) return '-';
+    return parts.map(item => esc(item)).join('<br>');
+  }
+
   function openingTimezoneFieldHtml() {
     return `<div class="tz-combo" data-tz-combo><input data-tz-input type="text" value="America/Los_Angeles GMT-08:00" placeholder="搜索城市或地区，例如 shanghai" autocomplete="off"><input data-tz-value data-opening-timezone type="hidden" value="America/Los_Angeles GMT-08:00"><div class="tz-combo__list" data-tz-list hidden></div></div><p class="field-help">广告账户时区。可按城市或地区搜索，例如输入 shanghai，对应 China/Shanghai GMT+08:00。</p>`;
   }
@@ -1409,10 +1515,10 @@
     return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal?.title || '新建开户申请')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="notice">内部代客户提交开户申请。除选择商户和客户外，填写内容与客户端申请开户一致。</div><div class="form-grid" data-opening-apply-create-modal>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 商户ID</label><select data-opening-merchant>${openingApplyMerchantOptions('')}</select></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 客户</label><select data-opening-customer>${openingApplyCustomerOptions('', '')}</select></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 媒体渠道</label><select data-opening-media><option value="">请选择媒体渠道</option><option value="Facebook">Facebook</option><option value="Google">Google</option><option value="TikTok">TikTok</option><option value="Snapchat">Snapchat</option><option value="AppLovin">AppLovin</option><option value="Taboola">Taboola</option><option value="Outbrain">Outbrain</option><option value="X">X</option></select></div>
-      <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放URL</label><input data-opening-url type="text" value="https://www.luminara-home.com" placeholder="https://www.xxx.com"><p class="field-help">要投放的网站或落地页，需以 http:// 或 https:// 开头。例如 https://www.xxx.com。</p></div>
-      <div class="form-field full" data-opening-bm-wrap hidden><label data-opening-asset-label>BM ID</label><input data-opening-bm-ids type="text" value="" placeholder="多个 BM ID 可用逗号或空格分隔"><p class="field-help" data-opening-asset-tip>Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。</p><div class="opening-bm-preview" data-opening-bm-preview aria-live="polite"></div></div>
-      <div class="form-field full" data-opening-page-wrap hidden><label>Page Link</label><input data-opening-page type="text" value="" placeholder="https://www.facebook.com/xxx"><p class="field-help">Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。多个用逗号或换行分隔。没有可留空。</p></div>
+      <div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 媒体渠道</label><select data-opening-media><option value="">请选择媒体渠道</option><option value="Facebook">Facebook</option><option value="Google">Google</option><option value="TikTok">TikTok</option><option value="Snapchat">Snapchat</option><option value="AppLovin">AppLovin</option><option value="Taboola">Taboola</option><option value="Outbrain">Outbrain</option><option value="X">X</option></select></div>
+      <div class="form-field full"><label><span style="color:var(--admin-danger)">*</span> 投放URL</label><div class="opening-repeat-list" data-opening-url-list></div><p class="field-help">最少 1 个，最多 20 个 URL。需以 http:// 或 https:// 开头。</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-url>+ 添加URL</button></div>
+      <div class="form-field full" data-opening-page-wrap hidden><label>Pages</label><div class="opening-repeat-list" data-opening-page-list></div><p class="field-help">最多 20 个 Pages。${pageShareTipHtml()}</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-page>+ 添加Pages</button></div>
+      <div class="form-field full" data-opening-bm-wrap hidden><label data-opening-asset-label>BM 选填</label><div class="opening-repeat-list" data-opening-bm-list></div><p class="field-help" data-opening-asset-tip>名称和 ID 都填写才算一组，最多 20 组。没有可留空。</p><button type="button" class="btn btn-default opening-add-btn" data-opening-add-bm>+ 添加 BM</button></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 投放国家</label><select data-opening-country>${openingApplyCountryOptions('美国')}</select><p class="field-help">广告主要投放的国家，只能选一个。</p></div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 时区</label>${openingTimezoneFieldHtml()}</div>
       <div class="form-field"><label><span style="color:var(--admin-danger)">*</span> 账户币种</label><select data-opening-currency><option value="USD" selected>USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="HKD">HKD</option></select><p class="field-help">广告账户的结算币种。开户费始终按 USD 收取，首充币种跟随这里。</p></div>
@@ -1858,23 +1964,20 @@
 
   function openingApplyContextHtml(row, extras = []) {
     const site = openingFeeHelpers().siteFee();
-    const applyUrl = row?.url && /^https?:\/\//i.test(String(row.url))
-      ? `<a class="admin-inline-link" href="${esc(row.url)}" target="_blank" rel="noopener noreferrer">${esc(row.url)}</a>`
-      : esc(row?.url || '-');
     const items = [
       ['申请ID', esc(row?.applyId || '-')],
       ['客户', esc(`${row?.customerName || '-'}（${row?.customerId || '-'}）`)],
       ['单账户开户费', esc(`${openingFeeHelpers().formatAmount(site.openingFeePerAccount, false)} USD`)],
       ['单账户最低首充', esc(`${openingFeeHelpers().formatAmount(site.prechargePerAccount, false)}（跟随账户币种）`)],
-      ['投放URL', applyUrl],
-      ['Page Link', row?.mediaChannel === 'Facebook' && row?.pageLink && /^https?:\/\//i.test(String(row.pageLink)) ? `<a class="admin-inline-link" href="${esc(row.pageLink)}" target="_blank" rel="noopener noreferrer">${esc(row.pageLink)}</a>` : esc(row?.pageLink || '-')],
+      ['投放URL', openingLinkListHtml(row?.url)],
+      ['Page Link', row?.mediaChannel === 'Facebook' ? openingLinkListHtml(row?.pageLink) : '-'],
       ['投放国家', esc(row?.country || '-')],
       ['时区', esc(row?.timezone || '-')],
       ['账户币种', esc(row?.currency || 'USD')],
       ['日预算', esc(row?.dailyBudget || '-')],
       ['账户数', esc(row?.accountCount || '-')],
       ['投放品类', esc(row?.category || '-')],
-      ['弹窗快照', esc(row?.initialQuote || '-')],
+      ['初始报价', esc(row?.initialQuote || '-')],
       ['报价版本', esc(row?.quoteVersion || '-')],
       ['自动扣款授权', esc(row?.paymentAuth || '未记录')],
       ['钱包默认币种', esc(openingWalletCurrency(row?.merchantId))],
@@ -1998,10 +2101,8 @@
 
   function openingResultModal(modal, row) {
     const syncedAccounts = openingSyncedAccounts(row);
-    const applyUrl = row?.url && /^https?:\/\//i.test(String(row.url))
-      ? `<a class="admin-inline-link" href="${esc(row.url)}" target="_blank" rel="noopener noreferrer">${esc(row.url)}</a>`
-      : esc(row?.url || '-');
-    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '登记开户结果')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack" data-opening-result-modal><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>媒体渠道</dt><dd>${esc(row?.mediaChannel || '-')}</dd></div><div><dt>URL</dt><dd>${applyUrl}</dd></div><div><dt>Page Link</dt><dd>${row?.mediaChannel === 'Facebook' && row?.pageLink && /^https?:\/\//i.test(String(row.pageLink)) ? `<a class="admin-inline-link" href="${esc(row.pageLink)}" target="_blank" rel="noopener noreferrer">${esc(row.pageLink)}</a>` : esc(row?.pageLink || '-')}</dd></div><div><dt>投放品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>代理</dt><dd>${esc(row?.agent || '-')}</dd></div><div><dt>账户类型</dt><dd>${esc(row?.accountType || '-')}</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>首充合计</dt><dd>${esc(row?.precharge || '-')}</dd></div></dl><div class="opening-result-toolbar"><p>按账户登记开户结果。失败退该账户开户费和该账户首充。</p><button type="button" class="btn btn-default" data-opening-fail-all>全部失败并退款</button></div><p class="opening-result-refund" data-opening-refund-summary hidden></p><p class="opening-result-all-fail" data-opening-all-fail-hint hidden>全部账户将记为开户取消，退回各账户开户费和首充，付款状态为已退款。</p>${openingAccountSlotsHtml(row, syncedAccounts)}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit data-opening-result-confirm>确认</button></div></section></div>`;
+    const assetLabel = openingAssetIdLabel(row?.mediaChannel) || 'BM';
+    return `<div class="modal-backdrop"><section class="modal modal-lg"><div class="modal__header"><h2 class="modal__title">${esc(modal.title || '登记开户结果')}</h2><button class="modal__close" type="button" data-modal-close>${icon('times')}</button></div><div class="modal__body"><div class="opening-modal-stack" data-opening-result-modal><dl class="readonly-context readonly-context--wide"><div><dt>申请ID</dt><dd>${esc(row?.applyId || '-')}</dd></div><div><dt>客户</dt><dd>${esc(row?.customerName || '-')}（${esc(row?.customerId || '-')})</dd></div><div><dt>本单开户费</dt><dd>${esc(row?.openingFee || '-')}</dd></div><div><dt>媒体渠道</dt><dd>${esc(row?.mediaChannel || '-')}</dd></div><div><dt>URL</dt><dd>${openingLinkListHtml(row?.url)}</dd></div><div><dt>Page Link</dt><dd>${row?.mediaChannel === 'Facebook' ? openingLinkListHtml(row?.pageLink) : '-'}</dd></div>${openingAssetMeta(row?.mediaChannel) ? `<div><dt>${esc(assetLabel)}</dt><dd>${openingAssetDisplayHtml(row?.mediaChannel, row?.assetIds || row?.bmIds)}</dd></div>` : ''}<div><dt>投放品类</dt><dd>${esc(row?.category || '-')}</dd></div><div><dt>投放国家</dt><dd>${esc(row?.country || '-')}</dd></div><div><dt>时区</dt><dd>${esc(row?.timezone || '-')}</dd></div><div><dt>账户币种</dt><dd>${esc(row?.currency || 'USD')}</dd></div><div><dt>日预算</dt><dd>${esc(row?.dailyBudget || '-')}</dd></div><div><dt>账户数</dt><dd>${esc(row?.accountCount || '-')}</dd></div><div><dt>代理</dt><dd>${esc(row?.agent || '-')}</dd></div><div><dt>账户类型</dt><dd>${esc(row?.accountType || '-')}</dd></div><div><dt>最终报价</dt><dd>${esc(row?.finalQuote || row?.initialQuote || '-')}</dd></div><div><dt>首充合计</dt><dd>${esc(row?.precharge || '-')}</dd></div></dl><div class="opening-result-toolbar"><p>按账户登记开户结果。失败退该账户开户费和该账户首充。</p><button type="button" class="btn btn-default" data-opening-fail-all>全部失败并退款</button></div><p class="opening-result-refund" data-opening-refund-summary hidden></p><p class="opening-result-all-fail" data-opening-all-fail-hint hidden>全部账户将记为开户取消，退回各账户开户费和首充，付款状态为已退款。</p>${openingAccountSlotsHtml(row, syncedAccounts)}</div></div><div class="modal__footer"><button type="button" class="btn btn-default" data-modal-close>取消</button><button type="button" class="btn btn-primary" data-modal-submit data-opening-result-confirm>确认</button></div></section></div>`;
   }
 
   function openingReopenModal(modal, row) {
@@ -2021,6 +2122,9 @@
   }
 
   function openingAssetIdLabel(media) {
+    if (media === 'Facebook') return 'BM';
+    if (media === 'Google') return 'MCC';
+    if (media === 'TikTok') return 'BC';
     return openingAssetMeta(media)?.label || '';
   }
 
@@ -2035,7 +2139,6 @@
   function openingDetailModal(title, row) {
     const visible = value => value != null && value !== '' && value !== '-';
     const item = (label, value, html = false) => visible(value) ? `<div><dt>${esc(label)}</dt><dd>${html ? value : esc(value)}</dd></div>` : '';
-    const url = visible(row?.url) && /^https?:\/\//i.test(String(row.url)) ? `<a class="admin-inline-link" href="${esc(row.url)}" target="_blank" rel="noopener noreferrer">${esc(row.url)}</a>` : esc(row?.url || '-');
     const sections = [
       ['申请信息', [
         item('申请ID', row?.applyId),
@@ -2043,9 +2146,9 @@
         item('商户ID', row?.merchantId),
         item('媒体渠道', row?.mediaChannel),
         item('申请时间', row?.applyAt),
-        item('投放URL', url, true),
-        item('Page Link', row?.mediaChannel === 'Facebook' ? (row?.pageLink && /^https?:\/\//i.test(String(row.pageLink)) ? `<a class="admin-inline-link" href="${esc(row.pageLink)}" target="_blank" rel="noopener noreferrer">${esc(row.pageLink)}</a>` : (row?.pageLink || '-')) : '-', true),
-        item(openingAssetIdLabel(row?.mediaChannel), row?.assetIds || row?.bmIds),
+        item('投放URL', openingLinkListHtml(row?.url), true),
+        item('Page Link', row?.mediaChannel === 'Facebook' ? openingLinkListHtml(row?.pageLink) : '-', true),
+        item(openingAssetIdLabel(row?.mediaChannel), openingAssetMeta(row?.mediaChannel) ? openingAssetDisplayHtml(row?.mediaChannel, row?.assetIds || row?.bmIds) : '', true),
         item('投放国家', row?.country),
         item('时区', row?.timezone),
         item('账户币种', row?.currency || 'USD'),
@@ -2071,12 +2174,12 @@
         item('开户代理', row?.agent),
         item('账户类型', row?.accountType),
         item('开户结果账户', row?.accountInfo),
-        item('广告账户ID', row?.adAccountId),
+        item('下户广告账户ID', openingIssuedAccountHtml(row?.adAccountId), true),
         item('下户人', row?.issuedBy),
         item('下户时间', row?.issuedAt),
         item('服务费率', row?.serviceRate),
         item('预收税费费率', row?.preTaxRate),
-        item('处理备注', row?.remark),
+        item('备注', row?.remark),
         item('业务备注', Array.isArray(row?.bizNotes) && row.bizNotes.length ? row.bizNotes.map(note => `${note.at || '-'} ${note.by || '-'}：${note.text || '-'}`).join('；') : (row?.bizNote || '无'))
       ]]
     ];
@@ -3492,11 +3595,14 @@
       const customerId = customerSel?.value || '';
       const mediaChannel = mediaSel?.value || '';
       const category = categorySel?.value || '';
-      const url = modalRoot?.querySelector('[data-opening-url]')?.value.trim() || '';
+      const urlList = modalRoot?.querySelector('[data-opening-url-list]');
+      const pageList = modalRoot?.querySelector('[data-opening-page-list]');
+      const bmList = modalRoot?.querySelector('[data-opening-bm-list]');
+      const urls = openingRepeatValues(urlList);
+      const pages = mediaChannel === 'Facebook' ? openingRepeatValues(pageList) : [];
       const country = modalRoot?.querySelector('[data-opening-country]')?.value.trim() || '';
       const tzCombo = modalRoot?.querySelector('[data-tz-combo]');
       const timezone = resolveOpeningTimezone(tzCombo);
-      const pageLink = mediaChannel === 'Facebook' ? (modalRoot?.querySelector('[data-opening-page]')?.value.trim() || '') : '';
       const currency = modalRoot?.querySelector('[data-opening-currency]')?.value || 'USD';
       const budgetRaw = String(modalRoot?.querySelector('[data-opening-budget]')?.value || '').trim();
       const countRaw = String(modalRoot?.querySelector('[data-opening-count]')?.value || '').trim();
@@ -3504,8 +3610,29 @@
       if (!merchantId) { highlight(merchantSel); showToast('请选择商户ID', 'error'); return false; }
       if (!customerId) { highlight(customerSel); showToast('请选择客户', 'error'); return false; }
       if (!mediaChannel) { highlight(mediaSel); showToast('请选择媒体渠道', 'error'); return false; }
-      if (!url || !/^https?:\/\/\S+$/i.test(url)) { highlight(modalRoot.querySelector('[data-opening-url]')); showToast('投放 URL 需要填写链接，例如 https://www.xxx.com', 'error'); return false; }
-      if (pageLink && pageLink.split(/[\s,，]+/).filter(Boolean).some(item => !/^https?:\/\/\S+$/i.test(item))) { highlight(modalRoot.querySelector('[data-opening-page]')); showToast('Page Link 需要填写链接，例如 https://www.facebook.com/xxx', 'error'); return false; }
+      if (!urls.length) { highlight(urlList?.querySelector('[data-opening-repeat-value]')); showToast('请至少填写 1 个投放 URL', 'error'); return false; }
+      if (urls.length > 20) { showToast('投放 URL 最多 20 个', 'error'); return false; }
+      if (urls.some(item => !/^https?:\/\/\S+$/i.test(item))) { highlight(urlList?.querySelector('[data-opening-repeat-value]')); showToast('投放 URL 需要填写链接，例如 https://www.xxx.com', 'error'); return false; }
+      if (pages.length > 20) { showToast('Page 最多 20 个', 'error'); return false; }
+      if (pages.some(item => !/^https?:\/\/\S+$/i.test(item))) { highlight(pageList?.querySelector('[data-opening-repeat-value]')); showToast('Page 需要填写链接，例如 https://www.facebook.com/xxx', 'error'); return false; }
+      const assetMeta = openingAssetMeta(mediaChannel);
+      let assetIds = '';
+      if (assetMeta?.mode === 'group') {
+        const groups = openingBmGroups(bmList);
+        const partial = groups.find(item => (item.name && !item.id) || (!item.name && item.id));
+        if (partial) {
+          highlight(partial.row.querySelector(partial.name ? '[data-opening-bm-id]' : '[data-opening-bm-name]'));
+          showToast('请同时填写 BM名称和 BM ID', 'error');
+          return false;
+        }
+        const complete = groups.filter(item => item.name && item.id);
+        if (complete.length > 20) { showToast('BM 最多 20 组', 'error'); return false; }
+        assetIds = complete.map(item => `${item.name} / ${item.id}`).join('\n');
+      } else if (assetMeta) {
+        const ids = openingRepeatValues(bmList);
+        if (ids.length > 20) { showToast(`${assetMeta.label.replace(' 选填', '')} 最多 20 个`, 'error'); return false; }
+        assetIds = ids.join('\n');
+      }
       if (!country) { highlight(modalRoot.querySelector('[data-opening-country]')); showToast('请选择投放国家', 'error'); return false; }
       if (!timezone) { highlight(tzCombo?.querySelector('[data-tz-input]')); showToast('请从列表选择时区。可输入 shanghai，对应 China/Shanghai GMT+08:00。', 'error'); return false; }
       selectOpeningTimezone(tzCombo, timezone);
@@ -3515,8 +3642,6 @@
       if (!category) { highlight(categorySel); showToast('请选择投放品类', 'error'); return false; }
       const customerOption = customerSel.selectedOptions?.[0];
       const customerName = customerOption?.dataset.customerName || '-';
-      const assetMeta = openingAssetMeta(mediaChannel);
-      const assetIds = assetMeta ? parseOpeningAssetIds(modalRoot.querySelector('[data-opening-bm-ids]')?.value || '').join(' / ') : '';
       const autoPay = Boolean(modalRoot.querySelector('[data-opening-auto-pay]')?.checked);
       const breakdown = estimateOpeningApplyQuote(modalRoot);
       const date = currentTimestamp().slice(0, 10).replace(/-/g, '');
@@ -3532,8 +3657,8 @@
         applyAt: currentTimestamp(),
         status: '待确认账户类型和金额',
         paymentStatus: '未扣款',
-        url,
-        pageLink: pageLink || '-',
+        url: urls.join('\n'),
+        pageLink: pages.length ? pages.join('\n') : '-',
         assetIds: assetIds || '-',
         country,
         timezone,
@@ -3722,7 +3847,7 @@
       row.serviceRate = successItems.map(item => item.serviceRate.label).join(' / ');
       row.preTaxRate = successItems.map(item => item.preTaxRate.label).join(' / ');
       row.accountInfo = successItems.map(item => `${item.accountId} / ${item.accountName} / ${item.currency}（服务费率 ${item.serviceRate.label}，预收税率 ${item.preTaxRate.label}）`).join('；') + (failedItems.length ? `；${failedItems.length} 个账户失败已退开户费和首充` : '');
-      row.adAccountId = successItems.map(item => item.accountId).join(' / ');
+      row.adAccountId = successItems.map(item => item.accountId).join('\n');
       row.issuedBy = '管理员(admin@bestfulfill.com)';
       row.issuedAt = currentTimestamp();
       row.openingFeeRecord = feeRecords;
@@ -4747,6 +4872,14 @@
       }
     });
     document.body.addEventListener('click', event => {
+      const pageShareCopy = event.target.closest('[data-page-share-copy]');
+      if (pageShareCopy) {
+        const text = pageShareCopy.getAttribute('data-page-share-url') || pageShareCopy.textContent || '';
+        const done = () => showToast('复制成功', 'success');
+        if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done).catch(done);
+        else done();
+        return;
+      }
       const apiApplyAction = event.target.closest('[data-api-apply-action]');
       if (apiApplyAction && window.BESTADS_API_APPLICATION?.handleModal) {
         window.BESTADS_API_APPLICATION.handleModal(apiApplyAction.dataset.apiApplyAction, apiApplyAction.closest('.modal-backdrop'), { closeModal, showToast, render });
@@ -5333,6 +5466,31 @@
           showToast('标签已创建（原型）', 'success');
           return;
         }
+        if (tab.id === 'page-share' && state.processingAction === '编辑' && state.processingRow) {
+          const url = backdrop.querySelector('[name="c1"]')?.value.trim() || '';
+          const status = backdrop.querySelector('[name="c2"]')?.value || '启用';
+          if (!/^https?:\/\//i.test(url)) { showToast('分享对象需要以 http:// 或 https:// 开头', 'error'); return; }
+          const target = state.processingRow;
+          target.c1 = url;
+          target.c2 = status;
+          target.status = status;
+          target.c3 = currentTimestamp();
+          target.c4 = '管理员(admin@bestfulfill.com)';
+          target.ops = ['编辑'];
+          try {
+            localStorage.setItem('bestads-page-share-url', JSON.stringify({
+              url: status === '启用' ? url : '',
+              storedUrl: url,
+              status
+            }));
+          } catch (error) { /* 忽略无法写入的环境 */ }
+          state.processingRow = null;
+          state.processingAction = null;
+          closeModal();
+          render();
+          showToast('Page分享对象已更新（原型）', 'success');
+          return;
+        }
         if (tab.id === 'category-tag' && state.processingAction === '编辑' && state.processingRow) {
           const name = backdrop.querySelector('[name="c2"]')?.value.trim() || '';
           const status = backdrop.querySelector('[name="c4"]')?.value || state.processingRow.c4;
@@ -5505,8 +5663,39 @@
         if (openingApplyCreateSelect.matches('[data-opening-merchant]')) syncOpeningApplyCustomers(modalRoot, false);
         if (openingApplyCreateSelect.matches('[data-opening-customer]')) syncOpeningApplyMerchantFromCustomer(modalRoot);
         if (openingApplyCreateSelect.matches('[data-opening-media]')) syncOpeningApplyAssetFields(modalRoot);
-        if (openingApplyCreateSelect.matches('[data-opening-bm-ids]')) syncOpeningApplyAssetPreview(modalRoot);
         syncOpeningApplyEstimate(modalRoot);
+        return;
+      }
+      const openingAddUrl = event.target.closest('[data-opening-add-url]');
+      if (openingAddUrl) {
+        const modalRoot = openingAddUrl.closest('[data-opening-apply-create-modal]');
+        const list = modalRoot?.querySelector('[data-opening-url-list]');
+        if ((list?.querySelectorAll('.opening-repeat-row').length || 0) >= 20) { showToast('投放 URL 最多 20 个', 'error'); return; }
+        createOpeningRepeatRow(list, 'https://www.xxx.com', true);
+        return;
+      }
+      const openingAddPage = event.target.closest('[data-opening-add-page]');
+      if (openingAddPage) {
+        const modalRoot = openingAddPage.closest('[data-opening-apply-create-modal]');
+        const list = modalRoot?.querySelector('[data-opening-page-list]');
+        if ((list?.querySelectorAll('.opening-repeat-row').length || 0) >= 20) { showToast('Page 最多 20 个', 'error'); return; }
+        createOpeningRepeatRow(list, 'https://www.facebook.com/xxx', true);
+        return;
+      }
+      const openingAddBm = event.target.closest('[data-opening-add-bm]');
+      if (openingAddBm) {
+        const modalRoot = openingAddBm.closest('[data-opening-apply-create-modal]');
+        const list = modalRoot?.querySelector('[data-opening-bm-list]');
+        const media = modalRoot?.querySelector('[data-opening-media]')?.value || '';
+        const meta = openingAssetMeta(media);
+        if ((list?.querySelectorAll('.opening-repeat-row').length || 0) >= 20) { showToast('最多 20 组', 'error'); return; }
+        if (meta?.mode === 'group') createOpeningBmGroupRow(list, true);
+        else createOpeningRepeatRow(list, meta?.placeholder || 'ID', true);
+        return;
+      }
+      const openingRepeatRemove = event.target.closest('[data-opening-repeat-remove]');
+      if (openingRepeatRemove) {
+        openingRepeatRemove.closest('.opening-repeat-row')?.remove();
         return;
       }
       const openingRuleConfigInput = event.target.closest('[data-opening-rule-config-modal] input, [data-opening-rule-config-modal] select, [data-opening-rule-config-modal] textarea');
@@ -5553,7 +5742,6 @@
       }
       if (event.target.closest('[data-opening-apply-create-modal] input, [data-opening-apply-create-modal] select')) {
         const modalRoot = event.target.closest('[data-opening-apply-create-modal]');
-        if (event.target.matches('[data-opening-bm-ids]')) syncOpeningApplyAssetPreview(modalRoot);
         syncOpeningApplyEstimate(modalRoot);
       }
       if (event.target.closest('[data-opening-rule-config-modal] input, [data-opening-rule-config-modal] textarea')) syncOpeningRuleConfigPreview(event.target.closest('[data-opening-rule-config-modal]'));

@@ -619,6 +619,16 @@ button {
   line-height: 18px;
 }
 
+.client-share-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--client-primary, #2759ff);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .tz-combo {
   position: relative;
 }

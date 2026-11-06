@@ -87,6 +87,21 @@
     return rows;
   }
 
+  function readPageShare() {
+    const fallback = { url: 'https://123123', status: '启用' };
+    try {
+      const raw = localStorage.getItem('bestads-page-share-url');
+      if (!raw) return fallback;
+      const data = JSON.parse(raw);
+      return {
+        url: String(data.storedUrl || data.url || fallback.url).trim() || fallback.url,
+        status: data.status === '停用' ? '停用' : '启用'
+      };
+    } catch (error) {
+      return fallback;
+    }
+  }
+
   function dictTab(id, label, rows, options = {}) {
     const columnLabels = options.columnLabels || ['ID', '名称', '状态', '更新时间', '操作人'];
     const columnOptions = options.columnOptions || { left: ['名称', '操作人'], status: ['状态'], person: ['操作人'], widths: [90, 260, 110, 180, 260] };
@@ -252,6 +267,26 @@
             ...commonModals
           }
         },
+        (() => {
+          const share = readPageShare();
+          return {
+            id: 'page-share',
+            label: 'Page分享',
+            actions: [],
+            tableMinWidth: 1100,
+            opsWidth: 100,
+            columns: columns(['ID', '分享对象', '状态', '更新时间', '操作人'], { left: ['分享对象', '操作人'], status: ['状态'], person: ['操作人'], long: ['分享对象'], widths: [90, 280, 110, 180, 260] }),
+            rows: [
+              row(['960', share.url, share.status, '2026-11-05 18:00:00', people.ou], { status: share.status, ops: ['编辑'] })
+            ],
+            modals: {
+              '编辑': { title: '编辑Page分享对象', fields: [
+                { key: 'c1', label: '分享对象', placeholder: 'https://123123' },
+                { key: 'c2', label: '状态', control: 'select', options: statusOptions, placeholder: '选择状态' }
+              ] }
+            }
+          };
+        })(),
         dictTab('bd', 'BD', [
           row(['669', '吴文锐 (wuwenrui@bestfulfill.com)', '启用', '2026-06-29 15:01:46', people.tan], { status: '启用', ops: ['编辑', '禁用'] }),
           row(['667', '程允良 (chengyunliang@bestfulfill.com)', '停用', '2026-06-29 14:59:29', people.tan], { status: '停用', ops: ['编辑', '启用'] }),

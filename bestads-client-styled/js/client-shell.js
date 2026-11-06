@@ -187,6 +187,57 @@
       .replace(/'/g, '&#39;');
   }
 
+  function openingTimezoneLabel(value) {
+    const textValue = String(value || '').trim();
+    if (!textValue || textValue === '-') return textValue || '-';
+    if (/GMT[+-]\d{2}:\d{2}/i.test(textValue)) return textValue;
+    const offset = {
+      'America/Los_Angeles': 'GMT-08:00',
+      'America/Denver': 'GMT-07:00',
+      'America/Chicago': 'GMT-06:00',
+      'America/New_York': 'GMT-05:00',
+      'America/Toronto': 'GMT-05:00',
+      'America/Sao_Paulo': 'GMT-03:00',
+      'Europe/London': 'GMT+00:00',
+      UTC: 'GMT+00:00',
+      'Europe/Paris': 'GMT+01:00',
+      'Europe/Amsterdam': 'GMT+01:00',
+      'Europe/Berlin': 'GMT+01:00',
+      'Asia/Dubai': 'GMT+04:00',
+      'Asia/Bangkok': 'GMT+07:00',
+      'Asia/Shanghai': 'GMT+08:00',
+      'China/Shanghai': 'GMT+08:00',
+      'China/Hong_Kong': 'GMT+08:00',
+      Singapore: 'GMT+08:00',
+      'Japan/Tokyo': 'GMT+09:00',
+      'Korea/Seoul': 'GMT+09:00',
+      'Australia/Sydney': 'GMT+10:00',
+      'Pacific/Auckland': 'GMT+12:00'
+    }[textValue];
+    return offset ? `${textValue} ${offset}` : textValue;
+  }
+
+  function pageShareConfig() {
+    const fallback = { url: 'https://123123', status: '启用' };
+    try {
+      const raw = localStorage.getItem('bestads-page-share-url');
+      if (!raw) return fallback;
+      const data = JSON.parse(raw);
+      return {
+        url: String(data.storedUrl || data.url || fallback.url).trim() || fallback.url,
+        status: data.status === '停用' ? '停用' : '启用'
+      };
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function pageShareTipHtml() {
+    const config = pageShareConfig();
+    if (config.status !== '启用' || !config.url) return '多个用逗号或换行分隔。没有可留空。';
+    return `请必须把Page分享给 <button type="button" class="client-share-link" data-page-share-copy data-page-share-url="${html(config.url)}">${html(config.url)}</button>。多个用逗号或换行分隔。没有可留空。`;
+  }
+
   function pageIdFromDocument() {
     return document.body.dataset.clientPage || location.pathname.split('/').pop().replace('.html', '') || 'index';
   }
@@ -479,7 +530,7 @@
           <div class="client-cell-stack">
             <strong>${html(row.url || '-')}</strong>
             ${row.pageLink && row.pageLink !== '-' ? `<span>Page ${html(row.pageLink)}</span>` : ''}
-            <span>${html([row.country, row.timezone].filter(Boolean).join(' · ') || '-')}</span>
+            <span>${html([row.country, openingTimezoneLabel(row.timezone)].filter(Boolean).join(' · ') || '-')}</span>
             <span>${html([row.dailyBudget, openingCategoryLabel(row.category)].filter(Boolean).join(' · ') || '-')}</span>
           </div>
         </td>
@@ -895,7 +946,7 @@
         <label class="client-form-field full" data-opening-page-wrap hidden>
           <span class="client-label">Page Link</span>
           <input class="client-input" data-opening-page type="text" value="" placeholder="https://www.facebook.com/xxx">
-          <span class="client-field-tip">Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。多个用逗号或换行分隔。没有可留空。</span>
+          <span class="client-field-tip">Facebook 主页链接，不是主页名称。例如 https://www.facebook.com/xxx。${pageShareTipHtml()}</span>
         </label>
         <label class="client-form-field">
           <span class="client-label">投放国家 <span class="client-required">*</span></span>
@@ -1022,7 +1073,7 @@
         readonlyItem('投放URL', row?.url, { full: true }),
         readonlyItem('Page Link', row?.mediaChannel === 'Facebook' ? (row?.pageLink || '-') : '-'),
         readonlyItem(openingAssetIdLabel(row?.mediaChannel), openingAssetIdValue(row)),
-        readonlyItem('时区', row?.timezone),
+        readonlyItem('时区', openingTimezoneLabel(row?.timezone)),
         readonlyItem('日预算', row?.dailyBudget),
         readonlyItem('账户数', row?.accountCount),
         readonlyItem('投放品类', openingCategoryLabel(row?.category)),
@@ -1052,7 +1103,7 @@
         ${formInput('URL', row.url || '-', false)}
         ${formInput('Page Link', row.mediaChannel === 'Facebook' ? (row.pageLink || '-') : '-', false)}
         ${formInput(openingAssetIdLabel(row.mediaChannel), openingAssetIdValue(row), false)}
-        ${formInput('国家 / 时区', `${row.country || '-'} / ${row.timezone || '-'}`, false)}
+        ${formInput('国家 / 时区', `${row.country || '-'} / ${openingTimezoneLabel(row.timezone)}`, false)}
         ${formInput('日预算', row.dailyBudget || '-', false)}
         ${formInput('账户数', row.accountCount || '-', false)}
         ${formInput('投放品类', openingCategoryLabel(row.category) || '-', false)}
@@ -1654,6 +1705,14 @@
       if (tzInput) renderOpeningTimezoneList(tzInput.closest('[data-tz-combo]'));
     });
     document.addEventListener('click', (event) => {
+      const pageShareCopy = event.target.closest('[data-page-share-copy]');
+      if (pageShareCopy) {
+        const text = pageShareCopy.getAttribute('data-page-share-url') || '';
+        const done = () => toast('复制成功', 'success');
+        if (text && navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done).catch(done);
+        else if (text) done();
+        return;
+      }
       const option = event.target.closest('[data-tz-option]');
       if (option) {
         selectOpeningTimezone(option.closest('[data-tz-combo]'), option.dataset.tzOption);

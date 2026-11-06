@@ -688,6 +688,10 @@
       width: 836px;
     }
 
+    #applyModal .modal {
+      width: 640px;
+    }
+
     #verifyModal,
     #emailBlockModal {
       z-index: 140;
@@ -911,6 +915,183 @@
 
     .apply-form-grid .full {
       grid-column: 1 / -1;
+    }
+
+    .apply-header {
+      height: auto;
+      min-height: 72px;
+      align-items: flex-start;
+      padding: 16px 20px 12px;
+    }
+
+    .apply-subtitle {
+      margin: 4px 0 0;
+      color: #8f959e;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 18px;
+    }
+
+    .apply-block {
+      display: grid;
+      gap: 8px;
+    }
+
+    .apply-form-grid .form-title {
+      margin-bottom: 0;
+    }
+
+    .apply-req {
+      margin-right: 2px;
+      color: var(--danger);
+    }
+
+    .apply-rows {
+      display: grid;
+      gap: 8px;
+    }
+
+    .apply-repeat-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .apply-asset-group {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      padding: 8px;
+      border: 1px solid #e5e6eb;
+      border-radius: 8px;
+      background: #f7f8fa;
+    }
+
+    .apply-asset-group:has(.apply-remove) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    }
+
+    .apply-asset-group .apply-input-shell .input {
+      background: #fff;
+    }
+
+    .apply-input-shell {
+      position: relative;
+    }
+
+    .apply-input-shell .input {
+      padding-right: 34px;
+      background: #f7f8fa;
+    }
+
+    .apply-copy,
+    .apply-remove {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      background: transparent;
+      color: #c0c4cc;
+      cursor: pointer;
+    }
+
+    .apply-copy {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+    }
+
+    .apply-copy:hover,
+    .apply-remove:hover {
+      color: var(--primary);
+    }
+
+    .apply-add {
+      width: 100%;
+      height: 36px;
+      border: 0;
+      border-radius: 6px;
+      background: #eef3ff;
+      color: #3370ff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .apply-add:hover {
+      background: #e3ebff;
+    }
+
+    .apply-share-link {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--primary);
+      font: inherit;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .apply-form-grid .select,
+    .apply-form-grid .input-with-suffix,
+    #applyAccountCount {
+      background: #f7f8fa;
+    }
+
+    .tz-combo__chevron {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      color: #c0c4cc;
+      pointer-events: none;
+    }
+
+    .apply-form-grid .tz-combo .input {
+      padding-right: 28px;
+      background: #f7f8fa;
+    }
+
+    .quote-lines {
+      display: grid;
+      gap: 2px;
+      margin-top: 8px;
+      color: #4e5969;
+      font-size: 13px;
+      line-height: 22px;
+    }
+
+    .quote-lines b {
+      color: #1f2329;
+      font-weight: 500;
+    }
+
+    #applyModal .quote-estimate {
+      align-items: center;
+      border-color: #e5e6eb;
+      background: #f7f8fa;
+    }
+
+    #applyModal .quote-estimate-amount {
+      color: #1f2329;
+      font-size: 22px;
+    }
+
+    body.theme-dark .apply-asset-group {
+      border-color: #374151;
+      background: #111827;
+    }
+
+    body.theme-dark .apply-asset-group .apply-input-shell .input {
+      background: #1f2937;
+    }
+
+    body.theme-dark .apply-input-shell .input,
+    body.theme-dark .apply-form-grid .select,
+    body.theme-dark .apply-form-grid .input-with-suffix,
+    body.theme-dark #applyAccountCount,
+    body.theme-dark .apply-form-grid .tz-combo .input {
+      background: #111827;
+    }
+
+    body.theme-dark .apply-add {
+      background: rgba(51, 112, 255, 0.16);
     }
 
     .input-with-suffix {
@@ -1388,17 +1569,20 @@
 
   <div id="applyModal" class="modal-root" role="dialog" aria-modal="true" aria-labelledby="applyTitle">
     <section class="modal">
-      <header class="modal-header">
-        <h2 id="applyTitle" class="modal-title" data-i18n="apply_title">Apply for Account</h2>
-        <button class="close" type="button" data-close="applyModal" aria-label="Close">x</button>
+      <header class="modal-header apply-header">
+        <div>
+          <h2 id="applyTitle" class="modal-title" data-i18n="apply_title">申请开户</h2>
+          <p class="apply-subtitle" data-i18n="apply_subtitle">提交申请前请核对以下信息</p>
+        </div>
+        <button class="close" type="button" data-close="applyModal" aria-label="Close">×</button>
       </header>
       <div class="modal-body">
         <div class="apply-form-grid">
-          <label class="field">
-            <span class="form-title"><span data-i18n="apply_media_channel">Media Channel</span> <span style="color:var(--danger)">*</span></span>
+          <label class="field full">
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="apply_media_channel">媒体渠道</span></span>
             <select id="applyMediaChannel" class="select">
-              <option value="" data-i18n="placeholder_media_channel">Please select media channel</option>
-              <option value="Facebook">Facebook</option>
+              <option value="" data-i18n="placeholder_media_channel">请选择媒体渠道</option>
+              <option value="Facebook" selected>Facebook</option>
               <option value="Google">Google</option>
               <option value="TikTok">TikTok</option>
               <option value="Snapchat">Snapchat</option>
@@ -1408,104 +1592,99 @@
               <option value="X">X</option>
             </select>
           </label>
+          <div class="apply-block full">
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="url_label">投放URL</span></span>
+            <div id="urlList" class="apply-rows"></div>
+            <span class="form-tip" data-i18n="url_tip">最少1个，最多20个URL</span>
+            <button id="addUrlButton" class="apply-add" type="button" data-i18n="btn_add_url">+ 添加URL</button>
+          </div>
+          <div id="applyPageWrap" class="apply-block full">
+            <span class="form-title" data-i18n="apply_pages">Pages</span>
+            <div id="pageList" class="apply-rows"></div>
+            <span class="form-tip"><span data-i18n="page_limit_tip">最多20个Pages</span><span data-page-share-line hidden>。<span data-i18n="page_share_prefix">请必须把Page分享给</span> <button type="button" class="apply-share-link" data-page-share></button></span></span>
+            <button id="addPageButton" class="apply-add" type="button" data-i18n="btn_add_pages">+ 添加Pages</button>
+          </div>
+          <div id="applyBmWrap" class="apply-block full">
+            <span id="applyAssetLabel" class="form-title">BM ID 选填</span>
+            <div id="bmList" class="apply-rows"></div>
+            <span id="applyAssetTip" class="form-tip">ID数量不能超过20个</span>
+            <button id="addBmButton" class="apply-add" type="button" data-i18n="btn_add_bm">+ 添加 BM ID</button>
+          </div>
           <label class="field">
-            <span class="form-title" data-i18n="url_label">Delivery URL</span>
-            <input id="applyUrl" class="input" type="text" value="https://www.luminara-home.com" placeholder="https://www.xxx.com" data-i18n-placeholder="placeholder_url">
-            <span class="form-tip" data-i18n="apply_url_tip">The website or landing page to advertise. Start with http:// or https://. Example: https://www.xxx.com</span>
-          </label>
-          <label id="applyBmWrap" class="field full bm-id-input-wrap" hidden>
-            <span id="applyAssetLabel" class="form-title">BM ID</span>
-            <input id="applyBmIds" class="input" type="text" value="" placeholder="Enter multiple BM IDs separated by comma or space">
-            <span id="applyAssetTip" class="form-tip">Multiple BM IDs can be separated by comma or space.</span>
-            <span id="applyBmPreview" class="bm-id-preview" aria-live="polite"></span>
-          </label>
-          <label id="applyPageWrap" class="field full" hidden>
-            <span class="form-title" data-i18n="apply_page_link">Page Link</span>
-            <input id="applyPageLink" class="input" type="text" value="" placeholder="https://www.facebook.com/xxx" data-i18n-placeholder="placeholder_page_link">
-            <span class="form-tip" data-i18n="apply_page_tip">Facebook Page link, not the page name. Example: https://www.facebook.com/xxx. Separate multiple links with comma or line break. Leave blank if you do not have one.</span>
-          </label>
-          <label class="field">
-            <span class="form-title" data-i18n="apply_country">Delivery Country</span>
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="apply_country">投放国家</span></span>
             <select id="applyCountry" class="select">
-              <option value="美国" selected>美国</option>
+              <option value="" selected data-i18n="placeholder_country_select">投放国家</option>
+              <option value="美国">美国</option>
               <option value="加拿大">加拿大</option>
               <option value="英国">英国</option>
               <option value="法国">法国</option>
               <option value="荷兰">荷兰</option>
             </select>
-            <span class="form-tip" data-i18n="apply_country_tip">The main country this ad account will target. Choose one.</span>
           </label>
           <label class="field">
-            <span class="form-title" data-i18n="apply_timezone">Time Zone</span>
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="apply_timezone">时区</span></span>
             <div class="tz-combo" data-tz-combo>
-              <input id="applyTimezoneInput" class="input" type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list" value="America/Los_Angeles GMT-08:00" placeholder="shanghai" data-i18n-placeholder="placeholder_timezone_search">
-              <input id="applyTimezone" type="hidden" value="America/Los_Angeles GMT-08:00">
+              <input id="applyTimezoneInput" class="input" type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list" value="" placeholder="时区" data-i18n-placeholder="placeholder_timezone">
+              <input id="applyTimezone" type="hidden" value="">
+              <span class="tz-combo__chevron">⌄</span>
               <div class="tz-combo__list" id="applyTimezoneList" hidden></div>
             </div>
-            <span class="form-tip" data-i18n="apply_timezone_tip">Ad account time zone. Search by city or region. For example, shanghai matches China/Shanghai GMT+08:00.</span>
           </label>
           <label class="field">
-            <span class="form-title"><span data-i18n="apply_account_currency">Account Currency</span> <span style="color:var(--danger)">*</span></span>
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="apply_account_currency">账户币种</span></span>
             <select id="applyCurrency" class="select">
               <option value="USD" selected>USD</option>
               <option value="EUR">EUR</option>
               <option value="GBP">GBP</option>
               <option value="HKD">HKD</option>
             </select>
-            <span class="form-tip" data-i18n="apply_currency_tip">Settlement currency of the ad account. Opening fee is always charged in USD. Initial top-up follows this currency.</span>
           </label>
           <label class="field">
-            <span class="form-title" data-i18n="apply_daily_budget">Daily Budget</span>
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="apply_daily_budget">日预算</span></span>
             <div class="input-with-suffix">
-              <input id="applyDailyBudget" class="input" type="text" inputmode="decimal" value="300" placeholder="Please enter daily budget" data-i18n-placeholder="placeholder_daily_budget">
+              <input id="applyDailyBudget" class="input" type="text" inputmode="decimal" value="300.00">
               <span id="applyDailyBudgetCurrency" class="input-suffix">USD</span>
             </div>
-            <span class="form-tip" data-i18n="apply_budget_tip">Planned daily spend in the account currency. This is application data, not the amount charged now.</span>
           </label>
           <label class="field">
-            <span class="form-title" data-i18n="apply_account_count">Account Count</span>
-            <input id="applyAccountCount" class="input" type="number" min="1" max="20" value="2">
-            <span class="form-tip" data-i18n="apply_count_tip">Number of ad accounts in this request. Enter an integer from 1 to 20.</span>
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="apply_account_count">账户数</span></span>
+            <input id="applyAccountCount" class="input" type="number" min="1" max="20" value="1">
           </label>
           <label class="field">
-            <span class="form-title"><span data-i18n="apply_category">Delivery Category</span> <span style="color:var(--danger)">*</span></span>
+            <span class="form-title"><span class="apply-req">*</span><span data-i18n="apply_category">投放品类</span></span>
             <select id="applyCategory" class="select">
-              <option value="" data-i18n="placeholder_category">Please select category</option>
-              <option value="健身与运动" data-i18n="category_fitness_sports">Fitness & Sports</option>
-              <option value="母婴与亲子" data-i18n="category_baby_kids">Baby Kids & Parenting</option>
-              <option value="时尚与服装" data-i18n="category_fashion_apparel">Fashion & Apparel</option>
-              <option value="户外园艺与 DIY" data-i18n="category_outdoor_garden">Outdoor Garden & DIY</option>
-              <option value="玩具与游戏" data-i18n="category_toys_games">Toys & Games</option>
-              <option value="宠物用品" data-i18n="category_pets">Pet Supplies</option>
-              <option value="电子产品与智能设备" data-i18n="category_electronics">Electronics & Smart Gadgets</option>
-              <option value="美妆与个护" data-i18n="category_beauty">Beauty & Personal Care</option>
-              <option value="汽配与工具" data-i18n="category_automotive">Automotive & Tools</option>
-              <option value="珠宝腕表与配饰" data-i18n="category_jewelry">Jewelry Watches & Accessories</option>
-              <option value="家居厨房与生活" data-i18n="category_home_living">Home Kitchen & Living</option>
-              <option value="口服健康保健与营养" data-i18n="category_oral_health">Oral Health Wellness & Nutrition</option>
-              <option value="非口服健康保健与营养" data-i18n="category_non_oral_health">Non-Oral Health Wellness & Nutrition</option>
-              <option value="其他" data-i18n="category_other">Other</option>
+              <option value="" data-i18n="placeholder_category">投放品类</option>
+              <option value="健身与运动" data-i18n="category_fitness_sports">健身与运动</option>
+              <option value="母婴与亲子" data-i18n="category_baby_kids">母婴与亲子</option>
+              <option value="时尚与服装" data-i18n="category_fashion_apparel">时尚与服装</option>
+              <option value="户外园艺与 DIY" data-i18n="category_outdoor_garden">户外园艺与 DIY</option>
+              <option value="玩具与游戏" data-i18n="category_toys_games">玩具与游戏</option>
+              <option value="宠物用品" data-i18n="category_pets">宠物用品</option>
+              <option value="电子产品与智能设备" data-i18n="category_electronics">电子产品与智能设备</option>
+              <option value="美妆与个护" data-i18n="category_beauty">美妆与个护</option>
+              <option value="汽配与工具" data-i18n="category_automotive">汽配与工具</option>
+              <option value="珠宝腕表与配饰" data-i18n="category_jewelry">珠宝腕表与配饰</option>
+              <option value="家居厨房与生活" data-i18n="category_home_living">家居厨房与生活</option>
+              <option value="口服健康保健与营养" data-i18n="category_oral_health">口服健康保健与营养</option>
+              <option value="非口服健康保健与营养" data-i18n="category_non_oral_health">非口服健康保健与营养</option>
+              <option value="其他" data-i18n="category_other">其他</option>
             </select>
-            <span class="form-tip" data-i18n="apply_category_tip">Pick the closest product category. This is application data and does not change the quote.</span>
           </label>
           <div class="quote-estimate full" aria-live="polite">
             <div>
-              <p class="quote-estimate-title" data-i18n="apply_estimated_quote">Estimated opening cost</p>
-              <p class="quote-estimate-desc" data-i18n="apply_estimated_quote_desc">Opening fee is always USD, multiplied by account count. The top-up number is global; its currency follows the ad account. Wallet total uses the default wallet currency. Daily budget, country and category are application data only. No deduction on submit. Final amount is the quote issued after agent selection.</p>
-              <div class="quote-breakdown">
-                <span><span data-i18n="apply_opening_fee_subtotal">Opening fee (USD)</span>：<b id="applyOpeningFeeSubtotal">-</b></span>
-                <span><span data-i18n="apply_precharge_subtotal">Initial top-up (ad account currency)</span>：<b id="applyPrechargeSubtotal">-</b></span>
-                <span><span data-i18n="apply_rate_after_success">Service fee / prepaid tax</span>：<span data-i18n="apply_rate_after_success_value">Shown after opening succeeds</span></span>
+              <p class="quote-estimate-title" data-i18n="apply_estimated_quote">预计开户费用</p>
+              <div class="quote-lines">
+                <span><span data-i18n="apply_opening_fee_line">开户费</span> <b id="applyOpeningFeeSubtotal">-</b></span>
+                <span><span data-i18n="apply_precharge_line">首充</span> <b id="applyPrechargeSubtotal">-</b></span>
+                <span><span data-i18n="apply_service_fee_line">服务费:</span> <b>-</b></span>
+                <span><span data-i18n="apply_pre_tax_line">预收税费费率:</span> <b>-</b></span>
               </div>
             </div>
-            <div class="quote-estimate-total">
-              <span data-i18n="apply_quote_total">Total</span>
-              <strong id="applyEstimatedQuote" class="quote-estimate-amount">-</strong>
-            </div>
+            <strong id="applyEstimatedQuote" class="quote-estimate-amount">-</strong>
           </div>
           <label class="consent-row full">
             <input id="applyAutoPay" type="checkbox" checked>
-            <span data-i18n="apply_auto_pay">If the actual deduction is not higher than the submitted estimate, authorize automatic deduction of the opening fee and each account initial top-up. Confirm later only if it is higher.</span>
+            <span data-i18n="apply_auto_pay">若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知确认。</span>
           </label>
         </div>
       </div>
@@ -1851,12 +2030,13 @@
         placeholder_batch_search: 'Search account ID and name',
         placeholder_bm_id: 'Please enter BM ID',
         placeholder_bm_name: 'Please enter BM Name',
-        placeholder_bm_ids: 'Enter multiple BM IDs separated by comma or space',
-        placeholder_url: 'https://www.xxx.com',
+        placeholder_bm_ids: 'BM ID',
+        placeholder_url: 'Website URL to advertise',
         placeholder_country: 'Please enter delivery country',
         placeholder_daily_budget: 'Please enter daily budget',
-        placeholder_page: 'Please enter Facebook Page link',
-        placeholder_timezone: 'Please select Time Zone',
+        placeholder_page: 'Pages',
+        placeholder_timezone: 'Time Zone',
+        placeholder_country_select: 'Delivery country',
         placeholder_custom_amount: 'Please enter Custom Amount',
         placeholder_recharge_amount: 'Please enter recharge amount',
         placeholder_deduct_amount: 'Please enter deduction amount',
@@ -1946,9 +2126,34 @@
         apply_quote_total: 'Total',
         apply_rate_after_success: 'Service fee / prepaid tax',
         apply_rate_after_success_value: 'Shown after opening succeeds',
-        apply_auto_pay: 'If the actual deduction is not higher than the submitted estimate, authorize automatic deduction of the opening fee and each account initial top-up. Confirm later only if it is higher.',
+        apply_subtitle: 'Please check the following before submitting',
+        apply_pages: 'Pages',
+        page_limit_tip: 'Up to 20 Pages',
+        page_share_prefix: 'You must share the Page with',
+        btn_add_pages: '+ Add Pages',
+        btn_add_bm: '+ Add BM',
+        placeholder_bm_group_name: 'BM name',
+        placeholder_bm_group_id: 'BM ID',
+        asset_group_tip: 'A group is complete only when both name and ID are filled. Up to 20 groups.',
+        toast_bm_group: 'Enter both BM name and BM ID',
+        btn_add_mcc: '+ Add MCC',
+        btn_add_bc: '+ Add BC',
+        apply_bm_optional: 'BM ID optional',
+        apply_mcc_optional: 'MCC optional',
+        apply_bc_optional: 'BC optional',
+        asset_limit_tip: 'At most 20 IDs',
+        btn_copy: 'Copy',
+        toast_copy_ok: 'Copied',
+        toast_copy_empty: 'Nothing to copy',
+        toast_bm_limit: 'At most 20 IDs',
+        apply_opening_fee_line: 'Opening fee',
+        apply_precharge_line: 'Initial top-up',
+        apply_service_fee_line: 'Service fee:',
+        apply_pre_tax_line: 'Prepaid tax rate:',
+        apply_estimated_quote: 'Estimated opening cost',
+        apply_auto_pay: 'If the final amount matches the initial quote, authorize automatic deduction of the opening fee and each account initial top-up. Confirm later only if it differs.',
         url_tip: 'At least 1 and at most 20 URLs',
-        btn_add_url: 'Add URL',
+        btn_add_url: '+ Add URL',
         timezone_quantity: 'Time Zone and Quantity',
         timezone_tip: 'The total quantity per application cannot exceed 5',
         btn_add_timezone: 'Add Time Zone and Quantity',
@@ -2063,12 +2268,13 @@
         placeholder_batch_search: '搜索账户 ID 和名称',
         placeholder_bm_id: '请输入 BM ID',
         placeholder_bm_name: '请输入 BM 名称',
-        placeholder_bm_ids: '请输入 BM ID，多个可用逗号或空格分隔',
-        placeholder_url: 'https://www.xxx.com',
+        placeholder_bm_ids: 'BM ID',
+        placeholder_url: '要投放的网站URL',
         placeholder_country: '请输入投放国家',
         placeholder_daily_budget: '请输入日预算',
-        placeholder_page: '请输入 Facebook Page 链接',
-        placeholder_timezone: '请选择时区',
+        placeholder_page: 'Pages',
+        placeholder_timezone: '时区',
+        placeholder_country_select: '投放国家',
         placeholder_custom_amount: '请输入自定义金额',
         placeholder_recharge_amount: '请输入充值金额',
         placeholder_deduct_amount: '请输入减款金额',
@@ -2103,14 +2309,14 @@
         status_disabled: '已禁用',
         status_closed: '已关闭',
         apply_title: '申请开户',
-        url_label: '投放 URL',
+        url_label: '投放URL',
         apply_country: '投放国家',
         apply_timezone: '时区',
         apply_daily_budget: '日预算',
         apply_account_count: '账户数',
         apply_category: '投放品类',
         apply_account_currency: '账户币种',
-        placeholder_category: '请选择投放品类',
+        placeholder_category: '投放品类',
         category_fitness_sports: '健身与运动',
         category_baby_kids: '母婴与亲子',
         category_fashion_apparel: '时尚与服装',
@@ -2125,7 +2331,7 @@
         category_oral_health: '口服健康保健与营养',
         category_non_oral_health: '非口服健康保健与营养',
         category_other: '其他',
-        apply_estimated_quote: '预估开户费用',
+        apply_estimated_quote: '预计开户费用',
         apply_estimated_quote_desc: '开户费固定 USD，按单账户金额乘以账户数。最低首充数值全站统一，币种跟随广告账户：美元户按 USD 首充，欧元户按 EUR 首充。合计按钱包默认币种折算。日预算、投放国家、投放品类只作开户资料，不参与定价。提交时不扣款，最终金额以开户组发出的最终报价为准。',
         apply_bm_ids: 'BM ID',
         apply_bm_tip: 'Facebook Business Manager 的数字 ID，例如 121212345678901。多个用逗号或空格分隔。没有可留空。',
@@ -2158,9 +2364,33 @@
         apply_quote_total: '合计',
         apply_rate_after_success: '服务费 / 预收税费费率',
         apply_rate_after_success_value: '开户成功后展示',
-        apply_auto_pay: '同意扣费：若实际扣款不超过提交时预估，同意系统直接扣除开户费和各账户首充；高于预估时再通知确认。',
-        url_tip: '至少 1 个，最多 20 个 URL',
-        btn_add_url: '添加 URL',
+        apply_subtitle: '提交申请前请核对以下信息',
+        apply_pages: 'Pages',
+        page_limit_tip: '最多20个Pages',
+        page_share_prefix: '请必须把Page分享给',
+        btn_add_pages: '+ 添加Pages',
+        btn_add_bm: '+ 添加 BM',
+        placeholder_bm_group_name: 'BM名称',
+        placeholder_bm_group_id: 'BM ID',
+        asset_group_tip: '名称和 ID 都填写才算一组，最多 20 组',
+        toast_bm_group: '请同时填写 BM名称和 BM ID',
+        btn_add_mcc: '+ 添加 MCC',
+        btn_add_bc: '+ 添加 BC',
+        apply_bm_optional: 'BM ID 选填',
+        apply_mcc_optional: 'MCC 选填',
+        apply_bc_optional: 'BC 选填',
+        asset_limit_tip: 'ID数量不能超过20个',
+        btn_copy: '复制',
+        toast_copy_ok: '复制成功',
+        toast_copy_empty: '没有可复制的内容',
+        toast_bm_limit: 'ID数量不能超过20个',
+        apply_opening_fee_line: '开户费',
+        apply_precharge_line: '首充',
+        apply_service_fee_line: '服务费:',
+        apply_pre_tax_line: '预收税费费率:',
+        apply_auto_pay: '若最终金额与初始报价一致，同意系统直接扣除开户费和各账户首充；不一致时再通知确认。',
+        url_tip: '最少1个，最多20个URL',
+        btn_add_url: '+ 添加URL',
         timezone_quantity: '时区和数量',
         timezone_tip: '单次申请总数量不能超过 5',
         btn_add_timezone: '添加时区和数量',
@@ -2401,7 +2631,7 @@
     }
 
     function clientOpeningFeeQuote(count) {
-      const fee = window.BESTADS_OPENING_FEE || {};
+      const fee = window.BESTADS_OPENING_FEE || { openingFeePerAccount: 30, prechargePerAccount: 550, currency: 'USD' };
       const n = Math.max(1, Number(count) || 1);
       const openingFeePerAccount = Number(fee.openingFeePerAccount != null ? fee.openingFeePerAccount : fee.amount) || 0;
       const prechargePerAccount = Number(fee.prechargePerAccount) || 0;
@@ -2487,28 +2717,28 @@
     function openingAssetMeta(media) {
       if (media === 'Facebook') {
         return {
-          label: t('apply_bm_ids'),
+          label: t('apply_bm_optional'),
           placeholder: t('placeholder_bm_ids'),
-          tip: t('apply_bm_tip'),
-          empty: t('apply_bm_empty'),
+          tip: t('asset_group_tip'),
+          add: t('btn_add_bm'),
           sample: OPENING_ASSET_SAMPLES.Facebook
         };
       }
       if (media === 'Google') {
         return {
-          label: t('apply_mcc_ids'),
-          placeholder: t('placeholder_mcc_ids'),
-          tip: t('apply_mcc_tip'),
-          empty: t('apply_mcc_empty'),
+          label: t('apply_mcc_optional'),
+          placeholder: 'MCC',
+          tip: t('asset_limit_tip'),
+          add: t('btn_add_mcc'),
           sample: OPENING_ASSET_SAMPLES.Google
         };
       }
       if (media === 'TikTok') {
         return {
-          label: t('apply_bc_ids'),
-          placeholder: t('placeholder_bc_ids'),
-          tip: t('apply_bc_tip'),
-          empty: t('apply_bc_empty'),
+          label: t('apply_bc_optional'),
+          placeholder: 'BC',
+          tip: t('asset_limit_tip'),
+          add: t('btn_add_bc'),
           sample: OPENING_ASSET_SAMPLES.TikTok
         };
       }
@@ -2542,7 +2772,7 @@
       });
       document.querySelectorAll('#urlList input').forEach(el => { el.placeholder = t('placeholder_url'); });
       document.querySelectorAll('#pageList input').forEach(el => { el.placeholder = t('placeholder_page'); });
-      document.querySelectorAll('#urlList button, #pageList button').forEach(el => { el.textContent = t('btn_remove'); });
+      document.querySelectorAll('#urlList .apply-copy, #pageList .apply-copy, #bmList .apply-copy').forEach(el => { el.setAttribute('aria-label', t('btn_copy')); });
       document.querySelectorAll('#timezoneRows select').forEach(el => {
         if (el.options[0]) el.options[0].textContent = t('placeholder_timezone');
       });
@@ -2672,16 +2902,109 @@
       document.body.style.overflow = document.querySelector('.modal-root.open') ? 'hidden' : '';
     }
 
+    function repeatValues(containerId) {
+      return Array.from(document.querySelectorAll(`#${containerId} input`)).map(input => input.value.trim()).filter(Boolean);
+    }
+
+    function copyApplyValue(value) {
+      const text = String(value || '').trim();
+      if (!text) {
+        showToast(t('toast_copy_empty'), 'warning');
+        return;
+      }
+      const done = () => showToast(t('toast_copy_ok'), 'success');
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => {
+          fallbackCopy(text);
+          done();
+        });
+        return;
+      }
+      fallbackCopy(text);
+      done();
+    }
+
+    function fallbackCopy(text) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+
     function createTextRow(containerId, placeholder, removable = true) {
       const container = document.getElementById(containerId);
+      if (!container) return;
       const row = document.createElement('div');
-      row.className = 'inline-row';
+      row.className = 'apply-repeat-row';
       row.innerHTML = `
-        <input class="input" type="text" placeholder="${placeholder}">
-        <button class="button danger" type="button"${removable ? '' : ' disabled'}>${t('btn_remove')}</button>
+        <div class="apply-input-shell">
+          <input class="input" type="text" placeholder="${escapeHtml(placeholder)}">
+          <button class="apply-copy" type="button" aria-label="${escapeHtml(t('btn_copy'))}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="4.5" y="4.5" width="7" height="7" rx="1.2" stroke="currentColor"/><path d="M9.5 4.5V3.2A1.2 1.2 0 0 0 8.3 2H3.2A1.2 1.2 0 0 0 2 3.2v5.1A1.2 1.2 0 0 0 3.2 9.5H4.5" stroke="currentColor"/></svg>
+          </button>
+        </div>
+        ${removable ? `<button class="apply-remove" type="button" aria-label="${escapeHtml(t('btn_remove'))}">×</button>` : ''}
       `;
-      row.querySelector('button').addEventListener('click', () => row.remove());
+      row.querySelector('.apply-copy').addEventListener('click', () => copyApplyValue(row.querySelector('input').value));
+      row.querySelector('.apply-remove')?.addEventListener('click', () => row.remove());
       container.appendChild(row);
+    }
+
+    function applyCopyIcon() {
+      return `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="4.5" y="4.5" width="7" height="7" rx="1.2" stroke="currentColor"/><path d="M9.5 4.5V3.2A1.2 1.2 0 0 0 8.3 2H3.2A1.2 1.2 0 0 0 2 3.2v5.1A1.2 1.2 0 0 0 3.2 9.5H4.5" stroke="currentColor"/></svg>`;
+    }
+
+    function createAssetGroup(removable = true) {
+      const container = document.getElementById('bmList');
+      if (!container) return;
+      const row = document.createElement('div');
+      row.className = 'apply-repeat-row apply-asset-group';
+      row.innerHTML = `
+        <div class="apply-input-shell">
+          <input class="input" type="text" data-asset-name placeholder="${escapeHtml(t('placeholder_bm_group_name'))}">
+          <button class="apply-copy" type="button" aria-label="${escapeHtml(t('btn_copy'))}">${applyCopyIcon()}</button>
+        </div>
+        <div class="apply-input-shell">
+          <input class="input" type="text" data-asset-id placeholder="${escapeHtml(t('placeholder_bm_group_id'))}">
+          <button class="apply-copy" type="button" aria-label="${escapeHtml(t('btn_copy'))}">${applyCopyIcon()}</button>
+        </div>
+        ${removable ? `<button class="apply-remove" type="button" aria-label="${escapeHtml(t('btn_remove'))}">×</button>` : ''}
+      `;
+      row.querySelectorAll('.apply-copy').forEach(button => {
+        button.addEventListener('click', () => copyApplyValue(button.parentElement.querySelector('input').value));
+      });
+      row.querySelector('.apply-remove')?.addEventListener('click', () => row.remove());
+      container.appendChild(row);
+    }
+
+    function assetGroups() {
+      return Array.from(document.querySelectorAll('#bmList .apply-asset-group')).map(row => ({
+        name: row.querySelector('[data-asset-name]')?.value.trim() || '',
+        id: row.querySelector('[data-asset-id]')?.value.trim() || '',
+        row
+      }));
+    }
+
+    function syncAssetRows(media, meta) {
+      const list = document.getElementById('bmList');
+      if (!list || !meta) return;
+      const mode = media === 'Facebook' ? 'group' : 'single';
+      const hasRow = Boolean(list.querySelector('.apply-repeat-row'));
+      if (list.dataset.mode !== mode || !hasRow) {
+        list.dataset.mode = mode;
+        list.innerHTML = '';
+        if (mode === 'group') createAssetGroup(false);
+        else createTextRow('bmList', meta.placeholder, false);
+        return;
+      }
+      if (mode === 'group') {
+        list.querySelectorAll('[data-asset-name]').forEach(input => { input.placeholder = t('placeholder_bm_group_name'); });
+        list.querySelectorAll('[data-asset-id]').forEach(input => { input.placeholder = t('placeholder_bm_group_id'); });
+      } else {
+        list.querySelectorAll('input').forEach(input => { input.placeholder = meta.placeholder; });
+      }
     }
 
     function createTimezoneRow(removable = true) {
@@ -3071,14 +3394,41 @@
       showToast(t('toast_code_ok'), 'success');
     }
 
+    function pageShareConfig() {
+      const fallback = { url: 'https://123123', status: '启用' };
+      try {
+        const raw = localStorage.getItem('bestads-page-share-url');
+        if (!raw) return fallback;
+        const data = JSON.parse(raw);
+        return {
+          url: String(data.storedUrl || data.url || fallback.url).trim() || fallback.url,
+          status: data.status === '停用' ? '停用' : '启用'
+        };
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function syncPageShareTip() {
+      const line = document.querySelector('[data-page-share-line]');
+      const button = document.querySelector('[data-page-share]');
+      const config = pageShareConfig();
+      const visible = config.status === '启用' && config.url;
+      if (line) line.hidden = !visible;
+      if (button) {
+        button.textContent = config.url || '';
+        button.dataset.pageShareUrl = config.url || '';
+      }
+    }
+
     function syncApplyMediaFields() {
       const media = document.getElementById('applyMediaChannel')?.value || '';
       const bmWrap = document.getElementById('applyBmWrap');
       const pageWrap = document.getElementById('applyPageWrap');
       const sel = document.getElementById('applyMediaChannel');
-      const input = document.getElementById('applyBmIds');
       const label = document.getElementById('applyAssetLabel');
       const tip = document.getElementById('applyAssetTip');
+      const addButton = document.getElementById('addBmButton');
       const meta = openingAssetMeta(media);
       if (media && sel) sel.style.outline = '';
       if (bmWrap) bmWrap.hidden = !meta;
@@ -3086,11 +3436,9 @@
       if (!meta) return;
       if (label) label.textContent = meta.label;
       if (tip) tip.textContent = meta.tip;
-      if (input) {
-        input.placeholder = meta.placeholder;
-        if (isKnownAssetSample(input.value)) input.value = meta.sample;
-      }
-      updateApplyBmPreview();
+      if (addButton) addButton.textContent = meta.add;
+      syncAssetRows(media, meta);
+      syncPageShareTip();
     }
 
     function openingTimezones() {
@@ -3184,25 +3532,49 @@
         return;
       }
       if (categorySel) categorySel.style.outline = '';
-      const url = document.getElementById('applyUrl')?.value.trim();
+      const urls = repeatValues('urlList');
       const country = document.getElementById('applyCountry')?.value.trim();
       const timezone = resolveApplyTimezone();
-      const pageLink = document.getElementById('applyPageLink')?.value.trim() || '';
+      const pages = mediaChannel === 'Facebook' ? repeatValues('pageList') : [];
       const budgetAmount = String(document.getElementById('applyDailyBudget')?.value || '').trim();
-      const dailyBudget = applyDailyBudgetValue();
       const accountCount = Number(document.getElementById('applyAccountCount')?.value) || 0;
-      if (!url) {
+      if (!urls.length) {
         showToast(t('toast_url_required'), 'warning');
+        document.querySelector('#urlList input')?.focus();
         return;
       }
-      if (!isHttpLink(url)) {
+      if (urls.length > 20) {
+        showToast(t('toast_url_limit'), 'warning');
+        return;
+      }
+      if (urls.some(item => !isHttpLink(item))) {
         showToast(t('toast_url_format'), 'warning');
-        document.getElementById('applyUrl')?.focus();
+        document.querySelector('#urlList input')?.focus();
         return;
       }
-      if (mediaChannel === 'Facebook' && pageLink && pageLink.split(/[\s,，]+/).filter(Boolean).some(item => !isHttpLink(item))) {
+      if (pages.length > 20) {
+        showToast(t('toast_page_limit'), 'warning');
+        return;
+      }
+      if (pages.some(item => !isHttpLink(item))) {
         showToast(t('toast_page_format'), 'warning');
-        document.getElementById('applyPageLink')?.focus();
+        document.querySelector('#pageList input')?.focus();
+        return;
+      }
+      if (mediaChannel === 'Facebook') {
+        const groups = assetGroups();
+        const partial = groups.find(item => (item.name && !item.id) || (!item.name && item.id));
+        if (partial) {
+          showToast(t('toast_bm_group'), 'warning');
+          partial.row.querySelector(partial.name ? '[data-asset-id]' : '[data-asset-name]')?.focus();
+          return;
+        }
+        if (groups.filter(item => item.name && item.id).length > 20) {
+          showToast(t('toast_bm_limit'), 'warning');
+          return;
+        }
+      } else if (repeatValues('bmList').length > 20) {
+        showToast(t('toast_bm_limit'), 'warning');
         return;
       }
       if (!country) {
@@ -3360,8 +3732,12 @@
       input.addEventListener('input', () => renderBatchRows(input.dataset.batchSearch));
     });
 
+    document.querySelector('[data-page-share]')?.addEventListener('click', () => {
+      copyApplyValue(document.querySelector('[data-page-share]')?.dataset.pageShareUrl || '');
+    });
+
     document.getElementById('addUrlButton')?.addEventListener('click', () => {
-      if (document.querySelectorAll('#urlList .inline-row').length >= 20) {
+      if (document.querySelectorAll('#urlList .apply-repeat-row').length >= 20) {
         showToast(t('toast_url_limit'), 'warning');
         return;
       }
@@ -3369,22 +3745,38 @@
     });
 
     document.getElementById('addPageButton')?.addEventListener('click', () => {
-      if (document.querySelectorAll('#pageList .inline-row').length >= 20) {
+      if (document.querySelectorAll('#pageList .apply-repeat-row').length >= 20) {
         showToast(t('toast_page_limit'), 'warning');
         return;
       }
       createTextRow('pageList', t('placeholder_page'));
     });
 
+    document.getElementById('addBmButton')?.addEventListener('click', () => {
+      if (document.querySelectorAll('#bmList .apply-repeat-row').length >= 20) {
+        showToast(t('toast_bm_limit'), 'warning');
+        return;
+      }
+      const media = document.getElementById('applyMediaChannel')?.value || '';
+      const meta = openingAssetMeta(media);
+      if (media === 'Facebook') createAssetGroup(true);
+      else createTextRow('bmList', meta?.placeholder || t('placeholder_bm_ids'));
+    });
+
     document.getElementById('addTimezoneButton')?.addEventListener('click', () => createTimezoneRow());
     document.getElementById('submitApply').addEventListener('click', submitApply);
 
     applyI18n();
-    if (document.getElementById('urlList')) createTextRow('urlList', t('placeholder_url'), false);
+    if (document.getElementById('urlList') && !document.querySelector('#urlList .apply-repeat-row')) createTextRow('urlList', t('placeholder_url'), false);
+    if (document.getElementById('pageList') && !document.querySelector('#pageList .apply-repeat-row')) createTextRow('pageList', t('placeholder_page'), false);
+    if (document.getElementById('bmList') && !document.querySelector('#bmList .apply-repeat-row')) {
+      const media = document.getElementById('applyMediaChannel')?.value || '';
+      if (media === 'Facebook') createAssetGroup(false);
+      else createTextRow('bmList', openingAssetMeta(media)?.placeholder || t('placeholder_bm_ids'), false);
+    }
     if (document.getElementById('timezoneRows')) createTimezoneRow(false);
-    if (document.getElementById('pageList')) createTextRow('pageList', t('placeholder_page'), false);
   </script>
-  <script src="./js/client-shell.js?v=20261028-opening-ux"></script>
+  <script src="./js/client-shell.js?v=20261105-opening-list"></script>
   <script src="./js/common.js?v=20260831-v241-clear-reduce"></script>
 </body>
 </html>
