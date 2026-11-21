@@ -1,3 +1,51 @@
+#### 2026-11-19 - 每周释放 USD 清单
+
+从飞书「1118导出预收池情况」筛出 O 列为「每周释放」、币种 USD、R 列可释放金额大于 0 的 43 条，合计 203,531.09。清单：`scripts/batch_release_usd_weekly_20261119.csv`。同标记但金额为 0 的 `13530`、`12053`、`13362` 不进入清单。对照当前系统可释放后，41 条按表格金额释放，合计 179,094.31 USD；`15015`、`16205` 因表格金额大于系统可释放未操作。结果：`scripts/batch_release_usd_weekly_result_20261119.csv`。抽查 `12560` 可释放 15.79→1.58，`19028` 157.55→26.55，`15015` 仍为 176.97。
+
+#### 2026-11-17 - 记录账户值班与素材数据变现备忘
+
+新增 `docs/经营思考-账户值班与素材数据.md`。记下账户值班的边界、不做全案代投的原因、外网代投/工具价格对照，以及 Antspy、TikTok 素材和客户广告效果数据的变现判断。状态是备忘，不是已定方案。
+
+#### 2026-11-21 - 推送 V2.56 原型与 PRD
+
+提交并推送 V2.56 日环比时区口径 PRD 0.4、金额列表头问号说明原型；`SHELL_VERSION`=`20261121-balance-dod-help`。公网原型回填为 `https://tk0918.github.io/BestAds/admin-system/auto-recharge/balance-day-over-day-report.html`。不含无关临时文件与 `.DS_Store`。
+
+#### 2026-11-21 - V2.56 日环比指标表头说明三端同步
+
+本地原型 `balance-day-over-day-report` 金额列（前一天日终余额至偏差%）增加 `help` 问号说明；`SHELL_VERSION`=`20261121-balance-dod-help`。本地 PRD 升至 0.3。飞书 Wiki `KqEQwuQG6i3bLPk5lPFcR7lDn9f`（docx `JvX3dRjesohroDxB9kRcqZosnMg`）按同口径紫色审阅痕迹回写列表说明 / 修订历史 / 范围项 7。公网原型当时仍为 `空`（未推送）。
+
+#### 2026-11-16 - PRD 版本改为 V2.56 并去掉原型地址
+
+日环比时区口径修正 PRD 由 `V 2.38.1` 更名为 `PRD/V 2.56 账户余额日环比时区口径修正.md`；文首与页面信息去掉公网原型链接（本期无原型变更，公网原型填 `空`）。
+
+#### 2026-11-16 - 新增 V2.56 日环比时区口径 PRD
+
+新增账户余额日环比时区口径修正 PRD 0.1（初稿曾用 V2.38.1 编号）。相对 V2.38 只修正事后日环比：天改为广告账户媒体时区日；日终复用现有快照对齐账户时区日终；充值/清零/减款完成时间转账户时区再归桶；缺时区不进清单。不改正事前/事中与近 2 天消耗，不含历史异常重算。列表与飞书增加账户时区展示。
+
+#### 2026-11-09 - 整理 Google Ads 官方时区枚举
+
+下载官方 CSV `timezones.csv`（392 条 Timezone ID），整理为与 FB/TikTok 相近格式的 `google-ads-timezone-enums.md`（列：序号 / Code / GMT / Timezone；官方无偏移量，GMT 记为 `—`）。本地保留源文件 `google-ads-timezones.csv`。
+
+#### 2026-11-09 - 整理 TikTok 官方时区枚举
+
+从内置浏览器打开的 `https://business-api.tiktok.com/portal/docs/time-zone/v1.3` 表格提取 147 条，整理为与 FB 相近格式的 `tiktok-timezone-enums.md`（列：序号 / Code / GMT / Timezone；UTC 对齐为 GMT）。
+
+#### 2026-11-09 - 抓取 FB OE 时区下拉全部枚举
+
+从 FB China Businesses Onboarding 页面「选择时区」虚拟列表滚动抓取，共 591 项（含 GMT 偏移与 IANA/别名时区名，如 `GMT+08:00 / Asia/Shanghai`）。完整清单：`fb-oe-timezone-enums.json`、`fb-oe-timezone-enums.md`。
+
+#### 2026-11-07 - 第二批税费释放 192 户
+
+清单原 194 条去掉 `13887`、`18172` 后执行 192 条，全部 SUCCESS，释放合计 `184225.83`。清单 CSV：`scripts/batch_release_batch2_192.csv`；报告：`scripts/batch_release_location_fee_report_batch2_20261107.csv`。
+
+#### 2026-11-07 - 批量释放剩余 40 个商户税费
+
+对清单 41 条执行 `--execute`：`14906` 因可释放不足自动 SKIP；其余 40 条全部 SUCCESS，本批真实释放合计 `290929.27`。报告：`scripts/batch_release_location_fee_report_20261107.csv`。含此前试跑 `14906=25.62`，清单合计 `290954.89` 已全部释放。
+
+#### 2026-11-07 - 批量释放地区税费脚本
+
+线上试跑成功：商户 `14906` 释放 `25.62`，接口 `POST /gobestads/operation/locationFee/release`，单号 `AD20261107115152350565965`。新增 `scripts/batch_release_location_fee.py`：先查 overview 可释放，计划金额更大则跳过；默认 dry-run，`--execute` 才真实释放；token 走环境变量 `ADS_AUTH_TOKEN`。
+
 #### 2026-11-06 - 余额税费计入后付账户
 
 `PRD/V 2.50 地区税费第四期.md` 升到 0.3。余额税费按每个广告账户余额乘以当前生效预收比例计算，预付和后付都计入。后付充值仍不预收，也不参与自动上调。
