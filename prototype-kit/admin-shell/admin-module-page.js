@@ -864,6 +864,7 @@
     if (modal?.type === 'monitor-history') return monitorHistoryModal(modal, row);
     if (modal?.type === 'monitor-alert-preview') return monitorAlertPreviewModal(modal);
     if (modal?.type === 'risk-groups' && window.BESTADS_RISK_MONITOR?.renderModal) return window.BESTADS_RISK_MONITOR.renderModal(modal);
+    if (modal?.type === 'bm-missing-group' && window.BESTADS_BM_MISSING?.renderGroupModal) return window.BESTADS_BM_MISSING.renderGroupModal(modal);
     if (modal?.type === 'card-secret') return cardSecretModal(modal, row);
     if (modal?.type === 'opening-bd-confirm') return openingBdConfirmModal(modal, row);
     if (modal?.type === 'opening-select-agent') return openingSelectAgentModal(modal, row);
@@ -4449,6 +4450,9 @@
       if (window.BESTADS_RISK_MONITOR?.handleRowAction?.(action, row, {
         tabs, config, state, render, openModal, showToast, closeModal
       })) return;
+      if (window.BESTADS_BM_MISSING?.handleRowAction?.(action, row, {
+        tabs, config, state, render, openModal, showToast, closeModal
+      })) return;
       if (tab.id === 'auto-topup-setting' && action === '编辑') {
         state.processingRow = row;
         openModal(locationFeeCustomerThresholdModal(row));
@@ -5098,6 +5102,9 @@
           tabs, config, state, render, openModal, showToast, closeModal
         })) return;
         if (window.BESTADS_RISK_MONITOR?.handleSubmit?.(backdrop, {
+          tabs, config, state, render, openModal, showToast, closeModal
+        })) return;
+        if (window.BESTADS_BM_MISSING?.handleSubmit?.(backdrop, {
           tabs, config, state, render, openModal, showToast, closeModal
         })) return;
         const tab = activeTab();
