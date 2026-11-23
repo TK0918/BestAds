@@ -66,70 +66,68 @@ button {
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 20;
-  width: 208px;
-  padding: 0 8px;
-  background: transparent;
+  width: 248px;
+  padding: 0;
+  background: #ffffff;
   overflow-y: auto;
 }
 
 .client-brand {
-  width: 208px;
+  width: 248px;
   height: 64px;
-  padding: 7px 12px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .client-brand-mark {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  background: var(--client-primary);
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: #e11d48;
+  transform: rotate(45deg);
+  flex: 0 0 16px;
 }
 
 .client-brand-name {
   color: #171818;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
-.client-mode-toggle {
-  width: 208px;
-  height: 34px;
-  padding-bottom: 6px;
+.client-mode-switch {
+  width: 232px;
+  height: 38px;
+  margin: 6px 8px 12px;
+  padding: 3px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 9px;
+  background: #eff2f8;
+}
+
+.client-mode-seg {
+  height: 32px;
+  border-radius: 6px;
+  color: #5c5c5c;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.client-mode-button {
-  width: 98px;
-  height: 28px;
-  border: 1px solid var(--client-primary);
-  border-radius: 8px;
-  background: var(--client-primary);
-  color: #ffffff;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 14px;
-  font-size: 12px;
-  line-height: 14px;
-  font-weight: 500;
-  text-align: center;
-  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 510;
+  text-decoration: none;
+}
+
+.client-mode-seg.active {
+  background: #ffffff;
+  color: #0a0a0a;
 }
 
 .client-nav {
-  width: 192px;
-  margin: 4px 0 0;
+  width: 232px;
+  margin: 0 8px;
 }
 
 .client-nav-group {
@@ -137,43 +135,52 @@ button {
 }
 
 .client-nav-title {
-  height: 38px;
-  padding: 0 16px;
-  color: #4e5969;
+  height: 32px;
+  padding: 4px 8px 0;
+  color: #b0b0b0;
   display: flex;
   align-items: center;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   white-space: nowrap;
 }
 
 .client-nav-item {
-  height: 40px;
-  margin: 2px 0;
-  padding: 0 10px 0 48px;
+  width: 224px;
+  height: 32px;
+  margin: 0 0 6px;
+  padding: 6px 8px 6px 16px;
   border-radius: 8px;
-  color: #4e5969;
+  color: #5c5c5c;
   display: flex;
   align-items: center;
+  gap: 8px;
   text-decoration: none;
   font-size: 14px;
+  font-weight: 400;
   line-height: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.client-nav-item .menu-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+}
+
 .client-nav-item.active {
-  background: #eef3ff;
-  color: var(--client-primary);
-  font-weight: 600;
+  background: #0a0a0a;
+  color: #ffffff;
+  font-weight: 400;
 }
 
 .client-main {
   width: 100%;
-  min-width: 972px;
-  margin-left: 208px;
-  background: transparent;
+  min-width: 932px;
+  margin-left: 248px;
+  background: #ffffff;
 }
 
 .client-topbar {
@@ -1291,8 +1298,13 @@ body.theme-dark .client-page-title {
   color: #ffffff;
 }
 
-body.theme-dark .client-nav-title,
+body.theme-dark .client-sidebar {
+  background: #111827;
+}
+
+body.theme-dark .client-brand-name,
 body.theme-dark .client-nav-item,
+body.theme-dark .client-mode-seg,
 body.theme-dark .client-top-link,
 body.theme-dark .client-wallet-value,
 body.theme-dark .client-top-actions,
@@ -1301,9 +1313,18 @@ body.theme-dark .client-pagination {
   color: var(--client-subtle);
 }
 
+body.theme-dark .client-nav-title {
+  color: #98a2b3;
+}
+
+body.theme-dark .client-mode-switch {
+  background: #1e293b;
+}
+
+body.theme-dark .client-mode-seg.active,
 body.theme-dark .client-nav-item.active {
-  background: #eef3ff;
-  color: var(--client-primary);
+  background: #0a0a0a;
+  color: #ffffff;
 }
 
 body.theme-dark .client-table tbody tr:hover td {

@@ -2565,10 +2565,19 @@
     return 'op-link--info';
   }
 
+  function fullRefundNoticeHtml() {
+    return '';
+  }
+
   function boot() {
     const root = document.getElementById('page-root');
     if (!root) return;
     const config = pageConfig();
+    if (document.body.dataset.adminPage === 'deduction-details') {
+      const tab = (config.tabs || [])[0];
+      const extras = window.BESTADS_FULL_REFUND?.refundDebitRows?.() || [];
+      if (tab && extras.length) tab.rows = extras.concat(tab.rows || []);
+    }
     if (document.body.dataset.adminPage === 'permission-audit-log' && Array.isArray(config.rows)) {
       const extras = locationFeeReadAuditExtras();
       if (extras.length) config.rows = extras.concat(config.rows);
@@ -4397,7 +4406,7 @@
         root.innerHTML = window.BESTADS_CUSTOMER_REBATE.merchantDetailHtml(state.rebateMerchant, navHtml);
         return;
       }
-      root.innerHTML = `<div class="admin-page module-page">${navHtml}${kpiHtml}${filterHtml}${unmatchedIdsNotice(tab)}${dimensionSelectorHtml(tab, tab.dimensionGroups ? activeDimensionLabels(tab) : null)}${chartsHtml(tab, config)}${autoTopupLead}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
+      root.innerHTML = `<div class="admin-page module-page">${fullRefundNoticeHtml()}${navHtml}${kpiHtml}${filterHtml}${unmatchedIdsNotice(tab)}${dimensionSelectorHtml(tab, tab.dimensionGroups ? activeDimensionLabels(tab) : null)}${chartsHtml(tab, config)}${autoTopupLead}<section class="admin-card list-card">${cardHeader}<div class="table-scroll"><table class="admin-table admin-table--fixed" style="min-width:${currentTableMinWidth(tab, columns, showOps)}px">${colgroup}<thead><tr>${selectHead}${headers}${showOps ? '<th class="ops">操作</th>' : ''}</tr></thead><tbody>${tableRows || `<tr><td class="empty-state" colspan="${colspan}">暂无数据</td></tr>`}</tbody></table></div>${footerNote}<div class="pagination"><span>共 ${currentRows.length} 条记录</span><div class="pagination__actions"><button class="page-number" disabled>‹</button><button class="page-number is-active">1</button><button class="page-number" disabled>›</button></div></div><input type="file" data-file-upload hidden></section></div>`;
       root.querySelectorAll('[data-requires-selection]').forEach(button => { button.disabled = selected.size === 0; });
       syncCascadeFilters(root);
       window.BESTADS_CLEAR_APPROVAL?.afterRender(root);

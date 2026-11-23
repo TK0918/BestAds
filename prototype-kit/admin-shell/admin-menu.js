@@ -126,7 +126,8 @@
       items: [
         page('transaction-detail', '交易明细', 'customer-transactions/transaction-detail.html', 'receipt'),
         page('online-recharge', '在线充值', 'customer-transactions/online-recharge.html', 'credit-card'),
-        page('offline-transfer', '线下转账', 'customer-transactions/offline-transfer.html', 'university')
+        page('offline-transfer', '线下转账', 'customer-transactions/offline-transfer.html', 'university'),
+        page('full-refund', '全额退款', 'customer-transactions/full-refund.html', 'undo')
       ]
     },
     {
@@ -202,5 +203,5 @@
     
   ];
 
-  window.BESTADS_ADMIN_MENU_VERSION = '2026-11-23.1';
+  window.BESTADS_ADMIN_MENU_VERSION = '2026-11-23.2';
 })();

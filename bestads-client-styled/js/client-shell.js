@@ -7,46 +7,65 @@
 
   const menuConfig = [
     {
-      id: 'ad',
-      title: { 'zh-CN': '广告管理', 'en-US': 'Ad Mgmt' },
-      mode: true,
-      items: []
-    },
-    {
-      id: 'delivery',
-      title: { 'zh-CN': '广告投放', 'en-US': 'Ads' },
-      items: [
-        { id: 'meta-ads', label: { 'zh-CN': 'Meta', 'en-US': 'Meta' }, href: './meta-ads.html' }
-      ]
-    },
-    {
       id: 'assets',
-      title: { 'zh-CN': '资产管理', 'en-US': 'Assets' },
+      mode: 'asset',
+      title: { 'zh-CN': '资产管理', 'en-US': 'Asset Management' },
       items: [
-        { id: 'account-management', label: { 'zh-CN': '账户管理', 'en-US': 'Accounts' }, href: './account-management.html' },
-        { id: 'wallet', label: { 'zh-CN': '余额管理', 'en-US': 'Balance' }, href: './wallet.html' },
-        { id: 'operation-records', label: { 'zh-CN': '操作记录', 'en-US': 'Records' }, href: './operation-records.html' },
-        { id: 'location-fee', label: { 'zh-CN': '税费明细', 'en-US': 'Tax Details' }, href: './location-fee.html' },
-        { id: 'introducer-daily-consume', label: { 'zh-CN': '推荐返佣', 'en-US': 'Referral' }, href: './introducer-daily-consume.html' }
+        { id: 'account-management', icon: 'account', label: { 'zh-CN': '账户管理', 'en-US': 'Account' }, href: './account-management.html' },
+        { id: 'wallet', icon: 'wallet', label: { 'zh-CN': '余额管理', 'en-US': 'Wallet' }, href: './wallet.html' },
+        { id: 'operation-records', icon: 'records', label: { 'zh-CN': '操作记录', 'en-US': 'Operation Records' }, href: './operation-records.html' },
+        { id: 'location-fee', icon: 'tax', label: { 'zh-CN': '税费明细', 'en-US': 'Tax Fee Details' }, href: './location-fee.html' },
+        { id: 'introducer-daily-consume', icon: 'share', label: { 'zh-CN': '推荐返佣', 'en-US': 'Referral Rebate' }, href: './introducer-daily-consume.html' }
       ]
     },
     {
       id: 'users',
-      title: { 'zh-CN': '用户管理', 'en-US': 'Users' },
+      mode: 'asset',
+      title: { 'zh-CN': '用户管理', 'en-US': 'User' },
       items: [
-        { id: 'sub-account-management', label: { 'zh-CN': '子账号管理', 'en-US': 'Sub-accounts' }, href: './sub-account-management.html' },
-        { id: 'role-management', label: { 'zh-CN': '角色管理', 'en-US': 'Roles' }, href: './role-management.html' }
+        { id: 'sub-account-management', icon: 'users', label: { 'zh-CN': '子账号管理', 'en-US': 'Sub-account' }, href: './sub-account-management.html' },
+        { id: 'role-management', icon: 'role', label: { 'zh-CN': '角色管理', 'en-US': 'Role' }, href: './role-management.html' }
       ]
     },
     {
       id: 'settings',
+      mode: 'asset',
       title: { 'zh-CN': '设置', 'en-US': 'Settings' },
       items: [
-        { id: 'auto-recharge-rules', label: { 'zh-CN': '自动充值设置', 'en-US': 'Auto Recharge' }, href: './auto-recharge-rules.html' },
-        { id: 'api-access', label: { 'zh-CN': 'API 对接', 'en-US': 'API Access' }, href: './api-access.html' }
+        { id: 'auto-recharge-rules', icon: 'settings', label: { 'zh-CN': '自动充值设置', 'en-US': 'Auto Recharge Settings' }, href: './auto-recharge-rules.html' },
+        { id: 'api-access', icon: 'api', label: { 'zh-CN': 'API 对接', 'en-US': 'API Integration' }, href: './api-access.html' }
+      ]
+    },
+    {
+      id: 'delivery',
+      mode: 'ad',
+      title: { 'zh-CN': '广告投放', 'en-US': 'Advertising' },
+      items: [
+        { id: 'meta-ads', icon: 'meta', label: { 'zh-CN': 'Meta', 'en-US': 'Meta' }, href: './meta-ads.html' }
       ]
     }
   ];
+
+  function menuIcon(kind) {
+    const paths = {
+      account: '<circle cx="8" cy="5.5" r="2.2"/><path d="M3.2 13.2c.7-2.2 2.5-3.3 4.8-3.3s4.1 1.1 4.8 3.3"/>',
+      wallet: '<rect x="1.8" y="3.6" width="12.4" height="8.8" rx="1.6"/><path d="M1.8 6.6h12.4M10.2 9.4h2"/>',
+      records: '<path d="M3 13.2V2.8h6.2L13 6.4v6.8z"/><path d="M9.2 2.8v3.6H13M5 8.2h6M5 10.6h4"/>',
+      tax: '<ellipse cx="8" cy="4.2" rx="5" ry="1.8"/><path d="M3 4.2v6.2c0 1 2.2 1.8 5 1.8s5-.8 5-1.8V4.2M3 7.2c0 1 2.2 1.8 5 1.8s5-.8 5-1.8"/>',
+      share: '<circle cx="4.2" cy="8" r="1.6"/><circle cx="11.8" cy="4.2" r="1.6"/><circle cx="11.8" cy="11.8" r="1.6"/><path d="M5.7 7.2 10.3 5M5.7 8.8l4.6 2.2"/>',
+      users: '<circle cx="6" cy="5.4" r="2"/><circle cx="11.2" cy="6.2" r="1.5"/><path d="M2.4 13c.5-2.1 2-3.2 3.6-3.2s3.1 1.1 3.6 3.2M10 10.1c1.1.2 2 .9 2.4 2.4"/>',
+      role: '<path d="M8 1.8 9.6 5l3.5.5-2.5 2.4.6 3.5L8 9.7 4.8 11.4l.6-3.5L2.9 5.5 6.4 5z"/>',
+      settings: '<circle cx="8" cy="8" r="2"/><path d="M8 2.2v1.6M8 12.2v1.6M2.2 8h1.6M12.2 8h1.6M4 4l1.1 1.1M10.9 10.9 12 12M12 4l-1.1 1.1M5.1 10.9 4 12"/>',
+      api: '<path d="M6.2 3.2 2.4 8l3.8 4.8M9.8 3.2 13.6 8 9.8 12.8"/>',
+      meta: '<path d="M2.2 10.2c1.6-4.2 3.2-4.2 4.2-1.2 1-3 2.6-3 4.2 1.2"/>'
+    };
+    return `<svg class="menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[kind] || paths.account}</svg>`;
+  }
+
+  function pageMode(activeId) {
+    const group = menuConfig.find((item) => item.items.some((entry) => entry.id === activeId));
+    return group?.mode || 'asset';
+  }
 
   const columnTranslations = {
     '申请ID': { 'zh-CN': '申请ID', 'en-US': 'Application ID' },
@@ -270,20 +289,33 @@
     return document.body.dataset.clientPage || location.pathname.split('/').pop().replace('.html', '') || 'index';
   }
 
+  function modeSwitchHtml(activeId, classPrefix) {
+    const mode = pageMode(activeId);
+    const assetLabel = lang() === 'zh-CN' ? '资产' : 'Asset';
+    const adLabel = lang() === 'zh-CN' ? '广告' : 'Ad';
+    return `
+      <div class="${classPrefix}mode-switch">
+        <a class="${classPrefix}mode-seg ${mode === 'asset' ? 'active' : ''}" href="./wallet.html">${assetLabel}</a>
+        <a class="${classPrefix}mode-seg ${mode === 'ad' ? 'active' : ''}" href="./meta-ads.html">${adLabel}</a>
+      </div>
+    `;
+  }
+
   function renderMenuInto(sidebar, activeId) {
     if (!sidebar) return;
+    const mode = pageMode(activeId);
     sidebar.innerHTML = `
       <div class="client-brand">
-        <span class="client-brand-mark">B</span>
-        <span class="client-brand-name">BestAds</span>
+        <span class="client-brand-mark"></span>
+        <span class="client-brand-name">BESTADS</span>
       </div>
-      <div class="client-mode-toggle"><button class="client-mode-button" type="button">${html(text(menuConfig[0].title))}</button></div>
+      ${modeSwitchHtml(activeId, 'client-')}
       <nav class="client-nav">
-        ${menuConfig.filter((group) => !group.mode).map((group) => `
+        ${menuConfig.filter((group) => group.mode === mode).map((group) => `
           <section class="client-nav-group">
             <div class="client-nav-title">${html(text(group.title))}</div>
             ${group.items.map((item) => `
-              <a class="client-nav-item ${item.id === activeId ? 'active' : ''}" href="${item.href}" data-client-menu-item="${item.id}">${html(text(item.label))}</a>
+              <a class="client-nav-item ${item.id === activeId ? 'active' : ''}" href="${item.href}" data-client-menu-item="${item.id}">${menuIcon(item.icon)}<span>${html(text(item.label))}</span></a>
             `).join('')}
           </section>
         `).join('')}
@@ -292,21 +324,20 @@
   }
 
   function renderLegacyMenu(activeId) {
+    const mode = pageMode(activeId);
     document.querySelectorAll('aside.sidebar').forEach((sidebar) => {
       sidebar.innerHTML = `
         <div class="brand">
-          <span class="brand-mark">B</span>
-          <span class="brand-name">BestAds</span>
+          <span class="brand-mark"></span>
+          <span class="brand-name">BESTADS</span>
         </div>
-        <div class="mode-toggle">
-          <button class="mode-button" type="button">${html(text(menuConfig[0].title))}</button>
-        </div>
+        ${modeSwitchHtml(activeId, '')}
         <nav>
-          ${menuConfig.filter((group) => !group.mode).map((group) => `
+          ${menuConfig.filter((group) => group.mode === mode).map((group) => `
             <section class="menu-group">
               <div class="menu-title">${html(text(group.title))}</div>
               ${group.items.map((item) => `
-                <a class="menu-item ${item.id === activeId ? 'active' : ''}" href="${item.href}" data-client-menu-item="${item.id}">${html(text(item.label))}</a>
+                <a class="menu-item ${item.id === activeId ? 'active' : ''}" href="${item.href}" data-client-menu-item="${item.id}">${menuIcon(item.icon)}<span>${html(text(item.label))}</span></a>
               `).join('')}
             </section>
           `).join('')}
@@ -320,18 +351,28 @@
     const style = document.createElement('style');
     style.id = 'clientLegacyMenuStyle';
     style.textContent = `
-      aside.sidebar .mode-toggle { width: 100%; height: 34px; display: flex; align-items: flex-start; justify-content: center; padding-bottom: 6px; }
-      aside.sidebar .mode-button { width: 98px; height: 28px; margin: 0; padding: 0 14px; font-size: 12px; line-height: 14px; }
-      aside.sidebar nav,
-      aside.sidebar .menu-group { width: 192px; margin-left: 0; margin-right: 0; }
-      aside.sidebar nav { margin-top: 4px; }
-      aside.sidebar .menu-title,
-      aside.sidebar .menu-item { width: 100%; box-sizing: border-box; white-space: nowrap; }
-      aside.sidebar .menu-item { display: flex; overflow: hidden; text-overflow: ellipsis; }
-      body.theme-dark aside.sidebar .client-brand-name { color: #ffffff; }
-      body.theme-dark aside.sidebar .menu-title,
-      body.theme-dark aside.sidebar .menu-item { color: #cbd5e1; }
-      body.theme-dark aside.sidebar .menu-item.active { background: #eef3ff; color: #2759ff; }
+      aside.sidebar { width: 248px; padding: 0; background: #fff; }
+      .app > .main { margin-left: 248px; }
+      aside.sidebar .brand { width: 248px; height: 64px; padding: 0 16px; gap: 8px; }
+      aside.sidebar .brand-mark { width: 16px; height: 16px; border-radius: 3px; background: #e11d48; transform: rotate(45deg); }
+      aside.sidebar .brand-name { color: #171818; font-size: 16px; font-weight: 700; letter-spacing: .04em; }
+      aside.sidebar .mode-switch { width: 232px; height: 38px; margin: 6px 8px 12px; padding: 3px; display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 9px; background: #eff2f8; }
+      aside.sidebar .mode-seg { height: 32px; border-radius: 6px; color: #5c5c5c; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 510; text-decoration: none; }
+      aside.sidebar .mode-seg.active { background: #fff; color: #0a0a0a; }
+      aside.sidebar nav { width: 232px; margin: 0 8px; }
+      aside.sidebar .menu-group { width: 100%; margin: 0; }
+      aside.sidebar .menu-title { height: 32px; padding: 4px 8px 0; color: #b0b0b0; font-size: 12px; font-weight: 400; }
+      aside.sidebar .menu-item { width: 224px; height: 32px; margin: 0 0 6px; padding: 6px 8px 6px 16px; border-radius: 8px; color: #5c5c5c; font-size: 14px; font-weight: 400; gap: 8px; line-height: 16px; }
+      aside.sidebar .menu-icon { width: 17px; height: 17px; flex: 0 0 17px; }
+      aside.sidebar .menu-item.active { background: #0a0a0a; color: #fff; font-weight: 400; }
+      body.theme-dark aside.sidebar { background: #111827; }
+      body.theme-dark aside.sidebar .brand-name,
+      body.theme-dark aside.sidebar .menu-item,
+      body.theme-dark aside.sidebar .mode-seg { color: #cbd5e1; }
+      body.theme-dark aside.sidebar .menu-title { color: #98a2b3; }
+      body.theme-dark aside.sidebar .mode-switch { background: #1e293b; }
+      body.theme-dark aside.sidebar .mode-seg.active { background: #0a0a0a; color: #fff; }
+      body.theme-dark aside.sidebar .menu-item.active { background: #0a0a0a; color: #fff; }
     `;
     document.head.appendChild(style);
   }
@@ -1513,7 +1554,10 @@
     if (action === 'export') return toast(tCommon('toastExport'));
     if (action === 'apply-account') return showOpeningApplyModal();
     if (action === 'opening-view') return showOpeningDetailModal(row);
-    if (action === 'opening-confirm') return showOpeningPaymentModal(row, index);
+    if (action === 'opening-confirm') {
+      if (window.BESTADS_FULL_REFUND?.clientLocked()) return toast('全额退款处理中，不能确认开户付款', 'error');
+      return showOpeningPaymentModal(row, index);
+    }
     if (action === 'opening-cancel') {
       if (!cancelOpeningRow(pageId, row)) return toast('未找到对应开户记录', 'error');
       return toast('开户申请已取消', 'info');
@@ -1523,10 +1567,14 @@
     if (action === 'sub-reset') return toast(tCommon('toastResetPassword'));
     if (action === 'role-create') return showRoleModal(pageId);
     if (action === 'role-edit') return showRoleModal(pageId, data.rows[index]);
-    if (action === 'auto-create') return showAutoModal(pageId);
+    if (action === 'auto-create') {
+      if (window.BESTADS_FULL_REFUND?.clientLocked()) return toast('全额退款处理中，不能新建自动充值', 'error');
+      return showAutoModal(pageId);
+    }
     if (action === 'auto-edit') return showAutoModal(pageId, data.rows[index]);
     if (action === 'auto-toggle') {
       const row = data.rows[index];
+      if (row.status !== '启用' && window.BESTADS_FULL_REFUND?.clientLocked()) return toast('全额退款处理中，不能启用自动充值', 'error');
       row.status = row.status === '启用' ? '停用' : '启用';
       renderPage(pageId);
       return toast(tCommon('toastStatusChanged'));
@@ -1548,6 +1596,7 @@
         updateShellLabels(pageId);
         renderMenuInto(document.getElementById('clientSidebar'), pageId);
         renderPage(pageId);
+        window.BESTADS_FULL_REFUND_CLIENT?.refreshLanguage?.();
         return;
       }
       const creativeOpen = event.target.closest('[data-creative-open]');
@@ -1785,6 +1834,17 @@
     if (!shellMounted) return;
     updateShellLabels(pageId);
     renderPage(pageId);
+    if (window.BESTADS_FULL_REFUND?.clientLocked()) {
+      const host = document.querySelector('.client-content');
+      if (host && !host.querySelector('[data-full-refund-banner]')) {
+        const order = window.BESTADS_FULL_REFUND.clientOrder();
+        const bar = document.createElement('div');
+        bar.dataset.fullRefundBanner = '1';
+        bar.style.cssText = 'margin:0 0 12px;padding:10px 12px;border-radius:8px;background:#fff7e8;color:#7a4b00;font-size:13px;';
+        bar.innerHTML = `全额退款处理中，当前进度：${order ? order.status : ''}。不能充值、确认开户付款或启用自动充值。<a href="./wallet.html">查看进度</a>`;
+        host.prepend(bar);
+      }
+    }
     if (openingHighlightApplyId) {
       document.getElementById('opening-apply-highlight')?.scrollIntoView({ block: 'center' });
     }

@@ -380,6 +380,10 @@
       columns: columns(['权限树', '类型', '权限标识', '前端路由', '排序', '更新时间'], { left: ['权限树', '权限标识', '前端路由'], status: ['类型'], widths: [260, 100, 240, 260, 90, 180] }),
       childColumns: columns(['权限树', '类型', '权限标识', '前端路由', '排序', '更新时间'], { left: ['权限树', '权限标识', '前端路由'], status: ['类型'], widths: [260, 100, 240, 260, 90, 180] }),
       rows: [
+        row(['余额管理', '菜单', 'asset-management.balance-management', '/asset/balance', '14', '2026-11-21 18:40:00'], { type: '菜单', keyword: '余额管理 全额退款 asset-management.balance-management', ops: ['编辑', '新增下级'], children: [
+          row(['全额退款', '按钮', 'button:asset-management_balance-management:full-refund', '-', '15', '2026-11-21 18:40:00'], { type: '按钮', keyword: '全额退款 button:asset-management_balance-management:full-refund', ops: ['编辑'] }),
+          row(['H5全额退款', '按钮', 'button:h5_balance-management:full-refund', '-', '16', '2026-11-21 18:40:00'], { type: '按钮', keyword: 'H5全额退款 button:h5_balance-management:full-refund', ops: ['编辑'] })
+        ] }),
         row(['资产管理', '目录', 'asset_management', '-', '10', '2026-07-13 16:52:04'], { type: '目录', keyword: '资产管理 asset_management', ops: ['编辑', '新增下级'], children: [
           row(['广告账户', '菜单', 'asset_management.account', '/asset/account', '11', '2026-07-13 16:52:04'], { type: '菜单', keyword: '广告账户 asset_management.account', ops: ['编辑', '新增下级'] }),
           row(['查看资产', '按钮', 'asset_management.view', '-', '12', '2026-07-13 16:52:04'], { type: '按钮', keyword: '查看资产 asset_management.view', ops: ['编辑'] })

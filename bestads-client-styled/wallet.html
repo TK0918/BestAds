@@ -10,7 +10,7 @@
       --primary-hover: #2f6bff;
       --bg: #f5f7fb;
       --panel: #ffffff;
-      --layout-bg: #f5f7fb;
+      --layout-bg: #ffffff;
       --text: #1f2329;
       --title: #101828;
       --subtle: #646a73;
@@ -203,12 +203,40 @@
       justify-content: space-between;
     }
 
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
     .page-title {
       margin: 0;
-      color: var(--title);
-      font-size: 22px;
-      line-height: 30px;
-      font-weight: 600;
+      color: #171818;
+      font-size: 26px;
+      line-height: 32px;
+      font-weight: 510;
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: #8f8f8f;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .account-balance {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      color: #5c5c5c;
+      font-size: 13px;
+    }
+
+    .account-balance strong {
+      color: #00a870;
+      font-size: 14px;
+      font-weight: 700;
     }
 
     .top-actions {
@@ -355,6 +383,124 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+    }
+
+    .overview-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 12px;
+    }
+
+    .overview-card,
+    .rate-card,
+    .tabs-card {
+      background: #eff2f8;
+      border: 0;
+      border-radius: 16px;
+    }
+
+    .overview-card {
+      min-height: 203px;
+      padding: 16px;
+    }
+
+    .overview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .overview-title {
+      margin: 0;
+      color: rgba(0, 0, 0, 0.88);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .overview-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .overview-actions .button.primary {
+      height: 36px;
+      min-width: 108px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .metric {
+      min-height: 118px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+
+    .metric-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      color: #5c5c5c;
+      font-size: 13px;
+    }
+
+    .metric-value {
+      color: #171818;
+      font-size: 24px;
+      line-height: 29px;
+      font-weight: 700;
+    }
+
+    .metric-value span {
+      margin-left: 6px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .rate-card {
+      min-height: 203px;
+      padding: 16px 18px;
+    }
+
+    .rate-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      color: rgba(0, 0, 0, 0.88);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .rate-head span {
+      color: #8f8f8f;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .rate-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 36px;
+      color: #5c5c5c;
+      font-size: 13px;
+    }
+
+    .rate-line strong {
+      color: #171818;
+      font-size: 16px;
+      font-weight: 600;
     }
 
     .card {
@@ -539,57 +685,68 @@
 
     .tabs-card {
       min-height: 488px;
-      padding: 16px;
+      padding: 8px;
+    }
+
+    .tabs-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      margin-bottom: 8px;
     }
 
     .tab-nav {
-      height: 34px;
+      height: 36px;
       display: flex;
-      align-items: flex-start;
-      gap: 32px;
-      border-bottom: 1px solid var(--border-soft);
-      margin-bottom: 16px;
+      align-items: center;
+      gap: 4px;
+      border-bottom: 0;
+      margin: 0;
+      flex: 0 0 auto;
     }
 
     .tab-button {
-      height: 34px;
+      height: 30px;
       border: 0;
+      border-radius: 6px;
       background: transparent;
-      color: var(--subtle);
-      padding: 0;
+      color: #5c5c5c;
+      padding: 0 12px;
       position: relative;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 400;
     }
 
     .tab-button.active {
-      color: var(--primary);
-      font-weight: 600;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 400;
     }
 
     .tab-button.active::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -1px;
-      height: 2px;
-      border-radius: 999px;
-      background: var(--primary);
+      display: none;
     }
 
-    .toolbar {
-      min-height: 32px;
-      display: grid;
-      grid-template-columns: 220px 220px 76px minmax(24px, 1fr) 76px;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
+    .toolbar,
     .toolbar.online,
     .toolbar.offline {
-      grid-template-columns: 220px 220px 220px 76px minmax(24px, 1fr) 76px;
+      min-height: 36px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .toolbar .range-field,
+    .toolbar .select {
+      width: 220px;
+      flex: 0 0 220px;
+    }
+
+    .toolbar .button[data-export] {
+      margin-left: auto;
     }
 
     .range-field {
@@ -639,6 +796,12 @@
     .range-field:focus-within {
       border-color: var(--primary);
       box-shadow: 0 0 0 2px rgba(39, 89, 255, 0.1);
+    }
+
+    .tabs-card .table-wrap {
+      border: 0;
+      border-radius: 8px;
+      background: #ffffff;
     }
 
     .table-wrap {
@@ -692,6 +855,10 @@
     .amount-negative {
       color: var(--danger);
       font-weight: 600;
+    }
+
+    .empty[hidden] {
+      display: none;
     }
 
     .empty {
@@ -1063,9 +1230,12 @@
 
     <main class="main">
       <header class="topbar">
-        <h1 class="page-title" data-i18n="page_title">余额管理</h1>
+        <div class="title-block">
+          <h1 class="page-title" data-i18n="page_title">余额管理</h1>
+          <p class="page-subtitle" data-i18n="page_subtitle">默认币种：USD · 当前筛选周期内的交易</p>
+        </div>
         <div class="top-actions">
-          <span class="wallet-value">-2512.38USD</span>
+          <span class="account-balance"><span data-i18n="account_balance">账户余额</span><strong>7,487.62 USD</strong></span>
           <button id="themeToggle" class="top-link theme" type="button" data-i18n="theme_dark">暗黑模式</button>
           <button class="icon-button" type="button" aria-label="Notifications">!</button>
           <button id="languageToggle" class="top-link" type="button">中文</button>
@@ -1088,63 +1258,48 @@
       <div class="content">
         <section class="page-card">
           <div class="balance-page">
-            <section class="card exchange-card" aria-label="Exchange Rate">
-              <span class="rate-item"><span>EUR -> USD :</span><span class="rate-value">1.146898</span></span>
-              <span class="rate-divider"></span>
-              <span class="rate-item"><span>GBP -> USD :</span><span class="rate-value">1.342445</span></span>
-              <span class="rate-divider"></span>
-              <span class="rate-item"><span>HKD -> USD :</span><span class="rate-value">0.126674</span></span>
-            </section>
+            <div class="overview-row">
+              <section class="overview-card">
+                <div class="overview-head">
+                  <h2 class="overview-title" data-i18n="overview_title">钱包概览</h2>
+                  <div class="overview-actions">
+                    <button class="button primary" type="button" data-open-payment data-i18n="btn_recharge_transfer">充值/转账</button>
+                  </div>
+                </div>
+                <div class="metric-grid">
+                  <div class="metric">
+                    <div class="metric-label">
+                      <span data-i18n="stat_actual">实际金额</span>
+                      <span class="help-icon" data-tip="客户钱包中的真实资金金额。">?</span>
+                    </div>
+                    <div class="metric-value">0.00<span>USD</span></div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-label">
+                      <span data-i18n="stat_available">可用余额</span>
+                      <span class="help-icon" data-tip="当前可用于广告账户充值等操作的金额。">?</span>
+                    </div>
+                    <div class="metric-value">7,487.62<span>USD</span></div>
+                  </div>
+                </div>
+              </section>
+              <section class="rate-card" aria-label="Exchange Rate">
+                <div class="rate-head"><strong data-i18n="rate_title">汇率</strong><span data-i18n="rate_converted">折合 USD</span></div>
+                <div class="rate-line"><span>EUR -&gt; USD :</span><strong>1.146898</strong></div>
+                <div class="rate-line"><span>GBP -&gt; USD :</span><strong>1.342445</strong></div>
+                <div class="rate-line"><span>HKD -&gt; USD :</span><strong>0.126674</strong></div>
+              </section>
+            </div>
 
-            <section class="card stat-card">
-              <div class="stat-list">
-                <div class="stat-item">
-                  <div class="stat-label">
-                    <span data-i18n="stat_real">真实金额</span>
-                    <span class="help-icon" data-tip="客户钱包中的真实资金金额。">?</span>
-                  </div>
-                  <div class="stat-value primary">0.00 USD</div>
+            <section class="tabs-card">
+              <div class="tabs-head">
+                <div class="tab-nav" role="tablist">
+                  <button class="tab-button active" type="button" data-tab="detail" data-i18n="tab_detail">交易明细</button>
+                  <button class="tab-button" type="button" data-tab="online" data-i18n="tab_online">在线充值</button>
+                  <button class="tab-button" type="button" data-tab="offline" data-i18n="tab_offline">线下转账</button>
                 </div>
-                <div class="stat-item">
-                  <div class="stat-label">
-                    <span data-i18n="stat_frozen">冻结金额</span>
-                    <span class="help-icon" data-tip="账户充值、减款等业务处理中暂时不可用的金额。">?</span>
-                  </div>
-                  <div class="stat-value warning">0.00 USD</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-label">
-                    <span data-i18n="stat_credit">信用额度</span>
-                    <span class="help-icon" data-tip="当前客户可使用的信用额度。">?</span>
-                  </div>
-                  <div class="stat-value">10000.00 USD</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-label">
-                    <span data-i18n="stat_used_credit">已用额度</span>
-                    <span class="help-icon" data-tip="当前已占用的信用额度。">?</span>
-                  </div>
-                  <div class="stat-value danger">364.20 USD</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-label">
-                    <span data-i18n="stat_available">可用余额</span>
-                    <span class="help-icon" data-tip="当前可用于广告账户充值等操作的金额。">?</span>
-                  </div>
-                  <div class="stat-value success">7487.62 USD</div>
-                </div>
+                <div id="tabToolbar" class="toolbar"></div>
               </div>
-              <button class="button primary" type="button" data-open-payment data-i18n="btn_recharge_transfer">充值/转账</button>
-            </section>
-
-            <section class="card tabs-card">
-              <div class="tab-nav" role="tablist">
-                <button class="tab-button active" type="button" data-tab="detail" data-i18n="tab_detail">交易明细</button>
-                <button class="tab-button" type="button" data-tab="online" data-i18n="tab_online">在线充值</button>
-                <button class="tab-button" type="button" data-tab="offline" data-i18n="tab_offline">线下转账</button>
-              </div>
-
-              <div id="tabToolbar" class="toolbar"></div>
               <div class="table-wrap">
                 <table>
                   <thead id="tableHead"></thead>
@@ -1268,6 +1423,12 @@
         menu_settings: '设置',
         menu_auto_recharge: '自动充值设置',
         page_title: '余额管理',
+        page_subtitle: '默认币种：USD · 当前筛选周期内的交易',
+        account_balance: '账户余额',
+        overview_title: '钱包概览',
+        stat_actual: '实际金额',
+        rate_title: '汇率',
+        rate_converted: '折合 USD',
         user_name: '客户',
         email_settings: '邮件与邮箱',
         theme_dark: '暗黑模式',
@@ -1354,7 +1515,13 @@
         menu_role: 'Roles',
         menu_settings: 'Settings',
         menu_auto_recharge: 'Auto Recharge',
-        page_title: 'Balance Management',
+        page_title: 'Wallet',
+        page_subtitle: 'Default currency: USD · Transactions for the selected period',
+        account_balance: 'Account Balance',
+        overview_title: 'Wallet Overview',
+        stat_actual: 'Actual Amount',
+        rate_title: 'Exchange Rates',
+        rate_converted: 'Converted to USD',
         user_name: 'Customer',
         email_settings: 'Email & Mailbox',
         theme_dark: 'Dark Mode',
@@ -1474,6 +1641,7 @@
       });
       document.getElementById('languageToggle').textContent = currentLanguage === 'zh-CN' ? '中文' : 'English';
       window.BESTADS_CLIENT_SHELL?.renderLegacyMenu?.('wallet');
+      window.BESTADS_FULL_REFUND_CLIENT?.refreshLanguage?.();
       applyTheme(localStorage.getItem(THEME_KEY) || 'light');
       renderToolbar();
       renderTable();
@@ -1670,7 +1838,9 @@
 
     initWalletPage();
   </script>
-  <script src="./js/client-shell.js?v=20261106-page-share-email"></script>
+  <script src="../prototype-kit/admin-shell/full-refund-store.js?v=20261121-full-refund"></script>
+<script src="./js/full-refund-client.js?v=20261123-refund-modal"></script>
+<script src="./js/client-shell.js?v=20261123-refund-lang"></script>
   <script src="./js/common.js?v=20260831-v241-clear-reduce"></script>
 </body>
 </html>

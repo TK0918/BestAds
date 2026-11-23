@@ -899,9 +899,12 @@ if (customerPageRoot) {
             case 'customerId':
               td.innerHTML = `<span>${customer.customerId}</span>`;
               break;
-            case 'customerName':
-              td.innerHTML = `<span>${customer.customerName || customer.merchantName || '-'}</span>`;
+            case 'customerName': {
+              const refundMark = window.BESTADS_FULL_REFUND?.markFor(customer.merchantId);
+              const refundLink = refundMark ? ` <a class="admin-tag admin-tag--warning" href="../customer-transactions/full-refund.html?merchantId=${customer.merchantId}">${refundMark}</a>` : '';
+              td.innerHTML = `<span>${customer.customerName || customer.merchantName || '-'}</span>${refundLink}`;
               break;
+            }
             case 'merchantId':
               td.innerHTML = `<span>${customer.merchantId || '-'}</span>`;
               break;
@@ -1715,6 +1718,9 @@ if (customerPageRoot) {
           const formattedPagePermissions = pagePermissions.map(p => p.replace('page:', ''));
           const formattedButtonPermissions = buttonPermissions.map(p => p.replace('button:', '').replace(':', ' '));
           
+          if (window.BESTADS_FULL_REFUND && customer.merchantId) {
+            window.BESTADS_FULL_REFUND.setPermissionsFromKeys(customer.merchantId, pendingCustomerPermissions);
+          }
           showNotification(
             `客户 ${customer.merchantName || pendingCustomerId} 的权限已更新！\n页面权限：${formattedPagePermissions.join('、') || '无'}\n按钮权限：${formattedButtonPermissions.join('、') || '无'}`,
             'success'
@@ -1753,7 +1759,8 @@ if (customerPageRoot) {
       ]},
       { page: { key: 'page:asset-management_balance-management', label: '余额管理' }, buttons: [
         { key: 'button:asset-management_balance-management:online', label: '在线充值' },
-        { key: 'button:asset-management_balance-management:offline', label: '线下转账' }
+        { key: 'button:asset-management_balance-management:offline', label: '线下转账' },
+        { key: 'button:asset-management_balance-management:full-refund', label: '全额退款' }
       ]},
       { page: { key: 'page:asset-management_operation-record', label: '操作记录' }, buttons: [] },
       { page: { key: 'page:setting_auto-recharge-setting', label: '自动充值设置' }, buttons: [
@@ -1769,7 +1776,9 @@ if (customerPageRoot) {
       { page: { key: 'page:h5_account-management', label: 'H5-账户管理' }, buttons: [
         { key: 'button:h5_account-management:recharge', label: '批量充值' }
       ]},
-      { page: { key: 'page:h5_balance-management', label: 'H5-钱包' }, buttons: [] },
+      { page: { key: 'page:h5_balance-management', label: 'H5-钱包' }, buttons: [
+        { key: 'button:h5_balance-management:full-refund', label: '全额退款' }
+      ]},
       { page: { key: 'page:h5_operation-record', label: 'H5-操作记录' }, buttons: [] },
       { page: { key: 'page:h5_report-center', label: 'H5-报告中心' }, buttons: [] }
     ];
