@@ -864,7 +864,7 @@
     if (modal?.type === 'monitor-history') return monitorHistoryModal(modal, row);
     if (modal?.type === 'monitor-alert-preview') return monitorAlertPreviewModal(modal);
     if (modal?.type === 'risk-groups' && window.BESTADS_RISK_MONITOR?.renderModal) return window.BESTADS_RISK_MONITOR.renderModal(modal);
-    if (modal?.type === 'bm-missing-group' && window.BESTADS_BM_MISSING?.renderGroupModal) return window.BESTADS_BM_MISSING.renderGroupModal(modal);
+    if (modal?.type === 'bm-missing-feishu' && window.BESTADS_BM_MISSING?.renderFeishuModal) return window.BESTADS_BM_MISSING.renderFeishuModal(modal);
     if (modal?.type === 'card-secret') return cardSecretModal(modal, row);
     if (modal?.type === 'opening-bd-confirm') return openingBdConfirmModal(modal, row);
     if (modal?.type === 'opening-select-agent') return openingSelectAgentModal(modal, row);
