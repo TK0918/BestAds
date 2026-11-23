@@ -12,10 +12,12 @@
       --panel: #ffffff;
       --layout-bg: #f5f7fb;
       --text: #1f2329;
+      --title: #101828;
       --subtle: #646a73;
       --muted: #8f959e;
       --border: #e5e7eb;
       --border-soft: #edf0f5;
+      --control-border: #d9d9d9;
       --table-head: #fafafa;
       --success: #00a870;
       --warning: #f59e0b;
@@ -28,10 +30,12 @@
       --panel: #111827;
       --layout-bg: #080b1b;
       --text: #eef2f7;
+      --title: #ffffff;
       --subtle: #cbd5e1;
       --muted: #98a2b3;
       --border: #2d3a50;
       --border-soft: #263247;
+      --control-border: #334155;
       --table-head: #1e293b;
       --shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
     }
@@ -42,6 +46,7 @@
 
     body {
       margin: 0;
+      min-width: 1180px;
       background: var(--layout-bg);
       color: var(--text);
       font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
@@ -69,10 +74,9 @@
     .sidebar {
       position: fixed;
       inset: 0 auto 0 0;
-      width: 264px;
+      width: 208px;
       background: transparent;
-      border-right: 0;
-      padding: 0 20px;
+      padding: 0 8px;
       overflow-y: auto;
       z-index: 20;
     }
@@ -132,14 +136,12 @@
     }
 
     .brand {
-      width: 224px;
+      width: 208px;
       height: 64px;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 0;
-      border-bottom: 0;
-      margin-bottom: 0;
+      padding: 7px 12px;
     }
 
     .brand-mark {
@@ -161,54 +163,72 @@
       color: #171818;
     }
 
+    .mode-toggle {
+      width: 208px;
+      height: 34px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-bottom: 6px;
+    }
+
     .mode-button {
-      width: 144px;
+      width: 98px;
       height: 28px;
       border: 1px solid var(--primary);
       border-radius: 8px;
       background: var(--primary);
-      color: #fff;
-      display: flex;
+      color: #ffffff;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
       padding: 0 14px;
-      margin: 0 0 12px 40px;
-      font-weight: 500;
       font-size: 12px;
+      font-weight: 500;
+      line-height: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    nav {
+      width: 192px;
+      margin: 4px 0 0;
+      padding: 0;
     }
 
     .menu-group {
-      width: 192px;
-      margin-bottom: 14px;
+      margin-bottom: 0;
     }
 
     .menu-title {
-      color: #8f959e;
-      font-weight: 500;
-      font-size: 12px;
-      padding: 8px 12px;
+      height: 38px;
+      padding: 0 16px;
+      color: #4e5969;
       display: flex;
       align-items: center;
-      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
     }
 
     .menu-item {
-      width: 100%;
-      height: 38px;
+      height: 40px;
+      margin: 2px 0;
+      padding: 0 16px 0 48px;
       border-radius: 8px;
       color: #4e5969;
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 0 12px 0 30px;
-      margin: 2px 0;
-      font-size: 14px;
       text-decoration: none;
-      box-sizing: border-box;
+      font-size: 14px;
+      line-height: 16px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    html[lang="en"] .menu-item {
+      padding-right: 10px;
     }
 
     .menu-item.active {
@@ -219,8 +239,8 @@
 
     .main {
       width: 100%;
-      min-width: 1000px;
-      margin-left: 264px;
+      min-width: 972px;
+      margin-left: 208px;
       background: transparent;
     }
 
@@ -239,18 +259,17 @@
 
     .page-title {
       margin: 0;
+      color: var(--title);
       font-size: 22px;
       line-height: 30px;
       font-weight: 600;
-      color: #101828;
     }
 
     .top-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 14px;
       color: #4e5969;
-      font-size: 12px;
     }
 
     .wallet-value {
@@ -259,8 +278,10 @@
     }
 
     .top-link {
+      min-width: 0;
       height: 32px;
       border: 0;
+      border-radius: 8px;
       background: transparent;
       color: #4e5969;
       display: inline-flex;
@@ -268,8 +289,15 @@
       justify-content: center;
       gap: 4px;
       padding: 0 4px;
-      border-radius: 8px;
       font-weight: 500;
+    }
+
+    .top-link.theme {
+      width: 90px;
+      height: 24px;
+      border: 1px solid var(--control-border);
+      background: var(--panel);
+      padding: 0 8px;
     }
 
     .top-link:hover {
@@ -289,22 +317,18 @@
       border-color: transparent;
     }
 
-    body.theme-dark .brand-name {
+    body.theme-dark .brand-name,
+    body.theme-dark .page-title {
       color: #ffffff;
     }
 
-    body.theme-dark .mode-button {
-      background: #1f79ff;
-      border-color: #1f79ff;
-      color: #ffffff;
-    }
-
-    body.theme-dark .menu-title {
-      color: #98a2b3;
-    }
-
-    body.theme-dark .menu-item {
-      color: rgba(255, 255, 255, 0.58);
+    body.theme-dark .menu-title,
+    body.theme-dark .menu-item,
+    body.theme-dark .top-link,
+    body.theme-dark .wallet-value,
+    body.theme-dark .top-actions,
+    body.theme-dark .icon-button {
+      color: var(--subtle);
     }
 
     body.theme-dark .menu-item.active {
@@ -315,13 +339,19 @@
     .icon-button {
       width: 32px;
       height: 32px;
-      border: 1px solid var(--border);
+      border: 0;
       border-radius: 8px;
-      background: #fff;
+      background: transparent;
       color: #4e5969;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      font-weight: 700;
+    }
+
+    .icon-button:hover {
+      background: rgba(39, 89, 255, 0.08);
+      color: var(--primary);
     }
 
     .avatar {
@@ -631,10 +661,23 @@
       border-color: #ffd591;
     }
 
-    .tag.closed {
+    .tag.closed,
+    .tag.empty {
       color: #8f959e;
       background: #f5f5f5;
       border-color: #d9d9d9;
+    }
+
+    .tag.fresh {
+      color: #00875a;
+      background: #e8fff4;
+      border-color: #b7ebd2;
+    }
+
+    .tag.stale {
+      color: #d46b08;
+      background: #fff7e6;
+      border-color: #ffd591;
     }
 
     .pagination {
@@ -1432,11 +1475,21 @@
       color: #8f959e;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1180px) {
+      body {
+        min-width: 0;
+      }
+
       .sidebar {
         position: static;
         width: 100%;
         height: auto;
+      }
+
+      .brand,
+      .mode-toggle,
+      nav {
+        width: 100%;
       }
 
       .app {
@@ -1481,7 +1534,7 @@
         <h1 class="page-title" data-i18n="page_title">Account Management</h1>
         <div class="top-actions">
           <span class="wallet-value">0.00USD</span>
-          <button id="themeToggle" class="top-link" type="button" data-i18n="theme_dark">Dark Mode</button>
+          <button id="themeToggle" class="top-link theme" type="button" data-i18n="theme_dark">Dark Mode</button>
           <button class="icon-button" type="button" aria-label="Notifications">!</button>
           <button id="languageToggle" class="top-link" type="button">English</button>
           <div class="client-user-menu" data-client-user-menu>
@@ -1515,6 +1568,7 @@
                 <option value="TikTok">TikTok</option>
                 <option value="Google">Google</option>
                 <option value="Outbrain">Outbrain</option>
+                <option value="AppLovin">AppLovin</option>
               </select>
             </label>
             <label class="field">
@@ -1547,6 +1601,7 @@
                   <th data-i18n="col_account_status">Account Status</th>
                   <th data-i18n="col_currency">Currency</th>
                   <th data-i18n="col_balance">Balance</th>
+                  <th data-i18n="col_balance_status">Balance status</th>
                   <th data-i18n="col_timezone">Time Zone</th>
                   <th data-i18n="col_created">Created Time</th>
                 </tr>
@@ -2053,6 +2108,10 @@
         col_account_status: 'Account Status',
         col_currency: 'Currency',
         col_balance: 'Balance',
+        col_balance_status: 'Balance status',
+        balance_fresh: 'Available',
+        balance_stale: 'Expired',
+        balance_empty: 'No data',
         col_timezone: 'Time Zone',
         col_created: 'Created Time',
         col_current_balance: 'Current Balance',
@@ -2297,6 +2356,10 @@
         col_account_status: '账户状态',
         col_currency: '币种',
         col_balance: '余额',
+        col_balance_status: '余额状态',
+        balance_fresh: '可用',
+        balance_stale: '已过期',
+        balance_empty: '无数据',
         col_timezone: '时区',
         col_created: '创建时间',
         col_current_balance: '当前余额',
@@ -2578,6 +2641,42 @@
         balance: '0.01',
         timezone: 'America/Toronto',
         created: '2025-04-28'
+      },
+      {
+        id: '1054436028',
+        name: 'SKULT',
+        platform: 'AppLovin',
+        status: 'Active',
+        currency: 'USD',
+        balance: '12,202.70',
+        balanceStatus: 'fresh',
+        balanceNote: 'Added funds 4,002.70 + 正常卡尾号 5880 剩余 8,200.00。冻结卡 500.00、待验卡 300.00 不计入。',
+        timezone: 'UTC',
+        created: '2026-07-20'
+      },
+      {
+        id: '1983200478',
+        name: 'Lucas De Souza 1',
+        platform: 'AppLovin',
+        status: 'Active',
+        currency: 'USD',
+        balance: '6,480.00',
+        balanceStatus: 'stale',
+        balanceNote: '上次成功：Added funds 1,200.00 + 正常卡剩余 5,280.00。已超过 30 分钟，不参与续航和自动充值。',
+        timezone: 'UTC',
+        created: '2026-07-20'
+      },
+      {
+        id: '1054436102',
+        name: 'AL-未取到余额',
+        platform: 'AppLovin',
+        status: 'Active',
+        currency: 'USD',
+        balance: '',
+        balanceStatus: 'empty',
+        balanceNote: 'Added funds 或卡额度尚未同时取成功。余额为空，不显示 0。',
+        timezone: 'UTC',
+        created: '2026-11-01'
       }
     ];
 
@@ -2851,7 +2950,8 @@
           <td>${account.platform}</td>
           <td><span class="tag ${statusClass(account.status)}">${t(`status_${statusClass(account.status)}`)}</span></td>
           <td>${account.currency}</td>
-          <td>${account.balance}</td>
+          <td title="${escapeHtml(account.balanceNote || '')}">${account.balance}</td>
+          <td>${account.balanceStatus ? `<span class="tag ${account.balanceStatus}">${t(`balance_${account.balanceStatus}`)}</span>` : '-'}</td>
           <td><div class="text-ellipsis" title="${account.timezone}">${account.timezone}</div></td>
           <td>${account.created}</td>
         </tr>
@@ -3830,7 +3930,9 @@
     }
     if (document.getElementById('timezoneRows')) createTimezoneRow(false);
   </script>
-  <script src="./js/client-shell.js?v=20261106-page-share-email"></script>
+  <script src="../prototype-kit/admin-shell/full-refund-store.js?v=20261121-full-refund"></script>
+<script src="./js/full-refund-client.js?v=20261123-refund-modal"></script>
+<script src="./js/client-shell.js?v=20261123-refund-lang"></script>
   <script src="./js/common.js?v=20260831-v241-clear-reduce"></script>
 </body>
 </html>

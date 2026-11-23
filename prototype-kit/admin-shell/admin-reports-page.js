@@ -477,5 +477,20 @@
     if (column.label === '一级标签' || column.label === '二级标签') column.dimension = '二级标签';
   });
 
+  const performanceTabs = Object.fromEntries((reportConfigs['ad-customer-performance-report']?.tabs || []).map(tab => [tab.id, tab]));
+  const applovinBd = '张三(zhangsan@bestfulfill.com)';
+  const applovinAm = '李四(lisi@bestfulfill.com)';
+  const applovinAccount = { platform: 'Applovin', accountId: '1054436028', accountName: 'SKULT', customerName: '电商三组', merchantId: '10152', customer: '10152 电商三组（Mindxis）' };
+  customDimension?.rows.push(row(['服饰与配饰', '塑形衣', '2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, 'Applovin', 'it-test', 'AppLovin-企业户', 'ACTIVE', 'USD', '2,720.45', '36,290', '1,876', '44', '2,458.77', '5.17%', '2.35%', '1.45', '74.96', '61.83', '90.38%'], { ...applovinAccount, primaryTag: '服饰与配饰', secondaryTag: '塑形衣', accountStatus: 'ACTIVE' }));
+  performanceTabs.account?.rows.push(row(['2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, '1054436028', 'SKULT', 'US', 'Applovin', '塑形衣', '2,720.45', '36,290', '1,876', '5.17%', '44', '2.35%', '74.96', '1.45', '61.83', '90.38%', 'AppLovin-企业户', '2', '2,890.10', '-5.87%'], applovinAccount));
+  performanceTabs.campaign?.rows.push(
+    row(['2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, '1054436028', 'SKULT', 'cmp_shape_01', 'Shapewear Prospecting', 'ACTIVE', '结账', 'US', '塑形衣', 'Applovin', 'USD', '2,200.00', '-', '1,820.30', '24,100', '1,240', '5.15%', '30', '2.42%', '75.53', '1.47', '60.68', '1,680.00', '92.29%', '-', '1,940.00', '-6.17%'], { ...applovinAccount, campaignId: 'cmp_shape_01', campaignName: 'Shapewear Prospecting' }),
+    row(['2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, '1054436028', 'SKULT', 'cmp_shape_02', 'Shapewear Retargeting', 'ACTIVE', '结账', 'US', '塑形衣', 'Applovin', 'USD', '1,600.00', '-', '900.15', '12,190', '636', '5.22%', '14', '2.20%', '73.84', '1.42', '64.30', '778.77', '86.52%', '-', '950.10', '-5.26%'], { ...applovinAccount, campaignId: 'cmp_shape_02', campaignName: 'Shapewear Retargeting' })
+  );
+  performanceTabs.ad?.rows.push(
+    row(['2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, '1054436028', 'SKULT', 'cmp_shape_01', 'Shapewear Prospecting', '-', '-', 'ad_8821001', 'Shapewear-Video-01', 'ACTIVE', '-', '-', '-', '-', '-', 'US', '塑形衣', 'USD', '1,640.20', '21,400', '1,102', '5.15%', '18', '1.63%', '76.64', '1.49', '91.12', '980.20', '59.76%', '1,510.00', '8.62%'], { ...applovinAccount, campaignId: 'cmp_shape_01', adId: 'ad_8821001', adName: 'Shapewear-Video-01' }),
+    row(['2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, '1054436028', 'SKULT', 'cmp_shape_01', 'Shapewear Prospecting', '-', '-', 'ad_8821002', '-', 'ACTIVE', '-', '-', '-', '-', '-', 'US', '塑形衣', 'USD', '1,080.25', '14,890', '774', '5.20%', '11', '1.42%', '72.55', '1.40', '98.20', '640.15', '59.26%', '1,200.40', '-10.01%'], { ...applovinAccount, campaignId: 'cmp_shape_01', adId: 'ad_8821002', adName: '' })
+  );
+
   window.BESTADS_ADMIN_MODULE_CONFIGS = Object.assign({}, window.BESTADS_ADMIN_MODULE_CONFIGS || {}, reportConfigs);
 })();

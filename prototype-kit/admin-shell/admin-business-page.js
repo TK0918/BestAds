@@ -13,6 +13,9 @@
   const asText = value => value == null || value === '' ? '-' : String(value);
   const tag = value => {
     const text = asText(value);
+    if (text === '可用') return `<span class="status-tag status-success">${esc(text)}</span>`;
+    if (text === '已过期') return `<span class="status-tag status-warning">${esc(text)}</span>`;
+    if (text === '无数据') return `<span class="status-tag status-info">${esc(text)}</span>`;
     const cls = /失败|取消|不通过|停用|已退款/.test(text) ? 'status-danger'
       : /异常|部分/.test(text) ? 'status-warning'
         : /成功|完成|启用|已扣款|正常/.test(text) ? 'status-success'
@@ -133,7 +136,13 @@
     ...(extra?.status === false ? [] : [{ key: 'status', label: '状态', width: 100, format: tag }]),
     ...(extra?.timezone === false ? [] : [{ key: 'timezone', label: '时区', width: 170 }]),
     { key: 'currency', label: '币种', width: 90 },
-    { key: 'balance', label: '余额', width: 110, num: true, sort: true, format: amount },
+    { key: 'balance', label: '余额', width: 130, num: true, sort: true, format: extra?.applovinBalance
+      ? (value, row) => row?.balanceNote ? `<span title="${esc(row.balanceNote)}">${amount(value)}</span>` : amount(value)
+      : amount },
+    ...(extra?.applovinBalance ? [
+      { key: 'balanceStatus', label: '余额状态', width: 110, format: tag },
+      { key: 'balanceUpdatedAt', label: '余额更新时间', width: 180, sort: true }
+    ] : []),
     ...(extra?.spend === false ? [] : [
       { key: 'spend', label: '总消耗', width: 110, num: true, sort: true, format: amount },
       { key: 'limit', label: '消耗上限', width: 110, num: true, sort: true, format: amount }
@@ -610,7 +619,9 @@
   const otherAccounts = [
     { media: 'Taboola', accountId: '2015906', accountName: 'Wezo - get rejumask - SC', currency: 'USD', balance: '0', createdAt: '2026-03-26 16:13:08', agent: 'Wezonet-Manual', type: '-', updatedAt: '2026-08-09 08:24:08', updatedBy: '-', ops: ['复制Token', '修改账户名'] },
     { media: 'Taboola', accountId: '1726590', accountName: 'Wezo - beautysecrets.co.il 1 - SC', currency: 'USD', balance: '0', createdAt: '2026-01-06 11:28:35', agent: 'Wezonet-Manual', type: '-', updatedAt: '2026-08-09 08:24:08', updatedBy: '-', ops: ['复制Token', '修改账户名'] },
-    { media: 'Applovin', accountId: '1983200478', accountName: 'Lucas De Souza 1', currency: 'USD', balance: '0', createdAt: '2026-07-20 18:25:21', agent: 'it-test', type: '广告账户类型123', updatedAt: '2026-08-09 08:24:08', updatedBy: '-', ops: ['复制Token', '修改账户名'] }
+    { media: 'Applovin', accountId: '1054436028', accountName: 'SKULT', currency: 'USD', balance: '12,202.70', balanceStatus: '可用', balanceUpdatedAt: '2026-11-23 15:40:00', balanceNote: 'Added funds 4,002.70 + 正常卡尾号 5880 剩余 8,200.00。冻结卡 500.00、待验卡 300.00 不计入。', createdAt: '2026-07-20 18:25:21', agent: 'it-test', type: '广告账户类型123', updatedAt: '2026-11-23 15:40:00', updatedBy: '-', ops: ['复制Token', '修改账户名'] },
+    { media: 'Applovin', accountId: '1983200478', accountName: 'Lucas De Souza 1', currency: 'USD', balance: '6,480.00', balanceStatus: '已过期', balanceUpdatedAt: '2026-11-23 14:00:00', balanceNote: '上次成功：Added funds 1,200.00 + 正常卡剩余 5,280.00。已超过 30 分钟，不参与续航和自动充值。', createdAt: '2026-07-20 18:25:21', agent: 'it-test', type: '广告账户类型123', updatedAt: '2026-11-23 14:00:00', updatedBy: '-', ops: ['复制Token', '修改账户名'] },
+    { media: 'Applovin', accountId: '1054436102', accountName: 'AL-未取到余额', currency: 'USD', balance: '', balanceStatus: '无数据', balanceUpdatedAt: '', balanceNote: 'Added funds 或卡额度尚未同时取成功。余额为空，不显示 0。', createdAt: '2026-11-01 09:12:00', agent: 'it-test', type: '广告账户类型123', updatedAt: '-', updatedBy: '-', ops: ['复制Token', '修改账户名'] }
   ];
 
   const fbAssign = [
@@ -742,7 +753,7 @@
     'tt-clear-management': orderPage('清零', clearRows.tt),
     'tt-service-fee-config': feePage(fees.tt, false, '服务费配置'),
 
-    'other-account-management': accountPage('other', otherAccounts, { media: true, status: false, currency: false, timezone: false, spend: false, age: false, accountIdPlaceholder: '输入广告账户ID', accountNamePlaceholder: '输入广告账户名称', updatedLabel: '更新时间', tableMinWidth: 1500 }),
+    'other-account-management': accountPage('other', otherAccounts, { media: true, status: false, currency: false, timezone: false, spend: false, age: false, applovinBalance: true, accountIdPlaceholder: '输入广告账户ID', accountNamePlaceholder: '输入广告账户名称', updatedLabel: '更新时间', tableMinWidth: 1780 }),
     'other-account-allocation': assignPage(true, otherAssign),
     'other-recharge-management': orderPage('充值', rechargeRows.other, true, { preTax: false }),
     'other-clear-management': orderPage('清零', clearRows.other, true, { clearUnknownBalance: true }),
