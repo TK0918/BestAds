@@ -135,7 +135,11 @@
       .refund-dialog header button:hover { background: #f2f3f5; }
       .refund-dialog__body { flex: 1; min-height: 0; overflow: auto; padding: 4px 20px 16px; }
       .refund-dialog__body h3 { margin: 18px 0 8px; font-size: 14px; font-weight: 600; color: #1f2329; }
-      .refund-dialog__body .muted { margin: 0 0 8px; color: #8f959e; font-size: 12px; }
+      .refund-dialog__body .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 8px; }
+      .refund-dialog__body .section-head h3 { margin: 0; }
+      .refund-dialog__body .muted { margin: 0 0 8px; color: #8f959e; font-size: 12px; line-height: 18px; }
+      .refund-dialog__body .batch-note { margin: 0 0 8px; color: #1f2329; font-size: 12px; line-height: 18px; }
+      .refund-dialog td.wrap { white-space: normal; text-align: left; line-height: 18px; height: auto; }
       .refund-dialog .admin-table { min-width: 0; }
       .refund-dialog .admin-table th, .refund-dialog .admin-table td { height: 40px; }
       .refund-dialog footer { justify-content: flex-end; gap: 8px; border-top: 1px solid #e5e6eb; }
@@ -160,12 +164,36 @@
     return (list || []).filter(item => item.status === '处理中');
   }
 
+  function poolSituation(row) {
+    const balance = api.roundMoney(row.poolBalance);
+    const estimated = api.roundMoney(row.estimatedTax);
+    const balanceTax = api.roundMoney(row.balanceTax);
+    const releasable = api.roundMoney(row.releasable);
+    if (balance === 0 && estimated === 0 && balanceTax === 0 && releasable === 0) return '已清空';
+    const parts = [];
+    if (balance > 0) parts.push('预收池还有余额');
+    if (balance < 0) parts.push('预收池不足');
+    if (estimated > 0) parts.push('近7天预估未扣');
+    if (balanceTax > 0) parts.push('余额税费未结清');
+    if (releasable > 0) parts.push('还有可释放');
+    return parts.join('；') || '未清空';
+  }
+
+  function adTaskAction(order, item) {
+    if (order.status === '已取消' || order.status === '已退款') return '-';
+    if (item.status !== '处理中' || item.type === '充值') return '-';
+    return `<button class="btn btn-default" type="button" data-refund-act="complete-ad" data-task-id="${esc(item.id)}">入账完成</button>`;
+  }
+
   function detailBody(order) {
-    const inboundBlocked = api.blocksDeduct(order);
+    const blockMessage = api.deductBlockMessage(order);
     const readonly = order.status === '已取消' || order.status === '已退款';
-    const accountRows = (order.accounts || []).map(item => `<tr><td>${esc(item.media)}</td><td>${esc(item.accountId)}</td><td>${esc(item.name)}</td><td>${esc(item.accountStatus || '正常')}</td><td>${money(item.balance)}</td></tr>`).join('') || '<tr><td colspan="5">暂无广告账户</td></tr>';
-    const taskRows = unfinished(order.clears).map(item => `<tr><td>${esc(item.id)}</td><td>${esc(item.type || '清零')}</td><td>${esc(item.accountId)}</td><td>${money(item.amount)}</td><td>${esc(item.status)}</td></tr>`).join('') || '<tr><td colspan="5">没有未完成的广告账户充值、清零、减款</td></tr>';
+    const canClear = order.status === '处理中' || order.status === '待财务核对';
+    const accountRows = (order.accounts || []).map(item => `<tr><td>${esc(item.media)}</td><td>${esc(item.accountId)}</td><td>${esc(item.name)}</td><td>${esc(item.accountStatus || '正常')}</td><td>${money(item.balance)}</td><td>${money(item.recentSpend)}</td><td>${esc(api.clearLimit(order, item).reason)}</td></tr>`).join('') || '<tr><td colspan="7">暂无广告账户</td></tr>';
+    const taskRows = unfinished(order.clears).map(item => `<tr><td>${esc(item.id)}</td><td>${esc(item.type || '清零')}</td><td>${esc(item.accountId)}</td><td>${money(item.amount)}</td><td>${esc(item.status)}</td><td class="wrap">${esc(item.note || '-')}</td><td>${adTaskAction(order, item)}</td></tr>`).join('') || '<tr><td colspan="7">没有未完成的广告账户充值、清零、减款</td></tr>';
     const inboundRows = unfinished(order.inbounds).map(item => `<tr><td>${esc(item.id)}</td><td>${esc(item.type)}</td><td>${money(item.amount)}</td><td>${esc(item.status)}</td><td>${order.status === '已取消' ? '-' : `<button class="btn btn-default" type="button" data-refund-act="complete-inbound" data-inbound-id="${esc(item.id)}">入账完成</button>`}</td></tr>`).join('') || '<tr><td colspan="5">没有未完成的在线充值、线下转账</td></tr>';
+    const poolRows = (order.taxPools || []).map(item => `<tr><td>${esc(item.currency)}</td><td>${money(item.poolBalance)}</td><td>${money(item.estimatedTax)}</td><td>${money(item.balanceTax)}</td><td>${money(item.releasable)}</td><td>${esc(item.compareStatus || '-')}</td><td class="wrap">${esc(poolSituation(item))}</td></tr>`).join('') || '<tr><td colspan="7">暂无预收池</td></tr>';
+    const taxRows = unfinished(order.taxTasks).map(item => `<tr><td>${esc(item.id)}</td><td>${esc(item.type)}</td><td>${money(item.amount)}</td><td>${esc(item.status)}</td></tr>`).join('') || '<tr><td colspan="4">没有未完成的地区税费任务</td></tr>';
     return `
       <div class="detail-grid">
         <div><dt>客户ID</dt><dd>${esc(order.customerId)}</dd></div>
@@ -182,16 +210,23 @@
         <div><dt>已确认扣款</dt><dd>${order.confirmedAmount == null ? '-' : `${money(order.confirmedAmount)} ${esc(order.currency)}`}</dd></div>
       </div>
       ${order.cancelReason ? `<p>取消原因：${esc(order.cancelReason)}</p>` : ''}
-      ${!readonly && inboundBlocked ? '<div class="notice notice--warning">有未完成的在线充值或线下转账，确认扣款不可用。入账完成后再扣。</div>' : ''}
+      ${!readonly && blockMessage ? `<div class="notice notice--warning">${esc(blockMessage)}。入账完成后再扣。</div>` : ''}
       <h3>申请人备注</h3>
       <p>${esc(order.applicantRemark || order.note || '-')}</p>
       ${order.status === '处理中' ? '' : `<h3>业务备注</h3><p>${esc(order.businessRemark || '-')}</p>`}
       ${order.status === '待财务核对' ? '' : `<h3>财务备注</h3><p>${esc(order.financeRemark || '-')}</p>`}
-      <h3>广告账户</h3>
-      <p class="muted">展示客户当前广告账户状态和余额。余额更新不及时时，不拦截交给财务。</p>
-      <div class="table-scroll"><table class="admin-table"><thead><tr><th>媒体</th><th>广告账户ID</th><th>名称</th><th>账户状态</th><th>余额</th></tr></thead><tbody>${accountRows}</tbody></table></div>
+      <div class="section-head"><h3>广告账户</h3>${canClear ? '<button class="btn btn-primary" type="button" data-refund-act="batch-clear">一键清零</button>' : ''}</div>
+      <p class="muted">余额更新不及时时，不拦截交给财务。一键清零只提交可清账户，不改变退款单状态。近2天有消耗、余额为 0、已有处理中任务、绑卡户会跳过。没有清零接口的账户仍会建单，并停在处理中。</p>
+      ${order.clearBatchNote ? `<p class="batch-note">${esc(order.clearBatchNote)}</p>` : ''}
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>媒体</th><th>广告账户ID</th><th>名称</th><th>账户状态</th><th>余额</th><th>近2天消耗</th><th>一键清零</th></tr></thead><tbody>${accountRows}</tbody></table></div>
       <h3>未完成的广告账户充值 / 清零 / 减款</h3>
-      <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>广告账户ID</th><th>金额</th><th>状态</th></tr></thead><tbody>${taskRows}</tbody></table></div>
+      <p class="muted">清零或减款还在处理中时，不能确认扣款。入账完成后钱回到钱包，参考可退金额跟着增加。广告账户充值不拦截确认扣款。</p>
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>广告账户ID</th><th>金额</th><th>状态</th><th>说明</th><th>操作</th></tr></thead><tbody>${taskRows}</tbody></table></div>
+      <h3>地区税费</h3>
+      <p class="muted">按地区税费总览展示这个客户的预收池。预收池余额、近7天预估税费、余额税费、可释放都为 0 时，池子情况为已清空。这里只展示，不拦截交给财务，也不拦截确认扣款。</p>
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>币种</th><th>预收池余额</th><th>近7天预估税费</th><th>余额税费</th><th>可释放</th><th>对比状态</th><th>池子情况</th></tr></thead><tbody>${poolRows}</tbody></table></div>
+      <h3>未完成的地区税费任务</h3>
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>金额</th><th>状态</th></tr></thead><tbody>${taxRows}</tbody></table></div>
       <h3>未完成的在线充值 / 线下转账</h3>
       <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>金额</th><th>状态</th><th>操作</th></tr></thead><tbody>${inboundRows}</tbody></table></div>
       <div id="refundActionBox"></div>
@@ -199,7 +234,7 @@
   }
 
   function detailActions(order) {
-    const inboundBlocked = api.blocksDeduct(order);
+    const deductBlocked = api.blocksDeduct(order);
     if (order.status === '处理中') {
       return `<div class="handoff-remark"><label for="businessRemarkInput">业务备注</label><textarea id="businessRemarkInput" data-business-remark rows="2" placeholder="请填写本次广告账户处理说明"></textarea></div><div class="handoff-actions"><button class="btn btn-primary" type="button" data-refund-act="handoff">广告账户已处理完</button><button class="btn btn-default" type="button" data-refund-act="cancel">取消退款</button></div>`;
     }
@@ -207,7 +242,7 @@
       const wallet = api.roundMoney(order.walletReal);
       const fee = Math.min(50, wallet);
       const refundPart = api.roundMoney(wallet - fee);
-      return `<div class="handoff-remark"><label class="check-line"><input type="checkbox" data-with-other-debit>同时生成其他扣费</label><div data-plain-deduct><label for="deductAmountInput">扣款金额</label><div class="deduct-line"><input id="deductAmountInput" data-deduct-amount value="${money(wallet)}"><span>不能大于钱包真实金额 ${money(wallet)} ${esc(order.currency)}</span></div></div><div data-split-deduct hidden><label for="refundFeeInput">退款手续费</label><div class="deduct-line"><input id="refundFeeInput" data-refund-fee value="${money(fee)}"><span>默认 50 ${esc(order.currency)}</span></div><label for="refundPartInput">退款</label><div class="deduct-line"><input id="refundPartInput" data-refund-part value="${money(refundPart)}"><span>两笔合计不能大于 ${money(wallet)} ${esc(order.currency)}</span></div></div><label for="financeRemarkInput">财务备注</label><textarea id="financeRemarkInput" data-finance-remark rows="2" placeholder="请填写本次扣款说明"></textarea></div><div class="handoff-actions"><button class="btn btn-primary" type="button" data-refund-act="deduct" ${inboundBlocked ? 'disabled' : ''}>确认扣款</button><button class="btn btn-default" type="button" data-refund-act="return">退回业务</button><button class="btn btn-default" type="button" data-refund-act="cancel">取消退款</button></div>`;
+      return `<div class="handoff-remark"><label class="check-line"><input type="checkbox" data-with-other-debit>同时生成其他扣费</label><div data-plain-deduct><label for="deductAmountInput">扣款金额</label><div class="deduct-line"><input id="deductAmountInput" data-deduct-amount value="${money(wallet)}"><span>不能大于钱包真实金额 ${money(wallet)} ${esc(order.currency)}</span></div></div><div data-split-deduct hidden><label for="refundFeeInput">退款手续费</label><div class="deduct-line"><input id="refundFeeInput" data-refund-fee value="${money(fee)}"><span>默认 50 ${esc(order.currency)}</span></div><label for="refundPartInput">退款</label><div class="deduct-line"><input id="refundPartInput" data-refund-part value="${money(refundPart)}"><span>两笔合计不能大于 ${money(wallet)} ${esc(order.currency)}</span></div></div><label for="financeRemarkInput">财务备注</label><textarea id="financeRemarkInput" data-finance-remark rows="2" placeholder="请填写本次扣款说明"></textarea></div><div class="handoff-actions"><button class="btn btn-primary" type="button" data-refund-act="deduct" ${deductBlocked ? 'disabled' : ''}>确认扣款</button><button class="btn btn-default" type="button" data-refund-act="return">退回业务</button><button class="btn btn-default" type="button" data-refund-act="cancel">取消退款</button></div>`;
     }
     return '';
   }
@@ -373,6 +408,19 @@
     if (act === 'open') { state.detailOpen = true; state.selectedId = button.dataset.orderId; openDetailModal(); return; }
     const order = selected();
     if (!order) return;
+    if (act === 'batch-clear') {
+      const result = api.batchClear(order.id);
+      toast(result.message || '没有可提交的账户', result.submitted ? undefined : 'error');
+      render();
+      return;
+    }
+    if (act === 'complete-ad') {
+      const result = api.completeAdTask(order.id, button.dataset.taskId);
+      if (!result.ok) { toast(result.message, 'error'); return; }
+      toast(result.message || '已入账');
+      render();
+      return;
+    }
     if (act === 'handoff') {
       const remarkField = document.querySelector('#refundDetailMask [data-business-remark]');
       const remark = remarkField?.value.trim() || '';
@@ -416,7 +464,8 @@
       return;
     }
     if (act === 'deduct') {
-      if (api.blocksDeduct(order)) { toast('有处理中的入账单，不能扣款', 'error'); return; }
+      const blocked = api.deductBlockMessage(order);
+      if (blocked) { toast(blocked, 'error'); return; }
       const remarkField = document.querySelector('#refundDetailMask [data-finance-remark]');
       const financeRemark = remarkField?.value.trim() || '';
       if (!financeRemark) { toast('请填写财务备注', 'error'); remarkField?.focus(); return; }
@@ -444,7 +493,8 @@
         if (fee > 0) ledger.push({ kind: '退款手续费', amount: fee });
       }
       const result = api.update(order.id, item => {
-        if (api.blocksDeduct(item)) return { ok: false, message: '有处理中的入账单，不能扣款' };
+        const blockedNow = api.deductBlockMessage(item);
+        if (blockedNow) return { ok: false, message: blockedNow };
         if (walletDelta) item.walletReal = api.roundMoney(item.walletReal - walletDelta);
         ledger.forEach(entry => item.debits.push({ at: api.nowText(), amount: entry.amount, kind: entry.kind, remark: financeRemark }));
         item.status = '已退款';
