@@ -481,7 +481,42 @@
   const applovinBd = '张三(zhangsan@bestfulfill.com)';
   const applovinAm = '李四(lisi@bestfulfill.com)';
   const applovinAccount = { platform: 'Applovin', accountId: '1054436028', accountName: 'SKULT', customerName: '电商三组', merchantId: '10152', customer: '10152 电商三组（Mindxis）' };
-  customDimension?.rows.push(row(['服饰与配饰', '塑形衣', '2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, 'Applovin', 'it-test', 'AppLovin-企业户', 'ACTIVE', 'USD', '2,720.45', '36,290', '1,876', '44', '2,458.77', '5.17%', '2.35%', '1.45', '74.96', '61.83', '90.38%'], { ...applovinAccount, primaryTag: '服饰与配饰', secondaryTag: '塑形衣', accountStatus: 'ACTIVE' }));
+  customDimension?.rows.push(row(['服饰与配饰', '塑形衣', '2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, 'Applovin', 'it-test', 'AppLovin-企业户', 'ACTIVE', 'USD', '2,720.45', '36,290', '1,876', '44', '2,458.77', '5.17%', '2.35%', '1.45', '74.96', '61.83', '90.38%'], { ...applovinAccount, primaryTag: '服饰与配饰', secondaryTag: '塑形衣', accountStatus: 'ACTIVE', reportGrain: 'account' }));
+  if (customDimension) {
+    const insertAt = customDimension.columns.findIndex(column => column.label === '广告账户状态') + 1;
+    const dimensionColumns = [
+      { label: '广告账户ID', dimension: '广告账户', width: 150 },
+      { label: '广告账户名称', dimension: '广告账户', width: 160 },
+      { label: 'Campaign ID', dimension: 'Campaign', width: 150 },
+      { label: 'Campaign名称', dimension: 'Campaign', width: 180 },
+      { label: 'Ad ID', dimension: 'Ad', width: 140 },
+      { label: 'Ad名称', dimension: 'Ad', width: 180 }
+    ];
+    const snapshots = customDimension.rows.map(item => customDimension.columns.map(column => item[column.key]));
+    customDimension.columns.splice(insertAt, 0, ...dimensionColumns.map(spec => ({ key: '', label: spec.label, width: spec.width, align: 'left', dimension: spec.dimension, sort: true })));
+    customDimension.columns.forEach((column, index) => { column.key = `c${index}`; });
+    customDimension.rows.forEach((item, rowIndex) => {
+      const next = snapshots[rowIndex].slice(0, insertAt).concat(dimensionColumns.map(() => ''), snapshots[rowIndex].slice(insertAt));
+      Object.keys(item).filter(key => /^c\d+$/.test(key)).forEach(key => delete item[key]);
+      customDimension.columns.forEach((column, index) => { item[column.key] = next[index] ?? ''; });
+    });
+    const applovinBase = {
+      '一级标签': '服饰与配饰', '二级标签': '塑形衣', '日期分组': '2026-11-20', '商户ID': '10152', '客户名称': '电商三组（Mindxis）',
+      'BD': applovinBd, 'AM': applovinAm, '投放平台': 'Applovin', '代理': 'it-test', '账户类型': 'AppLovin-企业户', '广告账户状态': 'ACTIVE',
+      '广告账户ID': '1054436028', '广告账户名称': 'SKULT', '币种': 'USD'
+    };
+    const setCells = (item, map) => {
+      customDimension.columns.forEach(column => { if (column.label in map) item[column.key] = map[column.label]; });
+    };
+    const pushGrain = (map, extra) => {
+      customDimension.rows.push(row(customDimension.columns.map(column => map[column.label] ?? ''), extra));
+    };
+    setCells(customDimension.rows.find(item => item.reportGrain === 'account' && item.accountId === '1054436028'), { '广告账户ID': '1054436028', '广告账户名称': 'SKULT' });
+    pushGrain({ ...applovinBase, 'Campaign ID': 'cmp_shape_01', 'Campaign名称': 'Shapewear Prospecting', '消耗': '1,820.30', '展示': '24,100', '点击': '1,240', '转化': '30', '收入/转化价值': '1,680.00', 'CTR': '5.15%', 'CVR': '2.42%', 'CPC': '1.47', 'CPM': '75.53', 'CPA': '60.68', 'ROAS': '92.29%' }, { ...applovinAccount, campaignId: 'cmp_shape_01', campaignName: 'Shapewear Prospecting', primaryTag: '服饰与配饰', secondaryTag: '塑形衣', accountStatus: 'ACTIVE', reportGrain: 'campaign' });
+    pushGrain({ ...applovinBase, 'Campaign ID': 'cmp_shape_02', 'Campaign名称': 'Shapewear Retargeting', '消耗': '900.15', '展示': '12,190', '点击': '636', '转化': '14', '收入/转化价值': '778.77', 'CTR': '5.22%', 'CVR': '2.20%', 'CPC': '1.42', 'CPM': '73.84', 'CPA': '64.30', 'ROAS': '86.52%' }, { ...applovinAccount, campaignId: 'cmp_shape_02', campaignName: 'Shapewear Retargeting', primaryTag: '服饰与配饰', secondaryTag: '塑形衣', accountStatus: 'ACTIVE', reportGrain: 'campaign' });
+    pushGrain({ ...applovinBase, 'Campaign ID': 'cmp_shape_01', 'Campaign名称': 'Shapewear Prospecting', 'Ad ID': 'ad_8821001', 'Ad名称': 'Shapewear-Video-01', '消耗': '1,640.20', '展示': '21,400', '点击': '1,102', '转化': '18', '收入/转化价值': '980.20', 'CTR': '5.15%', 'CVR': '1.63%', 'CPC': '1.49', 'CPM': '76.64', 'CPA': '91.12', 'ROAS': '59.76%' }, { ...applovinAccount, campaignId: 'cmp_shape_01', adId: 'ad_8821001', adName: 'Shapewear-Video-01', primaryTag: '服饰与配饰', secondaryTag: '塑形衣', accountStatus: 'ACTIVE', reportGrain: 'ad' });
+    pushGrain({ ...applovinBase, 'Campaign ID': 'cmp_shape_01', 'Campaign名称': 'Shapewear Prospecting', 'Ad ID': 'ad_8821002', 'Ad名称': '', '消耗': '1,080.25', '展示': '14,890', '点击': '774', '转化': '11', '收入/转化价值': '640.15', 'CTR': '5.20%', 'CVR': '1.42%', 'CPC': '1.40', 'CPM': '72.55', 'CPA': '98.20', 'ROAS': '59.26%' }, { ...applovinAccount, campaignId: 'cmp_shape_01', adId: 'ad_8821002', adName: '', primaryTag: '服饰与配饰', secondaryTag: '塑形衣', accountStatus: 'ACTIVE', reportGrain: 'ad' });
+  }
   performanceTabs.account?.rows.push(row(['2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, '1054436028', 'SKULT', 'US', 'Applovin', '塑形衣', '2,720.45', '36,290', '1,876', '5.17%', '44', '2.35%', '74.96', '1.45', '61.83', '90.38%', 'AppLovin-企业户', '2', '2,890.10', '-5.87%'], applovinAccount));
   performanceTabs.campaign?.rows.push(
     row(['2026-11-20', '10152', '电商三组（Mindxis）', applovinBd, applovinAm, '1054436028', 'SKULT', 'cmp_shape_01', 'Shapewear Prospecting', 'ACTIVE', '结账', 'US', '塑形衣', 'Applovin', 'USD', '2,200.00', '-', '1,820.30', '24,100', '1,240', '5.15%', '30', '2.42%', '75.53', '1.47', '60.68', '1,680.00', '92.29%', '-', '1,940.00', '-6.17%'], { ...applovinAccount, campaignId: 'cmp_shape_01', campaignName: 'Shapewear Prospecting' }),

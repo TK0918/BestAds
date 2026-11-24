@@ -2655,6 +2655,11 @@
       return Math.max(980, contentWidth);
     }
     function rowMatches(row, values, rangeFields, rangeValueKeys, tab) {
+      if (row.reportGrain && tab?.id === 'custom-dimension') {
+        const active = activeDimensionLabels(tab);
+        const grain = active.has('Ad') ? 'ad' : active.has('Campaign') ? 'campaign' : 'account';
+        if (row.reportGrain !== grain) return false;
+      }
       const filterByKey = new Map((tab?.filters || []).map(field => [field.key, field]));
       const matchedTextFilters = Object.keys(values).every(key => {
         if (rangeValueKeys.has(key)) return true;

@@ -14,6 +14,9 @@
     .status-pending { background: #F59E0B; }
     .status-inactive { background: #6B7280; }
     .status-disabled { background: #EF4444; }
+    .balance-fresh { background: #E6FFF5; color: #067647; }
+    .balance-stale { background: #FFF7E8; color: #D46B08; }
+    .balance-hint { color: #D46B08; font-size: 12px; line-height: 1.4; margin-top: 4px; }
     .sheet { position: fixed; left: 0; right: 0; bottom: -100%; background: #FFFFFF; border-top-left-radius: 16px; border-top-right-radius: 16px; box-shadow: 0 -4px 24px rgba(0,0,0,0.12); transition: transform .25s ease, bottom .25s ease; z-index: 50; border-top: 1px solid #E5E7EB; }
     .sheet.show { bottom: 0; }
     .verify-mask { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 80; align-items: flex-end; justify-content: center; }
@@ -59,6 +62,9 @@
     body.theme-dark .btn-secondary { background: #1F2937; color: #F8FAFC; }
     body.theme-dark .input { background: #0F172A; border-color: #334155; color: #F8FAFC; }
     body.theme-dark .status-inactive { background: #4B5563; }
+    body.theme-dark .balance-fresh { background: rgba(0,191,133,0.18); color: #5EEAD4; }
+    body.theme-dark .balance-stale { background: rgba(245,158,11,0.16); color: #FBBF24; }
+    body.theme-dark .balance-hint { color: #FBBF24; }
     body.theme-dark .filter-btn.active { background: #00FFB0; color: #000; }
     body.theme-dark .filter-btn:not(.active) { background: #1F2937; color: #F8FAFC; }
     /* 常用灰色文字在深色下的可读性优化 */
@@ -550,6 +556,9 @@
         accounts_clear: '清空',
         account_balance: '余额',
         account_status: '状态',
+        balance_fresh: '可用',
+        balance_stale: '已过期',
+        balance_stale_hint: '余额已过期，暂不可用',
         account_recharge: '充值',
         account_clear: '清零',
         
@@ -646,6 +655,9 @@
         accounts_clear: 'Clear',
         account_balance: 'Balance',
         account_status: 'Status',
+        balance_fresh: 'Available',
+        balance_stale: 'Expired',
+        balance_stale_hint: 'Balance is expired and cannot be used yet',
         account_recharge: 'Recharge',
         account_clear: 'Clear',
         
@@ -727,7 +739,10 @@
       { id: 'FB001234571', name: 'Facebook跨境电商账户', currency: 'USD', balance: 2150.80, timezone: 'UTC+8', status: 'active', canClear: true, spendLast2Days: 0 },
       { id: 'FB001234572', name: 'Facebook游戏推广账户', currency: 'USD', balance: 675.30, timezone: 'UTC+8', status: 'active', canClear: false, spendLast2Days: 10 },
       { id: 'GG001234573', name: 'Google搜索广告账户', currency: 'USD', balance: 1320.45, timezone: 'UTC-5', status: 'active', canClear: true, spendLast2Days: 8.5 },
-      { id: 'FB001234575', name: 'Facebook品牌推广账户', currency: 'EUR', balance: 435.90, timezone: 'UTC+1', status: 'inactive', canClear: false, spendLast2Days: 0 }
+      { id: 'FB001234575', name: 'Facebook品牌推广账户', currency: 'EUR', balance: 435.90, timezone: 'UTC+1', status: 'inactive', canClear: false, spendLast2Days: 0 },
+      { id: '1054436028', name: 'SKULT', platform: 'AppLovin', currency: 'USD', balance: 12202.70, timezone: 'UTC', status: 'active', canClear: true, spendLast2Days: 0, balanceStatus: 'fresh' },
+      { id: '1983200478', name: 'Lucas De Souza 1', platform: 'AppLovin', currency: 'USD', balance: 6480.00, timezone: 'UTC', status: 'active', canClear: true, spendLast2Days: 0, balanceStatus: 'stale' },
+      { id: '1054436102', name: 'AL-未取到余额', platform: 'AppLovin', currency: 'USD', balance: null, timezone: 'UTC', status: 'active', canClear: false, spendLast2Days: 0, balanceStatus: 'empty' }
     ];
 
     // 记录（示例 + 本地存储）
@@ -832,17 +847,26 @@
         : ({active:'Active', pending:'Pending', inactive:'Inactive', disabled:'Disabled'}[s] || s);
       const statusClass = s => ({active:'status-active', pending:'status-pending', inactive:'status-inactive', disabled:'status-disabled'}[s] || 'status-inactive');
       const list = !kw ? accounts : accounts.filter(a => a.id.toLowerCase().includes(kw) || a.name.toLowerCase().includes(kw));
+      const balanceText = a => (a.balanceStatus === 'empty' || a.balance === '' || a.balance == null) ? '' : formatAmount(a.balance);
+      const balanceStatusHtml = a => {
+        if (a.balanceStatus === 'fresh') return `<span class="status-pill balance-fresh">${lang.balance_fresh}</span>`;
+        if (a.balanceStatus === 'stale') return `<span class="status-pill balance-stale">${lang.balance_stale}</span>`;
+        return '';
+      };
       wrap.innerHTML = list.map(a => `
         <div class="card p-3">
           <div class="flex items-start justify-between gap-3">
             <div>
               <div class="text-sm text-gray-400">${a.id}</div>
               <div class="text-base font-semibold mt-0.5">${a.name}</div>
+              ${a.platform ? `<div class="text-xs text-gray-500 mt-0.5">${a.platform}</div>` : ''}
               <div class="mt-1 flex items-center gap-2 text-sm">
                 <span class="text-gray-600 font-medium">${a.currency}</span>
-                <span class="text-gray-900 font-semibold">${formatAmount(a.balance)}</span>
+                <span class="text-gray-900 font-semibold">${balanceText(a)}</span>
+                ${balanceStatusHtml(a)}
                 <span class="status-pill ${statusClass(a.status)}">${statusName(a.status)}</span>
               </div>
+              ${a.balanceStatus === 'stale' ? `<div class="balance-hint">${lang.balance_stale_hint}</div>` : ''}
             </div>
             <div class="flex flex-col gap-2 min-w-[92px]">
               <button class="btn-primary px-3 py-2 text-sm font-semibold" onclick="openSheet('recharge','${a.id}')">${lang.account_recharge}</button>
