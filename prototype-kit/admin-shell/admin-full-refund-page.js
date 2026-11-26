@@ -215,20 +215,21 @@
       <p>${esc(order.applicantRemark || order.note || '-')}</p>
       ${order.status === '处理中' ? '' : `<h3>业务备注</h3><p>${esc(order.businessRemark || '-')}</p>`}
       ${order.status === '待财务核对' ? '' : `<h3>财务备注</h3><p>${esc(order.financeRemark || '-')}</p>`}
-      <div class="section-head"><h3>广告账户</h3>${canClear ? '<button class="btn btn-primary" type="button" data-refund-act="batch-clear">一键清零</button>' : ''}</div>
-      <p class="muted">余额更新不及时时，不拦截交给财务。一键清零只提交可清账户，不改变退款单状态。近2天有消耗、余额为 0、已有处理中任务、绑卡户会跳过。没有清零接口的账户仍会建单，并停在处理中。</p>
-      ${order.clearBatchNote ? `<p class="batch-note">${esc(order.clearBatchNote)}</p>` : ''}
-      <div class="table-scroll"><table class="admin-table"><thead><tr><th>媒体</th><th>广告账户ID</th><th>名称</th><th>账户状态</th><th>余额</th><th>近2天消耗</th><th>一键清零</th></tr></thead><tbody>${accountRows}</tbody></table></div>
       <h3>未完成的广告账户充值 / 清零 / 减款</h3>
       <p class="muted">清零或减款还在处理中时，不能确认扣款。入账完成后钱回到钱包，参考可退金额跟着增加。广告账户充值不拦截确认扣款。</p>
       <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>广告账户ID</th><th>金额</th><th>状态</th><th>说明</th><th>操作</th></tr></thead><tbody>${taskRows}</tbody></table></div>
+      <h3>未完成的在线充值 / 线下转账</h3>
+      <p class="muted">这些入账还在处理中时，不能确认扣款。入账完成后参考可退金额跟着增加。</p>
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>金额</th><th>状态</th><th>操作</th></tr></thead><tbody>${inboundRows}</tbody></table></div>
+      <div class="section-head"><h3>广告账户</h3>${canClear ? '<button class="btn btn-primary" type="button" data-refund-act="batch-clear">一键清零</button>' : ''}</div>
+      <p class="muted">余额更新不及时时，不拦截交给财务。一键清零只提交可清账户，不改变退款单状态。近2天有消耗、余额为 0、已有处理中任务、绑卡户会跳过。没有清零接口的账户仍会建单，并停在处理中。余额清掉后，地区税费里的余额税费和可释放会跟着变。</p>
+      ${order.clearBatchNote ? `<p class="batch-note">${esc(order.clearBatchNote)}</p>` : ''}
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>媒体</th><th>广告账户ID</th><th>名称</th><th>账户状态</th><th>余额</th><th>近2天消耗</th><th>一键清零</th></tr></thead><tbody>${accountRows}</tbody></table></div>
       <h3>地区税费</h3>
-      <p class="muted">按地区税费总览展示这个客户的预收池。预收池余额、近7天预估税费、余额税费、可释放都为 0 时，池子情况为已清空。这里只展示，不拦截交给财务，也不拦截确认扣款。</p>
+      <p class="muted">按地区税费总览展示这个客户的预收池。余额税费跟着广告账户余额变化，余额还在时会压住可释放。预收池余额、近7天预估税费、余额税费、可释放都为 0 时，池子情况为已清空。这里只展示，不拦截交给财务，也不拦截确认扣款。</p>
       <div class="table-scroll"><table class="admin-table"><thead><tr><th>币种</th><th>预收池余额</th><th>近7天预估税费</th><th>余额税费</th><th>可释放</th><th>对比状态</th><th>池子情况</th></tr></thead><tbody>${poolRows}</tbody></table></div>
       <h3>未完成的地区税费任务</h3>
       <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>金额</th><th>状态</th></tr></thead><tbody>${taxRows}</tbody></table></div>
-      <h3>未完成的在线充值 / 线下转账</h3>
-      <div class="table-scroll"><table class="admin-table"><thead><tr><th>单号</th><th>类型</th><th>金额</th><th>状态</th><th>操作</th></tr></thead><tbody>${inboundRows}</tbody></table></div>
       <div id="refundActionBox"></div>
     `;
   }
